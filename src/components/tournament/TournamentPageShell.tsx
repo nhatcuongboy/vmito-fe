@@ -92,6 +92,15 @@ const CATEGORY_ACCENT_BG: Record<CategoryType, string> = {
   [CategoryType.CUSTOM]: 'purple.50',
 };
 
+const CATEGORY_ACCENT_BG_DARK: Record<CategoryType, string> = {
+  [CategoryType.MENS_SINGLE]: 'blue.900',
+  [CategoryType.WOMENS_SINGLE]: 'pink.900',
+  [CategoryType.MENS_DOUBLE]: 'yellow.900',
+  [CategoryType.WOMENS_DOUBLE]: 'orange.900',
+  [CategoryType.MIXED_DOUBLE]: 'cyan.900',
+  [CategoryType.CUSTOM]: 'purple.900',
+};
+
 type TeamListItem = ITeamCategoryBlock['players'][number];
 
 export type TournamentSegment =
@@ -158,6 +167,7 @@ function TeamCategoryCard({
         px={{ base: 4, md: 5 }}
         py={4}
         bg={CATEGORY_ACCENT_BG[categoryBlock.type]}
+        _dark={{ bg: CATEGORY_ACCENT_BG_DARK[categoryBlock.type] }}
       >
         <Heading size="md" lineClamp={1} minW={0} flex="1">
           {categoryBlock.title}

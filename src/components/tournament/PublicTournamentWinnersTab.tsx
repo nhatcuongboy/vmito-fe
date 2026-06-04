@@ -121,9 +121,6 @@ export default function PublicTournamentWinnersTab({
       ),
     [categories, matches, standingsByCategory]
   );
-  const allCategoriesDecided =
-    allPodiums.length > 0 &&
-    allPodiums.every((podium) => podium.state === 'decided');
   const podiums = useMemo(() => {
     if (selectedCategoryId === ALL_CATEGORIES_VALUE) return allPodiums;
     return allPodiums.filter(
@@ -206,7 +203,6 @@ export default function PublicTournamentWinnersTab({
               key={podium.category.id}
               podium={podium}
               t={t}
-              canShowResults={allCategoriesDecided}
             />
           ))}
         </VStack>
@@ -218,14 +214,16 @@ export default function PublicTournamentWinnersTab({
 function CategoryPodiumCard({
   podium,
   t,
-  canShowResults,
 }: {
   podium: CategoryPodium<Category>;
   t: ReturnType<typeof useTranslations>;
-  canShowResults: boolean;
 }) {
   const { category, state, entries } = podium;
-  const shouldShowResults = canShowResults && entries.length > 0;
+  // Reveal each category's podium as soon as it has a result, independent of
+  // the other categories: decided (champion confirmed) or provisional (the
+  // round-robin leader while it is still running).
+  const shouldShowResults =
+    entries.length > 0 && (state === 'decided' || state === 'provisional');
 
   return (
     <Box
@@ -244,16 +242,19 @@ function CategoryPodiumCard({
         <Heading size="md" color="gray.800" _dark={{ color: 'gray.100' }}>
           {getCategoryLabel(category)}
         </Heading>
-        {shouldShowResults && state === 'decided' && (
-          <Badge colorPalette="green" borderRadius="full">
-            {t('final')}
+        {shouldShowResults && (
+          <Badge
+            colorPalette={state === 'decided' ? 'green' : 'yellow'}
+            borderRadius="full"
+          >
+            {state === 'decided' ? t('final') : t('provisional')}
           </Badge>
         )}
       </Flex>
 
       {!shouldShowResults ? (
         <Text color="gray.500" fontSize="sm" _dark={{ color: 'gray.400' }}>
-          {t('empty')}
+          {state === 'in_progress' ? t('inProgress') : t('empty')}
         </Text>
       ) : (
         <VStack align="stretch" gap={3}>

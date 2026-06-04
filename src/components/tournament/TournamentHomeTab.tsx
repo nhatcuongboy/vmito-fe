@@ -28,6 +28,7 @@ import {
   Share2,
   MonitorPlay,
   Gavel,
+  NotebookText,
   Sparkles,
 } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
@@ -117,6 +118,7 @@ export default function TournamentHomeTab({
 
   const venue = tournament.venue;
   const host = tournament.host;
+  const tournamentNote = tournament.description?.trim() ?? '';
   const coverImage =
     tournament.coverPhoto || venue?.coverPhoto || venue?.images?.[0] || '';
   const displayVenues = useMemo<IHomeVenueItem[]>(() => {
@@ -441,6 +443,61 @@ export default function TournamentHomeTab({
           )}
         </Grid>
       </Box>
+
+      {(tournamentNote || isHost) && (
+        <Box
+          borderWidth="1px"
+          borderColor="gray.200"
+          borderRadius="xl"
+          p={4}
+          bg="white"
+          _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
+        >
+          <Flex justify="space-between" align="center" mb={3}>
+            <HStack gap={2}>
+              <Box color="green.600" _dark={{ color: 'green.300' }}>
+                <NotebookText size={18} />
+              </Box>
+              <Text fontWeight="semibold" fontSize="lg">
+                {t('notes.title')}
+              </Text>
+            </HStack>
+            {isHost && (
+              <Box
+                as="button"
+                aria-label={t('notes.edit')}
+                w="32px"
+                h="32px"
+                display="flex"
+                borderRadius="md"
+                alignItems="center"
+                justifyContent="center"
+                cursor="pointer"
+                _hover={{ bg: 'gray.100', _dark: { bg: 'gray.700' } }}
+                onClick={() => handleManageOption('name')}
+              >
+                <Pencil size={16} color="var(--chakra-colors-gray-500)" />
+              </Box>
+            )}
+          </Flex>
+
+          {tournamentNote ? (
+            <Text
+              fontSize="sm"
+              lineHeight="1.7"
+              whiteSpace="pre-wrap"
+              color="gray.700"
+              _dark={{ color: 'gray.200' }}
+            >
+              {tournamentNote}
+            </Text>
+          ) : (
+            <Text fontSize="sm" color="gray.500" _dark={{ color: 'gray.400' }}>
+              {t('notes.empty')}
+            </Text>
+          )}
+        </Box>
+      )}
 
       {/* Categories section */}
       <Box

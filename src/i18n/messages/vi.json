@@ -1625,6 +1625,11 @@
             "manage": "Quản lý hạng mục",
             "empty": "Chưa có hạng mục nào."
           },
+          "notes": {
+            "title": "Ghi chú",
+            "edit": "Chỉnh sửa ghi chú",
+            "empty": "Chưa có ghi chú cho giải đấu."
+          },
           "venues": {
             "title": "Địa điểm",
             "manage": "Quản lý địa điểm",
@@ -2781,13 +2786,15 @@
               "description": "Thay đổi tên giải đấu của bạn",
               "nameLabel": "Tên giải đấu",
               "namePlaceholder": "Nhập tên giải đấu",
+              "notesLabel": "Ghi chú trang chủ",
+              "notesPlaceholder": "Nhập ghi chú, thể lệ bổ sung hoặc thông tin cần người tham gia chú ý...",
               "save": "Lưu",
               "cancel": "Hủy",
-              "success": "Cập nhật tên giải đấu thành công",
+              "success": "Cập nhật thông tin giải đấu thành công",
               "errors": {
                 "nameRequired": "Tên giải đấu là bắt buộc",
                 "noChanges": "Không có thay đổi để lưu",
-                "updateFailed": "Cập nhật tên giải đấu thất bại"
+                "updateFailed": "Cập nhật thông tin giải đấu thất bại"
               }
             },
             "dates": {

@@ -725,6 +725,7 @@ export interface Tournament {
   id: string;
   slug: string;
   name: string;
+  description?: string | null;
   startDate: Date;
   endDate: Date;
   hostId: string;

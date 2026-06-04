@@ -1595,6 +1595,11 @@
             "manage": "管理类别",
             "empty": "暂无类别。"
           },
+          "notes": {
+            "title": "备注",
+            "edit": "编辑备注",
+            "empty": "暂无赛事备注。"
+          },
           "venues": {
             "title": "场地",
             "manage": "管理场地",
@@ -2751,13 +2756,15 @@
               "description": "更改锦标赛名称",
               "nameLabel": "锦标赛名称",
               "namePlaceholder": "输入锦标赛名称",
+              "notesLabel": "首页备注",
+              "notesPlaceholder": "输入备注、补充规则或参赛者需要注意的信息...",
               "save": "保存",
               "cancel": "取消",
-              "success": "锦标赛名称更新成功",
+              "success": "锦标赛信息更新成功",
               "errors": {
                 "nameRequired": "锦标赛名称为必填项",
                 "noChanges": "没有更改需要保存",
-                "updateFailed": "更新锦标赛名称失败"
+                "updateFailed": "更新锦标赛信息失败"
               }
             },
             "dates": {

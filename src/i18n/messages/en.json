@@ -1617,6 +1617,11 @@
             "manage": "Manage categories",
             "empty": "No categories yet."
           },
+          "notes": {
+            "title": "Notes",
+            "edit": "Edit notes",
+            "empty": "No tournament notes yet."
+          },
           "venues": {
             "title": "Venues",
             "manage": "Manage venues",
@@ -2773,13 +2778,15 @@
               "description": "Change the name of your tournament",
               "nameLabel": "Tournament Name",
               "namePlaceholder": "Enter tournament name",
+              "notesLabel": "Home page notes",
+              "notesPlaceholder": "Enter notes, extra rules, or important information for participants...",
               "save": "Save",
               "cancel": "Cancel",
-              "success": "Tournament name updated successfully",
+              "success": "Tournament information updated successfully",
               "errors": {
                 "nameRequired": "Tournament name is required",
                 "noChanges": "No changes to save",
-                "updateFailed": "Failed to update tournament name"
+                "updateFailed": "Failed to update tournament information"
               }
             },
             "dates": {
