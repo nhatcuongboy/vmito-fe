@@ -42,7 +42,10 @@ import {
   TournamentPlayer,
   UserRole,
 } from '@/lib/api/types';
-import { getTeamLabel } from '@/lib/tournament/teamLabel';
+import {
+  getTeamLabel,
+  areMatchParticipantsResolved,
+} from '@/lib/tournament/teamLabel';
 import { getRoundDisplayLabel } from '@/lib/tournament/roundLabel';
 import { formatCourtLabel } from '@/components/tournament/manage/panels/ResultsPanel';
 import ScoreEntryBoard from './ScoreEntryBoard';
@@ -184,6 +187,9 @@ export default function RefereeScoringPage() {
     match.startTime ?? match.estimatedEndTime
   );
   const matchSides = getMatchSides(match);
+  const participantsResolved = areMatchParticipantsResolved(match);
+  const isTerminalMatch =
+    match.status === 'FINISHED' || match.status === 'CANCELLED';
 
   return (
     <TournamentRefereeDesktopLayout
@@ -323,36 +329,48 @@ export default function RefereeScoringPage() {
 
         <Flex
           flex="1"
-          align="center"
+          align={isTerminalMatch ? 'flex-start' : 'center'}
           justify="center"
-          px={{ base: 1.5, md: 3 }}
-          py={{ base: 2, md: 3 }}
-          minH={{ base: 'calc(100dvh - 70px)', md: 'calc(100dvh - 88px)' }}
+          px={{ base: 2, md: 3 }}
+          py={isTerminalMatch ? { base: 4, md: 8 } : { base: 2, md: 3 }}
+          minH={
+            isTerminalMatch
+              ? 'auto'
+              : { base: 'calc(100dvh - 70px)', md: 'calc(100dvh - 88px)' }
+          }
         >
           <Box
             w="full"
-            maxW="1840px"
+            maxW={isTerminalMatch ? '760px' : '1840px'}
             mx="auto"
-            borderRadius={{ base: '2xl', md: '3xl' }}
+            borderRadius={isTerminalMatch ? 'none' : { base: '2xl', md: '3xl' }}
             bg={
-              match.status === 'IN_PROGRESS'
-                ? 'rgba(255,255,255,0.82)'
-                : 'white'
+              isTerminalMatch
+                ? 'transparent'
+                : match.status === 'IN_PROGRESS'
+                  ? 'rgba(255,255,255,0.82)'
+                  : 'white'
             }
-            boxShadow="0 18px 54px rgba(15, 23, 42, 0.08)"
+            boxShadow={
+              isTerminalMatch ? 'none' : '0 18px 54px rgba(15, 23, 42, 0.08)'
+            }
             overflow="hidden"
-            _dark={{ bg: 'gray.800' }}
+            _dark={{ bg: isTerminalMatch ? 'transparent' : 'gray.800' }}
           >
             <Box
               px={
-                match.status === 'IN_PROGRESS'
-                  ? { base: 1, md: 2 }
-                  : { base: 3, md: 5 }
+                isTerminalMatch
+                  ? 0
+                  : match.status === 'IN_PROGRESS'
+                    ? { base: 1, md: 2 }
+                    : { base: 3, md: 5 }
               }
               py={
-                match.status === 'IN_PROGRESS'
-                  ? { base: 1, md: 2 }
-                  : { base: 3, md: 4 }
+                isTerminalMatch
+                  ? 0
+                  : match.status === 'IN_PROGRESS'
+                    ? { base: 1, md: 2 }
+                    : { base: 3, md: 4 }
               }
             >
               <VModal
@@ -421,10 +439,14 @@ export default function RefereeScoringPage() {
                       </Box>
                       <Box flex="1">
                         <Text fontWeight="semibold" mb={1}>
-                          {t('matchPrepTitle')}
+                          {participantsResolved
+                            ? t('matchPrepTitle')
+                            : t('awaitingFeedersTitle')}
                         </Text>
                         <Text color="gray.600" _dark={{ color: 'gray.300' }}>
-                          {t('matchPrepDescription')}
+                          {participantsResolved
+                            ? t('matchPrepDescription')
+                            : t('awaitingFeedersDescription')}
                         </Text>
                       </Box>
                     </HStack>
@@ -455,6 +477,7 @@ export default function RefereeScoringPage() {
                         size="lg"
                         onClick={() => setForfeitOpen(true)}
                         borderRadius="xl"
+                        disabled={!participantsResolved}
                       >
                         <Flag size={18} /> {t('forfeit')}
                       </Button>
@@ -463,6 +486,12 @@ export default function RefereeScoringPage() {
                         size="lg"
                         onClick={() => void handleStart()}
                         loading={starting}
+                        disabled={!participantsResolved}
+                        title={
+                          participantsResolved
+                            ? undefined
+                            : t('awaitingFeedersDescription')
+                        }
                         borderRadius="xl"
                         boxShadow="0 10px 24px rgba(22, 163, 74, 0.24)"
                         flex={{ base: '1', sm: 'unset' }}
@@ -485,39 +514,19 @@ export default function RefereeScoringPage() {
                 </Box>
               )}
 
-              {(match.status === 'FINISHED' ||
-                match.status === 'CANCELLED') && (
-                <Flex
-                  direction="column"
-                  align="center"
-                  justify="center"
-                  gap={4}
-                  py={10}
-                >
-                  <Box
-                    bg="yellow.100"
-                    color="yellow.700"
-                    borderRadius="full"
-                    p={4}
-                    _dark={{ bg: 'yellow.900', color: 'yellow.200' }}
-                  >
-                    <Trophy size={44} />
-                  </Box>
-                  <Heading size="md">{t('finalResult')}</Heading>
-                  <Text fontSize="2xl" fontWeight="bold">
-                    {match.score || '—'}
-                  </Text>
-                  <Flex gap={2} wrap="wrap" justify="center">
-                    {(match.sets ?? []).map((s, i) => (
-                      <Badge key={i} colorPalette="gray" fontSize="sm">
-                        {s.player1Score}-{s.player2Score}
-                      </Badge>
-                    ))}
-                  </Flex>
-                  <Button variant="outline" onClick={goBack}>
-                    {t('back')}
-                  </Button>
-                </Flex>
+              {isTerminalMatch && (
+                <FinalResultSummary
+                  sides={matchSides}
+                  score={match.score}
+                  sets={match.sets ?? []}
+                  statusLabel={t(`status.${match.status}`)}
+                  status={match.status}
+                  title={t('finalResult')}
+                  backLabel={t('back')}
+                  courtLabel={courtLabel}
+                  scheduledTime={scheduledTime}
+                  onBack={goBack}
+                />
               )}
 
               <ForfeitMatchModal
@@ -534,6 +543,182 @@ export default function RefereeScoringPage() {
         </Flex>
       </Box>
     </TournamentRefereeDesktopLayout>
+  );
+}
+
+function FinalResultSummary({
+  sides,
+  score,
+  sets,
+  statusLabel,
+  status,
+  title,
+  backLabel,
+  courtLabel,
+  scheduledTime,
+  onBack,
+}: {
+  sides: MatchSideInfo[];
+  score?: string;
+  sets: NonNullable<CategoryMatch['sets']>;
+  statusLabel: string;
+  status: CategoryMatch['status'];
+  title: string;
+  backLabel: string;
+  courtLabel: string;
+  scheduledTime: string;
+  onBack: () => void;
+}) {
+  const [side1, side2] = sides;
+  const isCancelled = status === 'CANCELLED';
+
+  return (
+    <Box
+      borderWidth="1px"
+      borderColor="white"
+      borderRadius={{ base: '2xl', md: '3xl' }}
+      bg="white"
+      boxShadow="0 18px 48px rgba(15, 23, 42, 0.10)"
+      overflow="hidden"
+      _dark={{ bg: 'gray.800', borderColor: 'whiteAlpha.200' }}
+    >
+      <Box
+        px={{ base: 4, md: 6 }}
+        py={{ base: 4, md: 5 }}
+        bg={isCancelled ? 'gray.50' : 'green.50'}
+        borderBottomWidth="1px"
+        borderBottomColor={isCancelled ? 'gray.100' : 'green.100'}
+        _dark={{
+          bg: isCancelled ? 'whiteAlpha.50' : 'green.950',
+          borderBottomColor: 'whiteAlpha.200',
+        }}
+      >
+        <HStack justify="space-between" gap={3} align="start">
+          <HStack gap={3} minW={0}>
+            <Box
+              bg={isCancelled ? 'gray.100' : 'yellow.100'}
+              color={isCancelled ? 'gray.700' : 'yellow.700'}
+              borderRadius="full"
+              p={{ base: 2.5, md: 3 }}
+              flexShrink={0}
+              _dark={{
+                bg: isCancelled ? 'whiteAlpha.100' : 'yellow.900',
+                color: isCancelled ? 'gray.200' : 'yellow.200',
+              }}
+            >
+              <Trophy size={28} />
+            </Box>
+            <Box minW={0}>
+              <Heading size={{ base: 'sm', md: 'md' }}>{title}</Heading>
+              <Text
+                mt={1}
+                color="gray.600"
+                fontSize={{ base: 'sm', md: 'md' }}
+                _dark={{ color: 'gray.300' }}
+              >
+                {courtLabel} · {scheduledTime}
+              </Text>
+            </Box>
+          </HStack>
+          <Badge
+            colorPalette={isCancelled ? 'gray' : 'green'}
+            borderRadius="full"
+            px={2.5}
+            flexShrink={0}
+          >
+            {statusLabel}
+          </Badge>
+        </HStack>
+      </Box>
+
+      <VStack align="stretch" gap={5} px={{ base: 4, md: 6 }} py={6}>
+        <SimpleGrid columns={3} gap={{ base: 2, md: 4 }} alignItems="center">
+          <FinalResultSide side={side1} align="right" />
+
+          <VStack gap={2} minW={0}>
+            <Text
+              fontSize={{ base: '3xl', md: '5xl' }}
+              lineHeight={1}
+              fontWeight="black"
+              textAlign="center"
+              wordBreak="break-word"
+            >
+              {score || '—'}
+            </Text>
+            {sets.length > 0 && (
+              <Flex gap={1.5} wrap="wrap" justify="center">
+                {sets.map((set) => (
+                  <Badge
+                    key={set.setNumber}
+                    colorPalette="gray"
+                    fontSize={{ base: 'xs', md: 'sm' }}
+                    borderRadius="md"
+                    px={2}
+                    py={0.5}
+                  >
+                    {set.player1Score}-{set.player2Score}
+                  </Badge>
+                ))}
+              </Flex>
+            )}
+          </VStack>
+
+          <FinalResultSide side={side2} align="left" />
+        </SimpleGrid>
+
+        <Button
+          alignSelf="center"
+          variant="outline"
+          colorPalette="green"
+          onClick={onBack}
+          borderRadius="lg"
+          minW="128px"
+        >
+          {backLabel}
+        </Button>
+      </VStack>
+    </Box>
+  );
+}
+
+function FinalResultSide({
+  side,
+  align,
+}: {
+  side?: MatchSideInfo;
+  align: 'left' | 'right';
+}) {
+  const textAlign = align === 'right' ? 'right' : 'left';
+  const playerNames =
+    side?.players.length != null && side.players.length > 0
+      ? side.players.map((player) => player.name).join(' / ')
+      : side?.teamName;
+
+  return (
+    <Box minW={0}>
+      <Text
+        color="gray.500"
+        fontSize={{ base: 'xs', md: 'sm' }}
+        fontWeight="bold"
+        textAlign={textAlign}
+        whiteSpace="nowrap"
+        overflow="hidden"
+        textOverflow="ellipsis"
+        _dark={{ color: 'gray.400' }}
+      >
+        {side?.teamName ?? '—'}
+      </Text>
+      <Text
+        mt={1}
+        fontSize={{ base: 'md', md: 'xl' }}
+        lineHeight={1.2}
+        fontWeight="black"
+        textAlign={textAlign}
+        wordBreak="break-word"
+      >
+        {playerNames ?? '—'}
+      </Text>
+    </Box>
   );
 }
 

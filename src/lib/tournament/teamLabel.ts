@@ -4,6 +4,25 @@ import { CategoryMatch, CategoryRegistration } from '@/lib/api/types';
 const ELIMINATION_ROUND_ORDER = ['R128', 'R64', 'R32', 'R16', 'QF', 'SF', 'F'];
 
 /**
+ * Whether both sides of a match are known real participants.
+ *
+ * Group matches always carry both registrations from the start. Later-round
+ * elimination matches are empty shells until their feeding matches finish, so
+ * they may have 0 or 1 participant ("Winner of X" placeholders). Starting or
+ * scoring such a match is invalid — mirrors the backend guard in
+ * categories.service.ts (assertMatchParticipantsResolved).
+ */
+export function areMatchParticipantsResolved(match: CategoryMatch): boolean {
+  const isElimination =
+    match.round?.toUpperCase() !== 'GROUP' && !match.groupId;
+  if (!isElimination) return true;
+  const resolved = (match.participants ?? []).filter(
+    (p) => p.categoryRegistration ?? p.categoryRegistrationId
+  ).length;
+  return resolved >= 2;
+}
+
+/**
  * Resolve the display label for a single registration (a team/pair or an
  * individual player). Mirrors the resolution used by {@link getTeamLabel} so
  * dropdowns that pick a registration stay consistent with the match views.

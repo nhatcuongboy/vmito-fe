@@ -959,7 +959,7 @@ function StandingsTable({
 function getStandingTeamHref(tournament: Tournament, standing: GroupStanding) {
   const registrationId =
     standing.registration?.id || standing.categoryRegistrationId;
-  return `/t/${tournament.id}/team/${registrationId.slice(0, 8).toLowerCase()}`;
+  return `/t/${tournament.id}/team/${registrationId.toLowerCase()}`;
 }
 
 function StandingHeaderCell({

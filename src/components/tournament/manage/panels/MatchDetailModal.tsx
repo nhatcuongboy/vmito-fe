@@ -24,6 +24,7 @@ import {
 
 import { Category, CategoryMatch, MatchStatus } from '@/lib/api/types';
 import { resolveMatchSideLabel } from '@/lib/tournament/bracketSlots';
+import { areMatchParticipantsResolved } from '@/lib/tournament/teamLabel';
 import { usePlayoffSlotLabels } from '@/lib/tournament/usePlayoffSlotLabels';
 import { getMatchDisplayCode } from '@/lib/tournament/codes';
 import { formatTimeByDevicePreference } from '@/utils/time-helpers';
@@ -95,6 +96,7 @@ export default function MatchDetailModal({
   };
   const team1 = resolveMatchSideLabel(match, 1, labelCtx);
   const team2 = resolveMatchSideLabel(match, 2, labelCtx);
+  const participantsResolved = areMatchParticipantsResolved(match);
   const score1 = totalScore(match, 1);
   const score2 = totalScore(match, 2);
   const win1 = isWinner(match, 1);
@@ -175,6 +177,12 @@ export default function MatchDetailModal({
             variant="outline"
             colorPalette="gray"
             onClick={() => onEditResult(match)}
+            disabled={!participantsResolved}
+            title={
+              participantsResolved
+                ? undefined
+                : t('matchDetail.awaitingFeeders')
+            }
           >
             <SquarePen size={16} /> {t('matchDetail.editResult')}
           </Button>

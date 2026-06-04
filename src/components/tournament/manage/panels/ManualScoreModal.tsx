@@ -19,7 +19,10 @@ import {
   EndCategoryMatchRequest,
   MatchSet,
 } from '@/lib/api/types';
-import { getTeamLabel } from '@/lib/tournament/teamLabel';
+import {
+  getTeamLabel,
+  areMatchParticipantsResolved,
+} from '@/lib/tournament/teamLabel';
 import { getRoundDisplayLabel } from '@/lib/tournament/roundLabel';
 import MatchFormatBadges from '@/components/tournament/MatchFormatBadges';
 import {
@@ -134,6 +137,7 @@ export default function ManualScoreModal({
   const team1 = getTeamLabel(match, 1);
   const team2 = getTeamLabel(match, 2);
   const roundLabel = getRoundDisplayLabel(match.round, tRounds);
+  const participantsResolved = areMatchParticipantsResolved(match);
 
   const matchSets: MatchSet[] = sets.map((s, i) => ({
     setNumber: i + 1,
@@ -149,11 +153,12 @@ export default function ManualScoreModal({
     manual1Num > manual2Num ? 1 : manual2Num > manual1Num ? 2 : null;
 
   const canSave =
-    mode === 'score'
+    participantsResolved &&
+    (mode === 'score'
       ? complete && !!winnerSide
       : mode === 'forfeit'
         ? forfeitWinner !== null
-        : true; // manual: 0-0 is a valid draw
+        : true); // manual: 0-0 is a valid draw
 
   const updateScore = (index: number, side: 1 | 2, raw: string) => {
     // Allow empty string so the input doesn't auto-fill 0.
@@ -262,6 +267,25 @@ export default function ManualScoreModal({
       </ModalHeader>
       <ModalCloseButton onClose={onClose} />
       <ModalBody p={{ base: 4, md: 5 }}>
+        {!participantsResolved && (
+          <Box
+            mb={4}
+            px={4}
+            py={3}
+            borderRadius="lg"
+            bg="orange.50"
+            color="orange.800"
+            borderWidth="1px"
+            borderColor="orange.200"
+            _dark={{
+              bg: 'orange.900',
+              color: 'orange.100',
+              borderColor: 'orange.700',
+            }}
+          >
+            <Text fontSize="sm">{t('matchDetail.awaitingFeeders')}</Text>
+          </Box>
+        )}
         <Flex justify="space-between" align="flex-start" mb={4} gap={3}>
           <TeamHeading label={team1} align="left" />
           <Text
