@@ -2135,7 +2135,8 @@
                   "importSuccess": "已通过 AI 导入 {count} 场比赛",
                   "importFailed": "保存赛程失败",
                   "cancel": "取消"
-                }
+                },
+                "referee": "裁判"
               },
               "generate": {
                 "title": "生成赛程",
@@ -3387,8 +3388,11 @@
           "tabStats": "统计",
           "editResult": "修改成绩",
           "matchOptions": "比赛选项",
-          "bySet": "各局"
-        }
+          "bySet": "各局",
+          "schedule": "安排赛程"
+        },
+        "scheduleUpdated": "赛程已更新",
+        "scheduleUpdateFailed": "更新赛程失败"
       },
       "teamPage": {
         "title": "队伍详情",

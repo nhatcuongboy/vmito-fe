@@ -12,6 +12,7 @@ import {
 } from '@/components/ui/ChakraModal';
 import { useTranslations } from 'next-intl';
 import {
+  CalendarClock,
   CalendarDays,
   MapPin,
   MoreVertical,
@@ -43,6 +44,8 @@ interface Props {
   canEdit: boolean;
   onEditResult: (match: CategoryMatch) => void;
   onDeleteMatch: (match: CategoryMatch) => void;
+  /** Open the scheduling sheet (time, court, referee) for this match. */
+  onSchedule?: (match: CategoryMatch) => void;
 }
 
 type DetailTab = 'details' | 'stats';
@@ -59,6 +62,7 @@ export default function MatchDetailModal({
   canEdit,
   onEditResult,
   onDeleteMatch,
+  onSchedule,
 }: Props) {
   const t = useTranslations('pages.tournaments.manualScore');
   const slotLabels = usePlayoffSlotLabels();
@@ -177,6 +181,20 @@ export default function MatchDetailModal({
                 p={1}
                 zIndex={10}
               >
+                {onSchedule && (
+                  <Button
+                    w="full"
+                    variant="ghost"
+                    colorPalette="gray"
+                    justifyContent="flex-start"
+                    onClick={() => {
+                      setOptionsOpen(false);
+                      onSchedule(match);
+                    }}
+                  >
+                    <CalendarClock size={14} /> {t('matchDetail.schedule')}
+                  </Button>
+                )}
                 <Button
                   w="full"
                   variant="ghost"

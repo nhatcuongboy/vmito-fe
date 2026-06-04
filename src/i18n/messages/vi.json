@@ -2165,7 +2165,8 @@
                   "importSuccess": "Đã nhập {count} trận từ AI",
                   "importFailed": "Không thể lưu lịch thi đấu",
                   "cancel": "Hủy"
-                }
+                },
+                "referee": "Trọng tài"
               },
               "generate": {
                 "title": "Tạo lịch thi đấu",
@@ -3417,8 +3418,11 @@
           "tabStats": "Thống kê",
           "editResult": "Sửa kết quả",
           "matchOptions": "Tùy chọn",
-          "bySet": "Theo set"
-        }
+          "bySet": "Theo set",
+          "schedule": "Lên lịch"
+        },
+        "scheduleUpdated": "Đã cập nhật lịch thi đấu",
+        "scheduleUpdateFailed": "Không thể cập nhật lịch thi đấu"
       },
       "teamPage": {
         "title": "Chi tiết đội",

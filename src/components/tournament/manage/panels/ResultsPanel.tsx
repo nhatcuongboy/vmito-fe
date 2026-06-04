@@ -31,6 +31,7 @@ import {
   MatchStatus,
   Tournament,
   TournamentCourt,
+  TournamentUmpire,
 } from '@/lib/api/types';
 import { getMatchDisplayCode } from '@/lib/tournament/codes';
 import { getRoundDisplayLabel } from '@/lib/tournament/roundLabel';
@@ -42,6 +43,7 @@ import { toaster } from '@/components/ui/toaster';
 import ManualScoreModal from './ManualScoreModal';
 import MatchDetailModal from './MatchDetailModal';
 import DeleteMatchConfirmModal from './schedule/DeleteMatchConfirmModal';
+import EditMatchTimeSheet from './schedule/EditMatchTimeSheet';
 import { TournamentMatchListSkeleton } from '@/components/tournament/skeletons';
 
 interface Props {
@@ -116,9 +118,13 @@ export default function ResultsPanel({
 
   const [matches, setMatches] = useState<CategoryMatch[]>([]);
   const [courts, setCourts] = useState<TournamentCourt[]>([]);
+  const [umpires, setUmpires] = useState<TournamentUmpire[]>([]);
   const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState<CategoryMatch | null>(null);
   const [detailMatch, setDetailMatch] = useState<CategoryMatch | null>(null);
+  const [schedulingMatch, setSchedulingMatch] = useState<CategoryMatch | null>(
+    null
+  );
   const [editFromDetail, setEditFromDetail] = useState(false);
   const [viewMode, setViewMode] = useState<ViewMode>('list');
   const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -132,13 +138,17 @@ export default function ResultsPanel({
     tournament.venue?.acronym ?? tournament.venue?.name ?? undefined;
 
   const load = useCallback(async () => {
-    const [allMatches, allCourts] = await Promise.all([
+    const [allMatches, allCourts, allUmpires] = await Promise.all([
       TournamentService.getAllMatches(tournament.id),
       TournamentService.getCourts(tournament.id),
+      canEdit
+        ? TournamentService.getUmpires(tournament.id)
+        : Promise.resolve<TournamentUmpire[]>([]),
     ]);
     setMatches(allMatches);
     setCourts(allCourts);
-  }, [tournament.id]);
+    setUmpires(allUmpires);
+  }, [tournament.id, canEdit]);
 
   useEffect(() => {
     void load().finally(() => setLoading(false));
@@ -315,6 +325,74 @@ export default function ResultsPanel({
     }
   }, [deletingMatch, t]);
 
+  const handleScheduleUpdate = useCallback(
+    async (
+      matchId: string,
+      courtId: string | null,
+      startTime: string | null,
+      endTime: string | null,
+      matchCode: string,
+      refereeId: string | null
+    ) => {
+      const previous = matches.find((m) => m.id === matchId);
+      const referee = refereeId
+        ? (umpires.find((u) => u.id === refereeId) ?? null)
+        : null;
+
+      // Optimistically reflect the new schedule in the list/calendar.
+      setMatches((prev) =>
+        prev.map((m) =>
+          m.id === matchId
+            ? {
+                ...m,
+                courtId: courtId ?? undefined,
+                court: courtId
+                  ? (courtById.get(courtId) ?? m.court)
+                  : undefined,
+                startTime: startTime ? new Date(startTime) : undefined,
+                endTime: endTime ? new Date(endTime) : undefined,
+                estimatedEndTime: endTime ? new Date(endTime) : undefined,
+                matchCode,
+                refereeId: refereeId ?? undefined,
+                referee,
+              }
+            : m
+        )
+      );
+
+      try {
+        const tasks: Promise<unknown>[] = [
+          CategoryService.updateMatch(
+            matchId,
+            { matchCode },
+            { showToast: false }
+          ),
+          CategoryService.bulkUpdateSchedule([
+            { matchId, courtId, startTime, endTime },
+          ]),
+        ];
+        if (refereeId) {
+          tasks.push(
+            CategoryService.assignReferee(matchId, refereeId, {
+              showToast: false,
+            })
+          );
+        } else if (previous?.refereeId) {
+          tasks.push(
+            CategoryService.unassignReferee(matchId, { showToast: false })
+          );
+        }
+        await Promise.all(tasks);
+        toaster.success({ title: t('scheduleUpdated') });
+      } catch (error) {
+        console.error('Error updating match schedule:', error);
+        toaster.error({ title: t('scheduleUpdateFailed') });
+        void load();
+      }
+    },
+    [matches, umpires, courtById, t, load]
+  );
+
   const updateFilterList = (key: ListFilterKey, value: string) => {
     setFilters((prev) => {
       const current = prev[key] as string[];
@@ -486,7 +564,26 @@ export default function ResultsPanel({
           setDetailMatch(null);
           setDeletingMatch(m);
         }}
+        onSchedule={
+          canEdit
+            ? (m) => {
+                setDetailMatch(null);
+                setSchedulingMatch(m);
+              }
+            : undefined
+        }
       />
+
+      {canEdit && (
+        <EditMatchTimeSheet
+          isOpen={!!schedulingMatch}
+          onClose={() => setSchedulingMatch(null)}
+          match={schedulingMatch}
+          courts={courts}
+          umpires={umpires}
+          onUpdate={handleScheduleUpdate}
+        />
+      )}
 
       {canEdit && (
         <ManualScoreModal

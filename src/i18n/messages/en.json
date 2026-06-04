@@ -2157,7 +2157,8 @@
                   "importSuccess": "Imported {count} match(es) from AI",
                   "importFailed": "Failed to save schedule",
                   "cancel": "Cancel"
-                }
+                },
+                "referee": "Referee"
               },
               "generate": {
                 "title": "Generate schedule",
@@ -3409,8 +3410,11 @@
           "tabStats": "Stats",
           "editResult": "Edit result",
           "matchOptions": "Match options",
-          "bySet": "By set"
-        }
+          "bySet": "By set",
+          "schedule": "Schedule"
+        },
+        "scheduleUpdated": "Schedule updated",
+        "scheduleUpdateFailed": "Failed to update schedule"
       },
       "teamPage": {
         "title": "Team details",
