@@ -30,6 +30,7 @@ import {
   UserRound,
   Users,
   UsersRound,
+  Crown,
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
@@ -42,6 +43,7 @@ import {
   Category,
   CategoryMatch,
   CategoryRegistration,
+  CategoryStandingsResponse,
   MatchStatus,
   Tournament,
   TournamentPlayer,
@@ -50,6 +52,7 @@ import {
   getMatchDisplayCode,
   getTournamentPlayerDisplayCode,
 } from '@/lib/tournament/codes';
+import { computePodium, type PodiumEntry } from '@/lib/tournament/podium';
 import { getRoundDisplayLabel } from '@/lib/tournament/roundLabel';
 import { getTeamLabel } from '@/lib/tournament/teamLabel';
 
@@ -79,6 +82,13 @@ type PairSlide = {
   players: TournamentPlayer[];
 };
 
+type ChampionSlide = {
+  type: 'champion';
+  id: string;
+  categoryName: string;
+  entry: PodiumEntry;
+};
+
 type MatchSlide = {
   type: 'match';
   id: string;
@@ -89,7 +99,7 @@ type MatchSlide = {
   sides: [MatchSide, MatchSide];
 };
 
-type ShowcaseSlide = PlayerSlide | PairSlide | MatchSlide;
+type ShowcaseSlide = PlayerSlide | PairSlide | ChampionSlide | MatchSlide;
 
 const DURATION_OPTIONS: SlideDuration[] = [4, 6, 10];
 const MotionBox = motion.create(Box);
@@ -177,6 +187,14 @@ function getSide(match: CategoryMatch, position: number): MatchSide {
   };
 }
 
+function getCategoryName(
+  category: Category | undefined,
+  tCategory: ReturnType<typeof useTranslations>
+) {
+  if (!category) return '';
+  return category.name?.trim() || tCategory(category.type);
+}
+
 function getMatchTimeValue(match: CategoryMatch): number {
   if (!match.startTime) return Number.POSITIVE_INFINITY;
   const time = new Date(match.startTime).getTime();
@@ -227,6 +245,9 @@ export default function TournamentShowcasePage() {
   const [players, setPlayers] = useState<TournamentPlayer[]>([]);
   const [matches, setMatches] = useState<CategoryMatch[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
+  const [standingsByCategory, setStandingsByCategory] = useState<
+    Map<string, CategoryStandingsResponse>
+  >(new Map());
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
@@ -246,12 +267,23 @@ export default function TournamentShowcasePage() {
           TournamentService.getAllMatches(tour.id),
           CategoryService.getCategories(tour.id),
         ]);
+        const standingsList = await Promise.all(
+          categoryData.map(async (category) => ({
+            categoryId: category.id,
+            standings: await CategoryService.getAllStandings(category.id),
+          }))
+        );
 
         if (!active) return;
         setTournament(tour);
         setPlayers(playerData);
         setMatches(matchData);
         setCategories(categoryData);
+        setStandingsByCategory(
+          new Map(
+            standingsList.map((item) => [item.categoryId, item.standings])
+          )
+        );
       } catch (error) {
         console.error('Error loading tournament showcase:', error);
         if (active) setLoadError(true);
@@ -317,6 +349,26 @@ export default function TournamentShowcasePage() {
     return map;
   }, [categoryById, matches, tCategory]);
 
+  const championSlides = useMemo<ChampionSlide[]>(
+    () =>
+      categories
+        .map((category) =>
+          computePodium(
+            category,
+            matches,
+            standingsByCategory.get(category.id) ?? []
+          )
+        )
+        .filter((podium) => podium.state === 'decided' && podium.entries[0])
+        .map((podium) => ({
+          type: 'champion',
+          id: `champion-${podium.category.id}`,
+          categoryName: getCategoryName(podium.category, tCategory),
+          entry: podium.entries[0],
+        })),
+    [categories, matches, standingsByCategory, tCategory]
+  );
+
   const slides = useMemo<ShowcaseSlide[]>(() => {
     if (mode === 'matches') {
       const matchSlides = matches
@@ -328,9 +380,7 @@ export default function TournamentShowcasePage() {
             id: match.id,
             match,
             matchCode: getMatchDisplayCode(match),
-            categoryName:
-              category?.name?.trim() ||
-              (category ? tCategory(category.type) : ''),
+            categoryName: getCategoryName(category, tCategory),
             roundLabel: getRoundDisplayLabel(match.round, tRounds),
             sides: [getSide(match, 1), getSide(match, 2)],
           };
@@ -347,7 +397,10 @@ export default function TournamentShowcasePage() {
                 matchSlides.find((slide) => slide.match.id === match.id)
             );
 
-      return ordered.filter((slide): slide is MatchSlide => Boolean(slide));
+      return [
+        ...championSlides,
+        ...ordered.filter((slide): slide is MatchSlide => Boolean(slide)),
+      ];
     }
 
     if (mode === 'pairs') {
@@ -361,8 +414,7 @@ export default function TournamentShowcasePage() {
 
       for (const match of orderedMatches) {
         const category = categoryById.get(match.categoryId);
-        const categoryName =
-          category?.name?.trim() || (category ? tCategory(category.type) : '');
+        const categoryName = getCategoryName(category, tCategory);
 
         for (const participant of match.participants ?? []) {
           const registration = participant.categoryRegistration;
@@ -385,12 +437,15 @@ export default function TournamentShowcasePage() {
       }
 
       const pairSlides = Array.from(pairByRegistrationId.values());
-      return order === 'schedule'
-        ? pairSlides
-        : shuffleWithSeed(
-            pairSlides,
-            `${tournament?.id ?? tournamentParam}:pairs`
-          );
+      const orderedPairSlides =
+        order === 'schedule'
+          ? pairSlides
+          : shuffleWithSeed(
+              pairSlides,
+              `${tournament?.id ?? tournamentParam}:pairs`
+            );
+
+      return [...championSlides, ...orderedPairSlides];
     }
 
     const playerSlides = players.map<PlayerSlide>((player) => ({
@@ -404,14 +459,18 @@ export default function TournamentShowcasePage() {
       categories: Array.from(playerCategoryMap.get(player.id) ?? []),
     }));
 
-    return order === 'schedule'
-      ? playerSlides
-      : shuffleWithSeed(
-          playerSlides,
-          `${tournament?.id ?? tournamentParam}:players`
-        );
+    const orderedPlayerSlides =
+      order === 'schedule'
+        ? playerSlides
+        : shuffleWithSeed(
+            playerSlides,
+            `${tournament?.id ?? tournamentParam}:players`
+          );
+
+    return [...championSlides, ...orderedPlayerSlides];
   }, [
     categoryById,
+    championSlides,
     matches,
     mode,
     order,
@@ -615,6 +674,8 @@ export default function TournamentShowcasePage() {
                   />
                 ) : activeSlide.type === 'pair' ? (
                   <PairShowcase slide={activeSlide} />
+                ) : activeSlide.type === 'champion' ? (
+                  <ChampionShowcase slide={activeSlide} />
                 ) : (
                   <MatchShowcase slide={activeSlide} />
                 )}
@@ -879,6 +940,113 @@ function getCircularOffset(index: number, activeIndex: number, total: number) {
   if (raw > half) return raw - total;
   if (raw < -half) return raw + total;
   return raw;
+}
+
+function ChampionShowcase({ slide }: { slide: ChampionSlide }) {
+  const t = useTranslations('pages.tournaments.showcase');
+
+  return (
+    <Flex
+      h="full"
+      minH={{ base: '560px', md: '620px' }}
+      direction="column"
+      align="center"
+      justify="center"
+      textAlign="center"
+      gap={{ base: 5, md: 7 }}
+      px={{ base: 2, md: 8 }}
+    >
+      <Flex
+        position="relative"
+        flex="1"
+        minH={{ base: '360px', md: '430px', xl: '520px' }}
+        maxH={{ base: '48dvh', md: '58dvh' }}
+        w="full"
+        align="center"
+        justify="center"
+      >
+        <Box
+          position="absolute"
+          inset="8%"
+          bg="radial-gradient(circle, rgba(250,204,21,0.34), rgba(34,211,238,0.18) 42%, transparent 70%)"
+          filter="blur(32px)"
+          opacity={0.92}
+        />
+        <Flex
+          position="relative"
+          align="center"
+          justify="center"
+          direction="column"
+          w={{ base: '230px', md: '340px', xl: '420px' }}
+          h={{ base: '230px', md: '340px', xl: '420px' }}
+          borderRadius="full"
+          bg="linear-gradient(135deg, rgba(250,204,21,0.96), rgba(34,211,238,0.9))"
+          borderWidth="1px"
+          borderColor="whiteAlpha.600"
+          boxShadow="0 44px 130px rgba(0,0,0,0.62)"
+          color="gray.950"
+        >
+          <Crown size={120} strokeWidth={1.35} />
+          <Text
+            mt={4}
+            fontSize={{ base: 'lg', md: '2xl' }}
+            fontWeight="black"
+            textTransform="uppercase"
+          >
+            {t('champion')}
+          </Text>
+        </Flex>
+      </Flex>
+
+      <Flex direction="column" align="center" gap={{ base: 3, md: 4 }} minW={0}>
+        <Flex gap={3} wrap="wrap" justify="center">
+          <Badge
+            colorPalette="yellow"
+            px={4}
+            py={2}
+            fontSize={{ base: 'sm', md: 'md' }}
+          >
+            {t('championTitle')}
+          </Badge>
+          {slide.categoryName && (
+            <Badge
+              colorPalette="cyan"
+              px={4}
+              py={2}
+              fontSize={{ base: 'sm', md: 'md' }}
+            >
+              {slide.categoryName}
+            </Badge>
+          )}
+        </Flex>
+        <Heading
+          as="h2"
+          fontSize={{ base: '3xl', md: '5xl', xl: '6xl' }}
+          lineHeight={1}
+          color="white"
+          maxW="18ch"
+        >
+          {slide.entry.label}
+        </Heading>
+        <Text
+          fontSize={{ base: 'md', md: 'xl' }}
+          color="whiteAlpha.800"
+          maxW="48rem"
+        >
+          {slide.entry.playerNames || t('championSubtitle')}
+        </Text>
+        {slide.entry.detail && (
+          <Text
+            color="yellow.200"
+            fontSize={{ base: 'sm', md: 'lg' }}
+            fontWeight="bold"
+          >
+            {slide.entry.detail}
+          </Text>
+        )}
+      </Flex>
+    </Flex>
+  );
 }
 
 function PlayerShowcase({
