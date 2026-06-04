@@ -1615,7 +1615,8 @@
             "title": "Tổng quan",
             "teamsParticipating": "{count} đội tham gia",
             "viewSchedule": "Lịch đấu",
-            "viewStandings": "Xếp hạng"
+            "viewStandings": "Xếp hạng",
+            "viewShowcase": "Showcase"
           },
           "categories": {
             "title": "Hạng mục",

@@ -1585,7 +1585,8 @@
             "title": "概览",
             "teamsParticipating": "{count} 支队伍参赛",
             "viewSchedule": "查看赛程",
-            "viewStandings": "查看排名"
+            "viewStandings": "查看排名",
+            "viewShowcase": "展示"
           },
           "categories": {
             "title": "类别",

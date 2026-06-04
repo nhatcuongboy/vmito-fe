@@ -28,6 +28,7 @@ import {
   Share2,
   MonitorPlay,
   Gavel,
+  Sparkles,
 } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
 import {
@@ -172,6 +173,10 @@ export default function TournamentHomeTab({
     router.push(`/tournament/${slug}/scoreboard`);
   };
 
+  const handleViewShowcase = () => {
+    router.push(`/tournament/${slug}/showcase`);
+  };
+
   const handleRefereeArea = () => {
     router.push(`/tournament/${slug}/referee`);
   };
@@ -292,7 +297,10 @@ export default function TournamentHomeTab({
         </Flex>
 
         <Grid
-          templateColumns={{ base: 'repeat(2, 1fr)', md: 'repeat(4, 1fr)' }}
+          templateColumns={{
+            base: 'repeat(2, minmax(0, 1fr))',
+            md: 'repeat(auto-fit, minmax(140px, 1fr))',
+          }}
           gap={3}
         >
           <Box
@@ -349,6 +357,25 @@ export default function TournamentHomeTab({
               </Box>
               <Text fontSize="sm" fontWeight="medium" lineHeight="1.3">
                 {tBoard('liveScoreboard')}
+              </Text>
+            </Flex>
+          </Box>
+          <Box
+            borderWidth="1px"
+            borderColor="gray.200"
+            borderRadius="lg"
+            p={3}
+            cursor="pointer"
+            _hover={{ bg: 'gray.50' }}
+            onClick={handleViewShowcase}
+            minH="72px"
+          >
+            <Flex align="center" gap={2} h="full">
+              <Box color="gray.500" flexShrink={0}>
+                <Sparkles size={16} />
+              </Box>
+              <Text fontSize="sm" fontWeight="medium" lineHeight="1.3">
+                {t('overview.viewShowcase')}
               </Text>
             </Flex>
           </Box>

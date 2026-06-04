@@ -1607,7 +1607,8 @@
             "title": "Overview",
             "teamsParticipating": "{count} teams participating",
             "viewSchedule": "View Schedule",
-            "viewStandings": "View Standings"
+            "viewStandings": "View Standings",
+            "viewShowcase": "Showcase"
           },
           "categories": {
             "title": "Categories",
