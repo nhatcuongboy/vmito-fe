@@ -113,6 +113,12 @@ const getMatchName = (match: CategoryMatch, position: 1 | 2): string => {
   return '?';
 };
 
+const naturalTeamSort = (a: IPreviewTeam, b: IPreviewTeam): number =>
+  a.name.localeCompare(b.name, undefined, {
+    numeric: true,
+    sensitivity: 'base',
+  });
+
 const distributeIntoGroups = (
   teams: IPreviewTeam[],
   groupCount: number,
@@ -122,9 +128,18 @@ const distributeIntoGroups = (
     name: `${poolLabelText} ${POOL_LABELS[i] ?? String(i + 1)}`,
     teams: [],
   }));
-  teams.forEach((team, idx) => {
-    pools[idx % groupCount].teams.push(team);
+
+  const orderedTeams = [...teams].sort(naturalTeamSort);
+  const baseGroupSize = Math.floor(orderedTeams.length / groupCount);
+  const remainder = orderedTeams.length % groupCount;
+  let offset = 0;
+
+  pools.forEach((pool, idx) => {
+    const groupSize = baseGroupSize + (idx < remainder ? 1 : 0);
+    pool.teams = orderedTeams.slice(offset, offset + groupSize);
+    offset += groupSize;
   });
+
   return pools;
 };
 
