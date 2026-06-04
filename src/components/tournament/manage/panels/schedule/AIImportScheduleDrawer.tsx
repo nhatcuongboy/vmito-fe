@@ -665,6 +665,8 @@ export default function AIImportScheduleDrawer({
                         })
                       : '—';
                     const matchLabel = (() => {
+                      if (row.entry.matchCode?.trim())
+                        return row.entry.matchCode.trim();
                       if (row.entry.team1Code && row.entry.team2Code)
                         return `${row.entry.team1Code} vs ${row.entry.team2Code}`;
                       if (row.entry.matchNumber != null)

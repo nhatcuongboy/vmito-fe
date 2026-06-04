@@ -17,6 +17,7 @@ import {
   Category,
   CategoryMatch,
   TournamentCourt,
+  TournamentUmpire,
   IBulkScheduleItem,
   IGenerateScheduleResponse,
 } from '@/lib/api/types';
@@ -60,6 +61,7 @@ export default function ManageScheduleModal({
   const [viewMode, setViewMode] = useState<ViewMode>('list');
   const [allMatches, setAllMatches] = useState<CategoryMatch[]>([]);
   const [courts, setCourts] = useState<TournamentCourt[]>([]);
+  const [umpires, setUmpires] = useState<TournamentUmpire[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [dirtyMatches, setDirtyMatches] = useState<
@@ -76,8 +78,7 @@ export default function ManageScheduleModal({
     null
   );
   const [isDeleting, setIsDeleting] = useState(false);
-  const [generationResult, setGenerationResult] =
-    useState<IGenerateScheduleResult | null>(null);
+  const [generationResult] = useState<IGenerateScheduleResult | null>(null);
   const [editingMatch, setEditingMatch] = useState<string | null>(null);
 
   // Backend-generated schedule state
@@ -102,12 +103,14 @@ export default function ManageScheduleModal({
     const fetchData = async () => {
       setIsLoading(true);
       try {
-        const [matchesData, courtsData] = await Promise.all([
+        const [matchesData, courtsData, umpiresData] = await Promise.all([
           TournamentService.getAllMatches(tournament.id),
           TournamentService.getCourts(tournament.id),
+          TournamentService.getUmpires(tournament.id),
         ]);
         setAllMatches(matchesData);
         setCourts(courtsData);
+        setUmpires(umpiresData);
       } catch (error) {
         console.error('Error loading schedule data:', error);
         toaster.error({ title: t('loadFailed') });
@@ -157,15 +160,6 @@ export default function ManageScheduleModal({
       });
     },
     []
-  );
-
-  const handleGenerated = useCallback(
-    (result: IGenerateScheduleResult) => {
-      setGenerationResult(result);
-      generateDrawerModal.onClose();
-      resultModal.onOpen();
-    },
-    [generateDrawerModal, resultModal]
   );
 
   // Handle backend-generated schedule
@@ -242,7 +236,7 @@ export default function ManageScheduleModal({
     } finally {
       setIsSavingPreview(false);
     }
-  }, [pendingScheduleId, t, tournament.id, onScheduleSaved]);
+  }, [pendingScheduleId, t, tournament.id, onScheduleSaved, onClose]);
 
   const handlePreviewCancel = useCallback(() => {
     setBackendGenerationResponse(null);
@@ -598,14 +592,36 @@ export default function ManageScheduleModal({
         onClose={() => setEditingMatch(null)}
         match={allMatches.find((m) => m.id === editingMatch) ?? null}
         courts={courts}
-        onUpdate={async (matchId, courtId, startTime, endTime, matchCode) => {
+        tournamentStartDate={tournament.startDate}
+        umpires={umpires}
+        onUpdate={async (
+          matchId,
+          courtId,
+          startTime,
+          endTime,
+          matchCode,
+          refereeId
+        ) => {
+          const previous = allMatches.find((m) => m.id === matchId);
+          const referee = refereeId
+            ? (umpires.find((u) => u.id === refereeId) ?? null)
+            : null;
           handleMatchMove(matchId, courtId, startTime, endTime);
           setAllMatches((prev) =>
-            prev.map((m) => (m.id === matchId ? { ...m, matchCode } : m))
+            prev.map((m) =>
+              m.id === matchId
+                ? {
+                    ...m,
+                    matchCode,
+                    refereeId: refereeId ?? undefined,
+                    referee,
+                  }
+                : m
+            )
           );
           setEditingMatch(null);
           try {
-            await Promise.all([
+            const tasks: Promise<unknown>[] = [
               CategoryService.updateMatch(
                 matchId,
                 { matchCode },
@@ -616,7 +632,19 @@ export default function ManageScheduleModal({
               CategoryService.bulkUpdateSchedule([
                 { matchId, courtId, startTime, endTime },
               ]),
-            ]);
+            ];
+            if (refereeId) {
+              tasks.push(
+                CategoryService.assignReferee(matchId, refereeId, {
+                  showToast: false,
+                })
+              );
+            } else if (previous?.refereeId) {
+              tasks.push(
+                CategoryService.unassignReferee(matchId, { showToast: false })
+              );
+            }
+            await Promise.all(tasks);
           } catch {
             toaster.error({ title: t('updateFailed') });
           }

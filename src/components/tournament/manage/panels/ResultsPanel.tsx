@@ -650,6 +650,7 @@ export default function ResultsPanel({
           onClose={() => setSchedulingMatch(null)}
           match={schedulingMatch}
           courts={courts}
+          tournamentStartDate={tournament.startDate}
           umpires={umpires}
           onUpdate={handleScheduleUpdate}
         />

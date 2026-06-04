@@ -14,21 +14,12 @@ const MATCH_LENGTHS = [
   5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 75, 90, 105, 120,
 ];
 
-// 15-min time slots from 05:00 to 23:45
-const TIME_SLOTS: string[] = [];
-for (let h = 5; h <= 23; h++) {
-  for (let m = 0; m < 60; m += 15) {
-    TIME_SLOTS.push(
-      `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`
-    );
-  }
-}
-
 interface EditMatchTimeSheetProps {
   isOpen: boolean;
   onClose: () => void;
   match: CategoryMatch | null;
   courts: TournamentCourt[];
+  tournamentStartDate?: Date | string;
   /** Tournament officials selectable as the match referee. Omit to hide the field. */
   umpires?: TournamentUmpire[];
   onUpdate: (
@@ -46,6 +37,7 @@ export default function EditMatchTimeSheet({
   onClose,
   match,
   courts,
+  tournamentStartDate,
   umpires = [],
   onUpdate,
 }: EditMatchTimeSheetProps) {
@@ -68,12 +60,14 @@ export default function EditMatchTimeSheet({
 
     if (match.startTime) {
       const st = new Date(match.startTime);
-      setDate(st.toISOString().split('T')[0]);
+      setDate(formatDateForInput(st));
       setStartTime(
         `${String(st.getHours()).padStart(2, '0')}:${String(st.getMinutes()).padStart(2, '0')}`
       );
     } else {
-      setDate('');
+      setDate(
+        tournamentStartDate ? formatDateForInput(tournamentStartDate) : ''
+      );
       setStartTime('');
     }
 
@@ -87,9 +81,11 @@ export default function EditMatchTimeSheet({
     }
 
     setCourtId(match.courtId ?? '');
-  }, [match]);
+  }, [match, tournamentStartDate]);
 
   if (!isOpen || !match) return null;
+
+  const availableCourts = getAvailableCourts(courts, match.courtId);
 
   const handleUpdate = () => {
     const nextMatchCode = matchCode.trim();
@@ -215,18 +211,14 @@ export default function EditMatchTimeSheet({
           {/* Start Time + Match Length */}
           <Flex gap={2} mb={3}>
             <Box flex={1}>
-              <select
+              <input
+                type="time"
                 style={selectStyle}
                 value={startTime}
+                step={60}
                 onChange={(e) => setStartTime(e.target.value)}
-              >
-                <option value="">{t('startTime')}</option>
-                {TIME_SLOTS.map((slot) => (
-                  <option key={slot} value={slot}>
-                    {slot}
-                  </option>
-                ))}
-              </select>
+                placeholder={t('startTime')}
+              />
             </Box>
             <Box flex={1}>
               <select
@@ -251,7 +243,7 @@ export default function EditMatchTimeSheet({
               onChange={(e) => setCourtId(e.target.value)}
             >
               <option value="">{t('court')}</option>
-              {courts.map((c) => (
+              {availableCourts.map((c) => (
                 <option key={c.id} value={c.id}>
                   {c.courtName || `${t('courtPrefix')} ${c.courtNumber}`}
                 </option>
@@ -298,4 +290,39 @@ export default function EditMatchTimeSheet({
       </Box>
     </Portal>
   );
+}
+
+function formatDateForInput(value: Date | string): string {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return '';
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
+function getAvailableCourts(
+  courts: TournamentCourt[],
+  selectedCourtId?: string
+): TournamentCourt[] {
+  const linkedCourts = courts.filter((court) => court.tournamentVenueId);
+  const source = linkedCourts.length > 0 ? linkedCourts : courts;
+  const selectedCourt = selectedCourtId
+    ? courts.find((court) => court.id === selectedCourtId)
+    : undefined;
+  const byDisplayKey = new Map<string, TournamentCourt>();
+
+  [...source, ...(selectedCourt ? [selectedCourt] : [])]
+    .sort((a, b) => {
+      if (a.courtNumber !== b.courtNumber) return a.courtNumber - b.courtNumber;
+      return (a.courtName ?? '').localeCompare(b.courtName ?? '');
+    })
+    .forEach((court) => {
+      const key = `${court.courtNumber}:${court.courtName ?? ''}`.toLowerCase();
+      if (!byDisplayKey.has(key) || court.id === selectedCourtId) {
+        byDisplayKey.set(key, court);
+      }
+    });
+
+  return Array.from(byDisplayKey.values());
 }

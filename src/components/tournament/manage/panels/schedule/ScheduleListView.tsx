@@ -1,12 +1,12 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { Box, Flex, Text } from '@chakra-ui/react';
 import { VStack, Button } from '@/components/ui/chakra-compat';
 import { Link } from '@/i18n/config';
 import { useTranslations, useLocale } from 'next-intl';
 import { formatTimeByDevicePreference } from '@/utils/time-helpers';
-import { Edit, Trash2 } from 'lucide-react';
+import { ArrowDown, ArrowUp, ChevronsUpDown, Edit, Trash2 } from 'lucide-react';
 import { CategoryMatch, TournamentCourt, Category } from '@/lib/api/types';
 import { resolveMatchSideLabel } from '@/lib/tournament/bracketSlots';
 import { usePlayoffSlotLabels } from '@/lib/tournament/usePlayoffSlotLabels';
@@ -34,6 +34,8 @@ interface ScheduleListViewProps {
 }
 
 const REGISTRATION_CODE_LENGTH = 8;
+type SortKey = 'matchCode' | 'time';
+type SortDirection = 'asc' | 'desc';
 
 const getUniqueRegistrationCode = (
   registrationId: string,
@@ -68,17 +70,34 @@ export default function ScheduleListView({
   );
   const slotLabels = usePlayoffSlotLabels();
   const locale = useLocale();
+  const [sort, setSort] = useState<{
+    key: SortKey;
+    direction: SortDirection;
+  }>({ key: 'time', direction: 'asc' });
 
   // Group matches by category
-  const matchesByCategory = categories
-    .map((cat, idx) => ({
-      category: cat,
-      color: CATEGORY_COLORS[idx % CATEGORY_COLORS.length],
-      matches: matches
-        .filter((m) => m.categoryId === cat.id)
-        .sort((a, b) => a.matchNumber - b.matchNumber),
-    }))
-    .filter((g) => g.matches.length > 0);
+  const matchesByCategory = useMemo(
+    () =>
+      categories
+        .map((cat, idx) => ({
+          category: cat,
+          color: CATEGORY_COLORS[idx % CATEGORY_COLORS.length],
+          matches: sortMatches(
+            matches.filter((m) => m.categoryId === cat.id),
+            sort
+          ),
+        }))
+        .filter((g) => g.matches.length > 0),
+    [categories, matches, sort]
+  );
+
+  const toggleSort = (key: SortKey) => {
+    setSort((current) => ({
+      key,
+      direction:
+        current.key === key && current.direction === 'asc' ? 'desc' : 'asc',
+    }));
+  };
 
   const registrationCodeById = useMemo(() => {
     const registrationIds = Array.from(
@@ -271,9 +290,12 @@ export default function ScheduleListView({
                 mb={1}
                 boxShadow="0 1px 0 rgba(15, 23, 42, 0.04)"
               >
-                <Text fontSize="xs" fontWeight="semibold" color="gray.500">
-                  {t('matchCode')}
-                </Text>
+                <SortableHeader
+                  label={t('matchCode')}
+                  active={sort.key === 'matchCode'}
+                  direction={sort.direction}
+                  onClick={() => toggleSort('matchCode')}
+                />
                 <Text fontSize="xs" fontWeight="semibold" color="gray.500">
                   {t('round')}
                 </Text>
@@ -294,9 +316,12 @@ export default function ScheduleListView({
                 >
                   {t('team2')}
                 </Text>
-                <Text fontSize="xs" fontWeight="semibold" color="gray.500">
-                  {t('time')}
-                </Text>
+                <SortableHeader
+                  label={t('time')}
+                  active={sort.key === 'time'}
+                  direction={sort.direction}
+                  onClick={() => toggleSort('time')}
+                />
                 <Text fontSize="xs" fontWeight="semibold" color="gray.500">
                   {t('court')}
                 </Text>
@@ -388,4 +413,84 @@ export default function ScheduleListView({
       ))}
     </VStack>
   );
+}
+
+function SortableHeader({
+  label,
+  active,
+  direction,
+  onClick,
+}: {
+  label: string;
+  active: boolean;
+  direction: SortDirection;
+  onClick: () => void;
+}) {
+  const Icon = active
+    ? direction === 'asc'
+      ? ArrowUp
+      : ArrowDown
+    : ChevronsUpDown;
+
+  return (
+    <Button
+      variant="ghost"
+      size="xs"
+      justifyContent="flex-start"
+      px={0}
+      minW={0}
+      color={active ? 'green.700' : 'gray.500'}
+      fontWeight="semibold"
+      onClick={onClick}
+      _dark={{ color: active ? 'green.200' : 'gray.400' }}
+    >
+      <Text as="span" fontSize="xs">
+        {label}
+      </Text>
+      <Icon size={13} />
+    </Button>
+  );
+}
+
+function sortMatches(
+  matches: CategoryMatch[],
+  sort: { key: SortKey; direction: SortDirection }
+) {
+  const direction = sort.direction === 'asc' ? 1 : -1;
+
+  return [...matches].sort((a, b) => {
+    const primary =
+      sort.key === 'matchCode'
+        ? compareMatchCode(a, b)
+        : compareMatchTime(a, b);
+    if (primary !== 0) return primary * direction;
+    return a.matchNumber - b.matchNumber;
+  });
+}
+
+function compareMatchCode(a: CategoryMatch, b: CategoryMatch) {
+  return getMatchDisplayCode(a).localeCompare(
+    getMatchDisplayCode(b),
+    undefined,
+    {
+      numeric: true,
+      sensitivity: 'base',
+    }
+  );
+}
+
+function compareMatchTime(a: CategoryMatch, b: CategoryMatch) {
+  const aTime = a.startTime
+    ? new Date(a.startTime).getTime()
+    : Number.MAX_SAFE_INTEGER;
+  const bTime = b.startTime
+    ? new Date(b.startTime).getTime()
+    : Number.MAX_SAFE_INTEGER;
+  if (aTime !== bTime) return aTime - bTime;
+
+  const aEnd = a.estimatedEndTime ?? a.endTime;
+  const bEnd = b.estimatedEndTime ?? b.endTime;
+  const aEndTime = aEnd ? new Date(aEnd).getTime() : Number.MAX_SAFE_INTEGER;
+  const bEndTime = bEnd ? new Date(bEnd).getTime() : Number.MAX_SAFE_INTEGER;
+  return aEndTime - bEndTime;
 }
