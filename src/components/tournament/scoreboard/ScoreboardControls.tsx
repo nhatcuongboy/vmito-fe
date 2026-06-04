@@ -12,12 +12,14 @@ interface Props {
   selectedCourtIds: string[];
   gridSize: 1 | 2 | 4 | 6;
   showFullNames: boolean;
+  showFinished: boolean;
   isFullscreen: boolean;
   isConnected: boolean;
   onToggleCourt: (id: string) => void;
   onClearCourts: () => void;
   onGridSize: (n: 1 | 2 | 4 | 6) => void;
   onShowFullNames: (show: boolean) => void;
+  onShowFinished: (show: boolean) => void;
   onToggleFullscreen: () => void;
   onShare: () => void;
 }
@@ -29,12 +31,14 @@ export default function ScoreboardControls({
   selectedCourtIds,
   gridSize,
   showFullNames,
+  showFinished,
   isFullscreen,
   isConnected,
   onToggleCourt,
   onClearCourts,
   onGridSize,
   onShowFullNames,
+  onShowFinished,
   onToggleFullscreen,
   onShare,
 }: Props) {
@@ -103,6 +107,15 @@ export default function ScoreboardControls({
         onClick={() => onShowFullNames(!showFullNames)}
       >
         <Users size={16} /> {t('fullNames')}
+      </Button>
+
+      <Button
+        size="sm"
+        variant={showFinished ? 'solid' : 'outline'}
+        colorPalette={showFinished ? 'blue' : 'gray'}
+        onClick={() => onShowFinished(!showFinished)}
+      >
+        {t('showFinished')}
       </Button>
 
       <Button size="sm" variant="outline" onClick={onShare}>

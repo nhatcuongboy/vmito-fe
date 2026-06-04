@@ -3253,6 +3253,7 @@
         "fullscreen": "Fullscreen",
         "exitFullscreen": "Exit",
         "fullNames": "Full names",
+        "showFinished": "Finished matches",
         "share": "Share",
         "noLiveMatches": "No live matches right now",
         "qrTitle": "Share scoreboard",

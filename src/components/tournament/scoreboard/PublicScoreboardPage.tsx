@@ -32,6 +32,10 @@ function parseShowFullNames(value: string | null): boolean {
   return value === 'full';
 }
 
+function parseShowFinished(value: string | null): boolean {
+  return value === '1';
+}
+
 function getConfiguredCourts(courts: TournamentCourt[]): TournamentCourt[] {
   const venueCourts = courts.filter((court) => court.tournamentVenueId);
   return (venueCourts.length > 0 ? venueCourts : courts).sort(
@@ -49,6 +53,7 @@ export default function PublicScoreboardPage() {
 
   const gridSize = parseGrid(searchParams.get('grid'));
   const showFullNames = parseShowFullNames(searchParams.get('names'));
+  const showFinished = parseShowFinished(searchParams.get('finished'));
   const selectedCourtIds = useMemo(
     () =>
       (searchParams.get('courts') ?? '')
@@ -156,22 +161,32 @@ export default function PublicScoreboardPage() {
     [selectedCourtIds, setParam]
   );
 
-  // Derived display list.
-  const display = useMemo(() => {
-    let list = Object.values(matchesMap).filter(
-      (m) => m.status === 'IN_PROGRESS' || m.status === 'FINISHED'
-    );
+  const courtFilteredMatches = useMemo(() => {
+    let list = Object.values(matchesMap);
     if (selectedCourtIds.length > 0) {
       list = list.filter(
         (m) => m.court && selectedCourtIds.includes(m.court.id)
       );
     }
+    return list;
+  }, [matchesMap, selectedCourtIds]);
+
+  const hasFinishedMatches = courtFilteredMatches.some(
+    (m) => m.status === 'FINISHED'
+  );
+
+  // Derived display list.
+  const display = useMemo(() => {
+    const list = courtFilteredMatches.filter(
+      (m) =>
+        m.status === 'IN_PROGRESS' || (showFinished && m.status === 'FINISHED')
+    );
     list.sort((a, b) => {
       if (a.status !== b.status) return a.status === 'IN_PROGRESS' ? -1 : 1;
       return (a.court?.courtNumber ?? 99) - (b.court?.courtNumber ?? 99);
     });
     return list;
-  }, [matchesMap, selectedCourtIds]);
+  }, [courtFilteredMatches, showFinished]);
 
   const shareUrl = typeof window !== 'undefined' ? window.location.href : '';
 
@@ -192,6 +207,8 @@ export default function PublicScoreboardPage() {
         onGridSize={(n) => setParam('grid', String(n))}
         showFullNames={showFullNames}
         onShowFullNames={(show) => setParam('names', show ? 'full' : null)}
+        showFinished={showFinished}
+        onShowFinished={(show) => setParam('finished', show ? '1' : null)}
         onToggleFullscreen={toggleFullscreen}
         onShare={() => setShareOpen(true)}
       />
@@ -205,7 +222,10 @@ export default function PublicScoreboardPage() {
       )}
 
       {display.length === 0 ? (
-        <ScoreboardEmptyState />
+        <ScoreboardEmptyState
+          canShowFinished={hasFinishedMatches && !showFinished}
+          onShowFinished={() => setParam('finished', '1')}
+        />
       ) : (
         <ScoreboardGrid
           matches={display}
