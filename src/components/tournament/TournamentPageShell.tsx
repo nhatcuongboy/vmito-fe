@@ -657,6 +657,15 @@ export default function TournamentPageShell({
     router.push(`/tournament/${slug}/manage?option=teams`);
   };
 
+  const handleOpenRoundsPanel = useCallback(
+    (categoryId: string) => {
+      router.push(
+        `/tournament/${slug}/manage?option=rounds&categoryId=${categoryId}`
+      );
+    },
+    [router, slug]
+  );
+
   if (loading) {
     return (
       <>
@@ -832,6 +841,7 @@ export default function TournamentPageShell({
             categories={allCategories}
             canEdit={isHost}
             heading={t('tabs.schedule')}
+            onOpenRoundsPanel={handleOpenRoundsPanel}
           />
         ))}
       {activeTab === 3 &&

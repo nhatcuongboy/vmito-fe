@@ -6,7 +6,15 @@ import { Box, Flex, Heading, Text, Input, Image } from '@chakra-ui/react';
 import { Button, VStack } from '@/components/ui/chakra-compat';
 import { VSelect } from '@/components/ui/VSelect';
 import { VModal, useModal } from '@/components/ui/VModal';
-import { Plus, Pencil, Trash2, Users, Search, Link2 } from 'lucide-react';
+import {
+  ImagePlus,
+  Plus,
+  Pencil,
+  Trash2,
+  Users,
+  Search,
+  Link2,
+} from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import {
   Tournament,
@@ -74,6 +82,8 @@ const EMPTY_FORM: PlayerFormState = {
 };
 
 const PANEL_MODAL_Z_INDEX = 1600;
+const NESTED_PANEL_MODAL_Z_INDEX = PANEL_MODAL_Z_INDEX + 100;
+const DEEP_NESTED_PANEL_MODAL_Z_INDEX = NESTED_PANEL_MODAL_Z_INDEX + 100;
 
 const playerToForm = (player: TournamentPlayer): PlayerFormState => ({
   code: player.code ?? '',
@@ -95,6 +105,7 @@ export default function PlayersPanel({ tournament }: PlayersPanelProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const editModal = useModal();
+  const avatarModal = useModal();
   const deleteModal = useModal();
   const detailModal = useModal();
   const [editingPlayer, setEditingPlayer] = useState<TournamentPlayer | null>(
@@ -184,12 +195,14 @@ export default function PlayersPanel({ tournament }: PlayersPanelProps) {
       ...EMPTY_FORM,
       code: generateNextTournamentPlayerCode(players),
     });
+    avatarModal.onClose();
     editModal.onOpen();
   };
 
   const handleOpenEdit = (player: TournamentPlayer) => {
     setEditingPlayer(player);
     setForm(playerToForm(player));
+    avatarModal.onClose();
     editModal.onOpen();
   };
 
@@ -222,6 +235,7 @@ export default function PlayersPanel({ tournament }: PlayersPanelProps) {
         toaster.success({ title: t('addSuccess') });
       }
       await loadPlayers();
+      avatarModal.onClose();
       editModal.onClose();
     } catch (error) {
       console.error('Error saving player:', error);
@@ -232,6 +246,11 @@ export default function PlayersPanel({ tournament }: PlayersPanelProps) {
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const handleCloseEditModal = () => {
+    avatarModal.onClose();
+    editModal.onClose();
   };
 
   // ── Delete ──────────────────────────────────────────────────────────────────
@@ -481,7 +500,7 @@ export default function PlayersPanel({ tournament }: PlayersPanelProps) {
       {/* Add / Edit Modal */}
       <VModal
         isOpen={editModal.isOpen}
-        onClose={editModal.onClose}
+        onClose={handleCloseEditModal}
         zIndex={PANEL_MODAL_Z_INDEX}
         title={editingPlayer ? t('editPlayer') : t('addPlayerTitle')}
         primaryActionText={t('save')}
@@ -493,6 +512,8 @@ export default function PlayersPanel({ tournament }: PlayersPanelProps) {
         <VStack gap={4} align="stretch">
           <Flex align="center" gap={3}>
             <Flex
+              as="button"
+              {...({ type: 'button' } as Record<string, unknown>)}
               w="56px"
               h="56px"
               bg="gray.100"
@@ -501,6 +522,17 @@ export default function PlayersPanel({ tournament }: PlayersPanelProps) {
               justify="center"
               flexShrink={0}
               overflow="hidden"
+              position="relative"
+              cursor="pointer"
+              _hover={{
+                boxShadow: '0 0 0 3px var(--chakra-colors-green-200)',
+              }}
+              _focusVisible={{
+                outline: '2px solid var(--chakra-colors-green-500)',
+                outlineOffset: '2px',
+              }}
+              onClick={avatarModal.onOpen}
+              aria-label={t('avatar')}
             >
               {form.image ? (
                 <Image
@@ -513,6 +545,23 @@ export default function PlayersPanel({ tournament }: PlayersPanelProps) {
               ) : (
                 <Users size={22} color="#A0AEC0" />
               )}
+              <Flex
+                position="absolute"
+                right={0}
+                bottom={0}
+                w="22px"
+                h="22px"
+                borderRadius="full"
+                bg="green.600"
+                color="white"
+                align="center"
+                justify="center"
+                borderWidth="2px"
+                borderColor="white"
+                _dark={{ borderColor: 'gray.800' }}
+              >
+                <ImagePlus size={12} />
+              </Flex>
             </Flex>
             <Box minW={0}>
               <Text fontSize="sm" fontWeight="semibold" lineClamp={1}>
@@ -523,29 +572,6 @@ export default function PlayersPanel({ tournament }: PlayersPanelProps) {
               </Text>
             </Box>
           </Flex>
-
-          <Box>
-            <Text fontSize="sm" fontWeight="medium" mb={1}>
-              {t('avatar')}
-            </Text>
-            <AppSingleImageUpload
-              value={form.image}
-              publicId={form.imagePublicId}
-              category={EImageCategory.OTHER}
-              alt={form.name || t('avatar')}
-              emptyTitle={t('avatarEmpty')}
-              uploadText={t('avatarUpload')}
-              galleryText={t('avatarGallery')}
-              onChange={(image) => {
-                updateField('image', image.url);
-                updateField('imagePublicId', image.publicId ?? '');
-              }}
-              onClear={() => {
-                updateField('image', '');
-                updateField('imagePublicId', '');
-              }}
-            />
-          </Box>
 
           <Box>
             <Text fontSize="sm" fontWeight="medium" mb={1}>
@@ -643,6 +669,35 @@ export default function PlayersPanel({ tournament }: PlayersPanelProps) {
             />
           </Box>
         </VStack>
+      </VModal>
+
+      <VModal
+        isOpen={avatarModal.isOpen}
+        onClose={avatarModal.onClose}
+        zIndex={NESTED_PANEL_MODAL_Z_INDEX}
+        title={t('avatar')}
+        secondaryActionText={t('close')}
+        hideSecondaryAction={false}
+        maxBodyHeight={{ base: '70vh', md: '72vh' }}
+      >
+        <AppSingleImageUpload
+          value={form.image}
+          publicId={form.imagePublicId}
+          category={EImageCategory.OTHER}
+          alt={form.name || t('avatar')}
+          emptyTitle={t('avatarEmpty')}
+          uploadText={t('avatarUpload')}
+          galleryText={t('avatarGallery')}
+          galleryZIndex={DEEP_NESTED_PANEL_MODAL_Z_INDEX}
+          onChange={(image) => {
+            updateField('image', image.url);
+            updateField('imagePublicId', image.publicId ?? '');
+          }}
+          onClear={() => {
+            updateField('image', '');
+            updateField('imagePublicId', '');
+          }}
+        />
       </VModal>
 
       {/* Player Detail Modal */}

@@ -32,6 +32,7 @@ interface AppSingleImageUploadProps {
   emptyTitle?: string;
   dropText?: string;
   urlPlaceholder?: string;
+  galleryZIndex?: number;
 }
 
 const AppSingleImageUpload = ({
@@ -46,6 +47,7 @@ const AppSingleImageUpload = ({
   emptyTitle = 'Chưa có ảnh nào. Hãy tải ảnh lên!',
   dropText = 'hoặc kéo ảnh vào đây',
   urlPlaceholder = 'Dán URL hình ảnh...',
+  galleryZIndex,
 }: AppSingleImageUploadProps) => {
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
@@ -290,6 +292,7 @@ const AppSingleImageUpload = ({
         onClose={() => setIsGalleryOpen(false)}
         maxSelect={1}
         category={category}
+        zIndex={galleryZIndex}
         selectedImages={
           value && publicId
             ? [

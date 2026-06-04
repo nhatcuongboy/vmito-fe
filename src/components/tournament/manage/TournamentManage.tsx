@@ -195,6 +195,22 @@ export default function TournamentManage({
     [router, searchParams]
   );
 
+  const handleOpenRoundsPanel = useCallback(
+    (categoryId: string) => {
+      const category = categories.find((item) => item.id === categoryId);
+      if (category) {
+        setSelectedCategory(category);
+      }
+
+      setSelectedItem('rounds');
+      const params = new URLSearchParams(searchParams.toString());
+      params.set('option', 'rounds');
+      params.set('categoryId', categoryId);
+      router.replace(`?${params.toString()}`, { scroll: false });
+    },
+    [categories, router, searchParams]
+  );
+
   const renderPanel = () => {
     if (!selectedItem) return null;
 
@@ -257,7 +273,13 @@ export default function TournamentManage({
       case 'managers':
         return <ManagersPanel tournament={tournament} />;
       case 'results':
-        return <ResultsPanel tournament={tournament} categories={categories} />;
+        return (
+          <ResultsPanel
+            tournament={tournament}
+            categories={categories}
+            onOpenRoundsPanel={handleOpenRoundsPanel}
+          />
+        );
       case 'sponsors':
         return <SponsorsPanel />;
       case 'name':

@@ -11,6 +11,7 @@ import {
   ListTree,
   RefreshCw,
   RotateCcw,
+  Trophy,
   Users,
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
@@ -23,6 +24,7 @@ import {
   CategoryMatch,
   CategoryStandingsResponse,
   GroupStanding,
+  MatchStatus,
   Tournament,
 } from '@/lib/api/types';
 import PublicTournamentBracket from '@/components/tournament/PublicTournamentBracket';
@@ -257,6 +259,29 @@ export default function PublicTournamentStandingsTab({
       };
     });
   }, [t, visibleBlocks]);
+
+  // A group's 1st-placed team gets a trophy only once the group stage is fully
+  // played AND the elimination bracket has been generated ("Sinh lại bracket"),
+  // i.e. the standings are final and the winners have advanced.
+  const winnerHighlightByCategory = useMemo(() => {
+    const map = new Map<string, boolean>();
+    for (const category of categories) {
+      const categoryMatches = matches.filter(
+        (m) => m.categoryId === category.id
+      );
+      const groupMatches = categoryMatches.filter(
+        (m) => (m.round ?? '').toUpperCase() === 'GROUP'
+      );
+      const groupStageComplete =
+        groupMatches.length > 0 &&
+        groupMatches.every((m) => m.status === MatchStatus.FINISHED);
+      const bracketGenerated = categoryMatches.some(
+        (m) => (m.round ?? '').toUpperCase() !== 'GROUP'
+      );
+      map.set(category.id, groupStageComplete && bracketGenerated);
+    }
+    return map;
+  }, [categories, matches]);
 
   const visiblePlayoffCategories = useMemo(() => {
     const visible =
@@ -626,6 +651,11 @@ export default function PublicTournamentStandingsTab({
                               ) : null
                             }
                             showPlayerNames={showPlayerNames}
+                            highlightWinner={
+                              winnerHighlightByCategory.get(
+                                block.category.id
+                              ) ?? false
+                            }
                             t={t}
                           />
                         )}
@@ -695,6 +725,7 @@ function StandingsTable({
   teamCountLabel,
   action,
   showPlayerNames = false,
+  highlightWinner = false,
   t,
 }: {
   tournament: Tournament;
@@ -705,6 +736,7 @@ function StandingsTable({
   teamCountLabel?: string;
   action?: ReactNode;
   showPlayerNames?: boolean;
+  highlightWinner?: boolean;
   t: ReturnType<typeof useTranslations>;
 }) {
   const showForfeits = rows.some((r) => (r.matchesForfeited ?? 0) > 0);
@@ -824,6 +856,11 @@ function StandingsTable({
                   ? standing.overallRank
                   : standing.rank;
               const teamHref = getStandingTeamHref(tournament, standing);
+              const isGroupWinner =
+                highlightWinner &&
+                rankKey === 'rank' &&
+                hasResults &&
+                rank === 1;
 
               return (
                 <Box
@@ -860,33 +897,47 @@ function StandingsTable({
                   </Flex>
 
                   <Box minW={0}>
-                    <Link
-                      href={teamHref}
-                      style={{ display: 'block', textDecoration: 'none' }}
-                    >
-                      <Text
-                        as="span"
-                        display="block"
-                        fontSize={{ base: 'sm', md: 'md' }}
-                        fontWeight="700"
-                        color="gray.900"
-                        lineHeight="1.25"
-                        overflow="hidden"
-                        textOverflow="ellipsis"
-                        whiteSpace="nowrap"
-                        _hover={{
-                          color: 'green.700',
-                          textDecoration: 'underline',
-                          textUnderlineOffset: '3px',
-                        }}
-                        _dark={{
-                          color: 'gray.50',
-                          _hover: { color: 'green.300' },
-                        }}
+                    <HStack gap={1.5} minW={0}>
+                      <Link
+                        href={teamHref}
+                        style={{ minWidth: 0, textDecoration: 'none' }}
                       >
-                        {getStandingTeamLabel(standing, { showPlayerNames })}
-                      </Text>
-                    </Link>
+                        <Text
+                          as="span"
+                          display="block"
+                          fontSize={{ base: 'sm', md: 'md' }}
+                          fontWeight="700"
+                          color="gray.900"
+                          lineHeight="1.25"
+                          overflow="hidden"
+                          textOverflow="ellipsis"
+                          whiteSpace="nowrap"
+                          _hover={{
+                            color: 'green.700',
+                            textDecoration: 'underline',
+                            textUnderlineOffset: '3px',
+                          }}
+                          _dark={{
+                            color: 'gray.50',
+                            _hover: { color: 'green.300' },
+                          }}
+                        >
+                          {getStandingTeamLabel(standing, { showPlayerNames })}
+                        </Text>
+                      </Link>
+                      {isGroupWinner && (
+                        <Box
+                          as="span"
+                          flexShrink={0}
+                          color="yellow.500"
+                          title={t('groupWinner')}
+                          aria-label={t('groupWinner')}
+                          _dark={{ color: 'yellow.400' }}
+                        >
+                          <Trophy size={16} fill="currentColor" />
+                        </Box>
+                      )}
+                    </HStack>
                     {showGroup && 'sourceGroupName' in standing && (
                       <Text
                         display={{ base: 'block', md: 'none' }}

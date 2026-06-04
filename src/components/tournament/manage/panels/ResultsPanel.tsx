@@ -21,6 +21,7 @@ import {
   Flag,
   List,
   RotateCcw,
+  Trophy,
   Users,
   X,
 } from 'lucide-react';
@@ -29,6 +30,7 @@ import { TournamentService } from '@/lib/api/tournament.service';
 import { CategoryService } from '@/lib/api/category.service';
 import {
   Category,
+  CategoryFormat,
   CategoryMatch,
   MatchStatus,
   Tournament,
@@ -58,6 +60,8 @@ interface Props {
   heading?: string;
   /** Optional sub-heading override. */
   description?: string;
+  /** Optional navigation hook to the Rounds setup panel. */
+  onOpenRoundsPanel?: (categoryId: string) => void;
 }
 
 type ViewMode = 'list' | 'calendar';
@@ -116,8 +120,10 @@ export default function ResultsPanel({
   canEdit = true,
   heading,
   description,
+  onOpenRoundsPanel,
 }: Props) {
   const t = useTranslations('pages.tournaments.manualScore');
+  const tManage = useTranslations('pages.tournaments.detail.manage');
   const tRounds = useTranslations('pages.tournaments.manualScore.rounds');
   const locale = useLocale();
 
@@ -309,6 +315,25 @@ export default function ResultsPanel({
   }, [matches, filters]);
 
   const activeFilterCount = getActiveFilterCount(filters);
+  const bracketReadyCategory = useMemo(() => {
+    if (!canEdit || !onOpenRoundsPanel) return null;
+
+    return categories.find((category) => {
+      if (category.format !== CategoryFormat.ROUND_ROBIN_TO_SE) return false;
+
+      const categoryMatches = matches.filter(
+        (match) => match.categoryId === category.id
+      );
+      const groupMatches = categoryMatches.filter(
+        (match) => match.groupId || match.round === 'GROUP'
+      );
+      if (groupMatches.length === 0) return false;
+
+      return groupMatches.every(
+        (match) => match.status === MatchStatus.FINISHED
+      );
+    });
+  }, [canEdit, categories, matches, onOpenRoundsPanel]);
 
   const groups = useMemo(() => {
     const byCat = new Map<string, CategoryMatch[]>();
@@ -522,6 +547,54 @@ export default function ResultsPanel({
           </Button>
         </Flex>
       </Flex>
+
+      {bracketReadyCategory && (
+        <Box
+          mb={5}
+          borderWidth="1px"
+          borderColor="green.200"
+          borderRadius="xl"
+          bg="green.50"
+          px={{ base: 4, md: 5 }}
+          py={4}
+          _dark={{ bg: 'green.950', borderColor: 'green.800' }}
+        >
+          <Flex
+            align={{ base: 'stretch', md: 'center' }}
+            justify="space-between"
+            gap={3}
+            direction={{ base: 'column', md: 'row' }}
+          >
+            <Box minW={0}>
+              <Text
+                fontWeight="bold"
+                color="green.800"
+                _dark={{ color: 'green.200' }}
+              >
+                {tManage('panels.rounds.scheduleBracketReadyTitle')}
+              </Text>
+              <Text
+                fontSize="sm"
+                color="gray.700"
+                mt={1}
+                _dark={{ color: 'gray.200' }}
+              >
+                {tManage('panels.rounds.scheduleBracketReadyDescription')}
+              </Text>
+            </Box>
+            <Button
+              size="sm"
+              colorPalette="green"
+              variant="outline"
+              onClick={() => onOpenRoundsPanel?.(bracketReadyCategory.id)}
+              flexShrink={0}
+            >
+              <Trophy size={14} />
+              {tManage('panels.rounds.goToRounds')}
+            </Button>
+          </Flex>
+        </Box>
+      )}
 
       {matches.length === 0 ? (
         <Text color="gray.500" fontSize="sm" _dark={{ color: 'gray.400' }}>
