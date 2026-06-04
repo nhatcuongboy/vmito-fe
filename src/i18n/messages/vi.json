@@ -1631,7 +1631,9 @@
           "contact": {
             "title": "Liên hệ",
             "name": "Tên",
-            "email": "Email"
+            "email": "Email",
+            "phone": "Số điện thoại",
+            "empty": "Chưa có thông tin liên hệ."
           },
           "champions": {
             "title": "Nhà vô địch",
@@ -2330,6 +2332,10 @@
               "title": "Ảnh banner",
               "description": "Tải lên ảnh banner cho trang giải đấu."
             },
+            "contact": {
+              "title": "Thông tin liên hệ",
+              "description": "Cập nhật tên, email và số điện thoại liên hệ."
+            },
             "rosters": {
               "title": "Danh sách đội",
               "description": "Quản lý danh sách đội và giới hạn người chơi."
@@ -2496,6 +2502,12 @@
                   "RALLY_15": "Rally 15 (trần 21)",
                   "SHORT_11": "Nhanh 11 (trần 15)",
                   "CUSTOM": "Tuỳ chỉnh"
+                },
+                "matchFormat": "Số set tối đa",
+                "matchFormats": {
+                  "BEST_OF_1": "1 set",
+                  "BEST_OF_3": "3 set",
+                  "BEST_OF_5": "5 set"
                 },
                 "pointsToWin": "Điểm thắng set",
                 "winByTwo": "Cách 2 điểm",
@@ -2799,6 +2811,24 @@
               "errors": {
                 "noChanges": "Không có thay đổi để lưu",
                 "updateFailed": "Cập nhật ảnh bìa thất bại"
+              }
+            },
+            "contact": {
+              "title": "Thông tin liên hệ",
+              "description": "Cập nhật thông tin liên hệ hiển thị trên trang giải đấu.",
+              "nameLabel": "Tên người liên hệ",
+              "namePlaceholder": "Nhập tên người liên hệ",
+              "emailLabel": "Email",
+              "emailPlaceholder": "Nhập email liên hệ",
+              "phoneLabel": "Số điện thoại",
+              "phonePlaceholder": "Nhập số điện thoại liên hệ",
+              "save": "Lưu",
+              "cancel": "Hủy",
+              "success": "Cập nhật thông tin liên hệ thành công",
+              "errors": {
+                "noChanges": "Không có thay đổi để lưu",
+                "invalidEmail": "Email không hợp lệ",
+                "updateFailed": "Cập nhật thông tin liên hệ thất bại"
               }
             }
           },

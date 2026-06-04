@@ -12,6 +12,7 @@ import {
   FileText,
   Copy,
   Trash2,
+  Phone,
 } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
 import { Tournament } from '@/lib/api/types';
@@ -108,6 +109,20 @@ export default function SettingsTab({
         description={t('settings.banner.description')}
         isActive={selectedItem === 'banner'}
         onClick={() => onItemClick('banner')}
+      />
+
+      {/* Contact */}
+      <ManageMenuItem
+        icon={Phone}
+        title={t('settings.contact.title')}
+        description={
+          tournament.contactName ||
+          tournament.contactEmail ||
+          tournament.contactPhone ||
+          t('settings.contact.description')
+        }
+        isActive={selectedItem === 'contact'}
+        onClick={() => onItemClick('contact')}
       />
 
       {/* Rosters */}

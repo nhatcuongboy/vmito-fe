@@ -1601,7 +1601,9 @@
           "contact": {
             "title": "联系方式",
             "name": "姓名",
-            "email": "邮箱"
+            "email": "邮箱",
+            "phone": "电话",
+            "empty": "暂无联系信息。"
           },
           "champions": {
             "title": "冠军",
@@ -2300,6 +2302,10 @@
               "title": "横幅图片",
               "description": "为锦标赛页面上传横幅图片。"
             },
+            "contact": {
+              "title": "联系信息",
+              "description": "更新联系人姓名、邮箱和电话。"
+            },
             "rosters": {
               "title": "名单",
               "description": "管理队伍名单和球员限制。"
@@ -2466,6 +2472,12 @@
                   "RALLY_15": "Rally 15（封顶 21）",
                   "SHORT_11": "短赛 11（封顶 15）",
                   "CUSTOM": "自定义"
+                },
+                "matchFormat": "最多局数",
+                "matchFormats": {
+                  "BEST_OF_1": "1 局",
+                  "BEST_OF_3": "3 局",
+                  "BEST_OF_5": "5 局"
                 },
                 "pointsToWin": "每局得分",
                 "winByTwo": "净胜 2 分",
@@ -2769,6 +2781,24 @@
               "errors": {
                 "noChanges": "没有更改需要保存",
                 "updateFailed": "更新封面图片失败"
+              }
+            },
+            "contact": {
+              "title": "联系信息",
+              "description": "更新锦标赛页面显示的联系方式。",
+              "nameLabel": "联系人姓名",
+              "namePlaceholder": "请输入联系人姓名",
+              "emailLabel": "邮箱",
+              "emailPlaceholder": "请输入联系邮箱",
+              "phoneLabel": "电话",
+              "phonePlaceholder": "请输入联系电话",
+              "save": "保存",
+              "cancel": "取消",
+              "success": "联系信息更新成功",
+              "errors": {
+                "noChanges": "没有更改需要保存",
+                "invalidEmail": "邮箱格式无效",
+                "updateFailed": "更新联系信息失败"
               }
             }
           },

@@ -733,6 +733,9 @@ export interface Tournament {
   scheduleType?: ScheduleType;
   coverPhoto?: string;
   coverPhotoPublicId?: string;
+  contactName?: string | null;
+  contactEmail?: string | null;
+  contactPhone?: string | null;
   createdAt: Date;
   updatedAt: Date;
   host?: {

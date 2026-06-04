@@ -714,101 +714,132 @@ export default function TournamentHomeTab({
       )}
 
       {/* Contact section */}
-      {host && (
-        <Box
-          borderWidth="1px"
-          borderColor="gray.200"
-          borderRadius="xl"
-          p={4}
-          bg="white"
-          _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
-        >
-          <Flex justify="space-between" align="center" mb={3}>
-            <Text fontWeight="semibold" fontSize="lg">
-              {t('contact.title')}
-            </Text>
-            {isHost && (
-              <HStack gap={1}>
-                <Box
-                  as="button"
-                  aria-label="Xóa giải đấu"
-                  w="32px"
-                  h="32px"
-                  display="flex"
-                  borderRadius="md"
-                  alignItems="center"
-                  justifyContent="center"
-                  cursor="pointer"
-                  _hover={{ bg: 'gray.100', _dark: { bg: 'gray.700' } }}
-                  onClick={() => handleManageOption('delete')}
-                >
-                  <Trash2 size={16} color="var(--chakra-colors-gray-500)" />
-                </Box>
-                <Box
-                  as="button"
-                  aria-label="Chỉnh sửa thông tin liên hệ"
-                  w="32px"
-                  h="32px"
-                  display="flex"
-                  borderRadius="md"
-                  alignItems="center"
-                  justifyContent="center"
-                  cursor="pointer"
-                  _hover={{ bg: 'gray.100', _dark: { bg: 'gray.700' } }}
-                  onClick={() => handleManageOption('name')}
-                >
-                  <Pencil size={16} color="var(--chakra-colors-gray-500)" />
-                </Box>
-                <Box
-                  as="button"
-                  aria-label="Tùy chọn liên hệ"
-                  w="32px"
-                  h="32px"
-                  display="flex"
-                  borderRadius="md"
-                  alignItems="center"
-                  justifyContent="center"
-                  cursor="pointer"
-                  _hover={{ bg: 'gray.100', _dark: { bg: 'gray.700' } }}
-                  onClick={() => handleManageOption('managers')}
-                >
-                  <MoreHorizontal
-                    size={16}
-                    color="var(--chakra-colors-gray-500)"
-                  />
-                </Box>
-              </HStack>
-            )}
-          </Flex>
+      {(() => {
+        const contactName = tournament.contactName || host?.name || '';
+        const contactEmail = tournament.contactEmail || host?.email || '';
+        const contactPhone = tournament.contactPhone || '';
+        const hasAnyContact = !!(contactName || contactEmail || contactPhone);
 
-          <VStack align="stretch" gap={1.5}>
-            {host.name && (
+        if (!hasAnyContact && !isHost) return null;
+
+        return (
+          <Box
+            borderWidth="1px"
+            borderColor="gray.200"
+            borderRadius="xl"
+            p={4}
+            bg="white"
+            _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
+          >
+            <Flex justify="space-between" align="center" mb={3}>
+              <Text fontWeight="semibold" fontSize="lg">
+                {t('contact.title')}
+              </Text>
+              {isHost && (
+                <HStack gap={1}>
+                  <Box
+                    as="button"
+                    aria-label="Xóa giải đấu"
+                    w="32px"
+                    h="32px"
+                    display="flex"
+                    borderRadius="md"
+                    alignItems="center"
+                    justifyContent="center"
+                    cursor="pointer"
+                    _hover={{ bg: 'gray.100', _dark: { bg: 'gray.700' } }}
+                    onClick={() => handleManageOption('delete')}
+                  >
+                    <Trash2 size={16} color="var(--chakra-colors-gray-500)" />
+                  </Box>
+                  <Box
+                    as="button"
+                    aria-label="Chỉnh sửa thông tin liên hệ"
+                    w="32px"
+                    h="32px"
+                    display="flex"
+                    borderRadius="md"
+                    alignItems="center"
+                    justifyContent="center"
+                    cursor="pointer"
+                    _hover={{ bg: 'gray.100', _dark: { bg: 'gray.700' } }}
+                    onClick={() => handleManageOption('contact')}
+                  >
+                    <Pencil size={16} color="var(--chakra-colors-gray-500)" />
+                  </Box>
+                  <Box
+                    as="button"
+                    aria-label="Tùy chọn liên hệ"
+                    w="32px"
+                    h="32px"
+                    display="flex"
+                    borderRadius="md"
+                    alignItems="center"
+                    justifyContent="center"
+                    cursor="pointer"
+                    _hover={{ bg: 'gray.100', _dark: { bg: 'gray.700' } }}
+                    onClick={() => handleManageOption('managers')}
+                  >
+                    <MoreHorizontal
+                      size={16}
+                      color="var(--chakra-colors-gray-500)"
+                    />
+                  </Box>
+                </HStack>
+              )}
+            </Flex>
+
+            {hasAnyContact ? (
+              <VStack align="stretch" gap={1.5}>
+                {contactName && (
+                  <Text
+                    fontSize="sm"
+                    color="gray.700"
+                    _dark={{ color: 'gray.300' }}
+                  >
+                    <Text as="span" fontWeight="medium">
+                      {t('contact.name')}:
+                    </Text>{' '}
+                    {contactName}
+                  </Text>
+                )}
+                {contactEmail && (
+                  <Text
+                    fontSize="sm"
+                    color="gray.700"
+                    _dark={{ color: 'gray.300' }}
+                  >
+                    <Text as="span" fontWeight="medium">
+                      {t('contact.email')}:
+                    </Text>{' '}
+                    {contactEmail}
+                  </Text>
+                )}
+                {contactPhone && (
+                  <Text
+                    fontSize="sm"
+                    color="gray.700"
+                    _dark={{ color: 'gray.300' }}
+                  >
+                    <Text as="span" fontWeight="medium">
+                      {t('contact.phone')}:
+                    </Text>{' '}
+                    {contactPhone}
+                  </Text>
+                )}
+              </VStack>
+            ) : (
               <Text
                 fontSize="sm"
-                color="gray.700"
-                _dark={{ color: 'gray.300' }}
+                color="gray.500"
+                _dark={{ color: 'gray.400' }}
               >
-                <Text as="span" fontWeight="medium">
-                  {t('contact.name')}:
-                </Text>{' '}
-                {host.name}
+                {t('contact.empty')}
               </Text>
             )}
-            {host.email && (
-              <Text
-                fontSize="sm"
-                color="gray.700"
-                _dark={{ color: 'gray.300' }}
-              >
-                <Text as="span" fontWeight="medium">
-                  {t('contact.email')}:
-                </Text>{' '}
-                {host.email}
-              </Text>
-            )}
-          </VStack>
-        </Box>
-      )}
+          </Box>
+        );
+      })()}
 
       {/* Tournament access QR */}
       <Flex

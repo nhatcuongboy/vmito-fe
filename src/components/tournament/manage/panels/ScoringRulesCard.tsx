@@ -1,11 +1,11 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Box, Flex, Heading, Text, Badge, Input } from '@chakra-ui/react';
 import { Button } from '@/components/ui/chakra-compat';
 import { Field } from '@chakra-ui/react';
 import { useTranslations } from 'next-intl';
-import { Category, UpdateCategoryRequest } from '@/lib/api/types';
+import { Category, MatchFormat, UpdateCategoryRequest } from '@/lib/api/types';
 import { CategoryService } from '@/lib/api/category.service';
 
 interface ScoringRulesCardProps {
@@ -15,6 +15,7 @@ interface ScoringRulesCardProps {
 
 type TPresetId = 'BWF_21' | 'CLASSIC_15' | 'RALLY_15' | 'SHORT_11' | 'CUSTOM';
 type TStage = 'GROUP' | 'KNOCKOUT' | 'FINAL';
+type TRoundKey = 'R16' | 'QF' | 'SF' | 'F' | '3RD';
 
 interface IPreset {
   id: TPresetId;
@@ -25,6 +26,7 @@ interface IPreset {
 }
 
 interface IStageValues {
+  matchFormat: MatchFormat;
   pointsToWin: number;
   winByTwo: boolean;
   pointCap: number | null;
@@ -40,10 +42,39 @@ const PRESETS: readonly IPreset[] = [
 ];
 
 const STAGES: readonly TStage[] = ['GROUP', 'KNOCKOUT', 'FINAL'];
+const MATCH_FORMATS: readonly MatchFormat[] = [
+  MatchFormat.BEST_OF_1,
+  MatchFormat.BEST_OF_3,
+  MatchFormat.BEST_OF_5,
+];
 
 const DEFAULT_POINTS = 21;
 const DEFAULT_CAP: number | null = 30;
 const DEFAULT_WIN_BY_TWO = true;
+const DEFAULT_MATCH_FORMAT = MatchFormat.BEST_OF_3;
+
+const getRoundFormats = (
+  formatConfig: Category['formatConfig']
+): Partial<Record<TRoundKey, MatchFormat>> => {
+  const raw =
+    formatConfig &&
+    typeof formatConfig === 'object' &&
+    'roundFormats' in formatConfig
+      ? formatConfig.roundFormats
+      : undefined;
+
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) {
+    return {};
+  }
+
+  const roundFormats = raw as Partial<Record<TRoundKey, unknown>>;
+  return Object.fromEntries(
+    Object.entries(roundFormats).filter(([, value]) => hasMatchFormat(value))
+  ) as Partial<Record<TRoundKey, MatchFormat>>;
+};
+
+const hasMatchFormat = (value: unknown): value is MatchFormat =>
+  MATCH_FORMATS.includes(value as MatchFormat);
 
 const matchesPreset = (
   preset: IPreset,
@@ -63,9 +94,11 @@ const initialFor = (category: Category, stage: TStage): IStageValues => {
   const baseWinByTwo = category.winByTwo ?? DEFAULT_WIN_BY_TWO;
   const baseCap =
     category.pointCap === undefined ? DEFAULT_CAP : category.pointCap;
+  const baseMatchFormat = category.matchFormat ?? DEFAULT_MATCH_FORMAT;
 
   if (stage === 'GROUP') {
     return {
+      matchFormat: baseMatchFormat,
       pointsToWin: basePoints,
       winByTwo: baseWinByTwo,
       pointCap: baseCap,
@@ -73,23 +106,38 @@ const initialFor = (category: Category, stage: TStage): IStageValues => {
     };
   }
   if (stage === 'KNOCKOUT') {
-    const hasOverride =
+    const knockoutMatchFormat = category.eliminationMatchFormat;
+    const hasScoringOverride =
       category.knockoutPointsToWin !== null &&
       category.knockoutPointsToWin !== undefined;
+    const hasMatchFormatOverride =
+      knockoutMatchFormat !== null &&
+      knockoutMatchFormat !== undefined &&
+      knockoutMatchFormat !== baseMatchFormat;
     return {
+      matchFormat: knockoutMatchFormat ?? baseMatchFormat,
       pointsToWin: category.knockoutPointsToWin ?? basePoints,
       winByTwo: category.knockoutWinByTwo ?? baseWinByTwo,
       pointCap:
         category.knockoutPointCap !== undefined
           ? category.knockoutPointCap
           : baseCap,
-      inherit: !hasOverride,
+      inherit: !hasScoringOverride && !hasMatchFormatOverride,
     };
   }
   // FINAL — falls back to knockout, then base.
-  const hasFinalOverride =
+  const roundFormats = getRoundFormats(category.formatConfig);
+  const finalMatchFormat = hasMatchFormat(roundFormats.F)
+    ? roundFormats.F
+    : undefined;
+  const hasFinalScoringOverride =
     category.finalPointsToWin !== null &&
     category.finalPointsToWin !== undefined;
+  const koMatchFormat = category.eliminationMatchFormat ?? baseMatchFormat;
+  const hasFinalMatchFormatOverride =
+    finalMatchFormat !== null &&
+    finalMatchFormat !== undefined &&
+    finalMatchFormat !== koMatchFormat;
   const koPoints = category.knockoutPointsToWin ?? basePoints;
   const koWin = category.knockoutWinByTwo ?? baseWinByTwo;
   const koCap =
@@ -97,25 +145,77 @@ const initialFor = (category: Category, stage: TStage): IStageValues => {
       ? category.knockoutPointCap
       : baseCap;
   return {
+    matchFormat: finalMatchFormat ?? koMatchFormat,
     pointsToWin: category.finalPointsToWin ?? koPoints,
     winByTwo: category.finalWinByTwo ?? koWin,
     pointCap:
       category.finalPointCap !== undefined ? category.finalPointCap : koCap,
-    inherit: !hasFinalOverride,
+    inherit: !hasFinalScoringOverride && !hasFinalMatchFormatOverride,
   };
 };
 
 const valuesEqual = (a: IStageValues, b: IStageValues): boolean =>
   a.inherit === b.inherit &&
+  a.matchFormat === b.matchFormat &&
   a.pointsToWin === b.pointsToWin &&
   a.winByTwo === b.winByTwo &&
   a.pointCap === b.pointCap;
+
+const getEffectiveStageValues = (
+  values: Record<TStage, IStageValues>,
+  stage: TStage
+): IStageValues => {
+  if (stage === 'GROUP' || !values[stage].inherit) {
+    return values[stage];
+  }
+
+  if (stage === 'KNOCKOUT') {
+    return { ...values.GROUP, inherit: true };
+  }
+
+  const source = values.KNOCKOUT.inherit ? values.GROUP : values.KNOCKOUT;
+  return { ...source, inherit: true };
+};
 
 export default function ScoringRulesCard({
   category,
   onCategoryUpdated,
 }: ScoringRulesCardProps) {
   const t = useTranslations('pages.tournaments.detail.manage.panels.format');
+
+  const categoryRuleKey = useMemo(
+    () =>
+      JSON.stringify([
+        category.id,
+        category.pointsToWin,
+        category.winByTwo,
+        category.pointCap,
+        category.knockoutPointsToWin,
+        category.knockoutWinByTwo,
+        category.knockoutPointCap,
+        category.finalPointsToWin,
+        category.finalWinByTwo,
+        category.finalPointCap,
+        category.matchFormat,
+        category.eliminationMatchFormat,
+        getRoundFormats(category.formatConfig).F,
+      ]),
+    [
+      category.id,
+      category.pointsToWin,
+      category.winByTwo,
+      category.pointCap,
+      category.knockoutPointsToWin,
+      category.knockoutWinByTwo,
+      category.knockoutPointCap,
+      category.finalPointsToWin,
+      category.finalWinByTwo,
+      category.finalPointCap,
+      category.matchFormat,
+      category.eliminationMatchFormat,
+      category.formatConfig,
+    ]
+  );
 
   const initial = useMemo<Record<TStage, IStageValues>>(
     () => ({
@@ -132,15 +232,25 @@ export default function ScoringRulesCard({
   const [error, setError] = useState<string | null>(null);
 
   const current = values[activeStage];
+  const effectiveCurrent = getEffectiveStageValues(values, activeStage);
+
+  useEffect(() => {
+    setValues(initial);
+    setError(null);
+  }, [categoryRuleKey, initial]);
 
   const activePreset = useMemo<TPresetId>(
     () =>
       detectPreset({
-        pointsToWin: current.pointsToWin,
-        winByTwo: current.winByTwo,
-        pointCap: current.pointCap,
+        pointsToWin: effectiveCurrent.pointsToWin,
+        winByTwo: effectiveCurrent.winByTwo,
+        pointCap: effectiveCurrent.pointCap,
       }),
-    [current.pointsToWin, current.winByTwo, current.pointCap]
+    [
+      effectiveCurrent.pointsToWin,
+      effectiveCurrent.winByTwo,
+      effectiveCurrent.pointCap,
+    ]
   );
 
   const isDirty = STAGES.some(
@@ -177,15 +287,59 @@ export default function ScoringRulesCard({
     });
   };
 
+  const handleInheritChange = (inherit: boolean): void => {
+    if (inherit) {
+      updateStage(activeStage, { inherit: true });
+      return;
+    }
+
+    updateStage(activeStage, {
+      matchFormat: effectiveCurrent.matchFormat,
+      pointsToWin: effectiveCurrent.pointsToWin,
+      winByTwo: effectiveCurrent.winByTwo,
+      pointCap: effectiveCurrent.pointCap,
+      inherit: false,
+    });
+  };
+
   const handleSave = async (): Promise<void> => {
     if (!isValid) return;
     setIsSaving(true);
     setError(null);
     try {
+      const nextFormatConfig: Record<string, unknown> = {
+        ...(category.formatConfig ?? {}),
+      };
+      const nextRoundFormats: Partial<Record<TRoundKey, MatchFormat>> = {
+        ...getRoundFormats(category.formatConfig),
+      };
+      const effectiveKnockout = getEffectiveStageValues(
+        values,
+        'KNOCKOUT'
+      ).matchFormat;
+
+      if (values.FINAL.inherit) {
+        delete nextRoundFormats.F;
+      } else if (values.FINAL.matchFormat !== effectiveKnockout) {
+        nextRoundFormats.F = values.FINAL.matchFormat;
+      } else {
+        delete nextRoundFormats.F;
+      }
+
+      if (Object.keys(nextRoundFormats).length > 0) {
+        nextFormatConfig.roundFormats = nextRoundFormats;
+      } else {
+        delete nextFormatConfig.roundFormats;
+      }
+
       const payload: UpdateCategoryRequest = {
+        matchFormat: values.GROUP.matchFormat,
         pointsToWin: values.GROUP.pointsToWin,
         winByTwo: values.GROUP.winByTwo,
         pointCap: values.GROUP.pointCap,
+        eliminationMatchFormat: values.KNOCKOUT.inherit
+          ? values.GROUP.matchFormat
+          : values.KNOCKOUT.matchFormat,
         knockoutPointsToWin: values.KNOCKOUT.inherit
           ? null
           : values.KNOCKOUT.pointsToWin,
@@ -201,6 +355,13 @@ export default function ScoringRulesCard({
         finalWinByTwo: values.FINAL.inherit ? null : values.FINAL.winByTwo,
         finalPointCap: values.FINAL.inherit ? null : values.FINAL.pointCap,
       };
+
+      if (
+        category.formatConfig !== undefined ||
+        Object.keys(nextFormatConfig).length > 0
+      ) {
+        payload.formatConfig = nextFormatConfig;
+      }
       const updated = await CategoryService.updateCategory(
         category.id,
         payload
@@ -302,14 +463,14 @@ export default function ScoringRulesCard({
           <Button
             size="sm"
             variant={current.inherit ? 'solid' : 'outline'}
-            onClick={() => updateStage(activeStage, { inherit: true })}
+            onClick={() => handleInheritChange(true)}
           >
             {t('scoringRules.inheritOn')}
           </Button>
           <Button
             size="sm"
             variant={!current.inherit ? 'solid' : 'outline'}
-            onClick={() => updateStage(activeStage, { inherit: false })}
+            onClick={() => handleInheritChange(false)}
           >
             {t('scoringRules.inheritOff')}
           </Button>
@@ -336,6 +497,32 @@ export default function ScoringRulesCard({
 
       {/* Custom fields */}
       <Flex gap={4} wrap="wrap" opacity={fieldsDisabled ? 0.4 : 1}>
+        <Field.Root maxW="280px">
+          <Field.Label fontSize="sm">
+            {t('scoringRules.matchFormat')}
+          </Field.Label>
+          <Flex gap={2} align="center" minH="40px" wrap="wrap">
+            {MATCH_FORMATS.map((format) => {
+              const isSelected = effectiveCurrent.matchFormat === format;
+              return (
+                <Button
+                  key={format}
+                  size="sm"
+                  variant={isSelected ? 'solid' : 'outline'}
+                  disabled={fieldsDisabled}
+                  onClick={() =>
+                    updateStage(activeStage, {
+                      matchFormat: format,
+                    })
+                  }
+                >
+                  {t(`scoringRules.matchFormats.${format}`)}
+                </Button>
+              );
+            })}
+          </Flex>
+        </Field.Root>
+
         <Field.Root maxW="160px">
           <Field.Label fontSize="sm">
             {t('scoringRules.pointsToWin')}
@@ -344,7 +531,7 @@ export default function ScoringRulesCard({
             type="number"
             min={1}
             max={99}
-            value={current.pointsToWin}
+            value={effectiveCurrent.pointsToWin}
             disabled={fieldsDisabled}
             onChange={(e) => {
               const next = Number(e.target.value);
@@ -360,7 +547,7 @@ export default function ScoringRulesCard({
           <Flex gap={2} align="center" h="40px">
             <Button
               size="sm"
-              variant={current.winByTwo ? 'solid' : 'outline'}
+              variant={effectiveCurrent.winByTwo ? 'solid' : 'outline'}
               disabled={fieldsDisabled}
               onClick={() => updateStage(activeStage, { winByTwo: true })}
             >
@@ -368,7 +555,7 @@ export default function ScoringRulesCard({
             </Button>
             <Button
               size="sm"
-              variant={!current.winByTwo ? 'solid' : 'outline'}
+              variant={!effectiveCurrent.winByTwo ? 'solid' : 'outline'}
               disabled={fieldsDisabled}
               onClick={() => updateStage(activeStage, { winByTwo: false })}
             >
@@ -382,11 +569,11 @@ export default function ScoringRulesCard({
           <Flex gap={2} align="center">
             <Input
               type="number"
-              min={current.pointsToWin}
+              min={effectiveCurrent.pointsToWin}
               max={99}
-              value={current.pointCap ?? ''}
+              value={effectiveCurrent.pointCap ?? ''}
               placeholder={t('scoringRules.noCap')}
-              disabled={fieldsDisabled || current.pointCap === null}
+              disabled={fieldsDisabled || effectiveCurrent.pointCap === null}
               onChange={(e) => {
                 const next = Number(e.target.value);
                 updateStage(activeStage, {
@@ -396,15 +583,16 @@ export default function ScoringRulesCard({
             />
             <Button
               size="sm"
-              variant={current.pointCap === null ? 'solid' : 'outline'}
+              variant={effectiveCurrent.pointCap === null ? 'solid' : 'outline'}
               disabled={fieldsDisabled}
               onClick={() =>
                 updateStage(activeStage, {
-                  pointCap: current.pointCap === null ? DEFAULT_CAP : null,
+                  pointCap:
+                    effectiveCurrent.pointCap === null ? DEFAULT_CAP : null,
                 })
               }
             >
-              {current.pointCap === null
+              {effectiveCurrent.pointCap === null
                 ? t('scoringRules.noCap')
                 : t('scoringRules.disableCap')}
             </Button>

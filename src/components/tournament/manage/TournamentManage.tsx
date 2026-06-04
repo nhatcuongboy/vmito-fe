@@ -40,6 +40,7 @@ import NamePanel from './panels/NamePanel';
 import DatesPanel from './panels/DatesPanel';
 import LocationPanel from './panels/LocationPanel';
 import BannerPanel from './panels/BannerPanel';
+import ContactPanel from './panels/ContactPanel';
 import { TournamentManageSkeleton } from '@/components/tournament/skeletons';
 import DuplicateTournamentModal from './DuplicateTournamentModal';
 
@@ -259,6 +260,13 @@ export default function TournamentManage({
       case 'banner':
         return (
           <BannerPanel
+            tournament={tournament}
+            onTournamentUpdate={onTournamentUpdate}
+          />
+        );
+      case 'contact':
+        return (
+          <ContactPanel
             tournament={tournament}
             onTournamentUpdate={onTournamentUpdate}
           />

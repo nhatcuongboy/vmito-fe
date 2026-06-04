@@ -1623,7 +1623,9 @@
           "contact": {
             "title": "Contact",
             "name": "Name",
-            "email": "Email"
+            "email": "Email",
+            "phone": "Phone",
+            "empty": "No contact information yet."
           },
           "champions": {
             "title": "Champions",
@@ -2322,6 +2324,10 @@
               "title": "Banner image",
               "description": "Upload a banner image for your tournament page."
             },
+            "contact": {
+              "title": "Contact info",
+              "description": "Update contact name, email and phone."
+            },
             "rosters": {
               "title": "Rosters",
               "description": "Manage team rosters and player limits."
@@ -2488,6 +2494,12 @@
                   "RALLY_15": "Rally 15 (cap 21)",
                   "SHORT_11": "Short 11 (cap 15)",
                   "CUSTOM": "Custom"
+                },
+                "matchFormat": "Maximum sets",
+                "matchFormats": {
+                  "BEST_OF_1": "1 set",
+                  "BEST_OF_3": "3 sets",
+                  "BEST_OF_5": "5 sets"
                 },
                 "pointsToWin": "Points to win set",
                 "winByTwo": "Win by 2",
@@ -2791,6 +2803,24 @@
               "errors": {
                 "noChanges": "No changes to save",
                 "updateFailed": "Failed to update cover photo"
+              }
+            },
+            "contact": {
+              "title": "Contact information",
+              "description": "Update the contact details shown on the tournament page.",
+              "nameLabel": "Contact name",
+              "namePlaceholder": "Enter contact name",
+              "emailLabel": "Email",
+              "emailPlaceholder": "Enter contact email",
+              "phoneLabel": "Phone",
+              "phonePlaceholder": "Enter contact phone",
+              "save": "Save",
+              "cancel": "Cancel",
+              "success": "Contact information updated successfully",
+              "errors": {
+                "noChanges": "No changes to save",
+                "invalidEmail": "Invalid email address",
+                "updateFailed": "Failed to update contact information"
               }
             }
           },
