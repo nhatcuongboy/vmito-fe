@@ -2,13 +2,11 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
-import QRCode from 'qrcode';
 import { Badge, Box, Flex, Heading, Image, Text } from '@chakra-ui/react';
 import { Button, HStack, VStack } from '@/components/ui/chakra-compat';
 import PageLayout from '@/components/layout/PageLayout';
 import { useRouter } from '@/i18n/config';
 import { useParams } from 'next/navigation';
-import { toaster } from '@/components/ui/toaster';
 import { CategoryService } from '@/lib/api/category.service';
 import { TournamentPlayerService } from '@/lib/api/tournament-player.service';
 import { TournamentService } from '@/lib/api/tournament.service';
@@ -23,12 +21,9 @@ import {
 } from '@/lib/api/types';
 import {
   CalendarDays,
-  Check,
   ChevronLeft,
-  Copy,
   MapPin,
   Medal,
-  QrCode,
   Trophy,
   UserRound,
 } from 'lucide-react';
@@ -40,6 +35,7 @@ import {
   matchesTournamentPlayerCode,
 } from '@/lib/tournament/codes';
 import { getRoundDisplayLabel } from '@/lib/tournament/roundLabel';
+import TournamentQrBar from '@/components/tournament/TournamentQrBar';
 
 interface PlayerCategorySummary {
   id: string;
@@ -256,8 +252,6 @@ export default function PublicTournamentPlayerPage() {
   const playerCode = params.playerCode as string;
 
   const [loading, setLoading] = useState(true);
-  const [copied, setCopied] = useState(false);
-  const [qrDataUrl, setQrDataUrl] = useState<string | null>(null);
   const [tournament, setTournament] = useState<Tournament | null>(null);
   const [playerState, setPlayerState] = useState<ResolvedPlayerState>({
     status: 'missing',
@@ -325,34 +319,6 @@ export default function PublicTournamentPlayerPage() {
   useEffect(() => {
     loadPlayerPage();
   }, [loadPlayerPage]);
-
-  useEffect(() => {
-    if (playerState.status !== 'found') return;
-
-    QRCode.toDataURL(shareUrl, {
-      width: 184,
-      margin: 2,
-      color: {
-        dark: '#111827',
-        light: '#FFFFFF',
-      },
-    })
-      .then((dataUrl) => setQrDataUrl(dataUrl))
-      .catch((error) => {
-        console.error('QR code generation error:', error);
-      });
-  }, [playerState.status, shareUrl]);
-
-  const copyLink = async () => {
-    try {
-      await navigator.clipboard.writeText(shareUrl);
-      setCopied(true);
-      toaster.success({ title: t('copySuccess') });
-      setTimeout(() => setCopied(false), 2000);
-    } catch {
-      toaster.error({ title: t('copyError') });
-    }
-  };
 
   if (loading) {
     return (
@@ -673,52 +639,9 @@ export default function PublicTournamentPlayerPage() {
                 )}
               </Box>
             </VStack>
-
-            <Box
-              w={{ base: 'full', md: '180px' }}
-              borderWidth="1px"
-              borderColor="gray.200"
-              borderRadius="xl"
-              p={2.5}
-              bg="gray.50"
-              flexShrink={0}
-              _dark={{ bg: 'gray.900', borderColor: 'gray.700' }}
-            >
-              <VStack gap={2} align="stretch">
-                <HStack gap={2}>
-                  <QrCode size={16} />
-                  <Text fontSize="sm" fontWeight="semibold">
-                    {t('qrTitle')}
-                  </Text>
-                </HStack>
-                <Box bg="white" borderRadius="lg" p={2} alignSelf="center">
-                  {qrDataUrl ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      src={qrDataUrl}
-                      alt="QR code"
-                      width={136}
-                      height={136}
-                      style={{ display: 'block' }}
-                    />
-                  ) : (
-                    <Box w="136px" h="136px" />
-                  )}
-                </Box>
-                <Button
-                  w="full"
-                  size="sm"
-                  variant="outline"
-                  colorPalette={copied ? 'green' : 'gray'}
-                  leftIcon={copied ? <Check size={14} /> : <Copy size={14} />}
-                  onClick={copyLink}
-                >
-                  {copied ? t('copied') : t('copyLink')}
-                </Button>
-              </VStack>
-            </Box>
           </Flex>
         </Box>
+        <TournamentQrBar url={shareUrl} />
       </VStack>
     </PageLayout>
   );

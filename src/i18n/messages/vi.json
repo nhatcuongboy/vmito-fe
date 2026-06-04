@@ -1569,12 +1569,12 @@
           "ordinals": {
             "1": "Nhất",
             "2": "Nhì",
-            "3": "Ba",
-            "4": "Tư",
-            "5": "Năm",
-            "6": "Sáu",
-            "7": "Bảy",
-            "8": "Tám",
+            "3": "Hạng 3",
+            "4": "Hạng 4",
+            "5": "Hạng 5",
+            "6": "Hạng 6",
+            "7": "Hạng 7",
+            "8": "Hạng 8",
             "other": "Hạng {rank}"
           },
           "playoffsRounds": {
@@ -1616,8 +1616,8 @@
           "overview": {
             "title": "Tổng quan",
             "teamsParticipating": "{count} đội tham gia",
-            "viewSchedule": "Lịch đấu",
-            "viewStandings": "Xếp hạng",
+            "viewSchedule": "Lịch thi đấu",
+            "viewStandings": "Bảng xếp hạng",
             "viewShowcase": "Showcase"
           },
           "categories": {
@@ -2686,12 +2686,12 @@
               "ordinals": {
                 "1": "Nhất",
                 "2": "Nhì",
-                "3": "Ba",
-                "4": "Tư",
-                "5": "Năm",
-                "6": "Sáu",
-                "7": "Bảy",
-                "8": "Tám",
+                "3": "Hạng 3",
+                "4": "Hạng 4",
+                "5": "Hạng 5",
+                "6": "Hạng 6",
+                "7": "Hạng 7",
+                "8": "Hạng 8",
                 "other": "Hạng {rank}"
               },
               "confirm": "Xác nhận",
@@ -3277,7 +3277,7 @@
         "qrTitle": "Chia sẻ bảng điểm",
         "copyLink": "Sao chép liên kết",
         "linkCopied": "Đã sao chép liên kết",
-        "liveScoreboard": "Bảng điểm"
+        "liveScoreboard": "Bảng điểm live"
       },
       "showcase": {
         "showcaseTitle": "Showcase vận động viên",
@@ -3363,12 +3363,12 @@
         "ordinals": {
           "1": "Nhất",
           "2": "Nhì",
-          "3": "Ba",
-          "4": "Tư",
-          "5": "Năm",
-          "6": "Sáu",
-          "7": "Bảy",
-          "8": "Tám",
+          "3": "Hạng 3",
+          "4": "Hạng 4",
+          "5": "Hạng 5",
+          "6": "Hạng 6",
+          "7": "Hạng 7",
+          "8": "Hạng 8",
           "other": "Hạng {rank}"
         }
       },
@@ -3465,6 +3465,15 @@
         "resetResultWarning": "Hành động này sẽ xoá tỉ số, các set, đội thắng, điểm bảng và trạng thái bỏ cuộc của trận. Lịch sân và giờ thi đấu vẫn được giữ.",
         "resetResultSuccess": "Đã reset kết quả trận đấu",
         "resetResultFailed": "Không thể reset kết quả trận đấu"
+      },
+      "qrBar": {
+        "download": "Tải QR",
+        "share": "Chia sẻ",
+        "copy": "Sao chép link",
+        "copied": "Đã sao chép",
+        "downloadSuccess": "Đã tải mã QR",
+        "copySuccess": "Đã sao chép link",
+        "copyError": "Không thể sao chép link"
       },
       "teamPage": {
         "title": "Chi tiết đội",

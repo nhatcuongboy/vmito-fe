@@ -3458,6 +3458,15 @@
         "resetResultSuccess": "Match result reset",
         "resetResultFailed": "Failed to reset match result"
       },
+      "qrBar": {
+        "download": "Download QR",
+        "share": "Share",
+        "copy": "Copy link",
+        "copied": "Copied",
+        "downloadSuccess": "QR downloaded",
+        "copySuccess": "Link copied",
+        "copyError": "Could not copy link"
+      },
       "teamPage": {
         "title": "Team details",
         "notFound": "Team not found in this tournament.",

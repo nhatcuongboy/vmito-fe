@@ -1,13 +1,14 @@
 'use client';
 
-import { useEffect, useMemo, useRef, useState } from 'react';
-import QRCode from 'qrcode';
+import type { ReactNode } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import {
   Box,
   Flex,
   Grid,
   HStack,
   Image,
+  Link,
   Skeleton,
   Text,
   VStack,
@@ -24,8 +25,6 @@ import {
   Trash2,
   MoreHorizontal,
   CheckCircle,
-  QrCode,
-  Share2,
   MonitorPlay,
   Gavel,
   NotebookText,
@@ -42,6 +41,7 @@ import {
 } from '@/lib/api/types';
 import { TournamentService } from '@/lib/api/tournament.service';
 import PublicTournamentWinnersTab from '@/components/tournament/PublicTournamentWinnersTab';
+import TournamentQrBar from '@/components/tournament/TournamentQrBar';
 import { TournamentTableSkeleton } from '@/components/tournament/skeletons';
 import { useRouter } from '@/i18n/config';
 import { useAuthStore } from '@/stores/useAuthStore';
@@ -72,6 +72,32 @@ interface TournamentHomeTabProps {
   slug: string;
 }
 
+const URL_PATTERN = /(https?:\/\/[^\s]+)/g;
+
+function renderTextWithLinks(text: string): ReactNode[] {
+  return text.split(URL_PATTERN).map((part, index) => {
+    if (!URL_PATTERN.test(part)) return part;
+    URL_PATTERN.lastIndex = 0;
+
+    return (
+      <Link
+        key={`${part}-${index}`}
+        href={part}
+        target="_blank"
+        rel="noopener noreferrer"
+        color="green.600"
+        fontWeight="medium"
+        textDecoration="underline"
+        textUnderlineOffset="2px"
+        wordBreak="break-all"
+        _dark={{ color: 'green.300' }}
+      >
+        {part}
+      </Link>
+    );
+  });
+}
+
 export default function TournamentHomeTab({
   tournament,
   categories,
@@ -93,7 +119,6 @@ export default function TournamentHomeTab({
     [UserRole.REFEREE, UserRole.HOST, UserRole.ADMIN].includes(
       user?.role as UserRole
     );
-  const qrCanvasRef = useRef<HTMLCanvasElement>(null);
   const [tournamentVenues, setTournamentVenues] = useState<IHomeVenueItem[]>(
     []
   );
@@ -126,21 +151,6 @@ export default function TournamentHomeTab({
     if (!venue) return [];
     return [{ id: venue.id, venue }];
   }, [tournamentVenues, venue]);
-
-  useEffect(() => {
-    if (!qrCanvasRef.current) return;
-
-    QRCode.toCanvas(qrCanvasRef.current, shareUrl, {
-      width: 88,
-      margin: 1,
-      color: {
-        dark: '#111827',
-        light: '#FFFFFF',
-      },
-    }).catch((error) => {
-      console.error('Tournament QR code generation error:', error);
-    });
-  }, [shareUrl]);
 
   useEffect(() => {
     let isMounted = true;
@@ -444,61 +454,6 @@ export default function TournamentHomeTab({
         </Grid>
       </Box>
 
-      {(tournamentNote || isHost) && (
-        <Box
-          borderWidth="1px"
-          borderColor="gray.200"
-          borderRadius="xl"
-          p={4}
-          bg="white"
-          _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
-        >
-          <Flex justify="space-between" align="center" mb={3}>
-            <HStack gap={2}>
-              <Box color="green.600" _dark={{ color: 'green.300' }}>
-                <NotebookText size={18} />
-              </Box>
-              <Text fontWeight="semibold" fontSize="lg">
-                {t('notes.title')}
-              </Text>
-            </HStack>
-            {isHost && (
-              <Box
-                as="button"
-                aria-label={t('notes.edit')}
-                w="32px"
-                h="32px"
-                display="flex"
-                borderRadius="md"
-                alignItems="center"
-                justifyContent="center"
-                cursor="pointer"
-                _hover={{ bg: 'gray.100', _dark: { bg: 'gray.700' } }}
-                onClick={() => handleManageOption('name')}
-              >
-                <Pencil size={16} color="var(--chakra-colors-gray-500)" />
-              </Box>
-            )}
-          </Flex>
-
-          {tournamentNote ? (
-            <Text
-              fontSize="sm"
-              lineHeight="1.7"
-              whiteSpace="pre-wrap"
-              color="gray.700"
-              _dark={{ color: 'gray.200' }}
-            >
-              {tournamentNote}
-            </Text>
-          ) : (
-            <Text fontSize="sm" color="gray.500" _dark={{ color: 'gray.400' }}>
-              {t('notes.empty')}
-            </Text>
-          )}
-        </Box>
-      )}
-
       {/* Categories section */}
       <Box
         borderWidth="1px"
@@ -770,6 +725,61 @@ export default function TournamentHomeTab({
         </Box>
       )}
 
+      {(tournamentNote || isHost) && (
+        <Box
+          borderWidth="1px"
+          borderColor="gray.200"
+          borderRadius="xl"
+          p={4}
+          bg="white"
+          _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
+        >
+          <Flex justify="space-between" align="center" mb={3}>
+            <HStack gap={2}>
+              <Box color="green.600" _dark={{ color: 'green.300' }}>
+                <NotebookText size={18} />
+              </Box>
+              <Text fontWeight="semibold" fontSize="lg">
+                {t('notes.title')}
+              </Text>
+            </HStack>
+            {isHost && (
+              <Box
+                as="button"
+                aria-label={t('notes.edit')}
+                w="32px"
+                h="32px"
+                display="flex"
+                borderRadius="md"
+                alignItems="center"
+                justifyContent="center"
+                cursor="pointer"
+                _hover={{ bg: 'gray.100', _dark: { bg: 'gray.700' } }}
+                onClick={() => handleManageOption('name')}
+              >
+                <Pencil size={16} color="var(--chakra-colors-gray-500)" />
+              </Box>
+            )}
+          </Flex>
+
+          {tournamentNote ? (
+            <Text
+              fontSize="sm"
+              lineHeight="1.7"
+              whiteSpace="pre-wrap"
+              color="gray.700"
+              _dark={{ color: 'gray.200' }}
+            >
+              {renderTextWithLinks(tournamentNote)}
+            </Text>
+          ) : (
+            <Text fontSize="sm" color="gray.500" _dark={{ color: 'gray.400' }}>
+              {t('notes.empty')}
+            </Text>
+          )}
+        </Box>
+      )}
+
       {/* Contact section */}
       {(() => {
         const contactName = tournament.contactName || host?.name || '';
@@ -899,48 +909,7 @@ export default function TournamentHomeTab({
       })()}
 
       {/* Tournament access QR */}
-      <Flex
-        direction={{ base: 'column', sm: 'row' }}
-        align={{ base: 'stretch', sm: 'center' }}
-        gap={3}
-        borderWidth="1px"
-        borderColor="gray.200"
-        borderRadius="xl"
-        p={3}
-        bg="white"
-        _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
-      >
-        <Box
-          bg="white"
-          borderRadius="md"
-          borderWidth="1px"
-          borderColor="gray.200"
-          p={2}
-          alignSelf={{ base: 'center', sm: 'auto' }}
-          flexShrink={0}
-        >
-          <canvas ref={qrCanvasRef} />
-        </Box>
-
-        <VStack align="stretch" gap={2} flex="1" minW={0}>
-          <HStack gap={2}>
-            <QrCode size={15} color="var(--chakra-colors-gray-700)" />
-            <Text fontWeight="semibold" fontSize="sm">
-              QR truy cập giải đấu
-            </Text>
-          </HStack>
-          <Button
-            alignSelf={{ base: 'stretch', sm: 'flex-start' }}
-            size="sm"
-            variant="outline"
-            colorPalette="blue"
-            leftIcon={<Share2 size={15} />}
-            onClick={handleShareLink}
-          >
-            Chia sẻ
-          </Button>
-        </VStack>
-      </Flex>
+      <TournamentQrBar url={shareUrl} onShare={handleShareLink} />
     </VStack>
   );
 }

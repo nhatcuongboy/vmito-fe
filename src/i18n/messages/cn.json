@@ -3436,6 +3436,15 @@
         "resetResultSuccess": "比赛结果已重置",
         "resetResultFailed": "无法重置比赛结果"
       },
+      "qrBar": {
+        "download": "下载二维码",
+        "share": "分享",
+        "copy": "复制链接",
+        "copied": "已复制",
+        "downloadSuccess": "二维码已下载",
+        "copySuccess": "链接已复制",
+        "copyError": "无法复制链接"
+      },
       "teamPage": {
         "title": "队伍详情",
         "notFound": "在此赛事中未找到该队伍。",

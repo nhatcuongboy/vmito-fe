@@ -12,6 +12,7 @@ export type PodiumRank = 1 | 2 | 3;
 export interface PodiumEntry {
   rank: PodiumRank;
   label: string;
+  playerNames?: string;
   detail?: string; // e.g. final score
 }
 
@@ -50,6 +51,19 @@ function compareStandings(first: GroupStanding, second: GroupStanding) {
     second.matchesWon - first.matchesWon ||
     second.matchesPlayed - first.matchesPlayed
   );
+}
+
+function getRegistrationPlayerNames(
+  match: CategoryMatch,
+  position: number
+): string | undefined {
+  const registration = match.participants?.find(
+    (participant) => participant.position === position
+  )?.categoryRegistration;
+
+  if (!registration) return undefined;
+
+  return getRegistrationLabel(registration, { showPlayerNames: true });
 }
 
 /**
@@ -92,11 +106,13 @@ export function computePodium<C extends { id: string }>(
         {
           rank: 1,
           label: getTeamLabel(finalMatch, championPosition),
+          playerNames: getRegistrationPlayerNames(finalMatch, championPosition),
           detail: finalMatch.score,
         },
         {
           rank: 2,
           label: getTeamLabel(finalMatch, runnerUpPosition),
+          playerNames: getRegistrationPlayerNames(finalMatch, runnerUpPosition),
         },
       ];
 
@@ -113,6 +129,7 @@ export function computePodium<C extends { id: string }>(
         entries.push({
           rank: 3,
           label: getTeamLabel(thirdMatch, thirdPosition),
+          playerNames: getRegistrationPlayerNames(thirdMatch, thirdPosition),
           detail: thirdMatch.score,
         });
       }
@@ -136,6 +153,9 @@ export function computePodium<C extends { id: string }>(
   const entries: PodiumEntry[] = ranked.map((row, index) => ({
     rank: (index + 1) as PodiumRank,
     label: getRegistrationLabel(row.registration),
+    playerNames: getRegistrationLabel(row.registration, {
+      showPlayerNames: true,
+    }),
   }));
 
   // Decided only when every group match has finished; otherwise the leader is

@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Badge, Box, Flex, Heading, HStack, Text } from '@chakra-ui/react';
+import { Badge, Box, Flex, Heading, Text } from '@chakra-ui/react';
 import { Award, Crown, Medal, RotateCcw } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
@@ -153,9 +153,6 @@ export default function PublicTournamentWinnersTab({
           <Heading size="md" mb={1}>
             {t('title')}
           </Heading>
-          <Text fontSize="sm" color="gray.500" _dark={{ color: 'gray.400' }}>
-            {t('description', { tournament: tournament.name })}
-          </Text>
         </Box>
 
         {categories.length > 1 && (
@@ -239,7 +236,11 @@ function CategoryPodiumCard({
       }}
     >
       <Flex align="center" justify="space-between" gap={2} mb={4}>
-        <Heading size="md" color="gray.800" _dark={{ color: 'gray.100' }}>
+        <Heading
+          size={{ base: 'sm', md: 'md' }}
+          color="gray.800"
+          _dark={{ color: 'gray.100' }}
+        >
           {getCategoryLabel(category)}
         </Heading>
         {shouldShowResults && (
@@ -285,10 +286,10 @@ function PodiumRow({
 
   return (
     <Flex
-      align="center"
+      align="flex-start"
       gap={3}
       px={{ base: 3, md: 4 }}
-      py={{ base: 3, md: entry.rank === 1 ? 4 : 3 }}
+      py={{ base: 3, md: 3.5 }}
       borderWidth="1px"
       borderColor={style.border}
       borderLeftWidth="4px"
@@ -298,8 +299,8 @@ function PodiumRow({
       _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
     >
       <Flex
-        w={{ base: 9, md: entry.rank === 1 ? 12 : 10 }}
-        h={{ base: 9, md: entry.rank === 1 ? 12 : 10 }}
+        w={{ base: 9, md: 10 }}
+        h={{ base: 9, md: 10 }}
         align="center"
         justify="center"
         borderRadius="full"
@@ -309,32 +310,25 @@ function PodiumRow({
         flexShrink={0}
         _dark={{ bg: 'gray.900' }}
       >
-        <Icon size={entry.rank === 1 ? 24 : 20} color={style.iconColor} />
+        <Icon size={entry.rank === 1 ? 22 : 19} color={style.iconColor} />
       </Flex>
 
       <Box minW={0} flex="1">
-        <HStack gap={2}>
-          <Text
-            fontSize="xs"
-            fontWeight="700"
-            color="gray.500"
-            textTransform="uppercase"
-            letterSpacing="0.04em"
-            _dark={{ color: 'gray.400' }}
-          >
-            {rankLabel}
-          </Text>
-          {entry.detail && (
-            <Text fontSize="xs" color="gray.400" _dark={{ color: 'gray.500' }}>
-              {entry.detail}
-            </Text>
-          )}
-        </HStack>
         <Text
-          fontSize={{ base: 'lg', md: entry.rank === 1 ? '2xl' : 'lg' }}
+          fontSize={{ base: 'xs', md: 'sm' }}
+          fontWeight="700"
+          color="gray.500"
+          textTransform="uppercase"
+          lineHeight="1.2"
+          _dark={{ color: 'gray.400' }}
+        >
+          {rankLabel}
+        </Text>
+        <Text
+          fontSize={{ base: 'xl', md: '2xl' }}
           fontWeight="800"
           color="gray.900"
-          lineHeight="1.2"
+          lineHeight="1.15"
           overflow="hidden"
           textOverflow="ellipsis"
           whiteSpace="nowrap"
@@ -342,6 +336,20 @@ function PodiumRow({
         >
           {entry.label}
         </Text>
+        {entry.playerNames && (
+          <Text
+            mt={1}
+            fontSize={{ base: 'sm', md: 'md' }}
+            lineHeight="1.35"
+            color="gray.600"
+            overflow="hidden"
+            textOverflow="ellipsis"
+            whiteSpace="nowrap"
+            _dark={{ color: 'gray.300' }}
+          >
+            {entry.playerNames}
+          </Text>
+        )}
       </Box>
     </Flex>
   );

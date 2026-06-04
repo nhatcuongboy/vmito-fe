@@ -10,18 +10,13 @@ import { useParams } from 'next/navigation';
 import { getRoundDisplayLabel } from '@/lib/tournament/roundLabel';
 import {
   CalendarDays,
-  Check,
   ChevronLeft,
-  Copy,
-  QrCode,
   Trophy,
   UserRound,
   Users,
   Home,
   BarChart3,
 } from 'lucide-react';
-import QRCode from 'qrcode';
-import { toaster } from '@/components/ui/toaster';
 import { CategoryService } from '@/lib/api/category.service';
 import { TournamentPlayerService } from '@/lib/api/tournament-player.service';
 import { TournamentService } from '@/lib/api/tournament.service';
@@ -37,6 +32,7 @@ import { getTournamentPlayerDisplayCode } from '@/lib/tournament/codes';
 import BottomNavigationBar from '@/components/ui/BottomNavigationBar';
 import { PublicTournamentProfileSkeleton } from '@/components/tournament/skeletons';
 import TournamentTopBarMenu from '@/components/tournament/TournamentTopBarMenu';
+import TournamentQrBar from '@/components/tournament/TournamentQrBar';
 
 export default function PublicTournamentTeamPage() {
   const t = useTranslations('pages.tournaments.teamPage');
@@ -46,8 +42,6 @@ export default function PublicTournamentTeamPage() {
   const tournamentId = params.tournamentId as string;
   const registrationCode = (params.registrationCode as string).toLowerCase();
   const [loading, setLoading] = useState(true);
-  const [copied, setCopied] = useState(false);
-  const [qrDataUrl, setQrDataUrl] = useState<string | null>(null);
   const [tournament, setTournament] = useState<Tournament | null>(null);
   const [category, setCategory] = useState<Category | null>(null);
   const [registration, setRegistration] = useState<CategoryRegistration | null>(
@@ -108,28 +102,6 @@ export default function PublicTournamentTeamPage() {
     if (typeof window === 'undefined') return sharePath;
     return `${window.location.origin}${window.location.pathname}`;
   }, [sharePath]);
-
-  useEffect(() => {
-    if (!registration) return;
-    QRCode.toDataURL(shareUrl, {
-      width: 184,
-      margin: 2,
-      color: { dark: '#111827', light: '#FFFFFF' },
-    })
-      .then((dataUrl) => setQrDataUrl(dataUrl))
-      .catch((error) => console.error('QR code generation error:', error));
-  }, [registration, shareUrl]);
-
-  const copyLink = async () => {
-    try {
-      await navigator.clipboard.writeText(shareUrl);
-      setCopied(true);
-      toaster.success({ title: t('copySuccess') });
-      setTimeout(() => setCopied(false), 2000);
-    } catch {
-      toaster.error({ title: t('copyError') });
-    }
-  };
 
   const playerCodeById = useMemo(() => {
     const ids = players.map((player) => player.id);
@@ -334,52 +306,9 @@ export default function PublicTournamentTeamPage() {
                   )}
                 </Box>
               </VStack>
-
-              <Box
-                w={{ base: 'full', md: '180px' }}
-                borderWidth="1px"
-                borderColor="gray.200"
-                borderRadius="xl"
-                p={2.5}
-                bg="gray.50"
-                flexShrink={0}
-                _dark={{ bg: 'gray.900', borderColor: 'gray.700' }}
-              >
-                <VStack gap={2} align="stretch">
-                  <HStack gap={2}>
-                    <QrCode size={16} />
-                    <Text fontSize="sm" fontWeight="semibold">
-                      {t('qrTitle')}
-                    </Text>
-                  </HStack>
-                  <Box bg="white" borderRadius="lg" p={2} alignSelf="center">
-                    {qrDataUrl ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img
-                        src={qrDataUrl}
-                        alt="QR code"
-                        width={136}
-                        height={136}
-                        style={{ display: 'block' }}
-                      />
-                    ) : (
-                      <Box w="136px" h="136px" />
-                    )}
-                  </Box>
-                  <Button
-                    w="full"
-                    size="sm"
-                    variant="outline"
-                    colorPalette={copied ? 'green' : 'gray'}
-                    leftIcon={copied ? <Check size={14} /> : <Copy size={14} />}
-                    onClick={copyLink}
-                  >
-                    {copied ? t('copied') : t('copyLink')}
-                  </Button>
-                </VStack>
-              </Box>
             </Flex>
           </Box>
+          <TournamentQrBar url={shareUrl} />
         </VStack>
       </PageLayout>
 
