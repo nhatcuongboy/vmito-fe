@@ -79,8 +79,7 @@ const buildFormatUpdatePayload = (
       matchFormat: currentCategory.matchFormat ?? MatchFormat.BEST_OF_3,
       eliminationMatchFormat:
         rrToSeConfig.eliminationMatchFormat as MatchFormat,
-      winnersPerGroup:
-        currentCategory.winnersPerGroup ?? rrToSeConfig.qualifiersPerGroup,
+      winnersPerGroup: rrToSeConfig.qualifiersPerGroup,
     };
   }
 

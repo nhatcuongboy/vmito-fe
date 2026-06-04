@@ -84,6 +84,28 @@ const STATUS_COLOR_MAP: Record<string, string> = {
   [MatchStatus.CANCELLED]: 'red',
 };
 
+const nextPowerOf2 = (n: number): number => {
+  let power = 1;
+  while (power < n) power *= 2;
+  return power;
+};
+
+const getExpectedEliminationMatchCount = (category: Category): number => {
+  const isSingleElimination =
+    category.format === CategoryFormat.SINGLE_ELIMINATION;
+  const teamCount = isSingleElimination
+    ? (category._count?.registrations ?? category.registrations?.length ?? 0)
+    : (category.groupCount ?? 0) * (category.winnersPerGroup ?? 0);
+
+  if (teamCount < 2) return 0;
+
+  const bracketSize = nextPowerOf2(teamCount);
+  const mainMatches = bracketSize - 1;
+  const hasThirdPlace = category.thirdPlaceMatch && bracketSize >= 4;
+
+  return mainMatches + (hasThirdPlace ? 1 : 0);
+};
+
 export default function RoundsPanel({
   categories,
   selectedCategory,
@@ -163,8 +185,10 @@ export default function RoundsPanel({
         grouped[gId].push(match);
       }
       setMatchesByGroup(grouped);
+      return { groupsData, matchesData, regsData };
     } catch (error) {
       console.error('Error loading groups and matches:', error);
+      return null;
     } finally {
       setLoading(false);
     }
@@ -179,13 +203,18 @@ export default function RoundsPanel({
 
   const handleRefreshCategory = async () => {
     if (!activeCategory) return;
+    let updated: Category | null = null;
     try {
-      const updated = await CategoryService.getCategory(activeCategory.id);
+      updated = await CategoryService.getCategory(activeCategory.id);
       setLocalCategory(updated);
     } catch {
       // ignore
     }
-    await loadGroupsAndMatches(activeCategory.id);
+    const loaded = await loadGroupsAndMatches(activeCategory.id);
+    return {
+      category: updated ?? activeCategory,
+      matches: loaded?.matchesData,
+    };
   };
 
   // ─── Flat layout handlers (ROUND_ROBIN) ──────────────────────────────────
@@ -264,9 +293,34 @@ export default function RoundsPanel({
       await CategoryService.completeGroupStage(activeCategory.id, {
         showToast: false,
       });
-      toaster.success({ title: t('panels.rounds.bracketGenerated') });
       setIsGenerateConfirmOpen(false);
-      await handleRefreshCategory();
+      const refreshed = await handleRefreshCategory();
+      const refreshedCategory = refreshed?.category ?? activeCategory;
+      const generatedMatches =
+        refreshed?.matches?.filter(
+          (match) => !match.groupId && match.round !== 'GROUP'
+        ) ?? [];
+      const expectedMatches =
+        getExpectedEliminationMatchCount(refreshedCategory);
+
+      if (
+        expectedMatches > 0 &&
+        generatedMatches.length > 0 &&
+        generatedMatches.length < expectedMatches
+      ) {
+        toaster.info({
+          title: t('panels.rounds.bracketGeneratedIncompleteTitle'),
+          description: t(
+            'panels.rounds.bracketGeneratedIncompleteDescription',
+            {
+              actual: generatedMatches.length,
+              expected: expectedMatches,
+            }
+          ),
+        });
+      } else {
+        toaster.success({ title: t('panels.rounds.bracketGenerated') });
+      }
     } catch (error: unknown) {
       const apiError = error as {
         response?: { data?: { message?: string | string[] } };

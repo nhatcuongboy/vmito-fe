@@ -219,16 +219,31 @@ export default function PlayoffsBracketModal({
       setIsSaving(true);
       const existingConfig =
         (category.formatConfig as Record<string, unknown>) ?? {};
+      const existingPlayoffs =
+        (existingConfig.playoffs as Record<string, unknown>) ?? {};
+      const nextPlayoffs: Record<string, unknown> = {
+        ...existingPlayoffs,
+        fifthPlaceMatch,
+        seventhPlaceMatch,
+      };
+
+      if (customSlots.length > 0) {
+        nextPlayoffs.seedOrder = customSlots;
+      } else {
+        delete nextPlayoffs.seedOrder;
+      }
+
+      if (consolationMatches.length > 0) {
+        nextPlayoffs.consolationMatches = consolationMatches;
+      } else {
+        delete nextPlayoffs.consolationMatches;
+      }
+
       await CategoryService.updateCategory(category.id, {
         thirdPlaceMatch,
         formatConfig: {
           ...existingConfig,
-          playoffs: {
-            fifthPlaceMatch,
-            seventhPlaceMatch,
-            ...(customSlots.length > 0 ? { seedOrder: customSlots } : {}),
-            ...(consolationMatches.length > 0 ? { consolationMatches } : {}),
-          },
+          playoffs: nextPlayoffs,
         },
       });
       toaster.success({ title: t('panels.rounds.bracketSaved') });

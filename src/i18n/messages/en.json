@@ -2697,6 +2697,8 @@
               "confirmGenerateTitle": "Generate playoff bracket?",
               "confirmGenerateMessage": "This locks in the advancing teams from the standings and creates the elimination matches.",
               "bracketGenerated": "Bracket generated",
+              "bracketGeneratedIncompleteTitle": "Bracket generated with missing matches",
+              "bracketGeneratedIncompleteDescription": "The system only created {actual}/{expected} playoff matches. Please check advancing teams/third-place settings or regenerate the bracket.",
               "generateBracketFailed": "Failed to generate bracket",
               "p5SemiFinals": "P5: Semi Finals"
             },

@@ -2675,6 +2675,8 @@
               "confirmGenerateTitle": "生成淘汰赛对阵表？",
               "confirmGenerateMessage": "此操作将根据排名锁定晋级队伍并创建淘汰赛对阵。",
               "bracketGenerated": "对阵表已生成",
+              "bracketGeneratedIncompleteTitle": "对阵表生成的比赛不完整",
+              "bracketGeneratedIncompleteDescription": "系统只创建了 {actual}/{expected} 场淘汰赛。请检查晋级队伍/季军赛设置，或重新生成对阵表。",
               "generateBracketFailed": "生成对阵表失败",
               "p5SemiFinals": "P5：半决赛"
             },

@@ -2705,6 +2705,8 @@
               "confirmGenerateTitle": "Sinh bracket vòng loại?",
               "confirmGenerateMessage": "Hành động này chốt các đội đi tiếp theo bảng xếp hạng và tạo các trận vòng loại trực tiếp.",
               "bracketGenerated": "Đã sinh bracket",
+              "bracketGeneratedIncompleteTitle": "Bracket sinh chưa đủ trận",
+              "bracketGeneratedIncompleteDescription": "Hệ thống chỉ tạo {actual}/{expected} trận vòng loại. Vui lòng kiểm tra lại cấu hình số đội đi tiếp/tranh hạng 3 hoặc thử sinh lại bracket.",
               "generateBracketFailed": "Không thể sinh bracket",
               "p5SemiFinals": "P5: Bán kết"
             },
