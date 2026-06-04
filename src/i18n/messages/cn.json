@@ -1521,6 +1521,7 @@
           "playoffs": "淘汰赛",
           "pools": "按小组",
           "overall": "总排名",
+          "showPlayerNames": "运动员姓名",
           "rankingsExplained": "排名说明",
           "rankingsExplanation": "排名按积分排序，然后依次比较净胜分、得分、胜场和已赛场次。总排名会合并当前显示的小组队伍，并按相同规则重新排序。",
           "viewGames": "查看比赛",

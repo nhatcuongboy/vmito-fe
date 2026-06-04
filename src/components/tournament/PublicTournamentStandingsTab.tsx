@@ -11,6 +11,7 @@ import {
   ListTree,
   RefreshCw,
   RotateCcw,
+  Users,
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
@@ -47,6 +48,7 @@ interface OverallStandingRow extends GroupStanding {
 }
 
 const ALL_CATEGORIES_VALUE = 'all';
+const SHOW_PLAYER_NAMES_STORAGE_KEY = 'vmito.standings.showPlayerNames';
 
 type StageView = 'pool' | 'playoffs';
 type StandingView = 'pools' | 'overall';
@@ -62,17 +64,21 @@ function getGroupLabel(
   return group.name?.trim() || fallback;
 }
 
-function getStandingTeamLabel(standing: GroupStanding) {
+function getStandingTeamLabel(
+  standing: GroupStanding,
+  options?: { showPlayerNames?: boolean }
+) {
   const registration = standing.registration;
 
   if (registration.pair?.members && registration.pair.members.length > 0) {
-    return (
-      registration.pair.name ||
-      registration.pair.members
-        .map((member) => member.player?.name)
-        .filter(Boolean)
-        .join(' / ')
-    );
+    const memberNames = registration.pair.members
+      .map((member) => member.player?.name)
+      .filter(Boolean)
+      .join(' / ');
+    if (options?.showPlayerNames) {
+      return memberNames || registration.pair.name || '';
+    }
+    return registration.pair.name || memberNames;
   }
 
   return (
@@ -139,6 +145,10 @@ export default function PublicTournamentStandingsTab({
   const [stageView, setStageView] = useState<StageView>('pool');
   const [standingView, setStandingView] = useState<StandingView>('pools');
   const [showRankingInfo, setShowRankingInfo] = useState(false);
+  const [showPlayerNames, setShowPlayerNames] = useState<boolean>(() => {
+    if (typeof window === 'undefined') return false;
+    return window.localStorage.getItem(SHOW_PLAYER_NAMES_STORAGE_KEY) === '1';
+  });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [recalculatingGroupId, setRecalculatingGroupId] = useState<
@@ -188,6 +198,14 @@ export default function PublicTournamentStandingsTab({
   useEffect(() => {
     void loadStandings();
   }, [loadStandings]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    window.localStorage.setItem(
+      SHOW_PLAYER_NAMES_STORAGE_KEY,
+      showPlayerNames ? '1' : '0'
+    );
+  }, [showPlayerNames]);
 
   useEffect(() => {
     if (
@@ -417,6 +435,21 @@ export default function PublicTournamentStandingsTab({
             </Button>
           </HStack>
         )}
+
+        <Button
+          flex="unset"
+          size="xs"
+          variant={showPlayerNames ? 'solid' : 'outline'}
+          colorPalette={showPlayerNames ? 'green' : 'gray'}
+          borderRadius="full"
+          px={{ base: 3, sm: 3.5 }}
+          flexShrink={0}
+          onClick={() => setShowPlayerNames((prev) => !prev)}
+          aria-pressed={showPlayerNames}
+          title={t('showPlayerNames')}
+        >
+          <Users size={14} /> {t('showPlayerNames')}
+        </Button>
       </Flex>
 
       {error ? (
@@ -516,6 +549,7 @@ export default function PublicTournamentStandingsTab({
                   rankKey="overallRank"
                   showGroup
                   title={getCategoryLabel(block.category)}
+                  showPlayerNames={showPlayerNames}
                   t={t}
                 />
               )}
@@ -591,6 +625,7 @@ export default function PublicTournamentStandingsTab({
                                 </Button>
                               ) : null
                             }
+                            showPlayerNames={showPlayerNames}
                             t={t}
                           />
                         )}
@@ -659,6 +694,7 @@ function StandingsTable({
   title,
   teamCountLabel,
   action,
+  showPlayerNames = false,
   t,
 }: {
   tournament: Tournament;
@@ -668,6 +704,7 @@ function StandingsTable({
   title?: string;
   teamCountLabel?: string;
   action?: ReactNode;
+  showPlayerNames?: boolean;
   t: ReturnType<typeof useTranslations>;
 }) {
   const showForfeits = rows.some((r) => (r.matchesForfeited ?? 0) > 0);
@@ -847,7 +884,7 @@ function StandingsTable({
                           _hover: { color: 'green.300' },
                         }}
                       >
-                        {getStandingTeamLabel(standing)}
+                        {getStandingTeamLabel(standing, { showPlayerNames })}
                       </Text>
                     </Link>
                     {showGroup && 'sourceGroupName' in standing && (

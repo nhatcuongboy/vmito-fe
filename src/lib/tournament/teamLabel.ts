@@ -43,6 +43,10 @@ export function getFeederMatchNumber(
 ): number | undefined {
   const byRound = new Map<string, CategoryMatch[]>();
   for (const m of allMatches) {
+    // Only consider matches from the same category — callers may pass the whole
+    // tournament's matches (e.g. the schedule view), and mixing other
+    // categories' rounds would corrupt the round index / feeder lookup.
+    if (m.categoryId !== match.categoryId) continue;
     if (m.groupId || m.round.toUpperCase() === 'GROUP') continue;
     const round = m.round.toUpperCase();
     if (!byRound.has(round)) byRound.set(round, []);

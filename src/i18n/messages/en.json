@@ -1543,6 +1543,7 @@
           "playoffs": "Playoffs",
           "pools": "Pools",
           "overall": "Overall",
+          "showPlayerNames": "Player names",
           "rankingsExplained": "Rankings explained",
           "rankingsExplanation": "Standings are sorted by points, then point difference, points for, wins, and matches played. Overall combines the teams in the visible pools and ranks them again using the same order.",
           "viewGames": "View Games",

@@ -172,6 +172,10 @@ export function resolveMatchSideLabel(
   // match's round position and decide first-round vs later-round.
   const byRound = new Map<string, CategoryMatch[]>();
   for (const m of allMatches) {
+    // Only this match's category — the schedule view passes the whole
+    // tournament's matches, and mixing other categories' elimination rounds
+    // would shift the slot index and surface a wrong "bye" placeholder.
+    if (m.categoryId !== match.categoryId) continue;
     if (m.groupId || m.round.toUpperCase() === 'GROUP') continue;
     const key = m.round.toUpperCase();
     if (!byRound.has(key)) byRound.set(key, []);
