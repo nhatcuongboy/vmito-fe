@@ -21,6 +21,7 @@ import {
 } from '@/lib/api/types';
 import { getTeamLabel } from '@/lib/tournament/teamLabel';
 import { getRoundDisplayLabel } from '@/lib/tournament/roundLabel';
+import MatchFormatBadges from '@/components/tournament/MatchFormatBadges';
 import {
   defaultRules,
   isMatchComplete,
@@ -255,6 +256,9 @@ export default function ManualScoreModal({
         <Text mt={2} fontSize="sm" color="gray.500" fontWeight="medium">
           #{match.matchNumber} · {roundLabel}
         </Text>
+        <Box mt={3}>
+          <MatchFormatBadges match={match} />
+        </Box>
       </ModalHeader>
       <ModalCloseButton onClose={onClose} />
       <ModalBody p={{ base: 4, md: 5 }}>

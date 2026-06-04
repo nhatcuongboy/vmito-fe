@@ -147,7 +147,7 @@ export default function ScheduleListView({
       getAbbreviation(t('courtPrefix')) ||
       'C';
 
-    return `${prefix} · ${court.courtNumber}`;
+    return `${prefix} · ${court.courtName?.trim() || court.courtNumber}`;
   };
 
   const getRoundLabel = (round: string): string => {

@@ -27,6 +27,7 @@ import { resolveMatchSideLabel } from '@/lib/tournament/bracketSlots';
 import { usePlayoffSlotLabels } from '@/lib/tournament/usePlayoffSlotLabels';
 import { getMatchDisplayCode } from '@/lib/tournament/codes';
 import { formatTimeByDevicePreference } from '@/utils/time-helpers';
+import MatchFormatBadges from '@/components/tournament/MatchFormatBadges';
 
 interface Props {
   isOpen: boolean;
@@ -123,6 +124,10 @@ export default function MatchDetailModal({
           win1={win1}
           win2={win2}
         />
+
+        <Flex justify="center" mb={4}>
+          <MatchFormatBadges match={match} category={category} />
+        </Flex>
 
         {/* Tab switcher */}
         <Flex
