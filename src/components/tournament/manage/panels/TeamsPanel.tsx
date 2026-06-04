@@ -400,6 +400,10 @@ export default function TeamsPanel({
                 borderRadius="full"
                 bg="gray.100"
                 _hover={{ bg: 'gray.200' }}
+                _dark={{
+                  bg: 'gray.700',
+                  _hover: { bg: 'gray.600' },
+                }}
                 cursor="pointer"
                 fontSize="sm"
                 fontWeight="medium"
@@ -440,6 +444,10 @@ export default function TeamsPanel({
                     py={1}
                     border="1px solid"
                     borderColor="gray.100"
+                    _dark={{
+                      bg: 'gray.800',
+                      borderColor: 'gray.700',
+                    }}
                   >
                     {categories.map((cat, idx) => (
                       <Flex
@@ -452,6 +460,7 @@ export default function TeamsPanel({
                         w="full"
                         fontSize="sm"
                         _hover={{ bg: 'gray.50' }}
+                        _dark={{ _hover: { bg: 'gray.700' } }}
                         onClick={() => {
                           onSelectCategory(cat);
                           setIsDropdownOpen(false);
@@ -512,6 +521,10 @@ export default function TeamsPanel({
                   borderBottomWidth="1px"
                   borderColor="gray.100"
                   _hover={{ bg: 'gray.50' }}
+                  _dark={{
+                    borderColor: 'gray.700',
+                    _hover: { bg: 'gray.700' },
+                  }}
                 >
                   <Flex
                     w="32px"
@@ -521,6 +534,7 @@ export default function TeamsPanel({
                     align="center"
                     justify="center"
                     flexShrink={0}
+                    _dark={{ bg: 'gray.700' }}
                   >
                     <Users size={16} color="#A0AEC0" />
                   </Flex>
@@ -535,6 +549,12 @@ export default function TeamsPanel({
                           ? 'orange.600'
                           : 'green.600'
                       }
+                      _dark={{
+                        color:
+                          memberCount < (activeCategory?.teamSize ?? 2)
+                            ? 'orange.300'
+                            : 'green.300',
+                      }}
                     >
                       {t('panels.teams.memberCount', {
                         current: memberCount,
@@ -549,6 +569,10 @@ export default function TeamsPanel({
                       borderRadius="md"
                       color="gray.400"
                       _hover={{ bg: 'gray.100', color: 'gray.600' }}
+                      _dark={{
+                        color: 'gray.400',
+                        _hover: { bg: 'gray.700', color: 'gray.200' },
+                      }}
                       onClick={() => handleOpenEdit(reg)}
                     >
                       <Pencil size={16} />
@@ -559,6 +583,10 @@ export default function TeamsPanel({
                       borderRadius="md"
                       color="gray.400"
                       _hover={{ bg: 'red.50', color: 'red.500' }}
+                      _dark={{
+                        color: 'gray.400',
+                        _hover: { bg: 'red.900', color: 'red.200' },
+                      }}
                       onClick={() => handleOpenDelete(reg)}
                     >
                       <Trash2 size={16} />
@@ -567,7 +595,13 @@ export default function TeamsPanel({
                 </Flex>
               );
             })}
-            <Text fontSize="xs" color="gray.400" textAlign="center" pt={3}>
+            <Text
+              fontSize="xs"
+              color="gray.400"
+              textAlign="center"
+              pt={3}
+              _dark={{ color: 'gray.500' }}
+            >
               {t('panels.teams.teamsCount', { count: registrations.length })}
             </Text>
           </VStack>
@@ -589,7 +623,12 @@ export default function TeamsPanel({
       >
         <VStack gap={4} align="stretch">
           {/* Single / Multiple toggle */}
-          <Flex bg="gray.100" borderRadius="full" p={1}>
+          <Flex
+            bg="gray.100"
+            borderRadius="full"
+            p={1}
+            _dark={{ bg: 'gray.700' }}
+          >
             {(['single', 'multiple'] as TAddMode[]).map((mode) => (
               <Box
                 key={mode}
@@ -602,6 +641,10 @@ export default function TeamsPanel({
                 textAlign="center"
                 bg={addMode === mode ? 'white' : 'transparent'}
                 color={addMode === mode ? 'gray.900' : 'gray.500'}
+                _dark={{
+                  bg: addMode === mode ? 'gray.900' : 'transparent',
+                  color: addMode === mode ? 'gray.50' : 'gray.300',
+                }}
                 boxShadow={addMode === mode ? 'sm' : 'none'}
                 transition="all 0.2s"
                 opacity={isSubmitting ? 0.6 : 1}
@@ -638,7 +681,11 @@ export default function TeamsPanel({
                 disabled={isSubmitting}
               />
               {bulkProgress && (
-                <Text fontSize="sm" color="gray.500">
+                <Text
+                  fontSize="sm"
+                  color="gray.500"
+                  _dark={{ color: 'gray.400' }}
+                >
                   {t('panels.teams.bulkProgress', {
                     current: bulkProgress.current,
                     total: bulkProgress.total,
@@ -674,7 +721,11 @@ export default function TeamsPanel({
           />
           {isTeamCategory && (
             <>
-              <Text fontSize="sm" color="gray.600">
+              <Text
+                fontSize="sm"
+                color="gray.600"
+                _dark={{ color: 'gray.300' }}
+              >
                 {t('panels.teams.members', {
                   current: memberIds.length,
                   total: activeCategory?.teamSize ?? 2,

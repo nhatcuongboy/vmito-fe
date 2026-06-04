@@ -118,10 +118,16 @@ export default function VenuePanel({
         <TournamentMatchListSkeleton count={3} />
       ) : venues.length === 0 ? (
         <VStack gap={6} align="center" py={10}>
-          <Box p={4} bg="red.50" borderRadius="full">
+          <Box p={4} bg="red.50" borderRadius="full" _dark={{ bg: 'red.900' }}>
             <MapPin size={48} color="#F56565" />
           </Box>
-          <Text fontSize="md" color="gray.500" textAlign="center" maxW="300px">
+          <Text
+            fontSize="md"
+            color="gray.500"
+            textAlign="center"
+            maxW="300px"
+            _dark={{ color: 'gray.400' }}
+          >
             {t('noLinkedVenues')}
           </Text>
           <Button
@@ -150,6 +156,7 @@ export default function VenuePanel({
               borderRadius="2xl"
               overflow="hidden"
               bg="white"
+              _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
             >
               {/* Map Section */}
               <Box
@@ -173,6 +180,7 @@ export default function VenuePanel({
                     align="center"
                     justify="center"
                     bg="gray.100"
+                    _dark={{ bg: 'gray.900' }}
                   >
                     <MapPin size={40} color="#A0AEC0" />
                   </Flex>
@@ -183,15 +191,27 @@ export default function VenuePanel({
               <Flex justify="space-between" align="start" p={4}>
                 <Box flex="1">
                   <Flex align="center" gap={2} mb={1}>
-                    <Text fontWeight="bold" fontSize="md" color="gray.800">
+                    <Text
+                      fontWeight="bold"
+                      fontSize="md"
+                      color="gray.800"
+                      _dark={{ color: 'gray.100' }}
+                    >
                       {tv.venue.name}
                     </Text>
                     {tv.venue.acronym && (
-                      <Box bg="gray.100" px={2} py={0.5} borderRadius="md">
+                      <Box
+                        bg="gray.100"
+                        px={2}
+                        py={0.5}
+                        borderRadius="md"
+                        _dark={{ bg: 'gray.700' }}
+                      >
                         <Text
                           fontSize="xs"
                           fontWeight="semibold"
                           color="gray.600"
+                          _dark={{ color: 'gray.300' }}
                         >
                           {tv.venue.acronym}
                         </Text>
@@ -199,13 +219,23 @@ export default function VenuePanel({
                     )}
                   </Flex>
                   {tv.venue.address && (
-                    <Text fontSize="sm" color="gray.500" mb={1}>
+                    <Text
+                      fontSize="sm"
+                      color="gray.500"
+                      mb={1}
+                      _dark={{ color: 'gray.400' }}
+                    >
                       {tv.venue.address}
                       {tv.venue.city ? `, ${tv.venue.city}` : ''}
                     </Text>
                   )}
                   {tv.courts && tv.courts.length > 0 && (
-                    <Text fontSize="xs" color="gray.400" mb={2}>
+                    <Text
+                      fontSize="xs"
+                      color="gray.400"
+                      mb={2}
+                      _dark={{ color: 'gray.500' }}
+                    >
                       {tv.courts.length} {t('courtsCount')}:{' '}
                       {tv.courts
                         .map(
@@ -286,9 +316,14 @@ export default function VenuePanel({
         secondaryActionText={t('cancel')}
         isCentered
       >
-        <Text fontSize="sm" color="gray.600">
+        <Text fontSize="sm" color="gray.600" _dark={{ color: 'gray.300' }}>
           {t('removeConfirmPrefix')}{' '}
-          <Text as="span" fontWeight="semibold" color="gray.800">
+          <Text
+            as="span"
+            fontWeight="semibold"
+            color="gray.800"
+            _dark={{ color: 'gray.100' }}
+          >
             {confirmRemoveVenue?.venue.name}
           </Text>{' '}
           {t('removeConfirmSuffix')}

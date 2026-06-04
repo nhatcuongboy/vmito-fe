@@ -56,7 +56,7 @@ export default function NamePanel({
       <Heading size="md" mb={2}>
         {t('title')}
       </Heading>
-      <Text color="gray.600" mb={6}>
+      <Text color="gray.600" mb={6} _dark={{ color: 'gray.300' }}>
         {t('description')}
       </Text>
 

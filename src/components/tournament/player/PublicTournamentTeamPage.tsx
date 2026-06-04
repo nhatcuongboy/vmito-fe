@@ -217,6 +217,7 @@ export default function PublicTournamentTeamPage() {
           base: 'calc(64px + env(safe-area-inset-bottom) + 24px)',
           md: '24px',
         }}
+        _dark={{ bg: 'gray.900' }}
       >
         <VStack align="stretch" gap={5}>
           <Button
@@ -227,7 +228,14 @@ export default function PublicTournamentTeamPage() {
           >
             {t('backToList')}
           </Button>
-          <Box borderWidth="1px" borderRadius="xl" bg="white" overflow="hidden">
+          <Box
+            borderWidth="1px"
+            borderColor="gray.200"
+            borderRadius="xl"
+            bg="white"
+            overflow="hidden"
+            _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
+          >
             <Box bg="green.600" color="white" p={6}>
               <HStack gap={3}>
                 <Users size={30} />
@@ -268,8 +276,14 @@ export default function PublicTournamentTeamPage() {
                             align="center"
                             gap={3}
                             borderWidth="1px"
+                            borderColor="gray.200"
                             borderRadius="md"
                             p={3}
+                            _dark={{
+                              bg: 'gray.900',
+                              borderColor: 'gray.700',
+                              color: 'gray.100',
+                            }}
                           >
                             <UserRound size={18} />
                             <Text>
@@ -287,15 +301,19 @@ export default function PublicTournamentTeamPage() {
                     <Heading size="md">{t('scheduleTitle')}</Heading>
                   </HStack>
                   {matches.length === 0 ? (
-                    <Text color="gray.500">{t('noMatches')}</Text>
+                    <Text color="gray.500" _dark={{ color: 'gray.400' }}>
+                      {t('noMatches')}
+                    </Text>
                   ) : (
                     <VStack align="stretch" gap={2}>
                       {matches.map((match) => (
                         <Box
                           key={match.id}
                           borderWidth="1px"
+                          borderColor="gray.200"
                           borderRadius="md"
                           p={3}
+                          _dark={{ bg: 'gray.900', borderColor: 'gray.700' }}
                         >
                           <Text fontWeight="semibold">
                             {t('matchInfo', {
@@ -303,7 +321,11 @@ export default function PublicTournamentTeamPage() {
                               number: match.matchNumber,
                             })}
                           </Text>
-                          <Text fontSize="sm" color="gray.600">
+                          <Text
+                            fontSize="sm"
+                            color="gray.600"
+                            _dark={{ color: 'gray.300' }}
+                          >
                             {match.score || t('noResult')}
                           </Text>
                         </Box>
@@ -321,6 +343,7 @@ export default function PublicTournamentTeamPage() {
                 p={2.5}
                 bg="gray.50"
                 flexShrink={0}
+                _dark={{ bg: 'gray.900', borderColor: 'gray.700' }}
               >
                 <VStack gap={2} align="stretch">
                   <HStack gap={2}>
@@ -329,7 +352,7 @@ export default function PublicTournamentTeamPage() {
                       {t('qrTitle')}
                     </Text>
                   </HStack>
-                  <Box bg="white" borderRadius="lg" p={2}>
+                  <Box bg="white" borderRadius="lg" p={2} alignSelf="center">
                     {qrDataUrl ? (
                       // eslint-disable-next-line @next/next/no-img-element
                       <img

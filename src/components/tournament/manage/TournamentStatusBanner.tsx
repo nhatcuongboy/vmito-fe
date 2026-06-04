@@ -17,7 +17,17 @@ interface TournamentStatusBannerProps {
 // Visual treatment per lifecycle status.
 const STATUS_STYLE: Record<
   TournamentStatus,
-  { bg: string; border: string; dot: string; title: string; subtitle: string }
+  {
+    bg: string;
+    border: string;
+    dot: string;
+    title: string;
+    subtitle: string;
+    darkBg: string;
+    darkBorder: string;
+    darkTitle: string;
+    darkSubtitle: string;
+  }
 > = {
   [TournamentStatus.PREPARING]: {
     bg: 'gray.50',
@@ -25,6 +35,10 @@ const STATUS_STYLE: Record<
     dot: 'gray.400',
     title: 'gray.700',
     subtitle: 'gray.500',
+    darkBg: 'gray.800',
+    darkBorder: 'gray.700',
+    darkTitle: 'gray.100',
+    darkSubtitle: 'gray.400',
   },
   [TournamentStatus.IN_PROGRESS]: {
     bg: 'green.50',
@@ -32,6 +46,10 @@ const STATUS_STYLE: Record<
     dot: 'green.500',
     title: 'green.800',
     subtitle: 'green.600',
+    darkBg: 'green.900',
+    darkBorder: 'green.700',
+    darkTitle: 'green.100',
+    darkSubtitle: 'green.300',
   },
   [TournamentStatus.FINISHED]: {
     bg: 'blue.50',
@@ -39,6 +57,10 @@ const STATUS_STYLE: Record<
     dot: 'blue.500',
     title: 'blue.800',
     subtitle: 'blue.600',
+    darkBg: 'blue.900',
+    darkBorder: 'blue.700',
+    darkTitle: 'blue.100',
+    darkSubtitle: 'blue.300',
   },
   [TournamentStatus.CANCELLED]: {
     bg: 'red.50',
@@ -46,6 +68,10 @@ const STATUS_STYLE: Record<
     dot: 'red.500',
     title: 'red.800',
     subtitle: 'red.600',
+    darkBg: 'red.900',
+    darkBorder: 'red.700',
+    darkTitle: 'red.100',
+    darkSubtitle: 'red.300',
   },
 };
 
@@ -151,6 +177,10 @@ export default function TournamentStatusBanner({
         borderRadius="xl"
         px={4}
         py={3}
+        _dark={{
+          bg: style.darkBg,
+          borderColor: style.darkBorder,
+        }}
       >
         <Flex align="center" gap={2.5} mb={3}>
           <Box
@@ -161,10 +191,20 @@ export default function TournamentStatusBanner({
             flexShrink={0}
           />
           <Box>
-            <Text fontWeight="semibold" fontSize="sm" color={style.title}>
+            <Text
+              fontWeight="semibold"
+              fontSize="sm"
+              color={style.title}
+              _dark={{ color: style.darkTitle }}
+            >
               {t(`statusTitle.${status}`)}
             </Text>
-            <Text fontSize="xs" color={style.subtitle} mt={0.5}>
+            <Text
+              fontSize="xs"
+              color={style.subtitle}
+              mt={0.5}
+              _dark={{ color: style.darkSubtitle }}
+            >
               {t(`statusSubtitle.${status}`)}
             </Text>
           </Box>
@@ -213,6 +253,7 @@ export default function TournamentStatusBanner({
               borderRadius="xl"
               align="center"
               justify="center"
+              _dark={{ bg: `${pending.colorPalette}.900` }}
             >
               {(() => {
                 const PendingIcon = pending.icon;
@@ -228,7 +269,11 @@ export default function TournamentStatusBanner({
               <Text fontWeight="bold" fontSize="lg" mb={2}>
                 {t(`confirm.${pending.key}.title`)}
               </Text>
-              <Text fontSize="sm" color="gray.600">
+              <Text
+                fontSize="sm"
+                color="gray.600"
+                _dark={{ color: 'gray.300' }}
+              >
                 {t(`confirm.${pending.key}.description`)}
               </Text>
             </Box>

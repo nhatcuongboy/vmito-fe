@@ -398,11 +398,13 @@ function ThirdPlaceCard({
           borderRadius="full"
           bg="white"
           mb={compact ? 1.5 : 2}
+          _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
         >
           <Text
             fontSize={compact ? '2xs' : 'xs'}
             fontWeight="semibold"
             color="gray.700"
+            _dark={{ color: 'gray.200' }}
           >
             {title}
           </Text>
@@ -416,6 +418,7 @@ function ThirdPlaceCard({
               fontWeight="medium"
               minW="20px"
               textAlign="right"
+              _dark={{ color: 'gray.500' }}
             >
               {match.matchNumber}
             </Text>
@@ -428,6 +431,7 @@ function ThirdPlaceCard({
             w={cardWidth}
             bg="white"
             boxShadow="sm"
+            _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
           >
             {[match.participant1Label, match.participant2Label].map(
               (name, i) => (
@@ -438,6 +442,7 @@ function ThirdPlaceCard({
                   py={compact ? 1 : 1.5}
                   borderBottomWidth={i === 0 ? '1px' : '0'}
                   borderColor="gray.100"
+                  _dark={{ borderColor: 'gray.700' }}
                 >
                   <Text
                     fontSize={compact ? '2xs' : 'xs'}
@@ -446,6 +451,7 @@ function ThirdPlaceCard({
                     lineHeight="1.3"
                     color="gray.600"
                     fontStyle="italic"
+                    _dark={{ color: 'gray.300' }}
                   >
                     {name}
                   </Text>
@@ -721,7 +727,7 @@ export default function BracketVisualization({
   if (flatMatches.length === 0) {
     return (
       <Flex align="center" justify="center" py={8}>
-        <Text fontSize="sm" color="gray.400">
+        <Text fontSize="sm" color="gray.400" _dark={{ color: 'gray.500' }}>
           {t('panels.rounds.notEnoughTeams')}
         </Text>
       </Flex>
@@ -832,6 +838,7 @@ export default function BracketVisualization({
               color="gray.500"
               mb={3}
               pl={8}
+              _dark={{ color: 'gray.400' }}
             >
               {t('panels.rounds.consolationBracket')}
             </Text>
@@ -844,6 +851,7 @@ export default function BracketVisualization({
                     color="gray.400"
                     mb={1}
                     fontWeight="medium"
+                    _dark={{ color: 'gray.500' }}
                   >
                     {t('panels.rounds.p5SemiFinals')}
                   </Text>
@@ -858,6 +866,7 @@ export default function BracketVisualization({
                     color="gray.400"
                     mb={1}
                     fontWeight="medium"
+                    _dark={{ color: 'gray.500' }}
                   >
                     &nbsp;
                   </Text>

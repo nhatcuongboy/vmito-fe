@@ -228,6 +228,7 @@ function StandingsPreviewTable({ columns }: { columns: StandingsColumn[] }) {
       borderRadius="lg"
       overflow="hidden"
       bg="gray.50"
+      _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
     >
       {/* Header */}
       <Flex
@@ -236,9 +237,15 @@ function StandingsPreviewTable({ columns }: { columns: StandingsColumn[] }) {
         borderColor="gray.200"
         py={2}
         px={3}
+        _dark={{ bg: 'gray.900', borderColor: 'gray.700' }}
       >
         <Box flex={1}>
-          <Text fontSize="xs" fontWeight="bold" color="gray.500">
+          <Text
+            fontSize="xs"
+            fontWeight="bold"
+            color="gray.500"
+            _dark={{ color: 'gray.400' }}
+          >
             Team
           </Text>
         </Box>
@@ -263,18 +270,26 @@ function StandingsPreviewTable({ columns }: { columns: StandingsColumn[] }) {
           borderBottomWidth={row < 3 ? '1px' : '0'}
           borderColor="gray.100"
           bg="white"
+          _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
         >
           <Box flex={1} pr={2}>
             <Box
               h="10px"
               bg="gray.200"
+              _dark={{ bg: 'gray.700' }}
               borderRadius="full"
               w={`${60 + row * 8}%`}
             />
           </Box>
           {allCols.map((_, i) => (
             <Box key={i} w="40px" display="flex" justifyContent="center">
-              <Box h="10px" w="16px" bg="gray.200" borderRadius="full" />
+              <Box
+                h="10px"
+                w="16px"
+                bg="gray.200"
+                borderRadius="full"
+                _dark={{ bg: 'gray.700' }}
+              />
             </Box>
           ))}
         </Flex>

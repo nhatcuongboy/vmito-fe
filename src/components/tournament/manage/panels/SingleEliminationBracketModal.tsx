@@ -196,6 +196,7 @@ export default function SingleEliminationBracketModal({
         bg="white"
         display="flex"
         flexDirection="column"
+        _dark={{ bg: 'gray.900' }}
       >
         {/* Top-right Close button */}
         <Box position="absolute" top={4} right={4} zIndex={10}>
@@ -220,6 +221,7 @@ export default function SingleEliminationBracketModal({
             borderRightWidth={{ md: '1px' }}
             borderColor="gray.200"
             overflowY="auto"
+            _dark={{ borderColor: 'gray.700' }}
           >
             {/* Header */}
             <Flex align="center" gap={3}>
@@ -227,6 +229,7 @@ export default function SingleEliminationBracketModal({
                 w="48px"
                 h="48px"
                 bg="green.100"
+                _dark={{ bg: 'green.900' }}
                 borderRadius="lg"
                 align="center"
                 justify="center"
@@ -238,7 +241,11 @@ export default function SingleEliminationBracketModal({
                 <Text fontWeight="bold" fontSize="lg">
                   {tf('SINGLE_ELIMINATION.name')}
                 </Text>
-                <Text fontSize="sm" color="gray.500">
+                <Text
+                  fontSize="sm"
+                  color="gray.500"
+                  _dark={{ color: 'gray.400' }}
+                >
                   {t('panels.rounds.configureAndConfirmMatches')}
                 </Text>
               </Box>
@@ -296,6 +303,8 @@ export default function SingleEliminationBracketModal({
                         borderColor="green.200"
                         borderRadius="lg"
                         overflow="hidden"
+                        bg="white"
+                        _dark={{ bg: 'gray.800', borderColor: 'green.700' }}
                       >
                         <Flex
                           px={3}
@@ -313,7 +322,10 @@ export default function SingleEliminationBracketModal({
                               as="button"
                               p={1}
                               borderRadius="md"
-                              _hover={{ bg: 'gray.100' }}
+                              _hover={{
+                                bg: 'gray.100',
+                                _dark: { bg: 'gray.700' },
+                              }}
                               onClick={() => handleOpenEditConsolation(match)}
                             >
                               <Edit size={14} color="#718096" />
@@ -334,8 +346,13 @@ export default function SingleEliminationBracketModal({
                           py={1.5}
                           borderTopWidth="1px"
                           borderColor="gray.100"
+                          _dark={{ borderColor: 'gray.700' }}
                         >
-                          <Text fontSize="xs" color="gray.600">
+                          <Text
+                            fontSize="xs"
+                            color="gray.600"
+                            _dark={{ color: 'gray.300' }}
+                          >
                             {homeName}
                           </Text>
                         </Box>
@@ -344,8 +361,13 @@ export default function SingleEliminationBracketModal({
                           py={1.5}
                           borderTopWidth="1px"
                           borderColor="gray.100"
+                          _dark={{ borderColor: 'gray.700' }}
                         >
-                          <Text fontSize="xs" color="gray.600">
+                          <Text
+                            fontSize="xs"
+                            color="gray.600"
+                            _dark={{ color: 'gray.300' }}
+                          >
                             {awayName}
                           </Text>
                         </Box>
@@ -367,7 +389,14 @@ export default function SingleEliminationBracketModal({
           </Flex>
 
           {/* Right panel - Bracket Preview */}
-          <Box flex={1} bg="gray.50" overflowX="auto" overflowY="auto" p={8}>
+          <Box
+            flex={1}
+            bg="gray.50"
+            overflowX="auto"
+            overflowY="auto"
+            p={8}
+            _dark={{ bg: 'gray.900' }}
+          >
             <BracketVisualization
               teamCount={teamCount}
               groupCount={1}
@@ -417,6 +446,7 @@ export default function SingleEliminationBracketModal({
           py={4}
           align="center"
           justify="space-between"
+          _dark={{ bg: 'gray.900', borderColor: 'gray.700' }}
         >
           <Button variant="ghost" onClick={onClose}>
             {t('panels.rounds.cancel')}
@@ -507,6 +537,7 @@ function ConsolationMatchDialog({
         mx="auto"
         mt="20vh"
         overflow="hidden"
+        _dark={{ bg: 'gray.800' }}
       >
         {/* Header */}
         <Flex px={6} pt={5} pb={3} align="center" justify="space-between">
@@ -517,7 +548,7 @@ function ConsolationMatchDialog({
             as="button"
             p={1}
             borderRadius="md"
-            _hover={{ bg: 'gray.100' }}
+            _hover={{ bg: 'gray.100', _dark: { bg: 'gray.700' } }}
             onClick={onCancel}
           >
             <X size={18} />
@@ -528,7 +559,12 @@ function ConsolationMatchDialog({
         <VStack gap={4} px={6} pb={6} align="stretch">
           {/* When */}
           <Box>
-            <Text fontSize="xs" color="gray.500" mb={1}>
+            <Text
+              fontSize="xs"
+              color="gray.500"
+              mb={1}
+              _dark={{ color: 'gray.400' }}
+            >
               {t('panels.rounds.whenMatchPlayed')}
             </Text>
             <NativeSelectRoot>
@@ -552,7 +588,12 @@ function ConsolationMatchDialog({
 
           {/* Home Team */}
           <Box>
-            <Text fontSize="xs" color="gray.500" mb={1}>
+            <Text
+              fontSize="xs"
+              color="gray.500"
+              mb={1}
+              _dark={{ color: 'gray.400' }}
+            >
               {t('panels.rounds.whoHomeTeam')}
             </Text>
             <NativeSelectRoot>
@@ -577,7 +618,12 @@ function ConsolationMatchDialog({
 
           {/* Away Team */}
           <Box>
-            <Text fontSize="xs" color="gray.500" mb={1}>
+            <Text
+              fontSize="xs"
+              color="gray.500"
+              mb={1}
+              _dark={{ color: 'gray.400' }}
+            >
               {t('panels.rounds.whoAwayTeam')}
             </Text>
             <NativeSelectRoot>
@@ -608,6 +654,7 @@ function ConsolationMatchDialog({
           borderTopWidth="1px"
           borderColor="gray.100"
           justify="space-between"
+          _dark={{ borderColor: 'gray.700' }}
         >
           <Button variant="ghost" onClick={onCancel}>
             {t('panels.rounds.cancel')}

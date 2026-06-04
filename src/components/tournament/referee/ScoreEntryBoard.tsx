@@ -238,7 +238,13 @@ export default function ScoreEntryBoard({
             })}
           </Badge>
         </Flex>
-        <Flex align="center" gap={2} fontSize="sm" color="gray.500">
+        <Flex
+          align="center"
+          gap={2}
+          fontSize="sm"
+          color="gray.500"
+          _dark={{ color: 'gray.400' }}
+        >
           {isConnected ? (
             <Wifi size={14} color="green" />
           ) : (

@@ -142,6 +142,7 @@ export default function PublicTournamentWinnersTab({
       borderRadius="xl"
       bg="white"
       overflow="hidden"
+      _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
     >
       <Flex
         align={{ base: 'stretch', md: 'center' }}
@@ -155,7 +156,7 @@ export default function PublicTournamentWinnersTab({
           <Heading size="md" mb={1}>
             {t('title')}
           </Heading>
-          <Text fontSize="sm" color="gray.500">
+          <Text fontSize="sm" color="gray.500" _dark={{ color: 'gray.400' }}>
             {t('description', { tournament: tournament.name })}
           </Text>
         </Box>
@@ -181,7 +182,11 @@ export default function PublicTournamentWinnersTab({
 
       {error ? (
         <Flex direction="column" align="center" gap={3} px={4} pt={2} pb={5}>
-          <Text color="gray.500" textAlign="center">
+          <Text
+            color="gray.500"
+            textAlign="center"
+            _dark={{ color: 'gray.400' }}
+          >
             {t('error')}
           </Text>
           <Button size="sm" variant="outline" onClick={() => void load()}>
@@ -190,7 +195,7 @@ export default function PublicTournamentWinnersTab({
         </Flex>
       ) : categories.length === 0 ? (
         <Box px={4} pb={4}>
-          <Text color="gray.500" fontSize="sm">
+          <Text color="gray.500" fontSize="sm" _dark={{ color: 'gray.400' }}>
             {t('noCategories')}
           </Text>
         </Box>
@@ -247,7 +252,7 @@ function CategoryPodiumCard({
       </Flex>
 
       {!shouldShowResults ? (
-        <Text color="gray.500" fontSize="sm">
+        <Text color="gray.500" fontSize="sm" _dark={{ color: 'gray.400' }}>
           {t('empty')}
         </Text>
       ) : (
@@ -314,11 +319,12 @@ function PodiumRow({
             color="gray.500"
             textTransform="uppercase"
             letterSpacing="0.04em"
+            _dark={{ color: 'gray.400' }}
           >
             {rankLabel}
           </Text>
           {entry.detail && (
-            <Text fontSize="xs" color="gray.400">
+            <Text fontSize="xs" color="gray.400" _dark={{ color: 'gray.500' }}>
               {entry.detail}
             </Text>
           )}

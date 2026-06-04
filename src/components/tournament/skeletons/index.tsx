@@ -112,6 +112,7 @@ function TournamentSidebarSkeleton() {
       position="sticky"
       top="96px"
       alignSelf="flex-start"
+      _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
     >
       <VStack align="stretch" gap={4}>
         <Skeleton height="92px" borderRadius="xl" />
@@ -144,8 +145,9 @@ export function TournamentTableSkeleton({
       borderRadius="xl"
       bg="white"
       overflow="hidden"
+      _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
     >
-      <HStack gap={3} p={4} bg="gray.50">
+      <HStack gap={3} p={4} bg="gray.50" _dark={{ bg: 'gray.900' }}>
         {repeat(columns).map((_, index) => (
           <Skeleton
             key={index}
@@ -163,6 +165,7 @@ export function TournamentTableSkeleton({
             p={4}
             borderTopWidth="1px"
             borderColor="gray.100"
+            _dark={{ borderColor: 'gray.700' }}
           >
             {repeat(columns).map((_, columnIndex) => (
               <Skeleton
@@ -190,6 +193,7 @@ export function TournamentMatchListSkeleton({ count = 5 }: { count?: number }) {
           borderRadius="xl"
           bg="white"
           p={4}
+          _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
         >
           <VStack align="stretch" gap={3}>
             <HStack justify="space-between">
@@ -230,6 +234,11 @@ export function TournamentTeamsSkeleton() {
           px={4}
           py={4}
           bg="white"
+          _dark={{
+            bg: 'gray.800',
+            borderColor: 'gray.700',
+            borderTopColor: 'gray.600',
+          }}
         >
           <VStack align="stretch" gap={3}>
             <Skeleton height="22px" width="40%" borderRadius="md" />
@@ -253,7 +262,13 @@ export function TournamentManageSkeleton() {
       <Flex justify="space-between" align="center">
         <Skeleton height="34px" width="220px" borderRadius="md" />
       </Flex>
-      <HStack bg="gray.100" borderRadius="full" p={1} w="fit-content">
+      <HStack
+        bg="gray.100"
+        borderRadius="full"
+        p={1}
+        w="fit-content"
+        _dark={{ bg: 'gray.800' }}
+      >
         <Skeleton height="32px" width="104px" borderRadius="full" />
         <Skeleton height="32px" width="96px" borderRadius="full" />
       </HStack>
@@ -270,6 +285,7 @@ export function TournamentManageSkeleton() {
                 p={4}
                 gap={3}
                 align="center"
+                _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
               >
                 <Skeleton height="40px" width="40px" borderRadius="lg" />
                 <Box flex={1}>
@@ -294,6 +310,7 @@ export function TournamentManageSkeleton() {
           borderRadius="xl"
           p={5}
           bg="white"
+          _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
         >
           <VStack align="stretch" gap={4}>
             <Skeleton height="28px" width="45%" borderRadius="md" />
@@ -315,6 +332,7 @@ export function TournamentContentSkeleton() {
         borderRadius="2xl"
         bg="white"
         overflow="hidden"
+        _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
       >
         <Skeleton height={{ base: '150px', md: '180px' }} />
         <Box p={{ base: 4, md: 5 }}>
@@ -350,6 +368,7 @@ export function TournamentContentSkeleton() {
             borderRadius="xl"
             bg="white"
             p={4}
+            _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
           >
             <Skeleton height="18px" width="60%" mb={3} borderRadius="md" />
             <Skeleton height="40px" width="46%" borderRadius="md" />
@@ -380,6 +399,7 @@ export function TournamentShellSkeleton() {
               borderRadius="2xl"
               bg="white"
               overflow="hidden"
+              _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
             >
               <Skeleton height="180px" />
               <Box p={5}>
@@ -397,6 +417,7 @@ export function TournamentShellSkeleton() {
                   borderRadius="xl"
                   bg="white"
                   p={4}
+                  _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
                 >
                   <Skeleton
                     height="18px"
@@ -421,6 +442,7 @@ export function TournamentShellSkeleton() {
             borderRadius="2xl"
             bg="white"
             overflow="hidden"
+            _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
           >
             <Skeleton height="150px" />
             <Box p={4}>
@@ -446,6 +468,7 @@ export function PublicTournamentProfileSkeleton() {
         borderRadius="xl"
         bg="white"
         overflow="hidden"
+        _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
       >
         <Box bg="green.600" px={{ base: 5, md: 6 }} py={6}>
           <HStack gap={3}>
@@ -478,6 +501,7 @@ export function PublicTournamentProfileSkeleton() {
             p={4}
             bg="gray.50"
             flexShrink={0}
+            _dark={{ bg: 'gray.900', borderColor: 'gray.700' }}
           >
             <VStack gap={3}>
               <Skeleton height="20px" width="120px" borderRadius="md" />

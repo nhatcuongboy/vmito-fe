@@ -54,7 +54,7 @@ function CategoryDotsPreview({ categories }: { categories: Category[] }) {
             borderRadius="full"
             bg={CATEGORY_COLORS[idx % CATEGORY_COLORS.length]}
           />
-          <Text fontSize="xs" color="gray.600">
+          <Text fontSize="xs" color="gray.600" _dark={{ color: 'gray.300' }}>
             {cat.name}
           </Text>
         </Flex>

@@ -287,6 +287,7 @@ export default function TournamentManage({
           p={1}
           mb={4}
           w="fit-content"
+          _dark={{ bg: 'gray.800' }}
         >
           <TabsTrigger
             value="organize"
@@ -354,6 +355,7 @@ export default function TournamentManage({
                 borderRadius="xl"
                 p={5}
                 bg="white"
+                _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
               >
                 {renderPanel()}
               </Box>

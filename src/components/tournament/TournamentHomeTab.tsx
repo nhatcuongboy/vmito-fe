@@ -254,6 +254,7 @@ export default function TournamentHomeTab({
         borderRadius="xl"
         p={{ base: 4, md: 4 }}
         bg="white"
+        _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
       >
         <Flex justify="space-between" align="center" mb={3}>
           <Text fontWeight="bold" fontSize={{ base: 'xl', md: 'lg' }}>
@@ -266,7 +267,7 @@ export default function TournamentHomeTab({
             align="center"
             justify="center"
             cursor="pointer"
-            _hover={{ bg: 'gray.100' }}
+            _hover={{ bg: 'gray.100', _dark: { bg: 'gray.700' } }}
           >
             <MoreHorizontal size={16} color="var(--chakra-colors-gray-500)" />
           </Flex>
@@ -283,14 +284,23 @@ export default function TournamentHomeTab({
             {isLoadingCategories ? (
               <Skeleton height="16px" width="132px" borderRadius="md" />
             ) : (
-              <Text fontSize="sm" color="gray.600">
+              <Text
+                fontSize="sm"
+                color="gray.600"
+                _dark={{ color: 'gray.300' }}
+              >
                 {t('overview.teamsParticipating', { count: totalTeams })}
               </Text>
             )}
           </Flex>
           <Flex align="center" gap={2} minW={0}>
             <CalendarDays size={16} color="var(--chakra-colors-gray-500)" />
-            <Text fontSize="sm" color="gray.600" lineClamp={1}>
+            <Text
+              fontSize="sm"
+              color="gray.600"
+              lineClamp={1}
+              _dark={{ color: 'gray.300' }}
+            >
               {formattedDate}
             </Text>
           </Flex>
@@ -310,6 +320,10 @@ export default function TournamentHomeTab({
             p={3}
             cursor="pointer"
             _hover={{ bg: 'gray.50' }}
+            _dark={{
+              borderColor: 'gray.700',
+              _hover: { bg: 'gray.700' },
+            }}
             onClick={handleViewSchedule}
             minH="72px"
           >
@@ -329,6 +343,10 @@ export default function TournamentHomeTab({
             p={3}
             cursor="pointer"
             _hover={{ bg: 'gray.50' }}
+            _dark={{
+              borderColor: 'gray.700',
+              _hover: { bg: 'gray.700' },
+            }}
             onClick={handleViewStandings}
             minH="72px"
           >
@@ -348,6 +366,10 @@ export default function TournamentHomeTab({
             p={3}
             cursor="pointer"
             _hover={{ bg: 'gray.50' }}
+            _dark={{
+              borderColor: 'gray.700',
+              _hover: { bg: 'gray.700' },
+            }}
             onClick={handleViewScoreboard}
             minH="72px"
           >
@@ -367,6 +389,10 @@ export default function TournamentHomeTab({
             p={3}
             cursor="pointer"
             _hover={{ bg: 'gray.50' }}
+            _dark={{
+              borderColor: 'gray.700',
+              _hover: { bg: 'gray.700' },
+            }}
             onClick={handleViewShowcase}
             minH="72px"
           >
@@ -387,6 +413,10 @@ export default function TournamentHomeTab({
               p={3}
               cursor="pointer"
               _hover={{ bg: 'gray.50' }}
+              _dark={{
+                borderColor: 'gray.700',
+                _hover: { bg: 'gray.700' },
+              }}
               onClick={handleRefereeArea}
               minH="72px"
             >
@@ -410,6 +440,7 @@ export default function TournamentHomeTab({
         borderRadius="xl"
         bg="white"
         overflow="hidden"
+        _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
       >
         <Flex justify="space-between" align="center" p={4} pb={3}>
           <Text fontWeight="semibold" fontSize="lg">
@@ -435,7 +466,7 @@ export default function TournamentHomeTab({
               align="center"
               justify="center"
               cursor="pointer"
-              _hover={{ bg: 'gray.100' }}
+              _hover={{ bg: 'gray.100', _dark: { bg: 'gray.700' } }}
             >
               <MoreHorizontal size={16} color="var(--chakra-colors-gray-500)" />
             </Flex>
@@ -446,7 +477,14 @@ export default function TournamentHomeTab({
           <VStack align="stretch" gap={0} pb={2}>
             {Array.from({ length: 3 }).map((_, index) => (
               <Box key={index}>
-                {index > 0 && <Box mx={4} h="1px" bg="gray.100" />}
+                {index > 0 && (
+                  <Box
+                    mx={4}
+                    h="1px"
+                    bg="gray.100"
+                    _dark={{ bg: 'gray.700' }}
+                  />
+                )}
                 <Flex align="center" justify="space-between" py={3} px={4}>
                   <Skeleton height="18px" width="44%" borderRadius="md" />
                   <Skeleton height="18px" width="18px" borderRadius="md" />
@@ -456,7 +494,7 @@ export default function TournamentHomeTab({
           </VStack>
         ) : categories.length === 0 ? (
           <Box px={4} pb={4}>
-            <Text fontSize="sm" color="gray.500">
+            <Text fontSize="sm" color="gray.500" _dark={{ color: 'gray.400' }}>
               {t('categories.empty')}
             </Text>
           </Box>
@@ -464,7 +502,14 @@ export default function TournamentHomeTab({
           <VStack align="stretch" gap={0}>
             {categories.map((category, index) => (
               <Box key={category.id}>
-                {index > 0 && <Box mx={4} h="1px" bg="gray.100" />}
+                {index > 0 && (
+                  <Box
+                    mx={4}
+                    h="1px"
+                    bg="gray.100"
+                    _dark={{ bg: 'gray.700' }}
+                  />
+                )}
                 <Flex
                   align="center"
                   justify="space-between"
@@ -472,6 +517,7 @@ export default function TournamentHomeTab({
                   px={4}
                   cursor="pointer"
                   _hover={{ bg: 'gray.50' }}
+                  _dark={{ _hover: { bg: 'gray.700' } }}
                   onClick={() =>
                     router.push(
                       `/tournament/${slug}/standings?category=${category.id}`
@@ -509,6 +555,7 @@ export default function TournamentHomeTab({
           overflow="hidden"
           bg="white"
           boxShadow="sm"
+          _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
         >
           <Flex justify="space-between" align="center" px={4} pt={4} pb={3}>
             <Text fontWeight="bold" fontSize={{ base: 'lg', md: 'xl' }}>
@@ -534,7 +581,7 @@ export default function TournamentHomeTab({
                 align="center"
                 justify="center"
                 cursor="pointer"
-                _hover={{ bg: 'gray.100' }}
+                _hover={{ bg: 'gray.100', _dark: { bg: 'gray.700' } }}
               >
                 <MoreHorizontal
                   size={16}
@@ -547,7 +594,14 @@ export default function TournamentHomeTab({
           <VStack align="stretch" gap={0}>
             {displayVenues.map(({ id, venue: currentVenue }, index) => (
               <Box key={id}>
-                {index > 0 && <Box h="1px" bg="gray.100" mx={4} />}
+                {index > 0 && (
+                  <Box
+                    h="1px"
+                    bg="gray.100"
+                    mx={4}
+                    _dark={{ bg: 'gray.700' }}
+                  />
+                )}
                 <Box px={4}>
                   {currentVenue.lat && currentVenue.lng ? (
                     <VenueMapPin
@@ -564,6 +618,7 @@ export default function TournamentHomeTab({
                       display="flex"
                       alignItems="center"
                       justifyContent="center"
+                      _dark={{ bg: 'gray.700' }}
                     >
                       <MapPin size={34} color="var(--chakra-colors-gray-400)" />
                     </Box>
@@ -580,11 +635,21 @@ export default function TournamentHomeTab({
                 >
                   <Box flex="1" minW={0}>
                     <Flex align="center" gap={2}>
-                      <Text fontWeight="bold" fontSize="md" color="gray.900">
+                      <Text
+                        fontWeight="bold"
+                        fontSize="md"
+                        color="gray.900"
+                        _dark={{ color: 'gray.50' }}
+                      >
                         {currentVenue.name}
                       </Text>
                       {currentVenue.acronym && (
-                        <Text fontWeight="bold" fontSize="sm" color="gray.500">
+                        <Text
+                          fontWeight="bold"
+                          fontSize="sm"
+                          color="gray.500"
+                          _dark={{ color: 'gray.400' }}
+                        >
                           {currentVenue.acronym}
                         </Text>
                       )}
@@ -613,18 +678,20 @@ export default function TournamentHomeTab({
                       borderRadius="lg"
                       px={2}
                       py={2}
+                      color="gray.900"
                       cursor="pointer"
                       flexShrink={0}
                       alignSelf={{ base: 'flex-start', sm: 'center' }}
                       _hover={{ bg: 'gray.50' }}
+                      _dark={{
+                        color: 'gray.50',
+                        _hover: { bg: 'gray.700' },
+                      }}
                       onClick={() => handleOpenDirections(currentVenue)}
                     >
                       <Flex align="center" gap={2}>
-                        <Navigation
-                          size={18}
-                          color="var(--chakra-colors-gray-900)"
-                        />
-                        <Text fontSize="md" fontWeight="bold" color="gray.900">
+                        <Navigation size={18} color="currentColor" />
+                        <Text fontSize="md" fontWeight="bold">
                           {t('venues.directions')}
                         </Text>
                       </Flex>
@@ -645,6 +712,7 @@ export default function TournamentHomeTab({
           borderRadius="xl"
           p={4}
           bg="white"
+          _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
         >
           <Flex justify="space-between" align="center" mb={3}>
             <Text fontWeight="semibold" fontSize="lg">
@@ -659,7 +727,7 @@ export default function TournamentHomeTab({
                   align="center"
                   justify="center"
                   cursor="pointer"
-                  _hover={{ bg: 'gray.100' }}
+                  _hover={{ bg: 'gray.100', _dark: { bg: 'gray.700' } }}
                 >
                   <Trash2 size={16} color="var(--chakra-colors-gray-500)" />
                 </Flex>
@@ -670,7 +738,7 @@ export default function TournamentHomeTab({
                   align="center"
                   justify="center"
                   cursor="pointer"
-                  _hover={{ bg: 'gray.100' }}
+                  _hover={{ bg: 'gray.100', _dark: { bg: 'gray.700' } }}
                 >
                   <Pencil size={16} color="var(--chakra-colors-gray-500)" />
                 </Flex>
@@ -681,7 +749,7 @@ export default function TournamentHomeTab({
                   align="center"
                   justify="center"
                   cursor="pointer"
-                  _hover={{ bg: 'gray.100' }}
+                  _hover={{ bg: 'gray.100', _dark: { bg: 'gray.700' } }}
                 >
                   <MoreHorizontal
                     size={16}
@@ -694,7 +762,11 @@ export default function TournamentHomeTab({
 
           <VStack align="stretch" gap={1.5}>
             {host.name && (
-              <Text fontSize="sm" color="gray.700">
+              <Text
+                fontSize="sm"
+                color="gray.700"
+                _dark={{ color: 'gray.300' }}
+              >
                 <Text as="span" fontWeight="medium">
                   {t('contact.name')}:
                 </Text>{' '}
@@ -702,7 +774,11 @@ export default function TournamentHomeTab({
               </Text>
             )}
             {host.email && (
-              <Text fontSize="sm" color="gray.700">
+              <Text
+                fontSize="sm"
+                color="gray.700"
+                _dark={{ color: 'gray.300' }}
+              >
                 <Text as="span" fontWeight="medium">
                   {t('contact.email')}:
                 </Text>{' '}
@@ -723,6 +799,7 @@ export default function TournamentHomeTab({
         borderRadius="xl"
         p={3}
         bg="white"
+        _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
       >
         <Box
           bg="white"

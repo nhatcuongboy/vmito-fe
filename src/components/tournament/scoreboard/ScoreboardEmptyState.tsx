@@ -15,6 +15,7 @@ export default function ScoreboardEmptyState() {
       gap={4}
       color="gray.500"
       py={20}
+      _dark={{ color: 'gray.400' }}
     >
       <MonitorPlay size={56} opacity={0.4} />
       <Text fontSize="lg">{t('noLiveMatches')}</Text>

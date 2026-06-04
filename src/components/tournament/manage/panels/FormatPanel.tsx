@@ -140,6 +140,7 @@ export default function FormatPanel({
                 py={1}
                 border="1px solid"
                 borderColor="gray.100"
+                _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
               >
                 {categories.map((cat, idx) => (
                   <Flex
@@ -152,6 +153,7 @@ export default function FormatPanel({
                     w="full"
                     fontSize="sm"
                     _hover={{ bg: 'gray.50' }}
+                    _dark={{ _hover: { bg: 'gray.700' } }}
                     onClick={() => {
                       onSelectCategory(cat);
                       setIsDropdownOpen(false);
@@ -176,7 +178,13 @@ export default function FormatPanel({
       {formatInfo && (
         <>
           {/* Format visualization */}
-          <Box bg="gray.50" borderRadius="xl" p={6} mb={4}>
+          <Box
+            bg="gray.50"
+            borderRadius="xl"
+            p={6}
+            mb={4}
+            _dark={{ bg: 'gray.900' }}
+          >
             <Flex gap={3} align="center" justify="center">
               {formatInfo.icons.map((Icon, idx) => (
                 <Flex key={idx} align="center" gap={3}>
@@ -191,11 +199,13 @@ export default function FormatPanel({
                     align="center"
                     gap={3}
                     boxShadow="sm"
+                    _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
                   >
                     <Flex
                       w="32px"
                       h="32px"
                       bg={idx === 0 ? 'blue.50' : 'orange.50'}
+                      _dark={{ bg: idx === 0 ? 'blue.900' : 'orange.900' }}
                       borderRadius="md"
                       align="center"
                       justify="center"
@@ -209,7 +219,11 @@ export default function FormatPanel({
                       <Text fontSize="sm" fontWeight="semibold">
                         {t(`panels.format.labels.${formatInfo.labelKeys[idx]}`)}
                       </Text>
-                      <Text fontSize="xs" color="gray.500">
+                      <Text
+                        fontSize="xs"
+                        color="gray.500"
+                        _dark={{ color: 'gray.400' }}
+                      >
                         {t(
                           `panels.format.labels.${formatInfo.subtitleKeys[idx]}`
                         )}
@@ -225,7 +239,12 @@ export default function FormatPanel({
           <Heading size="sm" mb={2}>
             {t(`panels.format.formats.${formatInfo.formatKey}.title`)}
           </Heading>
-          <Text fontSize="sm" color="gray.600" lineHeight="1.6">
+          <Text
+            fontSize="sm"
+            color="gray.600"
+            lineHeight="1.6"
+            _dark={{ color: 'gray.300' }}
+          >
             {t(`panels.format.formats.${formatInfo.formatKey}.description`)}
           </Text>
         </>

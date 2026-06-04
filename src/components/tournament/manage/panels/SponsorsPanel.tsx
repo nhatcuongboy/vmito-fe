@@ -20,18 +20,26 @@ export default function SponsorsPanel() {
         borderColor="gray.200"
         borderRadius="xl"
         bg="gray.50"
+        _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
       >
         <Flex
           w="48px"
           h="48px"
           bg="pink.50"
+          _dark={{ bg: 'pink.900' }}
           borderRadius="full"
           align="center"
           justify="center"
         >
           <Heart size={24} color="#D53F8C" />
         </Flex>
-        <Text fontSize="sm" color="gray.500" textAlign="center" px={4}>
+        <Text
+          fontSize="sm"
+          color="gray.500"
+          textAlign="center"
+          px={4}
+          _dark={{ color: 'gray.400' }}
+        >
           {t('panels.sponsors.description')}
         </Text>
         <Button

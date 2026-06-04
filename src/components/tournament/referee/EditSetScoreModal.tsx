@@ -102,7 +102,7 @@ export default function EditSetScoreModal({
       secondaryActionText={t('cancel')}
       onSecondaryAction={onClose}
     >
-      <Text fontSize="sm" color="gray.600" mb={3}>
+      <Text fontSize="sm" color="gray.600" mb={3} _dark={{ color: 'gray.300' }}>
         {isLatestSet ? t('editSetHintLatest') : t('editSetHintPast')}
       </Text>
 
@@ -124,7 +124,12 @@ export default function EditSetScoreModal({
             h="56px"
           />
         </Box>
-        <Text fontSize="xl" pb={3} color="gray.400">
+        <Text
+          fontSize="xl"
+          pb={3}
+          color="gray.400"
+          _dark={{ color: 'gray.500' }}
+        >
           –
         </Text>
         <Box flex="1">
@@ -159,7 +164,9 @@ export default function EditSetScoreModal({
           <Text color="red.500">{t('editSetErrorIncomplete')}</Text>
         )}
         {!incompleteError && !isLatestSet && validNumbers && (
-          <Text color="gray.500">{t('editSetWillResetLater')}</Text>
+          <Text color="gray.500" _dark={{ color: 'gray.400' }}>
+            {t('editSetWillResetLater')}
+          </Text>
         )}
       </Flex>
     </VModal>

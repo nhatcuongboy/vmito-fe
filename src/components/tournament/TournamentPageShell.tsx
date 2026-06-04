@@ -149,6 +149,11 @@ function TeamCategoryCard({
       bg="white"
       overflow="hidden"
       boxShadow="0 18px 46px rgba(15, 23, 42, 0.06)"
+      _dark={{
+        bg: 'gray.800',
+        borderColor: 'gray.700',
+        boxShadow: '0 18px 46px rgba(0, 0, 0, 0.26)',
+      }}
     >
       <Flex
         align={{ base: 'stretch', sm: 'center' }}
@@ -163,7 +168,12 @@ function TeamCategoryCard({
           <Heading size="md" lineClamp={1}>
             {categoryBlock.title}
           </Heading>
-          <Text mt={1} fontSize="sm" color="gray.600">
+          <Text
+            mt={1}
+            fontSize="sm"
+            color="gray.600"
+            _dark={{ color: 'gray.300' }}
+          >
             {categoryLabel}
           </Text>
         </Box>
@@ -222,6 +232,10 @@ function TeamRow({
       borderRadius="lg"
       transition="background 160ms ease, transform 160ms ease"
       _hover={team.code ? { bg: 'gray.50', transform: 'translateX(2px)' } : {}}
+      _dark={{
+        borderColor: 'gray.700',
+        _hover: team.code ? { bg: 'gray.700' } : {},
+      }}
     >
       <Flex
         align="center"
@@ -234,6 +248,7 @@ function TeamRow({
         borderColor="gray.200"
         color="gray.500"
         flexShrink={0}
+        _dark={{ bg: 'gray.700', borderColor: 'gray.600', color: 'gray.300' }}
       >
         <CircleUserRound size={23} />
       </Flex>
@@ -259,7 +274,13 @@ function TeamRow({
           )}
         </Flex>
         {team.members && team.members.length > 0 && (
-          <Text mt={1} fontSize="sm" color="gray.500" lineClamp={1}>
+          <Text
+            mt={1}
+            fontSize="sm"
+            color="gray.500"
+            lineClamp={1}
+            _dark={{ color: 'gray.400' }}
+          >
             {team.members.join(' · ')}
           </Text>
         )}
@@ -807,6 +828,8 @@ export default function TournamentPageShell({
               borderRadius="xl"
               px={6}
               py={8}
+              bg="white"
+              _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
             >
               <Text color="fg.muted">{t('teamsTab.noCategories')}</Text>
             </Box>

@@ -281,7 +281,7 @@ export default function PlayersPanel({ tournament }: PlayersPanelProps) {
           </Button>
         </Flex>
 
-        <Text fontSize="sm" color="gray.500">
+        <Text fontSize="sm" color="gray.500" _dark={{ color: 'gray.400' }}>
           {t('subtitle')}
         </Text>
 
@@ -358,6 +358,10 @@ export default function PlayersPanel({ tournament }: PlayersPanelProps) {
                   role="button"
                   tabIndex={0}
                   _hover={{ bg: 'gray.50' }}
+                  _dark={{
+                    borderColor: 'gray.700',
+                    _hover: { bg: 'gray.700' },
+                  }}
                   onClick={() => handleOpenDetail(player)}
                   onKeyDown={(event) => {
                     if (event.key === 'Enter' || event.key === ' ') {
@@ -375,6 +379,7 @@ export default function PlayersPanel({ tournament }: PlayersPanelProps) {
                     justify="center"
                     flexShrink={0}
                     overflow="hidden"
+                    _dark={{ bg: 'gray.700' }}
                   >
                     {player.image || player.user?.image ? (
                       <Image
@@ -400,13 +405,23 @@ export default function PlayersPanel({ tournament }: PlayersPanelProps) {
                       )}
                     </Flex>
                     {meta.length > 0 && (
-                      <Text fontSize="xs" color="gray.500" lineClamp={1}>
+                      <Text
+                        fontSize="xs"
+                        color="gray.500"
+                        lineClamp={1}
+                        _dark={{ color: 'gray.400' }}
+                      >
                         {meta.join(' · ')}
                       </Text>
                     )}
                   </Box>
                   {usageCount > 0 && (
-                    <Text fontSize="xs" color="gray.400" flexShrink={0}>
+                    <Text
+                      fontSize="xs"
+                      color="gray.400"
+                      flexShrink={0}
+                      _dark={{ color: 'gray.500' }}
+                    >
                       {t('usageBadge', { count: usageCount })}
                     </Text>
                   )}
@@ -417,6 +432,10 @@ export default function PlayersPanel({ tournament }: PlayersPanelProps) {
                       borderRadius="md"
                       color="gray.400"
                       _hover={{ bg: 'gray.100', color: 'gray.600' }}
+                      _dark={{
+                        color: 'gray.400',
+                        _hover: { bg: 'gray.700', color: 'gray.200' },
+                      }}
                       onClick={(event) => {
                         event.stopPropagation();
                         handleOpenEdit(player);
@@ -430,6 +449,10 @@ export default function PlayersPanel({ tournament }: PlayersPanelProps) {
                       borderRadius="md"
                       color="gray.400"
                       _hover={{ bg: 'red.50', color: 'red.500' }}
+                      _dark={{
+                        color: 'gray.400',
+                        _hover: { bg: 'red.900', color: 'red.200' },
+                      }}
                       onClick={(event) => {
                         event.stopPropagation();
                         handleOpenDelete(player);
@@ -441,7 +464,13 @@ export default function PlayersPanel({ tournament }: PlayersPanelProps) {
                 </Flex>
               );
             })}
-            <Text fontSize="xs" color="gray.400" textAlign="center" pt={3}>
+            <Text
+              fontSize="xs"
+              color="gray.400"
+              textAlign="center"
+              pt={3}
+              _dark={{ color: 'gray.500' }}
+            >
               {t('playersCount', { count: filteredPlayers.length })}
             </Text>
           </VStack>
@@ -659,7 +688,11 @@ export default function PlayersPanel({ tournament }: PlayersPanelProps) {
                   {detailPlayer.name}
                 </Text>
                 {detailPlayer.code && (
-                  <Text fontSize="sm" color="gray.500">
+                  <Text
+                    fontSize="sm"
+                    color="gray.500"
+                    _dark={{ color: 'gray.400' }}
+                  >
                     {detailPlayer.code}
                   </Text>
                 )}
@@ -696,8 +729,14 @@ export default function PlayersPanel({ tournament }: PlayersPanelProps) {
                   gap={4}
                   borderBottomWidth="1px"
                   borderColor="gray.100"
+                  _dark={{ borderColor: 'gray.700' }}
                 >
-                  <Text fontSize="sm" color="gray.500" flexShrink={0}>
+                  <Text
+                    fontSize="sm"
+                    color="gray.500"
+                    flexShrink={0}
+                    _dark={{ color: 'gray.400' }}
+                  >
                     {label}
                   </Text>
                   <Text fontSize="sm" fontWeight="medium" textAlign="right">

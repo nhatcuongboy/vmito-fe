@@ -316,7 +316,7 @@ export default function PublicTournamentStandingsTab({
           <Heading size="md" mb={{ base: 0.5, md: 1 }}>
             {t('title')}
           </Heading>
-          <Text fontSize="sm" color="gray.500">
+          <Text fontSize="sm" color="gray.500" _dark={{ color: 'gray.400' }}>
             {t('description', { tournament: tournament.name })}
           </Text>
         </Box>
@@ -435,7 +435,11 @@ export default function PublicTournamentStandingsTab({
           bg="white"
           _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
         >
-          <Text color="gray.500" textAlign="center">
+          <Text
+            color="gray.500"
+            textAlign="center"
+            _dark={{ color: 'gray.400' }}
+          >
             {t('error')}
           </Text>
           <Button
@@ -448,7 +452,7 @@ export default function PublicTournamentStandingsTab({
         </Flex>
       ) : stageView === 'playoffs' ? (
         visiblePlayoffCategories.length === 0 ? (
-          <Text color="gray.500" fontSize="sm">
+          <Text color="gray.500" fontSize="sm" _dark={{ color: 'gray.400' }}>
             {t('emptyPlayoffs')}
           </Text>
         ) : (
@@ -480,11 +484,11 @@ export default function PublicTournamentStandingsTab({
           </VStack>
         )
       ) : categories.length === 0 ? (
-        <Text color="gray.500" fontSize="sm">
+        <Text color="gray.500" fontSize="sm" _dark={{ color: 'gray.400' }}>
           {t('noCategories')}
         </Text>
       ) : !hasAnyStandings ? (
-        <Text color="gray.500" fontSize="sm">
+        <Text color="gray.500" fontSize="sm" _dark={{ color: 'gray.400' }}>
           {t('empty')}
         </Text>
       ) : standingView === 'overall' ? (
@@ -501,7 +505,11 @@ export default function PublicTournamentStandingsTab({
               </Heading>
 
               {block.rows.length === 0 ? (
-                <Text color="gray.500" fontSize="sm">
+                <Text
+                  color="gray.500"
+                  fontSize="sm"
+                  _dark={{ color: 'gray.400' }}
+                >
                   {t('emptyCategory')}
                 </Text>
               ) : (
@@ -531,7 +539,11 @@ export default function PublicTournamentStandingsTab({
               </Heading>
 
               {block.groups.length === 0 ? (
-                <Text color="gray.500" fontSize="sm">
+                <Text
+                  color="gray.500"
+                  fontSize="sm"
+                  _dark={{ color: 'gray.400' }}
+                >
                   {t('emptyCategory')}
                 </Text>
               ) : (
@@ -547,7 +559,11 @@ export default function PublicTournamentStandingsTab({
                     return (
                       <Box key={groupBlock.group.id}>
                         {groupBlock.standings.length === 0 ? (
-                          <Text color="gray.500" fontSize="sm">
+                          <Text
+                            color="gray.500"
+                            fontSize="sm"
+                            _dark={{ color: 'gray.400' }}
+                          >
                             {t('emptyGroup')}
                           </Text>
                         ) : (

@@ -342,7 +342,7 @@ export default function ResultsPanel({
           <Heading size="md" mb={1}>
             {heading ?? t('panelTitle')}
           </Heading>
-          <Text fontSize="sm" color="gray.500">
+          <Text fontSize="sm" color="gray.500" _dark={{ color: 'gray.400' }}>
             {description ?? t('panelDescription')}
           </Text>
         </Box>
@@ -389,7 +389,7 @@ export default function ResultsPanel({
       </Flex>
 
       {matches.length === 0 ? (
-        <Text color="gray.500" fontSize="sm">
+        <Text color="gray.500" fontSize="sm" _dark={{ color: 'gray.400' }}>
           {t('noMatches')}
         </Text>
       ) : filteredMatches.length === 0 ? (
@@ -637,6 +637,7 @@ export function ResultMatchCard({
             color="gray.500"
             whiteSpace="nowrap"
             flexShrink={0}
+            _dark={{ color: 'gray.400' }}
           >
             {timeLabel}
           </Text>
@@ -799,6 +800,8 @@ function ResultsCalendarView({
         p={8}
         textAlign="center"
         color="gray.500"
+        bg="white"
+        _dark={{ bg: 'gray.800', borderColor: 'gray.700', color: 'gray.400' }}
       >
         {t('calendar.empty')}
       </Box>
@@ -858,6 +861,7 @@ function ResultsCalendarView({
                   borderColor="gray.100"
                   p={3}
                   color="gray.500"
+                  _dark={{ borderColor: 'gray.800', color: 'gray.400' }}
                 >
                   <Text fontSize="sm">{formatHourLabel(hour)}</Text>
                 </Box>
@@ -872,6 +876,7 @@ function ResultsCalendarView({
                       borderLeftWidth="1px"
                       borderColor="gray.100"
                       p={2}
+                      _dark={{ borderColor: 'gray.800' }}
                     >
                       <VStack align="stretch" gap={2}>
                         {cellMatches.map((match) => (
@@ -997,6 +1002,7 @@ export function FilterDrawer({
                 borderRadius="full"
                 px={4}
                 py={3}
+                _dark={{ borderColor: 'gray.700' }}
               >
                 <Input
                   type="date"
@@ -1010,7 +1016,9 @@ export function FilterDrawer({
                   border="0"
                   px={0}
                 />
-                <Text color="gray.500">→</Text>
+                <Text color="gray.500" _dark={{ color: 'gray.400' }}>
+                  →
+                </Text>
                 <Input
                   type="date"
                   value={filters.dateTo}
@@ -1084,7 +1092,11 @@ function ChipGroup({
   iconFor?: (id: string) => React.ReactNode;
 }) {
   if (options.length === 0) {
-    return <Text color="gray.400">—</Text>;
+    return (
+      <Text color="gray.400" _dark={{ color: 'gray.500' }}>
+        —
+      </Text>
+    );
   }
 
   return (
@@ -1155,6 +1167,8 @@ function EmptyResults({ onClear }: { onClear: () => void }) {
       borderRadius="xl"
       p={8}
       textAlign="center"
+      bg="white"
+      _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
     >
       <Text fontWeight="semibold" mb={3}>
         {t('filters.empty')}
@@ -1173,7 +1187,7 @@ function CalendarHeaderCell({ children }: { children: React.ReactNode }) {
       borderLeftWidth="1px"
       borderColor="gray.100"
       bg="gray.50"
-      _dark={{ bg: 'gray.800' }}
+      _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
       textAlign="center"
     >
       <Text fontWeight="bold">{children}</Text>

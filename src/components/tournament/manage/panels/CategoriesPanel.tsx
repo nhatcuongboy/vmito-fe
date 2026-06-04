@@ -190,6 +190,10 @@ export default function CategoriesPanel({
               borderBottomWidth="1px"
               borderColor="gray.100"
               _hover={{ bg: 'gray.50' }}
+              _dark={{
+                borderColor: 'gray.700',
+                _hover: { bg: 'gray.700' },
+              }}
             >
               <Box
                 w="10px"
@@ -201,7 +205,11 @@ export default function CategoriesPanel({
               <Text flex="1" fontSize="sm" fontWeight="medium">
                 {cat.name}
               </Text>
-              <Text fontSize="xs" color="gray.500">
+              <Text
+                fontSize="xs"
+                color="gray.500"
+                _dark={{ color: 'gray.400' }}
+              >
                 {cat.registrationMode === CategoryRegistrationMode.TEAM
                   ? t('panels.categories.teamSizeSummary', {
                       count: cat.teamSize,
@@ -215,6 +223,10 @@ export default function CategoriesPanel({
                   borderRadius="md"
                   color="gray.400"
                   _hover={{ bg: 'gray.100', color: 'gray.600' }}
+                  _dark={{
+                    color: 'gray.400',
+                    _hover: { bg: 'gray.700', color: 'gray.200' },
+                  }}
                   onClick={() => handleOpenEdit(cat)}
                 >
                   <Pencil size={16} />
@@ -225,6 +237,10 @@ export default function CategoriesPanel({
                   borderRadius="md"
                   color="gray.400"
                   _hover={{ bg: 'red.50', color: 'red.500' }}
+                  _dark={{
+                    color: 'gray.400',
+                    _hover: { bg: 'red.900', color: 'red.200' },
+                  }}
                   onClick={() => handleOpenDelete(cat)}
                 >
                   <Trash2 size={16} />

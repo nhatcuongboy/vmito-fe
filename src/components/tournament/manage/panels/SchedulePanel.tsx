@@ -141,9 +141,10 @@ export default function SchedulePanel({
         p={3}
         bg="gray.50"
         borderRadius="lg"
+        _dark={{ bg: 'gray.800' }}
       >
         <Box>
-          <Text fontSize="xs" color="gray.500">
+          <Text fontSize="xs" color="gray.500" _dark={{ color: 'gray.400' }}>
             {t('organize.schedule.scheduleType.label')}
           </Text>
           <Badge colorScheme="gray" mt={1}>
@@ -208,7 +209,7 @@ export default function SchedulePanel({
         </Flex>
         <Flex align="center" gap={2}>
           <Box w="8px" h="8px" borderRadius="full" bg="gray.300" />
-          <Text fontSize="sm" color="gray.500">
+          <Text fontSize="sm" color="gray.500" _dark={{ color: 'gray.400' }}>
             {unscheduledMatches} {t('organize.schedule.unscheduledMatches')}
           </Text>
         </Flex>

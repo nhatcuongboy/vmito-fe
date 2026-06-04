@@ -170,7 +170,7 @@ export default function UmpiresPanel({ tournament }: Props) {
         <Heading size="md" mb={1}>
           {t('title')}
         </Heading>
-        <Text fontSize="sm" color="gray.500">
+        <Text fontSize="sm" color="gray.500" _dark={{ color: 'gray.400' }}>
           {t('description')}
         </Text>
       </Box>
@@ -262,7 +262,12 @@ export default function UmpiresPanel({ tournament }: Props) {
                       </Flex>
                     </Badge>
                   ) : (
-                    <Text fontSize="sm" color="gray.500" mt={1}>
+                    <Text
+                      fontSize="sm"
+                      color="gray.500"
+                      mt={1}
+                      _dark={{ color: 'gray.400' }}
+                    >
                       {t('notLinked')}
                     </Text>
                   )}
@@ -308,7 +313,12 @@ export default function UmpiresPanel({ tournament }: Props) {
         <Flex align="center" justify="space-between" gap={3} wrap="wrap">
           <Box>
             <Heading size="sm">{t('assignReferee')}</Heading>
-            <Text fontSize="sm" color="gray.500" mt={1}>
+            <Text
+              fontSize="sm"
+              color="gray.500"
+              mt={1}
+              _dark={{ color: 'gray.400' }}
+            >
               {t('selectedMatches', { count: selectedMatchIds.size })}
             </Text>
           </Box>
@@ -476,7 +486,13 @@ function StatTile({ label, value }: { label: string; value: number }) {
       py={3}
       _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
     >
-      <Text fontSize="xs" color="gray.500" fontWeight="medium" lineClamp={1}>
+      <Text
+        fontSize="xs"
+        color="gray.500"
+        fontWeight="medium"
+        lineClamp={1}
+        _dark={{ color: 'gray.400' }}
+      >
         {label}
       </Text>
       <Text fontSize="2xl" fontWeight="bold" lineHeight={1.2}>
@@ -497,7 +513,7 @@ function EmptyCard({ children }: { children: ReactNode }) {
       textAlign="center"
       _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
     >
-      <Text color="gray.500" fontSize="sm">
+      <Text color="gray.500" fontSize="sm" _dark={{ color: 'gray.400' }}>
         {children}
       </Text>
     </Box>

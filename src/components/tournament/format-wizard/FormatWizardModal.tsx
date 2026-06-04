@@ -110,9 +110,11 @@ function WizardContent({
         boxShadow="xl"
         w="full"
         maxW="1100px"
+        h={{ base: 'calc(100dvh - 32px)', md: '90vh' }}
         maxH="90vh"
         display="flex"
         flexDirection="column"
+        minH={0}
         position="relative"
         overflow="hidden"
         onClick={(e) => e.stopPropagation()}
@@ -151,7 +153,7 @@ function WizardContent({
         </Flex>
 
         {/* Content area */}
-        <Box flex={1} overflow="hidden" pb="80px">
+        <Box flex={1} minH={0} overflow="hidden" pb="80px">
           {state.currentStep === 1 && <StepSelectFormat />}
           {state.currentStep === 2 && <StepConfigureFormat />}
           {state.currentStep === playoffsStep && <StepConfigurePlayoffs />}

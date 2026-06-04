@@ -342,6 +342,8 @@ function EmptyRefereeResults({ onClear }: { onClear: () => void }) {
       borderRadius="xl"
       p={8}
       textAlign="center"
+      bg="white"
+      _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
     >
       <Text fontWeight="semibold" mb={3}>
         {t('filters.empty')}

@@ -20,6 +20,7 @@ import TournamentSidebar from '@/components/tournament/TournamentSidebar';
 interface TournamentRefereeDesktopLayoutProps {
   tournament: Tournament | null;
   activeTab?: number;
+  showSidebar?: boolean;
   children: ReactNode;
 }
 
@@ -35,6 +36,7 @@ const TAB_TO_PATH: Record<number, string> = {
 export default function TournamentRefereeDesktopLayout({
   tournament,
   activeTab = 2,
+  showSidebar = true,
   children,
 }: TournamentRefereeDesktopLayoutProps) {
   const t = useTranslations('pages.tournaments.detail');
@@ -99,14 +101,16 @@ export default function TournamentRefereeDesktopLayout({
       pr={{ md: 6 }}
       align="flex-start"
     >
-      <Flex display={{ base: 'none', md: 'flex' }} flexShrink={0}>
-        <TournamentSidebar
-          tournament={tournament}
-          tabs={tabs}
-          activeTab={activeTab}
-          onTabChange={handleTabChange}
-        />
-      </Flex>
+      {showSidebar && (
+        <Flex display={{ base: 'none', md: 'flex' }} flexShrink={0}>
+          <TournamentSidebar
+            tournament={tournament}
+            tabs={tabs}
+            activeTab={activeTab}
+            onTabChange={handleTabChange}
+          />
+        </Flex>
+      )}
 
       <Box flex="1" minW={0}>
         {children}

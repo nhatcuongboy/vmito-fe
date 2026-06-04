@@ -86,7 +86,12 @@ function TournamentSidebarHeader({
   return (
     <>
       {/* Tournament banner image */}
-      <Box position="relative" bg="gray.100" h="130px">
+      <Box
+        position="relative"
+        bg="gray.100"
+        h="130px"
+        _dark={{ bg: 'gray.800' }}
+      >
         {tournament.coverPhoto ||
         tournament.venue?.coverPhoto ||
         tournament.venue?.images?.[0] ? (
@@ -102,7 +107,7 @@ function TournamentSidebarHeader({
             objectFit="cover"
           />
         ) : (
-          <Box w="100%" h="100%" bg="gray.200" />
+          <Box w="100%" h="100%" bg="gray.200" _dark={{ bg: 'gray.700' }} />
         )}
         {/* Status badge — only visible to the host / managers */}
         {showStatusBadge && (
@@ -112,6 +117,10 @@ function TournamentSidebarHeader({
             left={2}
             bg={`${statusColor}.100`}
             color={`${statusColor}.700`}
+            _dark={{
+              bg: `${statusColor}.900`,
+              color: `${statusColor}.100`,
+            }}
             px={2}
             py={0.5}
             borderRadius="md"
@@ -128,7 +137,7 @@ function TournamentSidebarHeader({
         <Text fontWeight="bold" fontSize="lg" mb={1} lineClamp={2}>
           {tournament.name}
         </Text>
-        <Text fontSize="sm" color="gray.500">
+        <Text fontSize="sm" color="gray.500" _dark={{ color: 'gray.400' }}>
           {formattedDate}
         </Text>
       </Box>
@@ -139,7 +148,7 @@ function TournamentSidebarHeader({
 function TournamentSidebarHeaderSkeleton() {
   return (
     <>
-      <Box bg="gray.100" h="130px">
+      <Box bg="gray.100" h="130px" _dark={{ bg: 'gray.800' }}>
         <Skeleton h="100%" w="100%" />
       </Box>
       <Box px={4} pt={4} pb={2}>

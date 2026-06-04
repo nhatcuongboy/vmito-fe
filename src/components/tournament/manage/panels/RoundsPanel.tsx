@@ -373,7 +373,8 @@ export default function RoundsPanel({
             py={1.5}
             borderRadius="full"
             bg="gray.100"
-            _hover={{ bg: 'gray.200' }}
+            _hover={{ bg: 'gray.200', _dark: { bg: 'gray.700' } }}
+            _dark={{ bg: 'gray.800' }}
             cursor="pointer"
             fontSize="sm"
             fontWeight="medium"
@@ -419,6 +420,7 @@ export default function RoundsPanel({
                 py={1}
                 border="1px solid"
                 borderColor="gray.100"
+                _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
               >
                 {categories.map((cat, idx) => (
                   <Flex
@@ -430,7 +432,7 @@ export default function RoundsPanel({
                     py={2.5}
                     w="full"
                     fontSize="sm"
-                    _hover={{ bg: 'gray.50' }}
+                    _hover={{ bg: 'gray.50', _dark: { bg: 'gray.700' } }}
                     onClick={() => {
                       onSelectCategory(cat);
                       setIsDropdownOpen(false);
@@ -501,6 +503,7 @@ export default function RoundsPanel({
                       borderColor="gray.200"
                       overflow="hidden"
                       p={3}
+                      _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
                     >
                       <BracketVisualization
                         teamCount={totalRegistrations}
@@ -590,6 +593,7 @@ export default function RoundsPanel({
                 bottom="28px"
                 w="2px"
                 bg="gray.200"
+                _dark={{ bg: 'gray.700' }}
               />
             )}
 
@@ -623,6 +627,7 @@ export default function RoundsPanel({
                             overflow="hidden"
                             flex="1 1 180px"
                             maxW="280px"
+                            _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
                           >
                             <Flex
                               px={3}
@@ -632,6 +637,7 @@ export default function RoundsPanel({
                               gap={2}
                               borderBottomWidth="1px"
                               borderColor="gray.100"
+                              _dark={{ borderColor: 'gray.700' }}
                             >
                               <Text fontWeight="semibold" fontSize="sm">
                                 {poolLabel}
@@ -670,6 +676,7 @@ export default function RoundsPanel({
                                         borderBottomWidth="1px"
                                         borderColor="gray.50"
                                         _last={{ borderBottomWidth: '0' }}
+                                        _dark={{ borderColor: 'gray.700' }}
                                       >
                                         <Text fontSize="xs">{name}</Text>
                                       </Flex>
@@ -685,8 +692,13 @@ export default function RoundsPanel({
                                       borderBottomWidth="1px"
                                       borderColor="gray.50"
                                       _last={{ borderBottomWidth: '0' }}
+                                      _dark={{ borderColor: 'gray.700' }}
                                     >
-                                      <Text fontSize="xs" color="gray.400">
+                                      <Text
+                                        fontSize="xs"
+                                        color="gray.400"
+                                        _dark={{ color: 'gray.500' }}
+                                      >
                                         {t('panels.rounds.teamLabel')} {i + 1}
                                       </Text>
                                     </Flex>
@@ -771,12 +783,14 @@ export default function RoundsPanel({
                         borderWidth="1.5px"
                         borderColor="yellow.200"
                         overflow="hidden"
+                        _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
                       >
                         <Box
                           px={4}
                           py={3}
                           borderBottomWidth="1px"
                           borderColor="gray.100"
+                          _dark={{ borderColor: 'gray.700' }}
                         >
                           <Text fontWeight="semibold" fontSize="sm">
                             {t('panels.rounds.playoffs')}
@@ -794,6 +808,7 @@ export default function RoundsPanel({
                                 idx < advancingSlots.length - 1 ? '1px' : '0'
                               }
                               borderColor="gray.50"
+                              _dark={{ borderColor: 'gray.700' }}
                             >
                               <Users size={14} color="#A0AEC0" />
                               <Text fontSize="xs">{slot}</Text>
@@ -841,6 +856,7 @@ export default function RoundsPanel({
                           borderColor="yellow.200"
                           overflow="hidden"
                           p={3}
+                          _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
                         >
                           <BracketVisualization
                             teamCount={winnersPerGroup * groupCount}
@@ -945,15 +961,27 @@ export default function RoundsPanel({
           borderRadius="xl"
           p={6}
           bg="gray.50"
+          _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
         >
           <Flex direction="column" align="center" gap={4}>
-            <Box color="gray.400">
+            <Box color="gray.400" _dark={{ color: 'gray.500' }}>
               <GitBranch size={32} />
             </Box>
-            <Text fontSize="sm" color="gray.600" fontWeight="medium">
+            <Text
+              fontSize="sm"
+              color="gray.600"
+              fontWeight="medium"
+              _dark={{ color: 'gray.300' }}
+            >
               {t('panels.rounds.setupGroups')}
             </Text>
-            <Text fontSize="xs" color="gray.500" textAlign="center" px={2}>
+            <Text
+              fontSize="xs"
+              color="gray.500"
+              textAlign="center"
+              px={2}
+              _dark={{ color: 'gray.400' }}
+            >
               {t('panels.rounds.setupGroupsDescription')}
             </Text>
 
@@ -967,6 +995,7 @@ export default function RoundsPanel({
               align="center"
               w="100%"
               maxW="320px"
+              _dark={{ bg: 'gray.900', borderColor: 'gray.700' }}
             >
               <Text fontSize="sm" fontWeight="medium" flex={1}>
                 {t('panels.rounds.numberOfGroups')}
@@ -1030,11 +1059,17 @@ export default function RoundsPanel({
               align="center"
               gap={2}
               flexWrap="wrap"
+              _dark={{ bg: 'green.900', borderColor: 'green.700' }}
             >
               {!hasTeamsInGroups ? (
                 <>
                   <Shuffle size={16} color="var(--chakra-colors-green-600)" />
-                  <Text fontSize="sm" color="green.700" flex={1}>
+                  <Text
+                    fontSize="sm"
+                    color="green.700"
+                    flex={1}
+                    _dark={{ color: 'green.200' }}
+                  >
                     {t('panels.rounds.noTeamsInGroups')}
                   </Text>
                   <Button
@@ -1051,7 +1086,12 @@ export default function RoundsPanel({
               ) : (
                 <>
                   <Zap size={16} color="var(--chakra-colors-green-600)" />
-                  <Text fontSize="sm" color="green.700" flex={1}>
+                  <Text
+                    fontSize="sm"
+                    color="green.700"
+                    flex={1}
+                    _dark={{ color: 'green.200' }}
+                  >
                     {t('panels.rounds.readyToGenerate', {
                       count: totalTeamsInGroups,
                     })}
@@ -1080,12 +1120,23 @@ export default function RoundsPanel({
               p={3}
               align="center"
               gap={2}
+              _dark={{ bg: 'green.900', borderColor: 'green.700' }}
             >
               <Trophy size={16} color="var(--chakra-colors-green-600)" />
-              <Text fontSize="sm" color="green.700" fontWeight="medium">
+              <Text
+                fontSize="sm"
+                color="green.700"
+                fontWeight="medium"
+                _dark={{ color: 'green.200' }}
+              >
                 {t('panels.rounds.allGroupsHaveMatches')}
               </Text>
-              <Text fontSize="sm" color="green.600" ml="auto">
+              <Text
+                fontSize="sm"
+                color="green.600"
+                ml="auto"
+                _dark={{ color: 'green.300' }}
+              >
                 {t('panels.rounds.matchCount', { count: totalMatches })}
               </Text>
             </Flex>
@@ -1105,6 +1156,8 @@ export default function RoundsPanel({
                 borderColor="gray.200"
                 borderRadius="xl"
                 overflow="hidden"
+                bg="white"
+                _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
               >
                 <Flex
                   bg="gray.50"
@@ -1116,6 +1169,7 @@ export default function RoundsPanel({
                     groupMatches.length > 0 || regCount > 0 ? '1px' : '0'
                   }
                   borderColor="gray.200"
+                  _dark={{ bg: 'gray.900', borderColor: 'gray.700' }}
                 >
                   <Flex align="center" gap={2}>
                     <Text fontWeight="semibold" fontSize="sm">
@@ -1167,7 +1221,8 @@ export default function RoundsPanel({
                             idx < groupMatches.length - 1 ? '1px' : '0'
                           }
                           borderColor="gray.100"
-                          _hover={{ bg: 'gray.50' }}
+                          _hover={{ bg: 'gray.50', _dark: { bg: 'gray.700' } }}
+                          _dark={{ borderColor: 'gray.700' }}
                         >
                           <Flex align="center" gap={3}>
                             <Text
@@ -1175,6 +1230,7 @@ export default function RoundsPanel({
                               color="gray.400"
                               fontWeight="medium"
                               minW="32px"
+                              _dark={{ color: 'gray.500' }}
                             >
                               #{match.matchNumber}
                             </Text>
@@ -1196,6 +1252,7 @@ export default function RoundsPanel({
                                 fontSize="xs"
                                 color="gray.400"
                                 flexShrink={0}
+                                _dark={{ color: 'gray.500' }}
                               >
                                 {t('panels.rounds.vs')}
                               </Text>
@@ -1219,6 +1276,9 @@ export default function RoundsPanel({
                               fontWeight={match.score ? 'semibold' : 'normal'}
                               minW="60px"
                               textAlign="center"
+                              _dark={{
+                                color: match.score ? 'gray.200' : 'gray.500',
+                              }}
                             >
                               {match.score || t('panels.rounds.noScore')}
                             </Text>
@@ -1237,7 +1297,11 @@ export default function RoundsPanel({
                   </VStack>
                 ) : regCount === 0 ? (
                   <Flex py={4} justify="center">
-                    <Text fontSize="xs" color="gray.400">
+                    <Text
+                      fontSize="xs"
+                      color="gray.400"
+                      _dark={{ color: 'gray.500' }}
+                    >
                       {t('panels.rounds.noTeamsInGroup')}
                     </Text>
                   </Flex>
@@ -1283,6 +1347,10 @@ function StepperSection({
           borderWidth="1px"
           borderColor="white"
           boxShadow="sm"
+          _dark={{
+            bg: color === 'green' ? 'green.900' : 'yellow.900',
+            borderColor: 'gray.700',
+          }}
         >
           <Icon size={18} color={iconColor} />
         </Flex>
@@ -1290,13 +1358,24 @@ function StepperSection({
           <Text fontWeight="bold" fontSize="md" lineHeight="1.2">
             {title}
           </Text>
-          <Text fontSize="sm" color="gray.500" mt={1}>
+          <Text
+            fontSize="sm"
+            color="gray.500"
+            mt={1}
+            _dark={{ color: 'gray.400' }}
+          >
             {subtitle}
           </Text>
         </Box>
       </Flex>
 
-      <Box ml="20px" pl={5} borderLeftWidth="2px" borderColor="gray.200">
+      <Box
+        ml="20px"
+        pl={5}
+        borderLeftWidth="2px"
+        borderColor="gray.200"
+        _dark={{ borderColor: 'gray.700' }}
+      >
         {children}
       </Box>
     </Box>
@@ -1333,6 +1412,7 @@ function GenerateBracketSection({
       borderRadius="lg"
       p={3}
       bg="gray.50"
+      _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
     >
       {hasGroupStage && totalGroupMatches > 0 && (
         <Text
@@ -1367,7 +1447,13 @@ function GenerateBracketSection({
           : t('panels.rounds.generatePlayoffs')}
       </Button>
       {!canGenerate && !hasBracket && (
-        <Text fontSize="xs" color="gray.400" mt={2} textAlign="center">
+        <Text
+          fontSize="xs"
+          color="gray.400"
+          mt={2}
+          textAlign="center"
+          _dark={{ color: 'gray.500' }}
+        >
           {t('panels.rounds.generateBracketLocked')}
         </Text>
       )}
@@ -1403,7 +1489,7 @@ function GenerateBracketConfirmModal({
       primaryColorScheme={hasBracket ? 'orange' : 'green'}
       secondaryActionText={t('panels.rounds.cancel')}
     >
-      <Text fontSize="sm" color="gray.600">
+      <Text fontSize="sm" color="gray.600" _dark={{ color: 'gray.300' }}>
         {t('panels.rounds.confirmGenerateMessage')}
       </Text>
       {hasBracket && (

@@ -60,6 +60,7 @@ export default function ShareScoreboardModal({ isOpen, onClose, url }: Props) {
             color="gray.500"
             wordBreak="break-all"
             textAlign="center"
+            _dark={{ color: 'gray.400' }}
           >
             {url}
           </Text>

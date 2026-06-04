@@ -372,7 +372,7 @@ export default function ManageScheduleModal({
           top={0}
           bg="white"
           zIndex={10}
-          _dark={{ bg: 'gray.800' }}
+          _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
         >
           <Flex gap={2} align="center">
             {/* Segmented view-mode toggle */}
@@ -467,7 +467,12 @@ export default function ManageScheduleModal({
             gap={4}
           >
             <Text fontSize="4xl">📅</Text>
-            <Text color="gray.500" textAlign="center" maxW="300px">
+            <Text
+              color="gray.500"
+              textAlign="center"
+              maxW="300px"
+              _dark={{ color: 'gray.400' }}
+            >
               {t('emptyTitle')}
             </Text>
             <Button
@@ -478,7 +483,7 @@ export default function ManageScheduleModal({
               <Sparkles size={16} />
               {t('generateSchedule')}
             </Button>
-            <Text fontSize="sm" color="gray.400">
+            <Text fontSize="sm" color="gray.400" _dark={{ color: 'gray.500' }}>
               OR
             </Text>
             <Button
@@ -527,7 +532,7 @@ export default function ManageScheduleModal({
           bottom={0}
           bg="white"
           zIndex={10}
-          _dark={{ bg: 'gray.800' }}
+          _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
         >
           <Button variant="ghost" onClick={handleCancel}>
             {t('cancel')}

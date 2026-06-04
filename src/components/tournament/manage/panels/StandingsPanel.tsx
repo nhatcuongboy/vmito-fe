@@ -175,6 +175,7 @@ export default function StandingsPanel({
                 py={1}
                 border="1px solid"
                 borderColor="gray.100"
+                _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
               >
                 {categories.map((cat, idx) => (
                   <Flex
@@ -187,6 +188,7 @@ export default function StandingsPanel({
                     w="full"
                     fontSize="sm"
                     _hover={{ bg: 'gray.50' }}
+                    _dark={{ _hover: { bg: 'gray.700' } }}
                     onClick={() => {
                       onSelectCategory(cat);
                       setIsDropdownOpen(false);
@@ -214,34 +216,34 @@ export default function StandingsPanel({
           {t('panels.standings.points')}
         </Heading>
         <VStack gap={1} align="stretch" pl={2}>
-          <Text fontSize="sm" color="gray.600">
+          <Text fontSize="sm" color="gray.600" _dark={{ color: 'gray.300' }}>
             • {winPoints} {t('panels.standings.pointsPerWin')}
           </Text>
-          <Text fontSize="sm" color="gray.600">
+          <Text fontSize="sm" color="gray.600" _dark={{ color: 'gray.300' }}>
             • {tiePoints} {t('panels.standings.pointsPerTie')}
           </Text>
           {lossPoints > 0 && (
-            <Text fontSize="sm" color="gray.600">
+            <Text fontSize="sm" color="gray.600" _dark={{ color: 'gray.300' }}>
               • {lossPoints} {t('panels.standings.pointsPerLoss')}
             </Text>
           )}
           {gameWinPoints > 0 && (
-            <Text fontSize="sm" color="gray.600">
+            <Text fontSize="sm" color="gray.600" _dark={{ color: 'gray.300' }}>
               • {gameWinPoints} {t('panels.standings.pointsPerGameWin')}
             </Text>
           )}
           {gameLossPoints > 0 && (
-            <Text fontSize="sm" color="gray.600">
+            <Text fontSize="sm" color="gray.600" _dark={{ color: 'gray.300' }}>
               • {gameLossPoints} {t('panels.standings.pointsPerGameLoss')}
             </Text>
           )}
           {forfeitWinPoints > 0 && (
-            <Text fontSize="sm" color="gray.600">
+            <Text fontSize="sm" color="gray.600" _dark={{ color: 'gray.300' }}>
               • {forfeitWinPoints} {t('panels.standings.pointsPerForfeitWin')}
             </Text>
           )}
           {forfeitLossPoints > 0 && (
-            <Text fontSize="sm" color="gray.600">
+            <Text fontSize="sm" color="gray.600" _dark={{ color: 'gray.300' }}>
               • {forfeitLossPoints} {t('panels.standings.pointsPerForfeitLoss')}
             </Text>
           )}
@@ -260,6 +262,7 @@ export default function StandingsPanel({
                 w="24px"
                 h="24px"
                 bg="blue.50"
+                _dark={{ bg: 'blue.900' }}
                 borderRadius="md"
                 align="center"
                 justify="center"
@@ -273,7 +276,11 @@ export default function StandingsPanel({
                 <Text fontSize="sm" fontWeight="medium">
                   {tConfig(`tiebreakerItems.${tb.label}`)}
                 </Text>
-                <Text fontSize="xs" color="gray.500">
+                <Text
+                  fontSize="xs"
+                  color="gray.500"
+                  _dark={{ color: 'gray.400' }}
+                >
                   {tConfig(`tiebreakerItems.${tb.description}`)}
                 </Text>
               </Box>
@@ -294,12 +301,18 @@ export default function StandingsPanel({
                 w="24px"
                 h="24px"
                 bg="gray.100"
+                _dark={{ bg: 'gray.700' }}
                 borderRadius="md"
                 align="center"
                 justify="center"
                 flexShrink={0}
               >
-                <Text fontSize="xs" fontWeight="bold" color="gray.600">
+                <Text
+                  fontSize="xs"
+                  fontWeight="bold"
+                  color="gray.600"
+                  _dark={{ color: 'gray.200' }}
+                >
                   {stat.abbreviation}
                 </Text>
               </Flex>
@@ -315,6 +328,7 @@ export default function StandingsPanel({
                   fontSize="2xs"
                   fontWeight="bold"
                   color="gray.500"
+                  _dark={{ bg: 'gray.700', color: 'gray.300' }}
                 >
                   {t('panels.standings.required')}
                 </Box>
@@ -336,6 +350,7 @@ export default function StandingsPanel({
               w="24px"
               h="24px"
               bg="blue.50"
+              _dark={{ bg: 'blue.900' }}
               borderRadius="md"
               align="center"
               justify="center"
@@ -356,6 +371,7 @@ export default function StandingsPanel({
               fontSize="2xs"
               fontWeight="bold"
               color="gray.500"
+              _dark={{ bg: 'gray.700', color: 'gray.300' }}
             >
               {t('panels.standings.required')}
             </Box>
@@ -366,12 +382,18 @@ export default function StandingsPanel({
                 w="24px"
                 h="24px"
                 bg="gray.100"
+                _dark={{ bg: 'gray.700' }}
                 borderRadius="md"
                 align="center"
                 justify="center"
                 flexShrink={0}
               >
-                <Text fontSize="2xs" fontWeight="bold" color="gray.600">
+                <Text
+                  fontSize="2xs"
+                  fontWeight="bold"
+                  color="gray.600"
+                  _dark={{ color: 'gray.200' }}
+                >
                   {col.abbreviation}
                 </Text>
               </Flex>

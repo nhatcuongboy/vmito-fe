@@ -36,6 +36,11 @@ export default function ManageMenuItem({
         cursor="pointer"
         onClick={onClick}
         _hover={{ bg: 'yellow.500' }}
+        _dark={{
+          bg: 'yellow.900',
+          borderColor: 'yellow.700',
+          _hover: { bg: 'yellow.800' },
+        }}
         transition="all 0.15s"
       >
         <Box
@@ -46,11 +51,21 @@ export default function ManageMenuItem({
           flexShrink={0}
         />
         <Box flex="1">
-          <Text fontWeight="bold" fontSize="sm" color="gray.900">
+          <Text
+            fontWeight="bold"
+            fontSize="sm"
+            color="gray.900"
+            _dark={{ color: 'yellow.50' }}
+          >
             {title}
           </Text>
           {description && (
-            <Text fontSize="xs" color="gray.700" mt={0.5}>
+            <Text
+              fontSize="xs"
+              color="gray.700"
+              mt={0.5}
+              _dark={{ color: 'yellow.100' }}
+            >
               {description}
             </Text>
           )}
@@ -73,6 +88,11 @@ export default function ManageMenuItem({
       cursor={onClick ? 'pointer' : 'default'}
       onClick={onClick}
       _hover={onClick ? { bg: 'gray.50', borderColor: 'gray.300' } : {}}
+      _dark={{
+        bg: isActive ? 'gray.700' : 'gray.800',
+        borderColor: isActive ? 'gray.500' : 'gray.700',
+        _hover: onClick ? { bg: 'gray.700', borderColor: 'gray.600' } : {},
+      }}
       transition="all 0.15s"
     >
       <Flex
@@ -82,6 +102,7 @@ export default function ManageMenuItem({
         justify="center"
         flexShrink={0}
         color={variant === 'danger' ? 'red.500' : 'gray.500'}
+        _dark={{ color: variant === 'danger' ? 'red.300' : 'gray.300' }}
       >
         <Icon size={20} />
       </Flex>
@@ -103,6 +124,7 @@ export default function ManageMenuItem({
               fontSize="2xs"
               fontWeight="bold"
               color="gray.600"
+              _dark={{ bg: 'gray.700', color: 'gray.300' }}
             >
               {badge}
             </Box>
@@ -112,6 +134,7 @@ export default function ManageMenuItem({
           <Text
             fontSize="xs"
             color={variant === 'danger' ? 'red.400' : 'gray.500'}
+            _dark={{ color: variant === 'danger' ? 'red.300' : 'gray.400' }}
             mt={0.5}
             lineClamp={2}
           >
@@ -121,7 +144,7 @@ export default function ManageMenuItem({
         {preview && <Box mt={2}>{preview}</Box>}
       </Box>
       {onClick && (
-        <Box flexShrink={0} color="gray.400">
+        <Box flexShrink={0} color="gray.400" _dark={{ color: 'gray.500' }}>
           <ChevronRight size={18} />
         </Box>
       )}

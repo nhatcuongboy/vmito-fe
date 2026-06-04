@@ -93,7 +93,8 @@ function DraggableCategoryItem({
       onDragStart={() => onDragStart(index)}
       onDragOver={(e) => onDragOver(e, index)}
       onDrop={() => onDrop(index)}
-      _hover={{ bg: 'gray.50' }}
+      _hover={{ bg: 'gray.50', _dark: { bg: 'gray.700' } }}
+      _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
     >
       <GripVertical size={14} color="#A0AEC0" />
       <Box w="12px" h="12px" borderRadius="full" bg={color} flexShrink={0} />
@@ -436,13 +437,18 @@ export default function GenerateScheduleDrawer({
             borderRadius="lg"
             borderWidth="1px"
             borderColor="gray.200"
+            _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
           >
             <Flex align="center" justify="space-between">
               <Box>
                 <Text fontSize="sm" fontWeight="medium">
                   {t('keepScheduled')}
                 </Text>
-                <Text fontSize="xs" color="gray.500">
+                <Text
+                  fontSize="xs"
+                  color="gray.500"
+                  _dark={{ color: 'gray.400' }}
+                >
                   {t('keepScheduledDesc')}
                 </Text>
               </Box>
@@ -460,7 +466,12 @@ export default function GenerateScheduleDrawer({
             <Heading size="sm" mb={1}>
               {t('categoryOrder')}
             </Heading>
-            <Text fontSize="xs" color="gray.500" mb={3}>
+            <Text
+              fontSize="xs"
+              color="gray.500"
+              mb={3}
+              _dark={{ color: 'gray.400' }}
+            >
               {t('categoryOrderDesc')}
             </Text>
             <VStack gap={2} align="stretch">
@@ -483,12 +494,22 @@ export default function GenerateScheduleDrawer({
             <Heading size="sm" mb={1}>
               {t('matchLength')}
             </Heading>
-            <Text fontSize="xs" color="gray.500" mb={3}>
+            <Text
+              fontSize="xs"
+              color="gray.500"
+              mb={3}
+              _dark={{ color: 'gray.400' }}
+            >
               {t('matchLengthDesc')}
             </Text>
             <VStack gap={3} align="stretch">
               <Box>
-                <Text fontSize="xs" color="gray.600" mb={1}>
+                <Text
+                  fontSize="xs"
+                  color="gray.600"
+                  mb={1}
+                  _dark={{ color: 'gray.300' }}
+                >
                   {t('poolPlay')}
                 </Text>
                 <select
@@ -511,7 +532,12 @@ export default function GenerateScheduleDrawer({
                 </select>
               </Box>
               <Box>
-                <Text fontSize="xs" color="gray.600" mb={1}>
+                <Text
+                  fontSize="xs"
+                  color="gray.600"
+                  mb={1}
+                  _dark={{ color: 'gray.300' }}
+                >
                   {t('playoffs')}
                 </Text>
                 <select
@@ -541,7 +567,12 @@ export default function GenerateScheduleDrawer({
             <Heading size="sm" mb={1}>
               {t('availableTimes')}
             </Heading>
-            <Text fontSize="xs" color="gray.500" mb={3}>
+            <Text
+              fontSize="xs"
+              color="gray.500"
+              mb={3}
+              _dark={{ color: 'gray.400' }}
+            >
               {t('availableTimesDesc')}
             </Text>
 
@@ -556,6 +587,7 @@ export default function GenerateScheduleDrawer({
                     borderRadius="lg"
                     borderWidth="1px"
                     borderColor="gray.200"
+                    _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
                   >
                     {/* Collapsed header */}
                     <Flex justify="space-between" align="center">
@@ -576,7 +608,12 @@ export default function GenerateScheduleDrawer({
                           )}{' '}
                           @ {slot.startTime} - {slot.endTime}
                         </Text>
-                        <Text fontSize="xs" color="gray.500" mt={1}>
+                        <Text
+                          fontSize="xs"
+                          color="gray.500"
+                          mt={1}
+                          _dark={{ color: 'gray.400' }}
+                        >
                           {t('courtsCount', { count: slot.courts.length })} •{' '}
                           {slot.timeBuffer > 0
                             ? t('minBuffer', { count: slot.timeBuffer })
@@ -621,10 +658,16 @@ export default function GenerateScheduleDrawer({
                         pt={3}
                         borderTopWidth="1px"
                         borderColor="gray.200"
+                        _dark={{ borderColor: 'gray.700' }}
                       >
                         {/* Time Buffer */}
                         <Box mb={3}>
-                          <Text fontSize="xs" color="gray.500" mb={1}>
+                          <Text
+                            fontSize="xs"
+                            color="gray.500"
+                            mb={1}
+                            _dark={{ color: 'gray.400' }}
+                          >
                             {t('timeBuffer')}
                           </Text>
                           <select
@@ -654,7 +697,11 @@ export default function GenerateScheduleDrawer({
 
                         {/* Courts */}
                         <Flex justify="space-between" align="center" mb={2}>
-                          <Text fontSize="xs" color="gray.500">
+                          <Text
+                            fontSize="xs"
+                            color="gray.500"
+                            _dark={{ color: 'gray.400' }}
+                          >
                             {t('courts')} ({slot.courts.length})
                           </Text>
                           <Button
@@ -677,6 +724,10 @@ export default function GenerateScheduleDrawer({
                               borderRadius="md"
                               borderWidth="1px"
                               borderColor="gray.200"
+                              _dark={{
+                                bg: 'gray.900',
+                                borderColor: 'gray.700',
+                              }}
                             >
                               <Text fontSize="sm" fontWeight="medium" flex={1}>
                                 {getCourtLabel(courtSlot.courtId)}

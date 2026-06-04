@@ -123,8 +123,13 @@ export default function TournamentDashboard({ tournament }: Props) {
             <LayoutGrid size={20} />
           </Box>
         </Flex>
-        <Box bg="green.50" px={4} pt={2} pb={3}>
-          <Text fontSize="sm" color="gray.700" mb={2}>
+        <Box bg="green.50" px={4} pt={2} pb={3} _dark={{ bg: 'green.900' }}>
+          <Text
+            fontSize="sm"
+            color="gray.700"
+            mb={2}
+            _dark={{ color: 'green.100' }}
+          >
             {t('continueSetup.progress', {
               completed: completedCount,
               total: totalCount,
@@ -155,6 +160,10 @@ export default function TournamentDashboard({ tournament }: Props) {
             borderRadius="xl"
             overflow="hidden"
             bg={isDone ? 'green.50' : 'white'}
+            _dark={{
+              bg: isDone ? 'green.900' : 'gray.800',
+              borderColor: isDone ? 'green.700' : 'gray.700',
+            }}
           >
             <Flex
               px={4}
@@ -164,6 +173,9 @@ export default function TournamentDashboard({ tournament }: Props) {
               cursor="pointer"
               onClick={() => toggleStep(stepId)}
               _hover={{ bg: isDone ? 'green.100' : 'gray.50' }}
+              _dark={{
+                _hover: { bg: isDone ? 'green.800' : 'gray.700' },
+              }}
             >
               {isDone ? (
                 <Box color="green.500" flexShrink={0}>
@@ -180,6 +192,7 @@ export default function TournamentDashboard({ tournament }: Props) {
                 fontSize="sm"
                 color={isDone ? 'green.700' : 'gray.800'}
                 textDecoration={isDone ? 'line-through' : 'none'}
+                _dark={{ color: isDone ? 'green.100' : 'gray.100' }}
               >
                 {t(`steps.${stepId}.title`)}
               </Text>
@@ -192,7 +205,12 @@ export default function TournamentDashboard({ tournament }: Props) {
 
             {isExpanded && (
               <Box px={4} pb={4} pt={1}>
-                <Text color="gray.500" fontSize="sm" mb={3}>
+                <Text
+                  color="gray.500"
+                  fontSize="sm"
+                  mb={3}
+                  _dark={{ color: 'gray.400' }}
+                >
                   {t(`steps.${stepId}.description`)}
                 </Text>
                 <Button
@@ -223,6 +241,8 @@ export default function TournamentDashboard({ tournament }: Props) {
         p={4}
         gap={4}
         align="center"
+        bg="white"
+        _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
       >
         <Flex
           w="56px"
@@ -232,6 +252,7 @@ export default function TournamentDashboard({ tournament }: Props) {
           align="center"
           justify="center"
           flexShrink={0}
+          _dark={{ bg: 'orange.900' }}
         >
           <House size={26} color="#c05621" />
         </Flex>
@@ -239,7 +260,12 @@ export default function TournamentDashboard({ tournament }: Props) {
           <Text fontWeight="semibold" fontSize="sm" mb={0.5}>
             {t('quickActions.customizePage.title')}
           </Text>
-          <Text color="gray.500" fontSize="sm" mb={3}>
+          <Text
+            color="gray.500"
+            fontSize="sm"
+            mb={3}
+            _dark={{ color: 'gray.400' }}
+          >
             {t('quickActions.customizePage.description')}
           </Text>
           <Button size="sm" variant="outline" colorPalette="gray">
@@ -256,6 +282,8 @@ export default function TournamentDashboard({ tournament }: Props) {
         p={4}
         gap={4}
         align="center"
+        bg="white"
+        _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
       >
         <Flex
           w="56px"
@@ -265,6 +293,7 @@ export default function TournamentDashboard({ tournament }: Props) {
           align="center"
           justify="center"
           flexShrink={0}
+          _dark={{ bg: 'purple.900' }}
         >
           <UserCog size={26} color="#6b46c1" />
         </Flex>
@@ -272,7 +301,12 @@ export default function TournamentDashboard({ tournament }: Props) {
           <Text fontWeight="semibold" fontSize="sm" mb={0.5}>
             {t('quickActions.inviteAdmins.title')}
           </Text>
-          <Text color="gray.500" fontSize="sm" mb={3}>
+          <Text
+            color="gray.500"
+            fontSize="sm"
+            mb={3}
+            _dark={{ color: 'gray.400' }}
+          >
             {t('quickActions.inviteAdmins.description')}
           </Text>
           <Button size="sm" variant="outline" colorPalette="gray">

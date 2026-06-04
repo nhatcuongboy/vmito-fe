@@ -94,7 +94,7 @@ export default function DatesPanel({
       <Heading size="md" mb={2}>
         {t('title')}
       </Heading>
-      <Text color="gray.600" mb={6}>
+      <Text color="gray.600" mb={6} _dark={{ color: 'gray.300' }}>
         {t('description')}
       </Text>
 
@@ -108,7 +108,12 @@ export default function DatesPanel({
               disabled={isSubmitting}
             />
             {startDate && (
-              <Text fontSize="sm" color="gray.500" mt={1}>
+              <Text
+                fontSize="sm"
+                color="gray.500"
+                mt={1}
+                _dark={{ color: 'gray.400' }}
+              >
                 {formatDisplayDate(startDate)}
               </Text>
             )}
@@ -123,7 +128,12 @@ export default function DatesPanel({
               disabled={isSubmitting}
             />
             {endDate && (
-              <Text fontSize="sm" color="gray.500" mt={1}>
+              <Text
+                fontSize="sm"
+                color="gray.500"
+                mt={1}
+                _dark={{ color: 'gray.400' }}
+              >
                 {formatDisplayDate(endDate)}
               </Text>
             )}
@@ -134,6 +144,7 @@ export default function DatesPanel({
         <Box
           p={4}
           bg="gray.50"
+          _dark={{ bg: 'gray.800' }}
           borderRadius="md"
           mb={6}
           display="flex"

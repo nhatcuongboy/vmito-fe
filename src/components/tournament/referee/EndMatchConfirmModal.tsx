@@ -95,7 +95,11 @@ export default function EndMatchConfirmModal({
           <Text fontWeight="semibold">{buildScoreString(sets)}</Text>
           {winnerName && (
             <Flex justify="center" align="center" gap={2} mt={2}>
-              <Text fontSize="sm" color="gray.500">
+              <Text
+                fontSize="sm"
+                color="gray.500"
+                _dark={{ color: 'gray.400' }}
+              >
                 {t('winner')}:
               </Text>
               <Text fontWeight="bold" color="green.500">

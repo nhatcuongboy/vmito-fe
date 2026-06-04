@@ -226,6 +226,7 @@ export default function ScoringRulesCard({
       p={5}
       mt={6}
       bg="white"
+      _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
     >
       <Flex justify="space-between" align="center" mb={1}>
         <Heading size="sm">{t('scoringRules.title')}</Heading>
@@ -235,7 +236,7 @@ export default function ScoringRulesCard({
           </Badge>
         )}
       </Flex>
-      <Text fontSize="sm" color="gray.600" mb={4}>
+      <Text fontSize="sm" color="gray.600" mb={4} _dark={{ color: 'gray.300' }}>
         {t('scoringRules.description')}
       </Text>
 
@@ -269,7 +270,7 @@ export default function ScoringRulesCard({
         })}
       </Flex>
 
-      <Text fontSize="xs" color="gray.500" mb={4}>
+      <Text fontSize="xs" color="gray.500" mb={4} _dark={{ color: 'gray.400' }}>
         {t(`scoringRules.stageHints.${activeStage}`)}
       </Text>
 
@@ -284,12 +285,13 @@ export default function ScoringRulesCard({
           borderColor="gray.200"
           borderRadius="md"
           bg="gray.50"
+          _dark={{ bg: 'gray.900', borderColor: 'gray.700' }}
         >
           <Box flex="1">
             <Text fontSize="sm" fontWeight="medium">
               {t('scoringRules.inheritTitle')}
             </Text>
-            <Text fontSize="xs" color="gray.600">
+            <Text fontSize="xs" color="gray.600" _dark={{ color: 'gray.300' }}>
               {t(
                 activeStage === 'FINAL'
                   ? 'scoringRules.inheritHintFinal'

@@ -277,7 +277,7 @@ export default function PublicTournamentBracket({
 
   if (columns.length === 0) {
     return (
-      <Text color="gray.500" fontSize="sm">
+      <Text color="gray.500" fontSize="sm" _dark={{ color: 'gray.400' }}>
         {t('emptyPlayoffs')}
       </Text>
     );
@@ -367,11 +367,16 @@ function BracketMatchCard({
           {t('matchNumber', { number: match.matchNumber })}
         </Badge>
         {match.score ? (
-          <Text fontSize="xs" fontWeight="700" color="gray.600">
+          <Text
+            fontSize="xs"
+            fontWeight="700"
+            color="gray.600"
+            _dark={{ color: 'gray.300' }}
+          >
             {match.score}
           </Text>
         ) : (
-          <Text fontSize="2xs" color="gray.400">
+          <Text fontSize="2xs" color="gray.400" _dark={{ color: 'gray.500' }}>
             {t(`matchStatus.${match.status}`)}
           </Text>
         )}

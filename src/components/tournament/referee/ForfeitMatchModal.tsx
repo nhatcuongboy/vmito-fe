@@ -70,7 +70,12 @@ export default function ForfeitMatchModal({
       <ModalHeader>{t('forfeitTitle')}</ModalHeader>
       <ModalCloseButton onClose={onClose} />
       <ModalBody>
-        <Text fontSize="sm" color="gray.500" mb={2}>
+        <Text
+          fontSize="sm"
+          color="gray.500"
+          mb={2}
+          _dark={{ color: 'gray.400' }}
+        >
           {t('forfeitSelectWinner')}
         </Text>
         <Flex gap={2}>

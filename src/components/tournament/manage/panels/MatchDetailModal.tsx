@@ -93,7 +93,12 @@ export default function MatchDetailModal({
     <Modal isOpen={isOpen} onClose={onClose} size="md">
       <ModalCloseButton onClose={onClose} />
       <ModalHeader>
-        <Text fontSize="sm" fontWeight="medium" color="gray.500">
+        <Text
+          fontSize="sm"
+          fontWeight="medium"
+          color="gray.500"
+          _dark={{ color: 'gray.400' }}
+        >
           {getMatchDisplayCode(match)} · {roundOrGroupLabel}
         </Text>
       </ModalHeader>
@@ -255,14 +260,25 @@ function StatsTab({
           <Text fontWeight="black" fontSize="lg">
             {total1}
           </Text>
-          <Text fontSize="sm" fontWeight="semibold" color="gray.600">
+          <Text
+            fontSize="sm"
+            fontWeight="semibold"
+            color="gray.600"
+            _dark={{ color: 'gray.300' }}
+          >
             {t('points')}
           </Text>
           <Text fontWeight="black" fontSize="lg">
             {total2}
           </Text>
         </Flex>
-        <Flex h="8px" borderRadius="full" overflow="hidden" bg="gray.100">
+        <Flex
+          h="8px"
+          borderRadius="full"
+          overflow="hidden"
+          bg="gray.100"
+          _dark={{ bg: 'gray.700' }}
+        >
           <Box w={`${pct1}%`} bg="yellow.400" />
           <Box flex="1" bg="yellow.200" />
         </Flex>
@@ -270,7 +286,13 @@ function StatsTab({
 
       {sets.length > 1 && (
         <Box>
-          <Text fontSize="sm" fontWeight="semibold" color="gray.600" mb={2}>
+          <Text
+            fontSize="sm"
+            fontWeight="semibold"
+            color="gray.600"
+            mb={2}
+            _dark={{ color: 'gray.300' }}
+          >
             {t('matchDetail.bySet')}
           </Text>
           <Box display="flex" flexDirection="column" gap={2}>
@@ -313,6 +335,7 @@ function SetStatsRow({
             textAlign="center"
             fontWeight={winnerFlags[index] ? 'bold' : 'normal'}
             color={winnerFlags[index] ? 'fg' : 'gray.500'}
+            _dark={{ color: winnerFlags[index] ? 'fg' : 'gray.400' }}
           >
             {score}
           </Text>
@@ -373,9 +396,9 @@ function InfoRow({
         flexShrink={0}
         borderWidth="1px"
         borderColor="gray.200"
-        _dark={{ borderColor: 'gray.700' }}
         borderRadius="lg"
         color="gray.600"
+        _dark={{ borderColor: 'gray.700', color: 'gray.300' }}
       >
         {icon}
       </Flex>
@@ -384,7 +407,12 @@ function InfoRow({
           {title}
         </Text>
         {children && (
-          <Text fontSize="sm" color="gray.500" lineClamp={1}>
+          <Text
+            fontSize="sm"
+            color="gray.500"
+            lineClamp={1}
+            _dark={{ color: 'gray.400' }}
+          >
             {children}
           </Text>
         )}
@@ -413,7 +441,10 @@ function TabButton({
       bg={active ? 'white' : 'transparent'}
       color={active ? 'fg' : 'gray.500'}
       boxShadow={active ? 'sm' : 'none'}
-      _dark={{ bg: active ? 'gray.900' : 'transparent' }}
+      _dark={{
+        bg: active ? 'gray.900' : 'transparent',
+        color: active ? 'fg' : 'gray.400',
+      }}
       onClick={onClick}
     >
       {children}

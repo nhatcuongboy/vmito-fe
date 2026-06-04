@@ -20,11 +20,18 @@ export default function RegistrationPanel() {
         borderColor="gray.200"
         borderRadius="xl"
         bg="gray.50"
+        _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
       >
-        <Box color="gray.400">
+        <Box color="gray.400" _dark={{ color: 'gray.500' }}>
           <ClipboardCheck size={32} />
         </Box>
-        <Text fontSize="sm" color="gray.500" textAlign="center" px={4}>
+        <Text
+          fontSize="sm"
+          color="gray.500"
+          textAlign="center"
+          px={4}
+          _dark={{ color: 'gray.400' }}
+        >
           {t('panels.registration.description')}
         </Text>
       </Flex>

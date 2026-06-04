@@ -404,11 +404,14 @@ export default function PublicTournamentPlayerPage() {
             borderRadius="xl"
             bg="white"
             p={6}
+            _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
           >
             <Heading size="md" mb={2}>
               {t('errorTitle')}
             </Heading>
-            <Text color="gray.600">{message}</Text>
+            <Text color="gray.600" _dark={{ color: 'gray.300' }}>
+              {message}
+            </Text>
           </Box>
         </VStack>
       </PageLayout>
@@ -437,6 +440,7 @@ export default function PublicTournamentPlayerPage() {
       rightContent={<TournamentTopBarMenu />}
       maxW="container.lg"
       bg="gray.50"
+      _dark={{ bg: 'gray.900' }}
     >
       <VStack align="stretch" gap={5}>
         <Button
@@ -455,6 +459,7 @@ export default function PublicTournamentPlayerPage() {
           borderRadius="xl"
           bg="white"
           overflow="hidden"
+          _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
         >
           <Box bg="green.600" color="white" px={{ base: 5, md: 6 }} py={6}>
             <VStack align="stretch" gap={4}>
@@ -538,7 +543,9 @@ export default function PublicTournamentPlayerPage() {
                 </HStack>
 
                 {playerCategories.length === 0 ? (
-                  <Text color="gray.500">{t('noCategories')}</Text>
+                  <Text color="gray.500" _dark={{ color: 'gray.400' }}>
+                    {t('noCategories')}
+                  </Text>
                 ) : (
                   <VStack align="stretch" gap={3}>
                     {playerCategories.map((category) => (
@@ -548,6 +555,7 @@ export default function PublicTournamentPlayerPage() {
                         borderColor="gray.200"
                         borderRadius="lg"
                         p={4}
+                        _dark={{ bg: 'gray.900', borderColor: 'gray.700' }}
                       >
                         <Flex
                           justify="space-between"
@@ -557,7 +565,12 @@ export default function PublicTournamentPlayerPage() {
                         >
                           <Box minW={0}>
                             <Text fontWeight="semibold">{category.name}</Text>
-                            <Text color="gray.600" fontSize="sm" mt={1}>
+                            <Text
+                              color="gray.600"
+                              fontSize="sm"
+                              mt={1}
+                              _dark={{ color: 'gray.300' }}
+                            >
                               {category.teamName}
                             </Text>
                           </Box>
@@ -581,7 +594,9 @@ export default function PublicTournamentPlayerPage() {
                 </HStack>
 
                 {matches.length === 0 ? (
-                  <Text color="gray.500">{t('noMatches')}</Text>
+                  <Text color="gray.500" _dark={{ color: 'gray.400' }}>
+                    {t('noMatches')}
+                  </Text>
                 ) : (
                   <VStack align="stretch" gap={3}>
                     {matches.map((match) => (
@@ -591,6 +606,7 @@ export default function PublicTournamentPlayerPage() {
                         borderColor="gray.200"
                         borderRadius="lg"
                         p={4}
+                        _dark={{ bg: 'gray.900', borderColor: 'gray.700' }}
                       >
                         <Flex
                           justify="space-between"
@@ -608,7 +624,12 @@ export default function PublicTournamentPlayerPage() {
                                 getRoundDisplayLabel(match.round, tRounds)
                               )}
                             </Text>
-                            <Text color="gray.600" fontSize="sm" mt={1}>
+                            <Text
+                              color="gray.600"
+                              fontSize="sm"
+                              mt={1}
+                              _dark={{ color: 'gray.300' }}
+                            >
                               {t('opponentLabel')}:{' '}
                               {getMatchOpponentNames(
                                 match,
@@ -617,7 +638,12 @@ export default function PublicTournamentPlayerPage() {
                                 t('noOpponent')
                               )}
                             </Text>
-                            <Text color="gray.600" fontSize="sm" mt={1}>
+                            <Text
+                              color="gray.600"
+                              fontSize="sm"
+                              mt={1}
+                              _dark={{ color: 'gray.300' }}
+                            >
                               {formatDateTime(
                                 match.startTime,
                                 dateLocale,
@@ -656,6 +682,7 @@ export default function PublicTournamentPlayerPage() {
               p={2.5}
               bg="gray.50"
               flexShrink={0}
+              _dark={{ bg: 'gray.900', borderColor: 'gray.700' }}
             >
               <VStack gap={2} align="stretch">
                 <HStack gap={2}>
@@ -664,7 +691,7 @@ export default function PublicTournamentPlayerPage() {
                     {t('qrTitle')}
                   </Text>
                 </HStack>
-                <Box bg="white" borderRadius="lg" p={2}>
+                <Box bg="white" borderRadius="lg" p={2} alignSelf="center">
                   {qrDataUrl ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img

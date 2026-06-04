@@ -120,7 +120,11 @@ export default function RefereeScoringPage() {
 
   if (loading) {
     return (
-      <TournamentRefereeDesktopLayout tournament={tournament} activeTab={2}>
+      <TournamentRefereeDesktopLayout
+        tournament={tournament}
+        activeTab={2}
+        showSidebar={false}
+      >
         <Box minH="100dvh" bg="gray.50" p={4} _dark={{ bg: 'gray.900' }}>
           <TournamentMatchListSkeleton count={4} />
         </Box>
@@ -145,7 +149,11 @@ export default function RefereeScoringPage() {
 
   if (!canAccess) {
     return (
-      <TournamentRefereeDesktopLayout tournament={tournament} activeTab={2}>
+      <TournamentRefereeDesktopLayout
+        tournament={tournament}
+        activeTab={2}
+        showSidebar={false}
+      >
         <Flex
           direction="column"
           align="center"
@@ -176,7 +184,11 @@ export default function RefereeScoringPage() {
   const matchSides = getMatchSides(match);
 
   return (
-    <TournamentRefereeDesktopLayout tournament={tournament} activeTab={2}>
+    <TournamentRefereeDesktopLayout
+      tournament={tournament}
+      activeTab={2}
+      showSidebar={false}
+    >
       <Box
         minH="100dvh"
         bg="linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%)"
@@ -233,7 +245,12 @@ export default function RefereeScoringPage() {
             </Button>
 
             <Box flex="1" minW={0}>
-              <Text fontSize="sm" color="gray.500" fontWeight="medium">
+              <Text
+                fontSize="sm"
+                color="gray.500"
+                fontWeight="medium"
+                _dark={{ color: 'gray.400' }}
+              >
                 {t('refereeArea')}
               </Text>
               <Text
@@ -418,7 +435,12 @@ export default function RefereeScoringPage() {
                     justify="space-between"
                   >
                     <Box>
-                      <Text fontSize="sm" color="gray.500" mb={1}>
+                      <Text
+                        fontSize="sm"
+                        color="gray.500"
+                        mb={1}
+                        _dark={{ color: 'gray.400' }}
+                      >
                         {t('scheduledAt')}
                       </Text>
                       <Text fontWeight="semibold">{scheduledTime}</Text>
@@ -651,7 +673,7 @@ function MatchSideCard({
             />
           ))
         ) : (
-          <Text px={4} py={4} color="gray.500">
+          <Text px={4} py={4} color="gray.500" _dark={{ color: 'gray.400' }}>
             {labels.noDetails}
           </Text>
         )}
@@ -677,7 +699,13 @@ function PlayerInfoRow({
   };
 }) {
   return (
-    <Box px={4} py={4} borderBottomWidth="1px" borderBottomColor="gray.100">
+    <Box
+      px={4}
+      py={4}
+      borderBottomWidth="1px"
+      borderBottomColor="gray.100"
+      _dark={{ borderBottomColor: 'whiteAlpha.200' }}
+    >
       <HStack align="start" gap={3} mb={3}>
         <Avatar.Root size="sm" borderRadius="full" flexShrink={0}>
           <Avatar.Fallback name={player.name}>
@@ -698,7 +726,12 @@ function PlayerInfoRow({
             )}
           </HStack>
           {player.levelDescription && (
-            <Text fontSize="sm" color="gray.600" mt={1}>
+            <Text
+              fontSize="sm"
+              color="gray.600"
+              mt={1}
+              _dark={{ color: 'gray.300' }}
+            >
               {player.levelDescription}
             </Text>
           )}
@@ -764,7 +797,7 @@ function PlayerMeta({
         {icon}
       </Box>
       <Box minW={0}>
-        <Text fontSize="xs" color="gray.500">
+        <Text fontSize="xs" color="gray.500" _dark={{ color: 'gray.400' }}>
           {label}
         </Text>
         <Text fontSize="sm" fontWeight="medium" wordBreak="break-word">
