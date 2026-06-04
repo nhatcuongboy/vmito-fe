@@ -3419,7 +3419,7 @@
           "CANCELLED": "已取消"
         },
         "matchCardStatus": {
-          "SCHEDULED": "未开始",
+          "SCHEDULED": "即将开始",
           "UNSCHEDULED": "未排期"
         },
         "modeScore": "比分",

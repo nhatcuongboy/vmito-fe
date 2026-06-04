@@ -3441,7 +3441,7 @@
           "CANCELLED": "Cancelled"
         },
         "matchCardStatus": {
-          "SCHEDULED": "Not started",
+          "SCHEDULED": "Upcoming",
           "UNSCHEDULED": "Unscheduled"
         },
         "modeScore": "Score",

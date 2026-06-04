@@ -1,5 +1,6 @@
 'use client';
 
+import type { ReactNode } from 'react';
 import {
   Box,
   Flex,
@@ -458,46 +459,137 @@ export function TournamentShellSkeleton() {
   );
 }
 
-export function PublicTournamentProfileSkeleton() {
+function ProfileCardWrapper({ children }: { children: ReactNode }) {
+  return (
+    <Box
+      borderWidth="1px"
+      borderColor="gray.200"
+      borderRadius="2xl"
+      bg="white"
+      overflow="hidden"
+      boxShadow="0 20px 60px rgba(15, 23, 42, 0.08)"
+      _dark={{
+        bg: 'gray.800',
+        borderColor: 'gray.700',
+        boxShadow: '0 20px 60px rgba(0, 0, 0, 0.28)',
+      }}
+    >
+      {children}
+    </Box>
+  );
+}
+
+function ProfileHeroSkeleton({
+  avatarVariant,
+  metaRows,
+}: {
+  avatarVariant: 'round' | 'square';
+  metaRows: number;
+}) {
+  const metaWidths = ['72%', '52%', '44%'];
+
+  return (
+    <Box
+      bg="green.600"
+      aspectRatio={21 / 9}
+      minH={{ base: '180px', md: '240px' }}
+      maxH={{ base: '250px', md: '300px' }}
+      px={{ base: 5, md: 7 }}
+      py={{ base: 6, md: 7 }}
+      display="flex"
+      alignItems="flex-end"
+    >
+      <Box w="full">
+        <HStack gap={3}>
+          {avatarVariant === 'round' ? (
+            <SkeletonCircle size={{ base: '70px', md: '86px' }} />
+          ) : (
+            <Skeleton
+              w={{ base: '64px', md: '76px' }}
+              h={{ base: '64px', md: '76px' }}
+              borderRadius="2xl"
+            />
+          )}
+          <Box flex={1} minW={0}>
+            <Skeleton height="14px" width="96px" mb={3} borderRadius="md" />
+            <Skeleton height="32px" width="58%" borderRadius="md" />
+          </Box>
+        </HStack>
+        <VStack align="stretch" gap={2} mt={4}>
+          {repeat(metaRows).map((_, index) => (
+            <Skeleton
+              key={index}
+              height="16px"
+              width={metaWidths[index] ?? '48%'}
+              borderRadius="md"
+            />
+          ))}
+        </VStack>
+      </Box>
+    </Box>
+  );
+}
+
+function ProfileSectionHeadingSkeleton({
+  width = '150px',
+  withCount = false,
+}: {
+  width?: string;
+  withCount?: boolean;
+}) {
+  return (
+    <HStack gap={2} mb={3}>
+      <Skeleton height="18px" width="18px" borderRadius="md" />
+      <Skeleton height="22px" width={width} borderRadius="md" />
+      {withCount && <Skeleton height="20px" width="28px" borderRadius="full" />}
+    </HStack>
+  );
+}
+
+function ProfileScheduleCardSkeleton({ lines = 2 }: { lines?: number }) {
+  const lineWidths = ['76%', '52%', '40%'];
+
+  return (
+    <Box
+      borderWidth="1px"
+      borderColor="gray.200"
+      borderRadius="xl"
+      p={4}
+      bg="white"
+      _dark={{ bg: 'gray.900', borderColor: 'gray.700' }}
+    >
+      <Flex justify="space-between" align="flex-start" gap={3}>
+        <Box flex={1} minW={0}>
+          <Skeleton height="18px" width="58%" mb={2} borderRadius="md" />
+          {repeat(lines).map((_, index) => (
+            <Skeleton
+              key={index}
+              height="14px"
+              width={lineWidths[index] ?? '40%'}
+              mt={index === 0 ? 0 : 1}
+              borderRadius="md"
+            />
+          ))}
+        </Box>
+        <Skeleton height="22px" width="72px" borderRadius="full" />
+      </Flex>
+    </Box>
+  );
+}
+
+function ProfileQrBarSkeleton() {
+  return (
+    <Box borderRadius="2xl" boxShadow="0 14px 40px rgba(15, 23, 42, 0.05)">
+      <Skeleton height="96px" borderRadius="2xl" />
+    </Box>
+  );
+}
+
+export function PublicTournamentPlayerSkeleton() {
   return (
     <VStack align="stretch" gap={5}>
-      <Box
-        borderWidth="1px"
-        borderColor="gray.200"
-        borderRadius="2xl"
-        bg="white"
-        overflow="hidden"
-        boxShadow="0 20px 60px rgba(15, 23, 42, 0.08)"
-        _dark={{
-          bg: 'gray.800',
-          borderColor: 'gray.700',
-          boxShadow: '0 20px 60px rgba(0, 0, 0, 0.28)',
-        }}
-      >
-        <Box
-          bg="green.600"
-          aspectRatio={21 / 9}
-          minH={{ base: '180px', md: '240px' }}
-          maxH={{ base: '250px', md: '300px' }}
-          px={{ base: 5, md: 7 }}
-          py={{ base: 6, md: 7 }}
-          display="flex"
-          alignItems="flex-end"
-        >
-          <Box w="full">
-            <HStack gap={3}>
-              <SkeletonCircle size={{ base: '64px', md: '76px' }} />
-              <Box flex={1} minW={0}>
-                <Skeleton height="14px" width="96px" mb={3} borderRadius="md" />
-                <Skeleton height="32px" width="58%" borderRadius="md" />
-              </Box>
-            </HStack>
-            <VStack align="stretch" gap={2} mt={4}>
-              <Skeleton height="16px" width="72%" borderRadius="md" />
-              <Skeleton height="16px" width="48%" borderRadius="md" />
-            </VStack>
-          </Box>
-        </Box>
+      <ProfileCardWrapper>
+        <ProfileHeroSkeleton avatarVariant="round" metaRows={3} />
         <Flex
           direction={{ base: 'column', md: 'row' }}
           align={{ base: 'stretch', md: 'flex-start' }}
@@ -506,7 +598,68 @@ export function PublicTournamentProfileSkeleton() {
         >
           <VStack align="stretch" gap={7} flex={1} minW={0}>
             <Box>
-              <Skeleton height="24px" width="180px" mb={3} borderRadius="md" />
+              <ProfileSectionHeadingSkeleton width="150px" />
+              <VStack align="stretch" gap={3}>
+                {repeat(2).map((_, index) => (
+                  <Box
+                    key={index}
+                    borderWidth="1px"
+                    borderColor="gray.200"
+                    borderRadius="xl"
+                    p={4}
+                    bg="white"
+                    _dark={{ bg: 'gray.900', borderColor: 'gray.700' }}
+                  >
+                    <Flex justify="space-between" align="flex-start" gap={3}>
+                      <Box flex={1} minW={0}>
+                        <Skeleton height="18px" width="55%" borderRadius="md" />
+                        <Skeleton
+                          height="14px"
+                          width="40%"
+                          mt={2}
+                          borderRadius="md"
+                        />
+                      </Box>
+                      <Skeleton
+                        height="22px"
+                        width="64px"
+                        borderRadius="full"
+                      />
+                    </Flex>
+                  </Box>
+                ))}
+              </VStack>
+            </Box>
+            <Box>
+              <ProfileSectionHeadingSkeleton width="170px" />
+              <VStack align="stretch" gap={3}>
+                {repeat(2).map((_, index) => (
+                  <ProfileScheduleCardSkeleton key={index} lines={2} />
+                ))}
+              </VStack>
+            </Box>
+          </VStack>
+        </Flex>
+      </ProfileCardWrapper>
+      <ProfileQrBarSkeleton />
+    </VStack>
+  );
+}
+
+export function PublicTournamentTeamSkeleton() {
+  return (
+    <VStack align="stretch" gap={5}>
+      <ProfileCardWrapper>
+        <ProfileHeroSkeleton avatarVariant="square" metaRows={1} />
+        <Flex
+          direction={{ base: 'column', md: 'row' }}
+          align={{ base: 'stretch', md: 'flex-start' }}
+          gap={6}
+          p={{ base: 5, md: 7 }}
+        >
+          <VStack align="stretch" gap={7} flex={1} minW={0}>
+            <Box>
+              <ProfileSectionHeadingSkeleton width="130px" withCount />
               <VStack align="stretch" gap={3}>
                 {repeat(3).map((_, index) => (
                   <Flex
@@ -521,27 +674,23 @@ export function PublicTournamentProfileSkeleton() {
                     _dark={{ bg: 'gray.900', borderColor: 'gray.700' }}
                   >
                     <SkeletonCircle size="38px" />
-                    <Skeleton height="18px" width="52%" borderRadius="md" />
-                    <Skeleton
-                      height="22px"
-                      width="72px"
-                      borderRadius="full"
-                      ml="auto"
-                    />
+                    <Skeleton height="18px" width="45%" borderRadius="md" />
                   </Flex>
                 ))}
               </VStack>
             </Box>
             <Box>
-              <Skeleton height="14px" width="96px" mb={3} borderRadius="md" />
-              <TournamentMatchListSkeleton count={2} />
+              <ProfileSectionHeadingSkeleton width="170px" />
+              <VStack align="stretch" gap={3}>
+                {repeat(2).map((_, index) => (
+                  <ProfileScheduleCardSkeleton key={index} lines={1} />
+                ))}
+              </VStack>
             </Box>
           </VStack>
         </Flex>
-      </Box>
-      <Box borderRadius="2xl" boxShadow="0 14px 40px rgba(15, 23, 42, 0.05)">
-        <Skeleton height="96px" borderRadius="2xl" />
-      </Box>
+      </ProfileCardWrapper>
+      <ProfileQrBarSkeleton />
     </VStack>
   );
 }

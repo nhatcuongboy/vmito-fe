@@ -6,14 +6,7 @@ import { Box, Flex, Text, Badge, Heading } from '@chakra-ui/react';
 import { Button, VStack } from '@/components/ui/chakra-compat';
 import { useLocale, useTranslations } from 'next-intl';
 import { useRouter } from '@/i18n/config';
-import {
-  CalendarDays,
-  Filter,
-  Gavel,
-  List,
-  RotateCcw,
-  Users,
-} from 'lucide-react';
+import { CalendarDays, Filter, Gavel, List, RotateCcw } from 'lucide-react';
 
 import PageLayout from '@/components/layout/PageLayout';
 import BottomNavigationBar from '@/components/ui/BottomNavigationBar';
@@ -31,6 +24,7 @@ import { getRoundDisplayLabel } from '@/lib/tournament/roundLabel';
 import { getTeamLabel } from '@/lib/tournament/teamLabel';
 import { useTournamentSocket } from '@/hooks/useTournamentSocket';
 import { useTournamentBottomNav } from '@/hooks/useTournamentBottomNav';
+import PlayerNamesToggle from '@/components/tournament/PlayerNamesToggle';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { TournamentMatchListSkeleton } from '@/components/tournament/skeletons';
 import {
@@ -137,6 +131,7 @@ export default function RefereeMatchListPage() {
     activeTabId: 2,
     canManage: isHost || isAdmin,
     isHostOrAdmin: isHost || isAdmin,
+    userId: user?.id ?? null,
   });
 
   const categoryById = useMemo(() => {
@@ -380,20 +375,12 @@ export default function RefereeMatchListPage() {
                     </ModeButton>
                   </Flex>
 
-                  <Button
-                    size="sm"
-                    variant={showPlayerNames ? 'solid' : 'outline'}
-                    colorPalette={showPlayerNames ? 'green' : 'gray'}
-                    onClick={() => setShowPlayerNames((prev) => !prev)}
-                    aria-pressed={showPlayerNames}
+                  <PlayerNamesToggle
+                    active={showPlayerNames}
+                    onToggle={() => setShowPlayerNames((prev) => !prev)}
                     title={tManual('showPlayerNames')}
-                    flex={{ base: 1, sm: '0 0 auto' }}
-                    minW={{ base: 0, sm: 'auto' }}
-                    h={9}
-                    px={3}
-                  >
-                    <Users size={15} /> {tManual('showPlayerNames')}
-                  </Button>
+                    fullWidthOnMobile
+                  />
 
                   <Button
                     size="sm"

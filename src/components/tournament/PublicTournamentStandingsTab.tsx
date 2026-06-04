@@ -12,7 +12,6 @@ import {
   RefreshCw,
   RotateCcw,
   Trophy,
-  Users,
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
@@ -28,6 +27,7 @@ import {
   Tournament,
 } from '@/lib/api/types';
 import PublicTournamentBracket from '@/components/tournament/PublicTournamentBracket';
+import PlayerNamesToggle from '@/components/tournament/PlayerNamesToggle';
 import { Link, useRouter } from '@/i18n/config';
 import { useSearchParams } from 'next/navigation';
 import { Button, LegacySelect, VStack } from '@/components/ui/chakra-compat';
@@ -383,56 +383,22 @@ export default function PublicTournamentStandingsTab({
 
       <Flex
         align="center"
-        justify={{ base: 'space-between', md: 'flex-start' }}
+        justify="space-between"
         direction="row"
-        gap={{ base: 3, md: 2 }}
+        gap={3}
         mb={{ base: 3, md: 4 }}
-        overflowX="auto"
-        css={{
-          scrollbarWidth: 'none',
-          '&::-webkit-scrollbar': { display: 'none' },
-        }}
       >
-        <HStack
-          gap="2px"
-          p="2px"
-          bg="gray.100"
-          borderWidth="1px"
-          borderColor="transparent"
-          _dark={{
-            bg: 'var(--tournament-surface-muted, var(--chakra-colors-gray-800))',
-            borderColor:
-              'var(--tournament-border, var(--chakra-colors-gray-700))',
+        <Flex
+          align="center"
+          direction="row"
+          gap={{ base: 3, md: 2 }}
+          minW={0}
+          overflowX="auto"
+          css={{
+            scrollbarWidth: 'none',
+            '&::-webkit-scrollbar': { display: 'none' },
           }}
-          borderRadius="full"
-          w="fit-content"
-          flexShrink={0}
         >
-          <Button
-            flex="unset"
-            size="xs"
-            variant={stageView === 'pool' ? 'solid' : 'ghost'}
-            colorPalette={stageView === 'pool' ? 'green' : 'gray'}
-            borderRadius="full"
-            px={{ base: 3, sm: 3.5 }}
-            onClick={() => setStageView('pool')}
-          >
-            <ListTree size={14} /> {t('poolPlay')}
-          </Button>
-          <Button
-            flex="unset"
-            size="xs"
-            variant={stageView === 'playoffs' ? 'solid' : 'ghost'}
-            colorPalette={stageView === 'playoffs' ? 'green' : 'gray'}
-            borderRadius="full"
-            px={{ base: 3, sm: 3.5 }}
-            onClick={() => setStageView('playoffs')}
-          >
-            <GitBranch size={14} /> {t('playoffs')}
-          </Button>
-        </HStack>
-
-        {stageView === 'pool' && (
           <HStack
             gap="2px"
             p="2px"
@@ -451,42 +417,74 @@ export default function PublicTournamentStandingsTab({
             <Button
               flex="unset"
               size="xs"
-              variant={standingView === 'pools' ? 'solid' : 'ghost'}
-              colorPalette={standingView === 'pools' ? 'green' : 'gray'}
+              variant={stageView === 'pool' ? 'solid' : 'ghost'}
+              colorPalette={stageView === 'pool' ? 'green' : 'gray'}
               borderRadius="full"
               px={{ base: 3, sm: 3.5 }}
-              onClick={() => setStandingView('pools')}
+              onClick={() => setStageView('pool')}
             >
-              {t('pools')}
+              <ListTree size={14} /> {t('poolPlay')}
             </Button>
             <Button
               flex="unset"
               size="xs"
-              variant={standingView === 'overall' ? 'solid' : 'ghost'}
-              colorPalette={standingView === 'overall' ? 'green' : 'gray'}
+              variant={stageView === 'playoffs' ? 'solid' : 'ghost'}
+              colorPalette={stageView === 'playoffs' ? 'green' : 'gray'}
               borderRadius="full"
               px={{ base: 3, sm: 3.5 }}
-              onClick={() => setStandingView('overall')}
+              onClick={() => setStageView('playoffs')}
             >
-              {t('overall')}
+              <GitBranch size={14} /> {t('playoffs')}
             </Button>
           </HStack>
-        )}
 
-        <Button
-          flex="unset"
-          size="xs"
-          variant={showPlayerNames ? 'solid' : 'outline'}
-          colorPalette={showPlayerNames ? 'green' : 'gray'}
-          borderRadius="full"
-          px={{ base: 3, sm: 3.5 }}
-          flexShrink={0}
-          onClick={() => setShowPlayerNames((prev) => !prev)}
-          aria-pressed={showPlayerNames}
+          {stageView === 'pool' && (
+            <HStack
+              gap="2px"
+              p="2px"
+              bg="gray.100"
+              borderWidth="1px"
+              borderColor="transparent"
+              _dark={{
+                bg: 'var(--tournament-surface-muted, var(--chakra-colors-gray-800))',
+                borderColor:
+                  'var(--tournament-border, var(--chakra-colors-gray-700))',
+              }}
+              borderRadius="full"
+              w="fit-content"
+              flexShrink={0}
+            >
+              <Button
+                flex="unset"
+                size="xs"
+                variant={standingView === 'pools' ? 'solid' : 'ghost'}
+                colorPalette={standingView === 'pools' ? 'green' : 'gray'}
+                borderRadius="full"
+                px={{ base: 3, sm: 3.5 }}
+                onClick={() => setStandingView('pools')}
+              >
+                {t('pools')}
+              </Button>
+              <Button
+                flex="unset"
+                size="xs"
+                variant={standingView === 'overall' ? 'solid' : 'ghost'}
+                colorPalette={standingView === 'overall' ? 'green' : 'gray'}
+                borderRadius="full"
+                px={{ base: 3, sm: 3.5 }}
+                onClick={() => setStandingView('overall')}
+              >
+                {t('overall')}
+              </Button>
+            </HStack>
+          )}
+        </Flex>
+
+        <PlayerNamesToggle
+          active={showPlayerNames}
+          onToggle={() => setShowPlayerNames((prev) => !prev)}
           title={t('showPlayerNames')}
-        >
-          <Users size={14} /> {t('showPlayerNames')}
-        </Button>
+        />
       </Flex>
 
       {error ? (

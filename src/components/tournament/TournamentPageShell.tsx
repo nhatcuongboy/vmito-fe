@@ -461,6 +461,7 @@ export default function TournamentPageShell({
     activeTabId: activeTab,
     canManage,
     isHostOrAdmin: isHost || isAdmin,
+    userId: user?.id ?? null,
   });
 
   const bottomNavTabs = tabs;
@@ -1241,30 +1242,6 @@ export default function TournamentPageShell({
         activeTab={activeTab}
         onTabChange={handleTabChange}
       />
-
-      {/* Host quick-access: floating "Enter scores" button (mobile only) */}
-      {isHost && activeSegment !== 'schedule' && (
-        <Box
-          display={{ base: 'block', md: 'none' }}
-          position="fixed"
-          right="16px"
-          bottom="calc(64px + env(safe-area-inset-bottom) + 16px)"
-          zIndex={20}
-        >
-          <Button
-            colorPalette="green"
-            borderRadius="full"
-            boxShadow="lg"
-            size="lg"
-            onClick={() => router.push(`/tournament/${slug}/schedule`)}
-          >
-            <HStack gap={2}>
-              <SquarePen size={18} />
-              <Text>{t('enterScores')}</Text>
-            </HStack>
-          </Button>
-        </Box>
-      )}
     </>
   );
 }

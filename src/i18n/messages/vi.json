@@ -3449,7 +3449,7 @@
           "CANCELLED": "Đã hủy"
         },
         "matchCardStatus": {
-          "SCHEDULED": "Chưa diễn ra",
+          "SCHEDULED": "Sắp diễn ra",
           "UNSCHEDULED": "Chưa lên lịch"
         },
         "modeScore": "Tỉ số",

@@ -21,7 +21,7 @@ import {
 } from '@/lib/api/types';
 import { CalendarDays, MapPin, Medal, Trophy, UserRound } from 'lucide-react';
 import TournamentTopBarMenu from '@/components/tournament/TournamentTopBarMenu';
-import { PublicTournamentProfileSkeleton } from '@/components/tournament/skeletons';
+import { PublicTournamentPlayerSkeleton } from '@/components/tournament/skeletons';
 import {
   getLegacyTournamentPlayerCode,
   getUniqueLegacyTournamentPlayerCode,
@@ -338,7 +338,7 @@ export default function PublicTournamentPlayerPage() {
         bg="gray.50"
         _dark={{ bg: 'gray.900' }}
       >
-        <PublicTournamentProfileSkeleton />
+        <PublicTournamentPlayerSkeleton />
       </PageLayout>
     );
   }

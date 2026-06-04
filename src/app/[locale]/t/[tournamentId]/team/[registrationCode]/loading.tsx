@@ -1,5 +1,5 @@
 import PageLayout from '@/components/layout/PageLayout';
-import { PublicTournamentProfileSkeleton } from '@/components/tournament/skeletons';
+import { PublicTournamentTeamSkeleton } from '@/components/tournament/skeletons';
 
 export default function Loading() {
   return (
@@ -18,7 +18,7 @@ export default function Loading() {
         md: '24px',
       }}
     >
-      <PublicTournamentProfileSkeleton />
+      <PublicTournamentTeamSkeleton />
     </PageLayout>
   );
 }

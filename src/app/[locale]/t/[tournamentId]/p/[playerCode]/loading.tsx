@@ -1,5 +1,5 @@
 import PageLayout from '@/components/layout/PageLayout';
-import { PublicTournamentProfileSkeleton } from '@/components/tournament/skeletons';
+import { PublicTournamentPlayerSkeleton } from '@/components/tournament/skeletons';
 
 export default function Loading() {
   return (
@@ -14,7 +14,7 @@ export default function Loading() {
       maxW="container.lg"
       bg="gray.50"
     >
-      <PublicTournamentProfileSkeleton />
+      <PublicTournamentPlayerSkeleton />
     </PageLayout>
   );
 }

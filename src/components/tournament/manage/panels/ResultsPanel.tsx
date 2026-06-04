@@ -22,7 +22,6 @@ import {
   List,
   RotateCcw,
   Trophy,
-  Users,
   X,
 } from 'lucide-react';
 
@@ -50,6 +49,7 @@ import ResetMatchResultConfirmModal from './ResetMatchResultConfirmModal';
 import DeleteMatchConfirmModal from './schedule/DeleteMatchConfirmModal';
 import EditMatchTimeSheet from './schedule/EditMatchTimeSheet';
 import { TournamentMatchListSkeleton } from '@/components/tournament/skeletons';
+import PlayerNamesToggle from '@/components/tournament/PlayerNamesToggle';
 
 interface Props {
   tournament: Tournament;
@@ -490,14 +490,32 @@ export default function ResultsPanel({
         mb={5}
         direction={{ base: 'column', md: 'row' }}
       >
-        <Box>
-          <Heading size="md">{heading ?? t('panelTitle')}</Heading>
-          {description && (
-            <Text fontSize="sm" color="gray.500" mt={1}>
-              {description}
-            </Text>
-          )}
-        </Box>
+        <Flex align="center" gap={3}>
+          <Box flex={1} minW={0}>
+            <Heading size="md">{heading ?? t('panelTitle')}</Heading>
+            {description && (
+              <Text fontSize="sm" color="gray.500" mt={1}>
+                {description}
+              </Text>
+            )}
+          </Box>
+          <Button
+            size="sm"
+            variant="outline"
+            colorPalette="gray"
+            onClick={() => setIsFilterOpen(true)}
+            flexShrink={0}
+            h={9}
+            px={3}
+          >
+            <Filter size={15} /> {t('filters.title')}
+            {activeFilterCount > 0 && (
+              <Badge ml={1} colorPalette="green" borderRadius="full">
+                {activeFilterCount}
+              </Badge>
+            )}
+          </Button>
+        </Flex>
 
         <Flex
           align="center"
@@ -544,42 +562,16 @@ export default function ResultsPanel({
             </ModeButton>
           </Flex>
 
-          <Button
-            size="sm"
-            variant={showPlayerNames ? 'solid' : 'outline'}
-            colorPalette={showPlayerNames ? 'green' : 'gray'}
-            onClick={() => setShowPlayerNames((prev) => !prev)}
-            aria-pressed={showPlayerNames}
+          <PlayerNamesToggle
+            active={showPlayerNames}
+            onToggle={() => setShowPlayerNames((prev) => !prev)}
             title={t('showPlayerNames')}
-            flex={{ base: 1, sm: '0 0 auto' }}
-            minW={{ base: 0, sm: 'auto' }}
-            h={9}
-            px={3}
-          >
-            <Users size={15} /> {t('showPlayerNames')}
-          </Button>
-
-          <Button
-            size="sm"
-            variant="outline"
-            colorPalette="gray"
-            onClick={() => setIsFilterOpen(true)}
-            flex={{ base: 1, sm: '0 0 auto' }}
-            minW={{ base: 0, sm: 'auto' }}
-            h={9}
-            px={3}
-          >
-            <Filter size={15} /> {t('filters.title')}
-            {activeFilterCount > 0 && (
-              <Badge ml={1} colorPalette="green" borderRadius="full">
-                {activeFilterCount}
-              </Badge>
-            )}
-          </Button>
+            fullWidthOnMobile
+          />
         </Flex>
       </Flex>
 
-      {primaryBracketReadyCategory && (
+      {bracketReadyCategories.length > 0 && (
         <Box
           mb={5}
           borderWidth="1px"
@@ -945,19 +937,35 @@ export function ResultMatchCard({
     >
       <Flex justify="space-between" align="start" gap={3} mb={compact ? 2 : 3}>
         <Flex direction="column" gap={1} minW={0} flex={1}>
-          {categoryName && (
-            <Badge
-              colorPalette="green"
-              variant="subtle"
-              borderRadius="full"
-              px={2}
-              py={0.5}
-              fontSize="xs"
-              fontWeight="semibold"
-              w="fit-content"
-            >
-              {categoryName}
-            </Badge>
+          {(categoryName || topLabel) && (
+            <Flex align="center" gap={1.5} wrap="wrap">
+              {categoryName && (
+                <Badge
+                  colorPalette="green"
+                  variant="subtle"
+                  borderRadius="full"
+                  px={2}
+                  py={0.5}
+                  fontSize="xs"
+                  fontWeight="semibold"
+                >
+                  {categoryName}
+                </Badge>
+              )}
+              {topLabel && (
+                <Badge
+                  colorPalette="gray"
+                  variant="subtle"
+                  borderRadius="full"
+                  px={2}
+                  py={0.5}
+                  fontSize="xs"
+                  fontWeight="medium"
+                >
+                  {topLabel}
+                </Badge>
+              )}
+            </Flex>
           )}
           <Text
             fontSize="sm"
@@ -969,25 +977,12 @@ export function ResultMatchCard({
             lineClamp={1}
             minW={0}
           >
-            {getMatchDisplayCode(match)} · {topLabel}
+            {getMatchDisplayCode(match)}
             {courtLabel ? ` · ${courtLabel}` : ''}
+            {timeLabel ? ` · ${timeLabel}` : ''}
           </Text>
         </Flex>
         <Flex align="center" justify="flex-end" gap={2} flexShrink={0}>
-          {timeLabel && (
-            <Text
-              display={{ base: 'none', sm: 'block' }}
-              fontSize="sm"
-              color="gray.500"
-              whiteSpace="nowrap"
-              _dark={{
-                color:
-                  'var(--tournament-text-muted, var(--chakra-colors-gray-400))',
-              }}
-            >
-              {timeLabel}
-            </Text>
-          )}
           <Badge
             colorPalette={statusTone.colorPalette}
             variant={statusTone.variant}

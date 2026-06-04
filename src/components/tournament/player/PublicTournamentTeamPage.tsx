@@ -29,7 +29,7 @@ import {
 import { getTournamentPlayerCode } from './PublicTournamentPlayerPage';
 import { getTournamentPlayerDisplayCode } from '@/lib/tournament/codes';
 import BottomNavigationBar from '@/components/ui/BottomNavigationBar';
-import { PublicTournamentProfileSkeleton } from '@/components/tournament/skeletons';
+import { PublicTournamentTeamSkeleton } from '@/components/tournament/skeletons';
 import TournamentTopBarMenu from '@/components/tournament/TournamentTopBarMenu';
 import TournamentQrBar from '@/components/tournament/TournamentQrBar';
 import { useCanGoBack } from '@/hooks/useCanGoBack';
@@ -145,7 +145,7 @@ export default function PublicTournamentTeamPage() {
         }}
         _dark={{ bg: 'gray.900' }}
       >
-        <PublicTournamentProfileSkeleton />
+        <PublicTournamentTeamSkeleton />
       </PageLayout>
     );
   }
