@@ -123,7 +123,13 @@ export default function TournamentDashboard({ tournament }: Props) {
             <LayoutGrid size={20} />
           </Box>
         </Flex>
-        <Box bg="green.50" px={4} pt={2} pb={3} _dark={{ bg: 'green.900' }}>
+        <Box
+          bg="green.50"
+          px={4}
+          pt={2}
+          pb={3}
+          _dark={{ bg: 'rgba(34, 197, 94, 0.14)' }}
+        >
           <Text
             fontSize="sm"
             color="gray.700"
@@ -161,8 +167,15 @@ export default function TournamentDashboard({ tournament }: Props) {
             overflow="hidden"
             bg={isDone ? 'green.50' : 'white'}
             _dark={{
-              bg: isDone ? 'green.900' : 'gray.800',
-              borderColor: isDone ? 'green.700' : 'gray.700',
+              bg: isDone
+                ? 'rgba(34, 197, 94, 0.13)'
+                : 'var(--tournament-surface-raised, var(--chakra-colors-gray-800))',
+              borderColor: isDone
+                ? 'rgba(74, 222, 128, 0.34)'
+                : 'var(--tournament-border, var(--chakra-colors-gray-700))',
+              boxShadow: isDone
+                ? '0 14px 34px rgba(34, 197, 94, 0.08)'
+                : 'var(--tournament-shadow-soft)',
             }}
           >
             <Flex
@@ -174,7 +187,11 @@ export default function TournamentDashboard({ tournament }: Props) {
               onClick={() => toggleStep(stepId)}
               _hover={{ bg: isDone ? 'green.100' : 'gray.50' }}
               _dark={{
-                _hover: { bg: isDone ? 'green.800' : 'gray.700' },
+                _hover: {
+                  bg: isDone
+                    ? 'rgba(34, 197, 94, 0.18)'
+                    : 'var(--tournament-surface-muted, var(--chakra-colors-gray-700))',
+                },
               }}
             >
               {isDone ? (
@@ -242,7 +259,12 @@ export default function TournamentDashboard({ tournament }: Props) {
         gap={4}
         align="center"
         bg="white"
-        _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
+        _dark={{
+          bg: 'var(--tournament-surface-raised, var(--chakra-colors-gray-800))',
+          borderColor:
+            'var(--tournament-border, var(--chakra-colors-gray-700))',
+          boxShadow: 'var(--tournament-shadow-soft)',
+        }}
       >
         <Flex
           w="56px"
@@ -252,7 +274,11 @@ export default function TournamentDashboard({ tournament }: Props) {
           align="center"
           justify="center"
           flexShrink={0}
-          _dark={{ bg: 'orange.900' }}
+          _dark={{
+            bg: 'rgba(249, 115, 22, 0.14)',
+            borderWidth: '1px',
+            borderColor: 'rgba(251, 146, 60, 0.28)',
+          }}
         >
           <House size={26} color="#c05621" />
         </Flex>
@@ -283,7 +309,12 @@ export default function TournamentDashboard({ tournament }: Props) {
         gap={4}
         align="center"
         bg="white"
-        _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
+        _dark={{
+          bg: 'var(--tournament-surface-raised, var(--chakra-colors-gray-800))',
+          borderColor:
+            'var(--tournament-border, var(--chakra-colors-gray-700))',
+          boxShadow: 'var(--tournament-shadow-soft)',
+        }}
       >
         <Flex
           w="56px"
@@ -293,7 +324,11 @@ export default function TournamentDashboard({ tournament }: Props) {
           align="center"
           justify="center"
           flexShrink={0}
-          _dark={{ bg: 'purple.900' }}
+          _dark={{
+            bg: 'rgba(139, 92, 246, 0.14)',
+            borderWidth: '1px',
+            borderColor: 'rgba(167, 139, 250, 0.28)',
+          }}
         >
           <UserCog size={26} color="#6b46c1" />
         </Flex>

@@ -77,10 +77,23 @@ export default function SidebarNav({
         fontWeight={isActive ? 'semibold' : 'medium'}
         color={isActive ? 'gray.900' : 'gray.600'}
         _dark={{
-          color: isActive ? 'white' : 'gray.400',
-          bg: isActive ? 'green.950/20' : 'transparent',
-          _hover: { bg: isActive ? 'green.950/20' : 'gray.700' },
+          color: isActive
+            ? 'green.100'
+            : 'var(--tournament-text-muted, var(--chakra-colors-gray-400))',
+          bg: isActive
+            ? 'var(--tournament-accent-soft, rgba(34, 197, 94, 0.14))'
+            : 'transparent',
+          borderColor: isActive
+            ? 'var(--tournament-accent-border, rgba(34, 197, 94, 0.24))'
+            : 'transparent',
+          _hover: {
+            bg: isActive
+              ? 'var(--tournament-accent-soft, rgba(34, 197, 94, 0.14))'
+              : 'rgba(148, 163, 184, 0.1)',
+          },
         }}
+        borderWidth="1px"
+        borderColor={isActive ? 'gray.200' : 'transparent'}
         bg={isActive ? 'gray.100' : 'transparent'}
         _hover={{ bg: isActive ? 'gray.100' : 'gray.50' }}
         transition="all 0.15s"
@@ -148,11 +161,16 @@ export default function SidebarNav({
       alignSelf="flex-start"
       height={`calc(100vh - ${topOffset})`}
       bg="white"
-      _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
+      _dark={{
+        bg: 'var(--tournament-surface, var(--chakra-colors-gray-800))',
+        borderColor: 'var(--tournament-border, var(--chakra-colors-gray-700))',
+        boxShadow: 'var(--tournament-shadow, 0 18px 46px rgba(0, 0, 0, 0.26))',
+      }}
       borderRadius="2xl"
       borderWidth="1px"
       borderColor="gray.200"
       boxShadow="sm"
+      backdropFilter="blur(18px)"
       overflow="hidden"
       display="flex"
       flexDirection="column"

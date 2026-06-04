@@ -293,6 +293,9 @@ export default function RefereeMatchListPage() {
         showTopBarMenuButton={false}
         showTopBarAiAssistantButton={false}
         disableSidebarOffset
+        rootClassName="tournament-shell"
+        topBarClassName="tournament-topbar"
+        bg="var(--tournament-bg)"
         maxW="full"
         px={{ base: '24px', md: 0 }}
         pb={{
@@ -344,7 +347,12 @@ export default function RefereeMatchListPage() {
                   borderRadius="lg"
                   bg="white"
                   boxShadow="sm"
-                  _dark={{ bg: 'gray.900', borderColor: 'gray.700' }}
+                  _dark={{
+                    bg: 'var(--tournament-surface, var(--chakra-colors-gray-900))',
+                    borderColor:
+                      'var(--tournament-border, var(--chakra-colors-gray-700))',
+                    boxShadow: 'var(--tournament-shadow-soft)',
+                  }}
                 >
                   <Flex
                     flex={{ base: '1 1 100%', sm: '0 0 auto' }}
@@ -352,7 +360,9 @@ export default function RefereeMatchListPage() {
                     gap={1}
                     borderRadius="md"
                     bg="gray.100"
-                    _dark={{ bg: 'gray.800' }}
+                    _dark={{
+                      bg: 'var(--tournament-surface-muted, var(--chakra-colors-gray-800))',
+                    }}
                   >
                     <ModeButton
                       active={viewMode === 'list'}
@@ -511,7 +521,11 @@ function EmptyRefereeResults({ onClear }: { onClear: () => void }) {
       p={8}
       textAlign="center"
       bg="white"
-      _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
+      _dark={{
+        bg: 'var(--tournament-surface-raised, var(--chakra-colors-gray-800))',
+        borderColor: 'var(--tournament-border, var(--chakra-colors-gray-700))',
+        boxShadow: 'var(--tournament-shadow-soft)',
+      }}
     >
       <Text fontWeight="semibold" mb={3}>
         {t('filters.empty')}

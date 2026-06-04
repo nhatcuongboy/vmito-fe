@@ -42,6 +42,8 @@ interface PageLayoutProps extends Omit<ContainerProps, 'title'> {
   showTopBarAiAssistantButton?: boolean;
   /** Disable the left margin offset normally applied for the global sidebar */
   disableSidebarOffset?: boolean;
+  rootClassName?: string;
+  topBarClassName?: string;
 }
 
 export default function PageLayout({
@@ -73,6 +75,8 @@ export default function PageLayout({
   showTopBarAuthActions = true,
   showTopBarAiAssistantButton = true,
   disableSidebarOffset = false,
+  rootClassName,
+  topBarClassName,
   ...containerProps
 }: PageLayoutProps) {
   const isMainPage = useIsMainPage();
@@ -93,6 +97,7 @@ export default function PageLayout({
 
   return (
     <PageWrapper
+      className={rootClassName}
       bg={bg}
       background={background}
       bgColor={bgColor}
@@ -118,6 +123,7 @@ export default function PageLayout({
         showLogoDesktopOnly={showTopBarLogoDesktopOnly}
         showAuthActions={showTopBarAuthActions}
         showAiAssistantButton={showTopBarAiAssistantButton}
+        className={topBarClassName}
       />
       {isDiscoveryPage && <DiscoveryTabNav />}
       {!isDiscoveryPage && subHeader && (

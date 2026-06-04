@@ -1500,7 +1500,13 @@
           "teamsCount": "{count} 支队伍",
           "totalCategories": "{count} 个组别",
           "totalTeams": "{count} 支队伍已报名",
-          "unknownTeam": "未知"
+          "unknownTeam": "未知",
+          "viewByCategory": "按组别",
+          "viewAllPlayers": "所有选手",
+          "allPlayersTitle": "所有选手",
+          "totalPlayers": "{count} 名选手",
+          "noPlayers": "暂无选手。",
+          "searchPlayers": "搜索选手..."
         },
         "scheduleTab": {
           "empty": "尚未发布赛程。"

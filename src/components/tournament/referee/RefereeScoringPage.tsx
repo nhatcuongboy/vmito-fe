@@ -129,7 +129,12 @@ export default function RefereeScoringPage() {
         activeTab={2}
         showSidebar={false}
       >
-        <Box minH="100dvh" bg="gray.50" p={4} _dark={{ bg: 'gray.900' }}>
+        <Box
+          minH="100dvh"
+          bg="gray.50"
+          p={4}
+          _dark={{ bg: 'var(--tournament-bg)' }}
+        >
           <TournamentMatchListSkeleton count={4} />
         </Box>
       </TournamentRefereeDesktopLayout>
@@ -205,7 +210,7 @@ export default function RefereeScoringPage() {
         display="flex"
         flexDirection="column"
         bg="linear-gradient(180deg, #f8fafc 0%, #ecfdf5 100%)"
-        _dark={{ bg: 'gray.900' }}
+        _dark={{ bg: 'var(--tournament-bg)' }}
       >
         <Box
           position="sticky"
@@ -230,8 +235,10 @@ export default function RefereeScoringPage() {
           boxShadow="0 10px 30px rgba(15, 23, 42, 0.08)"
           backdropFilter="blur(14px)"
           _dark={{
-            bg: 'rgba(17, 24, 39, 0.92)',
-            borderBottomColor: 'whiteAlpha.200',
+            bg: 'rgba(8, 19, 32, 0.94)',
+            borderBottomColor:
+              'var(--tournament-border, rgba(148, 163, 184, 0.18))',
+            boxShadow: '0 14px 34px rgba(0, 0, 0, 0.26)',
           }}
         >
           <Flex
@@ -250,7 +257,11 @@ export default function RefereeScoringPage() {
               borderRadius="full"
               bg="white"
               boxShadow="sm"
-              _dark={{ bg: 'gray.800' }}
+              _dark={{
+                bg: 'var(--tournament-surface-raised, var(--chakra-colors-gray-800))',
+                borderColor:
+                  'var(--tournament-border, var(--chakra-colors-gray-700))',
+              }}
             >
               <ArrowLeft size={18} />
             </Button>
@@ -358,7 +369,15 @@ export default function RefereeScoringPage() {
               isTerminalMatch ? 'none' : '0 18px 54px rgba(15, 23, 42, 0.08)'
             }
             overflow="hidden"
-            _dark={{ bg: isTerminalMatch ? 'transparent' : 'gray.800' }}
+            _dark={{
+              bg: isTerminalMatch
+                ? 'transparent'
+                : 'var(--tournament-surface-raised, var(--chakra-colors-gray-800))',
+              borderWidth: isTerminalMatch ? 0 : '1px',
+              borderColor:
+                'var(--tournament-border, var(--chakra-colors-gray-700))',
+              boxShadow: isTerminalMatch ? 'none' : 'var(--tournament-shadow)',
+            }}
           >
             <Box
               px={
@@ -426,8 +445,9 @@ export default function RefereeScoringPage() {
                     px={4}
                     py={4}
                     _dark={{
-                      bg: 'whiteAlpha.50',
-                      borderColor: 'whiteAlpha.200',
+                      bg: 'var(--tournament-surface-muted, rgba(255, 255, 255, 0.05))',
+                      borderColor:
+                        'var(--tournament-border, rgba(255, 255, 255, 0.18))',
                     }}
                   >
                     <HStack gap={3} align="start">
@@ -602,7 +622,11 @@ function FinalResultSummary({
       bg="white"
       boxShadow="0 18px 48px rgba(15, 23, 42, 0.10)"
       overflow="hidden"
-      _dark={{ bg: 'gray.800', borderColor: 'whiteAlpha.200' }}
+      _dark={{
+        bg: 'var(--tournament-surface-raised, var(--chakra-colors-gray-800))',
+        borderColor: 'var(--tournament-border, rgba(255, 255, 255, 0.18))',
+        boxShadow: 'var(--tournament-shadow)',
+      }}
     >
       <Box
         px={{ base: 4, md: 6 }}
@@ -611,8 +635,11 @@ function FinalResultSummary({
         borderBottomWidth="1px"
         borderBottomColor={isCancelled ? 'gray.100' : 'green.100'}
         _dark={{
-          bg: isCancelled ? 'whiteAlpha.50' : 'green.950',
-          borderBottomColor: 'whiteAlpha.200',
+          bg: isCancelled
+            ? 'var(--tournament-surface-muted, rgba(255, 255, 255, 0.05))'
+            : 'rgba(34, 197, 94, 0.13)',
+          borderBottomColor:
+            'var(--tournament-border, rgba(255, 255, 255, 0.18))',
         }}
       >
         <HStack justify="space-between" gap={3} align="start">
@@ -624,7 +651,9 @@ function FinalResultSummary({
               p={{ base: 2.5, md: 3 }}
               flexShrink={0}
               _dark={{
-                bg: isCancelled ? 'whiteAlpha.100' : 'green.900',
+                bg: isCancelled
+                  ? 'rgba(148, 163, 184, 0.14)'
+                  : 'rgba(34, 197, 94, 0.2)',
                 color: isCancelled ? 'gray.200' : 'green.200',
               }}
             >
@@ -668,8 +697,10 @@ function FinalResultSummary({
           py={{ base: 4, md: 5 }}
           textAlign="center"
           _dark={{
-            bg: isCancelled ? 'whiteAlpha.50' : 'green.950',
-            borderColor: 'whiteAlpha.200',
+            bg: isCancelled
+              ? 'var(--tournament-surface-muted, rgba(255, 255, 255, 0.05))'
+              : 'rgba(34, 197, 94, 0.13)',
+            borderColor: 'var(--tournament-border, rgba(255, 255, 255, 0.18))',
           }}
         >
           <VStack gap={3}>
@@ -782,8 +813,13 @@ function FinalResultSide({
       py={4}
       boxShadow={isWinner ? '0 14px 30px rgba(22, 163, 74, 0.12)' : 'sm'}
       _dark={{
-        bg: isWinner ? 'green.950' : 'whiteAlpha.50',
-        borderColor: isWinner ? 'green.700' : 'whiteAlpha.200',
+        bg: isWinner
+          ? 'rgba(34, 197, 94, 0.13)'
+          : 'var(--tournament-surface-muted, rgba(255, 255, 255, 0.05))',
+        borderColor: isWinner
+          ? 'rgba(74, 222, 128, 0.34)'
+          : 'var(--tournament-border, rgba(255, 255, 255, 0.18))',
+        boxShadow: isWinner ? '0 14px 34px rgba(34, 197, 94, 0.1)' : 'none',
       }}
     >
       <Flex align="start" justify="space-between" gap={3}>

@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { Badge, Box, Flex, Heading, Text } from '@chakra-ui/react';
+import { Badge, Box, Flex, Heading, Image, Text } from '@chakra-ui/react';
 import { HStack, VStack } from '@/components/ui/chakra-compat';
 import PageLayout from '@/components/layout/PageLayout';
 import { Link, useRouter } from '@/i18n/config';
@@ -119,6 +119,10 @@ export default function PublicTournamentTeamPage() {
       ])
     );
   }, [players]);
+  const playerById = useMemo(
+    () => new Map(players.map((player) => [player.id, player])),
+    [players]
+  );
 
   if (loading) {
     return (
@@ -133,6 +137,13 @@ export default function PublicTournamentTeamPage() {
         showTopBarAuthActions={false}
         disableSidebarOffset
         rightContent={<TournamentTopBarMenu />}
+        maxW="container.lg"
+        bg="gray.50"
+        pb={{
+          base: 'calc(64px + env(safe-area-inset-bottom) + 24px)',
+          md: '24px',
+        }}
+        _dark={{ bg: 'gray.900' }}
       >
         <PublicTournamentProfileSkeleton />
       </PageLayout>
@@ -267,55 +278,88 @@ export default function PublicTournamentTeamPage() {
                     <Text color="orange.600">{t('noMembers')}</Text>
                   ) : (
                     <VStack align="stretch" gap={3}>
-                      {members.map((member) => (
-                        <Link
-                          key={member.id}
-                          href={`/t/${tournamentId}/p/${
-                            playerCodeById.get(member.playerId) ??
-                            getTournamentPlayerCode(member.playerId)
-                          }`}
-                        >
-                          <Flex
-                            align="center"
-                            gap={3}
-                            borderWidth="1px"
-                            borderColor="gray.200"
-                            borderRadius="xl"
-                            p={4}
-                            bg="white"
-                            boxShadow="0 10px 26px rgba(15, 23, 42, 0.04)"
-                            transition="border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease"
-                            _hover={{
-                              borderColor: 'green.300',
-                              boxShadow: '0 14px 34px rgba(15, 23, 42, 0.08)',
-                              transform: 'translateY(-1px)',
-                            }}
-                            _dark={{
-                              bg: 'gray.900',
-                              borderColor: 'gray.700',
-                              color: 'gray.100',
-                              _hover: { borderColor: 'green.500' },
-                            }}
+                      {members.map((member) => {
+                        const player =
+                          member.player ?? playerById.get(member.playerId);
+                        const avatarSrc = player?.image ?? player?.user?.image;
+                        const playerName =
+                          player?.name ||
+                          member.player?.name ||
+                          t('defaultPlayerName');
+
+                        return (
+                          <Link
+                            key={member.id}
+                            href={`/t/${tournamentId}/p/${
+                              playerCodeById.get(member.playerId) ??
+                              getTournamentPlayerCode(member.playerId)
+                            }`}
                           >
                             <Flex
-                              w="38px"
-                              h="38px"
                               align="center"
-                              justify="center"
-                              borderRadius="full"
-                              bg="green.50"
-                              color="green.700"
-                              flexShrink={0}
-                              _dark={{ bg: 'green.900', color: 'green.200' }}
+                              gap={3}
+                              borderWidth="1px"
+                              borderColor="gray.200"
+                              borderRadius="xl"
+                              p={4}
+                              bg="white"
+                              boxShadow="0 10px 26px rgba(15, 23, 42, 0.04)"
+                              transition="border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease"
+                              _hover={{
+                                borderColor: 'green.300',
+                                boxShadow: '0 14px 34px rgba(15, 23, 42, 0.08)',
+                                transform: 'translateY(-1px)',
+                              }}
+                              _dark={{
+                                bg: 'gray.900',
+                                borderColor: 'gray.700',
+                                color: 'gray.100',
+                                _hover: { borderColor: 'green.500' },
+                              }}
                             >
-                              <UserRound size={19} />
+                              {avatarSrc ? (
+                                <Box
+                                  w="38px"
+                                  h="38px"
+                                  borderRadius="full"
+                                  overflow="hidden"
+                                  flexShrink={0}
+                                  bg="green.50"
+                                  _dark={{ bg: 'green.900' }}
+                                >
+                                  <Image
+                                    src={avatarSrc}
+                                    alt={playerName}
+                                    w="full"
+                                    h="full"
+                                    objectFit="cover"
+                                  />
+                                </Box>
+                              ) : (
+                                <Flex
+                                  w="38px"
+                                  h="38px"
+                                  align="center"
+                                  justify="center"
+                                  borderRadius="full"
+                                  bg="green.50"
+                                  color="green.700"
+                                  flexShrink={0}
+                                  _dark={{
+                                    bg: 'green.900',
+                                    color: 'green.200',
+                                  }}
+                                >
+                                  <UserRound size={19} />
+                                </Flex>
+                              )}
+                              <Text fontWeight="medium" lineClamp={1}>
+                                {playerName}
+                              </Text>
                             </Flex>
-                            <Text fontWeight="medium" lineClamp={1}>
-                              {member.player?.name || t('defaultPlayerName')}
-                            </Text>
-                          </Flex>
-                        </Link>
-                      ))}
+                          </Link>
+                        );
+                      })}
                     </VStack>
                   )}
                 </Box>

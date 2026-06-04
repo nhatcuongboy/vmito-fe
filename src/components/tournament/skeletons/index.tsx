@@ -461,56 +461,86 @@ export function TournamentShellSkeleton() {
 export function PublicTournamentProfileSkeleton() {
   return (
     <VStack align="stretch" gap={5}>
-      <Skeleton height="40px" width="156px" borderRadius="lg" />
       <Box
         borderWidth="1px"
         borderColor="gray.200"
-        borderRadius="xl"
+        borderRadius="2xl"
         bg="white"
         overflow="hidden"
-        _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
+        boxShadow="0 20px 60px rgba(15, 23, 42, 0.08)"
+        _dark={{
+          bg: 'gray.800',
+          borderColor: 'gray.700',
+          boxShadow: '0 20px 60px rgba(0, 0, 0, 0.28)',
+        }}
       >
-        <Box bg="green.600" px={{ base: 5, md: 6 }} py={6}>
-          <HStack gap={3}>
-            <SkeletonCircle size="12" />
-            <Box flex={1}>
-              <Skeleton height="14px" width="96px" mb={3} borderRadius="md" />
-              <Skeleton height="32px" width="58%" borderRadius="md" />
-            </Box>
-          </HStack>
-          <VStack align="stretch" gap={2} mt={4}>
-            <Skeleton height="16px" width="72%" borderRadius="md" />
-            <Skeleton height="16px" width="48%" borderRadius="md" />
-          </VStack>
+        <Box
+          bg="green.600"
+          aspectRatio={21 / 9}
+          minH={{ base: '180px', md: '240px' }}
+          maxH={{ base: '250px', md: '300px' }}
+          px={{ base: 5, md: 7 }}
+          py={{ base: 6, md: 7 }}
+          display="flex"
+          alignItems="flex-end"
+        >
+          <Box w="full">
+            <HStack gap={3}>
+              <SkeletonCircle size={{ base: '64px', md: '76px' }} />
+              <Box flex={1} minW={0}>
+                <Skeleton height="14px" width="96px" mb={3} borderRadius="md" />
+                <Skeleton height="32px" width="58%" borderRadius="md" />
+              </Box>
+            </HStack>
+            <VStack align="stretch" gap={2} mt={4}>
+              <Skeleton height="16px" width="72%" borderRadius="md" />
+              <Skeleton height="16px" width="48%" borderRadius="md" />
+            </VStack>
+          </Box>
         </Box>
         <Flex
           direction={{ base: 'column', md: 'row' }}
           align={{ base: 'stretch', md: 'flex-start' }}
           gap={6}
-          p={{ base: 5, md: 6 }}
+          p={{ base: 5, md: 7 }}
         >
-          <VStack align="stretch" gap={5} flex={1} minW={0}>
-            <Skeleton height="24px" width="180px" borderRadius="md" />
-            <TournamentMatchListSkeleton count={3} />
+          <VStack align="stretch" gap={7} flex={1} minW={0}>
+            <Box>
+              <Skeleton height="24px" width="180px" mb={3} borderRadius="md" />
+              <VStack align="stretch" gap={3}>
+                {repeat(3).map((_, index) => (
+                  <Flex
+                    key={index}
+                    align="center"
+                    gap={3}
+                    borderWidth="1px"
+                    borderColor="gray.200"
+                    borderRadius="xl"
+                    p={4}
+                    bg="white"
+                    _dark={{ bg: 'gray.900', borderColor: 'gray.700' }}
+                  >
+                    <SkeletonCircle size="38px" />
+                    <Skeleton height="18px" width="52%" borderRadius="md" />
+                    <Skeleton
+                      height="22px"
+                      width="72px"
+                      borderRadius="full"
+                      ml="auto"
+                    />
+                  </Flex>
+                ))}
+              </VStack>
+            </Box>
+            <Box>
+              <Skeleton height="14px" width="96px" mb={3} borderRadius="md" />
+              <TournamentMatchListSkeleton count={2} />
+            </Box>
           </VStack>
-          <Box
-            w={{ base: 'full', md: '260px' }}
-            borderWidth="1px"
-            borderColor="gray.200"
-            borderRadius="xl"
-            p={4}
-            bg="gray.50"
-            flexShrink={0}
-            _dark={{ bg: 'gray.900', borderColor: 'gray.700' }}
-          >
-            <VStack gap={3}>
-              <Skeleton height="20px" width="120px" borderRadius="md" />
-              <Skeleton height="184px" width="184px" borderRadius="lg" />
-              <Skeleton height="12px" width="100%" borderRadius="md" />
-              <Skeleton height="38px" width="100%" borderRadius="lg" />
-            </VStack>
-          </Box>
         </Flex>
+      </Box>
+      <Box borderRadius="2xl" boxShadow="0 14px 40px rgba(15, 23, 42, 0.05)">
+        <Skeleton height="96px" borderRadius="2xl" />
       </Box>
     </VStack>
   );

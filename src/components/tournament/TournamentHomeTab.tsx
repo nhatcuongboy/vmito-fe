@@ -276,7 +276,12 @@ export default function TournamentHomeTab({
         borderRadius="xl"
         p={{ base: 4, md: 4 }}
         bg="white"
-        _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
+        _dark={{
+          bg: 'var(--tournament-surface-raised, var(--chakra-colors-gray-800))',
+          borderColor:
+            'var(--tournament-border, var(--chakra-colors-gray-700))',
+          boxShadow: 'var(--tournament-shadow-soft)',
+        }}
       >
         <Flex justify="space-between" align="center" mb={3}>
           <Text fontWeight="bold" fontSize={{ base: 'xl', md: 'lg' }}>
@@ -284,12 +289,10 @@ export default function TournamentHomeTab({
           </Text>
         </Flex>
 
-        <Flex
-          gap={{ base: 3, md: 5 }}
+        <Grid
+          templateColumns="repeat(2, minmax(0, 1fr))"
+          gap={{ base: 3, md: 4 }}
           mb={4}
-          direction={{ base: 'column', sm: 'row' }}
-          wrap={{ base: 'nowrap', sm: 'wrap' }}
-          align={{ base: 'stretch', sm: 'center' }}
         >
           <Flex align="center" gap={2} minW={0}>
             <Users size={16} color="var(--chakra-colors-gray-500)" />
@@ -345,7 +348,7 @@ export default function TournamentHomeTab({
               </Text>
             </Flex>
           )}
-        </Flex>
+        </Grid>
 
         <Grid
           templateColumns={{
@@ -486,7 +489,12 @@ export default function TournamentHomeTab({
         borderRadius="xl"
         bg="white"
         overflow="hidden"
-        _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
+        _dark={{
+          bg: 'var(--tournament-surface-raised, var(--chakra-colors-gray-800))',
+          borderColor:
+            'var(--tournament-border, var(--chakra-colors-gray-700))',
+          boxShadow: 'var(--tournament-shadow-soft)',
+        }}
       >
         <Flex justify="space-between" align="center" p={4} pb={3}>
           <Text fontWeight="semibold" fontSize="lg">
@@ -590,7 +598,12 @@ export default function TournamentHomeTab({
           overflow="hidden"
           bg="white"
           boxShadow="sm"
-          _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
+          _dark={{
+            bg: 'var(--tournament-surface-raised, var(--chakra-colors-gray-800))',
+            borderColor:
+              'var(--tournament-border, var(--chakra-colors-gray-700))',
+            boxShadow: 'var(--tournament-shadow-soft)',
+          }}
         >
           <Flex justify="space-between" align="center" px={4} pt={4} pb={3}>
             <Text fontWeight="bold" fontSize={{ base: 'lg', md: 'xl' }}>
@@ -732,7 +745,12 @@ export default function TournamentHomeTab({
           borderRadius="xl"
           p={4}
           bg="white"
-          _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
+          _dark={{
+            bg: 'var(--tournament-surface-raised, var(--chakra-colors-gray-800))',
+            borderColor:
+              'var(--tournament-border, var(--chakra-colors-gray-700))',
+            boxShadow: 'var(--tournament-shadow-soft)',
+          }}
         >
           <Flex justify="space-between" align="center" mb={3}>
             <HStack gap={2}>
@@ -796,7 +814,12 @@ export default function TournamentHomeTab({
             borderRadius="xl"
             p={4}
             bg="white"
-            _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
+            _dark={{
+              bg: 'var(--tournament-surface-raised, var(--chakra-colors-gray-800))',
+              borderColor:
+                'var(--tournament-border, var(--chakra-colors-gray-700))',
+              boxShadow: 'var(--tournament-shadow-soft)',
+            }}
           >
             <Flex justify="space-between" align="center" mb={3}>
               <Text fontWeight="semibold" fontSize="lg">

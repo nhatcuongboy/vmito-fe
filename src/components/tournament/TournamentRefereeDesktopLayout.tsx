@@ -95,11 +95,14 @@ export default function TournamentRefereeDesktopLayout({
 
   return (
     <Flex
+      className="tournament-shell"
       gap={{ base: 0, md: 6 }}
       pt={{ md: 6 }}
       pl={{ md: 4 }}
       pr={{ md: 6 }}
       align="flex-start"
+      bg="var(--tournament-bg)"
+      minH="100dvh"
     >
       {showSidebar && (
         <Flex display={{ base: 'none', md: 'flex' }} flexShrink={0}>

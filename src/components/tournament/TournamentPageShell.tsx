@@ -8,6 +8,8 @@ import {
   Flex,
   Heading,
   HStack,
+  Image,
+  Input,
   SimpleGrid,
   Text,
   VStack,
@@ -30,7 +32,15 @@ import { useParams } from 'next/navigation';
 import { Link, useRouter } from '@/i18n/config';
 import { useTranslations } from 'next-intl';
 import { useAuthStore } from '@/stores/useAuthStore';
-import { CircleUserRound, SquarePen, Trophy, ArrowRight } from 'lucide-react';
+import {
+  CircleUserRound,
+  SquarePen,
+  Trophy,
+  ArrowRight,
+  LayoutList,
+  UsersRound,
+  Search,
+} from 'lucide-react';
 import TournamentDashboard from '@/components/tournament/TournamentDashboard';
 import TournamentHomeTab from '@/components/tournament/TournamentHomeTab';
 import TournamentManage from '@/components/tournament/manage/TournamentManage';
@@ -94,6 +104,14 @@ const CATEGORY_ACCENT_BG_DARK: Record<CategoryType, string> = {
 
 type TeamListItem = ITeamCategoryBlock['players'][number];
 
+interface IAllPlayerItem {
+  id: string;
+  name: string;
+  code: string;
+  image?: string;
+  categories: string[];
+}
+
 export type TournamentSegment =
   | 'home'
   | 'teams'
@@ -137,9 +155,9 @@ function TeamCategoryCard({
       overflow="hidden"
       boxShadow="0 18px 46px rgba(15, 23, 42, 0.06)"
       _dark={{
-        bg: 'gray.800',
-        borderColor: 'gray.700',
-        boxShadow: '0 18px 46px rgba(0, 0, 0, 0.26)',
+        bg: 'var(--tournament-surface-raised, var(--chakra-colors-gray-800))',
+        borderColor: 'var(--tournament-border, var(--chakra-colors-gray-700))',
+        boxShadow: 'var(--tournament-shadow)',
       }}
     >
       <Flex
@@ -149,7 +167,12 @@ function TeamCategoryCard({
         px={{ base: 4, md: 5 }}
         py={4}
         bg={CATEGORY_ACCENT_BG[categoryBlock.type]}
-        _dark={{ bg: CATEGORY_ACCENT_BG_DARK[categoryBlock.type] }}
+        _dark={{
+          bg: CATEGORY_ACCENT_BG_DARK[categoryBlock.type],
+          borderBottomWidth: '1px',
+          borderBottomColor:
+            'var(--tournament-border, var(--chakra-colors-gray-700))',
+        }}
       >
         <Heading size="md" lineClamp={1} minW={0} flex="1">
           {categoryBlock.title}
@@ -207,8 +230,12 @@ function TeamRow({
       transition="background 160ms ease, transform 160ms ease"
       _hover={team.code ? { bg: 'gray.50', transform: 'translateX(2px)' } : {}}
       _dark={{
-        borderColor: 'gray.700',
-        _hover: team.code ? { bg: 'gray.700' } : {},
+        borderColor: 'var(--tournament-border, var(--chakra-colors-gray-700))',
+        _hover: team.code
+          ? {
+              bg: 'var(--tournament-accent-soft, rgba(34, 197, 94, 0.14))',
+            }
+          : {},
       }}
     >
       <Flex
@@ -222,7 +249,12 @@ function TeamRow({
         borderColor="gray.200"
         color="gray.500"
         flexShrink={0}
-        _dark={{ bg: 'gray.700', borderColor: 'gray.600', color: 'gray.300' }}
+        _dark={{
+          bg: 'var(--tournament-surface-muted, var(--chakra-colors-gray-700))',
+          borderColor:
+            'var(--tournament-border, var(--chakra-colors-gray-600))',
+          color: 'green.200',
+        }}
       >
         <CircleUserRound size={23} />
       </Flex>
@@ -274,6 +306,99 @@ function TeamRow({
   );
 }
 
+function PlayerRow({
+  player,
+  slug,
+  showDivider,
+}: {
+  player: IAllPlayerItem;
+  slug: string;
+  showDivider: boolean;
+}) {
+  return (
+    <Link
+      href={`/t/${slug}/p/${player.code}`}
+      style={{ color: 'inherit', textDecoration: 'none' }}
+    >
+      <Flex
+        align="center"
+        gap={3}
+        px={{ base: 2, md: 3 }}
+        py={3}
+        borderBottomWidth={showDivider ? '1px' : '0'}
+        borderColor="gray.100"
+        borderRadius="lg"
+        transition="background 160ms ease, transform 160ms ease"
+        _hover={{ bg: 'gray.50', transform: 'translateX(2px)' }}
+        _dark={{
+          borderColor:
+            'var(--tournament-border, var(--chakra-colors-gray-700))',
+          _hover: {
+            bg: 'var(--tournament-accent-soft, rgba(34, 197, 94, 0.14))',
+          },
+        }}
+      >
+        <Flex
+          align="center"
+          justify="center"
+          w="44px"
+          h="44px"
+          borderRadius="full"
+          bg="gray.50"
+          borderWidth="1px"
+          borderColor="gray.200"
+          color="gray.500"
+          flexShrink={0}
+          overflow="hidden"
+          _dark={{
+            bg: 'var(--tournament-surface-muted, var(--chakra-colors-gray-700))',
+            borderColor:
+              'var(--tournament-border, var(--chakra-colors-gray-600))',
+            color: 'green.200',
+          }}
+        >
+          {player.image ? (
+            <Image
+              src={player.image}
+              alt={player.name}
+              w="full"
+              h="full"
+              objectFit="cover"
+            />
+          ) : (
+            <CircleUserRound size={23} />
+          )}
+        </Flex>
+
+        <Box flex="1" minW={0}>
+          <Text
+            fontSize={{ base: 'md', md: 'lg' }}
+            fontWeight="semibold"
+            lineClamp={1}
+          >
+            {player.name}
+          </Text>
+          {player.categories.length > 0 && (
+            <Text
+              mt={1}
+              fontSize="sm"
+              color="gray.500"
+              lineClamp={1}
+              _dark={{ color: 'gray.400' }}
+            >
+              {player.categories.join(' · ')}
+            </Text>
+          )}
+        </Box>
+
+        <Flex color="gray.400" flexShrink={0}>
+          <ArrowRight size={18} />
+        </Flex>
+      </Flex>
+    </Link>
+  );
+}
+
 export default function TournamentPageShell({
   activeSegment,
 }: TournamentPageShellProps) {
@@ -291,6 +416,11 @@ export default function TournamentPageShell({
   >([]);
   const [allCategories, setAllCategories] = useState<Category[]>([]);
   const [totalAthletes, setTotalAthletes] = useState(0);
+  const [allPlayers, setAllPlayers] = useState<IAllPlayerItem[]>([]);
+  const [teamsView, setTeamsView] = useState<'category' | 'players'>(
+    'category'
+  );
+  const [playerSearch, setPlayerSearch] = useState('');
 
   const isHost = useMemo(
     () => user?.id === tournament?.hostId,
@@ -477,6 +607,7 @@ export default function TournamentPageShell({
         setAllCategories([]);
         setTeamCategoryBlocks([]);
         setTotalAthletes(0);
+        setAllPlayers([]);
 
         const data = await TournamentService.getTournament(slug);
         setTournament(data);
@@ -486,6 +617,7 @@ export default function TournamentPageShell({
         setAllCategories([]);
         setTeamCategoryBlocks([]);
         setTotalAthletes(0);
+        setAllPlayers([]);
       } finally {
         setLoading(false);
       }
@@ -562,11 +694,47 @@ export default function TournamentPageShell({
           }
         );
 
+        // Build the list of categories each player participates in so the
+        // "All players" view can show their categories under each name.
+        const playerCategoryTitles = new Map<string, Set<string>>();
+        registrationsByCategory.forEach(({ category, registrations }) => {
+          const title = resolveCategoryTitle(category);
+          const addCategory = (playerId?: string | null) => {
+            if (!playerId) return;
+            if (!playerCategoryTitles.has(playerId)) {
+              playerCategoryTitles.set(playerId, new Set());
+            }
+            playerCategoryTitles.get(playerId)!.add(title);
+          };
+          registrations.forEach((registration) => {
+            addCategory(registration.player?.id);
+            addCategory(registration.tournamentPlayerId);
+            registration.pair?.members?.forEach((member) => {
+              addCategory(member.player?.id ?? member.playerId);
+            });
+          });
+        });
+
+        const allPlayerItems: IAllPlayerItem[] = tournamentPlayers
+          .map((player) => ({
+            id: player.id,
+            name: player.name,
+            code:
+              playerCodeById.get(player.id) ??
+              getTournamentPlayerDisplayCode(player, tournamentPlayerIds),
+            image: player.image,
+            categories: Array.from(
+              playerCategoryTitles.get(player.id) ?? []
+            ).sort((a, b) => a.localeCompare(b)),
+          }))
+          .sort((a, b) => a.name.localeCompare(b.name));
+
         if (!isMounted) return;
 
         setAllCategories(categories);
         setTeamCategoryBlocks(categoryBlocks);
         setTotalAthletes(tournamentPlayers.length);
+        setAllPlayers(allPlayerItems);
       } catch (error) {
         console.error('Error loading tournament teams:', error);
         if (!isMounted) return;
@@ -574,6 +742,7 @@ export default function TournamentPageShell({
         setAllCategories([]);
         setTeamCategoryBlocks([]);
         setTotalAthletes(0);
+        setAllPlayers([]);
       } finally {
         if (isMounted) {
           setLoadingTeams(false);
@@ -602,6 +771,19 @@ export default function TournamentPageShell({
       ),
     [teamCategoryBlocks]
   );
+
+  const filteredAllPlayers = useMemo(() => {
+    const query = playerSearch.trim().toLowerCase();
+    if (!query) return allPlayers;
+    return allPlayers.filter(
+      (player) =>
+        player.name.toLowerCase().includes(query) ||
+        player.code.toLowerCase().includes(query) ||
+        player.categories.some((category) =>
+          category.toLowerCase().includes(query)
+        )
+    );
+  }, [allPlayers, playerSearch]);
 
   useEffect(() => {
     if (loading || !tournament) return;
@@ -656,6 +838,9 @@ export default function TournamentPageShell({
           showTopBarAuthActions={false}
           disableSidebarOffset
           rightContent={<TournamentTopBarMenu />}
+          rootClassName="tournament-shell"
+          topBarClassName="tournament-topbar"
+          bg="var(--tournament-bg)"
           maxW="full"
           px={{ base: '24px', md: 0 }}
           pb={{
@@ -711,6 +896,9 @@ export default function TournamentPageShell({
         topBarLogoHref={tournamentHomeHref}
         showTopBarAuthActions={false}
         rightContent={<TournamentTopBarMenu />}
+        rootClassName="tournament-shell"
+        topBarClassName="tournament-topbar"
+        bg="var(--tournament-bg)"
       >
         <Text>{t('notFound')}</Text>
       </PageLayout>
@@ -759,6 +947,9 @@ export default function TournamentPageShell({
                     count: allCategories.length,
                   })}
                 </Badge>
+                <Badge colorPalette="blue" variant="subtle" px={3} py={1}>
+                  {t('teamsTab.totalPlayers', { count: totalAthletes })}
+                </Badge>
               </HStack>
             </Box>
             <Button
@@ -777,9 +968,92 @@ export default function TournamentPageShell({
             </Button>
           </Flex>
 
-          {loadingTeams ? (
+          {/* View toggle: by category vs. all players */}
+          <Flex
+            p={1}
+            gap={1}
+            borderWidth="1px"
+            borderColor="gray.200"
+            borderRadius="full"
+            bg="gray.50"
+            w="fit-content"
+            _dark={{
+              bg: 'var(--tournament-surface-muted, var(--chakra-colors-gray-800))',
+              borderColor:
+                'var(--tournament-border, var(--chakra-colors-gray-700))',
+            }}
+          >
+            <Button
+              size="sm"
+              variant={teamsView === 'category' ? 'solid' : 'ghost'}
+              colorPalette={teamsView === 'category' ? 'green' : 'gray'}
+              borderRadius="full"
+              px={4}
+              onClick={() => setTeamsView('category')}
+            >
+              <HStack gap={2}>
+                <LayoutList size={15} />
+                <Text>{t('teamsTab.viewByCategory')}</Text>
+              </HStack>
+            </Button>
+            <Button
+              size="sm"
+              variant={teamsView === 'players' ? 'solid' : 'ghost'}
+              colorPalette={teamsView === 'players' ? 'green' : 'gray'}
+              borderRadius="full"
+              px={4}
+              onClick={() => setTeamsView('players')}
+            >
+              <HStack gap={2}>
+                <UsersRound size={15} />
+                <Text>{t('teamsTab.viewAllPlayers')}</Text>
+              </HStack>
+            </Button>
+          </Flex>
+
+          {teamsView === 'category' ? (
+            loadingTeams ? (
+              <TournamentTeamsSkeleton />
+            ) : sortedTeamCategoryBlocks.length === 0 ? (
+              <Box
+                borderWidth="1px"
+                borderColor="gray.200"
+                borderRadius="xl"
+                px={6}
+                py={8}
+                bg="white"
+                boxShadow="sm"
+                _dark={{
+                  bg: 'var(--tournament-surface-raised, var(--chakra-colors-gray-800))',
+                  borderColor:
+                    'var(--tournament-border, var(--chakra-colors-gray-700))',
+                  boxShadow: 'var(--tournament-shadow-soft)',
+                }}
+              >
+                <Text color="fg.muted">{t('teamsTab.noCategories')}</Text>
+              </Box>
+            ) : (
+              <SimpleGrid
+                columns={{ base: 1, xl: 2 }}
+                gap={5}
+                alignItems="start"
+              >
+                {sortedTeamCategoryBlocks.map((categoryBlock) => (
+                  <TeamCategoryCard
+                    key={categoryBlock.id}
+                    categoryBlock={categoryBlock}
+                    slug={slug}
+                    emptyText={t('teamsTab.noTeams')}
+                    teamCountLabel={t('teamsTab.teamsCount', {
+                      count: categoryBlock.players.length,
+                    })}
+                  />
+                ))}
+              </SimpleGrid>
+            )
+          ) : loadingTeams ? (
             <TournamentTeamsSkeleton />
-          ) : sortedTeamCategoryBlocks.length === 0 ? (
+          ) : allPlayers.length === 0 ? (
             <Box
               borderWidth="1px"
               borderColor="gray.200"
@@ -787,24 +1061,94 @@ export default function TournamentPageShell({
               px={6}
               py={8}
               bg="white"
-              _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
+              boxShadow="sm"
+              _dark={{
+                bg: 'var(--tournament-surface-raised, var(--chakra-colors-gray-800))',
+                borderColor:
+                  'var(--tournament-border, var(--chakra-colors-gray-700))',
+                boxShadow: 'var(--tournament-shadow-soft)',
+              }}
             >
-              <Text color="fg.muted">{t('teamsTab.noCategories')}</Text>
+              <Text color="fg.muted">{t('teamsTab.noPlayers')}</Text>
             </Box>
           ) : (
-            <SimpleGrid columns={{ base: 1, xl: 2 }} gap={5} alignItems="start">
-              {sortedTeamCategoryBlocks.map((categoryBlock) => (
-                <TeamCategoryCard
-                  key={categoryBlock.id}
-                  categoryBlock={categoryBlock}
-                  slug={slug}
-                  emptyText={t('teamsTab.noTeams')}
-                  teamCountLabel={t('teamsTab.teamsCount', {
-                    count: categoryBlock.players.length,
+            <Box
+              borderWidth="1px"
+              borderColor="gray.200"
+              borderRadius="2xl"
+              bg="white"
+              overflow="hidden"
+              boxShadow="0 18px 46px rgba(15, 23, 42, 0.06)"
+              _dark={{
+                bg: 'var(--tournament-surface-raised, var(--chakra-colors-gray-800))',
+                borderColor:
+                  'var(--tournament-border, var(--chakra-colors-gray-700))',
+                boxShadow: 'var(--tournament-shadow)',
+              }}
+            >
+              <Flex
+                align="center"
+                gap={3}
+                px={{ base: 4, md: 5 }}
+                py={4}
+                borderBottomWidth="1px"
+                borderColor="gray.100"
+                _dark={{
+                  borderColor:
+                    'var(--tournament-border, var(--chakra-colors-gray-700))',
+                }}
+              >
+                <Box flex="1" position="relative" maxW="360px">
+                  <Box
+                    position="absolute"
+                    left={3}
+                    top="50%"
+                    transform="translateY(-50%)"
+                    color="gray.400"
+                    pointerEvents="none"
+                  >
+                    <Search size={16} />
+                  </Box>
+                  <Input
+                    value={playerSearch}
+                    onChange={(event) => setPlayerSearch(event.target.value)}
+                    placeholder={t('teamsTab.searchPlayers')}
+                    pl={9}
+                    borderRadius="full"
+                    size="sm"
+                  />
+                </Box>
+                <Badge
+                  colorPalette="gray"
+                  variant="solid"
+                  borderRadius="full"
+                  px={3}
+                  py={1}
+                  flexShrink={0}
+                >
+                  {t('teamsTab.totalPlayers', {
+                    count: filteredAllPlayers.length,
                   })}
-                />
-              ))}
-            </SimpleGrid>
+                </Badge>
+              </Flex>
+
+              {filteredAllPlayers.length === 0 ? (
+                <Box px={{ base: 4, md: 5 }} py={5}>
+                  <Text color="fg.muted">{t('teamsTab.noPlayers')}</Text>
+                </Box>
+              ) : (
+                <VStack align="stretch" gap={0} px={{ base: 3, md: 4 }} py={3}>
+                  {filteredAllPlayers.map((player, index) => (
+                    <PlayerRow
+                      key={player.id}
+                      player={player}
+                      slug={slug}
+                      showDivider={index < filteredAllPlayers.length - 1}
+                    />
+                  ))}
+                </VStack>
+              )}
+            </Box>
           )}
         </VStack>
       )}
@@ -857,6 +1201,9 @@ export default function TournamentPageShell({
         showTopBarAuthActions={false}
         disableSidebarOffset
         rightContent={<TournamentTopBarMenu />}
+        rootClassName="tournament-shell"
+        topBarClassName="tournament-topbar"
+        bg="var(--tournament-bg)"
         maxW="full"
         px={{ base: '24px', md: 0 }}
         pb={{

@@ -397,7 +397,13 @@ export default function PublicTournamentStandingsTab({
           gap="2px"
           p="2px"
           bg="gray.100"
-          _dark={{ bg: 'gray.800' }}
+          borderWidth="1px"
+          borderColor="transparent"
+          _dark={{
+            bg: 'var(--tournament-surface-muted, var(--chakra-colors-gray-800))',
+            borderColor:
+              'var(--tournament-border, var(--chakra-colors-gray-700))',
+          }}
           borderRadius="full"
           w="fit-content"
           flexShrink={0}
@@ -431,7 +437,13 @@ export default function PublicTournamentStandingsTab({
             gap="2px"
             p="2px"
             bg="gray.100"
-            _dark={{ bg: 'gray.800' }}
+            borderWidth="1px"
+            borderColor="transparent"
+            _dark={{
+              bg: 'var(--tournament-surface-muted, var(--chakra-colors-gray-800))',
+              borderColor:
+                'var(--tournament-border, var(--chakra-colors-gray-700))',
+            }}
             borderRadius="full"
             w="fit-content"
             flexShrink={0}
@@ -488,7 +500,12 @@ export default function PublicTournamentStandingsTab({
           borderRadius="lg"
           borderColor="gray.100"
           bg="white"
-          _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
+          _dark={{
+            bg: 'var(--tournament-surface-raised, var(--chakra-colors-gray-800))',
+            borderColor:
+              'var(--tournament-border, var(--chakra-colors-gray-700))',
+            boxShadow: 'var(--tournament-shadow-soft)',
+          }}
         >
           <Text
             color="gray.500"
@@ -686,7 +703,12 @@ export default function PublicTournamentStandingsTab({
               borderRadius="lg"
               borderColor="gray.100"
               bg="white"
-              _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
+              _dark={{
+                bg: 'var(--tournament-surface-raised, var(--chakra-colors-gray-800))',
+                borderColor:
+                  'var(--tournament-border, var(--chakra-colors-gray-700))',
+                boxShadow: 'var(--tournament-shadow-soft)',
+              }}
             >
               <HStack align="flex-start" gap={3}>
                 <Info size={18} color="var(--chakra-colors-green-500)" />
@@ -772,10 +794,10 @@ function StandingsTable({
       bg="white"
       boxShadow="0 10px 24px rgba(15, 23, 42, 0.06)"
       _dark={{
-        bg: 'gray.900',
-        borderColor: 'gray.700',
+        bg: 'var(--tournament-surface-raised, var(--chakra-colors-gray-900))',
+        borderColor: 'var(--tournament-border, var(--chakra-colors-gray-700))',
         borderTopColor: 'yellow.400',
-        boxShadow: '0 10px 24px rgba(0, 0, 0, 0.22)',
+        boxShadow: 'var(--tournament-shadow)',
       }}
     >
       {(title || teamCountLabel || action) && (
@@ -828,7 +850,11 @@ function StandingsTable({
             bg="gray.50"
             borderBottomWidth="1px"
             borderColor="gray.100"
-            _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
+            _dark={{
+              bg: 'var(--tournament-surface-muted, var(--chakra-colors-gray-800))',
+              borderColor:
+                'var(--tournament-border, var(--chakra-colors-gray-700))',
+            }}
           >
             <StandingHeaderCell label={t('columns.rank')} align="center" />
             <StandingHeaderCell label={t('columns.teamShort')} align="start" />
@@ -877,8 +903,11 @@ function StandingsTable({
                   _last={{ borderBottomWidth: 0 }}
                   _hover={{ bg: 'gray.50' }}
                   _dark={{
-                    borderColor: 'gray.800',
-                    _hover: { bg: 'gray.800' },
+                    borderColor:
+                      'var(--tournament-border, var(--chakra-colors-gray-800))',
+                    _hover: {
+                      bg: 'var(--tournament-accent-soft, rgba(34, 197, 94, 0.14))',
+                    },
                   }}
                 >
                   <Flex
@@ -891,7 +920,13 @@ function StandingsTable({
                     color="gray.700"
                     fontSize="sm"
                     fontWeight="700"
-                    _dark={{ bg: 'gray.800', color: 'gray.50' }}
+                    _dark={{
+                      bg: 'var(--tournament-surface-muted, var(--chakra-colors-gray-800))',
+                      color: 'gray.50',
+                      borderWidth: '1px',
+                      borderColor:
+                        'var(--tournament-border, var(--chakra-colors-gray-700))',
+                    }}
                   >
                     {hasResults ? rank : '-'}
                   </Flex>

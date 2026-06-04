@@ -48,6 +48,7 @@ interface TopBarProps {
   showLogoDesktopOnly?: boolean;
   showAuthActions?: boolean;
   showAiAssistantButton?: boolean;
+  className?: string;
 }
 
 export default function TopBar({
@@ -68,6 +69,7 @@ export default function TopBar({
   showLogoDesktopOnly = false,
   showAuthActions = true,
   showAiAssistantButton = true,
+  className,
 }: TopBarProps) {
   const common = useTranslations('common');
   const appName = common('appName');
@@ -104,6 +106,7 @@ export default function TopBar({
   return (
     <>
       <Box
+        className={className}
         position="fixed"
         top={0}
         left={0}

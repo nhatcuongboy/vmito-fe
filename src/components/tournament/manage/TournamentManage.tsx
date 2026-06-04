@@ -341,7 +341,14 @@ export default function TournamentManage({
           p={1}
           mb={4}
           w="fit-content"
-          _dark={{ bg: 'gray.800' }}
+          borderWidth="1px"
+          borderColor="transparent"
+          _dark={{
+            bg: 'var(--tournament-surface-muted, var(--chakra-colors-gray-800))',
+            borderColor:
+              'var(--tournament-border, var(--chakra-colors-gray-700))',
+            boxShadow: 'var(--tournament-shadow-soft, none)',
+          }}
         >
           <TabsTrigger
             value="organize"
@@ -397,7 +404,7 @@ export default function TournamentManage({
             css={{
               '&::-webkit-scrollbar': { width: '4px' },
               '&::-webkit-scrollbar-thumb': {
-                background: '#CBD5E0',
+                background: 'rgba(148, 163, 184, 0.45)',
                 borderRadius: '2px',
               },
             }}
@@ -409,7 +416,13 @@ export default function TournamentManage({
                 borderRadius="xl"
                 p={5}
                 bg="white"
-                _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
+                boxShadow="sm"
+                _dark={{
+                  bg: 'var(--tournament-surface-raised, var(--chakra-colors-gray-800))',
+                  borderColor:
+                    'var(--tournament-border, var(--chakra-colors-gray-700))',
+                  boxShadow: 'var(--tournament-shadow)',
+                }}
               >
                 {renderPanel()}
               </Box>

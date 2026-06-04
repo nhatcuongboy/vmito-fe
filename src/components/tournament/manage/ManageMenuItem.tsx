@@ -37,10 +37,12 @@ export default function ManageMenuItem({
         onClick={onClick}
         _hover={{ bg: 'yellow.500' }}
         _dark={{
-          bg: 'yellow.900',
-          borderColor: 'yellow.700',
-          _hover: { bg: 'yellow.800' },
+          bg: 'rgba(245, 158, 11, 0.16)',
+          borderColor: 'rgba(245, 158, 11, 0.34)',
+          boxShadow: '0 12px 28px rgba(245, 158, 11, 0.08)',
+          _hover: { bg: 'rgba(245, 158, 11, 0.22)' },
         }}
+        borderWidth="1px"
         transition="all 0.15s"
       >
         <Box
@@ -89,9 +91,23 @@ export default function ManageMenuItem({
       onClick={onClick}
       _hover={onClick ? { bg: 'gray.50', borderColor: 'gray.300' } : {}}
       _dark={{
-        bg: isActive ? 'gray.700' : 'gray.800',
-        borderColor: isActive ? 'gray.500' : 'gray.700',
-        _hover: onClick ? { bg: 'gray.700', borderColor: 'gray.600' } : {},
+        bg: isActive
+          ? 'var(--tournament-accent-soft, rgba(34, 197, 94, 0.14))'
+          : 'var(--tournament-surface, var(--chakra-colors-gray-800))',
+        borderColor: isActive
+          ? 'var(--tournament-accent-border, rgba(45, 212, 191, 0.26))'
+          : 'var(--tournament-border, var(--chakra-colors-gray-700))',
+        boxShadow: isActive ? '0 14px 34px rgba(20, 184, 166, 0.1)' : 'none',
+        _hover: onClick
+          ? {
+              bg: isActive
+                ? 'var(--tournament-accent-soft, rgba(34, 197, 94, 0.14))'
+                : 'var(--tournament-surface-raised, var(--chakra-colors-gray-700))',
+              borderColor: isActive
+                ? 'var(--tournament-accent-border, rgba(45, 212, 191, 0.26))'
+                : 'rgba(148, 163, 184, 0.28)',
+            }
+          : {},
       }}
       transition="all 0.15s"
     >

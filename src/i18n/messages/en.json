@@ -1522,7 +1522,13 @@
           "teamsCount": "{count} teams",
           "totalCategories": "{count} categories",
           "totalTeams": "{count} teams registered",
-          "unknownTeam": "Unknown"
+          "unknownTeam": "Unknown",
+          "viewByCategory": "By category",
+          "viewAllPlayers": "All players",
+          "allPlayersTitle": "All players",
+          "totalPlayers": "{count} players",
+          "noPlayers": "No players yet.",
+          "searchPlayers": "Search players..."
         },
         "scheduleTab": {
           "empty": "No schedule has been published yet."

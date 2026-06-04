@@ -31,7 +31,9 @@ export default function TournamentProfileHero({
   return (
     <Box
       position="relative"
-      minH={{ base: '260px', md: '310px' }}
+      aspectRatio={21 / 9}
+      minH={{ base: '180px', md: '240px' }}
+      maxH={{ base: '250px', md: '300px' }}
       overflow="hidden"
       color="white"
       bg="green.700"
@@ -81,7 +83,8 @@ export default function TournamentProfileHero({
 
       <Flex
         position="relative"
-        minH={{ base: '260px', md: '310px' }}
+        h="full"
+        minH={{ base: '180px', md: '240px' }}
         align="flex-end"
         px={{ base: 5, md: 7 }}
         py={{ base: 6, md: 7 }}

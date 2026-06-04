@@ -334,6 +334,9 @@ export default function PublicTournamentPlayerPage() {
         showTopBarAuthActions={false}
         disableSidebarOffset
         rightContent={<TournamentTopBarMenu />}
+        maxW="container.lg"
+        bg="gray.50"
+        _dark={{ bg: 'gray.900' }}
       >
         <PublicTournamentProfileSkeleton />
       </PageLayout>

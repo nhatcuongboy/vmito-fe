@@ -31,23 +31,36 @@ const ALL_CATEGORIES_VALUE = 'all';
 
 const RANK_STYLE: Record<
   PodiumRank,
-  { bg: string; border: string; accent: string; iconColor: string }
+  {
+    bg: string;
+    darkBg: string;
+    border: string;
+    darkBorder: string;
+    accent: string;
+    iconColor: string;
+  }
 > = {
   1: {
     bg: 'yellow.50',
+    darkBg: 'rgba(245, 158, 11, 0.14)',
     border: 'yellow.300',
+    darkBorder: 'rgba(245, 158, 11, 0.36)',
     accent: 'yellow.400',
     iconColor: 'var(--chakra-colors-yellow-500)',
   },
   2: {
     bg: 'gray.50',
+    darkBg: 'rgba(148, 163, 184, 0.12)',
     border: 'gray.300',
+    darkBorder: 'rgba(203, 213, 225, 0.28)',
     accent: 'gray.400',
     iconColor: 'var(--chakra-colors-gray-500)',
   },
   3: {
     bg: 'orange.50',
+    darkBg: 'rgba(249, 115, 22, 0.13)',
     border: 'orange.200',
+    darkBorder: 'rgba(251, 146, 60, 0.34)',
     accent: 'orange.300',
     iconColor: 'var(--chakra-colors-orange-500)',
   },
@@ -139,7 +152,11 @@ export default function PublicTournamentWinnersTab({
       borderRadius="xl"
       bg="white"
       overflow="hidden"
-      _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
+      _dark={{
+        bg: 'var(--tournament-surface-raised, var(--chakra-colors-gray-800))',
+        borderColor: 'var(--tournament-border, var(--chakra-colors-gray-700))',
+        boxShadow: 'var(--tournament-shadow-soft)',
+      }}
     >
       <Flex
         align={{ base: 'stretch', md: 'center' }}
@@ -231,8 +248,9 @@ function CategoryPodiumCard({
       px={4}
       py={4}
       _dark={{
-        bg: 'gray.900',
-        borderColor: 'gray.700',
+        bg: 'var(--tournament-surface, var(--chakra-colors-gray-900))',
+        borderColor: 'var(--tournament-border, var(--chakra-colors-gray-700))',
+        boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.04)',
       }}
     >
       <Flex align="center" justify="space-between" gap={2} mb={4}>
@@ -296,7 +314,11 @@ function PodiumRow({
       borderLeftColor={style.accent}
       borderRadius="lg"
       bg={style.bg}
-      _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
+      _dark={{
+        bg: style.darkBg,
+        borderColor: style.darkBorder,
+        boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.04)',
+      }}
     >
       <Flex
         w={{ base: 9, md: 10 }}
@@ -308,7 +330,10 @@ function PodiumRow({
         borderWidth="1px"
         borderColor={style.border}
         flexShrink={0}
-        _dark={{ bg: 'gray.900' }}
+        _dark={{
+          bg: 'rgba(7, 17, 29, 0.72)',
+          borderColor: style.darkBorder,
+        }}
       >
         <Icon size={entry.rank === 1 ? 22 : 19} color={style.iconColor} />
       </Flex>

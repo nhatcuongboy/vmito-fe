@@ -1530,7 +1530,13 @@
           "teamsCount": "{count} đội",
           "totalCategories": "{count} hạng mục",
           "totalTeams": "{count} đội đã đăng ký",
-          "unknownTeam": "Không xác định"
+          "unknownTeam": "Không xác định",
+          "viewByCategory": "Theo hạng mục",
+          "viewAllPlayers": "Tất cả VĐV",
+          "allPlayersTitle": "Tất cả vận động viên",
+          "totalPlayers": "{count} VĐV",
+          "noPlayers": "Chưa có vận động viên nào.",
+          "searchPlayers": "Tìm vận động viên..."
         },
         "scheduleTab": {
           "empty": "Chưa có lịch thi đấu nào được công bố."

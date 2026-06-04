@@ -511,7 +511,12 @@ export default function ResultsPanel({
           borderRadius="lg"
           bg="white"
           boxShadow="sm"
-          _dark={{ bg: 'gray.900', borderColor: 'gray.700' }}
+          _dark={{
+            bg: 'var(--tournament-surface, var(--chakra-colors-gray-900))',
+            borderColor:
+              'var(--tournament-border, var(--chakra-colors-gray-700))',
+            boxShadow: 'var(--tournament-shadow-soft)',
+          }}
         >
           <Flex
             flex={{ base: '1 1 100%', sm: '0 0 auto' }}
@@ -519,7 +524,9 @@ export default function ResultsPanel({
             gap={1}
             borderRadius="md"
             bg="gray.100"
-            _dark={{ bg: 'gray.800' }}
+            _dark={{
+              bg: 'var(--tournament-surface-muted, var(--chakra-colors-gray-800))',
+            }}
           >
             <ModeButton
               active={viewMode === 'list'}
@@ -887,7 +894,27 @@ export function ResultMatchCard({
       textAlign="left"
       borderWidth="1px"
       borderColor={accent.border}
-      _dark={{ borderColor: 'gray.700', bg: 'gray.800' }}
+      _dark={{
+        borderColor:
+          match.status === MatchStatus.IN_PROGRESS
+            ? 'rgba(45, 212, 191, 0.36)'
+            : 'var(--tournament-border, var(--chakra-colors-gray-700))',
+        bg: 'var(--tournament-surface-raised, var(--chakra-colors-gray-800))',
+        boxShadow:
+          match.status === MatchStatus.IN_PROGRESS
+            ? '0 0 0 1px rgba(45, 212, 191, 0.14), 0 18px 42px rgba(20, 184, 166, 0.14)'
+            : 'var(--tournament-shadow-soft)',
+        _hover: {
+          borderColor:
+            match.status === MatchStatus.IN_PROGRESS
+              ? 'rgba(94, 234, 212, 0.52)'
+              : 'rgba(148, 163, 184, 0.32)',
+          boxShadow:
+            match.status === MatchStatus.IN_PROGRESS
+              ? '0 0 0 1px rgba(45, 212, 191, 0.2), 0 22px 48px rgba(20, 184, 166, 0.18)'
+              : '0 18px 42px rgba(0, 0, 0, 0.3)',
+        },
+      }}
       borderTopWidth="4px"
       borderTopColor={accent.stripe}
       borderRadius="xl"
@@ -935,7 +962,10 @@ export function ResultMatchCard({
           <Text
             fontSize="sm"
             color="gray.600"
-            _dark={{ color: 'gray.300' }}
+            _dark={{
+              color:
+                'var(--tournament-text-muted, var(--chakra-colors-gray-300))',
+            }}
             lineClamp={1}
             minW={0}
           >
@@ -950,7 +980,10 @@ export function ResultMatchCard({
               fontSize="sm"
               color="gray.500"
               whiteSpace="nowrap"
-              _dark={{ color: 'gray.400' }}
+              _dark={{
+                color:
+                  'var(--tournament-text-muted, var(--chakra-colors-gray-400))',
+              }}
             >
               {timeLabel}
             </Text>
@@ -1133,7 +1166,13 @@ export function ResultsCalendarView({
         textAlign="center"
         color="gray.500"
         bg="white"
-        _dark={{ bg: 'gray.800', borderColor: 'gray.700', color: 'gray.400' }}
+        _dark={{
+          bg: 'var(--tournament-surface-raised, var(--chakra-colors-gray-800))',
+          borderColor:
+            'var(--tournament-border, var(--chakra-colors-gray-700))',
+          color: 'var(--tournament-text-muted, var(--chakra-colors-gray-400))',
+          boxShadow: 'var(--tournament-shadow-soft)',
+        }}
       >
         {t('calendar.empty')}
       </Box>
@@ -1153,7 +1192,12 @@ export function ResultsCalendarView({
             borderColor="gray.200"
             borderRadius="full"
             bg="white"
-            _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
+            _dark={{
+              bg: 'var(--tournament-surface-raised, var(--chakra-colors-gray-800))',
+              borderColor:
+                'var(--tournament-border, var(--chakra-colors-gray-700))',
+              boxShadow: 'var(--tournament-shadow-soft)',
+            }}
             w="fit-content"
             boxShadow="0 4px 16px rgba(15, 23, 42, 0.08)"
           >
@@ -1176,7 +1220,11 @@ export function ResultsCalendarView({
             borderRadius="xl"
             overflow="hidden"
             bg="white"
-            _dark={{ bg: 'gray.900', borderColor: 'gray.700' }}
+            _dark={{
+              bg: 'var(--tournament-surface-muted, var(--chakra-colors-gray-900))',
+              borderColor:
+                'var(--tournament-border, var(--chakra-colors-gray-700))',
+            }}
           >
             <CalendarHeaderCell>{t('calendar.time')}</CalendarHeaderCell>
             {visibleCourts.map((court) => (
@@ -1507,7 +1555,11 @@ function EmptyResults({ onClear }: { onClear: () => void }) {
       p={8}
       textAlign="center"
       bg="white"
-      _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
+      _dark={{
+        bg: 'var(--tournament-surface-raised, var(--chakra-colors-gray-800))',
+        borderColor: 'var(--tournament-border, var(--chakra-colors-gray-700))',
+        boxShadow: 'var(--tournament-shadow-soft)',
+      }}
     >
       <Text fontWeight="semibold" mb={3}>
         {t('filters.empty')}
@@ -1526,7 +1578,11 @@ function CalendarHeaderCell({ children }: { children: React.ReactNode }) {
       borderLeftWidth="1px"
       borderColor="gray.100"
       bg="gray.50"
-      _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
+      _dark={{
+        bg: 'var(--tournament-surface-raised, var(--chakra-colors-gray-800))',
+        borderColor: 'var(--tournament-border, var(--chakra-colors-gray-700))',
+        boxShadow: 'var(--tournament-shadow-soft)',
+      }}
       textAlign="center"
     >
       <Text fontWeight="bold">{children}</Text>
