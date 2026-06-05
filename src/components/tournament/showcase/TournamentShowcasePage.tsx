@@ -619,11 +619,17 @@ export default function TournamentShowcasePage() {
       >
         <Flex
           align="center"
-          justify="space-between"
+          justify="center"
           gap={4}
           mb={{ base: 4, md: 8 }}
+          position="relative"
         >
-          <Box minW={0}>
+          <Box
+            minW={0}
+            maxW={{ base: 'full', md: 'min(920px, 62vw)' }}
+            mx="auto"
+            textAlign="center"
+          >
             <Text
               fontSize={{ base: 'sm', md: 'md' }}
               color="cyan.200"
@@ -641,7 +647,16 @@ export default function TournamentShowcasePage() {
               {tournament?.name ?? t('tournament')}
             </Heading>
           </Box>
-          <Flex align="center" gap={2} flexShrink={0}>
+          <Flex
+            align="center"
+            gap={2}
+            flexShrink={0}
+            display={{ base: 'none', md: 'flex' }}
+            position="absolute"
+            right={0}
+            top="50%"
+            transform="translateY(-50%)"
+          >
             <Badge
               colorPalette={mode === 'matches' ? 'orange' : 'cyan'}
               px={3}

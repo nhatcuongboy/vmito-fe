@@ -163,10 +163,13 @@ function getSingleEliminationConfig(
 function getRoundRobinToSEConfig(category: Category): RoundRobinToSEConfig {
   const formatConfig =
     (category.formatConfig as Partial<RoundRobinToSEConfig> | null) ?? {};
+  const qualifiersPerGroup =
+    category.winnersPerGroup ?? formatConfig.qualifiersPerGroup;
 
   return {
     ...DEFAULT_RR_TO_SE_CONFIG,
     ...formatConfig,
+    ...(qualifiersPerGroup !== undefined ? { qualifiersPerGroup } : {}),
     roundRobin: getRoundRobinConfig(category),
   };
 }
@@ -430,18 +433,20 @@ function CompetitionInfoCard({
               )}
             >
               <Flex wrap="wrap" gap={2}>
-                {points.map((point) => (
-                  <Badge
-                    key={point.id}
-                    variant="subtle"
-                    colorPalette={point.value > 0 ? 'green' : 'gray'}
-                    borderRadius="md"
-                    px={2}
-                    py={1}
-                  >
-                    {point.value} {point.label}
-                  </Badge>
-                ))}
+                {points
+                  .filter((point) => point.value !== 0)
+                  .map((point) => (
+                    <Badge
+                      key={point.id}
+                      variant="subtle"
+                      colorPalette={point.value > 0 ? 'green' : 'gray'}
+                      borderRadius="md"
+                      px={2}
+                      py={1}
+                    >
+                      {point.value} {point.label}
+                    </Badge>
+                  ))}
               </Flex>
             </CompetitionInfoBlock>
 
@@ -469,25 +474,6 @@ function CompetitionInfoCard({
                   </HStack>
                 ))}
               </VStack>
-            </CompetitionInfoBlock>
-
-            <CompetitionInfoBlock title={tRoundRobin('standings')}>
-              <Flex wrap="wrap" gap={2}>
-                <Badge variant="subtle" colorPalette="blue" borderRadius="md">
-                  PTS · {tManage('panels.standings.points')}
-                </Badge>
-                {roundRobinConfig.standingsColumns.map((column) => (
-                  <Badge
-                    key={column.id}
-                    variant="subtle"
-                    colorPalette="gray"
-                    borderRadius="md"
-                  >
-                    {column.abbreviation} ·{' '}
-                    {tRoundRobin(`standingsItems.${column.label}`)}
-                  </Badge>
-                ))}
-              </Flex>
             </CompetitionInfoBlock>
           </>
         ) : null}
@@ -593,6 +579,7 @@ export default function TournamentHomeTab({
     []
   );
   const [sponsors, setSponsors] = useState<Sponsor[]>([]);
+  const [selectedSponsor, setSelectedSponsor] = useState<Sponsor | null>(null);
 
   const sharePath = useMemo(() => `/tournament/${slug}`, [slug]);
 
@@ -1363,24 +1350,38 @@ export default function TournamentHomeTab({
           </Flex>
 
           {sponsors.length > 0 ? (
-            <Flex wrap="wrap" gap={3}>
+            <Flex wrap="wrap" gap={2.5}>
               {sponsors.map((sponsor) => {
-                const logoBox = (
-                  <Flex
-                    align="center"
-                    justify="center"
-                    w="120px"
-                    h="72px"
+                return (
+                  <Box
+                    as="button"
+                    key={sponsor.id}
+                    title={sponsor.name}
+                    aria-label={sponsor.name}
+                    w={{ base: '86px', sm: '92px' }}
+                    h={{ base: '86px', sm: '92px' }}
                     p={2}
                     borderWidth="1px"
                     borderColor="gray.200"
                     borderRadius="lg"
                     bg="white"
                     overflow="hidden"
+                    display="flex"
+                    alignItems="center"
+                    justifyContent="center"
+                    cursor="pointer"
+                    transition="border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease"
+                    _hover={{
+                      borderColor: 'green.300',
+                      boxShadow: '0 10px 24px rgba(15, 23, 42, 0.08)',
+                      transform: 'translateY(-1px)',
+                    }}
                     _dark={{
                       bg: 'gray.900',
                       borderColor: 'gray.700',
+                      _hover: { borderColor: 'green.500' },
                     }}
+                    onClick={() => setSelectedSponsor(sponsor)}
                   >
                     {sponsor.logo ? (
                       <Image
@@ -1392,32 +1393,16 @@ export default function TournamentHomeTab({
                       />
                     ) : (
                       <Text
-                        fontSize="sm"
+                        fontSize="xs"
                         fontWeight="medium"
                         textAlign="center"
+                        lineClamp={3}
                         color="gray.700"
                         _dark={{ color: 'gray.300' }}
                       >
                         {sponsor.name}
                       </Text>
                     )}
-                  </Flex>
-                );
-
-                return sponsor.website ? (
-                  <Link
-                    key={sponsor.id}
-                    href={sponsor.website}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    title={sponsor.name}
-                    _hover={{ textDecoration: 'none', opacity: 0.85 }}
-                  >
-                    {logoBox}
-                  </Link>
-                ) : (
-                  <Box key={sponsor.id} title={sponsor.name}>
-                    {logoBox}
                   </Box>
                 );
               })}
@@ -1427,6 +1412,65 @@ export default function TournamentHomeTab({
               {t('sponsors.empty')}
             </Text>
           )}
+
+          <VModal
+            isOpen={!!selectedSponsor}
+            onClose={() => setSelectedSponsor(null)}
+            title={selectedSponsor?.name}
+            size="sm"
+            hideSecondaryAction
+          >
+            {selectedSponsor && (
+              <VStack align="stretch" gap={4}>
+                <Flex
+                  align="center"
+                  justify="center"
+                  minH="180px"
+                  p={4}
+                  borderWidth="1px"
+                  borderColor="gray.200"
+                  borderRadius="lg"
+                  bg="gray.50"
+                  _dark={{
+                    bg: 'gray.900',
+                    borderColor: 'gray.700',
+                  }}
+                >
+                  {selectedSponsor.logo ? (
+                    <Image
+                      src={selectedSponsor.logo}
+                      alt={selectedSponsor.name}
+                      maxW="100%"
+                      maxH="220px"
+                      objectFit="contain"
+                    />
+                  ) : (
+                    <Text
+                      fontSize="lg"
+                      fontWeight="semibold"
+                      textAlign="center"
+                    >
+                      {selectedSponsor.name}
+                    </Text>
+                  )}
+                </Flex>
+
+                {selectedSponsor.website && (
+                  <Link
+                    href={selectedSponsor.website}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    color="green.600"
+                    fontWeight="medium"
+                    wordBreak="break-word"
+                    _dark={{ color: 'green.300' }}
+                  >
+                    {selectedSponsor.website}
+                  </Link>
+                )}
+              </VStack>
+            )}
+          </VModal>
         </Box>
       )}
 

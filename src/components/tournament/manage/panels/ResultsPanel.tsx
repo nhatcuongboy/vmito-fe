@@ -493,7 +493,12 @@ export default function ResultsPanel({
         mb={5}
         direction={{ base: 'column', md: 'row' }}
       >
-        <Flex align="center" gap={3}>
+        <Flex
+          align={{ base: 'stretch', md: 'center' }}
+          gap={3}
+          direction={{ base: 'column', md: 'row' }}
+          minW={0}
+        >
           <Box flex={1} minW={0}>
             <Heading
               size="md"
@@ -509,13 +514,102 @@ export default function ResultsPanel({
               </Text>
             )}
           </Box>
-          <PlayerNamesToggle
-            active={showPlayerNames}
-            onToggle={() => setShowPlayerNames((prev) => !prev)}
-            title={t('showPlayerNames')}
-            label={t('showPlayerNamesBadge')}
-          />
+
+          <Flex
+            display={{ base: 'flex', md: 'none' }}
+            align="center"
+            justify="space-between"
+            gap={3}
+            w="full"
+          >
+            <PlayerNamesToggle
+              active={showPlayerNames}
+              onToggle={() => setShowPlayerNames((prev) => !prev)}
+              title={t('showPlayerNames')}
+              label={t('showPlayerNamesBadge')}
+            />
+            <Button
+              size="sm"
+              variant="outline"
+              colorPalette="gray"
+              onClick={() => setIsFilterOpen(true)}
+              flexShrink={0}
+              h={9}
+              px={3}
+            >
+              <Filter size={15} /> {t('filters.title')}
+              {activeFilterCount > 0 && (
+                <Badge ml={1} colorPalette="green" borderRadius="full">
+                  {activeFilterCount}
+                </Badge>
+              )}
+            </Button>
+          </Flex>
+
+          <Box display={{ base: 'none', md: 'block' }} flexShrink={0}>
+            <PlayerNamesToggle
+              active={showPlayerNames}
+              onToggle={() => setShowPlayerNames((prev) => !prev)}
+              title={t('showPlayerNames')}
+              label={t('showPlayerNamesBadge')}
+            />
+          </Box>
+        </Flex>
+
+        <Flex
+          align="center"
+          gap={3}
+          justify={{ base: 'stretch', md: 'flex-end' }}
+          w={{ base: 'full', md: 'auto' }}
+        >
+          <Flex
+            align="center"
+            gap={2}
+            justify="space-between"
+            w={{ base: 'full', md: 'auto' }}
+            p={1}
+            borderWidth="1px"
+            borderColor="gray.200"
+            borderRadius="lg"
+            bg="white"
+            boxShadow="sm"
+            _dark={{
+              bg: 'var(--tournament-surface, var(--chakra-colors-gray-900))',
+              borderColor:
+                'var(--tournament-border, var(--chakra-colors-gray-700))',
+              boxShadow: 'var(--tournament-shadow-soft)',
+            }}
+          >
+            <Flex
+              flex={{ base: 1, sm: '0 1 auto' }}
+              minW={0}
+              p={0.5}
+              gap={1}
+              borderRadius="md"
+              bg="gray.100"
+              _dark={{
+                bg: 'var(--tournament-surface-muted, var(--chakra-colors-gray-800))',
+              }}
+            >
+              <ModeButton
+                active={viewMode === 'list'}
+                onClick={() => setViewMode('list')}
+                icon={<List size={15} />}
+              >
+                {t('viewList')}
+              </ModeButton>
+              <ModeButton
+                active={viewMode === 'calendar'}
+                onClick={() => setViewMode('calendar')}
+                icon={<CalendarDays size={15} />}
+              >
+                {t('viewCalendar')}
+              </ModeButton>
+            </Flex>
+          </Flex>
+
           <Button
+            display={{ base: 'none', md: 'inline-flex' }}
             size="sm"
             variant="outline"
             colorPalette="gray"
@@ -531,52 +625,6 @@ export default function ResultsPanel({
               </Badge>
             )}
           </Button>
-        </Flex>
-
-        <Flex
-          align="center"
-          gap={2}
-          justify="space-between"
-          w={{ base: 'full', md: 'auto' }}
-          p={1}
-          borderWidth="1px"
-          borderColor="gray.200"
-          borderRadius="lg"
-          bg="white"
-          boxShadow="sm"
-          _dark={{
-            bg: 'var(--tournament-surface, var(--chakra-colors-gray-900))',
-            borderColor:
-              'var(--tournament-border, var(--chakra-colors-gray-700))',
-            boxShadow: 'var(--tournament-shadow-soft)',
-          }}
-        >
-          <Flex
-            flex={{ base: 1, sm: '0 1 auto' }}
-            minW={0}
-            p={0.5}
-            gap={1}
-            borderRadius="md"
-            bg="gray.100"
-            _dark={{
-              bg: 'var(--tournament-surface-muted, var(--chakra-colors-gray-800))',
-            }}
-          >
-            <ModeButton
-              active={viewMode === 'list'}
-              onClick={() => setViewMode('list')}
-              icon={<List size={15} />}
-            >
-              {t('viewList')}
-            </ModeButton>
-            <ModeButton
-              active={viewMode === 'calendar'}
-              onClick={() => setViewMode('calendar')}
-              icon={<CalendarDays size={15} />}
-            >
-              {t('viewCalendar')}
-            </ModeButton>
-          </Flex>
         </Flex>
       </Flex>
 

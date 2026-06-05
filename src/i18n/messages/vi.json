@@ -1638,8 +1638,8 @@
           },
           "competitionInfo": {
             "title": "Thể lệ thi đấu",
-            "subtitle": "Xem thể thức, cách tính điểm và thứ tự phá hòa.",
-            "modalDescription": "Thông tin thể thức, cách tính điểm và thứ tự phá hòa theo từng hạng mục.",
+            "subtitle": "Xem thể thức, cách tính điểm và thứ tự xếp hạng.",
+            "modalDescription": "Thông tin thể thức, cách tính điểm và thứ tự xếp hạng theo từng hạng mục.",
             "playoffs": "Vòng loại trực tiếp",
             "qualifiersPerGroup": "{count} đội đi tiếp mỗi bảng",
             "thirdPlace": "Tranh hạng ba"
