@@ -804,15 +804,6 @@ export default function TournamentPageShell({
     );
   }, [teamCategoryBlocks]);
 
-  const totalRegisteredTeams = useMemo(
-    () =>
-      teamCategoryBlocks.reduce(
-        (sum, categoryBlock) => sum + categoryBlock.players.length,
-        0
-      ),
-    [teamCategoryBlocks]
-  );
-
   const filteredAllPlayers = useMemo(() => {
     const query = playerSearch.trim().toLowerCase();
     if (!query) return allPlayers;
@@ -977,22 +968,7 @@ export default function TournamentPageShell({
             direction={{ base: 'column', md: 'row' }}
           >
             <Box minW={0}>
-              <Heading size="lg" mb={2}>
-                {t('tabs.teams')}
-              </Heading>
-              <HStack gap={2} wrap="wrap">
-                <Badge colorPalette="green" variant="subtle" px={3} py={1}>
-                  {t('teamsTab.totalTeams', { count: totalRegisteredTeams })}
-                </Badge>
-                <Badge colorPalette="gray" variant="subtle" px={3} py={1}>
-                  {t('teamsTab.totalCategories', {
-                    count: allCategories.length,
-                  })}
-                </Badge>
-                <Badge colorPalette="blue" variant="subtle" px={3} py={1}>
-                  {t('teamsTab.totalPlayers', { count: totalAthletes })}
-                </Badge>
-              </HStack>
+              <Heading size="lg">{t('tabs.teams')}</Heading>
             </Box>
             {canManage && (
               <Button

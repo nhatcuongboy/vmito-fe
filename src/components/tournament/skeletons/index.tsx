@@ -647,8 +647,8 @@ export function PublicTournamentPlayerSkeleton() {
           gap={6}
           p={{ base: 5, md: 7 }}
         >
-          <VStack align="stretch" gap={7} flex={1} minW={0}>
-            <Box>
+          <VStack align="stretch" gap={7} flex={1} minW={0} w="full">
+            <Box w="full">
               <ProfileSectionHeadingSkeleton width="150px" />
               <VStack align="stretch" gap={3}>
                 {repeat(2).map((_, index) => (
@@ -718,6 +718,7 @@ export function PublicTournamentTeamSkeleton() {
                     key={index}
                     align="center"
                     gap={3}
+                    w="full"
                     borderWidth="1px"
                     borderColor="gray.200"
                     borderRadius="xl"
@@ -732,7 +733,7 @@ export function PublicTournamentTeamSkeleton() {
                 ))}
               </VStack>
             </Box>
-            <Box>
+            <Box w="full">
               <ProfileSectionHeadingSkeleton width="170px" />
               <VStack align="stretch" gap={3}>
                 {repeat(2).map((_, index) => (

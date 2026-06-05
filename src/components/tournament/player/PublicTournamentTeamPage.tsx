@@ -258,13 +258,13 @@ export default function PublicTournamentTeamPage() {
               }
             />
             <Flex
-              align="flex-start"
+              align={{ base: 'stretch', md: 'flex-start' }}
               gap={6}
               p={{ base: 5, md: 7 }}
               direction={{ base: 'column', md: 'row' }}
             >
-              <VStack align="stretch" gap={7} flex={1} minW={0}>
-                <Box>
+              <VStack align="stretch" gap={7} flex={1} minW={0} w="full">
+                <Box w="full">
                   <HStack gap={2} mb={3}>
                     <Users size={18} color="var(--chakra-colors-green-600)" />
                     <Heading size="md">{t('members')}</Heading>
@@ -294,10 +294,16 @@ export default function PublicTournamentTeamPage() {
                               playerCodeById.get(member.playerId) ??
                               getTournamentPlayerCode(member.playerId)
                             }`}
+                            style={{
+                              display: 'block',
+                              width: '100%',
+                              textDecoration: 'none',
+                            }}
                           >
                             <Flex
                               align="center"
                               gap={3}
+                              w="full"
                               borderWidth="1px"
                               borderColor="gray.200"
                               borderRadius="xl"
@@ -363,7 +369,7 @@ export default function PublicTournamentTeamPage() {
                     </VStack>
                   )}
                 </Box>
-                <Box>
+                <Box w="full">
                   <HStack gap={2} mb={3}>
                     <CalendarDays
                       size={18}
@@ -380,6 +386,7 @@ export default function PublicTournamentTeamPage() {
                       {matches.map((match) => (
                         <Box
                           key={match.id}
+                          w="full"
                           borderWidth="1px"
                           borderColor="gray.200"
                           borderRadius="xl"

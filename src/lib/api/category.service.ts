@@ -1,5 +1,5 @@
 import { toaster } from '@/components/ui/toaster';
-import { api, ApiResponse } from './base';
+import { api, ApiResponse, dedupGet } from './base';
 import {
   Category,
   CategoryRegistration,
@@ -21,7 +21,7 @@ import {
 export const CategoryService = {
   // Get all categories of a tournament
   getCategories: async (tournamentId: string): Promise<Category[]> => {
-    const response = await api.get<ApiResponse<Category[]>>(
+    const response = await dedupGet<ApiResponse<Category[]>>(
       `/tournaments/${tournamentId}/categories`
     );
     return response.data.data || [];
@@ -78,7 +78,7 @@ export const CategoryService = {
   getRegistrations: async (
     categoryId: string
   ): Promise<CategoryRegistration[]> => {
-    const response = await api.get<ApiResponse<CategoryRegistration[]>>(
+    const response = await dedupGet<ApiResponse<CategoryRegistration[]>>(
       `/categories/${categoryId}/registrations`
     );
     return response.data.data || [];

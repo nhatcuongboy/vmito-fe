@@ -1,4 +1,4 @@
-import { api, ApiResponse } from './base';
+import { api, ApiResponse, dedupGet } from './base';
 import {
   AddTournamentManagerRequest,
   TournamentManager,
@@ -9,7 +9,7 @@ import {
 export const TournamentManagerService = {
   /** Current user's management access (host/admin/manager scopes) to a tournament. */
   getMyAccess: async (idOrSlug: string): Promise<TournamentMyAccess> => {
-    const response = await api.get<ApiResponse<TournamentMyAccess>>(
+    const response = await dedupGet<ApiResponse<TournamentMyAccess>>(
       `/tournaments/${idOrSlug}/my-access`
     );
     return response.data.data!;

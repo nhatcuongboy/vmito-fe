@@ -1,5 +1,5 @@
 import { toaster } from '@/components/ui/toaster';
-import { api, ApiResponse } from './base';
+import { api, ApiResponse, dedupGet } from './base';
 import { TournamentPlayer, CategoryMatch, GenderType } from './types';
 
 export type CreateTournamentPlayerPayload = {
@@ -31,7 +31,7 @@ export type UpdateTournamentPlayerPayload = {
 export const TournamentPlayerService = {
   // Get all players in a tournament
   getPlayers: async (tournamentId: string): Promise<TournamentPlayer[]> => {
-    const response = await api.get<ApiResponse<TournamentPlayer[]>>(
+    const response = await dedupGet<ApiResponse<TournamentPlayer[]>>(
       `/tournaments/${tournamentId}/players`
     );
     return response.data.data || [];

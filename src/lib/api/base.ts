@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios, { type AxiosRequestConfig, type AxiosResponse } from 'axios';
 import { toaster } from '@/components/ui/toaster';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { useAppStore } from '@/stores/useAppStore';
@@ -210,3 +210,43 @@ api.interceptors.response.use(
     return Promise.reject(error);
   }
 );
+
+// In-flight GET de-duplication.
+// Multiple components/effects on the same screen frequently request the same
+// read-only resource at the same time (e.g. all-matches, courts, umpires on the
+// tournament schedule page). Without sharing, each call fires its own network
+// request, producing the duplicated requests seen in the network panel. This
+// helper collapses identical GETs that are in flight simultaneously into a
+// single underlying request. The entry is cleared once the request settles, so
+// data fetched after a mutation is always fresh.
+const inFlightGetRequests = new Map<string, Promise<AxiosResponse<unknown>>>();
+
+const buildDedupKey = (url: string, config?: AxiosRequestConfig): string => {
+  const token =
+    typeof window !== 'undefined'
+      ? (useAuthStore.getState().accessToken ?? '')
+      : '';
+  return `${token}|${url}|${JSON.stringify(config?.params ?? null)}`;
+};
+
+/**
+ * Like `api.get`, but de-duplicates identical requests that are in flight at the
+ * same time so concurrent callers share a single network request.
+ */
+export const dedupGet = <T>(
+  url: string,
+  config?: AxiosRequestConfig
+): Promise<AxiosResponse<T>> => {
+  const key = buildDedupKey(url, config);
+  const existing = inFlightGetRequests.get(key);
+  if (existing) {
+    return existing as Promise<AxiosResponse<T>>;
+  }
+
+  const request = api.get<T>(url, config).finally(() => {
+    inFlightGetRequests.delete(key);
+  }) as Promise<AxiosResponse<T>>;
+
+  inFlightGetRequests.set(key, request as Promise<AxiosResponse<unknown>>);
+  return request;
+};

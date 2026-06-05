@@ -1,5 +1,5 @@
 import { toaster } from '@/components/ui/toaster';
-import { api, ApiResponse } from './base';
+import { api, ApiResponse, dedupGet } from './base';
 import {
   Tournament,
   TournamentStatus,
@@ -34,7 +34,7 @@ export const TournamentService = {
 
   // Get tournament by ID
   getTournament: async (id: string): Promise<Tournament> => {
-    const response = await api.get<ApiResponse<Tournament>>(
+    const response = await dedupGet<ApiResponse<Tournament>>(
       `/tournaments/${id}`
     );
     return response.data.data!;
@@ -117,7 +117,7 @@ export const TournamentService = {
 
   // Umpire management
   getUmpires: async (tournamentId: string): Promise<TournamentUmpire[]> => {
-    const response = await api.get<ApiResponse<TournamentUmpire[]>>(
+    const response = await dedupGet<ApiResponse<TournamentUmpire[]>>(
       `/tournaments/${tournamentId}/umpires`
     );
     return response.data.data || [];
@@ -243,7 +243,7 @@ export const TournamentService = {
 
   // Court management
   getCourts: async (tournamentId: string): Promise<TournamentCourt[]> => {
-    const response = await api.get<ApiResponse<TournamentCourt[]>>(
+    const response = await dedupGet<ApiResponse<TournamentCourt[]>>(
       `/tournaments/${tournamentId}/courts`
     );
     return response.data.data || [];
@@ -284,7 +284,7 @@ export const TournamentService = {
 
   // All matches across categories
   getAllMatches: async (tournamentId: string): Promise<CategoryMatch[]> => {
-    const response = await api.get<ApiResponse<CategoryMatch[]>>(
+    const response = await dedupGet<ApiResponse<CategoryMatch[]>>(
       `/tournaments/${tournamentId}/all-matches`
     );
     return response.data.data || [];
