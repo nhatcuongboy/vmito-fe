@@ -1559,7 +1559,7 @@
           "pools": "Theo bảng",
           "overall": "Tổng thể",
           "showPlayerNames": "Tên VĐV",
-          "showPlayerNamesBadge": "Show tên VĐV",
+          "showPlayerNamesBadge": "Hiện tên VĐV",
           "rankingsExplained": "Cách tính xếp hạng",
           "rankingsExplanation": "Bảng xếp hạng được sắp theo điểm, sau đó lần lượt xét hiệu số, điểm ghi được, số trận thắng và số trận đã chơi. Mục Tổng thể gộp các đội trong những bảng đang hiển thị và xếp lại theo cùng thứ tự này.",
           "viewGames": "Xem trận đấu",
@@ -3444,9 +3444,9 @@
         "court": "Sân",
         "enterResult": "Nhập kết quả",
         "viewList": "Danh sách",
-        "viewCalendar": "Calendar",
+        "viewCalendar": "Lịch",
         "showPlayerNames": "Tên VĐV",
-        "showPlayerNamesBadge": "Show tên VĐV",
+        "showPlayerNamesBadge": "Hiện tên VĐV",
         "calendar": {
           "time": "Thời gian",
           "empty": "Chưa có trận nào có lịch sân và giờ để hiển thị trên calendar."

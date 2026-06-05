@@ -424,7 +424,9 @@ export default function PublicTournamentStandingsTab({
         gap={{ base: 3, md: 3 }}
         mb={{ base: 3, md: 4 }}
       >
-        <Heading size="md">{t('title')}</Heading>
+        <Heading size="md" display={{ base: 'none', md: 'block' }}>
+          {t('title')}
+        </Heading>
 
         <HStack
           gap={2}

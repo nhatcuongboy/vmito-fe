@@ -58,6 +58,8 @@ interface Props {
   canEdit?: boolean;
   /** Optional heading override (e.g. the "Schedule" tab reuses this panel). */
   heading?: string;
+  /** Hide the local content heading on mobile when the top bar already provides context. */
+  hideHeadingOnMobile?: boolean;
   /** Optional sub-heading override. */
   description?: string;
   /** Optional navigation hook to the Rounds setup panel. */
@@ -119,6 +121,7 @@ export default function ResultsPanel({
   categories,
   canEdit = true,
   heading,
+  hideHeadingOnMobile = false,
   description,
   onOpenRoundsPanel,
 }: Props) {
@@ -492,13 +495,26 @@ export default function ResultsPanel({
       >
         <Flex align="center" gap={3}>
           <Box flex={1} minW={0}>
-            <Heading size="md">{heading ?? t('panelTitle')}</Heading>
+            <Heading
+              size="md"
+              display={
+                hideHeadingOnMobile ? { base: 'none', md: 'block' } : undefined
+              }
+            >
+              {heading ?? t('panelTitle')}
+            </Heading>
             {description && (
               <Text fontSize="sm" color="gray.500" mt={1}>
                 {description}
               </Text>
             )}
           </Box>
+          <PlayerNamesToggle
+            active={showPlayerNames}
+            onToggle={() => setShowPlayerNames((prev) => !prev)}
+            title={t('showPlayerNames')}
+            label={t('showPlayerNamesBadge')}
+          />
           <Button
             size="sm"
             variant="outline"
@@ -561,13 +577,6 @@ export default function ResultsPanel({
               {t('viewCalendar')}
             </ModeButton>
           </Flex>
-
-          <PlayerNamesToggle
-            active={showPlayerNames}
-            onToggle={() => setShowPlayerNames((prev) => !prev)}
-            title={t('showPlayerNames')}
-            label={t('showPlayerNamesBadge')}
-          />
         </Flex>
       </Flex>
 

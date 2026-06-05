@@ -968,7 +968,9 @@ export default function TournamentPageShell({
             direction={{ base: 'column', md: 'row' }}
           >
             <Box minW={0}>
-              <Heading size="lg">{t('tabs.teams')}</Heading>
+              <Heading size="lg" display={{ base: 'none', md: 'block' }}>
+                {t('tabs.teams')}
+              </Heading>
             </Box>
             {canManage && (
               <Button
@@ -1182,6 +1184,7 @@ export default function TournamentPageShell({
             categories={allCategories}
             canEdit={isHost}
             heading={t('tabs.schedule')}
+            hideHeadingOnMobile
             onOpenRoundsPanel={handleOpenRoundsPanel}
           />
         ))}
