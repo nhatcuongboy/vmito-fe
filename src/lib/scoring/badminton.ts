@@ -12,7 +12,7 @@ import { CategoryMatch, MatchFormat, MatchSet } from '@/lib/api/types';
 export interface BadmintonRules {
   pointsToWin: number;
   winBy: number;
-  cap: number;
+  cap: number | null;
   bestOf: 1 | 3 | 5;
 }
 
@@ -130,17 +130,17 @@ export function defaultRules(
 
   const pointsToWin = match.pointsToWin ?? resolveCatPoints();
   const winBy = (match.winByTwo ?? resolveCatWinByTwo()) ? 2 : 1;
-  // cap === pointsToWin means "no cap" (winBy still enforced); null treated the same.
   const capRaw =
-    match.pointCap !== undefined && match.pointCap !== null
+    match.pointCap !== undefined
       ? match.pointCap
-      : resolveCatCap();
-  const cap = capRaw ?? Math.max(pointsToWin, DEFAULT_CAP);
+      : cat
+        ? resolveCatCap()
+        : DEFAULT_CAP;
 
   return {
     pointsToWin,
     winBy,
-    cap,
+    cap: capRaw,
     bestOf: format === 'BEST_OF_5' ? 5 : format === 'BEST_OF_3' ? 3 : 1,
   };
 }
@@ -153,7 +153,8 @@ export function isSetComplete(
   const hi = Math.max(a, b);
   const lo = Math.min(a, b);
   const complete =
-    hi >= rules.cap || (hi >= rules.pointsToWin && hi - lo >= rules.winBy);
+    (rules.cap != null && hi >= rules.cap) ||
+    (hi >= rules.pointsToWin && hi - lo >= rules.winBy);
   if (!complete) return { complete: false, winner: null };
   return { complete: true, winner: a > b ? 1 : 2 };
 }

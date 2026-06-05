@@ -326,7 +326,10 @@ export default function ScoreEntryBoard({
           <Badge colorPalette="blue" variant="subtle">
             {t('ruleSummary', {
               points: rules.pointsToWin,
-              cap: rules.cap > rules.pointsToWin ? ` / ${rules.cap}` : '',
+              cap:
+                rules.cap != null && rules.cap > rules.pointsToWin
+                  ? ` / ${rules.cap}`
+                  : '',
             })}
           </Badge>
         </Flex>

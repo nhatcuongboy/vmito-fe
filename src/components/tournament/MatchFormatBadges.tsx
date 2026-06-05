@@ -45,7 +45,10 @@ export default function MatchFormatBadges({ match, category, size }: Props) {
       <Badge colorPalette="blue" variant="subtle" size={size}>
         {t('ruleSummary', {
           points: rules.pointsToWin,
-          cap: rules.cap > rules.pointsToWin ? ` / ${rules.cap}` : '',
+          cap:
+            rules.cap != null && rules.cap > rules.pointsToWin
+              ? ` / ${rules.cap}`
+              : '',
         })}
       </Badge>
     </Flex>

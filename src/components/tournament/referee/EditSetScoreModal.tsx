@@ -59,7 +59,10 @@ export default function EditSetScoreModal({
 
   // Reasonable client-side bound; server is authoritative.
   const capDisplay = rules.cap;
-  const exceedsCap = validNumbers && (p1Num > capDisplay || p2Num > capDisplay);
+  const exceedsCap =
+    validNumbers &&
+    capDisplay != null &&
+    (p1Num > capDisplay || p2Num > capDisplay);
   const setComplete =
     validNumbers && isSetCompleteFE(p1Num, p2Num, rules).complete;
   const needsCompleted = !isLatestSet;
@@ -115,7 +118,7 @@ export default function EditSetScoreModal({
             type="number"
             inputMode="numeric"
             min={0}
-            max={capDisplay}
+            max={capDisplay ?? undefined}
             value={p1}
             onChange={(e) => setP1(e.target.value)}
             textAlign="center"
@@ -140,7 +143,7 @@ export default function EditSetScoreModal({
             type="number"
             inputMode="numeric"
             min={0}
-            max={capDisplay}
+            max={capDisplay ?? undefined}
             value={p2}
             onChange={(e) => setP2(e.target.value)}
             textAlign="center"
