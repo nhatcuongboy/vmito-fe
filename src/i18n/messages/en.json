@@ -2538,6 +2538,8 @@
                 "pointCap": "Point cap",
                 "noCap": "No cap",
                 "disableCap": "Remove cap",
+                "presetTitle": "Quick rule presets",
+                "customTitle": "Customize selected stage",
                 "yes": "Yes",
                 "no": "No",
                 "save": "Save rules",

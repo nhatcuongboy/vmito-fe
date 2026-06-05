@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { Box, Flex, Heading, Text, Badge, Input } from '@chakra-ui/react';
-import { Button } from '@/components/ui/chakra-compat';
+import { Button, SimpleGrid } from '@/components/ui/chakra-compat';
 import { Field } from '@chakra-ui/react';
 import { useTranslations } from 'next-intl';
 import { Category, MatchFormat, UpdateCategoryRequest } from '@/lib/api/types';
@@ -389,22 +389,39 @@ export default function ScoringRulesCard({
       bg="white"
       _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
     >
-      <Flex justify="space-between" align="center" mb={1}>
-        <Heading size="sm">{t('scoringRules.title')}</Heading>
+      <Flex
+        justify="space-between"
+        align={{ base: 'flex-start', sm: 'center' }}
+        gap={3}
+        mb={2}
+        direction={{ base: 'column', sm: 'row' }}
+      >
+        <Box>
+          <Heading size="sm">{t('scoringRules.title')}</Heading>
+          <Text
+            fontSize="sm"
+            color="gray.600"
+            mt={1}
+            _dark={{ color: 'gray.300' }}
+          >
+            {t('scoringRules.description')}
+          </Text>
+        </Box>
         {!current.inherit && (
-          <Badge colorPalette={activePreset === 'CUSTOM' ? 'orange' : 'green'}>
+          <Badge
+            colorPalette={activePreset === 'CUSTOM' ? 'orange' : 'green'}
+            flexShrink={0}
+          >
             {t(`scoringRules.presets.${activePreset}`)}
           </Badge>
         )}
       </Flex>
-      <Text fontSize="sm" color="gray.600" mb={4} _dark={{ color: 'gray.300' }}>
-        {t('scoringRules.description')}
-      </Text>
 
-      {/* Per-stage summary of currently configured rules */}
+      {/* Per-stage summary and stage selector */}
       <Box
+        mt={5}
         mb={4}
-        p={3}
+        p={{ base: 3, md: 4 }}
         borderWidth="1px"
         borderColor="gray.200"
         borderRadius="md"
@@ -421,252 +438,389 @@ export default function ScoringRulesCard({
         >
           {t('scoringRules.summary.title')}
         </Text>
-        <Box>
+        <SimpleGrid columns={{ base: 1, md: 3 }} spacing={3}>
           {STAGES.map((stage) => {
             const eff = getEffectiveStageValues(values, stage);
+            const stagePreset = detectPreset({
+              pointsToWin: eff.pointsToWin,
+              winByTwo: eff.winByTwo,
+              pointCap: eff.pointCap,
+            });
+            const isActive = activeStage === stage;
             const isInherited = stage !== 'GROUP' && values[stage].inherit;
-            const parts: string[] = [
-              t(`scoringRules.matchFormats.${eff.matchFormat}`),
-              t('scoringRules.summary.points', { points: eff.pointsToWin }),
-            ];
-            if (eff.winByTwo) {
-              parts.push(t('scoringRules.summary.winByTwo'));
-            }
-            parts.push(
-              eff.pointCap === null
-                ? t('scoringRules.summary.noCap')
-                : t('scoringRules.summary.cap', { cap: eff.pointCap })
-            );
+            const stageOverridden = stage !== 'GROUP' && !values[stage].inherit;
 
             return (
-              <Flex
+              <Button
                 key={stage}
-                gap={2}
-                fontSize="sm"
-                py={1}
-                wrap="wrap"
-                align="baseline"
+                type="button"
+                variant="outline"
+                colorPalette="green"
+                h="auto"
+                minH="auto"
+                p={0}
+                whiteSpace="normal"
+                textAlign="left"
+                justifyContent="stretch"
+                borderColor={isActive ? 'green.500' : 'gray.200'}
+                borderWidth={isActive ? '2px' : '1px'}
+                bg={isActive ? 'green.50' : 'white'}
+                _hover={{
+                  borderColor: 'green.400',
+                  bg: 'green.50',
+                }}
+                _dark={{
+                  bg: isActive ? 'green.950' : 'gray.800',
+                  borderColor: isActive ? 'green.500' : 'gray.700',
+                }}
+                onClick={() => setActiveStage(stage)}
               >
-                <Text
-                  fontWeight="medium"
-                  color="gray.700"
-                  minW={{ base: 'auto', sm: '110px' }}
-                  _dark={{ color: 'gray.200' }}
-                >
-                  {t(`scoringRules.stages.${stage}`)}:
-                </Text>
-                <Text color="gray.600" _dark={{ color: 'gray.300' }}>
-                  {isInherited && (
-                    <Text as="span" fontStyle="italic" color="gray.500">
-                      {t('scoringRules.summary.inherited')} ·{' '}
+                <Box w="100%" p={3} minW={0}>
+                  <Flex align="center" justify="space-between" gap={2} mb={2}>
+                    <Text
+                      fontSize="sm"
+                      fontWeight="semibold"
+                      color="gray.900"
+                      truncate
+                      _dark={{ color: 'gray.50' }}
+                    >
+                      {t(`scoringRules.stages.${stage}`)}
                     </Text>
-                  )}
-                  {parts.join(' · ')}
-                </Text>
-              </Flex>
+                    {isInherited ? (
+                      <Badge colorPalette="gray" flexShrink={0}>
+                        {t('scoringRules.summary.inherited')}
+                      </Badge>
+                    ) : (
+                      <Badge
+                        colorPalette={stageOverridden ? 'green' : 'gray'}
+                        flexShrink={0}
+                      >
+                        {t(`scoringRules.presets.${stagePreset}`)}
+                      </Badge>
+                    )}
+                  </Flex>
+                  <Text
+                    fontSize="md"
+                    fontWeight="bold"
+                    color="gray.900"
+                    lineHeight="1.25"
+                    _dark={{ color: 'gray.50' }}
+                  >
+                    {t(`scoringRules.matchFormats.${eff.matchFormat}`)} ·{' '}
+                    {t('scoringRules.summary.points', {
+                      points: eff.pointsToWin,
+                    })}
+                  </Text>
+                  <Flex gap={2} mt={2} wrap="wrap">
+                    {eff.winByTwo && (
+                      <Badge colorPalette="blue">
+                        {t('scoringRules.summary.winByTwo')}
+                      </Badge>
+                    )}
+                    <Badge
+                      colorPalette={eff.pointCap === null ? 'gray' : 'purple'}
+                    >
+                      {eff.pointCap === null
+                        ? t('scoringRules.summary.noCap')
+                        : t('scoringRules.summary.cap', {
+                            cap: eff.pointCap,
+                          })}
+                    </Badge>
+                  </Flex>
+                </Box>
+              </Button>
             );
           })}
-        </Box>
+        </SimpleGrid>
       </Box>
 
-      {/* Stage tabs */}
-      <Flex gap={2} mb={3} wrap="wrap">
-        {STAGES.map((stage) => {
-          const isActive = activeStage === stage;
-          const stageOverridden = stage !== 'GROUP' && !values[stage].inherit;
-          return (
-            <Button
-              key={stage}
-              size="sm"
-              variant={isActive ? 'solid' : 'outline'}
-              colorPalette={isActive ? 'green' : undefined}
-              onClick={() => setActiveStage(stage)}
+      <Box
+        p={3}
+        mb={4}
+        borderWidth="1px"
+        borderColor="green.200"
+        borderRadius="md"
+        bg="green.50"
+        _dark={{ bg: 'green.950', borderColor: 'green.700' }}
+      >
+        <Flex align="flex-start" justify="space-between" gap={3} wrap="wrap">
+          <Box minW={0}>
+            <Text fontSize="sm" fontWeight="semibold" color="green.900">
+              {t(`scoringRules.stages.${activeStage}`)}
+            </Text>
+            <Text
+              fontSize="sm"
+              color="green.800"
+              mt={1}
+              _dark={{ color: 'green.100' }}
             >
-              {t(`scoringRules.stages.${stage}`)}
-              {stageOverridden && (
-                <Box
-                  as="span"
-                  ml={2}
-                  w="6px"
-                  h="6px"
-                  borderRadius="full"
-                  bg={isActive ? 'white' : 'green.500'}
-                  display="inline-block"
-                />
-              )}
-            </Button>
-          );
-        })}
-      </Flex>
-
-      <Text fontSize="xs" color="gray.500" mb={4} _dark={{ color: 'gray.400' }}>
-        {t(`scoringRules.stageHints.${activeStage}`)}
-      </Text>
+              {t(`scoringRules.stageHints.${activeStage}`)}
+            </Text>
+          </Box>
+          {activeStage !== 'GROUP' && current.inherit && (
+            <Badge colorPalette="green" flexShrink={0}>
+              {t('scoringRules.summary.inherited')}
+            </Badge>
+          )}
+        </Flex>
+      </Box>
 
       {/* Inherit toggle for KNOCKOUT/FINAL */}
       {stageInheritable && (
-        <Flex
-          align="center"
-          gap={3}
+        <Box
           p={3}
           mb={4}
           borderWidth="1px"
           borderColor="gray.200"
           borderRadius="md"
-          bg="gray.50"
-          _dark={{ bg: 'gray.900', borderColor: 'gray.700' }}
+          bg="white"
+          _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
         >
-          <Box flex="1">
-            <Text fontSize="sm" fontWeight="medium">
-              {t('scoringRules.inheritTitle')}
-            </Text>
-            <Text fontSize="xs" color="gray.600" _dark={{ color: 'gray.300' }}>
-              {t(
-                activeStage === 'FINAL'
-                  ? 'scoringRules.inheritHintFinal'
-                  : 'scoringRules.inheritHintKnockout'
-              )}
-            </Text>
-          </Box>
-          <Button
-            size="sm"
-            variant={current.inherit ? 'solid' : 'outline'}
-            onClick={() => handleInheritChange(true)}
+          <Flex
+            align={{ base: 'stretch', md: 'center' }}
+            gap={3}
+            direction={{ base: 'column', md: 'row' }}
           >
-            {t('scoringRules.inheritOn')}
-          </Button>
-          <Button
-            size="sm"
-            variant={!current.inherit ? 'solid' : 'outline'}
-            onClick={() => handleInheritChange(false)}
-          >
-            {t('scoringRules.inheritOff')}
-          </Button>
-        </Flex>
+            <Box flex="1" minW={0}>
+              <Text fontSize="sm" fontWeight="medium">
+                {t('scoringRules.inheritTitle')}
+              </Text>
+              <Text
+                fontSize="xs"
+                color="gray.600"
+                mt={1}
+                _dark={{ color: 'gray.300' }}
+              >
+                {t(
+                  activeStage === 'FINAL'
+                    ? 'scoringRules.inheritHintFinal'
+                    : 'scoringRules.inheritHintKnockout'
+                )}
+              </Text>
+            </Box>
+            <Flex
+              gap={1}
+              p={1}
+              borderWidth="1px"
+              borderColor="gray.200"
+              borderRadius="md"
+              bg="gray.50"
+              flexShrink={0}
+              _dark={{ bg: 'gray.900', borderColor: 'gray.700' }}
+            >
+              <Button
+                size="sm"
+                variant={current.inherit ? 'solid' : 'ghost'}
+                onClick={() => handleInheritChange(true)}
+              >
+                {t('scoringRules.inheritOn')}
+              </Button>
+              <Button
+                size="sm"
+                variant={!current.inherit ? 'solid' : 'ghost'}
+                onClick={() => handleInheritChange(false)}
+              >
+                {t('scoringRules.inheritOff')}
+              </Button>
+            </Flex>
+          </Flex>
+        </Box>
       )}
 
       {/* Preset chips */}
-      <Flex gap={2} wrap="wrap" mb={5} opacity={fieldsDisabled ? 0.4 : 1}>
-        {PRESETS.map((preset) => {
-          const isActive = !fieldsDisabled && activePreset === preset.id;
-          return (
-            <Button
-              key={preset.id}
-              size="sm"
-              variant={isActive ? 'solid' : 'outline'}
-              disabled={fieldsDisabled}
-              onClick={() => handlePresetClick(preset)}
-            >
-              {t(`scoringRules.presets.${preset.id}`)}
-            </Button>
-          );
-        })}
-      </Flex>
+      <Box
+        p={3}
+        mb={4}
+        borderWidth="1px"
+        borderColor="gray.200"
+        borderRadius="md"
+        opacity={fieldsDisabled ? 0.45 : 1}
+        _dark={{ borderColor: 'gray.700' }}
+      >
+        <Text
+          fontSize="xs"
+          fontWeight="semibold"
+          textTransform="uppercase"
+          color="gray.500"
+          mb={3}
+          _dark={{ color: 'gray.400' }}
+        >
+          {t('scoringRules.presetTitle')}
+        </Text>
+        <SimpleGrid columns={{ base: 1, sm: 2, lg: 4 }} spacing={2}>
+          {PRESETS.map((preset) => {
+            const isActive = !fieldsDisabled && activePreset === preset.id;
+            return (
+              <Button
+                key={preset.id}
+                size="sm"
+                variant={isActive ? 'solid' : 'outline'}
+                disabled={fieldsDisabled}
+                h="auto"
+                minH="48px"
+                justifyContent="flex-start"
+                textAlign="left"
+                whiteSpace="normal"
+                onClick={() => handlePresetClick(preset)}
+              >
+                <Box>
+                  <Text fontWeight="semibold">
+                    {t(`scoringRules.presets.${preset.id}`)}
+                  </Text>
+                  <Text fontSize="xs" opacity={0.8}>
+                    {t('scoringRules.summary.points', {
+                      points: preset.pointsToWin,
+                    })}
+                    {' · '}
+                    {preset.pointCap === null
+                      ? t('scoringRules.summary.noCap')
+                      : t('scoringRules.summary.cap', {
+                          cap: preset.pointCap,
+                        })}
+                  </Text>
+                </Box>
+              </Button>
+            );
+          })}
+        </SimpleGrid>
+      </Box>
 
       {/* Custom fields */}
-      <Flex gap={4} wrap="wrap" opacity={fieldsDisabled ? 0.4 : 1}>
-        <Field.Root maxW="280px">
-          <Field.Label fontSize="sm">
-            {t('scoringRules.matchFormat')}
-          </Field.Label>
-          <Flex gap={2} align="center" minH="40px" wrap="wrap">
-            {MATCH_FORMATS.map((format) => {
-              const isSelected = effectiveCurrent.matchFormat === format;
-              return (
-                <Button
-                  key={format}
-                  size="sm"
-                  variant={isSelected ? 'solid' : 'outline'}
-                  disabled={fieldsDisabled}
-                  onClick={() =>
-                    updateStage(activeStage, {
-                      matchFormat: format,
-                    })
-                  }
-                >
-                  {t(`scoringRules.matchFormats.${format}`)}
-                </Button>
-              );
-            })}
-          </Flex>
-        </Field.Root>
+      <Box
+        p={3}
+        borderWidth="1px"
+        borderColor="gray.200"
+        borderRadius="md"
+        opacity={fieldsDisabled ? 0.45 : 1}
+        _dark={{ borderColor: 'gray.700' }}
+      >
+        <Text
+          fontSize="xs"
+          fontWeight="semibold"
+          textTransform="uppercase"
+          color="gray.500"
+          mb={3}
+          _dark={{ color: 'gray.400' }}
+        >
+          {t('scoringRules.customTitle')}
+        </Text>
+        <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4}>
+          <Field.Root>
+            <Field.Label fontSize="sm">
+              {t('scoringRules.matchFormat')}
+            </Field.Label>
+            <Flex gap={2} align="center" minH="40px" wrap="wrap">
+              {MATCH_FORMATS.map((format) => {
+                const isSelected = effectiveCurrent.matchFormat === format;
+                return (
+                  <Button
+                    key={format}
+                    size="sm"
+                    variant={isSelected ? 'solid' : 'outline'}
+                    disabled={fieldsDisabled}
+                    onClick={() =>
+                      updateStage(activeStage, {
+                        matchFormat: format,
+                      })
+                    }
+                  >
+                    {t(`scoringRules.matchFormats.${format}`)}
+                  </Button>
+                );
+              })}
+            </Flex>
+          </Field.Root>
 
-        <Field.Root maxW="160px">
-          <Field.Label fontSize="sm">
-            {t('scoringRules.pointsToWin')}
-          </Field.Label>
-          <Input
-            type="number"
-            min={1}
-            max={99}
-            value={effectiveCurrent.pointsToWin}
-            disabled={fieldsDisabled}
-            onChange={(e) => {
-              const next = Number(e.target.value);
-              updateStage(activeStage, {
-                pointsToWin: Number.isFinite(next) ? next : 0,
-              });
-            }}
-          />
-        </Field.Root>
-
-        <Field.Root maxW="200px">
-          <Field.Label fontSize="sm">{t('scoringRules.winByTwo')}</Field.Label>
-          <Flex gap={2} align="center" h="40px">
-            <Button
-              size="sm"
-              variant={effectiveCurrent.winByTwo ? 'solid' : 'outline'}
-              disabled={fieldsDisabled}
-              onClick={() => updateStage(activeStage, { winByTwo: true })}
-            >
-              {t('scoringRules.yes')}
-            </Button>
-            <Button
-              size="sm"
-              variant={!effectiveCurrent.winByTwo ? 'solid' : 'outline'}
-              disabled={fieldsDisabled}
-              onClick={() => updateStage(activeStage, { winByTwo: false })}
-            >
-              {t('scoringRules.no')}
-            </Button>
-          </Flex>
-        </Field.Root>
-
-        <Field.Root maxW="240px">
-          <Field.Label fontSize="sm">{t('scoringRules.pointCap')}</Field.Label>
-          <Flex gap={2} align="center">
+          <Field.Root>
+            <Field.Label fontSize="sm">
+              {t('scoringRules.pointsToWin')}
+            </Field.Label>
             <Input
               type="number"
-              min={effectiveCurrent.pointsToWin}
+              name="pointsToWin"
+              inputMode="numeric"
+              autoComplete="off"
+              min={1}
               max={99}
-              value={effectiveCurrent.pointCap ?? ''}
-              placeholder={t('scoringRules.noCap')}
-              disabled={fieldsDisabled || effectiveCurrent.pointCap === null}
+              value={effectiveCurrent.pointsToWin}
+              disabled={fieldsDisabled}
               onChange={(e) => {
                 const next = Number(e.target.value);
                 updateStage(activeStage, {
-                  pointCap: Number.isFinite(next) && next > 0 ? next : null,
+                  pointsToWin: Number.isFinite(next) ? next : 0,
                 });
               }}
             />
-            <Button
-              size="sm"
-              variant={effectiveCurrent.pointCap === null ? 'solid' : 'outline'}
-              disabled={fieldsDisabled}
-              onClick={() =>
-                updateStage(activeStage, {
-                  pointCap:
-                    effectiveCurrent.pointCap === null ? DEFAULT_CAP : null,
-                })
-              }
-            >
-              {effectiveCurrent.pointCap === null
-                ? t('scoringRules.noCap')
-                : t('scoringRules.disableCap')}
-            </Button>
-          </Flex>
-        </Field.Root>
-      </Flex>
+          </Field.Root>
+
+          <Field.Root>
+            <Field.Label fontSize="sm">
+              {t('scoringRules.winByTwo')}
+            </Field.Label>
+            <Flex gap={2} align="center" minH="40px">
+              <Button
+                size="sm"
+                variant={effectiveCurrent.winByTwo ? 'solid' : 'outline'}
+                disabled={fieldsDisabled}
+                onClick={() => updateStage(activeStage, { winByTwo: true })}
+              >
+                {t('scoringRules.yes')}
+              </Button>
+              <Button
+                size="sm"
+                variant={!effectiveCurrent.winByTwo ? 'solid' : 'outline'}
+                disabled={fieldsDisabled}
+                onClick={() => updateStage(activeStage, { winByTwo: false })}
+              >
+                {t('scoringRules.no')}
+              </Button>
+            </Flex>
+          </Field.Root>
+
+          <Field.Root>
+            <Field.Label fontSize="sm">
+              {t('scoringRules.pointCap')}
+            </Field.Label>
+            <Flex gap={2} align="center">
+              <Input
+                type="number"
+                name="pointCap"
+                inputMode="numeric"
+                autoComplete="off"
+                min={effectiveCurrent.pointsToWin}
+                max={99}
+                value={effectiveCurrent.pointCap ?? ''}
+                placeholder={t('scoringRules.noCap')}
+                disabled={fieldsDisabled || effectiveCurrent.pointCap === null}
+                onChange={(e) => {
+                  const next = Number(e.target.value);
+                  updateStage(activeStage, {
+                    pointCap: Number.isFinite(next) && next > 0 ? next : null,
+                  });
+                }}
+              />
+              <Button
+                size="sm"
+                variant={
+                  effectiveCurrent.pointCap === null ? 'solid' : 'outline'
+                }
+                disabled={fieldsDisabled}
+                flexShrink={0}
+                onClick={() =>
+                  updateStage(activeStage, {
+                    pointCap:
+                      effectiveCurrent.pointCap === null ? DEFAULT_CAP : null,
+                  })
+                }
+              >
+                {effectiveCurrent.pointCap === null
+                  ? t('scoringRules.noCap')
+                  : t('scoringRules.disableCap')}
+              </Button>
+            </Flex>
+          </Field.Root>
+        </SimpleGrid>
+      </Box>
 
       {error && (
         <Text fontSize="sm" color="red.500" mt={3}>

@@ -2546,6 +2546,8 @@
                 "pointCap": "Điểm trần",
                 "noCap": "Không trần",
                 "disableCap": "Bỏ trần",
+                "presetTitle": "Mẫu luật nhanh",
+                "customTitle": "Tùy chỉnh vòng đang chọn",
                 "yes": "Có",
                 "no": "Không",
                 "save": "Lưu luật",

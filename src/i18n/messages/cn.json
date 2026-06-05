@@ -2516,6 +2516,8 @@
                 "pointCap": "封顶分",
                 "noCap": "不封顶",
                 "disableCap": "取消封顶",
+                "presetTitle": "快速规则模板",
+                "customTitle": "自定义当前阶段",
                 "yes": "是",
                 "no": "否",
                 "save": "保存规则",
