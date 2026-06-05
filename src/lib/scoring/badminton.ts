@@ -116,12 +116,16 @@ export function defaultRules(
   const resolveCatCap = (): number | null => {
     if (!cat) return null;
     if (stage === 'FINAL') {
-      if (cat.finalPointCap != null) return cat.finalPointCap;
-      if (cat.knockoutPointCap != null) return cat.knockoutPointCap;
+      if (cat.finalPointCap !== undefined && cat.finalPointCap !== null) {
+        return cat.finalPointCap;
+      }
+      if (cat.knockoutPointCap !== undefined && cat.knockoutPointCap !== null) {
+        return cat.knockoutPointCap;
+      }
       return cat.pointCap ?? null;
     }
     if (stage === 'KNOCKOUT') {
-      return cat.knockoutPointCap != null
+      return cat.knockoutPointCap !== undefined && cat.knockoutPointCap !== null
         ? cat.knockoutPointCap
         : (cat.pointCap ?? null);
     }
@@ -131,7 +135,7 @@ export function defaultRules(
   const pointsToWin = match.pointsToWin ?? resolveCatPoints();
   const winBy = (match.winByTwo ?? resolveCatWinByTwo()) ? 2 : 1;
   const capRaw =
-    match.pointCap !== undefined
+    match.pointCap !== undefined && match.pointCap !== null
       ? match.pointCap
       : cat
         ? resolveCatCap()
