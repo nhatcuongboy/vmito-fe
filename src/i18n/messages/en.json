@@ -3277,6 +3277,7 @@
         "randomDrawWinner": "Selected side",
         "randomDrawServe": "Serve preference",
         "randomDrawSide": "Side preference",
+        "drawing": "Drawing...",
         "drawAgain": "Draw again",
         "close": "Close",
         "swapScoreboardSides": "Swap display sides",

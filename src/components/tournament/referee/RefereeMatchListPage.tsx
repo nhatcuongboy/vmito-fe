@@ -471,7 +471,7 @@ export default function RefereeMatchListPage() {
                       active={showPlayerNames}
                       onToggle={() => setShowPlayerNames((prev) => !prev)}
                       title={tManual('showPlayerNames')}
-                      fullWidthOnMobile
+                      label={tManual('showPlayerNamesBadge')}
                     />
 
                     <Button
@@ -479,8 +479,7 @@ export default function RefereeMatchListPage() {
                       variant="outline"
                       colorPalette="gray"
                       onClick={() => setIsFilterOpen(true)}
-                      flex={{ base: 1, sm: '0 0 auto' }}
-                      minW={{ base: 0, sm: 'auto' }}
+                      flexShrink={0}
                       h={9}
                       px={3}
                     >
@@ -498,6 +497,7 @@ export default function RefereeMatchListPage() {
                       active={showPlayerNames}
                       onToggle={() => setShowPlayerNames((prev) => !prev)}
                       title={tManual('showPlayerNames')}
+                      label={tManual('showPlayerNamesBadge')}
                     />
                   </Box>
                 </Flex>

@@ -533,18 +533,60 @@ function RandomDrawModal({
     team: string;
     choice: 'serve' | 'side';
   } | null>(null);
+  const [preview, setPreview] = useState<{
+    team: string;
+    choice: 'serve' | 'side';
+  } | null>(null);
+  const [isDrawing, setIsDrawing] = useState(false);
+  const intervalRef = useRef<number | null>(null);
+  const timeoutRef = useRef<number | null>(null);
+
+  const clearDrawTimers = useCallback(() => {
+    if (intervalRef.current) {
+      window.clearInterval(intervalRef.current);
+      intervalRef.current = null;
+    }
+    if (timeoutRef.current) {
+      window.clearTimeout(timeoutRef.current);
+      timeoutRef.current = null;
+    }
+  }, []);
+
+  const pickResult = useCallback(() => {
+    const teams = [team1, team2];
+    return {
+      team: teams[randomInt(teams.length)] ?? team1,
+      choice: randomInt(2) === 0 ? 'serve' : ('side' as 'serve' | 'side'),
+    };
+  }, [team1, team2]);
 
   const runDraw = useCallback(() => {
-    const teams = [team1, team2];
-    setResult({
-      team: teams[randomInt(teams.length)] ?? team1,
-      choice: randomInt(2) === 0 ? 'serve' : 'side',
-    });
-  }, [team1, team2]);
+    clearDrawTimers();
+    setIsDrawing(true);
+    setResult(null);
+    setPreview(pickResult());
+
+    intervalRef.current = window.setInterval(() => {
+      setPreview(pickResult());
+    }, 90);
+
+    timeoutRef.current = window.setTimeout(() => {
+      const finalResult = pickResult();
+      clearDrawTimers();
+      setPreview(finalResult);
+      setResult(finalResult);
+      setIsDrawing(false);
+    }, 1400);
+  }, [clearDrawTimers, pickResult]);
 
   useEffect(() => {
     if (isOpen) runDraw();
-  }, [isOpen, runDraw]);
+    return clearDrawTimers;
+  }, [clearDrawTimers, isOpen, runDraw]);
+
+  const shownResult = preview ?? result;
+  const resultChoice = shownResult?.choice;
+  const resultTeam = shownResult?.team ?? '—';
 
   return (
     <VModal
@@ -560,8 +602,8 @@ function RandomDrawModal({
           <Button variant="outline" colorPalette="gray" onClick={onClose}>
             {t('close')}
           </Button>
-          <Button colorPalette="green" onClick={runDraw}>
-            <RefreshCw size={16} /> {t('drawAgain')}
+          <Button colorPalette="green" onClick={runDraw} disabled={isDrawing}>
+            <RefreshCw size={16} /> {isDrawing ? t('drawing') : t('drawAgain')}
           </Button>
         </HStack>
       }
@@ -595,6 +637,14 @@ function RandomDrawModal({
             display="inline-flex"
             alignItems="center"
             justifyContent="center"
+            animation={isDrawing ? 'drawSpin 0.55s linear infinite' : undefined}
+            css={{
+              '@keyframes drawSpin': {
+                from: { transform: 'rotate(0deg) scale(1)' },
+                '50%': { transform: 'rotate(180deg) scale(1.08)' },
+                to: { transform: 'rotate(360deg) scale(1)' },
+              },
+            }}
           >
             <Dices size={28} />
           </Box>
@@ -604,18 +654,28 @@ function RandomDrawModal({
             color="green.700"
             _dark={{ color: 'green.200' }}
           >
-            {t('randomDrawWinner')}
+            {isDrawing ? t('drawing') : t('randomDrawWinner')}
           </Text>
           <Text
+            key={resultTeam}
             mt={1}
             fontSize={{ base: '2xl', md: '3xl' }}
             fontWeight="black"
             lineHeight={1.15}
+            color={isDrawing ? 'gray.600' : undefined}
+            _dark={{ color: isDrawing ? 'gray.200' : undefined }}
+            animation={isDrawing ? 'drawPulse 0.18s ease-out' : undefined}
+            css={{
+              '@keyframes drawPulse': {
+                from: { opacity: 0.35, transform: 'translateY(4px)' },
+                to: { opacity: 1, transform: 'translateY(0)' },
+              },
+            }}
           >
-            {result?.team ?? '—'}
+            {resultTeam}
           </Text>
           <Badge mt={3} colorPalette="green" borderRadius="full" px={3} py={1}>
-            {result?.choice === 'serve'
+            {resultChoice === 'serve'
               ? t('randomDrawServe')
               : t('randomDrawSide')}
           </Badge>
@@ -625,8 +685,8 @@ function RandomDrawModal({
           {[team1, team2].map((team) => (
             <Badge
               key={team}
-              variant={result?.team === team ? 'solid' : 'subtle'}
-              colorPalette={result?.team === team ? 'green' : 'gray'}
+              variant={shownResult?.team === team ? 'solid' : 'subtle'}
+              colorPalette={shownResult?.team === team ? 'green' : 'gray'}
               borderRadius="full"
               px={3}
               py={1}

@@ -3255,6 +3255,7 @@
         "randomDrawWinner": "选中一方",
         "randomDrawServe": "优先发球",
         "randomDrawSide": "优先选边",
+        "drawing": "抽签中...",
         "drawAgain": "重新抽签",
         "close": "关闭",
         "swapScoreboardSides": "交换显示位置",
