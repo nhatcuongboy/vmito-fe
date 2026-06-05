@@ -3222,6 +3222,12 @@
         "email": "Email",
         "phone": "SĐT",
         "gender": "Giới tính",
+        "genderValues": {
+          "male": "Nam",
+          "female": "Nữ",
+          "other": "Khác",
+          "preferNotToSay": "Không muốn tiết lộ"
+        },
         "level": "Level",
         "levelDescription": "Mô tả level",
         "notes": "Ghi chú",
@@ -3273,6 +3279,14 @@
         "enterScores": "Nhập điểm",
         "rotateLandscape": "Xoay ngang",
         "exitLandscape": "Thoát xoay ngang",
+        "randomDraw": "Bốc thăm ngẫu nhiên",
+        "randomDrawTitle": "Bốc thăm ngẫu nhiên",
+        "randomDrawHint": "Dùng để chọn nhanh đội được quyền ưu tiên trước trận.",
+        "randomDrawWinner": "Đội được chọn",
+        "randomDrawServe": "Ưu tiên giao cầu",
+        "randomDrawSide": "Ưu tiên chọn sân",
+        "drawAgain": "Bốc lại",
+        "close": "Đóng",
         "swapScoreboardSides": "Đổi bên hiển thị",
         "showPlayerNames": "Hiện tên VĐV",
         "hidePlayerNames": "Ẩn tên VĐV",
@@ -4547,7 +4561,8 @@
     "genderValues": {
       "male": "Nam",
       "female": "Nữ",
-      "other": "Khác"
+      "other": "Khác",
+      "preferNotToSay": "Không muốn tiết lộ"
     }
   },
   "fee": {

@@ -3214,6 +3214,12 @@
         "email": "Email",
         "phone": "Phone",
         "gender": "Gender",
+        "genderValues": {
+          "male": "Male",
+          "female": "Female",
+          "other": "Other",
+          "preferNotToSay": "Prefer not to say"
+        },
         "level": "Level",
         "levelDescription": "Level description",
         "notes": "Notes",
@@ -3265,6 +3271,14 @@
         "enterScores": "Enter scores",
         "rotateLandscape": "Rotate landscape",
         "exitLandscape": "Exit landscape",
+        "randomDraw": "Random draw",
+        "randomDrawTitle": "Random draw",
+        "randomDrawHint": "Use this to quickly choose the side with first preference before the match.",
+        "randomDrawWinner": "Selected side",
+        "randomDrawServe": "Serve preference",
+        "randomDrawSide": "Side preference",
+        "drawAgain": "Draw again",
+        "close": "Close",
         "swapScoreboardSides": "Swap display sides",
         "showPlayerNames": "Show player names",
         "hidePlayerNames": "Hide player names",
@@ -4533,7 +4547,8 @@
     "genderValues": {
       "male": "Male",
       "female": "Female",
-      "other": "Other"
+      "other": "Other",
+      "preferNotToSay": "Prefer not to say"
     }
   },
   "fee": {

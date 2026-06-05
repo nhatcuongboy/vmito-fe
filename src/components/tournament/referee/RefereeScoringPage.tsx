@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter as useNextRouter } from 'next/navigation';
 import type { ReactNode } from 'react';
 import {
   Badge,
@@ -17,7 +17,7 @@ import {
 import { Button, IconButton } from '@/components/ui/chakra-compat';
 import { VModal } from '@/components/ui/VModal';
 import { useLocale, useTranslations } from 'next-intl';
-import { useRouter } from '@/i18n/config';
+import { useRouter as useI18nRouter } from '@/i18n/config';
 import {
   ArrowLeft,
   Flag,
@@ -54,6 +54,13 @@ import { useAuthStore } from '@/stores/useAuthStore';
 import { TournamentMatchListSkeleton } from '@/components/tournament/skeletons';
 import TournamentRefereeDesktopLayout from '@/components/tournament/TournamentRefereeDesktopLayout';
 
+const REFEREE_RETURN_URL_STORAGE_PREFIX = 'vmito.referee.returnUrl.';
+
+function getGenderTranslationKey(gender?: string) {
+  if (gender === 'PREFER_NOT_TO_SAY') return 'preferNotToSay';
+  return gender?.toLowerCase();
+}
+
 export default function RefereeScoringPage() {
   const params = useParams();
   const tournamentParam = String(params?.id ?? '');
@@ -62,7 +69,8 @@ export default function RefereeScoringPage() {
   const tRounds = useTranslations('pages.tournaments.scoreEntry.rounds');
   const tGuard = useTranslations('auth.guard');
   const locale = useLocale();
-  const router = useRouter();
+  const router = useI18nRouter();
+  const nextRouter = useNextRouter();
   const { user } = useAuthStore();
 
   const [match, setMatch] = useState<CategoryMatch | null>(null);
@@ -108,7 +116,18 @@ export default function RefereeScoringPage() {
     }
   }, [matchId]);
 
-  const goBack = () => router.push(`/tournament/${tournamentParam}/referee`);
+  const goBack = useCallback(() => {
+    if (typeof window !== 'undefined') {
+      const returnUrl = window.sessionStorage.getItem(
+        `${REFEREE_RETURN_URL_STORAGE_PREFIX}${tournamentParam}`
+      );
+      if (returnUrl?.includes(`/tournament/${tournamentParam}/referee`)) {
+        nextRouter.push(returnUrl);
+        return;
+      }
+    }
+    router.push(`/tournament/${tournamentParam}/referee`);
+  }, [nextRouter, router, tournamentParam]);
 
   const formatDateTime = (value?: Date | string) => {
     if (!value) return '—';
@@ -425,6 +444,9 @@ export default function RefereeScoringPage() {
                       players={side.players}
                       levelLabel={t('level')}
                       noDetailsLabel={t('noPlayerDetails')}
+                      getGenderLabel={(gender) =>
+                        t(`genderValues.${getGenderTranslationKey(gender)}`)
+                      }
                     />
                   ))}
                 </SimpleGrid>
@@ -1098,11 +1120,13 @@ function MatchSideCard({
   players,
   levelLabel,
   noDetailsLabel,
+  getGenderLabel,
 }: {
   teamName: string;
   players: MatchPlayerInfo[];
   levelLabel: string;
   noDetailsLabel: string;
+  getGenderLabel: (gender: string) => string;
 }) {
   return (
     <Box
@@ -1145,6 +1169,7 @@ function MatchSideCard({
               key={`${player.id}-${index}`}
               player={player}
               levelLabel={levelLabel}
+              getGenderLabel={getGenderLabel}
             />
           ))
         ) : (
@@ -1160,13 +1185,18 @@ function MatchSideCard({
 function PlayerInfoRow({
   player,
   levelLabel,
+  getGenderLabel,
 }: {
   player: MatchPlayerInfo;
   levelLabel: string;
+  getGenderLabel: (gender: string) => string;
 }) {
   const metas: Array<{ icon: ReactNode; value: string }> = [];
   if (player.gender)
-    metas.push({ icon: <VenusAndMars size={13} />, value: player.gender });
+    metas.push({
+      icon: <VenusAndMars size={13} />,
+      value: getGenderLabel(player.gender),
+    });
   if (player.level != null)
     metas.push({
       icon: <Signal size={13} />,

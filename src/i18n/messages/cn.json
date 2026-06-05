@@ -3192,6 +3192,12 @@
         "email": "邮箱",
         "phone": "电话",
         "gender": "性别",
+        "genderValues": {
+          "male": "男",
+          "female": "女",
+          "other": "其他",
+          "preferNotToSay": "不愿透露"
+        },
         "level": "水平",
         "levelDescription": "水平说明",
         "notes": "备注",
@@ -3243,6 +3249,14 @@
         "enterScores": "录入比分",
         "rotateLandscape": "横屏显示",
         "exitLandscape": "退出横屏",
+        "randomDraw": "随机抽签",
+        "randomDrawTitle": "随机抽签",
+        "randomDrawHint": "用于在赛前快速选择拥有优先权的一方。",
+        "randomDrawWinner": "选中一方",
+        "randomDrawServe": "优先发球",
+        "randomDrawSide": "优先选边",
+        "drawAgain": "重新抽签",
+        "close": "关闭",
         "swapScoreboardSides": "交换显示位置",
         "showPlayerNames": "显示球员姓名",
         "hidePlayerNames": "隐藏球员姓名",
@@ -4510,7 +4524,8 @@
     "genderValues": {
       "male": "男",
       "female": "女",
-      "other": "其他"
+      "other": "其他",
+      "preferNotToSay": "不愿透露"
     }
   },
   "fee": {

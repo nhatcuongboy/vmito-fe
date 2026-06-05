@@ -1,7 +1,12 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import { useParams } from 'next/navigation';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import {
+  useParams,
+  usePathname,
+  useRouter as useNextRouter,
+  useSearchParams,
+} from 'next/navigation';
 import { Box, Flex, Text, Badge, Heading } from '@chakra-ui/react';
 import { Button, VStack } from '@/components/ui/chakra-compat';
 import { useLocale, useTranslations } from 'next-intl';
@@ -43,11 +48,30 @@ import {
 } from '@/components/tournament/manage/panels/ResultsPanel';
 
 const SHOW_PLAYER_NAMES_STORAGE_KEY = 'vmito.schedule.showPlayerNames';
+const REFEREE_RETURN_URL_STORAGE_PREFIX = 'vmito.referee.returnUrl.';
+const REFEREE_MATCH_CARD_ID_PREFIX = 'referee-match-card-';
+const VIEW_MODE_PARAM = 'view';
+const SHOW_PLAYER_NAMES_PARAM = 'players';
+const FOCUS_MATCH_PARAM = 'focusMatch';
+const FILTER_PARAM_KEYS = {
+  categoryIds: 'categories',
+  rounds: 'rounds',
+  courtIds: 'courts',
+  statuses: 'statuses',
+  teamIds: 'teams',
+  dateFrom: 'from',
+  dateTo: 'to',
+} as const;
+
+type RefereeViewMode = 'list' | 'calendar';
 
 export default function RefereeMatchListPage() {
   const params = useParams();
   const tournamentParam = String(params?.id ?? '');
   const router = useRouter();
+  const nextRouter = useNextRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
   const t = useTranslations('pages.tournaments.scoreEntry');
   const tManual = useTranslations('pages.tournaments.manualScore');
   const tRounds = useTranslations('pages.tournaments.manualScore.rounds');
@@ -62,12 +86,21 @@ export default function RefereeMatchListPage() {
   const [loading, setLoading] = useState(true);
   const [canAccess, setCanAccess] = useState(true);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
-  const [filters, setFilters] = useState<ResultFilters>(EMPTY_FILTERS);
-  const [viewMode, setViewMode] = useState<'list' | 'calendar'>('list');
+  const [filters, setFilters] = useState<ResultFilters>(() =>
+    parseFiltersFromSearchParams(searchParams)
+  );
+  const [viewMode, setViewMode] = useState<RefereeViewMode>(() =>
+    parseViewMode(searchParams.get(VIEW_MODE_PARAM))
+  );
   const [showPlayerNames, setShowPlayerNames] = useState<boolean>(() => {
+    const urlValue = parseShowPlayerNames(
+      searchParams.get(SHOW_PLAYER_NAMES_PARAM)
+    );
+    if (urlValue !== null) return urlValue;
     if (typeof window === 'undefined') return false;
     return window.localStorage.getItem(SHOW_PLAYER_NAMES_STORAGE_KEY) === '1';
   });
+  const lastScrolledMatchIdRef = useRef<string | null>(null);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -76,6 +109,39 @@ export default function RefereeMatchListPage() {
       showPlayerNames ? '1' : '0'
     );
   }, [showPlayerNames]);
+
+  useEffect(() => {
+    const nextFilters = parseFiltersFromSearchParams(searchParams);
+    setFilters((prev) =>
+      areResultFiltersEqual(prev, nextFilters) ? prev : nextFilters
+    );
+
+    const nextViewMode = parseViewMode(searchParams.get(VIEW_MODE_PARAM));
+    setViewMode((prev) => (prev === nextViewMode ? prev : nextViewMode));
+
+    const nextShowPlayerNames = parseShowPlayerNames(
+      searchParams.get(SHOW_PLAYER_NAMES_PARAM)
+    );
+    if (nextShowPlayerNames !== null) {
+      setShowPlayerNames((prev) =>
+        prev === nextShowPlayerNames ? prev : nextShowPlayerNames
+      );
+    }
+  }, [searchParams]);
+
+  useEffect(() => {
+    const nextParams = buildRefereeListSearchParams(
+      searchParams,
+      filters,
+      viewMode,
+      showPlayerNames
+    );
+    const nextQuery = nextParams.toString();
+    if (nextQuery === searchParams.toString()) return;
+    nextRouter.replace(nextQuery ? `${pathname}?${nextQuery}` : pathname, {
+      scroll: false,
+    });
+  }, [filters, nextRouter, pathname, searchParams, showPlayerNames, viewMode]);
 
   const load = useCallback(async () => {
     try {
@@ -265,6 +331,65 @@ export default function RefereeMatchListPage() {
 
   const activeFilterCount = getActiveFilterCount(filters);
   const tournamentHomeHref = `/tournament/${tournamentParam}`;
+  const focusedMatchId = searchParams.get(FOCUS_MATCH_PARAM);
+
+  const getMatchCardDomId = useCallback(
+    (match: CategoryMatch) => makeMatchCardDomId(match.id),
+    []
+  );
+
+  useEffect(() => {
+    if (loading || !focusedMatchId) return;
+    if (lastScrolledMatchIdRef.current === focusedMatchId) return;
+
+    const frame = window.requestAnimationFrame(() => {
+      const element = document.getElementById(
+        makeMatchCardDomId(focusedMatchId)
+      );
+      if (!element) return;
+      element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      if (element instanceof HTMLElement) {
+        element.focus({ preventScroll: true });
+      }
+      lastScrolledMatchIdRef.current = focusedMatchId;
+    });
+
+    return () => window.cancelAnimationFrame(frame);
+  }, [filteredMatches, focusedMatchId, loading, viewMode]);
+
+  const openMatch = useCallback(
+    (match: CategoryMatch) => {
+      const nextParams = buildRefereeListSearchParams(
+        searchParams,
+        filters,
+        viewMode,
+        showPlayerNames
+      );
+      nextParams.set(FOCUS_MATCH_PARAM, match.id);
+      const query = nextParams.toString();
+      const returnUrl = query ? `${pathname}?${query}` : pathname;
+
+      if (typeof window !== 'undefined') {
+        window.sessionStorage.setItem(
+          `${REFEREE_RETURN_URL_STORAGE_PREFIX}${tournamentParam}`,
+          returnUrl
+        );
+      }
+
+      nextRouter.replace(returnUrl, { scroll: false });
+      router.push(`/tournament/${tournamentParam}/referee/${match.id}`);
+    },
+    [
+      filters,
+      nextRouter,
+      pathname,
+      router,
+      searchParams,
+      showPlayerNames,
+      tournamentParam,
+      viewMode,
+    ]
+  );
 
   const updateFilterList = <K extends ListFilterKey>(
     key: K,
@@ -319,75 +444,123 @@ export default function RefereeMatchListPage() {
                 gap={3}
                 direction={{ base: 'column', md: 'row' }}
               >
-                <Box>
-                  <Heading size="md" mb={1}>
-                    {t('title')}
-                  </Heading>
-                  <Text color="gray.500" fontSize="sm">
-                    {filteredMatches.length}/{matches.length}{' '}
-                    {tManual('panelTitle')}
-                  </Text>
-                </Box>
+                <Flex
+                  align={{ base: 'stretch', md: 'center' }}
+                  gap={3}
+                  direction={{ base: 'column', md: 'row' }}
+                  minW={0}
+                >
+                  <Box>
+                    <Heading size="md" mb={1}>
+                      {t('title')}
+                    </Heading>
+                    <Text color="gray.500" fontSize="sm">
+                      {filteredMatches.length}/{matches.length}{' '}
+                      {tManual('panelTitle')}
+                    </Text>
+                  </Box>
+
+                  <Flex
+                    display={{ base: 'flex', md: 'none' }}
+                    align="center"
+                    justify="space-between"
+                    gap={3}
+                    w="full"
+                  >
+                    <PlayerNamesToggle
+                      active={showPlayerNames}
+                      onToggle={() => setShowPlayerNames((prev) => !prev)}
+                      title={tManual('showPlayerNames')}
+                      fullWidthOnMobile
+                    />
+
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      colorPalette="gray"
+                      onClick={() => setIsFilterOpen(true)}
+                      flex={{ base: 1, sm: '0 0 auto' }}
+                      minW={{ base: 0, sm: 'auto' }}
+                      h={9}
+                      px={3}
+                    >
+                      <Filter size={15} /> {tManual('filters.title')}
+                      {activeFilterCount > 0 && (
+                        <Badge ml={1} colorPalette="green" borderRadius="full">
+                          {activeFilterCount}
+                        </Badge>
+                      )}
+                    </Button>
+                  </Flex>
+
+                  <Box display={{ base: 'none', md: 'block' }} flexShrink={0}>
+                    <PlayerNamesToggle
+                      active={showPlayerNames}
+                      onToggle={() => setShowPlayerNames((prev) => !prev)}
+                      title={tManual('showPlayerNames')}
+                    />
+                  </Box>
+                </Flex>
 
                 <Flex
                   align="center"
-                  gap={2}
-                  wrap="wrap"
-                  justify={{ base: 'stretch', md: 'end' }}
+                  gap={3}
+                  justify={{ base: 'stretch', md: 'flex-end' }}
                   w={{ base: 'full', md: 'auto' }}
-                  p={1}
-                  borderWidth="1px"
-                  borderColor="gray.200"
-                  borderRadius="lg"
-                  bg="white"
-                  boxShadow="sm"
-                  _dark={{
-                    bg: 'var(--tournament-surface, var(--chakra-colors-gray-900))',
-                    borderColor:
-                      'var(--tournament-border, var(--chakra-colors-gray-700))',
-                    boxShadow: 'var(--tournament-shadow-soft)',
-                  }}
                 >
                   <Flex
-                    flex={{ base: '1 1 100%', sm: '0 0 auto' }}
-                    p={0.5}
-                    gap={1}
-                    borderRadius="md"
-                    bg="gray.100"
+                    align="center"
+                    gap={2}
+                    justify="space-between"
+                    w={{ base: 'full', md: 'auto' }}
+                    p={1}
+                    borderWidth="1px"
+                    borderColor="gray.200"
+                    borderRadius="lg"
+                    bg="white"
+                    boxShadow="sm"
                     _dark={{
-                      bg: 'var(--tournament-surface-muted, var(--chakra-colors-gray-800))',
+                      bg: 'var(--tournament-surface, var(--chakra-colors-gray-900))',
+                      borderColor:
+                        'var(--tournament-border, var(--chakra-colors-gray-700))',
+                      boxShadow: 'var(--tournament-shadow-soft)',
                     }}
                   >
-                    <ModeButton
-                      active={viewMode === 'list'}
-                      onClick={() => setViewMode('list')}
-                      icon={<List size={15} />}
+                    <Flex
+                      flex={{ base: 1, sm: '0 1 auto' }}
+                      minW={0}
+                      p={0.5}
+                      gap={1}
+                      borderRadius="md"
+                      bg="gray.100"
+                      _dark={{
+                        bg: 'var(--tournament-surface-muted, var(--chakra-colors-gray-800))',
+                      }}
                     >
-                      {tManual('viewList')}
-                    </ModeButton>
-                    <ModeButton
-                      active={viewMode === 'calendar'}
-                      onClick={() => setViewMode('calendar')}
-                      icon={<CalendarDays size={15} />}
-                    >
-                      {tManual('viewCalendar')}
-                    </ModeButton>
+                      <ModeButton
+                        active={viewMode === 'list'}
+                        onClick={() => setViewMode('list')}
+                        icon={<List size={15} />}
+                      >
+                        {tManual('viewList')}
+                      </ModeButton>
+                      <ModeButton
+                        active={viewMode === 'calendar'}
+                        onClick={() => setViewMode('calendar')}
+                        icon={<CalendarDays size={15} />}
+                      >
+                        {tManual('viewCalendar')}
+                      </ModeButton>
+                    </Flex>
                   </Flex>
 
-                  <PlayerNamesToggle
-                    active={showPlayerNames}
-                    onToggle={() => setShowPlayerNames((prev) => !prev)}
-                    title={tManual('showPlayerNames')}
-                    fullWidthOnMobile
-                  />
-
                   <Button
+                    display={{ base: 'none', md: 'inline-flex' }}
                     size="sm"
                     variant="outline"
                     colorPalette="gray"
                     onClick={() => setIsFilterOpen(true)}
-                    flex={{ base: 1, sm: '0 0 auto' }}
-                    minW={{ base: 0, sm: 'auto' }}
+                    flexShrink={0}
                     h={9}
                     px={3}
                   >
@@ -410,15 +583,12 @@ export default function RefereeMatchListPage() {
                   matches={filteredMatches}
                   courts={Array.from(courtById.values())}
                   categoryById={categoryById}
-                  onSelect={(match) =>
-                    router.push(
-                      `/tournament/${tournamentParam}/referee/${match.id}`
-                    )
-                  }
+                  onSelect={openMatch}
                   resolveRoundOrGroupLabel={resolveRoundOrGroupLabel}
                   courtAbbreviation={courtAbbreviation}
                   allMatches={matches}
                   showPlayerNames={showPlayerNames}
+                  getMatchCardDomId={getMatchCardDomId}
                 />
               ) : (
                 groups.map((group) => (
@@ -446,16 +616,13 @@ export default function RefereeMatchListPage() {
                           match={match}
                           categoryName={group.name}
                           canEdit
-                          onSelect={() =>
-                            router.push(
-                              `/tournament/${tournamentParam}/referee/${match.id}`
-                            )
-                          }
+                          onSelect={openMatch}
                           roundOrGroupLabel={resolveRoundOrGroupLabel(match)}
                           courtAbbreviation={courtAbbreviation}
                           allMatches={matches}
                           category={categoryById.get(match.categoryId)}
                           showPlayerNames={showPlayerNames}
+                          domId={getMatchCardDomId(match)}
                         />
                       ))}
                     </VStack>
@@ -495,6 +662,112 @@ type ListFilterKey =
   | 'courtIds'
   | 'statuses'
   | 'teamIds';
+
+function makeMatchCardDomId(matchId: string) {
+  return `${REFEREE_MATCH_CARD_ID_PREFIX}${matchId}`;
+}
+
+function parseViewMode(raw: string | null): RefereeViewMode {
+  return raw === 'calendar' ? 'calendar' : 'list';
+}
+
+function parseShowPlayerNames(raw: string | null) {
+  if (raw === '1' || raw === 'true') return true;
+  if (raw === '0' || raw === 'false') return false;
+  return null;
+}
+
+function parseCsv(raw: string | null) {
+  return raw
+    ? raw
+        .split(',')
+        .map((item) => item.trim())
+        .filter(Boolean)
+    : [];
+}
+
+function parseStatuses(raw: string | null): ResultFilters['statuses'] {
+  return parseCsv(raw).filter(
+    (status): status is ResultFilters['statuses'][number] =>
+      status === 'upcoming' ||
+      status === 'finished' ||
+      status === 'cancelled' ||
+      status === 'forfeited'
+  );
+}
+
+function parseFiltersFromSearchParams(
+  searchParams: URLSearchParams | ReadonlyURLSearchParamsLike
+): ResultFilters {
+  return {
+    categoryIds: parseCsv(searchParams.get(FILTER_PARAM_KEYS.categoryIds)),
+    rounds: parseCsv(searchParams.get(FILTER_PARAM_KEYS.rounds)),
+    courtIds: parseCsv(searchParams.get(FILTER_PARAM_KEYS.courtIds)),
+    statuses: parseStatuses(searchParams.get(FILTER_PARAM_KEYS.statuses)),
+    teamIds: parseCsv(searchParams.get(FILTER_PARAM_KEYS.teamIds)),
+    dateFrom: searchParams.get(FILTER_PARAM_KEYS.dateFrom) ?? '',
+    dateTo: searchParams.get(FILTER_PARAM_KEYS.dateTo) ?? '',
+  };
+}
+
+function buildRefereeListSearchParams(
+  current: URLSearchParams | ReadonlyURLSearchParamsLike,
+  filters: ResultFilters,
+  viewMode: RefereeViewMode,
+  showPlayerNames: boolean
+) {
+  const params = new URLSearchParams(current.toString());
+
+  setCsvParam(params, FILTER_PARAM_KEYS.categoryIds, filters.categoryIds);
+  setCsvParam(params, FILTER_PARAM_KEYS.rounds, filters.rounds);
+  setCsvParam(params, FILTER_PARAM_KEYS.courtIds, filters.courtIds);
+  setCsvParam(params, FILTER_PARAM_KEYS.statuses, filters.statuses);
+  setCsvParam(params, FILTER_PARAM_KEYS.teamIds, filters.teamIds);
+  setStringParam(params, FILTER_PARAM_KEYS.dateFrom, filters.dateFrom);
+  setStringParam(params, FILTER_PARAM_KEYS.dateTo, filters.dateTo);
+  params.set(VIEW_MODE_PARAM, viewMode);
+  params.set(SHOW_PLAYER_NAMES_PARAM, showPlayerNames ? '1' : '0');
+
+  return params;
+}
+
+function setCsvParam(
+  params: URLSearchParams,
+  key: string,
+  values: readonly string[]
+) {
+  if (values.length > 0) {
+    params.set(key, values.join(','));
+  } else {
+    params.delete(key);
+  }
+}
+
+function setStringParam(params: URLSearchParams, key: string, value: string) {
+  if (value) {
+    params.set(key, value);
+  } else {
+    params.delete(key);
+  }
+}
+
+function areResultFiltersEqual(a: ResultFilters, b: ResultFilters) {
+  return (
+    areStringArraysEqual(a.categoryIds, b.categoryIds) &&
+    areStringArraysEqual(a.rounds, b.rounds) &&
+    areStringArraysEqual(a.courtIds, b.courtIds) &&
+    areStringArraysEqual(a.statuses, b.statuses) &&
+    areStringArraysEqual(a.teamIds, b.teamIds) &&
+    a.dateFrom === b.dateFrom &&
+    a.dateTo === b.dateTo
+  );
+}
+
+function areStringArraysEqual(a: readonly string[], b: readonly string[]) {
+  return a.length === b.length && a.every((value, index) => value === b[index]);
+}
+
+type ReadonlyURLSearchParamsLike = Pick<URLSearchParams, 'get' | 'toString'>;
 
 function EmptyRefereeResults({ onClear }: { onClear: () => void }) {
   const t = useTranslations('pages.tournaments.manualScore');

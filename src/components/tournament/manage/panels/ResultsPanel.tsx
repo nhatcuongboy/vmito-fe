@@ -888,6 +888,7 @@ export function ResultMatchCard({
   allMatches,
   category,
   showPlayerNames = false,
+  domId,
 }: {
   match: CategoryMatch;
   /** Category name shown as a badge on the card. */
@@ -906,6 +907,8 @@ export function ResultMatchCard({
   category?: Category;
   /** When true, render the joined player full names instead of pair/team name. */
   showPlayerNames?: boolean;
+  /** Optional DOM id for restoring scroll/focus from another route. */
+  domId?: string;
 }) {
   const t = useTranslations('pages.tournaments.manualScore');
   const tRounds = useTranslations('pages.tournaments.manualScore.rounds');
@@ -939,6 +942,7 @@ export function ResultMatchCard({
 
   return (
     <Box
+      id={domId}
       w="full"
       textAlign="left"
       borderWidth="1px"
@@ -1146,6 +1150,7 @@ export function ResultsCalendarView({
   courtAbbreviation,
   allMatches,
   showPlayerNames,
+  getMatchCardDomId,
 }: {
   matches: CategoryMatch[];
   courts: TournamentCourt[];
@@ -1155,6 +1160,7 @@ export function ResultsCalendarView({
   courtAbbreviation?: string;
   allMatches: CategoryMatch[];
   showPlayerNames?: boolean;
+  getMatchCardDomId?: (match: CategoryMatch) => string;
 }) {
   const t = useTranslations('pages.tournaments.manualScore');
   const locale = useLocale();
@@ -1324,6 +1330,7 @@ export function ResultsCalendarView({
                             allMatches={allMatches}
                             category={categoryById.get(match.categoryId)}
                             showPlayerNames={showPlayerNames}
+                            domId={getMatchCardDomId?.(match)}
                             compact
                           />
                         ))}

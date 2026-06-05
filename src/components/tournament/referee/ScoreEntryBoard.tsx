@@ -1,14 +1,17 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Box, Flex, Text, Badge } from '@chakra-ui/react';
+import { Box, Flex, Text, Badge, HStack, VStack } from '@chakra-ui/react';
 import { Button, IconButton } from '@/components/ui/chakra-compat';
+import { VModal } from '@/components/ui/VModal';
 import { useTranslations } from 'next-intl';
 import {
   ArrowLeftRight,
   Check,
+  Dices,
   Flag,
   Minus,
+  RefreshCw,
   Undo2,
   Users,
   Wifi,
@@ -132,6 +135,7 @@ export default function ScoreEntryBoard({
   );
   const [busy, setBusy] = useState(false);
   const [endOpen, setEndOpen] = useState(false);
+  const [tossOpen, setTossOpen] = useState(false);
   const [editingSetIndex, setEditingSetIndex] = useState<number | null>(null);
   const [showPlayerNames, setShowPlayerNames] = useState(() => {
     if (typeof window === 'undefined') return false;
@@ -342,6 +346,16 @@ export default function ScoreEntryBoard({
             {t('currentSet')} {current?.setNumber ?? 1}
           </Text>
           <IconButton
+            aria-label={t('randomDraw')}
+            title={t('randomDraw')}
+            size="sm"
+            variant="ghost"
+            colorPalette="gray"
+            onClick={() => setTossOpen(true)}
+          >
+            <Dices size={16} />
+          </IconButton>
+          <IconButton
             aria-label={t('swapScoreboardSides')}
             title={t('swapScoreboardSides')}
             size="sm"
@@ -465,6 +479,13 @@ export default function ScoreEntryBoard({
         }}
       />
 
+      <RandomDrawModal
+        isOpen={tossOpen}
+        onClose={() => setTossOpen(false)}
+        team1={team1}
+        team2={team2}
+      />
+
       <EditSetScoreModal
         isOpen={editingSetIndex !== null}
         onClose={() => setEditingSetIndex(null)}
@@ -483,6 +504,142 @@ export default function ScoreEntryBoard({
         }}
       />
     </Flex>
+  );
+}
+
+function randomInt(max: number): number {
+  if (max <= 0) return 0;
+  if (typeof crypto !== 'undefined' && 'getRandomValues' in crypto) {
+    const values = new Uint32Array(1);
+    crypto.getRandomValues(values);
+    return values[0] % max;
+  }
+  return Math.floor(Math.random() * max);
+}
+
+function RandomDrawModal({
+  isOpen,
+  onClose,
+  team1,
+  team2,
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+  team1: string;
+  team2: string;
+}) {
+  const t = useTranslations('pages.tournaments.scoreEntry');
+  const [result, setResult] = useState<{
+    team: string;
+    choice: 'serve' | 'side';
+  } | null>(null);
+
+  const runDraw = useCallback(() => {
+    const teams = [team1, team2];
+    setResult({
+      team: teams[randomInt(teams.length)] ?? team1,
+      choice: randomInt(2) === 0 ? 'serve' : 'side',
+    });
+  }, [team1, team2]);
+
+  useEffect(() => {
+    if (isOpen) runDraw();
+  }, [isOpen, runDraw]);
+
+  return (
+    <VModal
+      isOpen={isOpen}
+      onClose={onClose}
+      title={t('randomDrawTitle')}
+      size="md"
+      titleAlign="center"
+      hideSecondaryAction
+      closeButtonAriaLabel={t('cancel')}
+      footer={
+        <HStack w="full" justify="space-between" gap={3}>
+          <Button variant="outline" colorPalette="gray" onClick={onClose}>
+            {t('close')}
+          </Button>
+          <Button colorPalette="green" onClick={runDraw}>
+            <RefreshCw size={16} /> {t('drawAgain')}
+          </Button>
+        </HStack>
+      }
+    >
+      <VStack align="stretch" gap={4}>
+        <Text textAlign="center" color="gray.500" _dark={{ color: 'gray.400' }}>
+          {t('randomDrawHint')}
+        </Text>
+
+        <Box
+          borderWidth="1px"
+          borderColor="green.200"
+          borderRadius="2xl"
+          bg="green.50"
+          px={{ base: 4, md: 5 }}
+          py={{ base: 5, md: 6 }}
+          textAlign="center"
+          _dark={{
+            bg: 'rgba(22, 163, 74, 0.12)',
+            borderColor: 'green.700',
+          }}
+        >
+          <Box
+            mx="auto"
+            mb={3}
+            w="56px"
+            h="56px"
+            borderRadius="full"
+            bg="green.500"
+            color="white"
+            display="inline-flex"
+            alignItems="center"
+            justifyContent="center"
+          >
+            <Dices size={28} />
+          </Box>
+          <Text
+            fontSize="sm"
+            fontWeight="semibold"
+            color="green.700"
+            _dark={{ color: 'green.200' }}
+          >
+            {t('randomDrawWinner')}
+          </Text>
+          <Text
+            mt={1}
+            fontSize={{ base: '2xl', md: '3xl' }}
+            fontWeight="black"
+            lineHeight={1.15}
+          >
+            {result?.team ?? '—'}
+          </Text>
+          <Badge mt={3} colorPalette="green" borderRadius="full" px={3} py={1}>
+            {result?.choice === 'serve'
+              ? t('randomDrawServe')
+              : t('randomDrawSide')}
+          </Badge>
+        </Box>
+
+        <Flex gap={2} align="center" justify="center" flexWrap="wrap">
+          {[team1, team2].map((team) => (
+            <Badge
+              key={team}
+              variant={result?.team === team ? 'solid' : 'subtle'}
+              colorPalette={result?.team === team ? 'green' : 'gray'}
+              borderRadius="full"
+              px={3}
+              py={1}
+              maxW="full"
+            >
+              <Text as="span" truncate>
+                {team}
+              </Text>
+            </Badge>
+          ))}
+        </Flex>
+      </VStack>
+    </VModal>
   );
 }
 
