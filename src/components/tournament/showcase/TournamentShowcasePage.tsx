@@ -19,6 +19,7 @@ import {
   Text,
 } from '@chakra-ui/react';
 import {
+  EyeOff,
   Maximize,
   Minimize,
   Pause,
@@ -613,7 +614,7 @@ export default function TournamentShowcasePage() {
         minH="100dvh"
         direction="column"
         px={{ base: 4, md: 8, xl: 12 }}
-        pt={controlsHidden ? { base: 4, md: 8 } : { base: 28, md: 24 }}
+        pt={controlsHidden ? { base: 4, md: 8 } : { base: 24, md: 24 }}
         pb={{ base: 6, md: 10 }}
       >
         <Flex
@@ -751,17 +752,26 @@ function ShowcaseToolbar({
       left={0}
       right={0}
       zIndex={20}
-      px={{ base: 3, md: 5 }}
-      py={3}
-      gap={3}
-      align="center"
-      wrap="wrap"
+      direction={{ base: 'column', md: 'row' }}
+      px={{ base: 2.5, md: 5 }}
+      py={{ base: 2, md: 3 }}
+      gap={{ base: 2, md: 3 }}
+      align={{ base: 'stretch', md: 'center' }}
       bg="rgba(8, 9, 13, 0.82)"
       backdropFilter="blur(16px)"
       borderBottomWidth="1px"
       borderColor="whiteAlpha.200"
     >
-      <Flex gap={2} wrap="wrap">
+      <Flex
+        gap={{ base: 1.5, md: 2 }}
+        overflowX={{ base: 'auto', md: 'visible' }}
+        pb={{ base: 0.5, md: 0 }}
+        css={{
+          scrollbarWidth: 'none',
+          WebkitOverflowScrolling: 'touch',
+          '&::-webkit-scrollbar': { display: 'none' },
+        }}
+      >
         <ToolbarChip
           active={mode === 'random'}
           onClick={() => onMode('random')}
@@ -792,19 +802,38 @@ function ShowcaseToolbar({
         </ToolbarChip>
       </Flex>
 
-      <Flex gap={2} wrap="wrap">
-        {DURATION_OPTIONS.map((option) => (
-          <ToolbarChip
-            key={option}
-            active={duration === option}
-            onClick={() => onDuration(option)}
-          >
-            {option}s
-          </ToolbarChip>
-        ))}
-      </Flex>
+      <Flex
+        align="center"
+        gap={{ base: 1.5, md: 2 }}
+        overflowX={{ base: 'auto', md: 'visible' }}
+        pb={{ base: 0.5, md: 0 }}
+        css={{
+          scrollbarWidth: 'none',
+          WebkitOverflowScrolling: 'touch',
+          '&::-webkit-scrollbar': { display: 'none' },
+        }}
+      >
+        <Flex
+          gap={1}
+          p={1}
+          flexShrink={0}
+          bg="whiteAlpha.100"
+          borderWidth="1px"
+          borderColor="whiteAlpha.200"
+          borderRadius="md"
+        >
+          {DURATION_OPTIONS.map((option) => (
+            <ToolbarChip
+              key={option}
+              active={duration === option}
+              onClick={() => onDuration(option)}
+              compact
+            >
+              {option}s
+            </ToolbarChip>
+          ))}
+        </Flex>
 
-      <Flex gap={2} wrap="wrap">
         <ToolbarChip
           active={order === 'random'}
           onClick={() => onOrder('random')}
@@ -819,25 +848,32 @@ function ShowcaseToolbar({
         >
           {t('scheduleOrder')}
         </ToolbarChip>
+
+        <Box flex={{ base: '0 0 8px', md: 1 }} />
+
+        <HeaderActionButton
+          label={isPaused ? t('play') : t('pause')}
+          onClick={onPauseToggle}
+          icon={isPaused ? <Play size={16} /> : <Pause size={16} />}
+          highlight
+        />
+        <HeaderActionButton
+          label={t('share')}
+          onClick={onShare}
+          icon={<Share2 size={16} />}
+        />
+        <HeaderActionButton
+          label={isFullscreen ? t('exitFullscreen') : t('fullscreen')}
+          onClick={onFullscreen}
+          icon={isFullscreen ? <Minimize size={16} /> : <Maximize size={16} />}
+        />
+        <HeaderActionButton
+          label={t('hideControls')}
+          onClick={onToggleControls}
+          icon={<EyeOff size={16} />}
+          subtle
+        />
       </Flex>
-
-      <Box flex="1" />
-
-      <Button size="sm" variant="outline" onClick={onPauseToggle}>
-        {isPaused ? <Play size={16} /> : <Pause size={16} />}
-        {isPaused ? t('play') : t('pause')}
-      </Button>
-      <Button size="sm" variant="outline" onClick={onShare}>
-        <Share2 size={16} />
-        {t('share')}
-      </Button>
-      <Button size="sm" variant="outline" onClick={onFullscreen}>
-        {isFullscreen ? <Minimize size={16} /> : <Maximize size={16} />}
-        {isFullscreen ? t('exitFullscreen') : t('fullscreen')}
-      </Button>
-      <Button size="sm" variant="ghost" onClick={onToggleControls}>
-        {t('hideControls')}
-      </Button>
     </Flex>
   );
 }
@@ -846,11 +882,13 @@ function ToolbarChip({
   active,
   onClick,
   icon,
+  compact = false,
   children,
 }: {
   active: boolean;
   onClick: () => void;
   icon?: React.ReactNode;
+  compact?: boolean;
   children: React.ReactNode;
 }) {
   return (
@@ -858,23 +896,61 @@ function ToolbarChip({
       as="button"
       onClick={onClick}
       align="center"
-      gap={2}
-      px={3}
-      py={2}
-      minH="36px"
+      justify="center"
+      gap={compact ? 0 : 2}
+      px={compact ? 2.5 : { base: 2.5, md: 3 }}
+      py={{ base: 1.5, md: 2 }}
+      minH={{ base: '32px', md: '36px' }}
+      minW={compact ? '42px' : 'max-content'}
+      flexShrink={0}
       borderRadius="md"
       bg={active ? 'cyan.400' : 'whiteAlpha.100'}
       color={active ? 'gray.950' : 'whiteAlpha.900'}
       borderWidth="1px"
       borderColor={active ? 'cyan.200' : 'whiteAlpha.200'}
-      fontSize="sm"
+      fontSize={{ base: 'xs', md: 'sm' }}
       fontWeight="bold"
+      whiteSpace="nowrap"
       cursor="pointer"
       _hover={{ borderColor: 'cyan.200' }}
     >
       {icon}
       {children}
     </Flex>
+  );
+}
+
+function HeaderActionButton({
+  label,
+  onClick,
+  icon,
+  highlight = false,
+  subtle = false,
+}: {
+  label: string;
+  onClick: () => void;
+  icon: React.ReactNode;
+  highlight?: boolean;
+  subtle?: boolean;
+}) {
+  return (
+    <Button
+      size="sm"
+      variant={subtle ? 'ghost' : 'outline'}
+      onClick={onClick}
+      aria-label={label}
+      minW={{ base: '34px', md: 'auto' }}
+      h={{ base: '34px', md: '36px' }}
+      px={{ base: 2, md: 3 }}
+      flexShrink={0}
+      color={highlight ? 'green.300' : undefined}
+      borderColor={highlight ? 'green.700' : undefined}
+    >
+      {icon}
+      <Box as="span" display={{ base: 'none', md: 'inline' }}>
+        {label}
+      </Box>
+    </Button>
   );
 }
 
@@ -1115,15 +1191,15 @@ function PlayerShowcase({
         >
           {player.name}
         </Heading>
-        <Text
-          fontSize={{ base: 'md', md: 'xl' }}
-          color="whiteAlpha.800"
-          maxW="46rem"
-        >
-          {slide.categories.length > 0
-            ? slide.categories.join(' / ')
-            : t('athleteSpotlight')}
-        </Text>
+        {slide.categories.length === 0 && (
+          <Text
+            fontSize={{ base: 'md', md: 'xl' }}
+            color="whiteAlpha.800"
+            maxW="46rem"
+          >
+            {t('athleteSpotlight')}
+          </Text>
+        )}
       </Flex>
     </Flex>
   );

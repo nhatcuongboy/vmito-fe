@@ -1,8 +1,8 @@
 'use client';
 
-import { useState } from 'react';
-import { Box, Text, Flex } from '@chakra-ui/react';
-import { Button } from '@/components/ui/chakra-compat';
+import { useEffect, useState } from 'react';
+import { Box, Text, Flex, Textarea, VStack } from '@chakra-ui/react';
+import { Button, Input } from '@/components/ui/chakra-compat';
 import {
   Modal,
   ModalHeader,
@@ -10,6 +10,7 @@ import {
   ModalFooter,
   ModalCloseButton,
 } from '@/components/ui/ChakraModal';
+import { Field } from '@/components/ui/Field';
 import { useTranslations } from 'next-intl';
 
 import { CategoryService } from '@/lib/api/category.service';
@@ -42,11 +43,19 @@ export default function EndMatchConfirmModal({
 }: Props) {
   const t = useTranslations('pages.tournaments.scoreEntry');
   const [submitting, setSubmitting] = useState(false);
+  const [refereeName, setRefereeName] = useState('');
+  const [notes, setNotes] = useState('');
 
   const { complete, winnerSide } = isMatchComplete(sets, rules);
   const team1 = getTeamLabel(match, 1);
   const team2 = getTeamLabel(match, 2);
   const winnerName = winnerSide === 1 ? team1 : winnerSide === 2 ? team2 : null;
+
+  useEffect(() => {
+    if (!isOpen) return;
+    setRefereeName(match.refereeName ?? '');
+    setNotes(match.notes ?? '');
+  }, [isOpen, match.id, match.notes, match.refereeName]);
 
   const regIdOfPosition = (pos: number) =>
     match.participants?.find((p) => p.position === pos)?.categoryRegistrationId;
@@ -62,6 +71,8 @@ export default function EndMatchConfirmModal({
           : winnerSide === 2
             ? regIdOfPosition(2)
             : undefined;
+      const trimmedRefereeName = refereeName.trim();
+      const trimmedNotes = notes.trim();
 
       const resp = await CategoryService.endMatch(match.id, {
         score: buildScoreString(sets),
@@ -70,6 +81,8 @@ export default function EndMatchConfirmModal({
         player1Score: total1,
         player2Score: total2,
         ...(isDoubles && { player3Score: total1, player4Score: total2 }),
+        ...(trimmedRefereeName && { refereeName: trimmedRefereeName }),
+        ...(trimmedNotes && { notes: trimmedNotes }),
       });
       onEnded(resp);
     } finally {
@@ -78,7 +91,7 @@ export default function EndMatchConfirmModal({
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} size="sm">
+    <Modal isOpen={isOpen} onClose={onClose} size="md">
       <ModalHeader>{t('confirmEndMatch')}</ModalHeader>
       <ModalCloseButton onClose={onClose} />
       <ModalBody>
@@ -108,6 +121,26 @@ export default function EndMatchConfirmModal({
             </Flex>
           )}
         </Box>
+        <VStack align="stretch" gap={3} mt={4}>
+          <Field label={t('refereeName')}>
+            <Input
+              value={refereeName}
+              onChange={(event) => setRefereeName(event.target.value)}
+              placeholder={t('refereeNamePlaceholder')}
+              disabled={submitting}
+            />
+          </Field>
+          <Field label={t('notes')}>
+            <Textarea
+              value={notes}
+              onChange={(event) => setNotes(event.target.value)}
+              placeholder={t('matchNotesPlaceholder')}
+              disabled={submitting}
+              rows={3}
+              resize="vertical"
+            />
+          </Field>
+        </VStack>
       </ModalBody>
       <ModalFooter>
         <Button variant="outline" onClick={onClose} disabled={submitting}>

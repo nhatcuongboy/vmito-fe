@@ -750,12 +750,35 @@ export interface Tournament {
   umpires?: TournamentUmpire[];
   scoringDevices?: TournamentScoringDevice[];
   courts?: TournamentCourt[];
+  sponsors?: Sponsor[];
   _count?: {
     players: number;
     pairs: number;
     categories: number;
   };
 }
+
+export interface Sponsor {
+  id: string;
+  tournamentId: string;
+  name: string;
+  logo?: string | null;
+  logoPublicId?: string | null;
+  website?: string | null;
+  displayOrder: number;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface CreateSponsorRequest {
+  name: string;
+  logo?: string;
+  logoPublicId?: string;
+  website?: string;
+  displayOrder?: number;
+}
+
+export type UpdateSponsorRequest = Partial<CreateSponsorRequest>;
 
 export enum CategoryFormat {
   ROUND_ROBIN = 'ROUND_ROBIN',
@@ -862,6 +885,7 @@ export interface CategoryMatch {
   winnerId?: string;
   isDraw: boolean;
   isForfeit?: boolean; // Decided by forfeit/walkover: winnerId wins, the other forfeited
+  refereeName?: string | null; // Name entered by the referee when ending the match
   // Score breakdown for group stage calculations (total across all sets)
   player1Score?: number; // Sum of all sets
   player2Score?: number; // Sum of all sets
@@ -874,7 +898,7 @@ export interface CategoryMatch {
   pointsToWin?: number | null;
   winByTwo?: boolean | null;
   pointCap?: number | null;
-  notes?: string;
+  notes?: string | null;
   refereeId?: string; // Assigned referee (TournamentUmpire id)
   referee?: TournamentUmpire | null;
   createdAt: Date;
@@ -1075,7 +1099,8 @@ export interface EndCategoryMatchRequest {
   player4Score?: number; // For doubles: total points (sum of all sets)
   player1Points?: number; // Manual standings points for side 1 (pointsEarning = 'manual')
   player2Points?: number; // Manual standings points for side 2 (pointsEarning = 'manual')
-  notes?: string;
+  notes?: string | null;
+  refereeName?: string | null;
 }
 
 // ─── Live scoring / scoreboard types ───

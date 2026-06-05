@@ -263,6 +263,7 @@ export const VSelect = ({
   ...props
 }: VSelectProps) => {
   const isSelectDisabled = isDisabled || disabled;
+  const dropdownZIndex = 2500;
 
   // Extract options from children
   const items = useMemo(() => extractOptionsFromChildren(children), [children]);
@@ -383,7 +384,7 @@ export const VSelect = ({
         )}
       </Box>
       <Portal>
-        <SelectPositioner zIndex="popover">
+        <SelectPositioner zIndex={dropdownZIndex}>
           <SelectContent
             bg={{ base: 'white', _dark: 'gray.800' }}
             boxShadow="lg"
@@ -394,12 +395,12 @@ export const VSelect = ({
             minW="var(--reference-width)"
             maxH="300px"
             overflowY="auto"
-            zIndex="popover"
+            zIndex={dropdownZIndex}
           >
             {items.map((item) => (
               <SelectItem
                 key={item.value}
-                item={item.value}
+                item={item}
                 _hover={{ bg: { base: 'gray.50', _dark: 'whiteAlpha.50' } }}
                 _selected={{
                   bg: { base: 'brand.50', _dark: 'brand.900/40' },

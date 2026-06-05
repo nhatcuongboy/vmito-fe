@@ -10,8 +10,10 @@ import {
   CategoryFormat,
   MatchFormat,
   UpdateCategoryRequest,
+  Sponsor,
 } from '@/lib/api/types';
 import { CategoryService } from '@/lib/api/category.service';
+import { SponsorService } from '@/lib/api/sponsor.service';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { VDrawer, useDrawer } from '@/components/ui/VDrawer';
 import { useModal } from '@/components/ui/VModal';
@@ -98,6 +100,7 @@ export default function TournamentManage({
   const router = useRouter();
   const [categories, setCategories] = useState<Category[]>([]);
   const [loadingCategories, setLoadingCategories] = useState(true);
+  const [sponsors, setSponsors] = useState<Sponsor[]>([]);
   const [selectedItem, setSelectedItem] = useState<string | null>(() =>
     searchParams.get('option') === 'registration'
       ? null
@@ -127,6 +130,19 @@ export default function TournamentManage({
   useEffect(() => {
     loadCategories();
   }, [loadCategories]);
+
+  const loadSponsors = useCallback(async () => {
+    try {
+      const data = await SponsorService.getSponsors(tournament.id);
+      setSponsors(data);
+    } catch (error) {
+      console.error('Error loading sponsors:', error);
+    }
+  }, [tournament.id]);
+
+  useEffect(() => {
+    loadSponsors();
+  }, [loadSponsors]);
 
   // Resolve the selected category from URL or fall back to the first one.
   // Re-runs when categories load or when the URL categoryId changes
@@ -281,7 +297,13 @@ export default function TournamentManage({
           />
         );
       case 'sponsors':
-        return <SponsorsPanel />;
+        return (
+          <SponsorsPanel
+            tournamentId={tournament.id}
+            sponsors={sponsors}
+            onSponsorsChange={loadSponsors}
+          />
+        );
       case 'name':
         return (
           <NamePanel

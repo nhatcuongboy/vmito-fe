@@ -16,10 +16,12 @@ import {
   CalendarDays,
   MapPin,
   MoreVertical,
+  NotebookText,
   RotateCcw,
   SquarePen,
   Trash2,
   Trophy,
+  UserRound,
 } from 'lucide-react';
 
 import { Category, CategoryMatch, MatchStatus } from '@/lib/api/types';
@@ -272,6 +274,10 @@ function DetailsTab({
   courtLabel?: string;
 }) {
   const start = match.startTime ? new Date(match.startTime) : null;
+  const refereeName = match.refereeName?.trim();
+  const assignedRefereeName = match.referee?.name?.trim();
+  const notes = match.notes?.trim();
+  const hasRefereeDetails = Boolean(refereeName || notes);
 
   return (
     <Box display="flex" flexDirection="column" gap={3}>
@@ -294,7 +300,106 @@ function DetailsTab({
       )}
 
       {courtLabel && <InfoRow icon={<MapPin size={18} />} title={courtLabel} />}
+
+      {hasRefereeDetails && (
+        <RefereeInfoPanel
+          refereeName={refereeName || assignedRefereeName}
+          isAssignedFallback={!refereeName && Boolean(assignedRefereeName)}
+          notes={notes}
+        />
+      )}
     </Box>
+  );
+}
+
+function RefereeInfoPanel({
+  refereeName,
+  isAssignedFallback,
+  notes,
+}: {
+  refereeName?: string;
+  isAssignedFallback?: boolean;
+  notes?: string;
+}) {
+  const t = useTranslations('pages.tournaments.manualScore.matchDetail');
+
+  return (
+    <Box
+      borderWidth="1px"
+      borderColor="gray.200"
+      borderRadius="xl"
+      bg="gray.50"
+      p={3}
+      _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
+    >
+      <Text
+        fontSize="sm"
+        fontWeight="bold"
+        color="gray.700"
+        mb={3}
+        _dark={{ color: 'gray.200' }}
+      >
+        {t('refereeInfo')}
+      </Text>
+      <Box display="flex" flexDirection="column" gap={3}>
+        {refereeName && (
+          <RefereeInfoRow
+            icon={<UserRound size={16} />}
+            label={isAssignedFallback ? t('assignedReferee') : t('refereeName')}
+          >
+            {refereeName}
+          </RefereeInfoRow>
+        )}
+        {notes && (
+          <RefereeInfoRow icon={<NotebookText size={16} />} label={t('notes')}>
+            <Text whiteSpace="pre-wrap" wordBreak="break-word">
+              {notes}
+            </Text>
+          </RefereeInfoRow>
+        )}
+      </Box>
+    </Box>
+  );
+}
+
+function RefereeInfoRow({
+  icon,
+  label,
+  children,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <Flex align="start" gap={2.5}>
+      <Flex
+        align="center"
+        justify="center"
+        w="30px"
+        h="30px"
+        flexShrink={0}
+        borderRadius="lg"
+        bg="white"
+        color="gray.600"
+        _dark={{ bg: 'gray.900', color: 'gray.300' }}
+      >
+        {icon}
+      </Flex>
+      <Box minW={0}>
+        <Text
+          fontSize="xs"
+          fontWeight="semibold"
+          color="gray.500"
+          _dark={{ color: 'gray.400' }}
+        >
+          {label}
+        </Text>
+        <Box mt={0.5} fontWeight="semibold">
+          {children}
+        </Box>
+      </Box>
+    </Flex>
   );
 }
 

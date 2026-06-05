@@ -230,6 +230,8 @@ export const CategoryService = {
       player4Score: null,
       player1Points: null,
       player2Points: null,
+      notes: null,
+      refereeName: null,
       endTime: null,
     } as unknown as Partial<CategoryMatch>;
 

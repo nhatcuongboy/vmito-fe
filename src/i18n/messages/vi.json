@@ -1559,6 +1559,7 @@
           "pools": "Theo bảng",
           "overall": "Tổng thể",
           "showPlayerNames": "Tên VĐV",
+          "showPlayerNamesBadge": "Show tên VĐV",
           "rankingsExplained": "Cách tính xếp hạng",
           "rankingsExplanation": "Bảng xếp hạng được sắp theo điểm, sau đó lần lượt xét hiệu số, điểm ghi được, số trận thắng và số trận đã chơi. Mục Tổng thể gộp các đội trong những bảng đang hiển thị và xếp lại theo cùng thứ tự này.",
           "viewGames": "Xem trận đấu",
@@ -1567,6 +1568,7 @@
           "versus": "vs",
           "noScore": "Chưa có điểm",
           "groupFallback": "Bảng {number}",
+          "groupNamed": "Bảng {name}",
           "teamsCount": "{count} đội",
           "winnerOf": "Thắng trận {match}",
           "loserOf": "Thua trận {match}",
@@ -1630,7 +1632,17 @@
           "categories": {
             "title": "Hạng mục",
             "manage": "Quản lý hạng mục",
-            "empty": "Chưa có hạng mục nào."
+            "empty": "Chưa có hạng mục nào.",
+            "teamsCount": "{count} đội",
+            "playersCount": "{count} VĐV"
+          },
+          "competitionInfo": {
+            "title": "Thể lệ thi đấu",
+            "subtitle": "Xem thể thức, cách tính điểm và thứ tự phá hòa.",
+            "modalDescription": "Thông tin thể thức, cách tính điểm và thứ tự phá hòa theo từng hạng mục.",
+            "playoffs": "Vòng loại trực tiếp",
+            "qualifiersPerGroup": "{count} đội đi tiếp mỗi bảng",
+            "thirdPlace": "Tranh hạng ba"
           },
           "notes": {
             "title": "Ghi chú",
@@ -1648,6 +1660,11 @@
             "email": "Email",
             "phone": "Số điện thoại",
             "empty": "Chưa có thông tin liên hệ."
+          },
+          "sponsors": {
+            "title": "Nhà tài trợ",
+            "manage": "Quản lý nhà tài trợ",
+            "empty": "Chưa có nhà tài trợ."
           },
           "champions": {
             "title": "Nhà vô địch",
@@ -2786,7 +2803,23 @@
             "sponsors": {
               "title": "Nhà tài trợ",
               "description": "Thêm nhà tài trợ để hiển thị trên trang giải đấu.",
-              "addSponsors": "Thêm nhà tài trợ"
+              "addSponsors": "Thêm nhà tài trợ",
+              "createSponsor": "Thêm nhà tài trợ",
+              "editSponsor": "Sửa nhà tài trợ",
+              "deleteSponsor": "Xóa nhà tài trợ",
+              "deleteConfirm": "Bạn có chắc chắn muốn xóa nhà tài trợ này?",
+              "nameLabel": "Tên nhà tài trợ",
+              "namePlaceholder": "Nhập tên nhà tài trợ",
+              "websiteLabel": "Website",
+              "websitePlaceholder": "https://example.com",
+              "logoLabel": "Logo",
+              "save": "Lưu",
+              "cancel": "Hủy",
+              "delete": "Xóa",
+              "createFailed": "Không thể thêm nhà tài trợ",
+              "updateFailed": "Không thể cập nhật nhà tài trợ",
+              "deleteFailed": "Không thể xóa nhà tài trợ",
+              "unknownError": "Lỗi không xác định"
             },
             "name": {
               "title": "Tên giải đấu",
@@ -3190,6 +3223,9 @@
         "level": "Level",
         "levelDescription": "Mô tả level",
         "notes": "Ghi chú",
+        "refereeName": "Tên trọng tài",
+        "refereeNamePlaceholder": "Nhập tên trọng tài",
+        "matchNotesPlaceholder": "Ghi chú thêm về trận đấu",
         "noPlayerDetails": "Chưa có thông tin người chơi",
         "rounds": {
           "group": "Vòng bảng",
@@ -3306,7 +3342,7 @@
         "hideControls": "Ẩn điều khiển",
         "linkCopied": "Đã sao chép liên kết",
         "copyFailed": "Không thể sao chép liên kết",
-        "playerCode": "Mã {code}",
+        "playerCode": "{code}",
         "athleteSpotlight": "Vận động viên của giải đấu",
         "live": "Đang diễn ra",
         "court": "Sân {court}",
@@ -3408,6 +3444,7 @@
         "viewList": "Danh sách",
         "viewCalendar": "Calendar",
         "showPlayerNames": "Tên VĐV",
+        "showPlayerNamesBadge": "Show tên VĐV",
         "calendar": {
           "time": "Thời gian",
           "empty": "Chưa có trận nào có lịch sân và giờ để hiển thị trên calendar."
@@ -3468,7 +3505,11 @@
           "matchOptions": "Tùy chọn",
           "bySet": "Theo set",
           "schedule": "Lên lịch",
-          "resetResult": "Reset kết quả"
+          "resetResult": "Reset kết quả",
+          "refereeInfo": "Thông tin trọng tài",
+          "refereeName": "Tên trọng tài",
+          "assignedReferee": "Trọng tài được phân công",
+          "notes": "Ghi chú"
         },
         "scheduleUpdated": "Đã cập nhật lịch thi đấu",
         "scheduleUpdateFailed": "Không thể cập nhật lịch thi đấu",

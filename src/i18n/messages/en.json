@@ -1551,6 +1551,7 @@
           "pools": "Pools",
           "overall": "Overall",
           "showPlayerNames": "Player names",
+          "showPlayerNamesBadge": "Show player names",
           "rankingsExplained": "Rankings explained",
           "rankingsExplanation": "Standings are sorted by points, then point difference, points for, wins, and matches played. Overall combines the teams in the visible pools and ranks them again using the same order.",
           "viewGames": "View Games",
@@ -1559,6 +1560,7 @@
           "versus": "vs",
           "noScore": "No score yet",
           "groupFallback": "Group {number}",
+          "groupNamed": "Group {name}",
           "teamsCount": "{count} teams",
           "winnerOf": "Winner of {match}",
           "loserOf": "Loser of {match}",
@@ -1622,7 +1624,17 @@
           "categories": {
             "title": "Categories",
             "manage": "Manage categories",
-            "empty": "No categories yet."
+            "empty": "No categories yet.",
+            "teamsCount": "{count} teams",
+            "playersCount": "{count} players"
+          },
+          "competitionInfo": {
+            "title": "Competition rules",
+            "subtitle": "View format, scoring, and tiebreak order.",
+            "modalDescription": "Format, scoring, and tiebreak order for each category.",
+            "playoffs": "Playoffs",
+            "qualifiersPerGroup": "{count} teams advance per group",
+            "thirdPlace": "Third-place match"
           },
           "notes": {
             "title": "Notes",
@@ -1640,6 +1652,11 @@
             "email": "Email",
             "phone": "Phone",
             "empty": "No contact information yet."
+          },
+          "sponsors": {
+            "title": "Sponsors",
+            "manage": "Manage sponsors",
+            "empty": "No sponsors yet."
           },
           "champions": {
             "title": "Champions",
@@ -2778,7 +2795,23 @@
             "sponsors": {
               "title": "Sponsors",
               "description": "Add sponsors to display on your tournament page.",
-              "addSponsors": "Add sponsors"
+              "addSponsors": "Add sponsors",
+              "createSponsor": "Add sponsor",
+              "editSponsor": "Edit sponsor",
+              "deleteSponsor": "Delete sponsor",
+              "deleteConfirm": "Are you sure you want to delete this sponsor?",
+              "nameLabel": "Sponsor name",
+              "namePlaceholder": "Enter sponsor name",
+              "websiteLabel": "Website",
+              "websitePlaceholder": "https://example.com",
+              "logoLabel": "Logo",
+              "save": "Save",
+              "cancel": "Cancel",
+              "delete": "Delete",
+              "createFailed": "Failed to add sponsor",
+              "updateFailed": "Failed to update sponsor",
+              "deleteFailed": "Failed to delete sponsor",
+              "unknownError": "Unknown error"
             },
             "name": {
               "title": "Tournament Name",
@@ -3182,6 +3215,9 @@
         "level": "Level",
         "levelDescription": "Level description",
         "notes": "Notes",
+        "refereeName": "Referee name",
+        "refereeNamePlaceholder": "Enter the referee name",
+        "matchNotesPlaceholder": "Add match notes",
         "noPlayerDetails": "No player details available",
         "rounds": {
           "group": "Group stage",
@@ -3298,7 +3334,7 @@
         "hideControls": "Hide controls",
         "linkCopied": "Link copied",
         "copyFailed": "Could not copy link",
-        "playerCode": "Code {code}",
+        "playerCode": "{code}",
         "athleteSpotlight": "Tournament athlete spotlight",
         "live": "In progress",
         "court": "Court {court}",
@@ -3400,6 +3436,7 @@
         "viewList": "List",
         "viewCalendar": "Calendar",
         "showPlayerNames": "Player names",
+        "showPlayerNamesBadge": "Show player names",
         "calendar": {
           "time": "Time",
           "empty": "No matches have both court and time to show on the calendar yet."
@@ -3460,7 +3497,11 @@
           "matchOptions": "Match options",
           "bySet": "By set",
           "schedule": "Schedule",
-          "resetResult": "Reset result"
+          "resetResult": "Reset result",
+          "refereeInfo": "Referee information",
+          "refereeName": "Referee name",
+          "assignedReferee": "Assigned referee",
+          "notes": "Notes"
         },
         "scheduleUpdated": "Schedule updated",
         "scheduleUpdateFailed": "Failed to update schedule",

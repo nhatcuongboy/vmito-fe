@@ -1,12 +1,13 @@
 'use client';
 
-import { Box } from '@chakra-ui/react';
+import { Box, Text } from '@chakra-ui/react';
 import { Check, Users } from 'lucide-react';
 
 interface PlayerNamesToggleProps {
   active: boolean;
   onToggle: () => void;
   title: string;
+  label?: string;
   fullWidthOnMobile?: boolean;
 }
 
@@ -14,8 +15,11 @@ const PlayerNamesToggle = ({
   active,
   onToggle,
   title,
+  label,
   fullWidthOnMobile = false,
 }: PlayerNamesToggleProps) => {
+  const hasLabel = !!label;
+
   return (
     <Box
       position="relative"
@@ -29,9 +33,18 @@ const PlayerNamesToggle = ({
       display="flex"
       alignItems="center"
       justifyContent="center"
+      gap={hasLabel ? 2 : 0}
       h={9}
-      w={fullWidthOnMobile ? { base: 'full', sm: '36px' } : '36px'}
-      borderRadius="md"
+      w={
+        hasLabel
+          ? 'auto'
+          : fullWidthOnMobile
+            ? { base: 'full', sm: '36px' }
+            : '36px'
+      }
+      minW={hasLabel ? 'max-content' : undefined}
+      px={hasLabel ? 3 : 0}
+      borderRadius={hasLabel ? 'full' : 'md'}
       borderWidth="1px"
       borderColor={active ? 'green.400' : 'gray.200'}
       bg={active ? 'green.500' : 'transparent'}
@@ -51,6 +64,16 @@ const PlayerNamesToggle = ({
       }}
     >
       <Users size={16} />
+      {hasLabel && (
+        <Text
+          fontSize="sm"
+          fontWeight="semibold"
+          lineHeight="1"
+          whiteSpace="nowrap"
+        >
+          {label}
+        </Text>
+      )}
       {active && (
         <Box
           position="absolute"

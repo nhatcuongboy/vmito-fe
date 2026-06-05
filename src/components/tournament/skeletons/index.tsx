@@ -490,42 +490,66 @@ function ProfileHeroSkeleton({
 
   return (
     <Box
-      bg="green.600"
-      aspectRatio={21 / 9}
+      position="relative"
+      overflow="hidden"
+      bg="green.700"
+      w="full"
+      aspectRatio={{ base: 21 / 9, md: 'auto' }}
+      h={{ md: '300px' }}
       minH={{ base: '180px', md: '240px' }}
       maxH={{ base: '250px', md: '300px' }}
-      px={{ base: 5, md: 7 }}
-      py={{ base: 6, md: 7 }}
-      display="flex"
-      alignItems="flex-end"
     >
-      <Box w="full">
-        <HStack gap={3}>
-          {avatarVariant === 'round' ? (
-            <SkeletonCircle size={{ base: '70px', md: '86px' }} />
-          ) : (
-            <Skeleton
-              w={{ base: '64px', md: '76px' }}
-              h={{ base: '64px', md: '76px' }}
-              borderRadius="2xl"
-            />
-          )}
-          <Box flex={1} minW={0}>
-            <Skeleton height="14px" width="96px" mb={3} borderRadius="md" />
-            <Skeleton height="32px" width="58%" borderRadius="md" />
-          </Box>
-        </HStack>
-        <VStack align="stretch" gap={2} mt={4}>
-          {repeat(metaRows).map((_, index) => (
-            <Skeleton
-              key={index}
-              height="16px"
-              width={metaWidths[index] ?? '48%'}
-              borderRadius="md"
-            />
-          ))}
+      <Box
+        position="absolute"
+        inset={0}
+        bg="linear-gradient(135deg, #0f7a38 0%, #0b5d31 48%, #123c69 100%)"
+      />
+      <Box
+        position="absolute"
+        inset={0}
+        bg="linear-gradient(90deg, rgba(3, 18, 12, 0.78) 0%, rgba(3, 18, 12, 0.52) 50%, rgba(3, 18, 12, 0.18) 100%)"
+      />
+      <Box
+        position="absolute"
+        inset={0}
+        bg="linear-gradient(0deg, rgba(3, 18, 12, 0.78) 0%, rgba(3, 18, 12, 0) 56%)"
+      />
+      <Flex
+        position="relative"
+        h="full"
+        minH={{ base: '180px', md: '240px' }}
+        align="flex-end"
+        px={{ base: 5, md: 7 }}
+        py={{ base: 6, md: 7 }}
+      >
+        <VStack align="stretch" gap={5} w="full">
+          <HStack gap={3}>
+            {avatarVariant === 'round' ? (
+              <SkeletonCircle size={{ base: '70px', md: '86px' }} />
+            ) : (
+              <Skeleton
+                w={{ base: '64px', md: '76px' }}
+                h={{ base: '64px', md: '76px' }}
+                borderRadius="2xl"
+              />
+            )}
+            <Box flex={1} minW={0}>
+              <Skeleton height="14px" width="96px" mb={3} borderRadius="md" />
+              <Skeleton height="32px" width="58%" borderRadius="md" />
+            </Box>
+          </HStack>
+          <VStack align="stretch" gap={2} maxW="760px">
+            {repeat(metaRows).map((_, index) => (
+              <Skeleton
+                key={index}
+                height="16px"
+                width={metaWidths[index] ?? '48%'}
+                borderRadius="md"
+              />
+            ))}
+          </VStack>
         </VStack>
-      </Box>
+      </Flex>
     </Box>
   );
 }
@@ -556,6 +580,7 @@ function ProfileScheduleCardSkeleton({ lines = 2 }: { lines?: number }) {
       borderRadius="xl"
       p={4}
       bg="white"
+      boxShadow="0 10px 26px rgba(15, 23, 42, 0.04)"
       _dark={{ bg: 'gray.900', borderColor: 'gray.700' }}
     >
       <Flex justify="space-between" align="flex-start" gap={3}>
@@ -580,7 +605,33 @@ function ProfileScheduleCardSkeleton({ lines = 2 }: { lines?: number }) {
 function ProfileQrBarSkeleton() {
   return (
     <Box borderRadius="2xl" boxShadow="0 14px 40px rgba(15, 23, 42, 0.05)">
-      <Skeleton height="96px" borderRadius="2xl" />
+      <Flex
+        align="center"
+        gap={3}
+        borderWidth="1px"
+        borderColor="gray.200"
+        borderRadius="xl"
+        px={3}
+        py={2.5}
+        bg="white"
+        _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
+      >
+        <Box
+          bg="white"
+          borderRadius="md"
+          borderWidth="1px"
+          borderColor="gray.100"
+          p={1}
+          flexShrink={0}
+          _dark={{ borderColor: 'gray.600' }}
+        >
+          <Skeleton height="64px" width="64px" borderRadius="sm" />
+        </Box>
+        <HStack gap={2} flexWrap="wrap">
+          <Skeleton height="32px" width="92px" borderRadius="md" />
+          <Skeleton height="32px" width="112px" borderRadius="md" />
+        </HStack>
+      </Flex>
     </Box>
   );
 }
@@ -608,6 +659,7 @@ export function PublicTournamentPlayerSkeleton() {
                     borderRadius="xl"
                     p={4}
                     bg="white"
+                    boxShadow="0 10px 26px rgba(15, 23, 42, 0.04)"
                     _dark={{ bg: 'gray.900', borderColor: 'gray.700' }}
                   >
                     <Flex justify="space-between" align="flex-start" gap={3}>
@@ -671,6 +723,7 @@ export function PublicTournamentTeamSkeleton() {
                     borderRadius="xl"
                     p={4}
                     bg="white"
+                    boxShadow="0 10px 26px rgba(15, 23, 42, 0.04)"
                     _dark={{ bg: 'gray.900', borderColor: 'gray.700' }}
                   >
                     <SkeletonCircle size="38px" />

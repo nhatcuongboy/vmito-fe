@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useMemo, useState, useEffect } from 'react';
+import { useCallback, useMemo } from 'react';
 import {
   Home,
   Users,
@@ -31,8 +31,6 @@ interface UseTournamentBottomNavOptions {
   canManage: boolean;
   /** Whether the current user is the host or a system admin */
   isHostOrAdmin: boolean;
-  /** Current user id; used to scope the cache so it never leaks across users. */
-  userId?: string | null;
 }
 
 interface UseTournamentBottomNavResult {
@@ -43,78 +41,17 @@ interface UseTournamentBottomNavResult {
 
 /**
  * Builds the shared tournament bottom navigation tabs and navigation handler.
- * Uses sessionStorage to cache canManage / isHostOrAdmin per (user, slug) so
- * that re-mounting pages (e.g. returning from a sub-page) shows the correct
- * tab count immediately without waiting for API responses. The cache is scoped
- * by user id and disabled for logged-out users so manager menus never leak to
- * guests or normal accounts sharing the same browser session.
+ * Management tabs are derived only from the currently resolved auth state so
+ * host/manager-only menus cannot leak to guests or normal accounts.
  */
 export function useTournamentBottomNav({
   slug,
   activeTabId,
   canManage,
   isHostOrAdmin,
-  userId,
 }: UseTournamentBottomNavOptions): UseTournamentBottomNavResult {
   const t = useTranslations('pages.tournaments.detail');
   const router = useRouter();
-
-  // Only cache for a known, logged-in user. Scoping by user id prevents a
-  // previous host/admin session from exposing manager tabs to a guest or a
-  // regular account that later views the same tournament.
-  const canManageCacheKey =
-    slug && userId ? `vmito.canManage.${userId}.${slug}` : null;
-  const isHostCacheKey =
-    slug && userId ? `vmito.isHost.${userId}.${slug}` : null;
-
-  const [cachedCanManage, setCachedCanManage] = useState<boolean>(() => {
-    if (typeof window === 'undefined' || !slug || !userId) return false;
-    return (
-      window.sessionStorage.getItem(`vmito.canManage.${userId}.${slug}`) === '1'
-    );
-  });
-
-  const [cachedIsHost, setCachedIsHost] = useState<boolean>(() => {
-    if (typeof window === 'undefined' || !slug || !userId) return false;
-    return (
-      window.sessionStorage.getItem(`vmito.isHost.${userId}.${slug}`) === '1'
-    );
-  });
-
-  // Keep cached values in sync with the current user. When the resolved value
-  // is a definite positive we persist it; otherwise leave the cache untouched
-  // so the first-render flicker is avoided only for actual managers.
-  useEffect(() => {
-    if (!canManageCacheKey) {
-      setCachedCanManage(false);
-      return;
-    }
-    setCachedCanManage(
-      window.sessionStorage.getItem(canManageCacheKey) === '1'
-    );
-    if (canManage) {
-      window.sessionStorage.setItem(canManageCacheKey, '1');
-      setCachedCanManage(true);
-    }
-  }, [canManage, canManageCacheKey]);
-
-  useEffect(() => {
-    if (!isHostCacheKey) {
-      setCachedIsHost(false);
-      return;
-    }
-    setCachedIsHost(window.sessionStorage.getItem(isHostCacheKey) === '1');
-    if (isHostOrAdmin) {
-      window.sessionStorage.setItem(isHostCacheKey, '1');
-      setCachedIsHost(true);
-    }
-  }, [isHostOrAdmin, isHostCacheKey]);
-
-  // A logged-out user is never a manager: ignore any cache entirely.
-  const effectiveCanManage = userId ? canManage || cachedCanManage : canManage;
-  const effectiveIsHostOrAdmin = userId
-    ? isHostOrAdmin || cachedIsHost
-    : isHostOrAdmin;
 
   const tabs = useMemo<NavigationTab[]>(() => {
     const allTabs: NavigationTab[] = [
@@ -126,11 +63,11 @@ export function useTournamentBottomNav({
       { id: 5, label: t('tabs.dashboard'), icon: LayoutGrid },
     ];
     return allTabs.filter((tab) => {
-      if (tab.id === 4) return effectiveCanManage;
-      if (tab.id === 5) return effectiveIsHostOrAdmin;
+      if (tab.id === 4) return canManage;
+      if (tab.id === 5) return isHostOrAdmin;
       return true;
     });
-  }, [effectiveCanManage, effectiveIsHostOrAdmin, t]);
+  }, [canManage, isHostOrAdmin, t]);
 
   const handleTabChange = useCallback(
     (tabId: number) => {

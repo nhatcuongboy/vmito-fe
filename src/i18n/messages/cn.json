@@ -1529,6 +1529,7 @@
           "pools": "按小组",
           "overall": "总排名",
           "showPlayerNames": "运动员姓名",
+          "showPlayerNamesBadge": "显示运动员姓名",
           "rankingsExplained": "排名说明",
           "rankingsExplanation": "排名按积分排序，然后依次比较净胜分、得分、胜场和已赛场次。总排名会合并当前显示的小组队伍，并按相同规则重新排序。",
           "viewGames": "查看比赛",
@@ -1537,6 +1538,7 @@
           "versus": "vs",
           "noScore": "暂无比分",
           "groupFallback": "小组 {number}",
+          "groupNamed": "{name}组",
           "teamsCount": "{count} 支队伍",
           "winnerOf": "{match} 胜者",
           "loserOf": "{match} 负者",
@@ -1600,7 +1602,17 @@
           "categories": {
             "title": "类别",
             "manage": "管理类别",
-            "empty": "暂无类别。"
+            "empty": "暂无类别。",
+            "teamsCount": "{count} 队",
+            "playersCount": "{count} 选手"
+          },
+          "competitionInfo": {
+            "title": "竞赛规则",
+            "subtitle": "查看赛制、计分方式和决胜顺序。",
+            "modalDescription": "每个类别的赛制、计分方式和决胜顺序。",
+            "playoffs": "淘汰赛",
+            "qualifiersPerGroup": "每组 {count} 队晋级",
+            "thirdPlace": "季军赛"
           },
           "notes": {
             "title": "备注",
@@ -1618,6 +1630,11 @@
             "email": "邮箱",
             "phone": "电话",
             "empty": "暂无联系信息。"
+          },
+          "sponsors": {
+            "title": "赞助商",
+            "manage": "管理赞助商",
+            "empty": "暂无赞助商。"
           },
           "champions": {
             "title": "冠军",
@@ -2756,7 +2773,23 @@
             "sponsors": {
               "title": "赞助商",
               "description": "添加赞助商以显示在锦标赛页面上。",
-              "addSponsors": "添加赞助商"
+              "addSponsors": "添加赞助商",
+              "createSponsor": "添加赞助商",
+              "editSponsor": "编辑赞助商",
+              "deleteSponsor": "删除赞助商",
+              "deleteConfirm": "您确定要删除此赞助商吗？",
+              "nameLabel": "赞助商名称",
+              "namePlaceholder": "输入赞助商名称",
+              "websiteLabel": "网站",
+              "websitePlaceholder": "https://example.com",
+              "logoLabel": "标志",
+              "save": "保存",
+              "cancel": "取消",
+              "delete": "删除",
+              "createFailed": "无法添加赞助商",
+              "updateFailed": "无法更新赞助商",
+              "deleteFailed": "无法删除赞助商",
+              "unknownError": "未知错误"
             },
             "name": {
               "title": "锦标赛名称",
@@ -3160,6 +3193,9 @@
         "level": "水平",
         "levelDescription": "水平说明",
         "notes": "备注",
+        "refereeName": "裁判姓名",
+        "refereeNamePlaceholder": "输入裁判姓名",
+        "matchNotesPlaceholder": "添加比赛备注",
         "noPlayerDetails": "暂无球员详情",
         "rounds": {
           "group": "小组赛",
@@ -3276,7 +3312,7 @@
         "hideControls": "隐藏控制",
         "linkCopied": "已复制链接",
         "copyFailed": "无法复制链接",
-        "playerCode": "编号 {code}",
+        "playerCode": "{code}",
         "athleteSpotlight": "赛事运动员展示",
         "live": "进行中",
         "court": "场地 {court}",
@@ -3378,6 +3414,7 @@
         "viewList": "列表",
         "viewCalendar": "日历",
         "showPlayerNames": "运动员姓名",
+        "showPlayerNamesBadge": "显示运动员姓名",
         "calendar": {
           "time": "时间",
           "empty": "暂无同时设置场地和时间的比赛可在日历中显示。"
@@ -3438,7 +3475,11 @@
           "matchOptions": "比赛选项",
           "bySet": "各局",
           "schedule": "安排赛程",
-          "resetResult": "重置结果"
+          "resetResult": "重置结果",
+          "refereeInfo": "裁判信息",
+          "refereeName": "裁判姓名",
+          "assignedReferee": "已分配裁判",
+          "notes": "备注"
         },
         "scheduleUpdated": "赛程已更新",
         "scheduleUpdateFailed": "更新赛程失败",

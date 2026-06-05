@@ -31,7 +31,9 @@ export default function TournamentProfileHero({
   return (
     <Box
       position="relative"
-      aspectRatio={21 / 9}
+      w="full"
+      aspectRatio={{ base: 21 / 9, md: 'auto' }}
+      h={{ md: '300px' }}
       minH={{ base: '180px', md: '240px' }}
       maxH={{ base: '250px', md: '300px' }}
       overflow="hidden"

@@ -131,7 +131,6 @@ export default function RefereeMatchListPage() {
     activeTabId: 2,
     canManage: isHost || isAdmin,
     isHostOrAdmin: isHost || isAdmin,
-    userId: user?.id ?? null,
   });
 
   const categoryById = useMemo(() => {

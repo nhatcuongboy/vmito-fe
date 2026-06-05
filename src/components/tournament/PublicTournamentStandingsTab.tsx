@@ -5,9 +5,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Badge, Box, Flex, Heading, HStack, Text } from '@chakra-ui/react';
 import {
   BarChart3,
-  CalendarDays,
   GitBranch,
-  Info,
   ListTree,
   RefreshCw,
   RotateCcw,
@@ -17,6 +15,13 @@ import { useTranslations } from 'next-intl';
 
 import { CategoryService } from '@/lib/api/category.service';
 import { TournamentService } from '@/lib/api/tournament.service';
+import { DEFAULT_RR_CONFIG } from '@/components/tournament/format-wizard/constants';
+import type {
+  RoundRobinConfig,
+  StandingsColumn,
+  StatisticItem,
+  TiebreakerItem,
+} from '@/components/tournament/format-wizard/types';
 import {
   Category,
   CategoryFormat,
@@ -28,10 +33,11 @@ import {
 } from '@/lib/api/types';
 import PublicTournamentBracket from '@/components/tournament/PublicTournamentBracket';
 import PlayerNamesToggle from '@/components/tournament/PlayerNamesToggle';
-import { Link, useRouter } from '@/i18n/config';
+import { Link } from '@/i18n/config';
 import { useSearchParams } from 'next/navigation';
 import { Button, LegacySelect, VStack } from '@/components/ui/chakra-compat';
 import { TournamentTableSkeleton } from '@/components/tournament/skeletons';
+import { VModal } from '@/components/ui/VModal';
 
 interface PublicTournamentStandingsTabProps {
   tournament: Tournament;
@@ -61,9 +67,19 @@ function getCategoryLabel(category: Category) {
 
 function getGroupLabel(
   group: CategoryStandingsResponse[number]['group'],
-  fallback: string
+  fallback: string,
+  localizeGroupName?: (name: string) => string
 ) {
-  return group.name?.trim() || fallback;
+  const label = group.name?.trim() || fallback;
+  return localizeGroupName ? localizeGroupName(label) : label;
+}
+
+function localizeGroupLabel(
+  label: string,
+  t: ReturnType<typeof useTranslations>
+) {
+  const match = label.match(/^group\s+(.+)$/i);
+  return match ? t('groupNamed', { name: match[1] }) : label;
 }
 
 function getStandingTeamLabel(
@@ -128,13 +144,52 @@ function hasStandingResult(standing: GroupStanding) {
   );
 }
 
+function getRoundRobinConfig(category: Category): RoundRobinConfig {
+  const formatConfig =
+    (category.formatConfig as Record<string, unknown> | null | undefined) ?? {};
+  const rrConfig =
+    (formatConfig.roundRobin as Record<string, unknown> | null | undefined) ??
+    formatConfig;
+
+  return {
+    ...DEFAULT_RR_CONFIG,
+    ...rrConfig,
+    tiebreakers:
+      (rrConfig.tiebreakers as TiebreakerItem[] | undefined) ??
+      DEFAULT_RR_CONFIG.tiebreakers,
+    headToHeadTiebreakers:
+      (rrConfig.headToHeadTiebreakers as TiebreakerItem[] | undefined) ??
+      DEFAULT_RR_CONFIG.headToHeadTiebreakers,
+    statistics:
+      (rrConfig.statistics as StatisticItem[] | undefined) ??
+      DEFAULT_RR_CONFIG.statistics,
+    standingsColumns:
+      (rrConfig.standingsColumns as StandingsColumn[] | undefined) ??
+      DEFAULT_RR_CONFIG.standingsColumns,
+  };
+}
+
+function getPointsEarningLabel(
+  pointsEarning: RoundRobinConfig['pointsEarning'],
+  tConfig: ReturnType<typeof useTranslations>
+) {
+  switch (pointsEarning) {
+    case 'manual':
+      return tConfig('manual');
+    case 'tiebreakers_only':
+      return tConfig('tiebreakersOnly');
+    case 'match_results':
+    default:
+      return tConfig('basedOnMatchResults');
+  }
+}
+
 export default function PublicTournamentStandingsTab({
   tournament,
   categories,
   isHost,
 }: PublicTournamentStandingsTabProps) {
   const t = useTranslations('pages.tournaments.detail.standingsTab');
-  const router = useRouter();
   const searchParams = useSearchParams();
   const initialCategoryId =
     searchParams.get('category') || ALL_CATEGORIES_VALUE;
@@ -146,7 +201,7 @@ export default function PublicTournamentStandingsTab({
     useState(initialCategoryId);
   const [stageView, setStageView] = useState<StageView>('pool');
   const [standingView, setStandingView] = useState<StandingView>('pools');
-  const [showRankingInfo, setShowRankingInfo] = useState(false);
+  const [isRankingInfoOpen, setIsRankingInfoOpen] = useState(false);
   const [showPlayerNames, setShowPlayerNames] = useState<boolean>(() => {
     if (typeof window === 'undefined') return false;
     return window.localStorage.getItem(SHOW_PLAYER_NAMES_STORAGE_KEY) === '1';
@@ -238,7 +293,8 @@ export default function PublicTournamentStandingsTab({
           groupBlock.group,
           t('groupFallback', {
             number: groupBlock.group.groupNumber,
-          })
+          }),
+          (name) => localizeGroupLabel(name, t)
         );
 
         return groupBlock.standings.map((standing) => ({
@@ -312,6 +368,19 @@ export default function PublicTournamentStandingsTab({
       });
   }, [categories, matches, selectedCategoryId]);
 
+  const rankingInfoCategories = useMemo(() => {
+    const visibleCategories =
+      selectedCategoryId === ALL_CATEGORIES_VALUE
+        ? categories
+        : categories.filter((category) => category.id === selectedCategoryId);
+
+    return visibleCategories.filter((category) =>
+      [CategoryFormat.ROUND_ROBIN, CategoryFormat.ROUND_ROBIN_TO_SE].includes(
+        category.format
+      )
+    );
+  }, [categories, selectedCategoryId]);
+
   const reloadCategory = useCallback(
     async (category: Category) => {
       const nextBlock = await loadCategoryStandings(category);
@@ -352,33 +421,46 @@ export default function PublicTournamentStandingsTab({
         align={{ base: 'stretch', md: 'center' }}
         justify="space-between"
         direction={{ base: 'column', md: 'row' }}
-        gap={{ base: 2, md: 3 }}
+        gap={{ base: 3, md: 3 }}
         mb={{ base: 3, md: 4 }}
       >
         <Heading size="md">{t('title')}</Heading>
 
-        {categories.length > 1 && (
-          <Box
-            w={{ base: 'fit-content', md: '260px' }}
-            minW={{ base: '180px', md: '260px' }}
-            maxW={{ base: '100%', md: '260px' }}
-            alignSelf={{ base: 'flex-start', md: 'auto' }}
-          >
-            <LegacySelect
-              aria-label={t('categoryFilter')}
-              value={selectedCategoryId}
-              onChange={(event) => setSelectedCategoryId(event.target.value)}
-              size="sm"
+        <HStack
+          gap={2}
+          w={{ base: 'full', md: 'auto' }}
+          justify={{ base: 'space-between', md: 'flex-end' }}
+        >
+          {categories.length > 1 && (
+            <Box
+              flex={{ base: 1, md: '0 0 auto' }}
+              minW={{ base: '0', md: '260px' }}
+              maxW={{ base: '260px', md: '260px' }}
             >
-              <option value={ALL_CATEGORIES_VALUE}>{t('allCategories')}</option>
-              {categories.map((category) => (
-                <option key={category.id} value={category.id}>
-                  {getCategoryLabel(category)}
+              <LegacySelect
+                aria-label={t('categoryFilter')}
+                value={selectedCategoryId}
+                onChange={(event) => setSelectedCategoryId(event.target.value)}
+                size="sm"
+              >
+                <option value={ALL_CATEGORIES_VALUE}>
+                  {t('allCategories')}
                 </option>
-              ))}
-            </LegacySelect>
-          </Box>
-        )}
+                {categories.map((category) => (
+                  <option key={category.id} value={category.id}>
+                    {getCategoryLabel(category)}
+                  </option>
+                ))}
+              </LegacySelect>
+            </Box>
+          )}
+          <PlayerNamesToggle
+            active={showPlayerNames}
+            onToggle={() => setShowPlayerNames((prev) => !prev)}
+            title={t('showPlayerNames')}
+            label={t('showPlayerNamesBadge')}
+          />
+        </HStack>
       </Flex>
 
       <Flex
@@ -479,12 +561,6 @@ export default function PublicTournamentStandingsTab({
             </HStack>
           )}
         </Flex>
-
-        <PlayerNamesToggle
-          active={showPlayerNames}
-          onToggle={() => setShowPlayerNames((prev) => !prev)}
-          title={t('showPlayerNames')}
-        />
       </Flex>
 
       {error ? (
@@ -624,7 +700,8 @@ export default function PublicTournamentStandingsTab({
                       groupBlock.group,
                       t('groupFallback', {
                         number: groupBlock.group.groupNumber,
-                      })
+                      }),
+                      (name) => localizeGroupLabel(name, t)
                     );
 
                     return (
@@ -690,49 +767,281 @@ export default function PublicTournamentStandingsTab({
             variant="outline"
             size="lg"
             colorPalette="gray"
-            onClick={() => setShowRankingInfo((current) => !current)}
+            onClick={() => setIsRankingInfoOpen(true)}
           >
             <BarChart3 size={18} /> {t('rankingsExplained')}
           </Button>
-          {showRankingInfo && (
+        </VStack>
+      )}
+
+      <RankingInfoModal
+        isOpen={isRankingInfoOpen}
+        onClose={() => setIsRankingInfoOpen(false)}
+        categories={rankingInfoCategories}
+      />
+    </Box>
+  );
+}
+
+function RankingInfoModal({
+  isOpen,
+  onClose,
+  categories,
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+  categories: Category[];
+}) {
+  const t = useTranslations('pages.tournaments.detail.standingsTab');
+  const tManage = useTranslations('pages.tournaments.detail.manage');
+  const tConfig = useTranslations(
+    'pages.tournaments.detail.formatWizard.config.rr'
+  );
+
+  return (
+    <VModal
+      isOpen={isOpen}
+      onClose={onClose}
+      title={t('rankingsExplained')}
+      size="lg"
+      hideSecondaryAction
+      maxBodyHeight={{ base: '72vh', md: '70vh' }}
+    >
+      <VStack align="stretch" gap={5}>
+        <Text fontSize="sm" color="gray.600" _dark={{ color: 'gray.300' }}>
+          {t('rankingsExplanation')}
+        </Text>
+
+        {categories.map((category) => {
+          const config = getRoundRobinConfig(category);
+          const points = [
+            {
+              id: 'win',
+              value: config.winPoints,
+              label: tManage('panels.standings.pointsPerWin'),
+            },
+            {
+              id: 'tie',
+              value: config.tiePoints,
+              label: tManage('panels.standings.pointsPerTie'),
+            },
+            {
+              id: 'loss',
+              value: config.lossPoints,
+              label: tManage('panels.standings.pointsPerLoss'),
+            },
+            {
+              id: 'cancelled',
+              value: config.cancelledMatchPoints,
+              label: tConfig('cancelledMatch'),
+            },
+            {
+              id: 'game-win',
+              value: config.gameWinPoints,
+              label: tManage('panels.standings.pointsPerGameWin'),
+            },
+            {
+              id: 'game-loss',
+              value: config.gameLossPoints,
+              label: tManage('panels.standings.pointsPerGameLoss'),
+            },
+            {
+              id: 'forfeit-win',
+              value: config.forfeitWinPoints,
+              label: tManage('panels.standings.pointsPerForfeitWin'),
+            },
+            {
+              id: 'forfeit-loss',
+              value: config.forfeitLossPoints,
+              label: tManage('panels.standings.pointsPerForfeitLoss'),
+            },
+          ];
+
+          return (
             <Box
-              p={4}
+              key={category.id}
               borderWidth="1px"
+              borderColor="gray.200"
               borderRadius="lg"
-              borderColor="gray.100"
+              p={4}
               bg="white"
               _dark={{
                 bg: 'var(--tournament-surface-raised, var(--chakra-colors-gray-800))',
                 borderColor:
                   'var(--tournament-border, var(--chakra-colors-gray-700))',
-                boxShadow: 'var(--tournament-shadow-soft)',
               }}
             >
-              <HStack align="flex-start" gap={3}>
-                <Info size={18} color="var(--chakra-colors-green-500)" />
-                <Text
-                  fontSize="sm"
-                  color="gray.600"
-                  _dark={{ color: 'gray.300' }}
-                >
-                  {t('rankingsExplanation')}
-                </Text>
-              </HStack>
+              <VStack align="stretch" gap={4}>
+                <HStack justify="space-between" align="flex-start" gap={3}>
+                  <Box minW={0}>
+                    <Heading size="sm" lineHeight="short">
+                      {getCategoryLabel(category)}
+                    </Heading>
+                    <Text
+                      mt={1}
+                      fontSize="sm"
+                      color="gray.500"
+                      _dark={{ color: 'gray.400' }}
+                    >
+                      {tConfig('pointsEarningLabel')}:{' '}
+                      {getPointsEarningLabel(config.pointsEarning, tConfig)}
+                    </Text>
+                  </Box>
+                  <Badge colorPalette="green" flexShrink={0}>
+                    {category.format === CategoryFormat.ROUND_ROBIN_TO_SE
+                      ? 'RR + SE'
+                      : 'RR'}
+                  </Badge>
+                </HStack>
+
+                <RankingInfoSection title={tManage('panels.standings.points')}>
+                  <Flex wrap="wrap" gap={2}>
+                    {points.map((point) => (
+                      <Badge
+                        key={point.id}
+                        variant="subtle"
+                        colorPalette={point.value > 0 ? 'green' : 'gray'}
+                        px={2}
+                        py={1}
+                        borderRadius="md"
+                      >
+                        {point.value} {point.label}
+                      </Badge>
+                    ))}
+                  </Flex>
+                </RankingInfoSection>
+
+                <RankingInfoSection title={tConfig('tiebreakers')}>
+                  <VStack align="stretch" gap={2}>
+                    {config.tiebreakers.map((tiebreaker, index) => (
+                      <RankingInfoRow
+                        key={tiebreaker.id}
+                        marker={String(index + 1)}
+                        title={tConfig(`tiebreakerItems.${tiebreaker.label}`)}
+                        description={tConfig(
+                          `tiebreakerItems.${tiebreaker.description}`
+                        )}
+                        markerColorPalette="blue"
+                      />
+                    ))}
+                  </VStack>
+                </RankingInfoSection>
+
+                <RankingInfoSection title={tConfig('teamStatistics')}>
+                  <Flex wrap="wrap" gap={2}>
+                    {config.statistics.map((statistic) => (
+                      <Badge
+                        key={statistic.id}
+                        variant="subtle"
+                        colorPalette={statistic.required ? 'blue' : 'gray'}
+                        px={2}
+                        py={1}
+                        borderRadius="md"
+                      >
+                        {statistic.abbreviation} ·{' '}
+                        {tConfig(`statisticItems.${statistic.label}`)}
+                      </Badge>
+                    ))}
+                  </Flex>
+                </RankingInfoSection>
+
+                <RankingInfoSection title={tConfig('standings')}>
+                  <Flex wrap="wrap" gap={2}>
+                    <Badge
+                      variant="subtle"
+                      colorPalette="blue"
+                      px={2}
+                      py={1}
+                      borderRadius="md"
+                    >
+                      PTS · {tManage('panels.standings.points')}
+                    </Badge>
+                    {config.standingsColumns.map((column) => (
+                      <Badge
+                        key={column.id}
+                        variant="subtle"
+                        colorPalette="gray"
+                        px={2}
+                        py={1}
+                        borderRadius="md"
+                      >
+                        {column.abbreviation} ·{' '}
+                        {tConfig(`standingsItems.${column.label}`)}
+                      </Badge>
+                    ))}
+                  </Flex>
+                </RankingInfoSection>
+              </VStack>
             </Box>
-          )}
-          <Button
-            variant="outline"
-            size="lg"
-            colorPalette="gray"
-            onClick={() =>
-              router.push(`/tournament/${tournament.slug}/schedule`)
-            }
-          >
-            <CalendarDays size={18} /> {t('viewGames')}
-          </Button>
-        </VStack>
-      )}
+          );
+        })}
+      </VStack>
+    </VModal>
+  );
+}
+
+function RankingInfoSection({
+  title,
+  children,
+}: {
+  title: ReactNode;
+  children: ReactNode;
+}) {
+  return (
+    <Box>
+      <Heading size="xs" mb={2} color="gray.700" _dark={{ color: 'gray.200' }}>
+        {title}
+      </Heading>
+      {children}
     </Box>
+  );
+}
+
+function RankingInfoRow({
+  marker,
+  title,
+  description,
+  markerColorPalette,
+}: {
+  marker: string;
+  title: ReactNode;
+  description: ReactNode;
+  markerColorPalette: 'blue' | 'gray';
+}) {
+  return (
+    <Flex align="flex-start" gap={3}>
+      <Flex
+        w="24px"
+        h="24px"
+        bg={markerColorPalette === 'blue' ? 'blue.50' : 'gray.100'}
+        borderRadius="md"
+        align="center"
+        justify="center"
+        flexShrink={0}
+        _dark={{
+          bg: markerColorPalette === 'blue' ? 'blue.900' : 'gray.700',
+        }}
+      >
+        <Text
+          fontSize="xs"
+          fontWeight="bold"
+          color={markerColorPalette === 'blue' ? 'blue.600' : 'gray.600'}
+          _dark={{
+            color: markerColorPalette === 'blue' ? 'blue.200' : 'gray.200',
+          }}
+        >
+          {marker}
+        </Text>
+      </Flex>
+      <Box minW={0}>
+        <Text fontSize="sm" fontWeight="medium">
+          {title}
+        </Text>
+        <Text fontSize="xs" color="gray.500" _dark={{ color: 'gray.400' }}>
+          {description}
+        </Text>
+      </Box>
+    </Flex>
   );
 }
 
@@ -800,17 +1109,17 @@ function StandingsTable({
     >
       {(title || teamCountLabel || action) && (
         <Flex
-          align={{ base: 'stretch', sm: 'center' }}
+          align="center"
           justify="space-between"
-          direction={{ base: 'column', sm: 'row' }}
-          gap={3}
+          direction="row"
+          gap={2}
           px={{ base: 4, md: 5 }}
           py={{ base: 3.5, md: 4 }}
           borderBottomWidth="1px"
           borderColor="gray.100"
           _dark={{ borderColor: 'gray.700' }}
         >
-          <HStack gap={2} minW={0}>
+          <HStack gap={2} minW={0} flex="1">
             {title && (
               <Text
                 as="h3"
@@ -827,7 +1136,13 @@ function StandingsTable({
               </Text>
             )}
             {teamCountLabel && (
-              <Badge colorPalette="gray" borderRadius="full" px={2} py={0.5}>
+              <Badge
+                colorPalette="gray"
+                borderRadius="full"
+                px={2}
+                py={0.5}
+                flexShrink={0}
+              >
                 {teamCountLabel}
               </Badge>
             )}

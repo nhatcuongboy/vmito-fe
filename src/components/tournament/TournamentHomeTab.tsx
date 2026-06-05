@@ -3,6 +3,7 @@
 import type { ReactNode } from 'react';
 import { useEffect, useMemo, useState } from 'react';
 import {
+  Badge,
   Box,
   Flex,
   Grid,
@@ -29,17 +30,35 @@ import {
   Gavel,
   NotebookText,
   Sparkles,
+  GitBranch,
 } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
 import {
   Tournament,
   Category,
   CategoryType,
+  CategoryRegistrationMode,
   TournamentVenue,
   UserRole,
   Venue,
+  Sponsor,
+  CategoryFormat,
 } from '@/lib/api/types';
 import { TournamentService } from '@/lib/api/tournament.service';
+import { SponsorService } from '@/lib/api/sponsor.service';
+import {
+  DEFAULT_RR_CONFIG,
+  DEFAULT_RR_TO_SE_CONFIG,
+  DEFAULT_SE_CONFIG,
+} from '@/components/tournament/format-wizard/constants';
+import type {
+  RoundRobinConfig,
+  RoundRobinToSEConfig,
+  SingleEliminationConfig,
+  StandingsColumn,
+  StatisticItem,
+  TiebreakerItem,
+} from '@/components/tournament/format-wizard/types';
 import PublicTournamentWinnersTab from '@/components/tournament/PublicTournamentWinnersTab';
 import TournamentQrBar from '@/components/tournament/TournamentQrBar';
 import { TournamentTableSkeleton } from '@/components/tournament/skeletons';
@@ -49,6 +68,7 @@ import { getGoogleMapsUrl } from '@/utils';
 import { Button } from '@/components/ui/chakra-compat';
 import { toaster } from '@/components/ui/toaster';
 import VenueMapPin from '@/components/venue/VenueMapPin';
+import { VModal, useModal } from '@/components/ui/VModal';
 
 interface ICategoryHomeItem {
   id: string;
@@ -99,6 +119,454 @@ function renderTextWithLinks(text: string): ReactNode[] {
   });
 }
 
+function getCategoryLabel(category: Category | ICategoryHomeItem) {
+  return category.name?.trim() || category.type;
+}
+
+function getRoundRobinConfig(category: Category): RoundRobinConfig {
+  const formatConfig =
+    (category.formatConfig as Record<string, unknown> | null | undefined) ?? {};
+  const rrConfig =
+    (formatConfig.roundRobin as Record<string, unknown> | null | undefined) ??
+    formatConfig;
+
+  return {
+    ...DEFAULT_RR_CONFIG,
+    ...rrConfig,
+    tiebreakers:
+      (rrConfig.tiebreakers as TiebreakerItem[] | undefined) ??
+      DEFAULT_RR_CONFIG.tiebreakers,
+    headToHeadTiebreakers:
+      (rrConfig.headToHeadTiebreakers as TiebreakerItem[] | undefined) ??
+      DEFAULT_RR_CONFIG.headToHeadTiebreakers,
+    statistics:
+      (rrConfig.statistics as StatisticItem[] | undefined) ??
+      DEFAULT_RR_CONFIG.statistics,
+    standingsColumns:
+      (rrConfig.standingsColumns as StandingsColumn[] | undefined) ??
+      DEFAULT_RR_CONFIG.standingsColumns,
+  };
+}
+
+function getSingleEliminationConfig(
+  category: Category
+): SingleEliminationConfig {
+  const formatConfig =
+    (category.formatConfig as Partial<SingleEliminationConfig> | null) ?? {};
+
+  return {
+    ...DEFAULT_SE_CONFIG,
+    ...formatConfig,
+  };
+}
+
+function getRoundRobinToSEConfig(category: Category): RoundRobinToSEConfig {
+  const formatConfig =
+    (category.formatConfig as Partial<RoundRobinToSEConfig> | null) ?? {};
+
+  return {
+    ...DEFAULT_RR_TO_SE_CONFIG,
+    ...formatConfig,
+    roundRobin: getRoundRobinConfig(category),
+  };
+}
+
+function getPointsEarningLabel(
+  pointsEarning: RoundRobinConfig['pointsEarning'],
+  tRoundRobin: ReturnType<typeof useTranslations>
+) {
+  switch (pointsEarning) {
+    case 'manual':
+      return tRoundRobin('manual');
+    case 'tiebreakers_only':
+      return tRoundRobin('tiebreakersOnly');
+    case 'match_results':
+    default:
+      return tRoundRobin('basedOnMatchResults');
+  }
+}
+
+function getMatchFormatLabel(
+  matchFormat: SingleEliminationConfig['matchFormat'],
+  tSingleElimination: ReturnType<typeof useTranslations>
+) {
+  switch (matchFormat) {
+    case 'BEST_OF_1':
+      return tSingleElimination('bestOf1');
+    case 'BEST_OF_5':
+      return 'Best of 5';
+    case 'BEST_OF_3':
+    default:
+      return tSingleElimination('bestOf3');
+  }
+}
+
+function getFormatLabel(
+  format: CategoryFormat,
+  tFormat: ReturnType<typeof useTranslations>
+) {
+  switch (format) {
+    case CategoryFormat.SINGLE_ELIMINATION:
+      return tFormat('formats.SINGLE_ELIMINATION.name');
+    case CategoryFormat.ROUND_ROBIN_TO_SE:
+      return tFormat('formats.ROUND_ROBIN_TO_SE.name');
+    case CategoryFormat.ROUND_ROBIN:
+    default:
+      return tFormat('formats.ROUND_ROBIN.name');
+  }
+}
+
+function CompetitionInfoSection({ categories }: { categories: Category[] }) {
+  const t = useTranslations('pages.tournaments.detail.homeTab');
+  const tFormat = useTranslations('pages.tournaments.detail.formatWizard');
+  const tRoundRobin = useTranslations(
+    'pages.tournaments.detail.formatWizard.config.rr'
+  );
+  const tSingleElimination = useTranslations(
+    'pages.tournaments.detail.formatWizard.config.se'
+  );
+  const tManage = useTranslations('pages.tournaments.detail.manage');
+  const modal = useModal();
+
+  if (categories.length === 0) return null;
+
+  return (
+    <>
+      <Box
+        as="button"
+        w="full"
+        textAlign="left"
+        borderWidth="1px"
+        borderColor="gray.200"
+        borderRadius="xl"
+        p={4}
+        bg="white"
+        cursor="pointer"
+        transition="background 160ms ease, border-color 160ms ease"
+        _hover={{ bg: 'gray.50', borderColor: 'gray.300' }}
+        _dark={{
+          bg: 'var(--tournament-surface-raised, var(--chakra-colors-gray-800))',
+          borderColor:
+            'var(--tournament-border, var(--chakra-colors-gray-700))',
+          boxShadow: 'var(--tournament-shadow-soft)',
+          _hover: {
+            bg: 'var(--tournament-surface-muted, var(--chakra-colors-gray-700))',
+          },
+        }}
+        onClick={modal.onOpen}
+      >
+        <Flex align="center" justify="space-between" gap={3}>
+          <HStack gap={3} minW={0}>
+            <Flex
+              align="center"
+              justify="center"
+              w="40px"
+              h="40px"
+              borderRadius="lg"
+              bg="green.50"
+              color="green.600"
+              flexShrink={0}
+              _dark={{ bg: 'green.900', color: 'green.200' }}
+            >
+              <GitBranch size={20} />
+            </Flex>
+            <Box minW={0}>
+              <Text fontWeight="semibold" fontSize="lg">
+                {t('competitionInfo.title')}
+              </Text>
+              <Text
+                fontSize="sm"
+                color="gray.500"
+                lineClamp={2}
+                _dark={{ color: 'gray.400' }}
+              >
+                {t('competitionInfo.subtitle')}
+              </Text>
+            </Box>
+          </HStack>
+          <ChevronRight size={18} color="var(--chakra-colors-gray-400)" />
+        </Flex>
+      </Box>
+
+      <VModal
+        isOpen={modal.isOpen}
+        onClose={modal.onClose}
+        title={t('competitionInfo.title')}
+        size="xl"
+        hideSecondaryAction
+        maxBodyHeight={{ base: '72vh', md: '74vh' }}
+      >
+        <VStack align="stretch" gap={4}>
+          <Text fontSize="sm" color="gray.600" _dark={{ color: 'gray.300' }}>
+            {t('competitionInfo.modalDescription')}
+          </Text>
+          <Grid templateColumns={{ base: '1fr', lg: 'repeat(2, 1fr)' }} gap={3}>
+            {categories.map((category) => (
+              <CompetitionInfoCard
+                key={category.id}
+                category={category}
+                formatLabel={getFormatLabel(category.format, tFormat)}
+                t={t}
+                tRoundRobin={tRoundRobin}
+                tSingleElimination={tSingleElimination}
+                tManage={tManage}
+              />
+            ))}
+          </Grid>
+        </VStack>
+      </VModal>
+    </>
+  );
+}
+
+function CompetitionInfoCard({
+  category,
+  formatLabel,
+  t,
+  tRoundRobin,
+  tSingleElimination,
+  tManage,
+}: {
+  category: Category;
+  formatLabel: string;
+  t: ReturnType<typeof useTranslations>;
+  tRoundRobin: ReturnType<typeof useTranslations>;
+  tSingleElimination: ReturnType<typeof useTranslations>;
+  tManage: ReturnType<typeof useTranslations>;
+}) {
+  const roundRobinConfig = getRoundRobinConfig(category);
+  const roundRobinToSEConfig =
+    category.format === CategoryFormat.ROUND_ROBIN_TO_SE
+      ? getRoundRobinToSEConfig(category)
+      : null;
+  const singleEliminationConfig =
+    category.format === CategoryFormat.SINGLE_ELIMINATION
+      ? getSingleEliminationConfig(category)
+      : null;
+  const hasRoundRobin =
+    category.format === CategoryFormat.ROUND_ROBIN ||
+    category.format === CategoryFormat.ROUND_ROBIN_TO_SE;
+  const points = [
+    {
+      id: 'win',
+      value: roundRobinConfig.winPoints,
+      label: tManage('panels.standings.pointsPerWin'),
+    },
+    {
+      id: 'tie',
+      value: roundRobinConfig.tiePoints,
+      label: tManage('panels.standings.pointsPerTie'),
+    },
+    {
+      id: 'loss',
+      value: roundRobinConfig.lossPoints,
+      label: tManage('panels.standings.pointsPerLoss'),
+    },
+    {
+      id: 'cancelled',
+      value: roundRobinConfig.cancelledMatchPoints,
+      label: tRoundRobin('cancelledMatch'),
+    },
+    {
+      id: 'game-win',
+      value: roundRobinConfig.gameWinPoints,
+      label: tManage('panels.standings.pointsPerGameWin'),
+    },
+    {
+      id: 'game-loss',
+      value: roundRobinConfig.gameLossPoints,
+      label: tManage('panels.standings.pointsPerGameLoss'),
+    },
+    {
+      id: 'forfeit-win',
+      value: roundRobinConfig.forfeitWinPoints,
+      label: tManage('panels.standings.pointsPerForfeitWin'),
+    },
+    {
+      id: 'forfeit-loss',
+      value: roundRobinConfig.forfeitLossPoints,
+      label: tManage('panels.standings.pointsPerForfeitLoss'),
+    },
+  ];
+
+  return (
+    <Box
+      borderWidth="1px"
+      borderColor="gray.200"
+      borderRadius="lg"
+      p={4}
+      bg="gray.50"
+      _dark={{
+        bg: 'var(--tournament-surface-muted, var(--chakra-colors-gray-900))',
+        borderColor: 'var(--tournament-border, var(--chakra-colors-gray-700))',
+      }}
+    >
+      <VStack align="stretch" gap={3}>
+        <Flex justify="space-between" align="flex-start" gap={3}>
+          <Box minW={0}>
+            <Text fontWeight="bold" lineClamp={1}>
+              {getCategoryLabel(category)}
+            </Text>
+            <Text fontSize="sm" color="gray.500" _dark={{ color: 'gray.400' }}>
+              {formatLabel}
+            </Text>
+          </Box>
+          <Badge colorPalette="green" flexShrink={0}>
+            {category.format === CategoryFormat.ROUND_ROBIN_TO_SE
+              ? 'RR + SE'
+              : category.format === CategoryFormat.SINGLE_ELIMINATION
+                ? 'SE'
+                : 'RR'}
+          </Badge>
+        </Flex>
+
+        {hasRoundRobin ? (
+          <>
+            <CompetitionInfoBlock
+              title={tRoundRobin('pointsEarningLabel')}
+              description={getPointsEarningLabel(
+                roundRobinConfig.pointsEarning,
+                tRoundRobin
+              )}
+            >
+              <Flex wrap="wrap" gap={2}>
+                {points.map((point) => (
+                  <Badge
+                    key={point.id}
+                    variant="subtle"
+                    colorPalette={point.value > 0 ? 'green' : 'gray'}
+                    borderRadius="md"
+                    px={2}
+                    py={1}
+                  >
+                    {point.value} {point.label}
+                  </Badge>
+                ))}
+              </Flex>
+            </CompetitionInfoBlock>
+
+            <CompetitionInfoBlock title={tRoundRobin('tiebreakers')}>
+              <VStack align="stretch" gap={1.5}>
+                {roundRobinConfig.tiebreakers.map((tiebreaker, index) => (
+                  <HStack key={tiebreaker.id} align="flex-start" gap={2}>
+                    <Badge colorPalette="blue" borderRadius="md" flexShrink={0}>
+                      {index + 1}
+                    </Badge>
+                    <Box minW={0}>
+                      <Text fontSize="sm" fontWeight="medium">
+                        {tRoundRobin(`tiebreakerItems.${tiebreaker.label}`)}
+                      </Text>
+                      <Text
+                        fontSize="xs"
+                        color="gray.500"
+                        _dark={{ color: 'gray.400' }}
+                      >
+                        {tRoundRobin(
+                          `tiebreakerItems.${tiebreaker.description}`
+                        )}
+                      </Text>
+                    </Box>
+                  </HStack>
+                ))}
+              </VStack>
+            </CompetitionInfoBlock>
+
+            <CompetitionInfoBlock title={tRoundRobin('standings')}>
+              <Flex wrap="wrap" gap={2}>
+                <Badge variant="subtle" colorPalette="blue" borderRadius="md">
+                  PTS · {tManage('panels.standings.points')}
+                </Badge>
+                {roundRobinConfig.standingsColumns.map((column) => (
+                  <Badge
+                    key={column.id}
+                    variant="subtle"
+                    colorPalette="gray"
+                    borderRadius="md"
+                  >
+                    {column.abbreviation} ·{' '}
+                    {tRoundRobin(`standingsItems.${column.label}`)}
+                  </Badge>
+                ))}
+              </Flex>
+            </CompetitionInfoBlock>
+          </>
+        ) : null}
+
+        {roundRobinToSEConfig ? (
+          <CompetitionInfoBlock title={t('competitionInfo.playoffs')}>
+            <Flex wrap="wrap" gap={2}>
+              <Badge variant="subtle" colorPalette="purple" borderRadius="md">
+                {t('competitionInfo.qualifiersPerGroup', {
+                  count: roundRobinToSEConfig.qualifiersPerGroup,
+                })}
+              </Badge>
+              <Badge variant="subtle" colorPalette="purple" borderRadius="md">
+                {getMatchFormatLabel(
+                  roundRobinToSEConfig.eliminationMatchFormat,
+                  tSingleElimination
+                )}
+              </Badge>
+            </Flex>
+          </CompetitionInfoBlock>
+        ) : null}
+
+        {singleEliminationConfig ? (
+          <CompetitionInfoBlock title={t('competitionInfo.playoffs')}>
+            <Flex wrap="wrap" gap={2}>
+              <Badge variant="subtle" colorPalette="purple" borderRadius="md">
+                {getMatchFormatLabel(
+                  singleEliminationConfig.matchFormat,
+                  tSingleElimination
+                )}
+              </Badge>
+              <Badge variant="subtle" colorPalette="purple" borderRadius="md">
+                {t('competitionInfo.thirdPlace')}:{' '}
+                {singleEliminationConfig.thirdPlaceMatch
+                  ? tSingleElimination('yes')
+                  : tSingleElimination('no')}
+              </Badge>
+            </Flex>
+          </CompetitionInfoBlock>
+        ) : null}
+      </VStack>
+    </Box>
+  );
+}
+
+function CompetitionInfoBlock({
+  title,
+  description,
+  children,
+}: {
+  title: ReactNode;
+  description?: ReactNode;
+  children: ReactNode;
+}) {
+  return (
+    <Box>
+      <Text
+        fontSize="sm"
+        fontWeight="semibold"
+        color="gray.700"
+        _dark={{ color: 'gray.200' }}
+      >
+        {title}
+      </Text>
+      {description ? (
+        <Text
+          fontSize="xs"
+          color="gray.500"
+          _dark={{ color: 'gray.400' }}
+          mb={2}
+        >
+          {description}
+        </Text>
+      ) : null}
+      {children}
+    </Box>
+  );
+}
+
 export default function TournamentHomeTab({
   tournament,
   categories,
@@ -124,6 +592,7 @@ export default function TournamentHomeTab({
   const [tournamentVenues, setTournamentVenues] = useState<IHomeVenueItem[]>(
     []
   );
+  const [sponsors, setSponsors] = useState<Sponsor[]>([]);
 
   const sharePath = useMemo(() => `/tournament/${slug}`, [slug]);
 
@@ -176,6 +645,22 @@ export default function TournamentHomeTab({
       })
       .catch((error) => {
         console.error('Error loading tournament venues:', error);
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [tournament.id]);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    SponsorService.getSponsors(tournament.id)
+      .then((data: Sponsor[]) => {
+        if (isMounted) setSponsors(data);
+      })
+      .catch((error) => {
+        console.error('Error loading tournament sponsors:', error);
       });
 
     return () => {
@@ -543,41 +1028,82 @@ export default function TournamentHomeTab({
           </Box>
         ) : (
           <VStack align="stretch" gap={0}>
-            {categories.map((category, index) => (
-              <Box key={category.id}>
-                {index > 0 && (
-                  <Box
-                    mx={4}
-                    h="1px"
-                    bg="gray.100"
-                    _dark={{ bg: 'gray.700' }}
-                  />
-                )}
-                <Flex
-                  align="center"
-                  justify="space-between"
-                  py={3}
-                  px={4}
-                  cursor="pointer"
-                  _hover={{ bg: 'gray.50' }}
-                  _dark={{ _hover: { bg: 'gray.700' } }}
-                  onClick={() =>
-                    router.push(
-                      `/tournament/${slug}/standings?category=${category.id}`
-                    )
-                  }
-                >
-                  <Text fontSize="md">{category.name}</Text>
-                  <ChevronRight
-                    size={18}
-                    color="var(--chakra-colors-gray-400)"
-                  />
-                </Flex>
-              </Box>
-            ))}
+            {(() => {
+              const fullCategoryMap = new Map(
+                fullCategories.map((c) => [c.id, c])
+              );
+              return categories.map((category, index) => {
+                const full = fullCategoryMap.get(category.id);
+                const count = full?._count?.registrations ?? 0;
+                const isIndividual =
+                  full?.registrationMode ===
+                  CategoryRegistrationMode.INDIVIDUAL;
+                const countLabel =
+                  count > 0
+                    ? isIndividual
+                      ? t('categories.playersCount', { count })
+                      : t('categories.teamsCount', { count })
+                    : null;
+
+                return (
+                  <Box key={category.id}>
+                    {index > 0 && (
+                      <Box
+                        mx={4}
+                        h="1px"
+                        bg="gray.100"
+                        _dark={{ bg: 'gray.700' }}
+                      />
+                    )}
+                    <Flex
+                      align="center"
+                      justify="space-between"
+                      py={3}
+                      px={4}
+                      cursor="pointer"
+                      _hover={{ bg: 'gray.50' }}
+                      _dark={{ _hover: { bg: 'gray.700' } }}
+                      onClick={() =>
+                        router.push(
+                          `/tournament/${slug}/standings?category=${category.id}`
+                        )
+                      }
+                    >
+                      <Text fontSize="md">{category.name}</Text>
+                      <HStack gap={2}>
+                        {countLabel && (
+                          <Box
+                            px={2}
+                            py={0.5}
+                            borderRadius="full"
+                            bg="gray.100"
+                            _dark={{ bg: 'gray.700' }}
+                          >
+                            <Text
+                              fontSize="xs"
+                              fontWeight="medium"
+                              color="gray.500"
+                              _dark={{ color: 'gray.400' }}
+                            >
+                              {countLabel}
+                            </Text>
+                          </Box>
+                        )}
+                        <ChevronRight
+                          size={18}
+                          color="var(--chakra-colors-gray-400)"
+                        />
+                      </HStack>
+                    </Flex>
+                  </Box>
+                );
+              });
+            })()}
           </VStack>
         )}
       </Box>
+
+      <CompetitionInfoSection categories={fullCategories} />
 
       {/* Champions / podium */}
       {isLoadingCategories ? (
@@ -793,6 +1319,112 @@ export default function TournamentHomeTab({
           ) : (
             <Text fontSize="sm" color="gray.500" _dark={{ color: 'gray.400' }}>
               {t('notes.empty')}
+            </Text>
+          )}
+        </Box>
+      )}
+
+      {/* Sponsors section */}
+      {(sponsors.length > 0 || isHost) && (
+        <Box
+          borderWidth="1px"
+          borderColor="gray.200"
+          borderRadius="xl"
+          p={4}
+          bg="white"
+          _dark={{
+            bg: 'var(--tournament-surface-raised, var(--chakra-colors-gray-800))',
+            borderColor:
+              'var(--tournament-border, var(--chakra-colors-gray-700))',
+            boxShadow: 'var(--tournament-shadow-soft)',
+          }}
+        >
+          <Flex justify="space-between" align="center" mb={3}>
+            <Text fontWeight="semibold" fontSize="lg">
+              {t('sponsors.title')}
+            </Text>
+            {isHost && (
+              <Box
+                as="button"
+                aria-label={t('sponsors.manage')}
+                w="32px"
+                h="32px"
+                display="flex"
+                borderRadius="md"
+                alignItems="center"
+                justifyContent="center"
+                cursor="pointer"
+                _hover={{ bg: 'gray.100', _dark: { bg: 'gray.700' } }}
+                onClick={() => handleManageOption('sponsors')}
+              >
+                <Pencil size={16} color="var(--chakra-colors-gray-500)" />
+              </Box>
+            )}
+          </Flex>
+
+          {sponsors.length > 0 ? (
+            <Flex wrap="wrap" gap={3}>
+              {sponsors.map((sponsor) => {
+                const logoBox = (
+                  <Flex
+                    align="center"
+                    justify="center"
+                    w="120px"
+                    h="72px"
+                    p={2}
+                    borderWidth="1px"
+                    borderColor="gray.200"
+                    borderRadius="lg"
+                    bg="white"
+                    overflow="hidden"
+                    _dark={{
+                      bg: 'gray.900',
+                      borderColor: 'gray.700',
+                    }}
+                  >
+                    {sponsor.logo ? (
+                      <Image
+                        src={sponsor.logo}
+                        alt={sponsor.name}
+                        maxW="100%"
+                        maxH="100%"
+                        objectFit="contain"
+                      />
+                    ) : (
+                      <Text
+                        fontSize="sm"
+                        fontWeight="medium"
+                        textAlign="center"
+                        color="gray.700"
+                        _dark={{ color: 'gray.300' }}
+                      >
+                        {sponsor.name}
+                      </Text>
+                    )}
+                  </Flex>
+                );
+
+                return sponsor.website ? (
+                  <Link
+                    key={sponsor.id}
+                    href={sponsor.website}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    title={sponsor.name}
+                    _hover={{ textDecoration: 'none', opacity: 0.85 }}
+                  >
+                    {logoBox}
+                  </Link>
+                ) : (
+                  <Box key={sponsor.id} title={sponsor.name}>
+                    {logoBox}
+                  </Box>
+                );
+              })}
+            </Flex>
+          ) : (
+            <Text fontSize="sm" color="gray.500" _dark={{ color: 'gray.400' }}>
+              {t('sponsors.empty')}
             </Text>
           )}
         </Box>

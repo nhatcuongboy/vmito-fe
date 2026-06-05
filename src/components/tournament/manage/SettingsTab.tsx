@@ -2,20 +2,19 @@
 
 import { VStack } from '@/components/ui/chakra-compat';
 import {
-  UserCog,
   Pencil,
   Calendar,
   MapPin,
   Globe,
-  Link,
   Image,
-  FileText,
   Copy,
   Trash2,
   Phone,
+  ShieldCheck,
 } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
 import { Tournament } from '@/lib/api/types';
+import { useAuthStore } from '@/stores/useAuthStore';
 import ManageMenuItem from './ManageMenuItem';
 
 interface SettingsTabProps {
@@ -31,6 +30,9 @@ export default function SettingsTab({
 }: SettingsTabProps) {
   const t = useTranslations('pages.tournaments.detail.manage');
   const locale = useLocale();
+  const { user } = useAuthStore();
+  const isHostOrAdmin =
+    user?.id === tournament.hostId || user?.role === 'ADMIN';
 
   const formattedDate = new Date(tournament.startDate).toLocaleDateString(
     locale,
@@ -48,14 +50,16 @@ export default function SettingsTab({
 
   return (
     <VStack gap={3} align="stretch">
-      {/* Admins */}
-      <ManageMenuItem
-        icon={UserCog}
-        title={t('settings.admins.title')}
-        description={t('settings.admins.description')}
-        isActive={selectedItem === 'admins'}
-        onClick={() => onItemClick('admins')}
-      />
+      {/* Tournament managers (host/admin only) */}
+      {isHostOrAdmin && (
+        <ManageMenuItem
+          icon={ShieldCheck}
+          title={t('organize.managers.title')}
+          description={t('organize.managers.description')}
+          isActive={selectedItem === 'managers'}
+          onClick={() => onItemClick('managers')}
+        />
+      )}
 
       {/* Name */}
       <ManageMenuItem
@@ -93,15 +97,6 @@ export default function SettingsTab({
         onClick={() => onItemClick('visibility')}
       />
 
-      {/* Custom link */}
-      <ManageMenuItem
-        icon={Link}
-        title={t('settings.customLink.title')}
-        description={`tourny.ca/t/${tournament.slug}`}
-        isActive={selectedItem === 'customLink'}
-        onClick={() => onItemClick('customLink')}
-      />
-
       {/* Banner */}
       <ManageMenuItem
         icon={Image}
@@ -123,15 +118,6 @@ export default function SettingsTab({
         }
         isActive={selectedItem === 'contact'}
         onClick={() => onItemClick('contact')}
-      />
-
-      {/* Rosters */}
-      <ManageMenuItem
-        icon={FileText}
-        title={t('settings.rosters.title')}
-        description={t('settings.rosters.description')}
-        isActive={selectedItem === 'rosters'}
-        onClick={() => onItemClick('rosters')}
       />
 
       {/* Duplicate tournament */}

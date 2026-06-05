@@ -48,6 +48,10 @@ import TournamentSidebar from '@/components/tournament/TournamentSidebar';
 import PublicTournamentStandingsTab from '@/components/tournament/PublicTournamentStandingsTab';
 import ResultsPanel from '@/components/tournament/manage/panels/ResultsPanel';
 import { useTournamentBottomNav } from '@/hooks/useTournamentBottomNav';
+import {
+  readTournamentNavCache,
+  writeTournamentNavCache,
+} from '@/lib/tournamentNavCache';
 import TournamentTopBarMenu from '@/components/tournament/TournamentTopBarMenu';
 import {
   getTournamentPlayerCode,
@@ -431,19 +435,28 @@ export default function TournamentPageShell({
   // manager with at least one permission scope. Lets managers reach the manage
   // screen (per-action scopes are still enforced by the backend).
   const [myAccess, setMyAccess] = useState<TournamentMyAccess | null>(null);
+  const [myAccessChecked, setMyAccessChecked] = useState(false);
 
   useEffect(() => {
     if (!user || !tournament) {
       setMyAccess(null);
+      setMyAccessChecked(true);
       return;
     }
     let active = true;
+    setMyAccessChecked(false);
     TournamentManagerService.getMyAccess(tournament.id)
       .then((access) => {
-        if (active) setMyAccess(access);
+        if (active) {
+          setMyAccess(access);
+          setMyAccessChecked(true);
+        }
       })
       .catch(() => {
-        if (active) setMyAccess(null);
+        if (active) {
+          setMyAccess(null);
+          setMyAccessChecked(true);
+        }
       });
     return () => {
       active = false;
@@ -451,8 +464,36 @@ export default function TournamentPageShell({
   }, [user, tournament]);
 
   const isAdmin = user?.role === 'ADMIN';
-  const canManage =
+  const realIsHostOrAdmin = isHost || isAdmin;
+  const realCanManage =
     isHost || isAdmin || (myAccess?.permissions.length ?? 0) > 0;
+
+  // Management visibility is only fully known once the tournament (for host
+  // detection) and the manager-access check have both resolved. Until then we
+  // optimistically reuse the per-session cache so a host/admin/manager keeps
+  // their Manage/Dashboard tabs across tab navigations instead of flickering
+  // back to the 4 public tabs. The cache is scoped by userId and disabled for
+  // logged-out users, so guests never see management menus.
+  const accessResolved = !!tournament && myAccessChecked;
+  const cachedAccess = useMemo(
+    () => readTournamentNavCache(user?.id ?? null, slug),
+    [user?.id, slug]
+  );
+
+  const canManage = accessResolved
+    ? realCanManage
+    : (cachedAccess?.canManage ?? false);
+  const isHostOrAdmin = accessResolved
+    ? realIsHostOrAdmin
+    : (cachedAccess?.isHostOrAdmin ?? false);
+
+  useEffect(() => {
+    if (!accessResolved) return;
+    writeTournamentNavCache(user?.id ?? null, slug, {
+      canManage: realCanManage,
+      isHostOrAdmin: realIsHostOrAdmin,
+    });
+  }, [accessResolved, realCanManage, realIsHostOrAdmin, user?.id, slug]);
 
   const activeTab = SEGMENT_TO_TAB[activeSegment];
 
@@ -460,8 +501,7 @@ export default function TournamentPageShell({
     slug,
     activeTabId: activeTab,
     canManage,
-    isHostOrAdmin: isHost || isAdmin,
-    userId: user?.id ?? null,
+    isHostOrAdmin,
   });
 
   const bottomNavTabs = tabs;
@@ -791,7 +831,7 @@ export default function TournamentPageShell({
     // For a host/admin or a logged-out user the verdict is immediate; for a
     // potential manager we must wait until the access check has resolved before
     // redirecting, otherwise we'd bounce them off /manage prematurely.
-    const accessResolved = isHost || isAdmin || !user || myAccess !== null;
+    const accessResolved = isHost || isAdmin || !user || myAccessChecked;
     const blockedFromManage =
       activeSegment === 'manage' && accessResolved && !canManage;
     const blockedFromDashboard =
@@ -807,6 +847,7 @@ export default function TournamentPageShell({
     isAdmin,
     canManage,
     myAccess,
+    myAccessChecked,
     activeSegment,
     router,
     slug,
@@ -953,20 +994,22 @@ export default function TournamentPageShell({
                 </Badge>
               </HStack>
             </Box>
-            <Button
-              alignSelf={{ base: 'stretch', md: 'center' }}
-              size="md"
-              variant="subtle"
-              colorPalette="gray"
-              borderRadius="full"
-              px={5}
-              onClick={handleManageTeamsClick}
-            >
-              <HStack gap={2}>
-                <SquarePen size={16} />
-                <Text>{t('teamsTab.manageTeams')}</Text>
-              </HStack>
-            </Button>
+            {canManage && (
+              <Button
+                alignSelf={{ base: 'stretch', md: 'center' }}
+                size="md"
+                variant="subtle"
+                colorPalette="gray"
+                borderRadius="full"
+                px={5}
+                onClick={handleManageTeamsClick}
+              >
+                <HStack gap={2}>
+                  <SquarePen size={16} />
+                  <Text>{t('teamsTab.manageTeams')}</Text>
+                </HStack>
+              </Button>
+            )}
           </Flex>
 
           {/* View toggle: by category vs. all players */}

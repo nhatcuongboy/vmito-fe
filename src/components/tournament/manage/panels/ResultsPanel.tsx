@@ -520,8 +520,7 @@ export default function ResultsPanel({
         <Flex
           align="center"
           gap={2}
-          wrap="wrap"
-          justify={{ base: 'stretch', md: 'end' }}
+          justify="space-between"
           w={{ base: 'full', md: 'auto' }}
           p={1}
           borderWidth="1px"
@@ -537,7 +536,8 @@ export default function ResultsPanel({
           }}
         >
           <Flex
-            flex={{ base: '1 1 100%', sm: '0 0 auto' }}
+            flex={{ base: 1, sm: '0 1 auto' }}
+            minW={0}
             p={0.5}
             gap={1}
             borderRadius="md"
@@ -566,7 +566,7 @@ export default function ResultsPanel({
             active={showPlayerNames}
             onToggle={() => setShowPlayerNames((prev) => !prev)}
             title={t('showPlayerNames')}
-            fullWidthOnMobile
+            label={t('showPlayerNamesBadge')}
           />
         </Flex>
       </Flex>
