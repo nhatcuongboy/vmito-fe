@@ -1,7 +1,7 @@
 'use client';
 
 import type { ReactNode } from 'react';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Badge, Box, Flex, Heading, HStack, Text } from '@chakra-ui/react';
 import {
   BarChart3,
@@ -34,10 +34,15 @@ import {
 import PublicTournamentBracket from '@/components/tournament/PublicTournamentBracket';
 import PlayerNamesToggle from '@/components/tournament/PlayerNamesToggle';
 import { Link } from '@/i18n/config';
-import { useSearchParams } from 'next/navigation';
+import {
+  usePathname,
+  useRouter as useNextRouter,
+  useSearchParams,
+} from 'next/navigation';
 import { Button, LegacySelect, VStack } from '@/components/ui/chakra-compat';
 import { TournamentTableSkeleton } from '@/components/tournament/skeletons';
 import { VModal } from '@/components/ui/VModal';
+import { useTournamentSocket } from '@/hooks/useTournamentSocket';
 
 interface PublicTournamentStandingsTabProps {
   tournament: Tournament;
@@ -57,6 +62,13 @@ interface OverallStandingRow extends GroupStanding {
 
 const ALL_CATEGORIES_VALUE = 'all';
 const SHOW_PLAYER_NAMES_STORAGE_KEY = 'vmito.standings.showPlayerNames';
+const REALTIME_REFRESH_DELAY_MS = 500;
+const FILTER_PARAM_KEYS = {
+  category: 'category',
+  stage: 'stage',
+  view: 'view',
+  players: 'players',
+} as const;
 
 type StageView = 'pool' | 'playoffs';
 type StandingView = 'pools' | 'overall';
@@ -184,25 +196,101 @@ function getPointsEarningLabel(
   }
 }
 
+function parseCategoryFilter(
+  searchParams: URLSearchParams | ReadonlyURLSearchParamsLike
+) {
+  return searchParams.get(FILTER_PARAM_KEYS.category) || ALL_CATEGORIES_VALUE;
+}
+
+function parseStageView(raw: string | null): StageView {
+  return raw === 'playoffs' ? 'playoffs' : 'pool';
+}
+
+function parseStandingView(raw: string | null): StandingView {
+  return raw === 'overall' ? 'overall' : 'pools';
+}
+
+function parseBooleanParam(raw: string | null) {
+  if (raw === '1' || raw === 'true') return true;
+  if (raw === '0' || raw === 'false') return false;
+  return null;
+}
+
+function buildStandingsSearchParams(
+  current: URLSearchParams | ReadonlyURLSearchParamsLike,
+  values: {
+    selectedCategoryId: string;
+    stageView: StageView;
+    standingView: StandingView;
+    showPlayerNames: boolean;
+  }
+) {
+  const params = new URLSearchParams(current.toString());
+
+  setStringParam(
+    params,
+    FILTER_PARAM_KEYS.category,
+    values.selectedCategoryId === ALL_CATEGORIES_VALUE
+      ? ''
+      : values.selectedCategoryId
+  );
+  setStringParam(
+    params,
+    FILTER_PARAM_KEYS.stage,
+    values.stageView === 'pool' ? '' : values.stageView
+  );
+  setStringParam(
+    params,
+    FILTER_PARAM_KEYS.view,
+    values.standingView === 'pools' ? '' : values.standingView
+  );
+  setStringParam(
+    params,
+    FILTER_PARAM_KEYS.players,
+    values.showPlayerNames ? '1' : ''
+  );
+
+  return params;
+}
+
+function setStringParam(params: URLSearchParams, key: string, value: string) {
+  if (value) {
+    params.set(key, value);
+  } else {
+    params.delete(key);
+  }
+}
+
+type ReadonlyURLSearchParamsLike = Pick<URLSearchParams, 'get' | 'toString'>;
+
 export default function PublicTournamentStandingsTab({
   tournament,
   categories,
   isHost,
 }: PublicTournamentStandingsTabProps) {
   const t = useTranslations('pages.tournaments.detail.standingsTab');
+  const nextRouter = useNextRouter();
+  const pathname = usePathname();
   const searchParams = useSearchParams();
-  const initialCategoryId =
-    searchParams.get('category') || ALL_CATEGORIES_VALUE;
   const [standingsByCategory, setStandingsByCategory] = useState<
     CategoryStandingsBlock[]
   >([]);
   const [matches, setMatches] = useState<CategoryMatch[]>([]);
-  const [selectedCategoryId, setSelectedCategoryId] =
-    useState(initialCategoryId);
-  const [stageView, setStageView] = useState<StageView>('pool');
-  const [standingView, setStandingView] = useState<StandingView>('pools');
+  const [selectedCategoryId, setSelectedCategoryId] = useState(() =>
+    parseCategoryFilter(searchParams)
+  );
+  const [stageView, setStageView] = useState<StageView>(() =>
+    parseStageView(searchParams.get(FILTER_PARAM_KEYS.stage))
+  );
+  const [standingView, setStandingView] = useState<StandingView>(() =>
+    parseStandingView(searchParams.get(FILTER_PARAM_KEYS.view))
+  );
   const [isRankingInfoOpen, setIsRankingInfoOpen] = useState(false);
   const [showPlayerNames, setShowPlayerNames] = useState<boolean>(() => {
+    const urlValue = parseBooleanParam(
+      searchParams.get(FILTER_PARAM_KEYS.players)
+    );
+    if (urlValue !== null) return urlValue;
     if (typeof window === 'undefined') return false;
     return window.localStorage.getItem(SHOW_PLAYER_NAMES_STORAGE_KEY) === '1';
   });
@@ -211,6 +299,9 @@ export default function PublicTournamentStandingsTab({
   const [recalculatingGroupId, setRecalculatingGroupId] = useState<
     string | null
   >(null);
+  const realtimeRefreshTimeoutRef = useRef<ReturnType<
+    typeof setTimeout
+  > | null>(null);
 
   const categoriesById = useMemo(
     () => new Map(categories.map((category) => [category.id, category])),
@@ -225,36 +316,116 @@ export default function PublicTournamentStandingsTab({
     []
   );
 
-  const loadStandings = useCallback(async () => {
-    if (categories.length === 0) {
-      setStandingsByCategory([]);
-      setLoading(false);
-      setError(false);
-      return;
-    }
+  const loadStandings = useCallback(
+    async (options?: { silent?: boolean }) => {
+      if (categories.length === 0) {
+        setStandingsByCategory([]);
+        setLoading(false);
+        setError(false);
+        return;
+      }
 
-    try {
-      setLoading(true);
-      setError(false);
-      const [blocks, allMatches] = await Promise.all([
-        Promise.all(categories.map(loadCategoryStandings)),
-        TournamentService.getAllMatches(tournament.id),
-      ]);
-      setStandingsByCategory(blocks);
-      setMatches(allMatches);
-    } catch (loadError) {
-      console.error('Error loading tournament standings:', loadError);
-      setError(true);
-      setStandingsByCategory([]);
-      setMatches([]);
-    } finally {
-      setLoading(false);
-    }
-  }, [categories, loadCategoryStandings, tournament.id]);
+      try {
+        if (!options?.silent) setLoading(true);
+        setError(false);
+        const [blocks, allMatches] = await Promise.all([
+          Promise.all(categories.map(loadCategoryStandings)),
+          TournamentService.getAllMatches(tournament.id),
+        ]);
+        setStandingsByCategory(blocks);
+        setMatches(allMatches);
+      } catch (loadError) {
+        console.error('Error loading tournament standings:', loadError);
+        setError(true);
+        setStandingsByCategory([]);
+        setMatches([]);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [categories, loadCategoryStandings, tournament.id]
+  );
 
   useEffect(() => {
     void loadStandings();
   }, [loadStandings]);
+
+  useEffect(() => {
+    const nextCategoryId = parseCategoryFilter(searchParams);
+    setSelectedCategoryId((prev) =>
+      prev === nextCategoryId ? prev : nextCategoryId
+    );
+
+    const nextStageView = parseStageView(
+      searchParams.get(FILTER_PARAM_KEYS.stage)
+    );
+    setStageView((prev) => (prev === nextStageView ? prev : nextStageView));
+
+    const nextStandingView = parseStandingView(
+      searchParams.get(FILTER_PARAM_KEYS.view)
+    );
+    setStandingView((prev) =>
+      prev === nextStandingView ? prev : nextStandingView
+    );
+
+    const nextShowPlayerNames = parseBooleanParam(
+      searchParams.get(FILTER_PARAM_KEYS.players)
+    );
+    if (nextShowPlayerNames !== null) {
+      setShowPlayerNames((prev) =>
+        prev === nextShowPlayerNames ? prev : nextShowPlayerNames
+      );
+    }
+  }, [searchParams]);
+
+  useEffect(() => {
+    const nextParams = buildStandingsSearchParams(searchParams, {
+      selectedCategoryId,
+      stageView,
+      standingView,
+      showPlayerNames,
+    });
+    const nextQuery = nextParams.toString();
+    if (nextQuery === searchParams.toString()) return;
+
+    nextRouter.replace(nextQuery ? `${pathname}?${nextQuery}` : pathname, {
+      scroll: false,
+    });
+  }, [
+    nextRouter,
+    pathname,
+    searchParams,
+    selectedCategoryId,
+    showPlayerNames,
+    stageView,
+    standingView,
+  ]);
+
+  const scheduleRealtimeRefresh = useCallback(() => {
+    if (realtimeRefreshTimeoutRef.current) {
+      clearTimeout(realtimeRefreshTimeoutRef.current);
+    }
+
+    realtimeRefreshTimeoutRef.current = setTimeout(() => {
+      realtimeRefreshTimeoutRef.current = null;
+      void loadStandings({ silent: true });
+    }, REALTIME_REFRESH_DELAY_MS);
+  }, [loadStandings]);
+
+  useEffect(() => {
+    return () => {
+      if (realtimeRefreshTimeoutRef.current) {
+        clearTimeout(realtimeRefreshTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  useTournamentSocket(tournament.id, {
+    onScoreUpdated: scheduleRealtimeRefresh,
+    onMatchStarted: scheduleRealtimeRefresh,
+    onMatchEnded: scheduleRealtimeRefresh,
+    onReconnect: () => void loadStandings({ silent: true }),
+  });
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
