@@ -141,6 +141,8 @@ const FILTER_PARAM_KEYS = {
   dateFrom: 'from',
   dateTo: 'to',
   query: 'q',
+  viewMode: 'view',
+  showPlayerNames: 'players',
 } as const;
 
 export default function ResultsPanel({
@@ -170,10 +172,13 @@ export default function ResultsPanel({
     null
   );
   const [editFromDetail, setEditFromDetail] = useState(false);
-  const [viewMode, setViewMode] = useState<ViewMode>('list');
+  const [viewMode, setViewMode] = useState<ViewMode>(() =>
+    parseViewMode(searchParams.get(FILTER_PARAM_KEYS.viewMode))
+  );
   const [showPlayerNames, setShowPlayerNames] = useState<boolean>(() => {
-    if (typeof window === 'undefined') return false;
-    return window.localStorage.getItem(SHOW_PLAYER_NAMES_STORAGE_KEY) === '1';
+    return parseShowPlayerNamesParam(
+      searchParams.get(FILTER_PARAM_KEYS.showPlayerNames)
+    );
   });
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [filters, setFilters] = useState<ResultFilters>(() =>
@@ -212,21 +217,39 @@ export default function ResultsPanel({
   }, [load]);
 
   useEffect(() => {
+    const nextViewMode = parseViewMode(
+      searchParams.get(FILTER_PARAM_KEYS.viewMode)
+    );
+    const nextShowPlayerNames = parseShowPlayerNamesParam(
+      searchParams.get(FILTER_PARAM_KEYS.showPlayerNames)
+    );
     const nextFilters = parseFiltersFromSearchParams(searchParams);
+    setViewMode((prev) => (prev === nextViewMode ? prev : nextViewMode));
+    setShowPlayerNames((prev) =>
+      prev === nextShowPlayerNames ? prev : nextShowPlayerNames
+    );
     setFilters((prev) =>
       areResultFiltersEqual(prev, nextFilters) ? prev : nextFilters
     );
   }, [searchParams]);
 
   useEffect(() => {
-    const nextParams = buildResultFilterSearchParams(searchParams, filters);
+    const nextParams = buildResultFilterSearchParams(
+      searchParams,
+      filters,
+      viewMode,
+      showPlayerNames
+    );
     const nextQuery = nextParams.toString();
-    if (nextQuery === searchParams.toString()) return;
+    const currentQuery = new URLSearchParams(
+      searchParams.toString()
+    ).toString();
+    if (nextQuery === currentQuery) return;
 
     nextRouter.replace(nextQuery ? `${pathname}?${nextQuery}` : pathname, {
       scroll: false,
     });
-  }, [filters, nextRouter, pathname, searchParams]);
+  }, [filters, nextRouter, pathname, searchParams, showPlayerNames, viewMode]);
 
   const scheduleRealtimeRefresh = useCallback(() => {
     if (realtimeRefreshTimeoutRef.current) {
@@ -1930,6 +1953,16 @@ function parseStatuses(raw: string | null): ResultFilters['statuses'] {
   );
 }
 
+function parseViewMode(raw: string | null): ViewMode {
+  return raw === 'calendar' ? 'calendar' : 'list';
+}
+
+function parseShowPlayerNamesParam(raw: string | null) {
+  if (raw != null) return raw === '1';
+  if (typeof window === 'undefined') return false;
+  return window.localStorage.getItem(SHOW_PLAYER_NAMES_STORAGE_KEY) === '1';
+}
+
 function parseFiltersFromSearchParams(
   searchParams: URLSearchParams | ReadonlyURLSearchParamsLike
 ): ResultFilters {
@@ -1947,7 +1980,9 @@ function parseFiltersFromSearchParams(
 
 function buildResultFilterSearchParams(
   current: URLSearchParams | ReadonlyURLSearchParamsLike,
-  filters: ResultFilters
+  filters: ResultFilters,
+  viewMode: ViewMode,
+  showPlayerNames: boolean
 ) {
   const params = new URLSearchParams(current.toString());
 
@@ -1959,6 +1994,16 @@ function buildResultFilterSearchParams(
   setStringParam(params, FILTER_PARAM_KEYS.dateFrom, filters.dateFrom);
   setStringParam(params, FILTER_PARAM_KEYS.dateTo, filters.dateTo);
   setStringParam(params, FILTER_PARAM_KEYS.query, filters.query.trim());
+  setStringParam(
+    params,
+    FILTER_PARAM_KEYS.viewMode,
+    viewMode === 'calendar' ? viewMode : ''
+  );
+  setStringParam(
+    params,
+    FILTER_PARAM_KEYS.showPlayerNames,
+    showPlayerNames ? '1' : ''
+  );
 
   return params;
 }
