@@ -11,6 +11,7 @@ import {
   Trash2,
   Phone,
   ShieldCheck,
+  Youtube,
 } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
 import { Tournament } from '@/lib/api/types';
@@ -104,6 +105,14 @@ export default function SettingsTab({
         description={t('settings.banner.description')}
         isActive={selectedItem === 'banner'}
         onClick={() => onItemClick('banner')}
+      />
+
+      <ManageMenuItem
+        icon={Youtube}
+        title={t('settings.videos.title')}
+        description={t('settings.videos.description')}
+        isActive={selectedItem === 'videos'}
+        onClick={() => onItemClick('videos')}
       />
 
       {/* Contact */}

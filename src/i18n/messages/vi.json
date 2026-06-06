@@ -1649,6 +1649,12 @@
             "edit": "Chỉnh sửa ghi chú",
             "empty": "Chưa có ghi chú cho giải đấu."
           },
+          "videos": {
+            "title": "Video",
+            "edit": "Chỉnh sửa video",
+            "empty": "Chưa có video YouTube.",
+            "iframeTitle": "Video YouTube của giải đấu"
+          },
           "venues": {
             "title": "Địa điểm",
             "manage": "Quản lý địa điểm",
@@ -2364,6 +2370,10 @@
               "title": "Ảnh banner",
               "description": "Tải lên ảnh banner cho trang giải đấu."
             },
+            "videos": {
+              "title": "Video YouTube",
+              "description": "Nhúng video vào trang chủ giải đấu."
+            },
             "contact": {
               "title": "Thông tin liên hệ",
               "description": "Cập nhật tên, email và số điện thoại liên hệ."
@@ -2881,6 +2891,22 @@
               "errors": {
                 "noChanges": "Không có thay đổi để lưu",
                 "updateFailed": "Cập nhật ảnh bìa thất bại"
+              }
+            },
+            "videos": {
+              "title": "Video YouTube",
+              "description": "Dán một hoặc nhiều link YouTube để hiển thị trên trang chủ giải đấu.",
+              "placeholder": "https://www.youtube.com/watch?v=...",
+              "add": "Thêm video",
+              "remove": "Xóa video",
+              "save": "Lưu",
+              "cancel": "Hủy",
+              "success": "Cập nhật video YouTube thành công",
+              "invalidHelper": "Nhập link YouTube hợp lệ.",
+              "errors": {
+                "invalidUrl": "Vui lòng sửa các link YouTube chưa hợp lệ trước khi lưu",
+                "noChanges": "Không có thay đổi để lưu",
+                "updateFailed": "Cập nhật video YouTube thất bại"
               }
             },
             "contact": {
@@ -3474,6 +3500,8 @@
           "status": "Trạng thái",
           "dates": "Ngày",
           "teams": "Đội",
+          "search": "Tìm kiếm",
+          "searchPlaceholder": "Tìm tên VĐV hoặc đội",
           "clear": "Xóa lọc",
           "apply": "Áp dụng",
           "empty": "Không có trận nào khớp bộ lọc.",

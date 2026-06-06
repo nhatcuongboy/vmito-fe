@@ -707,6 +707,7 @@ function parseFiltersFromSearchParams(
     teamIds: parseCsv(searchParams.get(FILTER_PARAM_KEYS.teamIds)),
     dateFrom: searchParams.get(FILTER_PARAM_KEYS.dateFrom) ?? '',
     dateTo: searchParams.get(FILTER_PARAM_KEYS.dateTo) ?? '',
+    query: '',
   };
 }
 

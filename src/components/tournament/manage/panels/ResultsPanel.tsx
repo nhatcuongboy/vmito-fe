@@ -1,6 +1,18 @@
 'use client';
 
-import { Fragment, useCallback, useEffect, useMemo, useState } from 'react';
+import {
+  Fragment,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
+import {
+  usePathname,
+  useRouter as useNextRouter,
+  useSearchParams,
+} from 'next/navigation';
 import { Badge, Box, Flex, Heading, Text } from '@chakra-ui/react';
 import { Button, Input, VStack } from '@/components/ui/chakra-compat';
 import {
@@ -21,6 +33,7 @@ import {
   Flag,
   List,
   RotateCcw,
+  Search,
   Trophy,
   X,
 } from 'lucide-react';
@@ -50,6 +63,7 @@ import DeleteMatchConfirmModal from './schedule/DeleteMatchConfirmModal';
 import EditMatchTimeSheet from './schedule/EditMatchTimeSheet';
 import { TournamentMatchListSkeleton } from '@/components/tournament/skeletons';
 import PlayerNamesToggle from '@/components/tournament/PlayerNamesToggle';
+import { useTournamentSocket } from '@/hooks/useTournamentSocket';
 
 interface Props {
   tournament: Tournament;
@@ -81,6 +95,7 @@ export interface ResultFilters {
   teamIds: string[];
   dateFrom: string;
   dateTo: string;
+  query: string;
 }
 
 export interface ChipOption {
@@ -100,6 +115,7 @@ export const EMPTY_FILTERS: ResultFilters = {
   teamIds: [],
   dateFrom: '',
   dateTo: '',
+  query: '',
 };
 
 export const CATEGORY_COLORS = [
@@ -115,6 +131,17 @@ export const CATEGORY_COLORS = [
 
 const CALENDAR_ROW_HEIGHT = 152;
 const CALENDAR_TIME_COL_WIDTH = 78;
+const REALTIME_REFRESH_DELAY_MS = 500;
+const FILTER_PARAM_KEYS = {
+  categoryIds: 'categories',
+  rounds: 'rounds',
+  courtIds: 'courts',
+  statuses: 'statuses',
+  teamIds: 'teams',
+  dateFrom: 'from',
+  dateTo: 'to',
+  query: 'q',
+} as const;
 
 export default function ResultsPanel({
   tournament,
@@ -129,6 +156,9 @@ export default function ResultsPanel({
   const tManage = useTranslations('pages.tournaments.detail.manage');
   const tRounds = useTranslations('pages.tournaments.manualScore.rounds');
   const locale = useLocale();
+  const nextRouter = useNextRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
 
   const [matches, setMatches] = useState<CategoryMatch[]>([]);
   const [courts, setCourts] = useState<TournamentCourt[]>([]);
@@ -146,7 +176,9 @@ export default function ResultsPanel({
     return window.localStorage.getItem(SHOW_PLAYER_NAMES_STORAGE_KEY) === '1';
   });
   const [isFilterOpen, setIsFilterOpen] = useState(false);
-  const [filters, setFilters] = useState<ResultFilters>(EMPTY_FILTERS);
+  const [filters, setFilters] = useState<ResultFilters>(() =>
+    parseFiltersFromSearchParams(searchParams)
+  );
   const [deletingMatch, setDeletingMatch] = useState<CategoryMatch | null>(
     null
   );
@@ -155,6 +187,9 @@ export default function ResultsPanel({
     null
   );
   const [isResetting, setIsResetting] = useState(false);
+  const realtimeRefreshTimeoutRef = useRef<ReturnType<
+    typeof setTimeout
+  > | null>(null);
 
   const courtAbbreviation =
     tournament.venue?.acronym ?? tournament.venue?.name ?? undefined;
@@ -175,6 +210,65 @@ export default function ResultsPanel({
   useEffect(() => {
     void load().finally(() => setLoading(false));
   }, [load]);
+
+  useEffect(() => {
+    const nextFilters = parseFiltersFromSearchParams(searchParams);
+    setFilters((prev) =>
+      areResultFiltersEqual(prev, nextFilters) ? prev : nextFilters
+    );
+  }, [searchParams]);
+
+  useEffect(() => {
+    const nextParams = buildResultFilterSearchParams(searchParams, filters);
+    const nextQuery = nextParams.toString();
+    if (nextQuery === searchParams.toString()) return;
+
+    nextRouter.replace(nextQuery ? `${pathname}?${nextQuery}` : pathname, {
+      scroll: false,
+    });
+  }, [filters, nextRouter, pathname, searchParams]);
+
+  const scheduleRealtimeRefresh = useCallback(() => {
+    if (realtimeRefreshTimeoutRef.current) {
+      clearTimeout(realtimeRefreshTimeoutRef.current);
+    }
+
+    realtimeRefreshTimeoutRef.current = setTimeout(() => {
+      realtimeRefreshTimeoutRef.current = null;
+      void load();
+    }, REALTIME_REFRESH_DELAY_MS);
+  }, [load]);
+
+  useEffect(() => {
+    return () => {
+      if (realtimeRefreshTimeoutRef.current) {
+        clearTimeout(realtimeRefreshTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  useTournamentSocket(tournament.id, {
+    onScoreUpdated: scheduleRealtimeRefresh,
+    onMatchStarted: scheduleRealtimeRefresh,
+    onMatchEnded: scheduleRealtimeRefresh,
+    onRefereeAssigned: scheduleRealtimeRefresh,
+    onReconnect: () => void load(),
+  });
+
+  useEffect(() => {
+    setSelected((current) => {
+      if (!current) return current;
+      return matches.find((match) => match.id === current.id) ?? current;
+    });
+    setDetailMatch((current) => {
+      if (!current) return current;
+      return matches.find((match) => match.id === current.id) ?? current;
+    });
+    setSchedulingMatch((current) => {
+      if (!current) return current;
+      return matches.find((match) => match.id === current.id) ?? current;
+    });
+  }, [matches]);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -517,11 +611,19 @@ export default function ResultsPanel({
 
           <Flex
             display={{ base: 'flex', md: 'none' }}
-            align="center"
+            align="stretch"
             justify="space-between"
             gap={3}
             w="full"
+            direction={{ base: 'column', sm: 'row' }}
           >
+            <SearchInput
+              value={filters.query}
+              onChange={(value) =>
+                setFilters((prev) => ({ ...prev, query: value }))
+              }
+              placeholder={t('filters.searchPlaceholder')}
+            />
             <PlayerNamesToggle
               active={showPlayerNames}
               onToggle={() => setShowPlayerNames((prev) => !prev)}
@@ -562,6 +664,16 @@ export default function ResultsPanel({
           justify={{ base: 'stretch', md: 'flex-end' }}
           w={{ base: 'full', md: 'auto' }}
         >
+          <Box display={{ base: 'none', md: 'block' }} w="280px">
+            <SearchInput
+              value={filters.query}
+              onChange={(value) =>
+                setFilters((prev) => ({ ...prev, query: value }))
+              }
+              placeholder={t('filters.searchPlaceholder')}
+            />
+          </Box>
+
           <Flex
             align="center"
             gap={2}
@@ -1398,6 +1510,16 @@ export function FilterDrawer({
         </DrawerHeader>
         <DrawerBody>
           <VStack align="stretch" gap={6}>
+            <FilterSection title={t('filters.search')}>
+              <SearchInput
+                value={filters.query}
+                onChange={(value) =>
+                  setFilters((prev) => ({ ...prev, query: value }))
+                }
+                placeholder={t('filters.searchPlaceholder')}
+              />
+            </FilterSection>
+
             <FilterSection title={t('filters.categories')}>
               <ChipGroup
                 options={categoryOptions}
@@ -1630,6 +1752,43 @@ function EmptyResults({ onClear }: { onClear: () => void }) {
   );
 }
 
+function SearchInput({
+  value,
+  onChange,
+  placeholder,
+}: {
+  value: string;
+  onChange: (value: string) => void;
+  placeholder: string;
+}) {
+  return (
+    <Box position="relative" w="full">
+      <Box
+        position="absolute"
+        left={3}
+        top="50%"
+        transform="translateY(-50%)"
+        color="gray.400"
+        pointerEvents="none"
+      >
+        <Search size={15} />
+      </Box>
+      <Input
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+        placeholder={placeholder}
+        pl={9}
+        h={9}
+        borderRadius="full"
+        bg="white"
+        _dark={{
+          bg: 'var(--tournament-surface, var(--chakra-colors-gray-900))',
+        }}
+      />
+    </Box>
+  );
+}
+
 function CalendarHeaderCell({ children }: { children: React.ReactNode }) {
   return (
     <Box
@@ -1653,6 +1812,11 @@ export function matchMatchesFilters(
   match: CategoryMatch,
   filters: ResultFilters
 ) {
+  const query = normalizeSearchText(filters.query);
+  if (query && !getMatchSearchText(match).includes(query)) {
+    return false;
+  }
+
   if (
     filters.categoryIds.length > 0 &&
     !filters.categoryIds.includes(match.categoryId)
@@ -1710,9 +1874,133 @@ export function getActiveFilterCount(filters: ResultFilters) {
     filters.statuses.length +
     filters.teamIds.length +
     (filters.dateFrom ? 1 : 0) +
-    (filters.dateTo ? 1 : 0)
+    (filters.dateTo ? 1 : 0) +
+    (filters.query.trim() ? 1 : 0)
   );
 }
+
+function getMatchSearchText(match: CategoryMatch) {
+  const values: string[] = [
+    match.matchCode ?? '',
+    getMatchDisplayCode(match),
+    getTeamLabel(match, 1),
+    getTeamLabel(match, 2),
+  ];
+
+  match.participants?.forEach((participant) => {
+    const registration = participant.categoryRegistration;
+    if (!registration) return;
+
+    values.push(registration.player?.name ?? '');
+    values.push(registration.pair?.name ?? '');
+    registration.pair?.members?.forEach((member) => {
+      values.push(member.player?.name ?? '');
+    });
+  });
+
+  return normalizeSearchText(values.join(' '));
+}
+
+function normalizeSearchText(value: string) {
+  return value
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/đ/g, 'd')
+    .replace(/Đ/g, 'D')
+    .toLowerCase()
+    .trim();
+}
+
+function parseCsv(raw: string | null) {
+  return raw
+    ? raw
+        .split(',')
+        .map((item) => item.trim())
+        .filter(Boolean)
+    : [];
+}
+
+function parseStatuses(raw: string | null): ResultFilters['statuses'] {
+  return parseCsv(raw).filter(
+    (status): status is ResultFilters['statuses'][number] =>
+      status === 'upcoming' ||
+      status === 'finished' ||
+      status === 'cancelled' ||
+      status === 'forfeited'
+  );
+}
+
+function parseFiltersFromSearchParams(
+  searchParams: URLSearchParams | ReadonlyURLSearchParamsLike
+): ResultFilters {
+  return {
+    categoryIds: parseCsv(searchParams.get(FILTER_PARAM_KEYS.categoryIds)),
+    rounds: parseCsv(searchParams.get(FILTER_PARAM_KEYS.rounds)),
+    courtIds: parseCsv(searchParams.get(FILTER_PARAM_KEYS.courtIds)),
+    statuses: parseStatuses(searchParams.get(FILTER_PARAM_KEYS.statuses)),
+    teamIds: parseCsv(searchParams.get(FILTER_PARAM_KEYS.teamIds)),
+    dateFrom: searchParams.get(FILTER_PARAM_KEYS.dateFrom) ?? '',
+    dateTo: searchParams.get(FILTER_PARAM_KEYS.dateTo) ?? '',
+    query: searchParams.get(FILTER_PARAM_KEYS.query) ?? '',
+  };
+}
+
+function buildResultFilterSearchParams(
+  current: URLSearchParams | ReadonlyURLSearchParamsLike,
+  filters: ResultFilters
+) {
+  const params = new URLSearchParams(current.toString());
+
+  setCsvParam(params, FILTER_PARAM_KEYS.categoryIds, filters.categoryIds);
+  setCsvParam(params, FILTER_PARAM_KEYS.rounds, filters.rounds);
+  setCsvParam(params, FILTER_PARAM_KEYS.courtIds, filters.courtIds);
+  setCsvParam(params, FILTER_PARAM_KEYS.statuses, filters.statuses);
+  setCsvParam(params, FILTER_PARAM_KEYS.teamIds, filters.teamIds);
+  setStringParam(params, FILTER_PARAM_KEYS.dateFrom, filters.dateFrom);
+  setStringParam(params, FILTER_PARAM_KEYS.dateTo, filters.dateTo);
+  setStringParam(params, FILTER_PARAM_KEYS.query, filters.query.trim());
+
+  return params;
+}
+
+function setCsvParam(
+  params: URLSearchParams,
+  key: string,
+  values: readonly string[]
+) {
+  if (values.length > 0) {
+    params.set(key, values.join(','));
+  } else {
+    params.delete(key);
+  }
+}
+
+function setStringParam(params: URLSearchParams, key: string, value: string) {
+  if (value) {
+    params.set(key, value);
+  } else {
+    params.delete(key);
+  }
+}
+
+function areResultFiltersEqual(a: ResultFilters, b: ResultFilters) {
+  return (
+    areStringArraysEqual(a.categoryIds, b.categoryIds) &&
+    areStringArraysEqual(a.rounds, b.rounds) &&
+    areStringArraysEqual(a.courtIds, b.courtIds) &&
+    areStringArraysEqual(a.statuses, b.statuses) &&
+    areStringArraysEqual(a.teamIds, b.teamIds) &&
+    a.dateFrom === b.dateFrom &&
+    a.dateTo === b.dateTo &&
+    a.query === b.query
+  );
+}
+
+function areStringArraysEqual(a: readonly string[], b: readonly string[]) {
+  return a.length === b.length && a.every((value, index) => value === b[index]);
+}
+
+type ReadonlyURLSearchParamsLike = Pick<URLSearchParams, 'get' | 'toString'>;
 
 export function formatCourtLabel(
   court: { courtNumber: number; courtName?: string | null },

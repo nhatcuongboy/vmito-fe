@@ -1641,6 +1641,12 @@
             "edit": "Edit notes",
             "empty": "No tournament notes yet."
           },
+          "videos": {
+            "title": "Videos",
+            "edit": "Edit videos",
+            "empty": "No YouTube videos yet.",
+            "iframeTitle": "Tournament YouTube video"
+          },
           "venues": {
             "title": "Venues",
             "manage": "Manage venues",
@@ -2356,6 +2362,10 @@
               "title": "Banner image",
               "description": "Upload a banner image for your tournament page."
             },
+            "videos": {
+              "title": "YouTube videos",
+              "description": "Embed videos on the tournament home page."
+            },
             "contact": {
               "title": "Contact info",
               "description": "Update contact name, email and phone."
@@ -2873,6 +2883,22 @@
               "errors": {
                 "noChanges": "No changes to save",
                 "updateFailed": "Failed to update cover photo"
+              }
+            },
+            "videos": {
+              "title": "YouTube videos",
+              "description": "Paste one or more YouTube links to show on the tournament home page.",
+              "placeholder": "https://www.youtube.com/watch?v=...",
+              "add": "Add video",
+              "remove": "Remove video",
+              "save": "Save",
+              "cancel": "Cancel",
+              "success": "YouTube videos updated successfully",
+              "invalidHelper": "Enter a valid YouTube link.",
+              "errors": {
+                "invalidUrl": "Please fix invalid YouTube links before saving",
+                "noChanges": "No changes to save",
+                "updateFailed": "Failed to update YouTube videos"
               }
             },
             "contact": {
@@ -3466,6 +3492,8 @@
           "status": "Status",
           "dates": "Dates",
           "teams": "Teams",
+          "search": "Search",
+          "searchPlaceholder": "Search player or team",
           "clear": "Clear filters",
           "apply": "Apply",
           "empty": "No matches match these filters.",

@@ -734,6 +734,7 @@ export interface Tournament {
   scheduleType?: ScheduleType;
   coverPhoto?: string;
   coverPhotoPublicId?: string;
+  youtubeVideoUrls?: string[];
   contactName?: string | null;
   contactEmail?: string | null;
   contactPhone?: string | null;

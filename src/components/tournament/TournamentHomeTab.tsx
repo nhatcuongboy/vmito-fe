@@ -69,6 +69,7 @@ import { Button } from '@/components/ui/chakra-compat';
 import { toaster } from '@/components/ui/toaster';
 import VenueMapPin from '@/components/venue/VenueMapPin';
 import { VModal, useModal } from '@/components/ui/VModal';
+import { getYouTubeEmbed } from '@/lib/utils/youtube';
 
 interface ICategoryHomeItem {
   id: string;
@@ -602,6 +603,9 @@ export default function TournamentHomeTab({
   const venue = tournament.venue;
   const host = tournament.host;
   const tournamentNote = tournament.description?.trim() ?? '';
+  const youtubeEmbeds = (tournament.youtubeVideoUrls ?? [])
+    .map((url) => getYouTubeEmbed(url))
+    .filter((embed): embed is NonNullable<typeof embed> => !!embed);
   const coverImage =
     tournament.coverPhoto || venue?.coverPhoto || venue?.images?.[0] || '';
   const displayVenues = useMemo<IHomeVenueItem[]>(() => {
@@ -1306,6 +1310,81 @@ export default function TournamentHomeTab({
           ) : (
             <Text fontSize="sm" color="gray.500" _dark={{ color: 'gray.400' }}>
               {t('notes.empty')}
+            </Text>
+          )}
+        </Box>
+      )}
+
+      {(youtubeEmbeds.length > 0 || isHost) && (
+        <Box
+          borderWidth="1px"
+          borderColor="gray.200"
+          borderRadius="xl"
+          p={4}
+          bg="white"
+          _dark={{
+            bg: 'var(--tournament-surface-raised, var(--chakra-colors-gray-800))',
+            borderColor:
+              'var(--tournament-border, var(--chakra-colors-gray-700))',
+            boxShadow: 'var(--tournament-shadow-soft)',
+          }}
+        >
+          <Flex justify="space-between" align="center" mb={3}>
+            <HStack gap={2}>
+              <Box color="red.500" _dark={{ color: 'red.300' }}>
+                <MonitorPlay size={18} />
+              </Box>
+              <Text fontWeight="semibold" fontSize="lg">
+                {t('videos.title')}
+              </Text>
+            </HStack>
+            {isHost && (
+              <Box
+                as="button"
+                aria-label={t('videos.edit')}
+                w="32px"
+                h="32px"
+                display="flex"
+                borderRadius="md"
+                alignItems="center"
+                justifyContent="center"
+                cursor="pointer"
+                _hover={{ bg: 'gray.100', _dark: { bg: 'gray.700' } }}
+                onClick={() => handleManageOption('videos')}
+              >
+                <Pencil size={16} color="var(--chakra-colors-gray-500)" />
+              </Box>
+            )}
+          </Flex>
+
+          {youtubeEmbeds.length > 0 ? (
+            <Grid
+              templateColumns={{ base: '1fr', lg: 'repeat(2, 1fr)' }}
+              gap={3}
+            >
+              {youtubeEmbeds.map((embed) => (
+                <Box
+                  key={embed.id}
+                  borderRadius="lg"
+                  overflow="hidden"
+                  bg="black"
+                  aspectRatio={16 / 9}
+                >
+                  <iframe
+                    src={embed.embedUrl}
+                    title={t('videos.iframeTitle')}
+                    width="100%"
+                    height="100%"
+                    style={{ border: 0 }}
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    allowFullScreen
+                  />
+                </Box>
+              ))}
+            </Grid>
+          ) : (
+            <Text fontSize="sm" color="gray.500" _dark={{ color: 'gray.400' }}>
+              {t('videos.empty')}
             </Text>
           )}
         </Box>

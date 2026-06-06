@@ -1619,6 +1619,12 @@
             "edit": "编辑备注",
             "empty": "暂无赛事备注。"
           },
+          "videos": {
+            "title": "视频",
+            "edit": "编辑视频",
+            "empty": "暂无 YouTube 视频。",
+            "iframeTitle": "锦标赛 YouTube 视频"
+          },
           "venues": {
             "title": "场地",
             "manage": "管理场地",
@@ -2334,6 +2340,10 @@
               "title": "横幅图片",
               "description": "为锦标赛页面上传横幅图片。"
             },
+            "videos": {
+              "title": "YouTube 视频",
+              "description": "在锦标赛主页嵌入视频。"
+            },
             "contact": {
               "title": "联系信息",
               "description": "更新联系人姓名、邮箱和电话。"
@@ -2851,6 +2861,22 @@
               "errors": {
                 "noChanges": "没有更改需要保存",
                 "updateFailed": "更新封面图片失败"
+              }
+            },
+            "videos": {
+              "title": "YouTube 视频",
+              "description": "粘贴一个或多个 YouTube 链接，显示在锦标赛主页。",
+              "placeholder": "https://www.youtube.com/watch?v=...",
+              "add": "添加视频",
+              "remove": "删除视频",
+              "save": "保存",
+              "cancel": "取消",
+              "success": "YouTube 视频更新成功",
+              "invalidHelper": "请输入有效的 YouTube 链接。",
+              "errors": {
+                "invalidUrl": "保存前请修正无效的 YouTube 链接",
+                "noChanges": "没有更改需要保存",
+                "updateFailed": "更新 YouTube 视频失败"
               }
             },
             "contact": {
@@ -3444,6 +3470,8 @@
           "status": "状态",
           "dates": "日期",
           "teams": "队伍",
+          "search": "搜索",
+          "searchPlaceholder": "搜索选手或队伍",
           "clear": "清除筛选",
           "apply": "应用",
           "empty": "没有符合筛选条件的比赛。",
