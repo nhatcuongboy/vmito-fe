@@ -2989,6 +2989,8 @@
           "champion": "Vô địch",
           "runnerUp": "Á quân",
           "thirdPlace": "Hạng ba",
+          "showPlayerNames": "Chuyển giữa tên đội và tên VĐV",
+          "showPlayerNamesBadge": "Hiện tên VĐV",
           "provisional": "Tạm thời",
           "final": "Chung cuộc",
           "inProgress": "Giải đang diễn ra — chưa xác định nhà vô địch.",

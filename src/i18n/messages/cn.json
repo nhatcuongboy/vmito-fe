@@ -2959,6 +2959,8 @@
           "champion": "冠军",
           "runnerUp": "亚军",
           "thirdPlace": "季军",
+          "showPlayerNames": "切换队伍名称和选手名称",
+          "showPlayerNamesBadge": "显示选手名称",
           "provisional": "暂定",
           "final": "最终",
           "inProgress": "锦标赛进行中——冠军尚未决出。",

@@ -2981,6 +2981,8 @@
           "champion": "Champion",
           "runnerUp": "Runner-up",
           "thirdPlace": "Third place",
+          "showPlayerNames": "Switch between team names and player names",
+          "showPlayerNamesBadge": "Show player names",
           "provisional": "Provisional",
           "final": "Final",
           "inProgress": "Tournament in progress — the champion has not been decided yet.",
