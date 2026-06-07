@@ -27,6 +27,7 @@ interface PublicTournamentBracketProps {
   matches: CategoryMatch[];
   category: Category;
   groupStageMatchCount?: number;
+  showPlayerNames?: boolean;
   t: ReturnType<typeof useTranslations>;
 }
 
@@ -62,7 +63,8 @@ function toDisplayMatch(
   match: CategoryMatch,
   allMatches: CategoryMatch[],
   category: Category,
-  labels: SlotLabels
+  labels: SlotLabels,
+  showPlayerNames: boolean
 ): BracketDisplayMatch {
   return {
     id: match.id,
@@ -74,11 +76,13 @@ function toDisplayMatch(
       allMatches,
       category,
       labels,
+      showPlayerNames,
     }),
     side2Label: resolveMatchSideLabel(match, 2, {
       allMatches,
       category,
       labels,
+      showPlayerNames,
     }),
     winnerPosition: getWinnerPosition(match),
     isFinished: match.status === MatchStatus.FINISHED,
@@ -172,16 +176,17 @@ export default function PublicTournamentBracket({
   matches,
   category,
   groupStageMatchCount = 0,
+  showPlayerNames = false,
   t,
 }: PublicTournamentBracketProps) {
   const labels = usePlayoffSlotLabels();
   const displayMatches = useMemo(() => {
     if (matches.length > 0)
       return matches.map((match) =>
-        toDisplayMatch(match, matches, category, labels)
+        toDisplayMatch(match, matches, category, labels, showPlayerNames)
       );
     return buildPreviewMatches({ category, groupStageMatchCount, labels });
-  }, [category, groupStageMatchCount, matches, labels]);
+  }, [category, groupStageMatchCount, matches, labels, showPlayerNames]);
 
   const columns = useMemo(() => {
     const byRound = new Map<string, BracketDisplayMatch[]>();

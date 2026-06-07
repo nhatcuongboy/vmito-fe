@@ -793,6 +793,7 @@ export default function PublicTournamentStandingsTab({
                     category={category}
                     groupStageMatchCount={groupStageMatchCount}
                     matches={categoryMatches}
+                    showPlayerNames={showPlayerNames}
                     t={t}
                   />
                 </Box>
