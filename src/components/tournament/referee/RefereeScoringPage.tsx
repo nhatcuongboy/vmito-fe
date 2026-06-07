@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useParams, useRouter as useNextRouter } from 'next/navigation';
 import type { ReactNode } from 'react';
 import {
@@ -53,6 +53,7 @@ import ForfeitMatchModal from './ForfeitMatchModal';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { TournamentMatchListSkeleton } from '@/components/tournament/skeletons';
 import TournamentRefereeDesktopLayout from '@/components/tournament/TournamentRefereeDesktopLayout';
+import { useTournamentSocket } from '@/hooks/useTournamentSocket';
 
 const REFEREE_RETURN_URL_STORAGE_PREFIX = 'vmito.referee.returnUrl.';
 
@@ -79,26 +80,30 @@ export default function RefereeScoringPage() {
   const [starting, setStarting] = useState(false);
   const [playerInfoOpen, setPlayerInfoOpen] = useState(false);
   const [forfeitOpen, setForfeitOpen] = useState(false);
+  const loadRequestIdRef = useRef(0);
 
-  useEffect(() => {
-    let active = true;
-    void (async () => {
+  const loadMatch = useCallback(
+    async (options?: { silent?: boolean }) => {
+      const requestId = ++loadRequestIdRef.current;
+      if (!options?.silent) setLoading(true);
       try {
         const [m, tour] = await Promise.all([
           CategoryService.getMatch(matchId),
           TournamentService.getTournament(tournamentParam),
         ]);
-        if (!active) return;
+        if (loadRequestIdRef.current !== requestId) return;
         setMatch(m);
         setTournament(tour);
       } finally {
-        if (active) setLoading(false);
+        if (loadRequestIdRef.current === requestId) setLoading(false);
       }
-    })();
-    return () => {
-      active = false;
-    };
-  }, [matchId, tournamentParam]);
+    },
+    [matchId, tournamentParam]
+  );
+
+  useEffect(() => {
+    void loadMatch();
+  }, [loadMatch]);
 
   const canAccess =
     !!tournament &&
@@ -115,6 +120,27 @@ export default function RefereeScoringPage() {
       setStarting(false);
     }
   }, [matchId]);
+
+  const refreshMatchIfCurrent = useCallback(
+    (eventMatchId: string) => {
+      if (eventMatchId === matchId) {
+        void loadMatch({ silent: true });
+      }
+    },
+    [loadMatch, matchId]
+  );
+
+  useTournamentSocket(tournament?.id, {
+    onScoreUpdated: (event) => {
+      if (match?.status !== 'IN_PROGRESS') {
+        refreshMatchIfCurrent(event.match.matchId);
+      }
+    },
+    onMatchStarted: (event) => refreshMatchIfCurrent(event.match.matchId),
+    onMatchEnded: (event) => refreshMatchIfCurrent(event.match.matchId),
+    onRefereeAssigned: (event) => refreshMatchIfCurrent(event.match.matchId),
+    onReconnect: () => void loadMatch({ silent: true }),
+  });
 
   const goBack = useCallback(() => {
     if (typeof window !== 'undefined') {

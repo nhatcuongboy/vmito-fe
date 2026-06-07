@@ -1,12 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import {
-  useParams,
-  usePathname,
-  useRouter as useNextRouter,
-  useSearchParams,
-} from 'next/navigation';
+import { useParams, usePathname, useSearchParams } from 'next/navigation';
 import { Box, Flex, Text, Badge, Heading } from '@chakra-ui/react';
 import { Button, VStack } from '@/components/ui/chakra-compat';
 import { useLocale, useTranslations } from 'next-intl';
@@ -50,6 +45,7 @@ import {
 const SHOW_PLAYER_NAMES_STORAGE_KEY = 'vmito.schedule.showPlayerNames';
 const REFEREE_RETURN_URL_STORAGE_PREFIX = 'vmito.referee.returnUrl.';
 const REFEREE_MATCH_CARD_ID_PREFIX = 'referee-match-card-';
+const REALTIME_REFRESH_DELAY_MS = 500;
 const VIEW_MODE_PARAM = 'view';
 const SHOW_PLAYER_NAMES_PARAM = 'players';
 const FOCUS_MATCH_PARAM = 'focusMatch';
@@ -69,9 +65,9 @@ export default function RefereeMatchListPage() {
   const params = useParams();
   const tournamentParam = String(params?.id ?? '');
   const router = useRouter();
-  const nextRouter = useNextRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const currentQuery = searchParams.toString();
   const t = useTranslations('pages.tournaments.scoreEntry');
   const tManual = useTranslations('pages.tournaments.manualScore');
   const tRounds = useTranslations('pages.tournaments.manualScore.rounds');
@@ -101,6 +97,9 @@ export default function RefereeMatchListPage() {
     return window.localStorage.getItem(SHOW_PLAYER_NAMES_STORAGE_KEY) === '1';
   });
   const lastScrolledMatchIdRef = useRef<string | null>(null);
+  const realtimeRefreshTimeoutRef = useRef<ReturnType<
+    typeof setTimeout
+  > | null>(null);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -111,37 +110,43 @@ export default function RefereeMatchListPage() {
   }, [showPlayerNames]);
 
   useEffect(() => {
-    const nextFilters = parseFiltersFromSearchParams(searchParams);
+    const params = new URLSearchParams(currentQuery);
+    const nextFilters = parseFiltersFromSearchParams(params);
     setFilters((prev) =>
       areResultFiltersEqual(prev, nextFilters) ? prev : nextFilters
     );
 
-    const nextViewMode = parseViewMode(searchParams.get(VIEW_MODE_PARAM));
+    const nextViewMode = parseViewMode(params.get(VIEW_MODE_PARAM));
     setViewMode((prev) => (prev === nextViewMode ? prev : nextViewMode));
 
     const nextShowPlayerNames = parseShowPlayerNames(
-      searchParams.get(SHOW_PLAYER_NAMES_PARAM)
+      params.get(SHOW_PLAYER_NAMES_PARAM)
     );
     if (nextShowPlayerNames !== null) {
       setShowPlayerNames((prev) =>
         prev === nextShowPlayerNames ? prev : nextShowPlayerNames
       );
     }
-  }, [searchParams]);
+  }, [currentQuery]);
 
   useEffect(() => {
     const nextParams = buildRefereeListSearchParams(
-      searchParams,
+      currentQuery,
       filters,
       viewMode,
       showPlayerNames
     );
     const nextQuery = nextParams.toString();
-    if (nextQuery === searchParams.toString()) return;
-    nextRouter.replace(nextQuery ? `${pathname}?${nextQuery}` : pathname, {
-      scroll: false,
-    });
-  }, [filters, nextRouter, pathname, searchParams, showPlayerNames, viewMode]);
+    const canonicalCurrentQuery = new URLSearchParams(currentQuery).toString();
+    if (nextQuery === canonicalCurrentQuery) return;
+    if (typeof window === 'undefined') return;
+
+    window.history.replaceState(
+      window.history.state,
+      '',
+      `${pathname}${nextQuery ? `?${nextQuery}` : ''}${window.location.hash}`
+    );
+  }, [currentQuery, filters, pathname, showPlayerNames, viewMode]);
 
   const load = useCallback(async () => {
     try {
@@ -178,10 +183,31 @@ export default function RefereeMatchListPage() {
     void load();
   }, [load]);
 
-  // Reflect matches starting/ending live without a manual refresh.
+  const scheduleRealtimeRefresh = useCallback(() => {
+    if (realtimeRefreshTimeoutRef.current) {
+      clearTimeout(realtimeRefreshTimeoutRef.current);
+    }
+
+    realtimeRefreshTimeoutRef.current = setTimeout(() => {
+      realtimeRefreshTimeoutRef.current = null;
+      void load();
+    }, REALTIME_REFRESH_DELAY_MS);
+  }, [load]);
+
+  useEffect(() => {
+    return () => {
+      if (realtimeRefreshTimeoutRef.current) {
+        clearTimeout(realtimeRefreshTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  // Reflect live match changes without a manual refresh.
   useTournamentSocket(tournament?.id, {
-    onMatchStarted: () => void load(),
-    onMatchEnded: () => void load(),
+    onScoreUpdated: scheduleRealtimeRefresh,
+    onMatchStarted: scheduleRealtimeRefresh,
+    onMatchEnded: scheduleRealtimeRefresh,
+    onRefereeAssigned: scheduleRealtimeRefresh,
     onReconnect: () => void load(),
   });
 
@@ -360,7 +386,7 @@ export default function RefereeMatchListPage() {
   const openMatch = useCallback(
     (match: CategoryMatch) => {
       const nextParams = buildRefereeListSearchParams(
-        searchParams,
+        currentQuery,
         filters,
         viewMode,
         showPlayerNames
@@ -376,15 +402,16 @@ export default function RefereeMatchListPage() {
         );
       }
 
-      nextRouter.replace(returnUrl, { scroll: false });
+      if (typeof window !== 'undefined') {
+        window.history.replaceState(window.history.state, '', returnUrl);
+      }
       router.push(`/tournament/${tournamentParam}/referee/${match.id}`);
     },
     [
+      currentQuery,
       filters,
-      nextRouter,
       pathname,
       router,
-      searchParams,
       showPlayerNames,
       tournamentParam,
       viewMode,
@@ -712,12 +739,12 @@ function parseFiltersFromSearchParams(
 }
 
 function buildRefereeListSearchParams(
-  current: URLSearchParams | ReadonlyURLSearchParamsLike,
+  currentQuery: string,
   filters: ResultFilters,
   viewMode: RefereeViewMode,
   showPlayerNames: boolean
 ) {
-  const params = new URLSearchParams(current.toString());
+  const params = new URLSearchParams(currentQuery);
 
   setCsvParam(params, FILTER_PARAM_KEYS.categoryIds, filters.categoryIds);
   setCsvParam(params, FILTER_PARAM_KEYS.rounds, filters.rounds);
