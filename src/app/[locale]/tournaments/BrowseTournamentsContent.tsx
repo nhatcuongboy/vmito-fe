@@ -65,6 +65,8 @@ function TournamentsContent() {
         return null;
       case 'IN_PROGRESS':
         return t('status.inProgress');
+      case 'FINISHED':
+        return t('status.finished');
       case 'CANCELLED':
         return t('status.cancelled');
       default:
@@ -78,6 +80,8 @@ function TournamentsContent() {
         return { bg: 'green.500', color: 'white' };
       case 'IN_PROGRESS':
         return { bg: 'blue.500', color: 'white' };
+      case 'FINISHED':
+        return { bg: 'gray.700', color: 'white' };
       case 'CANCELLED':
         return { bg: 'red.500', color: 'white' };
       default:
@@ -127,6 +131,7 @@ function TournamentsContent() {
   };
 
   const getCoverImage = (tournament: Tournament) => {
+    if (tournament.coverPhoto) return tournament.coverPhoto;
     if (tournament.venue?.coverPhoto) return tournament.venue.coverPhoto;
     if (tournament.venue?.images && tournament.venue.images.length > 0)
       return tournament.venue.images[0];
