@@ -175,14 +175,14 @@ export default function PublicTournamentWinnersTab({
         </Box>
 
         <Flex
-          align={{ base: 'stretch', sm: 'center' }}
+          align="center"
           justify="flex-end"
-          direction={{ base: 'column', sm: 'row' }}
+          direction="row"
           gap={2}
           w={{ base: '100%', md: 'auto' }}
         >
           {categories.length > 1 && (
-            <Box w={{ base: '100%', sm: '260px' }}>
+            <Box flex="1" minW={0} w={{ md: '260px' }}>
               <LegacySelect
                 aria-label={t('categoryFilter')}
                 value={selectedCategoryId}
@@ -205,7 +205,6 @@ export default function PublicTournamentWinnersTab({
             onToggle={() => setShowPlayerNames((prev) => !prev)}
             title={t('showPlayerNames')}
             label={t('showPlayerNamesBadge')}
-            fullWidthOnMobile
           />
         </Flex>
       </Flex>
@@ -260,8 +259,6 @@ function CategoryPodiumCard({
   // round-robin leader while it is still running).
   const shouldShowResults =
     entries.length > 0 && (state === 'decided' || state === 'provisional');
-  const champion = entries.find((entry) => entry.rank === 1);
-  const podiumRest = entries.filter((entry) => entry.rank !== 1);
 
   return (
     <Box
@@ -301,42 +298,25 @@ function CategoryPodiumCard({
         </Text>
       ) : (
         <Grid
-          templateColumns={{
-            base: '1fr',
-            lg: 'minmax(0, 1.2fr) minmax(280px, 0.8fr)',
-          }}
-          gap={{ base: 3, md: 2.5 }}
+          templateColumns={{ base: '1fr', md: 'repeat(3, minmax(0, 1fr))' }}
+          gap={{ base: 2.5, md: 3 }}
           alignItems="stretch"
         >
-          {champion && (
-            <PodiumHeroCard
-              entry={champion}
+          {entries.map((entry) => (
+            <PodiumCard
+              key={entry.rank}
+              entry={entry}
               showPlayerNames={showPlayerNames}
               t={t}
             />
-          )}
-          {podiumRest.length > 0 && (
-            <Grid
-              templateColumns={{ base: '1fr', md: 'repeat(2, 1fr)', lg: '1fr' }}
-              gap={{ base: 3, md: 2.5 }}
-            >
-              {podiumRest.map((entry) => (
-                <PodiumSideCard
-                  key={entry.rank}
-                  entry={entry}
-                  showPlayerNames={showPlayerNames}
-                  t={t}
-                />
-              ))}
-            </Grid>
-          )}
+          ))}
         </Grid>
       )}
     </Box>
   );
 }
 
-function PodiumHeroCard({
+function PodiumCard({
   entry,
   showPlayerNames,
   t,
@@ -346,32 +326,36 @@ function PodiumHeroCard({
   t: ReturnType<typeof useTranslations>;
 }) {
   const style = RANK_STYLE[entry.rank];
+  const Icon = entry.rank === 1 ? Crown : entry.rank === 2 ? Medal : Award;
   const rankLabel = getPodiumRankLabel(entry.rank, t);
   const display = getPodiumEntryDisplay(entry, showPlayerNames);
 
   return (
     <Flex
-      align={{ base: 'flex-start', md: 'center' }}
-      gap={{ base: 3, md: 3.5 }}
+      direction={{ base: 'row', md: 'column' }}
+      align={{ base: 'center', md: 'flex-start' }}
+      justify="space-between"
+      gap={{ base: 3, md: 3 }}
       px={{ base: 3.5, md: 4 }}
-      py={{ base: 4, md: 4 }}
+      py={{ base: 3.5, md: 4 }}
       borderWidth="1px"
       borderColor={style.border}
-      borderLeftWidth={{ base: '4px', md: '6px' }}
+      borderLeftWidth={{ base: '4px', md: '1px' }}
+      borderTopWidth={{ base: '1px', md: '4px' }}
       borderLeftColor={style.accent}
+      borderTopColor={style.accent}
       borderRadius="xl"
       bg={style.bg}
-      boxShadow="0 16px 38px rgba(202, 138, 4, 0.12)"
+      minH={{ md: '150px' }}
       _dark={{
         bg: style.darkBg,
         borderColor: style.darkBorder,
-        boxShadow:
-          'inset 0 1px 0 rgba(255, 255, 255, 0.04), 0 18px 42px rgba(0, 0, 0, 0.2)',
+        boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.04)',
       }}
     >
       <Flex
-        w={{ base: 12, md: 13 }}
-        h={{ base: 12, md: 13 }}
+        w={{ base: 10, md: 11 }}
+        h={{ base: 10, md: 11 }}
         align="center"
         justify="center"
         borderRadius="full"
@@ -384,103 +368,10 @@ function PodiumHeroCard({
           borderColor: style.darkBorder,
         }}
       >
-        <Crown size={26} color={style.iconColor} />
+        <Icon size={entry.rank === 1 ? 22 : 19} color={style.iconColor} />
       </Flex>
 
-      <Box minW={0} flex="1">
-        <Text
-          fontSize={{ base: 'xs', md: 'sm' }}
-          fontWeight="700"
-          color="gray.500"
-          textTransform="uppercase"
-          lineHeight="1.2"
-          _dark={{ color: 'gray.400' }}
-        >
-          {rankLabel}
-        </Text>
-        <Text
-          fontSize={{ base: '2xl', md: '3xl' }}
-          fontWeight="900"
-          color="gray.900"
-          lineHeight="1.15"
-          overflow="hidden"
-          textOverflow="ellipsis"
-          whiteSpace="nowrap"
-          _dark={{ color: 'gray.50' }}
-        >
-          {display.primary}
-        </Text>
-        {display.secondary && (
-          <Text
-            mt={1}
-            fontSize={{ base: 'sm', md: 'md' }}
-            lineHeight="1.35"
-            color="gray.600"
-            overflow="hidden"
-            textOverflow="ellipsis"
-            whiteSpace="nowrap"
-            _dark={{ color: 'gray.300' }}
-          >
-            {display.secondary}
-          </Text>
-        )}
-      </Box>
-    </Flex>
-  );
-}
-
-function PodiumSideCard({
-  entry,
-  showPlayerNames,
-  t,
-}: {
-  entry: PodiumEntry;
-  showPlayerNames: boolean;
-  t: ReturnType<typeof useTranslations>;
-}) {
-  const style = RANK_STYLE[entry.rank];
-  const Icon = entry.rank === 2 ? Medal : Award;
-  const rankLabel = getPodiumRankLabel(entry.rank, t);
-  const display = getPodiumEntryDisplay(entry, showPlayerNames);
-
-  return (
-    <Flex
-      align="flex-start"
-      gap={3}
-      px={{ base: 3.5, md: 3.5 }}
-      py={{ base: 3.5, md: 3 }}
-      borderWidth="1px"
-      borderColor={style.border}
-      borderTopWidth="4px"
-      borderTopColor={style.accent}
-      borderRadius="xl"
-      bg="white"
-      minH={{ md: '104px' }}
-      _dark={{
-        bg: 'var(--tournament-surface-raised, var(--chakra-colors-gray-800))',
-        borderColor: style.darkBorder,
-        boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.04)',
-      }}
-    >
-      <Flex
-        w={{ base: 10, md: 10 }}
-        h={{ base: 10, md: 10 }}
-        align="center"
-        justify="center"
-        borderRadius="full"
-        bg={style.bg}
-        borderWidth="1px"
-        borderColor={style.border}
-        flexShrink={0}
-        _dark={{
-          bg: style.darkBg,
-          borderColor: style.darkBorder,
-        }}
-      >
-        <Icon size={18} color={style.iconColor} />
-      </Flex>
-
-      <Box minW={0} flex="1">
+      <Box minW={0} flex="1" w="full">
         <Text
           fontSize={{ base: 'xs', md: 'sm' }}
           fontWeight="700"
@@ -493,51 +384,22 @@ function PodiumSideCard({
         </Text>
         <Text
           mt={0.5}
-          fontSize={{ base: 'xl', md: 'xl' }}
+          fontSize={{ base: 'xl', md: entry.rank === 1 ? '2xl' : 'xl' }}
           fontWeight="800"
           color="gray.900"
-          lineHeight="1.15"
-          overflow="hidden"
-          textOverflow="ellipsis"
-          whiteSpace="nowrap"
+          lineHeight="1.2"
+          lineClamp={2}
           _dark={{ color: 'gray.50' }}
         >
-          {display.primary}
+          {display}
         </Text>
-        {display.secondary && (
-          <Text
-            mt={1}
-            fontSize={{ base: 'sm', md: 'md' }}
-            lineHeight="1.35"
-            color="gray.600"
-            overflow="hidden"
-            textOverflow="ellipsis"
-            whiteSpace="nowrap"
-            _dark={{ color: 'gray.300' }}
-          >
-            {display.secondary}
-          </Text>
-        )}
       </Box>
     </Flex>
   );
 }
 
 function getPodiumEntryDisplay(entry: PodiumEntry, showPlayerNames: boolean) {
-  if (!showPlayerNames) {
-    return {
-      primary: entry.label,
-      secondary: entry.playerNames,
-    };
-  }
-
-  return {
-    primary: entry.playerNames || entry.label,
-    secondary:
-      entry.playerNames && entry.playerNames !== entry.label
-        ? entry.label
-        : undefined,
-  };
+  return showPlayerNames ? entry.playerNames || entry.label : entry.label;
 }
 
 function getPodiumRankLabel(
