@@ -630,37 +630,53 @@ export default function ResultsPanel({
 
           <Flex
             display={{ base: 'flex', md: 'none' }}
-            align="stretch"
-            justify="space-between"
-            gap={3}
+            align="center"
+            gap={2}
             w="full"
-            direction={{ base: 'column', sm: 'row' }}
           >
-            <SearchInput
-              value={filters.query}
-              onChange={(value) =>
-                setFilters((prev) => ({ ...prev, query: value }))
-              }
-              placeholder={t('filters.searchPlaceholder')}
-            />
+            <Box flex={1} minW={0}>
+              <SearchInput
+                value={filters.query}
+                onChange={(value) =>
+                  setFilters((prev) => ({ ...prev, query: value }))
+                }
+                placeholder={t('filters.searchPlaceholder')}
+              />
+            </Box>
             <PlayerNamesToggle
               active={showPlayerNames}
               onToggle={() => setShowPlayerNames((prev) => !prev)}
               title={t('showPlayerNames')}
-              label={t('showPlayerNamesBadge')}
             />
             <Button
               size="sm"
               variant="outline"
               colorPalette="gray"
               onClick={() => setIsFilterOpen(true)}
+              aria-label={t('filters.title')}
               flexShrink={0}
               h={9}
-              px={3}
+              w={9}
+              px={0}
+              position="relative"
             >
-              <Filter size={15} /> {t('filters.title')}
+              <Filter size={16} />
               {activeFilterCount > 0 && (
-                <Badge ml={1} colorPalette="green" borderRadius="full">
+                <Badge
+                  position="absolute"
+                  top="-1"
+                  right="-1"
+                  colorPalette="green"
+                  borderRadius="full"
+                  minW={4}
+                  h={4}
+                  px={1}
+                  fontSize="2xs"
+                  lineHeight="1"
+                  display="inline-flex"
+                  alignItems="center"
+                  justifyContent="center"
+                >
                   {activeFilterCount}
                 </Badge>
               )}
@@ -698,23 +714,27 @@ export default function ResultsPanel({
             gap={2}
             justify="space-between"
             w={{ base: 'full', md: 'auto' }}
-            p={1}
-            borderWidth="1px"
-            borderColor="gray.200"
-            borderRadius="lg"
-            bg="white"
-            boxShadow="sm"
+            p={{ base: 0, md: 1 }}
+            borderWidth={{ base: 0, md: '1px' }}
+            borderColor={{ md: 'gray.200' }}
+            borderRadius={{ base: 'md', md: 'lg' }}
+            bg={{ base: 'transparent', md: 'white' }}
+            boxShadow={{ base: 'none', md: 'sm' }}
             _dark={{
-              bg: 'var(--tournament-surface, var(--chakra-colors-gray-900))',
-              borderColor:
-                'var(--tournament-border, var(--chakra-colors-gray-700))',
-              boxShadow: 'var(--tournament-shadow-soft)',
+              bg: {
+                base: 'transparent',
+                md: 'var(--tournament-surface, var(--chakra-colors-gray-900))',
+              },
+              borderColor: {
+                md: 'var(--tournament-border, var(--chakra-colors-gray-700))',
+              },
+              boxShadow: { base: 'none', md: 'var(--tournament-shadow-soft)' },
             }}
           >
             <Flex
               flex={{ base: 1, sm: '0 1 auto' }}
               minW={0}
-              p={0.5}
+              p={{ base: 0.5, md: 0.5 }}
               gap={1}
               borderRadius="md"
               bg="gray.100"
@@ -1231,44 +1251,70 @@ function CardTeamRow({
   setWins: boolean[];
   multiSet: boolean;
 }) {
+  const scoreColumnCount = Math.max(setScores.length, 1);
+  const scoreGridWidth = {
+    base: `${scoreColumnCount * 26}px`,
+    md: `${scoreColumnCount * 34}px`,
+  };
+
   return (
-    <Flex align="center" justify="space-between" gap={3} py={1} minW={0}>
+    <Box
+      display="grid"
+      gridTemplateColumns={
+        multiSet ? 'minmax(0, 1fr) auto' : 'minmax(0, 1fr) 32px'
+      }
+      alignItems="center"
+      columnGap={{ base: 2.5, md: 3 }}
+      py={1}
+      minW={0}
+    >
       <Text
         fontSize={{ base: 'md', md: 'lg' }}
         fontWeight={highlight ? 'bold' : 'medium'}
         lineClamp={1}
-        flex="1"
         minW={0}
+        pr={1}
       >
         {label}
       </Text>
       {multiSet ? (
-        <Flex gap={{ base: 2.5, md: 4 }} flexShrink={0}>
+        <Box
+          display="grid"
+          gridTemplateColumns={`repeat(${scoreColumnCount}, minmax(0, 1fr))`}
+          w={scoreGridWidth}
+          flexShrink={0}
+        >
           {setScores.map((score, index) => (
             <Text
               key={index}
-              w={{ base: '18px', md: '22px' }}
               textAlign="center"
               fontSize={{ base: 'md', md: 'lg' }}
               fontWeight={setWins[index] ? 'bold' : 'normal'}
               color={setWins[index] ? 'fg' : 'gray.400'}
+              fontVariantNumeric="tabular-nums"
+              lineHeight="1.15"
+              whiteSpace="nowrap"
+              minW={0}
             >
               {score}
             </Text>
           ))}
-        </Flex>
+        </Box>
       ) : (
         total !== undefined && (
           <Text
             fontSize={{ base: 'md', md: 'lg' }}
             fontWeight={highlight ? 'bold' : 'medium'}
-            flexShrink={0}
+            textAlign="center"
+            fontVariantNumeric="tabular-nums"
+            lineHeight="1.15"
+            whiteSpace="nowrap"
           >
             {total}
           </Text>
         )
       )}
-    </Flex>
+    </Box>
   );
 }
 

@@ -23,7 +23,9 @@ import {
   Category,
   CategoryMatch,
   CategoryRegistration,
+  MatchStatus,
   Tournament,
+  TournamentCourt,
   TournamentPlayer,
 } from '@/lib/api/types';
 import { getTournamentPlayerCode } from './PublicTournamentPlayerPage';
@@ -36,6 +38,7 @@ import { useCanGoBack } from '@/hooks/useCanGoBack';
 import TournamentProfileHero, {
   getTournamentCoverImage,
 } from './TournamentProfileHero';
+import MatchDetailModal from '@/components/tournament/manage/panels/MatchDetailModal';
 
 export default function PublicTournamentTeamPage() {
   const t = useTranslations('pages.tournaments.teamPage');
@@ -56,6 +59,9 @@ export default function PublicTournamentTeamPage() {
   );
   const [matches, setMatches] = useState<CategoryMatch[]>([]);
   const [players, setPlayers] = useState<TournamentPlayer[]>([]);
+  const [selectedMatch, setSelectedMatch] = useState<CategoryMatch | null>(
+    null
+  );
 
   const load = useCallback(async () => {
     try {
@@ -123,6 +129,8 @@ export default function PublicTournamentTeamPage() {
     () => new Map(players.map((player) => [player.id, player])),
     [players]
   );
+  const closeMatchDetail = useCallback(() => setSelectedMatch(null), []);
+  const ignoreReadonlyMatchAction = useCallback(() => {}, []);
 
   if (loading) {
     return (
@@ -194,6 +202,10 @@ export default function PublicTournamentTeamPage() {
       router.push(`/tournament/${tournamentId}/standings`);
     }
   };
+
+  const selectedMatchRoundLabel = selectedMatch
+    ? getRoundDisplayLabel(selectedMatch.round, tRounds)
+    : '';
 
   return (
     <>
@@ -383,60 +395,96 @@ export default function PublicTournamentTeamPage() {
                     </Text>
                   ) : (
                     <VStack align="stretch" gap={3}>
-                      {matches.map((match) => (
-                        <Box
-                          key={match.id}
-                          w="full"
-                          borderWidth="1px"
-                          borderColor="gray.200"
-                          borderRadius="xl"
-                          p={4}
-                          bg="white"
-                          transition="border-color 160ms ease, box-shadow 160ms ease"
-                          _hover={{
-                            borderColor: 'green.300',
-                            boxShadow: '0 12px 30px rgba(15, 23, 42, 0.06)',
-                          }}
-                          _dark={{
-                            bg: 'gray.900',
-                            borderColor: 'gray.700',
-                            _hover: { borderColor: 'green.500' },
-                          }}
-                        >
-                          <Flex
-                            justify="space-between"
-                            align="flex-start"
-                            gap={3}
-                            wrap="wrap"
+                      {matches.map((match) => {
+                        const matchResult = getTeamMatchResult(
+                          match,
+                          registration.id
+                        );
+
+                        return (
+                          <Box
+                            key={match.id}
+                            as="button"
+                            w="full"
+                            borderWidth="1px"
+                            borderColor="gray.200"
+                            borderRadius="xl"
+                            p={4}
+                            bg="white"
+                            textAlign="left"
+                            cursor="pointer"
+                            aria-label={t('openMatchDetail', {
+                              number: match.matchNumber,
+                            })}
+                            onClick={() => setSelectedMatch(match)}
+                            transition="border-color 160ms ease, box-shadow 160ms ease"
+                            _hover={{
+                              borderColor: 'green.300',
+                              boxShadow: '0 12px 30px rgba(15, 23, 42, 0.06)',
+                            }}
+                            _dark={{
+                              bg: 'gray.900',
+                              borderColor: 'gray.700',
+                              _hover: { borderColor: 'green.500' },
+                            }}
+                            _focusVisible={{
+                              outline: '2px solid',
+                              outlineColor: 'green.500',
+                              outlineOffset: '2px',
+                            }}
                           >
-                            <Box minW={0}>
-                              <Text fontWeight="semibold">
-                                {t('matchInfo', {
-                                  round: getRoundDisplayLabel(
-                                    match.round,
-                                    tRounds
-                                  ),
-                                  number: match.matchNumber,
-                                })}
-                              </Text>
-                              <Text
-                                fontSize="sm"
-                                color="gray.600"
-                                mt={1}
-                                _dark={{ color: 'gray.300' }}
-                              >
-                                {match.score || t('noResult')}
-                              </Text>
-                            </Box>
-                            <Badge
-                              colorPalette={match.score ? 'green' : 'gray'}
-                              variant="subtle"
+                            <Flex
+                              justify="space-between"
+                              align="flex-start"
+                              gap={3}
+                              wrap="wrap"
                             >
-                              {match.score ? match.score : t('noResult')}
-                            </Badge>
-                          </Flex>
-                        </Box>
-                      ))}
+                              <Box minW={0}>
+                                <Text fontWeight="semibold">
+                                  {t('matchInfo', {
+                                    round: getRoundDisplayLabel(
+                                      match.round,
+                                      tRounds
+                                    ),
+                                    number: match.matchNumber,
+                                  })}
+                                </Text>
+                                <Text
+                                  fontSize="sm"
+                                  color="gray.600"
+                                  mt={1}
+                                  _dark={{ color: 'gray.300' }}
+                                >
+                                  {match.score || t('noResult')}
+                                </Text>
+                              </Box>
+                              <HStack gap={2} flexShrink={0}>
+                                {matchResult && (
+                                  <Badge
+                                    colorPalette={
+                                      matchResult === 'won' ? 'green' : 'red'
+                                    }
+                                    variant="solid"
+                                    borderRadius="full"
+                                  >
+                                    {t(
+                                      matchResult === 'won'
+                                        ? 'matchWon'
+                                        : 'matchLost'
+                                    )}
+                                  </Badge>
+                                )}
+                                <Badge
+                                  colorPalette={match.score ? 'green' : 'gray'}
+                                  variant="subtle"
+                                >
+                                  {match.score ? match.score : t('noResult')}
+                                </Badge>
+                              </HStack>
+                            </Flex>
+                          </Box>
+                        );
+                      })}
                     </VStack>
                   )}
                 </Box>
@@ -457,6 +505,50 @@ export default function PublicTournamentTeamPage() {
         activeTab={1}
         onTabChange={handleTabChange}
       />
+      <MatchDetailModal
+        isOpen={!!selectedMatch}
+        onClose={closeMatchDetail}
+        match={selectedMatch}
+        categoryName={category.name}
+        roundOrGroupLabel={selectedMatchRoundLabel}
+        courtLabel={
+          selectedMatch?.court
+            ? formatTeamPageCourtLabel(selectedMatch.court, t('courtPrefix'))
+            : undefined
+        }
+        allMatches={matches}
+        category={category}
+        showPlayerNames
+        canEdit={false}
+        onEditResult={ignoreReadonlyMatchAction}
+        onDeleteMatch={ignoreReadonlyMatchAction}
+      />
     </>
   );
+}
+
+function formatTeamPageCourtLabel(court: TournamentCourt, prefix: string) {
+  return (
+    court.courtName || prefix.replace('{number}', String(court.courtNumber))
+  );
+}
+
+function getTeamMatchResult(
+  match: CategoryMatch,
+  registrationId: string
+): 'won' | 'lost' | null {
+  if (
+    match.status !== MatchStatus.FINISHED ||
+    !match.winnerId ||
+    match.isDraw
+  ) {
+    return null;
+  }
+
+  const participates = match.participants?.some(
+    (participant) => participant.categoryRegistrationId === registrationId
+  );
+  if (!participates) return null;
+
+  return match.winnerId === registrationId ? 'won' : 'lost';
 }

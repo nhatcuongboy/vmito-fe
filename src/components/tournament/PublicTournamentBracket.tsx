@@ -323,7 +323,6 @@ export default function PublicTournamentBracket({
             <Flex
               key={column.round}
               direction="column"
-              justify="space-around"
               gap={3}
               minW={{ base: '190px', md: '220px' }}
             >
@@ -333,14 +332,16 @@ export default function PublicTournamentBracket({
                 textTransform="uppercase"
                 letterSpacing="0.04em"
                 color="gray.500"
+                textAlign="center"
                 _dark={{ color: 'gray.400' }}
-                mb={1}
               >
                 {column.label}
               </Text>
-              {column.items.map((match) => (
-                <BracketMatchCard key={match.id} match={match} t={t} />
-              ))}
+              <Flex direction="column" justify="center" gap={3} flex="1">
+                {column.items.map((match) => (
+                  <BracketMatchCard key={match.id} match={match} t={t} />
+                ))}
+              </Flex>
             </Flex>
           ))}
         </Flex>

@@ -329,6 +329,7 @@ function PodiumCard({
   const Icon = entry.rank === 1 ? Crown : entry.rank === 2 ? Medal : Award;
   const rankLabel = getPodiumRankLabel(entry.rank, t);
   const display = getPodiumEntryDisplay(entry, showPlayerNames);
+  const playerLines = showPlayerNames ? getPodiumPlayerNameLines(entry) : [];
 
   return (
     <Flex
@@ -382,17 +383,35 @@ function PodiumCard({
         >
           {rankLabel}
         </Text>
-        <Text
-          mt={0.5}
-          fontSize={{ base: 'xl', md: entry.rank === 1 ? '2xl' : 'xl' }}
-          fontWeight="800"
-          color="gray.900"
-          lineHeight="1.2"
-          lineClamp={2}
-          _dark={{ color: 'gray.50' }}
-        >
-          {display}
-        </Text>
+        {playerLines.length > 0 ? (
+          <VStack align="stretch" gap={0.5} mt={1}>
+            {playerLines.map((name, index) => (
+              <Text
+                key={`${entry.rank}-${index}-${name}`}
+                fontSize={{ base: 'md', md: 'lg' }}
+                fontWeight="800"
+                color="gray.900"
+                lineHeight="1.2"
+                lineClamp={1}
+                _dark={{ color: 'gray.50' }}
+              >
+                {name}
+              </Text>
+            ))}
+          </VStack>
+        ) : (
+          <Text
+            mt={0.5}
+            fontSize={{ base: 'xl', md: entry.rank === 1 ? '2xl' : 'xl' }}
+            fontWeight="800"
+            color="gray.900"
+            lineHeight="1.2"
+            lineClamp={2}
+            _dark={{ color: 'gray.50' }}
+          >
+            {display}
+          </Text>
+        )}
       </Box>
     </Flex>
   );
@@ -400,6 +419,13 @@ function PodiumCard({
 
 function getPodiumEntryDisplay(entry: PodiumEntry, showPlayerNames: boolean) {
   return showPlayerNames ? entry.playerNames || entry.label : entry.label;
+}
+
+function getPodiumPlayerNameLines(entry: PodiumEntry) {
+  return (entry.playerNames || '')
+    .split(/\s*\/\s*/)
+    .map((name) => name.trim())
+    .filter(Boolean);
 }
 
 function getPodiumRankLabel(
