@@ -8,11 +8,7 @@ import {
   useRef,
   useState,
 } from 'react';
-import {
-  usePathname,
-  useRouter as useNextRouter,
-  useSearchParams,
-} from 'next/navigation';
+import { usePathname, useSearchParams } from 'next/navigation';
 import { Badge, Box, Flex, Heading, Text } from '@chakra-ui/react';
 import { Button, Input, VStack } from '@/components/ui/chakra-compat';
 import {
@@ -158,9 +154,9 @@ export default function ResultsPanel({
   const tManage = useTranslations('pages.tournaments.detail.manage');
   const tRounds = useTranslations('pages.tournaments.manualScore.rounds');
   const locale = useLocale();
-  const nextRouter = useNextRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const currentQuery = searchParams.toString();
 
   const [matches, setMatches] = useState<CategoryMatch[]>([]);
   const [courts, setCourts] = useState<TournamentCourt[]>([]);
@@ -217,13 +213,12 @@ export default function ResultsPanel({
   }, [load]);
 
   useEffect(() => {
-    const nextViewMode = parseViewMode(
-      searchParams.get(FILTER_PARAM_KEYS.viewMode)
-    );
+    const params = new URLSearchParams(currentQuery);
+    const nextViewMode = parseViewMode(params.get(FILTER_PARAM_KEYS.viewMode));
     const nextShowPlayerNames = parseShowPlayerNamesParam(
-      searchParams.get(FILTER_PARAM_KEYS.showPlayerNames)
+      params.get(FILTER_PARAM_KEYS.showPlayerNames)
     );
-    const nextFilters = parseFiltersFromSearchParams(searchParams);
+    const nextFilters = parseFiltersFromSearchParams(params);
     setViewMode((prev) => (prev === nextViewMode ? prev : nextViewMode));
     setShowPlayerNames((prev) =>
       prev === nextShowPlayerNames ? prev : nextShowPlayerNames
@@ -231,25 +226,26 @@ export default function ResultsPanel({
     setFilters((prev) =>
       areResultFiltersEqual(prev, nextFilters) ? prev : nextFilters
     );
-  }, [searchParams]);
+  }, [currentQuery]);
 
   useEffect(() => {
     const nextParams = buildResultFilterSearchParams(
-      searchParams,
+      currentQuery,
       filters,
       viewMode,
       showPlayerNames
     );
     const nextQuery = nextParams.toString();
-    const currentQuery = new URLSearchParams(
-      searchParams.toString()
-    ).toString();
-    if (nextQuery === currentQuery) return;
+    const canonicalCurrentQuery = new URLSearchParams(currentQuery).toString();
+    if (nextQuery === canonicalCurrentQuery) return;
+    if (typeof window === 'undefined') return;
 
-    nextRouter.replace(nextQuery ? `${pathname}?${nextQuery}` : pathname, {
-      scroll: false,
-    });
-  }, [filters, nextRouter, pathname, searchParams, showPlayerNames, viewMode]);
+    window.history.replaceState(
+      window.history.state,
+      '',
+      `${pathname}${nextQuery ? `?${nextQuery}` : ''}${window.location.hash}`
+    );
+  }, [currentQuery, filters, pathname, showPlayerNames, viewMode]);
 
   const scheduleRealtimeRefresh = useCallback(() => {
     if (realtimeRefreshTimeoutRef.current) {
@@ -1979,12 +1975,12 @@ function parseFiltersFromSearchParams(
 }
 
 function buildResultFilterSearchParams(
-  current: URLSearchParams | ReadonlyURLSearchParamsLike,
+  currentQuery: string,
   filters: ResultFilters,
   viewMode: ViewMode,
   showPlayerNames: boolean
 ) {
-  const params = new URLSearchParams(current.toString());
+  const params = new URLSearchParams(currentQuery);
 
   setCsvParam(params, FILTER_PARAM_KEYS.categoryIds, filters.categoryIds);
   setCsvParam(params, FILTER_PARAM_KEYS.rounds, filters.rounds);

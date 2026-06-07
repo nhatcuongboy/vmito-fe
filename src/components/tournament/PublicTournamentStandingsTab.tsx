@@ -34,11 +34,7 @@ import {
 import PublicTournamentBracket from '@/components/tournament/PublicTournamentBracket';
 import PlayerNamesToggle from '@/components/tournament/PlayerNamesToggle';
 import { Link } from '@/i18n/config';
-import {
-  usePathname,
-  useRouter as useNextRouter,
-  useSearchParams,
-} from 'next/navigation';
+import { usePathname, useSearchParams } from 'next/navigation';
 import { Button, LegacySelect, VStack } from '@/components/ui/chakra-compat';
 import { TournamentTableSkeleton } from '@/components/tournament/skeletons';
 import { VModal } from '@/components/ui/VModal';
@@ -217,7 +213,7 @@ function parseBooleanParam(raw: string | null) {
 }
 
 function buildStandingsSearchParams(
-  current: URLSearchParams | ReadonlyURLSearchParamsLike,
+  currentQuery: string,
   values: {
     selectedCategoryId: string;
     stageView: StageView;
@@ -225,7 +221,7 @@ function buildStandingsSearchParams(
     showPlayerNames: boolean;
   }
 ) {
-  const params = new URLSearchParams(current.toString());
+  const params = new URLSearchParams(currentQuery);
 
   setStringParam(
     params,
@@ -269,9 +265,9 @@ export default function PublicTournamentStandingsTab({
   isHost,
 }: PublicTournamentStandingsTabProps) {
   const t = useTranslations('pages.tournaments.detail.standingsTab');
-  const nextRouter = useNextRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const currentQuery = searchParams.toString();
   const [standingsByCategory, setStandingsByCategory] = useState<
     CategoryStandingsBlock[]
   >([]);
@@ -351,50 +347,52 @@ export default function PublicTournamentStandingsTab({
   }, [loadStandings]);
 
   useEffect(() => {
-    const nextCategoryId = parseCategoryFilter(searchParams);
+    const params = new URLSearchParams(currentQuery);
+    const nextCategoryId = parseCategoryFilter(params);
     setSelectedCategoryId((prev) =>
       prev === nextCategoryId ? prev : nextCategoryId
     );
 
-    const nextStageView = parseStageView(
-      searchParams.get(FILTER_PARAM_KEYS.stage)
-    );
+    const nextStageView = parseStageView(params.get(FILTER_PARAM_KEYS.stage));
     setStageView((prev) => (prev === nextStageView ? prev : nextStageView));
 
     const nextStandingView = parseStandingView(
-      searchParams.get(FILTER_PARAM_KEYS.view)
+      params.get(FILTER_PARAM_KEYS.view)
     );
     setStandingView((prev) =>
       prev === nextStandingView ? prev : nextStandingView
     );
 
     const nextShowPlayerNames = parseBooleanParam(
-      searchParams.get(FILTER_PARAM_KEYS.players)
+      params.get(FILTER_PARAM_KEYS.players)
     );
     if (nextShowPlayerNames !== null) {
       setShowPlayerNames((prev) =>
         prev === nextShowPlayerNames ? prev : nextShowPlayerNames
       );
     }
-  }, [searchParams]);
+  }, [currentQuery]);
 
   useEffect(() => {
-    const nextParams = buildStandingsSearchParams(searchParams, {
+    const nextParams = buildStandingsSearchParams(currentQuery, {
       selectedCategoryId,
       stageView,
       standingView,
       showPlayerNames,
     });
     const nextQuery = nextParams.toString();
-    if (nextQuery === searchParams.toString()) return;
+    const canonicalCurrentQuery = new URLSearchParams(currentQuery).toString();
+    if (nextQuery === canonicalCurrentQuery) return;
+    if (typeof window === 'undefined') return;
 
-    nextRouter.replace(nextQuery ? `${pathname}?${nextQuery}` : pathname, {
-      scroll: false,
-    });
+    window.history.replaceState(
+      window.history.state,
+      '',
+      `${pathname}${nextQuery ? `?${nextQuery}` : ''}${window.location.hash}`
+    );
   }, [
-    nextRouter,
+    currentQuery,
     pathname,
-    searchParams,
     selectedCategoryId,
     showPlayerNames,
     stageView,
