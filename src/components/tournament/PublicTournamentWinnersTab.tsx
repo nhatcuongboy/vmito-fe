@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Badge, Box, Flex, Heading, Text } from '@chakra-ui/react';
+import { Badge, Box, Flex, Grid, Heading, Text } from '@chakra-ui/react';
 import { Award, Crown, Medal, RotateCcw } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
@@ -238,17 +238,19 @@ function CategoryPodiumCard({
   // round-robin leader while it is still running).
   const shouldShowResults =
     entries.length > 0 && (state === 'decided' || state === 'provisional');
+  const champion = entries.find((entry) => entry.rank === 1);
+  const podiumRest = entries.filter((entry) => entry.rank !== 1);
 
   return (
     <Box
       borderWidth="1px"
       borderColor="gray.100"
-      borderRadius="lg"
-      bg="white"
-      px={4}
-      py={4}
+      borderRadius="xl"
+      bg="gray.50"
+      px={{ base: 3, md: 4 }}
+      py={{ base: 3, md: 4 }}
       _dark={{
-        bg: 'var(--tournament-surface, var(--chakra-colors-gray-900))',
+        bg: 'var(--tournament-surface-muted, var(--chakra-colors-gray-900))',
         borderColor: 'var(--tournament-border, var(--chakra-colors-gray-700))',
         boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.04)',
       }}
@@ -277,16 +279,24 @@ function CategoryPodiumCard({
         </Text>
       ) : (
         <VStack align="stretch" gap={3}>
-          {entries.map((entry) => (
-            <PodiumRow key={entry.rank} entry={entry} t={t} />
-          ))}
+          {champion && <PodiumHeroCard entry={champion} t={t} />}
+          {podiumRest.length > 0 && (
+            <Grid
+              templateColumns={{ base: '1fr', md: 'repeat(2, 1fr)' }}
+              gap={3}
+            >
+              {podiumRest.map((entry) => (
+                <PodiumSideCard key={entry.rank} entry={entry} t={t} />
+              ))}
+            </Grid>
+          )}
         </VStack>
       )}
     </Box>
   );
 }
 
-function PodiumRow({
+function PodiumHeroCard({
   entry,
   t,
 }: {
@@ -294,35 +304,31 @@ function PodiumRow({
   t: ReturnType<typeof useTranslations>;
 }) {
   const style = RANK_STYLE[entry.rank];
-  const Icon = entry.rank === 1 ? Crown : entry.rank === 2 ? Medal : Award;
-  const rankLabel =
-    entry.rank === 1
-      ? t('champion')
-      : entry.rank === 2
-        ? t('runnerUp')
-        : t('thirdPlace');
+  const rankLabel = getPodiumRankLabel(entry.rank, t);
 
   return (
     <Flex
-      align="flex-start"
-      gap={3}
-      px={{ base: 3, md: 4 }}
-      py={{ base: 3, md: 3.5 }}
+      align={{ base: 'flex-start', md: 'center' }}
+      gap={{ base: 3, md: 4 }}
+      px={{ base: 3.5, md: 5 }}
+      py={{ base: 4, md: 5 }}
       borderWidth="1px"
       borderColor={style.border}
-      borderLeftWidth="4px"
+      borderLeftWidth={{ base: '4px', md: '6px' }}
       borderLeftColor={style.accent}
-      borderRadius="lg"
+      borderRadius="xl"
       bg={style.bg}
+      boxShadow="0 16px 38px rgba(202, 138, 4, 0.12)"
       _dark={{
         bg: style.darkBg,
         borderColor: style.darkBorder,
-        boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.04)',
+        boxShadow:
+          'inset 0 1px 0 rgba(255, 255, 255, 0.04), 0 18px 42px rgba(0, 0, 0, 0.2)',
       }}
     >
       <Flex
-        w={{ base: 9, md: 10 }}
-        h={{ base: 9, md: 10 }}
+        w={{ base: 12, md: 16 }}
+        h={{ base: 12, md: 16 }}
         align="center"
         justify="center"
         borderRadius="full"
@@ -335,7 +341,7 @@ function PodiumRow({
           borderColor: style.darkBorder,
         }}
       >
-        <Icon size={entry.rank === 1 ? 22 : 19} color={style.iconColor} />
+        <Crown size={30} color={style.iconColor} />
       </Flex>
 
       <Box minW={0} flex="1">
@@ -350,6 +356,97 @@ function PodiumRow({
           {rankLabel}
         </Text>
         <Text
+          fontSize={{ base: '2xl', md: '4xl' }}
+          fontWeight="900"
+          color="gray.900"
+          lineHeight="1.15"
+          overflow="hidden"
+          textOverflow="ellipsis"
+          whiteSpace="nowrap"
+          _dark={{ color: 'gray.50' }}
+        >
+          {entry.label}
+        </Text>
+        {entry.playerNames && (
+          <Text
+            mt={1}
+            fontSize={{ base: 'sm', md: 'lg' }}
+            lineHeight="1.35"
+            color="gray.600"
+            overflow="hidden"
+            textOverflow="ellipsis"
+            whiteSpace="nowrap"
+            _dark={{ color: 'gray.300' }}
+          >
+            {entry.playerNames}
+          </Text>
+        )}
+      </Box>
+    </Flex>
+  );
+}
+
+function PodiumSideCard({
+  entry,
+  t,
+}: {
+  entry: PodiumEntry;
+  t: ReturnType<typeof useTranslations>;
+}) {
+  const style = RANK_STYLE[entry.rank];
+  const Icon = entry.rank === 2 ? Medal : Award;
+  const rankLabel = getPodiumRankLabel(entry.rank, t);
+
+  return (
+    <Flex
+      align="flex-start"
+      gap={3}
+      px={{ base: 3.5, md: 4 }}
+      py={{ base: 3.5, md: 4 }}
+      borderWidth="1px"
+      borderColor={style.border}
+      borderTopWidth="4px"
+      borderTopColor={style.accent}
+      borderRadius="xl"
+      bg="white"
+      minH={{ md: '132px' }}
+      _dark={{
+        bg: 'var(--tournament-surface-raised, var(--chakra-colors-gray-800))',
+        borderColor: style.darkBorder,
+        boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.04)',
+      }}
+    >
+      <Flex
+        w={{ base: 10, md: 11 }}
+        h={{ base: 10, md: 11 }}
+        align="center"
+        justify="center"
+        borderRadius="full"
+        bg={style.bg}
+        borderWidth="1px"
+        borderColor={style.border}
+        flexShrink={0}
+        _dark={{
+          bg: style.darkBg,
+          borderColor: style.darkBorder,
+        }}
+      >
+        <Icon size={20} color={style.iconColor} />
+      </Flex>
+
+      <Box minW={0} flex="1">
+        <Text
+          fontSize={{ base: 'xs', md: 'sm' }}
+          fontWeight="700"
+          color="gray.500"
+          textTransform="uppercase"
+          lineHeight="1.2"
+          _dark={{ color: 'gray.400' }}
+        >
+          {rankLabel}
+        </Text>
+        <Text
+          mt={0.5}
           fontSize={{ base: 'xl', md: '2xl' }}
           fontWeight="800"
           color="gray.900"
@@ -378,4 +475,13 @@ function PodiumRow({
       </Box>
     </Flex>
   );
+}
+
+function getPodiumRankLabel(
+  rank: PodiumRank,
+  t: ReturnType<typeof useTranslations>
+) {
+  if (rank === 1) return t('champion');
+  if (rank === 2) return t('runnerUp');
+  return t('thirdPlace');
 }
