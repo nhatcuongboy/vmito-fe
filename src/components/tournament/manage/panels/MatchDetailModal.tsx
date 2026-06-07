@@ -418,59 +418,70 @@ function MatchupHeader({
   win1: boolean;
   win2: boolean;
 }) {
-  return (
-    <Flex align="stretch" gap={{ base: 2, sm: 3 }} mb={5} minW={0}>
-      <MatchupTeamCard
-        label={team1}
-        score={score1}
-        highlight={win1}
-        align="left"
-      />
+  const hasScore = score1 !== undefined || score2 !== undefined;
 
-      <Flex
-        align="center"
-        justify="center"
-        flexShrink={0}
-        px={{ base: 2, sm: 3 }}
-      >
-        <Text
-          fontSize="xs"
-          fontWeight="black"
-          color="gray.400"
-          letterSpacing="0"
-          _dark={{ color: 'gray.500' }}
+  return (
+    <Box mb={5}>
+      <Flex align="stretch" gap={{ base: 2, sm: 3 }} minW={0}>
+        <MatchupTeamCard label={team1} highlight={win1} align="left" />
+
+        <Flex
+          align="center"
+          justify="center"
+          flexShrink={0}
+          px={{ base: 1, sm: 2 }}
         >
-          VS
-        </Text>
+          <Text
+            fontSize="xs"
+            fontWeight="black"
+            color="gray.400"
+            letterSpacing="0"
+            _dark={{ color: 'gray.500' }}
+          >
+            VS
+          </Text>
+        </Flex>
+
+        <MatchupTeamCard label={team2} highlight={win2} align="right" />
       </Flex>
 
-      <MatchupTeamCard
-        label={team2}
-        score={score2}
-        highlight={win2}
-        align="right"
-      />
-    </Flex>
+      {hasScore && (
+        <Flex
+          align="center"
+          justify="center"
+          gap={2}
+          mt={3}
+          color="gray.700"
+          _dark={{ color: 'gray.100' }}
+        >
+          <MatchScoreValue score={score1} highlight={win1} />
+          <Text fontSize="sm" fontWeight="black" color="gray.400">
+            -
+          </Text>
+          <MatchScoreValue score={score2} highlight={win2} />
+        </Flex>
+      )}
+    </Box>
   );
 }
 
 function MatchupTeamCard({
   label,
-  score,
   highlight,
   align,
 }: {
   label: string;
-  score?: number;
   highlight: boolean;
   align: 'left' | 'right';
 }) {
+  const nameLines = splitTeamLabel(label);
+
   return (
     <Flex
       flex="1"
       minW={0}
-      align="center"
-      justify={align === 'right' ? 'flex-end' : 'flex-start'}
+      align="stretch"
+      justify="center"
       gap={2}
       px={{ base: 3, sm: 4 }}
       py={3}
@@ -483,44 +494,70 @@ function MatchupTeamCard({
         bg: highlight ? 'green.900/20' : 'gray.800',
       }}
     >
-      {highlight && align === 'left' && (
-        <Box flexShrink={0}>
-          <Trophy size={16} color="var(--chakra-colors-green-500)" />
-        </Box>
-      )}
-      <Text
-        fontSize={{ base: 'md', sm: 'lg' }}
-        fontWeight={highlight ? 'black' : 'bold'}
-        lineHeight={1.15}
-        textAlign={align}
-        minW={0}
-        flex="1"
-        whiteSpace="normal"
-        overflowWrap="anywhere"
-        wordBreak="break-word"
-      >
-        {label}
-      </Text>
-      {highlight && align === 'right' && (
-        <Box flexShrink={0}>
-          <Trophy size={16} color="var(--chakra-colors-green-500)" />
-        </Box>
-      )}
-      {score !== undefined && (
-        <Text
-          minW="28px"
+      {highlight && (
+        <Flex
+          align="center"
+          justify="center"
+          order={align === 'right' ? 2 : 0}
           flexShrink={0}
-          textAlign={align === 'right' ? 'right' : 'left'}
-          fontSize="xl"
-          fontWeight={highlight ? 'black' : 'semibold'}
-          color={highlight ? 'green.600' : 'gray.500'}
-          _dark={{ color: highlight ? 'green.300' : 'gray.400' }}
         >
-          {score}
-        </Text>
+          <Trophy size={16} color="var(--chakra-colors-green-500)" />
+        </Flex>
       )}
+      <Box flex="1" minW={0} textAlign={align}>
+        {nameLines.map((line, index) => (
+          <Text
+            key={`${line}-${index}`}
+            fontSize={{ base: 'md', sm: 'lg' }}
+            fontWeight={highlight ? 'black' : 'bold'}
+            lineHeight={1.15}
+            whiteSpace="normal"
+            overflowWrap="anywhere"
+            wordBreak="break-word"
+          >
+            {line}
+          </Text>
+        ))}
+      </Box>
     </Flex>
   );
+}
+
+function MatchScoreValue({
+  score,
+  highlight,
+}: {
+  score?: number;
+  highlight: boolean;
+}) {
+  return (
+    <Flex
+      align="center"
+      justify="center"
+      minW="46px"
+      h="34px"
+      px={3}
+      borderRadius="full"
+      bg={highlight ? 'green.50' : 'gray.100'}
+      color={highlight ? 'green.600' : 'gray.600'}
+      fontSize="xl"
+      fontWeight="black"
+      fontVariantNumeric="tabular-nums"
+      _dark={{
+        bg: highlight ? 'green.900/30' : 'gray.800',
+        color: highlight ? 'green.300' : 'gray.300',
+      }}
+    >
+      {score ?? '-'}
+    </Flex>
+  );
+}
+
+function splitTeamLabel(label: string) {
+  return label
+    .split(/\s+\/\s+/)
+    .map((part) => part.trim())
+    .filter(Boolean);
 }
 
 function StatsTab({
