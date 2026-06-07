@@ -419,13 +419,7 @@ function MatchupHeader({
   win2: boolean;
 }) {
   return (
-    <Flex
-      align="stretch"
-      gap={{ base: 2, sm: 3 }}
-      mb={5}
-      minW={0}
-      overflow="hidden"
-    >
+    <Flex align="stretch" gap={{ base: 2, sm: 3 }} mb={5} minW={0}>
       <MatchupTeamCard
         label={team1}
         score={score1}
@@ -490,25 +484,32 @@ function MatchupTeamCard({
       }}
     >
       {highlight && align === 'left' && (
-        <Trophy size={16} color="var(--chakra-colors-green-500)" />
+        <Box flexShrink={0}>
+          <Trophy size={16} color="var(--chakra-colors-green-500)" />
+        </Box>
       )}
       <Text
-        fontSize={{ base: 'xl', sm: '2xl' }}
+        fontSize={{ base: 'md', sm: 'lg' }}
         fontWeight={highlight ? 'black' : 'bold'}
         lineHeight={1.15}
         textAlign={align}
         minW={0}
         flex="1"
-        truncate
+        whiteSpace="normal"
+        overflowWrap="anywhere"
+        wordBreak="break-word"
       >
         {label}
       </Text>
       {highlight && align === 'right' && (
-        <Trophy size={16} color="var(--chakra-colors-green-500)" />
+        <Box flexShrink={0}>
+          <Trophy size={16} color="var(--chakra-colors-green-500)" />
+        </Box>
       )}
       {score !== undefined && (
         <Text
           minW="28px"
+          flexShrink={0}
           textAlign={align === 'right' ? 'right' : 'left'}
           fontSize="xl"
           fontWeight={highlight ? 'black' : 'semibold'}
