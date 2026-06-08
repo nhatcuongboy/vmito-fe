@@ -175,7 +175,10 @@ export default function TeamsPanel({
   };
 
   const handleAdd = async () => {
-    if (!activeCategory) return;
+    if (!activeCategory) {
+      toaster.error({ title: t('panels.teams.noCategorySelected') });
+      return;
+    }
     const tournamentId = activeCategory.tournamentId;
     try {
       setIsSubmitting(true);

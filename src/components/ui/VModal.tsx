@@ -221,6 +221,7 @@ export const VModal: React.FC<VModalProps> = ({
           flexDirection="column"
           overflow="hidden"
           onClick={(e) => e.stopPropagation()}
+          onTouchEnd={(e) => e.stopPropagation()}
           // Animation
           animation="slideIn 0.15s ease-out"
           css={{

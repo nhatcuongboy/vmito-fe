@@ -2419,6 +2419,7 @@
               "teamsCount": "{count} đội",
               "addSuccess": "Đã thêm đội thành công",
               "enterAtLeastOne": "Vui lòng nhập ít nhất một đội",
+              "noCategorySelected": "Vui lòng chọn một nội dung thi đấu trước khi thêm đội",
               "bulkAddItemFailed": "Không thể thêm \"{name}\" ({current}/{total}): {error}",
               "bulkAddSuccess": "Đã thêm thành công {count} đội",
               "addFailed": "Không thể thêm đội",

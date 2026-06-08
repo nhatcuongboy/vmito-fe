@@ -2411,6 +2411,7 @@
               "teamsCount": "{count} teams",
               "addSuccess": "Team added successfully",
               "enterAtLeastOne": "Please enter at least one team",
+              "noCategorySelected": "Please select a category before adding teams",
               "bulkAddItemFailed": "Could not add \"{name}\" ({current}/{total}): {error}",
               "bulkAddSuccess": "Added {count} teams successfully",
               "addFailed": "Failed to add teams",

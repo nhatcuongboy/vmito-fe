@@ -2389,6 +2389,7 @@
               "teamsCount": "{count} 支队伍",
               "addSuccess": "队伍添加成功",
               "enterAtLeastOne": "请至少输入一支队伍",
+              "noCategorySelected": "请先选择一个组别再添加队伍",
               "bulkAddItemFailed": "无法添加 \"{name}\" ({current}/{total}): {error}",
               "bulkAddSuccess": "成功添加 {count} 支队伍",
               "addFailed": "添加队伍失败",
