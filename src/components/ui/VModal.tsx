@@ -136,7 +136,7 @@ export const VModal: React.FC<VModalProps> = ({
   description,
   closeButtonAriaLabel = 'Close modal',
   closeButtonVariant = 'default',
-  zIndex = 1400,
+  zIndex = 1500,
   maxBodyHeight = '60vh',
   showHeaderDivider = true,
   showFooterDivider = true,
