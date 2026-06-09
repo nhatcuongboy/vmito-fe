@@ -90,7 +90,7 @@ interface TournamentHomeTabProps {
   totalTeams: number;
   totalAthletes: number;
   isLoadingCategories?: boolean;
-  isHost: boolean;
+  canManageTournament: boolean;
   slug: string;
 }
 
@@ -561,7 +561,7 @@ export default function TournamentHomeTab({
   totalTeams,
   totalAthletes,
   isLoadingCategories = false,
-  isHost,
+  canManageTournament,
   slug,
 }: TournamentHomeTabProps) {
   const t = useTranslations('pages.tournaments.detail.homeTab');
@@ -977,7 +977,7 @@ export default function TournamentHomeTab({
             {t('categories.title')}
           </Text>
           <HStack gap={1}>
-            {isHost && (
+            {canManageTournament && (
               <Text
                 fontSize="sm"
                 color="blue.500"
@@ -1127,7 +1127,7 @@ export default function TournamentHomeTab({
               {t('venues.title')}
             </Text>
             <HStack gap={3}>
-              {isHost && (
+              {canManageTournament && (
                 <Button
                   variant="outline"
                   colorPalette="gray"
@@ -1255,7 +1255,7 @@ export default function TournamentHomeTab({
         </Box>
       )}
 
-      {(tournamentNote || isHost) && (
+      {(tournamentNote || canManageTournament) && (
         <Box
           borderWidth="1px"
           borderColor="gray.200"
@@ -1278,7 +1278,7 @@ export default function TournamentHomeTab({
                 {t('notes.title')}
               </Text>
             </HStack>
-            {isHost && (
+            {canManageTournament && (
               <Box
                 as="button"
                 aria-label={t('notes.edit')}
@@ -1315,7 +1315,7 @@ export default function TournamentHomeTab({
         </Box>
       )}
 
-      {(youtubeEmbeds.length > 0 || isHost) && (
+      {(youtubeEmbeds.length > 0 || canManageTournament) && (
         <Box
           borderWidth="1px"
           borderColor="gray.200"
@@ -1338,7 +1338,7 @@ export default function TournamentHomeTab({
                 {t('videos.title')}
               </Text>
             </HStack>
-            {isHost && (
+            {canManageTournament && (
               <Box
                 as="button"
                 aria-label={t('videos.edit')}
@@ -1391,7 +1391,7 @@ export default function TournamentHomeTab({
       )}
 
       {/* Sponsors section */}
-      {(sponsors.length > 0 || isHost) && (
+      {(sponsors.length > 0 || canManageTournament) && (
         <Box
           borderWidth="1px"
           borderColor="gray.200"
@@ -1409,7 +1409,7 @@ export default function TournamentHomeTab({
             <Text fontWeight="semibold" fontSize="lg">
               {t('sponsors.title')}
             </Text>
-            {isHost && (
+            {canManageTournament && (
               <Box
                 as="button"
                 aria-label={t('sponsors.manage')}
@@ -1560,7 +1560,7 @@ export default function TournamentHomeTab({
         const contactPhone = tournament.contactPhone || '';
         const hasAnyContact = !!(contactName || contactEmail || contactPhone);
 
-        if (!hasAnyContact && !isHost) return null;
+        if (!hasAnyContact && !canManageTournament) return null;
 
         return (
           <Box
@@ -1580,7 +1580,7 @@ export default function TournamentHomeTab({
               <Text fontWeight="semibold" fontSize="lg">
                 {t('contact.title')}
               </Text>
-              {isHost && (
+              {canManageTournament && (
                 <HStack gap={1}>
                   <Box
                     as="button"

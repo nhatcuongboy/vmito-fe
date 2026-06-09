@@ -955,7 +955,7 @@ export default function TournamentPageShell({
           )}
           totalAthletes={totalAthletes}
           isLoadingCategories={loadingTeams}
-          isHost={isHost}
+          canManageTournament={isHostOrAdmin}
           slug={slug}
         />
       )}
@@ -1182,7 +1182,7 @@ export default function TournamentPageShell({
           <ResultsPanel
             tournament={tournament}
             categories={allCategories}
-            canEdit={isHost}
+            canEdit={isHostOrAdmin}
             heading={t('tabs.schedule')}
             hideHeadingOnMobile
             onOpenRoundsPanel={handleOpenRoundsPanel}
@@ -1196,7 +1196,7 @@ export default function TournamentPageShell({
           <PublicTournamentStandingsTab
             tournament={tournament}
             categories={allCategories}
-            isHost={isHost}
+            isHost={isHostOrAdmin}
           />
         ))}
       {activeTab === 4 && canManage && (
@@ -1205,7 +1205,7 @@ export default function TournamentPageShell({
           onTournamentUpdate={(updated) => setTournament(updated)}
         />
       )}
-      {activeTab === 5 && isHost && (
+      {activeTab === 5 && isHostOrAdmin && (
         <TournamentDashboard tournament={tournament} />
       )}
     </>
