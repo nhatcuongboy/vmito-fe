@@ -2,7 +2,7 @@
 
 import { SessionService } from '@/lib/api/session.service';
 import { Player, PlayerStatistics } from '@/lib/api/types';
-import { formatTimeByDevicePreference } from '@/utils/time-helpers';
+import { formatTimeRangeByDevicePreference } from '@/utils/time-helpers';
 import {
   Badge,
   Box,
@@ -749,9 +749,9 @@ const SessionPlayers: React.FC<SessionPlayersProps> = ({
                 >
                   {session?.startTime && (
                     <Text textAlign="center">
-                      🕒 {formatTimeByDevicePreference(session.startTime)}
-                      {'-'}
-                      {formatTimeByDevicePreference(
+                      🕒{' '}
+                      {formatTimeRangeByDevicePreference(
+                        session.startTime,
                         new Date(
                           new Date(session.startTime).getTime() +
                             (session.sessionDuration || 120) * 60 * 1000

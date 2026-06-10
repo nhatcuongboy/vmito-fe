@@ -33,7 +33,7 @@ import { FeeService } from '@/lib/api/fee.service';
 import { getSkillLevelColor } from '@/lib/utils/skillLevel.utils';
 import { useLevelLabel } from '@/hooks/useLevelLabel';
 import { formatVenueName } from '@/utils';
-import { formatTimeByDevicePreference } from '@/utils/time-helpers';
+import { formatTimeRangeByDevicePreference } from '@/utils/time-helpers';
 import dayjs from '@/lib/dayjs';
 import { DEFAULT_COVER_PHOTO } from '@/constants';
 import QRCode from 'qrcode';
@@ -174,16 +174,6 @@ const formatLegacyPortraitDate = (
   return formattedDate.charAt(0).toUpperCase() + formattedDate.slice(1);
 };
 
-const formatLegacyPortraitTime = (
-  dateString: string | Date,
-  locale: string
-): string => {
-  const date = dayjs
-    .tz(dateString)
-    .locale(locale === Locale.VI ? Locale.VI : Locale.EN);
-  return date.format('HH:mm');
-};
-
 const getCourtLabel = (session: ISession, courtsLabel: string) => {
   const courtNames =
     session.courts && session.courts.length > 0
@@ -243,9 +233,7 @@ const useShareCardData = (session: ISession): ShareCardData => {
     return {
       date: formatDate(startTime, locale),
       time: session.startTime
-        ? `${formatTimeByDevicePreference(session.startTime)}${
-            endTime ? ` - ${formatTimeByDevicePreference(endTime)}` : ''
-          }`
+        ? formatTimeRangeByDevicePreference(session.startTime, endTime)
         : t('timeNotSet'),
       venue: venueName,
       address: getAddressLabel(session),
@@ -634,9 +622,7 @@ const LegacyPortraitCard = ({
     ? formatLegacyPortraitDate(session.startTime, locale)
     : formatLegacyPortraitDate(session.createdAt, locale);
   const compactTime = session.startTime
-    ? `${formatLegacyPortraitTime(session.startTime, locale)} - ${
-        session.endTime ? formatLegacyPortraitTime(session.endTime, locale) : ''
-      }`
+    ? formatTimeRangeByDevicePreference(session.startTime, session.endTime)
     : '';
   const skillLevelColor = getSkillLevelColor(session.requiredLevels);
 
@@ -930,9 +916,7 @@ const LegacySocialCard = ({ id, session, qrDataUrl }: TemplateProps) => {
     ? formatDate(session.startTime, locale)
     : formatDate(session.createdAt, locale);
   const compactTime = session.startTime
-    ? `${formatTimeByDevicePreference(session.startTime)} - ${
-        session.endTime ? formatTimeByDevicePreference(session.endTime) : ''
-      }`
+    ? formatTimeRangeByDevicePreference(session.startTime, session.endTime)
     : '';
   const skillLevelColor = getSkillLevelColor(session.requiredLevels);
 

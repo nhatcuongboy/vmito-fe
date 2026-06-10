@@ -34,6 +34,7 @@ import { PendingRequest } from '@/lib/api/types';
 import { toaster } from '@/components/ui/toaster';
 import { useRouter } from '@/i18n/config';
 import dayjs from '@/lib/dayjs';
+import { formatTimeByDevicePreference } from '@/utils/time-helpers';
 import { useParams } from 'next/navigation';
 import { ROUTES } from '@/constants';
 
@@ -228,8 +229,9 @@ const ApprovalDetailContent = () => {
                   </Text>
                   <Text fontSize="sm" fontWeight="medium">
                     {dayjs(request.session.startTime).format(
-                      'dddd, DD/MM/YYYY · HH:mm'
-                    )}
+                      'dddd, DD/MM/YYYY'
+                    )}{' '}
+                    · {formatTimeByDevicePreference(request.session.startTime)}
                   </Text>
                 </VStack>
               </HStack>

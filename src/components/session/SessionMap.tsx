@@ -34,6 +34,7 @@ import useMapPinIcon from '@/hooks/useMapPinIcon';
 import { format } from 'date-fns';
 import { toaster } from '@/components/ui/toaster';
 import { useTranslations } from 'next-intl';
+import { formatTimeByDevicePreference } from '@/utils/time-helpers';
 import {
   TOP_BAR_HEIGHT_MOBILE,
   CONTENT_PT_OFFSET,
@@ -468,7 +469,9 @@ export default function SessionMap({
                             <Clock size={12} />
                             <Text>
                               {session.startTime
-                                ? format(new Date(session.startTime), 'HH:mm')
+                                ? formatTimeByDevicePreference(
+                                    session.startTime
+                                  )
                                 : '--:--'}
                             </Text>
                           </HStack>

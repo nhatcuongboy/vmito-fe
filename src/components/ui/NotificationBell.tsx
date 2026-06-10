@@ -51,6 +51,7 @@ import dayjs from '@/lib/dayjs';
 import { getNotificationDisplayText } from '@/lib/notifications/content';
 import { getNotificationTargetRoute } from '@/lib/notifications/routing';
 import { ROUTES } from '@/constants/routes';
+import { formatTimeByDevicePreference } from '@/utils/time-helpers';
 
 interface NotificationBellProps {
   color?: string;
@@ -537,8 +538,10 @@ export default function NotificationBell({
                               w="100%"
                             >
                               {request.session.name} · Lv.{request.level} ·{' '}
-                              {dayjs(request.session.startTime).format(
-                                'DD/MM, HH:mm'
+                              {dayjs(request.session.startTime).format('DD/MM')}
+                              ,{' '}
+                              {formatTimeByDevicePreference(
+                                request.session.startTime
                               )}
                               {slotCount > 1 && ` · ${slotCount} slot`}
                             </Text>

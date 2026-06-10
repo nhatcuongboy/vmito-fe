@@ -41,6 +41,7 @@ import { getSkillLevelColor } from '@/lib/utils/skillLevel.utils';
 import dayjs from '@/lib/dayjs';
 import LevelBadgeWithDescription from './LevelBadgeWithDescription';
 import LevelDescriptionsModal from './LevelDescriptionsModal';
+import { formatTimeRangeByDevicePreference } from '@/utils/time-helpers';
 
 interface ISessionDetailStickyBarProps {
   session: ISession;
@@ -107,13 +108,12 @@ const SessionDetailStickyBar = ({
     return `${prefix}, ${date.format(dateFormat)}`;
   };
 
-  const formatTime = (dateString: string | Date): string =>
-    dayjs.utc(dateString).tz('Asia/Ho_Chi_Minh').format('HH:mm');
-
   const timeDisplay = session.startTime
-    ? `${formatTime(session.startTime)} - ${
-        session.endTime ? formatTime(session.endTime) : t('inProgress')
-      }`
+    ? formatTimeRangeByDevicePreference(
+        session.startTime,
+        session.endTime,
+        t('inProgress')
+      )
     : t('notStartedYet');
 
   const dateDisplay = session.startTime

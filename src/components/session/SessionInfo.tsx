@@ -36,7 +36,7 @@ import {
 } from 'lucide-react';
 import { ISession, Player, PlayerStatistics } from '@/lib/api/types';
 import { useLocale, useTranslations } from 'next-intl';
-import { formatTime } from '@/utils/session-helpers';
+import { formatTimeRangeByDevicePreference } from '@/utils/time-helpers';
 import dayjs from '@/lib/dayjs';
 import 'dayjs/locale/en';
 import 'dayjs/locale/vi';
@@ -185,9 +185,7 @@ const PlayerAchievementExportCard = ({
       }).format(new Date(session.startTime))
     : null;
   const sessionTime = session.startTime
-    ? `${formatTime(session.startTime)} - ${
-        session.endTime ? formatTime(session.endTime) : '--:--'
-      }`
+    ? formatTimeRangeByDevicePreference(session.startTime, session.endTime)
     : null;
   const venueName = session.venue?.name || session.location;
   const hasResultStats = playerStats.wins + playerStats.losses > 0;
@@ -655,8 +653,12 @@ export default function SessionInfo({
       </InfoRow>
 
       <InfoRow icon={Clock} label={t('sessionTime')}>
-        {session.startTime ? formatTime(session.startTime) : '--:--'} -{' '}
-        {session.endTime ? formatTime(session.endTime) : '--:--'}
+        {session.startTime
+          ? formatTimeRangeByDevicePreference(
+              session.startTime,
+              session.endTime
+            )
+          : '--:--'}
       </InfoRow>
 
       <InfoRow icon={Users} label={t('maxPlayersTitle') || 'Tối đa'}>

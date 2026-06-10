@@ -34,6 +34,10 @@ import { StarRatingDisplay } from '@/components/rating';
 import { RatingService } from '@/lib/api/rating.service';
 import { useState, useEffect } from 'react';
 import { useAuthStore } from '@/stores/useAuthStore';
+import {
+  formatTimeByDevicePreference,
+  formatTimeRangeByDevicePreference,
+} from '@/utils/time-helpers';
 
 // Helper functions for formatting with locale support
 export const formatDate = (
@@ -57,12 +61,9 @@ export const formatDate = (
 
 export const formatTime = (
   dateString: string | Date,
-  locale: string
+  _locale: string
 ): string => {
-  const date = dayjs(dateString).locale(
-    locale === Locale.VI ? Locale.VI : Locale.EN
-  );
-  return date.format('HH:mm');
+  return formatTimeByDevicePreference(dateString);
 };
 
 export const statusColors: Record<string, string> = {
@@ -144,11 +145,11 @@ const BaseSessionCard = ({
       ? formatDate(session.startTime, locale)
       : formatDate(session.createdAt, locale) + ` (${t('notStarted')})`,
     time: session.startTime
-      ? `${formatTime(session.startTime, locale)} - ${
-          session.endTime
-            ? formatTime(session.endTime, locale)
-            : t('inProgress')
-        }`
+      ? formatTimeRangeByDevicePreference(
+          session.startTime,
+          session.endTime,
+          t('inProgress')
+        )
       : t('notStartedYet'),
     numberOfCourts: session.numberOfCourts,
     totalPlayers: session._count?.players || 0,

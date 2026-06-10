@@ -17,21 +17,20 @@ import {
   Text,
   Wrap,
 } from '@chakra-ui/react';
-import dayjs from 'dayjs';
 import { Activity, ArrowRight, Hash, LogIn, Shield, Users } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import React, { useEffect, useState } from 'react';
 import { toaster } from '@/components/ui/toaster';
 import { type ISession, type Player } from '@/lib/api/types';
 import { useLevelLabel } from '@/hooks/useLevelLabel';
+import { formatTimeRangeByDevicePreference } from '@/utils/time-helpers';
 
 const formatRangeTime = (
   startTime?: string | Date,
   endTime?: string | Date
 ) => {
-  return `${dayjs(startTime).format('HH:mm')}-${dayjs(endTime).format(
-    'HH:mm'
-  )}`;
+  if (!startTime) return '';
+  return formatTimeRangeByDevicePreference(startTime, endTime);
 };
 
 export default function JoinPage() {

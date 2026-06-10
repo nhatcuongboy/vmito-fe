@@ -39,6 +39,7 @@ import LevelBadgeWithDescription from './LevelBadgeWithDescription';
 import LevelDescriptionsModal from './LevelDescriptionsModal';
 import SessionReferenceVideo from './SessionReferenceVideo';
 import { ROUTES } from '@/constants';
+import { formatTimeRangeByDevicePreference } from '@/utils/time-helpers';
 
 interface ISessionDetailBodyProps {
   session: ISession;
@@ -86,12 +87,12 @@ const SessionDetailBody = ({
     return `${prefix}, ${date.format(dateFormat)}`;
   };
 
-  const formatTime = (dateString: string | Date): string => {
-    return dayjs.utc(dateString).tz('Asia/Ho_Chi_Minh').format('HH:mm');
-  };
-
   const timeDisplay = session.startTime
-    ? `${formatTime(session.startTime)} - ${session.endTime ? formatTime(session.endTime) : t('inProgress')}`
+    ? formatTimeRangeByDevicePreference(
+        session.startTime,
+        session.endTime,
+        t('inProgress')
+      )
     : t('notStartedYet');
 
   const dateDisplay = session.startTime

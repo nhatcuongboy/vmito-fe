@@ -3,7 +3,10 @@
 import { useState } from 'react';
 import { ISession, UserRole } from '@/lib/api/types';
 import { useLevelLabel } from '@/hooks/useLevelLabel';
-import { formatTimeByDevicePreference } from '@/utils/time-helpers';
+import {
+  formatTimeByDevicePreference,
+  formatTimeRangeByDevicePreference,
+} from '@/utils/time-helpers';
 import dayjs from '@/lib/dayjs';
 import {
   Avatar,
@@ -95,6 +98,14 @@ export const formatTime = (
 ): string => {
   // Use device time format preference instead of hardcoded HH:mm
   return formatTimeByDevicePreference(dateString);
+};
+
+export const formatTimeRange = (
+  startTime: string | Date,
+  endTime?: string | Date | null,
+  endFallback?: string
+): string => {
+  return formatTimeRangeByDevicePreference(startTime, endTime, endFallback);
 };
 
 export const statusColors: Record<string, string> = {
@@ -489,11 +500,7 @@ const BaseSessionCard = ({
       ? formatDate(session.startTime, locale)
       : formatDate(session.createdAt, locale) + ` (${t('notStarted')})`,
     time: session.startTime
-      ? `${formatTime(session.startTime, locale)} - ${
-          session.endTime
-            ? formatTime(session.endTime, locale)
-            : t('inProgress')
-        }`
+      ? formatTimeRange(session.startTime, session.endTime, t('inProgress'))
       : t('notStartedYet'),
     numberOfCourts: session.numberOfCourts,
     totalPlayers: session._count?.players || 0,
@@ -539,7 +546,7 @@ const BaseSessionCard = ({
     : formatCompactDate(session.createdAt);
 
   const compactTime = session.startTime
-    ? `${formatTime(session.startTime, locale)} - ${session.endTime ? formatTime(session.endTime, locale) : ''}`
+    ? formatTimeRange(session.startTime, session.endTime)
     : '';
 
   // Calculate level segments for the side strip

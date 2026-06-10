@@ -65,25 +65,39 @@ export const is24HourFormat = (): boolean => {
   }
 
   try {
-    // Use Intl API to detect device's time format preference
     const formatter = new Intl.DateTimeFormat(undefined, {
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: false,
+      hour: 'numeric',
     });
+    const { hour12 } = formatter.resolvedOptions();
 
-    // Format a test time (13:00) with hour12: false
-    const testDate = new Date(2000, 0, 1, 13, 0, 0);
-    const formatted24 = formatter.format(testDate);
+    if (typeof hour12 === 'boolean') {
+      return !hour12;
+    }
 
-    // If 24-hour format is used, it will show "13:00"
-    // If 12-hour format is used, formatted12 will be different
-    return formatted24.includes('13');
+    const parts = formatter.formatToParts(new Date(2000, 0, 1, 13, 0, 0));
+    const hasDayPeriod = parts.some((part) => part.type === 'dayPeriod');
+    const hourPart = parts.find((part) => part.type === 'hour')?.value || '';
+
+    return !hasDayPeriod && hourPart.includes('13');
   } catch (error) {
     console.warn('Error detecting time format:', error);
     // Default to 24-hour format if detection fails
     return true;
   }
+};
+
+const get12HourTimeParts = (
+  dateString: string | Date
+): { time: string; period: 'AM' | 'PM' } => {
+  const date = new Date(dateString);
+  const hours = date.getHours();
+  const hour12 = hours % 12 || 12;
+  const minutes = date.getMinutes().toString().padStart(2, '0');
+
+  return {
+    time: `${hour12.toString().padStart(2, '0')}:${minutes}`,
+    period: hours < 12 ? 'AM' : 'PM',
+  };
 };
 
 /**
@@ -98,10 +112,15 @@ export const formatTimeByDevicePreference = (
   const use24Hour = is24HourFormat();
 
   try {
+    if (!use24Hour) {
+      const { time, period } = get12HourTimeParts(date);
+      return `${time} ${period}`;
+    }
+
     return date.toLocaleTimeString(undefined, {
       hour: '2-digit',
       minute: '2-digit',
-      hour12: !use24Hour,
+      hour12: false,
     });
   } catch (error) {
     console.warn('Error formatting time:', error);
@@ -112,4 +131,37 @@ export const formatTimeByDevicePreference = (
       hour12: false,
     });
   }
+};
+
+/**
+ * Format a time range with a compact AM/PM label when the device uses 12-hour time.
+ * Examples: "03:00 - 05:00 AM", "11:30 AM - 01:30 PM", or "15:00 - 17:00".
+ */
+export const formatTimeRangeByDevicePreference = (
+  startTime: string | Date,
+  endTime?: string | Date | null,
+  endFallback?: string
+): string => {
+  const use24Hour = is24HourFormat();
+
+  if (!endTime) {
+    return endFallback
+      ? `${formatTimeByDevicePreference(startTime)} - ${endFallback}`
+      : formatTimeByDevicePreference(startTime);
+  }
+
+  if (use24Hour) {
+    return `${formatTimeByDevicePreference(startTime)} - ${formatTimeByDevicePreference(
+      endTime
+    )}`;
+  }
+
+  const start = get12HourTimeParts(startTime);
+  const end = get12HourTimeParts(endTime);
+
+  if (start.period === end.period) {
+    return `${start.time} - ${end.time} ${end.period}`;
+  }
+
+  return `${start.time} ${start.period} - ${end.time} ${end.period}`;
 };
