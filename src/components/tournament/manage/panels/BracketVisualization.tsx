@@ -12,6 +12,7 @@ import { Box, Flex, Text } from '@chakra-ui/react';
 import { useTranslations } from 'next-intl';
 import {
   SingleEliminationBracket,
+  createTheme,
   type MatchType,
   type MatchComponentProps,
 } from 'react-tournament-brackets';
@@ -724,6 +725,56 @@ export default function BracketVisualization({
     [onSlotsChange]
   );
 
+  const matchW = compact ? 130 : MATCH_W;
+  const matchH = compact ? 40 : MATCH_H;
+
+  const bracketTheme = useMemo(
+    () =>
+      createTheme({
+        fontFamily: '"Inter", "Arial", "Helvetica", sans-serif',
+        roundHeaders: {
+          background: compact ? '#F8FAFC' : '#F1F5F9',
+        },
+        textColor: {
+          highlighted: '#111827',
+        },
+        canvasBackground: 'transparent',
+      }),
+    [compact]
+  );
+
+  const bracketOptions = useMemo(
+    () => ({
+      style: {
+        width: matchW,
+        boxHeight: matchH,
+        canvasPadding: compact ? 8 : 24,
+        spaceBetweenColumns: compact ? 20 : 40,
+        spaceBetweenRows: compact ? 10 : 18,
+        connectorColor: '#CBD5E0',
+        connectorColorHighlight: '#2563EB',
+        horizontalOffset: 0,
+        roundSeparatorWidth: compact ? 20 : 40,
+        lineInfo: {
+          separation: 0,
+          homeVisitorSpread: matchH / 4,
+        },
+        roundHeader: {
+          isShown: true,
+          height: compact ? 24 : 40,
+          marginBottom: compact ? 10 : 20,
+          fontSize: compact ? 11 : 14,
+          fontColor: '#111827',
+          backgroundColor: compact ? '#F8FAFC' : '#F1F5F9',
+          fontFamily: '"Inter", "Arial", "Helvetica", sans-serif',
+          roundTextGenerator: (currentRound: number, totalRounds: number) =>
+            getRoundName(currentRound - 1, totalRounds, t),
+        },
+      },
+    }),
+    [compact, matchH, matchW, t]
+  );
+
   if (flatMatches.length === 0) {
     return (
       <Flex align="center" justify="center" py={8}>
@@ -734,34 +785,12 @@ export default function BracketVisualization({
     );
   }
 
-  const matchW = compact ? 130 : MATCH_W;
-  const matchH = compact ? 40 : MATCH_H;
-
-  const bracketOptions = {
-    style: {
-      width: matchW,
-      boxHeight: matchH,
-      canvasPadding: compact ? 8 : 24,
-      spaceBetweenColumns: compact ? 16 : 32,
-      spaceBetweenRows: compact ? 8 : 16,
-      connectorColor: '#CBD5E0',
-      connectorColorHighlight: '#4299E1',
-      roundHeader: {
-        isShown: true,
-        height: compact ? 24 : 40,
-        fontSize: compact ? 11 : 14,
-        fontColor: '#1f2937',
-        backgroundColor: 'transparent',
-      },
-      roundSeparatorWidth: compact ? 16 : 32,
-    },
-  };
-
   const bracketEl = (
     <BracketEl
       matches={flatMatches}
       matchComponent={CustomMatch}
       options={bracketOptions}
+      theme={bracketTheme}
       svgWrapper={({
         bracketWidth,
         bracketHeight,
