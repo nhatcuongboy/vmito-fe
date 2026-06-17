@@ -571,6 +571,7 @@ export interface BulkPlayersInfoResponse {
 
 // Court creation interface
 export interface CourtConfig {
+  id?: string;
   courtNumber: number;
   courtName?: string;
   direction?: CourtDirection;

@@ -234,6 +234,7 @@ function createCourtSchema(
   t: (key: string, values?: Record<string, unknown>) => string
 ) {
   return z.object({
+    courtId: z.string().optional(),
     courtNumber: z.number().min(1, t('validation.courtNumberMin')),
     courtName: z.string().optional(),
     direction: z.nativeEnum(CourtDirection),
@@ -383,6 +384,7 @@ export default function SessionForm({
           : '',
         courts:
           initialData.courts?.map((c) => ({
+            courtId: c.id,
             courtNumber: c.courtNumber,
             courtName: c.courtName || '',
             direction: c.direction,
@@ -413,6 +415,7 @@ export default function SessionForm({
       endTime: '',
       courts: [
         {
+          courtId: undefined,
           courtNumber: 1,
           courtName: '',
           direction: CourtDirection.HORIZONTAL,
@@ -667,6 +670,7 @@ export default function SessionForm({
   const handleAddCourt = () => {
     shouldFocusNewCourt.current = true;
     append({
+      courtId: undefined,
       courtNumber: 0,
       courtName: '',
       direction: CourtDirection.HORIZONTAL,
@@ -1012,9 +1016,10 @@ export default function SessionForm({
           ...(canEditCourts && {
             numberOfCourts: data.courts.length,
             courts: data.courts.map((court) => ({
+              id: court.courtId,
               courtNumber: court.courtNumber,
               courtName: court.courtName || undefined,
-              direction: CourtDirection.HORIZONTAL,
+              direction: court.direction,
             })),
           }),
 
@@ -1058,7 +1063,7 @@ export default function SessionForm({
           courts: data.courts.map((court) => ({
             courtNumber: court.courtNumber,
             courtName: court.courtName || undefined,
-            direction: CourtDirection.HORIZONTAL,
+            direction: court.direction,
           })),
           feeConfig: feeConfigData,
         };
