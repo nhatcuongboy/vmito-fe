@@ -829,6 +829,18 @@ export interface Category {
   };
 }
 
+export interface CategoryGroupStageCompletion {
+  categoryId: string;
+  categoryName: string;
+  isEligible: boolean;
+  isCompleted: boolean;
+  canGenerateBracket: boolean;
+  hasBracket: boolean;
+  totalGroupMatches: number;
+  finishedGroupMatches: number;
+  unfinishedGroupMatches: number;
+}
+
 export interface CategoryRegistration {
   id: string;
   categoryId: string;

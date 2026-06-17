@@ -6,29 +6,37 @@ import { VStack, Button } from '@/components/ui/chakra-compat';
 import { useTranslations } from 'next-intl';
 import { useModal, VModal } from '@/components/ui/VModal';
 import { toaster } from '@/components/ui/toaster';
-import { ArrowLeftRight, Settings, Trash2 } from 'lucide-react';
+import { ArrowLeftRight, Settings, Trash2, Trophy } from 'lucide-react';
 import {
   Category,
+  CategoryFormat,
+  CategoryGroupStageCompletion,
   Tournament,
   CategoryMatch,
   ScheduleType,
 } from '@/lib/api/types';
 import { TournamentService } from '@/lib/api/tournament.service';
+import { CategoryService } from '@/lib/api/category.service';
 import ScheduleTypeModal from './schedule/ScheduleTypeModal';
 import ManageScheduleModal from './schedule/ManageScheduleModal';
 
 interface SchedulePanelProps {
   categories: Category[];
   tournament: Tournament;
+  onOpenRoundsPanel?: (categoryId: string) => void;
 }
 
 export default function SchedulePanel({
   categories,
   tournament,
+  onOpenRoundsPanel,
 }: SchedulePanelProps) {
   const t = useTranslations('pages.tournaments.detail.manage');
 
   const [allMatches, setAllMatches] = useState<CategoryMatch[]>([]);
+  const [readyCompletions, setReadyCompletions] = useState<
+    CategoryGroupStageCompletion[]
+  >([]);
   const [scheduleType, setScheduleType] = useState<ScheduleType | undefined>(
     tournament.scheduleType
   );
@@ -38,6 +46,73 @@ export default function SchedulePanel({
   const deleteUnscheduledModal = useModal();
   const [isClearing, setIsClearing] = useState(false);
   const [isDeletingUnscheduled, setIsDeletingUnscheduled] = useState(false);
+  const completionModal = useModal();
+  const {
+    isOpen: isCompletionModalOpen,
+    onOpen: openCompletionModal,
+    onClose: closeCompletionModal,
+  } = completionModal;
+
+  const getCompletionStorageKey = useCallback(
+    (categoryId: string) =>
+      `tournament:${tournament.id}:category:${categoryId}:group-stage-complete-modal`,
+    [tournament.id]
+  );
+
+  const hasShownCompletion = useCallback(
+    (categoryId: string) => {
+      try {
+        return (
+          sessionStorage.getItem(getCompletionStorageKey(categoryId)) === '1'
+        );
+      } catch {
+        return false;
+      }
+    },
+    [getCompletionStorageKey]
+  );
+
+  const markCompletionShown = useCallback(
+    (categoryId: string) => {
+      try {
+        sessionStorage.setItem(getCompletionStorageKey(categoryId), '1');
+      } catch {
+        // Session storage may be unavailable in private or restricted contexts.
+      }
+    },
+    [getCompletionStorageKey]
+  );
+
+  const checkGroupStageCompletion = useCallback(async () => {
+    const rrToSeCategories = categories.filter(
+      (category) => category.format === CategoryFormat.ROUND_ROBIN_TO_SE
+    );
+    if (rrToSeCategories.length === 0) return;
+
+    try {
+      const results = await Promise.all(
+        rrToSeCategories.map((category) =>
+          CategoryService.getGroupStageCompletion(category.id)
+        )
+      );
+      const newlyReady = results.filter(
+        (item) =>
+          item.canGenerateBracket && !hasShownCompletion(item.categoryId)
+      );
+
+      if (newlyReady.length === 0) return;
+      newlyReady.forEach((item) => markCompletionShown(item.categoryId));
+      setReadyCompletions(newlyReady);
+      openCompletionModal();
+    } catch {
+      // Non-blocking: the schedule panel still works if the readiness check fails.
+    }
+  }, [
+    categories,
+    hasShownCompletion,
+    markCompletionShown,
+    openCompletionModal,
+  ]);
 
   // Fetch matches to get real scheduled count
   useEffect(() => {
@@ -45,12 +120,13 @@ export default function SchedulePanel({
       try {
         const matches = await TournamentService.getAllMatches(tournament.id);
         setAllMatches(matches);
+        await checkGroupStageCompletion();
       } catch {
         // fall back to category-level counts
       }
     };
     fetchMatches();
-  }, [tournament.id]);
+  }, [checkGroupStageCompletion, tournament.id]);
 
   const totalMatches =
     allMatches.length > 0
@@ -82,10 +158,21 @@ export default function SchedulePanel({
     try {
       const matches = await TournamentService.getAllMatches(tournament.id);
       setAllMatches(matches);
+      await checkGroupStageCompletion();
     } catch {
       // ignore
     }
-  }, [tournament.id]);
+  }, [checkGroupStageCompletion, tournament.id]);
+
+  const handleOpenReadyRounds = useCallback(() => {
+    const firstReadyCategory = readyCompletions[0];
+    if (!firstReadyCategory) {
+      closeCompletionModal();
+      return;
+    }
+    closeCompletionModal();
+    onOpenRoundsPanel?.(firstReadyCategory.categoryId);
+  }, [closeCompletionModal, onOpenRoundsPanel, readyCompletions]);
 
   const handleClearSchedule = useCallback(async () => {
     setIsClearing(true);
@@ -300,6 +387,61 @@ export default function SchedulePanel({
             count: unscheduledMatches,
           })}
         </Text>
+      </VModal>
+
+      <VModal
+        isOpen={isCompletionModalOpen}
+        onClose={closeCompletionModal}
+        title={t('panels.rounds.scheduleBracketReadyTitle')}
+        size="sm"
+        primaryActionText={t('panels.rounds.goToRounds')}
+        primaryColorScheme="green"
+        onPrimaryAction={handleOpenReadyRounds}
+        hideSecondaryAction
+      >
+        <VStack gap={3} align="stretch">
+          <Flex
+            align="center"
+            justify="center"
+            w="44px"
+            h="44px"
+            borderRadius="full"
+            bg="green.50"
+            color="green.600"
+            _dark={{ bg: 'green.950', color: 'green.200' }}
+          >
+            <Trophy size={22} />
+          </Flex>
+          <Text fontSize="sm" color="gray.700" _dark={{ color: 'gray.200' }}>
+            {t('panels.rounds.bracketReadyGenerateDescription')}
+          </Text>
+          {readyCompletions.length > 0 && (
+            <VStack gap={2} align="stretch">
+              {readyCompletions.map((item) => (
+                <Flex
+                  key={item.categoryId}
+                  align="center"
+                  justify="space-between"
+                  gap={3}
+                  px={3}
+                  py={2}
+                  borderWidth="1px"
+                  borderColor="green.100"
+                  borderRadius="md"
+                  bg="green.50"
+                  _dark={{ bg: 'green.950', borderColor: 'green.800' }}
+                >
+                  <Text fontSize="sm" fontWeight="medium" minW={0}>
+                    {item.categoryName}
+                  </Text>
+                  <Badge colorPalette="green" flexShrink={0}>
+                    {item.finishedGroupMatches}/{item.totalGroupMatches}
+                  </Badge>
+                </Flex>
+              ))}
+            </VStack>
+          )}
+        </VStack>
       </VModal>
     </VStack>
   );

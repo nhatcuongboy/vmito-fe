@@ -3,8 +3,9 @@
 import { Box, Skeleton, Text } from '@chakra-ui/react';
 import { Image } from '@/components/ui/chakra-compat';
 import { LucideIcon } from 'lucide-react';
+import { useMemo } from 'react';
 import { Tournament } from '@/lib/api/types';
-import SidebarNav from '@/components/ui/SidebarNav';
+import SidebarNav, { SidebarNavItem } from '@/components/ui/SidebarNav';
 import { useLocale, useTranslations } from 'next-intl';
 
 interface SidebarTab {
@@ -30,6 +31,24 @@ export default function TournamentSidebar({
 }: TournamentSidebarProps) {
   const t = useTranslations('pages.tournaments.detail.publicationStatus');
   const locale = useLocale();
+  const sidebarItems = useMemo<SidebarNavItem[]>(() => {
+    const manageTab = tabs.find((tab) => tab.id === 4);
+    const dashboardTab = tabs.find((tab) => tab.id === 5);
+    const publicTabs = tabs.filter((tab) => tab.id !== 4 && tab.id !== 5);
+
+    if (!manageTab) {
+      return publicTabs;
+    }
+
+    return [
+      ...publicTabs,
+      {
+        ...manageTab,
+        children: dashboardTab ? [dashboardTab] : undefined,
+        defaultExpanded: activeTab === 4 || activeTab === 5,
+      },
+    ];
+  }, [activeTab, tabs]);
 
   const header = tournament ? (
     <TournamentSidebarHeader
@@ -46,7 +65,7 @@ export default function TournamentSidebar({
   return (
     <SidebarNav
       header={header}
-      items={tabs}
+      items={sidebarItems}
       activeId={activeTab}
       onItemClick={(id) => onTabChange(Number(id))}
       width="250px"

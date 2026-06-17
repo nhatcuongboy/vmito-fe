@@ -4,6 +4,7 @@ import {
   Category,
   CategoryRegistration,
   CategoryMatch,
+  CategoryGroupStageCompletion,
   CategoryGroup,
   CategoryGroupRegistration,
   GroupStandingsResponse,
@@ -30,6 +31,15 @@ export const CategoryService = {
   // Get category by ID
   getCategory: async (id: string): Promise<Category> => {
     const response = await api.get<ApiResponse<Category>>(`/categories/${id}`);
+    return response.data.data!;
+  },
+
+  getGroupStageCompletion: async (
+    categoryId: string
+  ): Promise<CategoryGroupStageCompletion> => {
+    const response = await api.get<ApiResponse<CategoryGroupStageCompletion>>(
+      `/categories/${categoryId}/group-stage-completion`
+    );
     return response.data.data!;
   },
 

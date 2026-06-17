@@ -1,8 +1,8 @@
 'use client';
 
 import { Box, Flex, Text, VStack } from '@chakra-ui/react';
-import { LucideIcon } from 'lucide-react';
-import { ReactNode } from 'react';
+import { ChevronDown, ChevronRight, LucideIcon } from 'lucide-react';
+import { ReactNode, useEffect, useMemo, useState } from 'react';
 import { Link } from '@/i18n/config';
 
 export interface SidebarNavItem {
@@ -13,6 +13,10 @@ export interface SidebarNavItem {
   badge?: ReactNode;
   /** Optional href for direct navigation. If provided, onItemClick is called but navigation is handled by Link. */
   href?: string;
+  /** Optional nested items rendered as a collapsible group below this item. */
+  children?: SidebarNavItem[];
+  /** Initial expanded state for nested items. Active children always expand their parent. */
+  defaultExpanded?: boolean;
 }
 
 export interface SidebarNavSection {
@@ -59,19 +63,78 @@ export default function SidebarNav({
   topOffset = '80px',
 }: SidebarNavProps) {
   // Normalise to sections so the renderer is uniform
-  const resolvedSections: SidebarNavSection[] =
-    sections ?? (items ? [{ items }] : []);
+  const resolvedSections: SidebarNavSection[] = useMemo(
+    () => sections ?? (items ? [{ items }] : []),
+    [items, sections]
+  );
 
-  const renderItem = (item: SidebarNavItem) => {
+  const activeParentIds = useMemo(() => {
+    const ids = new Set<number | string>();
+
+    resolvedSections.forEach((section) => {
+      section.items.forEach((item) => {
+        if (item.children?.some((child) => child.id === activeId)) {
+          ids.add(item.id);
+        }
+      });
+    });
+
+    return ids;
+  }, [activeId, resolvedSections]);
+
+  const [expandedIds, setExpandedIds] = useState<Set<number | string>>(() => {
+    const initialIds = new Set<number | string>();
+
+    resolvedSections.forEach((section) => {
+      section.items.forEach((item) => {
+        if (
+          item.defaultExpanded ||
+          item.children?.some((child) => child.id === activeId)
+        ) {
+          initialIds.add(item.id);
+        }
+      });
+    });
+
+    return initialIds;
+  });
+
+  useEffect(() => {
+    if (activeParentIds.size === 0) return;
+
+    setExpandedIds((currentIds) => {
+      const nextIds = new Set(currentIds);
+      activeParentIds.forEach((id) => nextIds.add(id));
+      return nextIds;
+    });
+  }, [activeParentIds]);
+
+  const toggleExpanded = (id: number | string) => {
+    setExpandedIds((currentIds) => {
+      const nextIds = new Set(currentIds);
+      if (nextIds.has(id)) {
+        nextIds.delete(id);
+      } else {
+        nextIds.add(id);
+      }
+      return nextIds;
+    });
+  };
+
+  const renderItem = (item: SidebarNavItem, depth = 0) => {
     const Icon = item.icon;
     const isActive = activeId === item.id;
+    const hasChildren = Boolean(item.children?.length);
+    const isExpanded = expandedIds.has(item.id);
+    const ToggleIcon = isExpanded ? ChevronDown : ChevronRight;
 
     const Content = (
       <Flex
         align="center"
         gap={3}
-        px={3}
+        px={depth > 0 ? 2.5 : 3}
         py={2.5}
+        ml={depth > 0 ? 7 : 0}
         borderRadius="lg"
         cursor="pointer"
         fontWeight={isActive ? 'semibold' : 'medium'}
@@ -101,7 +164,7 @@ export default function SidebarNav({
         textAlign="left"
       >
         <Icon
-          size={18}
+          size={depth > 0 ? 17 : 18}
           color={isActive ? 'var(--chakra-colors-green-500)' : 'currentColor'}
         />
         <Text fontSize="sm" flex={1}>
@@ -124,30 +187,89 @@ export default function SidebarNav({
             {item.badge}
           </Box>
         )}
+        {hasChildren && (
+          <Box
+            as="button"
+            aria-label={isExpanded ? 'Collapse section' : 'Expand section'}
+            aria-expanded={isExpanded}
+            display="inline-flex"
+            alignItems="center"
+            justifyContent="center"
+            w="28px"
+            h="28px"
+            mr={-1}
+            borderRadius="md"
+            color={isActive ? 'gray.700' : 'gray.500'}
+            _hover={{ bg: isActive ? 'gray.200' : 'gray.100' }}
+            _dark={{
+              color: isActive ? 'green.100' : 'gray.400',
+              _hover: {
+                bg: isActive
+                  ? 'rgba(34, 197, 94, 0.14)'
+                  : 'rgba(148, 163, 184, 0.1)',
+              },
+            }}
+            onClick={(event) => {
+              event.preventDefault();
+              event.stopPropagation();
+              toggleExpanded(item.id);
+            }}
+          >
+            <ToggleIcon size={16} />
+          </Box>
+        )}
       </Flex>
+    );
+
+    const Children = hasChildren && isExpanded && (
+      <VStack
+        gap={0.5}
+        align="stretch"
+        mt={0.5}
+        mb={0.5}
+        borderLeftWidth="1px"
+        borderColor="gray.100"
+        _dark={{
+          borderColor:
+            'var(--tournament-border, var(--chakra-colors-gray-700))',
+        }}
+      >
+        {item.children!.map((child) => renderItem(child, depth + 1))}
+      </VStack>
     );
 
     if (item.href) {
       return (
-        <Link
-          key={item.id}
-          href={item.href}
-          style={{ width: '100%', display: 'block' }}
-          onClick={() => onItemClick(item.id)}
-        >
-          {Content}
-        </Link>
+        <Box key={item.id}>
+          <Link
+            href={item.href}
+            style={{ width: '100%', display: 'block' }}
+            onClick={() => onItemClick(item.id)}
+          >
+            {Content}
+          </Link>
+          {Children}
+        </Box>
       );
     }
 
     return (
-      <Box
-        key={item.id}
-        as="button"
-        w="full"
-        onClick={() => onItemClick(item.id)}
-      >
-        {Content}
+      <Box key={item.id}>
+        <Box
+          role="button"
+          tabIndex={0}
+          w="full"
+          onClick={() => onItemClick(item.id)}
+          onKeyDown={(event) => {
+            if (event.key === 'Enter' || event.key === ' ') {
+              event.preventDefault();
+              onItemClick(item.id);
+            }
+          }}
+        >
+          {Content}
+        </Box>
+        {Children}
       </Box>
     );
   };

@@ -283,7 +283,11 @@ export default function TournamentManage({
         return <VenuePanel tournament={tournament} />;
       case 'schedule':
         return (
-          <SchedulePanel categories={categories} tournament={tournament} />
+          <SchedulePanel
+            categories={categories}
+            tournament={tournament}
+            onOpenRoundsPanel={handleOpenRoundsPanel}
+          />
         );
       case 'umpires':
         return <UmpiresPanel tournament={tournament} />;
