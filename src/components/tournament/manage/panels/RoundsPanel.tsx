@@ -644,18 +644,21 @@ export default function RoundsPanel({
           <TournamentMatchListSkeleton count={4} />
         ) : (
           <>
-            {isRRSE && allGroupMatchesFinished && isAdvancingConfigured && (
-              <BracketReadyBanner
-                finishedGroupMatches={finishedGroupMatches}
-                totalGroupMatches={totalGroupMatches}
-                categoryName={activeCategory.name}
-                hasBracket={hasEliminationMatches}
-                playoffMatchCount={eliminationMatches.length}
-                scoredPlayoffMatchCount={scoredEliminationMatches}
-                isLoading={isCompleting}
-                onClick={() => setIsGenerateConfirmOpen(true)}
-              />
-            )}
+            {isRRSE &&
+              allGroupMatchesFinished &&
+              isAdvancingConfigured &&
+              !hasEliminationMatches && (
+                <BracketReadyBanner
+                  finishedGroupMatches={finishedGroupMatches}
+                  totalGroupMatches={totalGroupMatches}
+                  categoryName={activeCategory.name}
+                  hasBracket={hasEliminationMatches}
+                  playoffMatchCount={eliminationMatches.length}
+                  scoredPlayoffMatchCount={scoredEliminationMatches}
+                  isLoading={isCompleting}
+                  onClick={() => setIsGenerateConfirmOpen(true)}
+                />
+              )}
 
             <Box position="relative" pl={6}>
               {/* Vertical connector line */}
@@ -964,15 +967,21 @@ export default function RoundsPanel({
                           {t('panels.rounds.addBracket')}
                         </Button>
                       )}
-                      <GenerateBracketSection
-                        hasGroupStage
-                        finishedGroupMatches={finishedGroupMatches}
-                        totalGroupMatches={totalGroupMatches}
-                        hasBracket={hasEliminationMatches}
-                        canGenerate={allGroupMatchesFinished}
-                        isLoading={isCompleting}
-                        onClick={() => setIsGenerateConfirmOpen(true)}
-                      />
+                      {(!allGroupMatchesFinished || hasEliminationMatches) && (
+                        <GenerateBracketSection
+                          hasGroupStage
+                          finishedGroupMatches={finishedGroupMatches}
+                          totalGroupMatches={totalGroupMatches}
+                          hasBracket={hasEliminationMatches}
+                          canGenerate={
+                            allGroupMatchesFinished &&
+                            scoredEliminationMatches === 0
+                          }
+                          scoredMatches={scoredEliminationMatches}
+                          isLoading={isCompleting}
+                          onClick={() => setIsGenerateConfirmOpen(true)}
+                        />
+                      )}
                     </VStack>
                   </StepperSection>
                 )}
@@ -1572,6 +1581,7 @@ function GenerateBracketSection({
   totalGroupMatches,
   hasBracket,
   canGenerate,
+  scoredMatches = 0,
   isLoading,
   onClick,
 }: {
@@ -1580,6 +1590,7 @@ function GenerateBracketSection({
   totalGroupMatches: number;
   hasBracket: boolean;
   canGenerate: boolean;
+  scoredMatches?: number;
   isLoading: boolean;
   onClick: () => void;
 }) {
@@ -1635,6 +1646,19 @@ function GenerateBracketSection({
           _dark={{ color: 'gray.500' }}
         >
           {t('panels.rounds.generateBracketLocked')}
+        </Text>
+      )}
+      {!canGenerate && hasBracket && scoredMatches > 0 && (
+        <Text
+          fontSize="xs"
+          color="orange.600"
+          mt={2}
+          textAlign="center"
+          _dark={{ color: 'orange.400' }}
+        >
+          {t('panels.rounds.regenerateBracketLocked', {
+            scored: scoredMatches,
+          })}
         </Text>
       )}
     </Box>

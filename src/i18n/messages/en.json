@@ -2746,6 +2746,7 @@
               "regenerateBracket": "Regenerate bracket",
               "groupProgress": "{finished}/{total} group matches finished",
               "generateBracketLocked": "Finish all group matches to generate the bracket",
+              "regenerateBracketLocked": "There are {scored} playoff match(es) with scores — clear scores before regenerating",
               "overwriteWarning": "Regenerating will overwrite the existing bracket and its scores.",
               "bracketReadyGenerateTitle": "Playoff bracket can be generated",
               "bracketReadyRegenerateTitle": "Playoff bracket can be regenerated",

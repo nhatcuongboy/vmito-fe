@@ -447,13 +447,17 @@ export default function ResultsPanel({
       );
       if (groupMatches.length === 0) return false;
 
-      return groupMatches.every(
+      const allGroupFinished = groupMatches.every(
         (match) => match.status === MatchStatus.FINISHED
       );
+      if (!allGroupFinished) return false;
+
+      const hasBracket = categoryMatches.some(
+        (match) => !match.groupId && match.round !== 'GROUP'
+      );
+      return !hasBracket;
     });
   }, [canEdit, categories, matches, onOpenRoundsPanel]);
-
-  const primaryBracketReadyCategory = bracketReadyCategories[0];
 
   const groups = useMemo(() => {
     const byCat = new Map<string, CategoryMatch[]>();
@@ -779,8 +783,9 @@ export default function ResultsPanel({
         </Flex>
       </Flex>
 
-      {bracketReadyCategories.length > 0 && (
+      {bracketReadyCategories.map((category) => (
         <Box
+          key={category.id}
           mb={5}
           borderWidth="1px"
           borderColor="green.200"
@@ -797,20 +802,16 @@ export default function ResultsPanel({
             direction={{ base: 'column', md: 'row' }}
           >
             <Box minW={0}>
-              <Flex align="center" gap={2} wrap="wrap" mb={2}>
-                {bracketReadyCategories.map((category) => (
-                  <Badge
-                    key={category.id}
-                    colorPalette="green"
-                    variant="subtle"
-                    borderRadius="full"
-                    px={2.5}
-                    py={0.5}
-                  >
-                    {category.name}
-                  </Badge>
-                ))}
-              </Flex>
+              <Badge
+                colorPalette="green"
+                variant="subtle"
+                borderRadius="full"
+                px={2.5}
+                py={0.5}
+                mb={2}
+              >
+                {category.name}
+              </Badge>
               <Text
                 fontWeight="bold"
                 color="green.800"
@@ -831,9 +832,7 @@ export default function ResultsPanel({
               size="sm"
               colorPalette="green"
               variant="outline"
-              onClick={() =>
-                onOpenRoundsPanel?.(primaryBracketReadyCategory.id)
-              }
+              onClick={() => onOpenRoundsPanel?.(category.id)}
               flexShrink={0}
             >
               <Trophy size={14} />
@@ -841,7 +840,7 @@ export default function ResultsPanel({
             </Button>
           </Flex>
         </Box>
-      )}
+      ))}
 
       {matches.length === 0 ? (
         <Text color="gray.500" fontSize="sm" _dark={{ color: 'gray.400' }}>
