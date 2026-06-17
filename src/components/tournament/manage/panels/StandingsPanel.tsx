@@ -219,12 +219,14 @@ export default function StandingsPanel({
           <Text fontSize="sm" color="gray.600" _dark={{ color: 'gray.300' }}>
             • {winPoints} {t('panels.standings.pointsPerWin')}
           </Text>
-          <Text fontSize="sm" color="gray.600" _dark={{ color: 'gray.300' }}>
-            • {tiePoints} {t('panels.standings.pointsPerTie')}
-          </Text>
           {lossPoints > 0 && (
             <Text fontSize="sm" color="gray.600" _dark={{ color: 'gray.300' }}>
               • {lossPoints} {t('panels.standings.pointsPerLoss')}
+            </Text>
+          )}
+          {tiePoints > 0 && (
+            <Text fontSize="sm" color="gray.600" _dark={{ color: 'gray.300' }}>
+              • {tiePoints} {t('panels.standings.pointsPerTie')}
             </Text>
           )}
           {gameWinPoints > 0 && (

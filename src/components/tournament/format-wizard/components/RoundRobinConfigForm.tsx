@@ -58,7 +58,7 @@ export default function RoundRobinConfigForm({
         </LegacySelect>
       </Box>
 
-      {/* Match win / Match tie */}
+      {/* Match win / Match loss */}
       <Flex gap={4} mb={5}>
         <Box flex={1}>
           <Text fontSize="xs" color="gray.500" mb={1}>
@@ -77,11 +77,11 @@ export default function RoundRobinConfigForm({
         </Box>
         <Box flex={1}>
           <Text fontSize="xs" color="gray.500" mb={1}>
-            {t('config.rr.matchTie')}
+            {t('config.rr.matchLoss')}
           </Text>
           <LegacySelect
-            value={config.tiePoints}
-            onChange={(e) => update({ tiePoints: Number(e.target.value) })}
+            value={config.lossPoints}
+            onChange={(e) => update({ lossPoints: Number(e.target.value) })}
           >
             {POINTS_RANGE.map((n) => (
               <option key={n} value={n}>
@@ -113,15 +113,15 @@ export default function RoundRobinConfigForm({
 
       {showAdvanced && (
         <Flex direction="column" gap={4} mb={5}>
-          {/* Row 1: Match loss + Cancelled match */}
+          {/* Row 1: Match tie + Cancelled match */}
           <Flex gap={4}>
             <Box flex={1}>
               <Text fontSize="xs" color="gray.500" mb={1}>
-                {t('config.rr.matchLoss')}
+                {t('config.rr.matchTie')}
               </Text>
               <LegacySelect
-                value={config.lossPoints}
-                onChange={(e) => update({ lossPoints: Number(e.target.value) })}
+                value={config.tiePoints}
+                onChange={(e) => update({ tiePoints: Number(e.target.value) })}
               >
                 {POINTS_RANGE.map((n) => (
                   <option key={n} value={n}>

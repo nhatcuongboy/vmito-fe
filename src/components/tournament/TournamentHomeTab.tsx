@@ -357,14 +357,14 @@ function CompetitionInfoCard({
       label: tManage('panels.standings.pointsPerWin'),
     },
     {
-      id: 'tie',
-      value: roundRobinConfig.tiePoints,
-      label: tManage('panels.standings.pointsPerTie'),
-    },
-    {
       id: 'loss',
       value: roundRobinConfig.lossPoints,
       label: tManage('panels.standings.pointsPerLoss'),
+    },
+    {
+      id: 'tie',
+      value: roundRobinConfig.tiePoints,
+      label: tManage('panels.standings.pointsPerTie'),
     },
     {
       id: 'cancelled',

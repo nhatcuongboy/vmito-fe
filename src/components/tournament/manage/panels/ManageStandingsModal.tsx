@@ -539,9 +539,9 @@ export default function ManageStandingsModal({
                   onChange={setWinPoints}
                 />
                 <PointSelect
-                  label={tConfig('matchTie')}
-                  value={tiePoints}
-                  onChange={setTiePoints}
+                  label={tConfig('matchLoss')}
+                  value={lossPoints}
+                  onChange={setLossPoints}
                 />
               </Grid>
 
@@ -564,9 +564,9 @@ export default function ManageStandingsModal({
               {showAdvanced && (
                 <Grid templateColumns="1fr 1fr" gap={3} mt={3}>
                   <PointSelect
-                    label={tConfig('matchLoss')}
-                    value={lossPoints}
-                    onChange={setLossPoints}
+                    label={tConfig('matchTie')}
+                    value={tiePoints}
+                    onChange={setTiePoints}
                   />
                   <PointSelect
                     label={tConfig('cancelledMatch') || 'Cancelled match'}

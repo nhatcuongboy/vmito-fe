@@ -191,7 +191,7 @@ export const AVAILABLE_STANDINGS_COLUMNS: StandingsColumn[] = [
 export const DEFAULT_RR_CONFIG: RoundRobinConfig = {
   pointsEarning: 'match_results',
   winPoints: 2,
-  tiePoints: 1,
+  tiePoints: 0,
   lossPoints: 0,
   cancelledMatchPoints: 0,
   gameWinPoints: 0,

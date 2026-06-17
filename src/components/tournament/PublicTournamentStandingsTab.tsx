@@ -993,14 +993,14 @@ function RankingInfoModal({
               label: tManage('panels.standings.pointsPerWin'),
             },
             {
-              id: 'tie',
-              value: config.tiePoints,
-              label: tManage('panels.standings.pointsPerTie'),
-            },
-            {
               id: 'loss',
               value: config.lossPoints,
               label: tManage('panels.standings.pointsPerLoss'),
+            },
+            {
+              id: 'tie',
+              value: config.tiePoints,
+              label: tManage('panels.standings.pointsPerTie'),
             },
             {
               id: 'cancelled',
