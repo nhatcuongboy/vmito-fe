@@ -2370,6 +2370,21 @@
             }
           },
           "panels": {
+            "visibility": {
+              "title": "可见性",
+              "description": "控制谁可以查看此锦标赛。",
+              "publicLabel": "公开",
+              "publicHelp": "所有人都可以看到锦标赛，并按结果搜索。",
+              "privateLabel": "草稿 / 私人",
+              "privateHelp": "锦标赛已隐藏。 只有管理员或受邀者才能查看。",
+              "save": "保存",
+              "cancel": "取消",
+              "success": "可见性状态已成功更新。",
+              "errors": {
+                "noChanges": "没有要保存的更改。",
+                "updateFailed": "更新失败，请重试。"
+              }
+            },
             "teams": {
               "title": "队伍",
               "addTeams": "添加队伍",

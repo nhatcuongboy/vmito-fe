@@ -2392,6 +2392,21 @@
             }
           },
           "panels": {
+            "visibility": {
+              "title": "Visibility",
+              "description": "Control who can see this tournament.",
+              "publicLabel": "Public",
+              "publicHelp": "Tournament is visible to everyone and appears in search results.",
+              "privateLabel": "Draft / Private",
+              "privateHelp": "Tournament is hidden. Only managers or invited people can view it.",
+              "save": "Save",
+              "cancel": "Cancel",
+              "success": "Visibility status updated successfully.",
+              "errors": {
+                "noChanges": "No changes to save.",
+                "updateFailed": "Update failed, please try again."
+              }
+            },
             "teams": {
               "title": "Teams",
               "addTeams": "Add teams",

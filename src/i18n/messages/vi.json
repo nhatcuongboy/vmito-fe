@@ -2400,6 +2400,21 @@
             }
           },
           "panels": {
+            "visibility": {
+              "title": "Hiển thị",
+              "description": "Kiểm soát xem ai có thể xem giải đấu này.",
+              "publicLabel": "Công khai",
+              "publicHelp": "Giải đấu hiển thị với mọi người và xuất hiện trong kết quả tìm kiếm.",
+              "privateLabel": "Bản nháp / Nội bộ",
+              "privateHelp": "Giải đấu bị ẩn. Chỉ quản lý hoặc người được mời có thể xem.",
+              "save": "Lưu",
+              "cancel": "Hủy",
+              "success": "Đã cập nhật trạng thái hiển thị.",
+              "errors": {
+                "noChanges": "Không có thay đổi nào để lưu.",
+                "updateFailed": "Cập nhật thất bại, vui lòng thử lại."
+              }
+            },
             "teams": {
               "title": "Đội",
               "addTeams": "Thêm đội",

@@ -750,16 +750,14 @@ export default function ResultsPanel({
                 active={viewMode === 'list'}
                 onClick={() => setViewMode('list')}
                 icon={<List size={15} />}
-              >
-                {t('viewList')}
-              </ModeButton>
+                ariaLabel={t('viewList')}
+              />
               <ModeButton
                 active={viewMode === 'calendar'}
                 onClick={() => setViewMode('calendar')}
                 icon={<CalendarDays size={15} />}
-              >
-                {t('viewCalendar')}
-              </ModeButton>
+                ariaLabel={t('viewCalendar')}
+              />
             </Flex>
           </Flex>
 
@@ -769,13 +767,30 @@ export default function ResultsPanel({
             variant="outline"
             colorPalette="gray"
             onClick={() => setIsFilterOpen(true)}
+            aria-label={t('filters.title')}
             flexShrink={0}
             h={9}
-            px={3}
+            w={9}
+            px={0}
+            position="relative"
           >
-            <Filter size={15} /> {t('filters.title')}
+            <Filter size={15} />
             {activeFilterCount > 0 && (
-              <Badge ml={1} colorPalette="green" borderRadius="full">
+              <Badge
+                position="absolute"
+                top="-1"
+                right="-1"
+                colorPalette="green"
+                borderRadius="full"
+                minW={4}
+                h={4}
+                px={1}
+                fontSize="2xs"
+                lineHeight="1"
+                display="inline-flex"
+                alignItems="center"
+                justifyContent="center"
+              >
                 {activeFilterCount}
               </Badge>
             )}
@@ -1764,28 +1779,34 @@ export function ModeButton({
   active,
   onClick,
   icon,
+  ariaLabel,
   children,
 }: {
   active: boolean;
   onClick: () => void;
   icon: React.ReactNode;
-  children: React.ReactNode;
+  ariaLabel?: string;
+  children?: React.ReactNode;
 }) {
+  const isIconOnly = children == null;
+
   return (
     <Button
       size="sm"
       variant={active ? 'solid' : 'ghost'}
       colorPalette={active ? 'green' : 'gray'}
       onClick={onClick}
-      leftIcon={icon}
-      flex={1}
+      aria-label={ariaLabel}
+      leftIcon={isIconOnly ? undefined : icon}
+      flex={isIconOnly ? '0 0 auto' : 1}
       h={8}
-      minW={{ base: 0, sm: 24 }}
-      px={3}
+      minW={isIconOnly ? 8 : { base: 0, sm: 24 }}
+      w={isIconOnly ? 8 : undefined}
+      px={isIconOnly ? 0 : 3}
       fontSize="sm"
       fontWeight="semibold"
     >
-      {children}
+      {isIconOnly ? icon : children}
     </Button>
   );
 }

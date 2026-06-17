@@ -40,6 +40,7 @@ import ResultsPanel from './panels/ResultsPanel';
 import SponsorsPanel from './panels/SponsorsPanel';
 import NamePanel from './panels/NamePanel';
 import DatesPanel from './panels/DatesPanel';
+import VisibilityPanel from './panels/VisibilityPanel';
 import LocationPanel from './panels/LocationPanel';
 import BannerPanel from './panels/BannerPanel';
 import VideosPanel from './panels/VideosPanel';
@@ -319,6 +320,13 @@ export default function TournamentManage({
       case 'dates':
         return (
           <DatesPanel
+            tournament={tournament}
+            onTournamentUpdate={onTournamentUpdate}
+          />
+        );
+      case 'visibility':
+        return (
+          <VisibilityPanel
             tournament={tournament}
             onTournamentUpdate={onTournamentUpdate}
           />
