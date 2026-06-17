@@ -501,6 +501,10 @@ export default function TournamentShowcasePage() {
       slides.filter((slide): slide is PlayerSlide => slide.type === 'player'),
     [slides]
   );
+  const activePlayerIndex =
+    activeSlide?.type === 'player'
+      ? playerSlides.findIndex((slide) => slide.id === activeSlide.id)
+      : -1;
   const modeLabel =
     mode === 'matches'
       ? t('matches')
@@ -685,7 +689,7 @@ export default function TournamentShowcasePage() {
                   <PlayerShowcase
                     slide={activeSlide}
                     slides={playerSlides}
-                    activeIndex={activeIndex}
+                    activeIndex={activePlayerIndex >= 0 ? activePlayerIndex : 0}
                     variant={mode === 'single' ? 'single' : 'orbit'}
                   />
                 ) : activeSlide.type === 'pair' ? (
