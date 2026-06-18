@@ -266,6 +266,7 @@ export default function TournamentManage({
         return (
           <CategoriesPanel
             tournamentId={tournament.id}
+            sportType={tournament.sportType}
             categories={categories}
             onCategoriesChange={loadCategories}
           />
@@ -275,6 +276,7 @@ export default function TournamentManage({
           <FormatPanel
             categories={categories}
             selectedCategory={selectedCategory}
+            sportType={tournament.sportType}
             onSelectCategory={handleSelectCategory}
             onSwitchFormat={formatModal.onOpen}
             onCategoryUpdated={() => {

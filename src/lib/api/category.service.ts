@@ -52,6 +52,10 @@ export const CategoryService = {
       format?: string;
       registrationMode?: string;
       teamSize?: number;
+      matchFormat?: string;
+      pointsToWin?: number;
+      winByTwo?: boolean;
+      pointCap?: number | null;
     }
   ): Promise<Category> => {
     const response = await api.post<ApiResponse<Category>>(

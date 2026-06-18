@@ -1502,7 +1502,12 @@
         "venue": "Địa điểm",
         "locationPlaceholder": "Sự kiện sẽ diễn ra ở đâu?",
         "cancel": "Hủy",
-        "createTournament": "Tạo giải đấu"
+        "createTournament": "Tạo giải đấu",
+        "sport": "Môn thi đấu",
+        "sports": {
+          "BADMINTON": "Cầu lông",
+          "PICKLEBALL": "Pickleball"
+        }
       },
       "detail": {
         "title": "Giải đấu",
@@ -2108,7 +2113,33 @@
               "deleteAllMatches": "Xóa tất cả trận đấu",
               "deleteAllMatchesConfirm": "Bạn có chắc chắn muốn xóa tất cả trận đấu của bảng này? Hành động này không thể hoàn tác.",
               "matchesDeleted": "Đã xóa tất cả trận đấu thành công",
-              "noScore": "Chưa có điểm"
+              "noScore": "Chưa có điểm",
+              "bracket": "Nhánh đấu",
+              "bracketSubtitle": "Xem nhánh đấu đã tạo.",
+              "seedLabel": "Hạt giống {seed}",
+              "grandFinal": "Chung kết",
+              "grandFinalReset": "Chung kết (Reset)",
+              "quarterFinals": "Tứ kết",
+              "semiFinals": "Bán kết",
+              "finals": "Chung kết",
+              "winnerOf": "Thắng trận {match}",
+              "loserOf": "Thua trận {match}",
+              "nthPoolLabel": "{rank} Bảng {pool}",
+              "roundNumber": "Vòng {number}",
+              "upperBracketRound": "Nhánh thắng {number}",
+              "lowerBracketRound": "Nhánh thua {number}",
+              "notEnoughTeams": "Không đủ đội để tạo nhánh đấu",
+              "ordinals": {
+                "1": "Nhất",
+                "2": "Nhì",
+                "3": "Hạng 3",
+                "4": "Hạng 4",
+                "5": "Hạng 5",
+                "6": "Hạng 6",
+                "7": "Hạng 7",
+                "8": "Hạng 8",
+                "other": "Hạng {rank}"
+              }
             },
             "venues": {
               "title": "Địa điểm",
@@ -2574,13 +2605,16 @@
               },
               "scoringRules": {
                 "title": "Luật chấm điểm",
-                "description": "Chọn nhanh một preset BWF/cộng đồng, hoặc tinh chỉnh thủ công cho phù hợp với giải đấu.",
+                "description": "Chọn nhanh một preset theo môn thi đấu, hoặc tinh chỉnh thủ công cho phù hợp với giải đấu.",
                 "presets": {
                   "BWF_21": "BWF 21 điểm",
                   "CLASSIC_15": "Cổ điển 15",
                   "RALLY_15": "Rally 15 (trần 21)",
                   "SHORT_11": "Nhanh 11 (trần 15)",
-                  "CUSTOM": "Tuỳ chỉnh"
+                  "CUSTOM": "Tuỳ chỉnh",
+                  "PICKLEBALL_11": "Pickleball 11 điểm",
+                  "PICKLEBALL_15": "Pickleball 15 điểm",
+                  "PICKLEBALL_21": "Pickleball 21 điểm"
                 },
                 "matchFormat": "Số set tối đa",
                 "matchFormats": {

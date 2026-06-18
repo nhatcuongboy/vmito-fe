@@ -5,25 +5,28 @@ import { Box, Flex, Heading, Text, Badge, Input } from '@chakra-ui/react';
 import { Button, SimpleGrid } from '@/components/ui/chakra-compat';
 import { Field } from '@chakra-ui/react';
 import { useTranslations } from 'next-intl';
-import { Category, MatchFormat, UpdateCategoryRequest } from '@/lib/api/types';
+import {
+  Category,
+  MatchFormat,
+  SportType,
+  UpdateCategoryRequest,
+} from '@/lib/api/types';
 import { CategoryService } from '@/lib/api/category.service';
+import { getTournamentSportProfile } from '@/lib/tournament/sports';
+import type {
+  RallyScoringDefaults,
+  ScoringPreset,
+} from '@/lib/tournament/sports';
 
 interface ScoringRulesCardProps {
   category: Category;
+  sportType?: SportType | null;
   onCategoryUpdated?: (category: Category) => void;
 }
 
-type TPresetId = 'BWF_21' | 'CLASSIC_15' | 'RALLY_15' | 'SHORT_11' | 'CUSTOM';
+type TPresetId = string | 'CUSTOM';
 type TStage = 'GROUP' | 'KNOCKOUT' | 'FINAL';
 type TRoundKey = 'R16' | 'QF' | 'SF' | 'F' | '3RD';
-
-interface IPreset {
-  id: TPresetId;
-  pointsToWin: number;
-  winByTwo: boolean;
-  /** null = no hard cap. */
-  pointCap: number | null;
-}
 
 interface IStageValues {
   matchFormat: MatchFormat;
@@ -34,24 +37,12 @@ interface IStageValues {
   inherit: boolean;
 }
 
-const PRESETS: readonly IPreset[] = [
-  { id: 'BWF_21', pointsToWin: 21, winByTwo: true, pointCap: 30 },
-  { id: 'CLASSIC_15', pointsToWin: 15, winByTwo: true, pointCap: null },
-  { id: 'RALLY_15', pointsToWin: 15, winByTwo: true, pointCap: 21 },
-  { id: 'SHORT_11', pointsToWin: 11, winByTwo: true, pointCap: 15 },
-];
-
 const STAGES: readonly TStage[] = ['GROUP', 'KNOCKOUT', 'FINAL'];
 const MATCH_FORMATS: readonly MatchFormat[] = [
   MatchFormat.BEST_OF_1,
   MatchFormat.BEST_OF_3,
   MatchFormat.BEST_OF_5,
 ];
-
-const DEFAULT_POINTS = 21;
-const DEFAULT_CAP: number | null = 30;
-const DEFAULT_WIN_BY_TWO = true;
-const DEFAULT_MATCH_FORMAT = MatchFormat.BEST_OF_3;
 
 const getRoundFormats = (
   formatConfig: Category['formatConfig']
@@ -77,24 +68,31 @@ const hasMatchFormat = (value: unknown): value is MatchFormat =>
   MATCH_FORMATS.includes(value as MatchFormat);
 
 const matchesPreset = (
-  preset: IPreset,
-  values: Pick<IPreset, 'pointsToWin' | 'winByTwo' | 'pointCap'>
+  preset: ScoringPreset,
+  values: Pick<ScoringPreset, 'pointsToWin' | 'winByTwo' | 'pointCap'>
 ): boolean =>
   preset.pointsToWin === values.pointsToWin &&
   preset.winByTwo === values.winByTwo &&
   preset.pointCap === values.pointCap;
 
 const detectPreset = (
-  values: Pick<IPreset, 'pointsToWin' | 'winByTwo' | 'pointCap'>
+  presets: readonly ScoringPreset[],
+  values: Pick<ScoringPreset, 'pointsToWin' | 'winByTwo' | 'pointCap'>
 ): TPresetId =>
-  PRESETS.find((preset) => matchesPreset(preset, values))?.id ?? 'CUSTOM';
+  presets.find((preset) => matchesPreset(preset, values))?.id ?? 'CUSTOM';
 
-const initialFor = (category: Category, stage: TStage): IStageValues => {
-  const basePoints = category.pointsToWin ?? DEFAULT_POINTS;
-  const baseWinByTwo = category.winByTwo ?? DEFAULT_WIN_BY_TWO;
+const initialFor = (
+  category: Category,
+  stage: TStage,
+  defaultScoring: RallyScoringDefaults
+): IStageValues => {
+  const basePoints = category.pointsToWin ?? defaultScoring.pointsToWin;
+  const baseWinByTwo = category.winByTwo ?? defaultScoring.winByTwo;
   const baseCap =
-    category.pointCap === undefined ? DEFAULT_CAP : category.pointCap;
-  const baseMatchFormat = category.matchFormat ?? DEFAULT_MATCH_FORMAT;
+    category.pointCap === undefined
+      ? defaultScoring.pointCap
+      : category.pointCap;
+  const baseMatchFormat = category.matchFormat ?? defaultScoring.matchFormat;
 
   if (stage === 'GROUP') {
     return {
@@ -179,9 +177,16 @@ const getEffectiveStageValues = (
 
 export default function ScoringRulesCard({
   category,
+  sportType,
   onCategoryUpdated,
 }: ScoringRulesCardProps) {
   const t = useTranslations('pages.tournaments.detail.manage.panels.format');
+  const sportProfile = useMemo(
+    () => getTournamentSportProfile(sportType),
+    [sportType]
+  );
+  const presets = sportProfile.scoringPresets;
+  const defaultScoring = sportProfile.defaultScoring;
 
   const categoryRuleKey = useMemo(
     () =>
@@ -199,6 +204,7 @@ export default function ScoringRulesCard({
         category.matchFormat,
         category.eliminationMatchFormat,
         getRoundFormats(category.formatConfig).F,
+        sportProfile.sportType,
       ]),
     [
       category.id,
@@ -214,16 +220,17 @@ export default function ScoringRulesCard({
       category.matchFormat,
       category.eliminationMatchFormat,
       category.formatConfig,
+      sportProfile.sportType,
     ]
   );
 
   const initial = useMemo<Record<TStage, IStageValues>>(
     () => ({
-      GROUP: initialFor(category, 'GROUP'),
-      KNOCKOUT: initialFor(category, 'KNOCKOUT'),
-      FINAL: initialFor(category, 'FINAL'),
+      GROUP: initialFor(category, 'GROUP', defaultScoring),
+      KNOCKOUT: initialFor(category, 'KNOCKOUT', defaultScoring),
+      FINAL: initialFor(category, 'FINAL', defaultScoring),
     }),
-    [category]
+    [category, defaultScoring]
   );
 
   const [activeStage, setActiveStage] = useState<TStage>('GROUP');
@@ -241,12 +248,13 @@ export default function ScoringRulesCard({
 
   const activePreset = useMemo<TPresetId>(
     () =>
-      detectPreset({
+      detectPreset(presets, {
         pointsToWin: effectiveCurrent.pointsToWin,
         winByTwo: effectiveCurrent.winByTwo,
         pointCap: effectiveCurrent.pointCap,
       }),
     [
+      presets,
       effectiveCurrent.pointsToWin,
       effectiveCurrent.winByTwo,
       effectiveCurrent.pointCap,
@@ -278,8 +286,9 @@ export default function ScoringRulesCard({
     setError(null);
   };
 
-  const handlePresetClick = (preset: IPreset): void => {
+  const handlePresetClick = (preset: ScoringPreset): void => {
     updateStage(activeStage, {
+      matchFormat: preset.matchFormat,
       pointsToWin: preset.pointsToWin,
       winByTwo: preset.winByTwo,
       pointCap: preset.pointCap,
@@ -441,7 +450,7 @@ export default function ScoringRulesCard({
         <SimpleGrid columns={{ base: 1, md: 3 }} spacing={3}>
           {STAGES.map((stage) => {
             const eff = getEffectiveStageValues(values, stage);
-            const stagePreset = detectPreset({
+            const stagePreset = detectPreset(presets, {
               pointsToWin: eff.pointsToWin,
               winByTwo: eff.winByTwo,
               pointCap: eff.pointCap,
@@ -648,7 +657,7 @@ export default function ScoringRulesCard({
           {t('scoringRules.presetTitle')}
         </Text>
         <SimpleGrid columns={{ base: 1, sm: 2, lg: 4 }} spacing={2}>
-          {PRESETS.map((preset) => {
+          {presets.map((preset) => {
             const isActive = !fieldsDisabled && activePreset === preset.id;
             return (
               <Button
@@ -809,7 +818,10 @@ export default function ScoringRulesCard({
                 onClick={() =>
                   updateStage(activeStage, {
                     pointCap:
-                      effectiveCurrent.pointCap === null ? DEFAULT_CAP : null,
+                      effectiveCurrent.pointCap === null
+                        ? (defaultScoring.pointCap ??
+                          defaultScoring.pointsToWin)
+                        : null,
                   })
                 }
               >

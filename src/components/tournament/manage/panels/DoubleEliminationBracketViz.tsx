@@ -386,7 +386,9 @@ export default function DoubleEliminationBracketViz({
           name: `UB ${r + 1}.${i + 1}`,
           nextMatchId: winnerNext,
           nextLooserMatchId: loserMatchId ?? undefined,
-          tournamentRoundText: `UB ${r + 1}`,
+          tournamentRoundText: t('panels.rounds.upperBracketRound', {
+            number: r + 1,
+          }),
           startTime: '',
           state: 'NO_PARTY',
           isFirstRound,
@@ -413,7 +415,9 @@ export default function DoubleEliminationBracketViz({
           id: ids[i],
           name: `LB ${k + 1}.${i + 1}`,
           nextMatchId: winnerNext,
-          tournamentRoundText: `LB ${k + 1}`,
+          tournamentRoundText: t('panels.rounds.lowerBracketRound', {
+            number: k + 1,
+          }),
           startTime: '',
           state: 'NO_PARTY',
           isFirstRound: false,

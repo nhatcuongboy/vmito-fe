@@ -197,7 +197,7 @@ export const DEFAULT_RR_CONFIG: RoundRobinConfig = {
   pointsEarning: 'match_results',
   winPoints: 2,
   tiePoints: 0,
-  lossPoints: 0,
+  lossPoints: 1,
   cancelledMatchPoints: 0,
   gameWinPoints: 0,
   gameLossPoints: 0,

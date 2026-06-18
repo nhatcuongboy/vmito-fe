@@ -11,7 +11,7 @@ import { useRouter } from '@/i18n/config';
 import { useState } from 'react';
 import LocationAutocomplete from '@/components/common/LocationAutocomplete';
 import ProtectedRouteGuard from '@/components/guards/ProtectedRouteGuard';
-import { UserRole } from '@/lib/api/types';
+import { SportType, UserRole } from '@/lib/api/types';
 import { toaster } from '@/components/ui/toaster';
 
 export default function NewTournamentPage() {
@@ -19,6 +19,7 @@ export default function NewTournamentPage() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [name, setName] = useState('');
+  const [sportType, setSportType] = useState<SportType>(SportType.BADMINTON);
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [location, setLocation] = useState<{
@@ -64,6 +65,7 @@ export default function NewTournamentPage() {
         name,
         startDate: new Date(startDate),
         endDate: new Date(endDate),
+        sportType,
         venueId: finalVenueId,
       });
 
@@ -109,6 +111,28 @@ export default function NewTournamentPage() {
                       placeholder={t('enterTournamentName')}
                       required
                     />
+                  </Box>
+
+                  <Box>
+                    <Text mb={2} fontWeight="medium">
+                      {t('sport')}
+                    </Text>
+                    <HStack gap={3} align="stretch" flexWrap="wrap">
+                      {Object.values(SportType).map((type) => {
+                        const selected = sportType === type;
+                        return (
+                          <Button
+                            key={type}
+                            type="button"
+                            variant={selected ? 'solid' : 'outline'}
+                            colorPalette={selected ? 'green' : 'gray'}
+                            onClick={() => setSportType(type)}
+                          >
+                            {t(`sports.${type}`)}
+                          </Button>
+                        );
+                      })}
+                    </HStack>
                   </Box>
 
                   <HStack>

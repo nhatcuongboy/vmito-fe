@@ -1494,7 +1494,12 @@
         "venue": "Location",
         "locationPlaceholder": "Where will the event take place?",
         "cancel": "Cancel",
-        "createTournament": "Create Tournament"
+        "createTournament": "Create Tournament",
+        "sport": "Sport",
+        "sports": {
+          "BADMINTON": "Badminton",
+          "PICKLEBALL": "Pickleball"
+        }
       },
       "detail": {
         "title": "Tournament",
@@ -2100,7 +2105,33 @@
               "deleteAllMatches": "Delete All Matches",
               "deleteAllMatchesConfirm": "Are you sure you want to delete all matches for this group? This action cannot be undone.",
               "matchesDeleted": "All matches deleted successfully",
-              "noScore": "No score yet"
+              "noScore": "No score yet",
+              "bracket": "Bracket",
+              "bracketSubtitle": "Review the generated bracket.",
+              "seedLabel": "Seed {seed}",
+              "grandFinal": "Grand Final",
+              "grandFinalReset": "Grand Final (Reset)",
+              "quarterFinals": "Quarter Finals",
+              "semiFinals": "Semi Finals",
+              "finals": "Finals",
+              "winnerOf": "Winner of {match}",
+              "loserOf": "Loser of {match}",
+              "nthPoolLabel": "{rank} Pool {pool}",
+              "roundNumber": "Round {number}",
+              "upperBracketRound": "Upper bracket {number}",
+              "lowerBracketRound": "Lower bracket {number}",
+              "notEnoughTeams": "Not enough teams for bracket",
+              "ordinals": {
+                "1": "1st",
+                "2": "2nd",
+                "3": "3rd",
+                "4": "4th",
+                "5": "5th",
+                "6": "6th",
+                "7": "7th",
+                "8": "8th",
+                "other": "{rank}th"
+              }
             },
             "venues": {
               "title": "Venue",
@@ -2566,13 +2597,16 @@
               },
               "scoringRules": {
                 "title": "Scoring rules",
-                "description": "Pick a BWF/community preset for a quick setup, or fine-tune manually for your tournament.",
+                "description": "Pick a sport preset for a quick setup, or fine-tune manually for your tournament.",
                 "presets": {
                   "BWF_21": "BWF 21",
                   "CLASSIC_15": "Classic 15",
                   "RALLY_15": "Rally 15 (cap 21)",
                   "SHORT_11": "Short 11 (cap 15)",
-                  "CUSTOM": "Custom"
+                  "CUSTOM": "Custom",
+                  "PICKLEBALL_11": "Pickleball 11",
+                  "PICKLEBALL_15": "Pickleball 15",
+                  "PICKLEBALL_21": "Pickleball 21"
                 },
                 "matchFormat": "Maximum sets",
                 "matchFormats": {

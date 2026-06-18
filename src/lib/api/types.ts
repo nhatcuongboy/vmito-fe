@@ -689,6 +689,11 @@ export enum TournamentStatus {
   CANCELLED = 'CANCELLED',
 }
 
+export enum SportType {
+  BADMINTON = 'BADMINTON',
+  PICKLEBALL = 'PICKLEBALL',
+}
+
 export enum CategoryType {
   MENS_SINGLE = 'MENS_SINGLE',
   WOMENS_SINGLE = 'WOMENS_SINGLE',
@@ -731,6 +736,7 @@ export interface Tournament {
   endDate: Date;
   hostId: string;
   status: TournamentStatus;
+  sportType?: SportType;
   isPublished: boolean;
   scheduleType?: ScheduleType;
   coverPhoto?: string;
@@ -1040,6 +1046,7 @@ export interface CreateTournamentRequest {
   startDate: Date;
   endDate: Date;
   venueId?: string;
+  sportType?: SportType;
 }
 
 export interface DuplicateTournamentRequest {

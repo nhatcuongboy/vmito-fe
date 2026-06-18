@@ -1472,7 +1472,12 @@
         "locationPlaceholder": "活动将在哪里举行？",
         "selectVenue": "-- 选择场地 --",
         "cancel": "取消",
-        "createTournament": "创建锦标赛"
+        "createTournament": "创建锦标赛",
+        "sport": "比赛项目",
+        "sports": {
+          "BADMINTON": "羽毛球",
+          "PICKLEBALL": "匹克球"
+        }
       },
       "detail": {
         "title": "锦标赛",
@@ -2078,7 +2083,33 @@
               "deleteAllMatches": "删除所有比赛",
               "deleteAllMatchesConfirm": "确定删除该小组的所有比赛吗？此操作无法撤销。",
               "matchesDeleted": "所有比赛已成功删除",
-              "noScore": "暂无比分"
+              "noScore": "暂无比分",
+              "bracket": "对阵表",
+              "bracketSubtitle": "查看已生成的对阵表。",
+              "seedLabel": "种子 {seed}",
+              "grandFinal": "总决赛",
+              "grandFinalReset": "总决赛（重置）",
+              "quarterFinals": "四分之一决赛",
+              "semiFinals": "半决赛",
+              "finals": "决赛",
+              "winnerOf": "胜者 {match}",
+              "loserOf": "败者 {match}",
+              "nthPoolLabel": "{rank} {pool}组",
+              "roundNumber": "第 {number} 轮",
+              "upperBracketRound": "胜者组 {number}",
+              "lowerBracketRound": "败者组 {number}",
+              "notEnoughTeams": "队伍不足，无法生成对阵",
+              "ordinals": {
+                "1": "第一",
+                "2": "第二",
+                "3": "第三",
+                "4": "第四",
+                "5": "第五",
+                "6": "第六",
+                "7": "第七",
+                "8": "第八",
+                "other": "第{rank}"
+              }
             },
             "venues": {
               "title": "场地",
@@ -2544,13 +2575,16 @@
               },
               "scoringRules": {
                 "title": "计分规则",
-                "description": "选择 BWF/常用预设快速配置，或手动微调以适合您的赛事。",
+                "description": "选择项目预设快速设置，或为锦标赛手动微调。",
                 "presets": {
                   "BWF_21": "BWF 21 分",
                   "CLASSIC_15": "经典 15 分",
                   "RALLY_15": "Rally 15（封顶 21）",
                   "SHORT_11": "短赛 11（封顶 15）",
-                  "CUSTOM": "自定义"
+                  "CUSTOM": "自定义",
+                  "PICKLEBALL_11": "匹克球 11 分",
+                  "PICKLEBALL_15": "匹克球 15 分",
+                  "PICKLEBALL_21": "匹克球 21 分"
                 },
                 "matchFormat": "最多局数",
                 "matchFormats": {

@@ -303,10 +303,12 @@ function PointSelect({
   label,
   value,
   onChange,
+  formatValue,
 }: {
   label: string;
   value: number;
   onChange: (v: number) => void;
+  formatValue: (value: number) => string;
 }) {
   return (
     <Box>
@@ -320,7 +322,7 @@ function PointSelect({
       >
         {[0, 1, 2, 3, 4, 5].map((n) => (
           <option key={n} value={String(n)}>
-            {n} {n === 1 ? 'point' : 'points'}
+            {formatValue(n)}
           </option>
         ))}
       </VSelect>
@@ -487,6 +489,10 @@ export default function ManageStandingsModal({
   };
 
   const showPointValues = pointsEarning !== 'tiebreakers_only';
+  const formatPointValue = useCallback(
+    (n: number) => tConfig('nPoints', { n }),
+    [tConfig]
+  );
 
   return (
     <VModal
@@ -537,11 +543,13 @@ export default function ManageStandingsModal({
                   label={tConfig('matchWin')}
                   value={winPoints}
                   onChange={setWinPoints}
+                  formatValue={formatPointValue}
                 />
                 <PointSelect
                   label={tConfig('matchLoss')}
                   value={lossPoints}
                   onChange={setLossPoints}
+                  formatValue={formatPointValue}
                 />
               </Grid>
 
@@ -567,31 +575,37 @@ export default function ManageStandingsModal({
                     label={tConfig('matchTie')}
                     value={tiePoints}
                     onChange={setTiePoints}
+                    formatValue={formatPointValue}
                   />
                   <PointSelect
                     label={tConfig('cancelledMatch') || 'Cancelled match'}
                     value={cancelledMatchPoints}
                     onChange={setCancelledMatchPoints}
+                    formatValue={formatPointValue}
                   />
                   <PointSelect
                     label={tConfig('gameWin') || 'Game win'}
                     value={gameWinPoints}
                     onChange={setGameWinPoints}
+                    formatValue={formatPointValue}
                   />
                   <PointSelect
                     label={tConfig('gameLoss') || 'Game loss'}
                     value={gameLossPoints}
                     onChange={setGameLossPoints}
+                    formatValue={formatPointValue}
                   />
                   <PointSelect
                     label={tConfig('forfeitWin')}
                     value={forfeitWinPoints}
                     onChange={setForfeitWinPoints}
+                    formatValue={formatPointValue}
                   />
                   <PointSelect
                     label={tConfig('forfeitLoss') || 'Forfeit loss'}
                     value={forfeitLossPoints}
                     onChange={setForfeitLossPoints}
+                    formatValue={formatPointValue}
                   />
                 </Grid>
               )}

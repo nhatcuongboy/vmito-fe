@@ -5,12 +5,13 @@ import { Box, Flex, Heading, Text } from '@chakra-ui/react';
 import { Button } from '@/components/ui/chakra-compat';
 import { ChevronDown, RefreshCw, GitBranch } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { Category, CategoryFormat } from '@/lib/api/types';
+import { Category, CategoryFormat, SportType } from '@/lib/api/types';
 import ScoringRulesCard from './ScoringRulesCard';
 
 interface FormatPanelProps {
   categories: Category[];
   selectedCategory: Category | null;
+  sportType?: SportType | null;
   onSelectCategory: (category: Category) => void;
   onSwitchFormat: () => void;
   onCategoryUpdated?: (category: Category) => void;
@@ -59,6 +60,7 @@ const FORMAT_INFO: Record<
 export default function FormatPanel({
   categories,
   selectedCategory,
+  sportType,
   onSelectCategory,
   onSwitchFormat,
   onCategoryUpdated,
@@ -255,6 +257,7 @@ export default function FormatPanel({
         <ScoringRulesCard
           key={activeCategory.id}
           category={activeCategory}
+          sportType={sportType}
           onCategoryUpdated={onCategoryUpdated}
         />
       )}

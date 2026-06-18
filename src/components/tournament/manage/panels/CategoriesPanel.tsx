@@ -11,12 +11,15 @@ import {
   Category,
   CategoryRegistrationMode,
   CategoryType,
+  SportType,
 } from '@/lib/api/types';
 import { CategoryService } from '@/lib/api/category.service';
 import { VModal, useModal } from '@/components/ui/VModal';
+import { getTournamentSportProfile } from '@/lib/tournament/sports';
 
 interface CategoriesPanelProps {
   tournamentId: string;
+  sportType?: SportType | null;
   categories: Category[];
   onCategoriesChange: () => void;
 }
@@ -34,6 +37,7 @@ const CATEGORY_COLORS = [
 
 export default function CategoriesPanel({
   tournamentId,
+  sportType,
   categories,
   onCategoriesChange,
 }: CategoriesPanelProps) {
@@ -67,11 +71,21 @@ export default function CategoriesPanel({
     if (!name.trim()) return;
     try {
       setIsSubmitting(true);
+      const defaultScoring =
+        sportType === SportType.PICKLEBALL
+          ? getTournamentSportProfile(sportType).defaultScoring
+          : null;
       await CategoryService.createCategory(tournamentId, {
         name: name.trim(),
         type,
         registrationMode,
         teamSize,
+        ...(defaultScoring && {
+          matchFormat: defaultScoring.matchFormat,
+          pointsToWin: defaultScoring.pointsToWin,
+          winByTwo: defaultScoring.winByTwo,
+          pointCap: defaultScoring.pointCap,
+        }),
       });
       onCategoriesChange();
       createModal.onClose();
