@@ -32,6 +32,7 @@ import {
   Tournament,
 } from '@/lib/api/types';
 import PublicTournamentBracket from '@/components/tournament/PublicTournamentBracket';
+import PublicDoubleEliminationBracket from '@/components/tournament/PublicDoubleEliminationBracket';
 import PlayerNamesToggle from '@/components/tournament/PlayerNamesToggle';
 import { Link } from '@/i18n/config';
 import { usePathname, useSearchParams } from 'next/navigation';
@@ -519,6 +520,7 @@ export default function PublicTournamentStandingsTab({
         [
           CategoryFormat.ROUND_ROBIN_TO_SE,
           CategoryFormat.SINGLE_ELIMINATION,
+          CategoryFormat.DOUBLE_ELIMINATION,
         ].includes(category.format)
       )
       .map((category) => {
@@ -789,13 +791,22 @@ export default function PublicTournamentStandingsTab({
                   >
                     {getCategoryLabel(category)}
                   </Heading>
-                  <PublicTournamentBracket
-                    category={category}
-                    groupStageMatchCount={groupStageMatchCount}
-                    matches={categoryMatches}
-                    showPlayerNames={showPlayerNames}
-                    t={t}
-                  />
+                  {category.format === CategoryFormat.DOUBLE_ELIMINATION ? (
+                    <PublicDoubleEliminationBracket
+                      category={category}
+                      matches={categoryMatches}
+                      showPlayerNames={showPlayerNames}
+                      t={t}
+                    />
+                  ) : (
+                    <PublicTournamentBracket
+                      category={category}
+                      groupStageMatchCount={groupStageMatchCount}
+                      matches={categoryMatches}
+                      showPlayerNames={showPlayerNames}
+                      t={t}
+                    />
+                  )}
                 </Box>
               )
             )}

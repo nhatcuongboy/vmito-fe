@@ -23,6 +23,7 @@ import {
   FormatConfig,
   SingleEliminationConfig,
   RoundRobinToSEConfig,
+  DoubleEliminationConfig,
 } from '@/components/tournament/format-wizard/types';
 import OrganizeTab from './OrganizeTab';
 import SettingsTab from './SettingsTab';
@@ -61,7 +62,9 @@ const buildFormatUpdatePayload = (
   const basePayload: UpdateCategoryRequest = {
     format: format as unknown as CategoryFormat,
     formatConfig: config as unknown as Record<string, unknown>,
-    hasGroupStage: format !== TournamentFormatType.SINGLE_ELIMINATION,
+    hasGroupStage:
+      format !== TournamentFormatType.SINGLE_ELIMINATION &&
+      format !== TournamentFormatType.DOUBLE_ELIMINATION,
   };
 
   if (format === TournamentFormatType.SINGLE_ELIMINATION) {
@@ -72,6 +75,22 @@ const buildFormatUpdatePayload = (
       matchFormat: seConfig.matchFormat as MatchFormat,
       eliminationMatchFormat: seConfig.matchFormat as MatchFormat,
       thirdPlaceMatch: seConfig.thirdPlaceMatch,
+    };
+  }
+
+  if (format === TournamentFormatType.DOUBLE_ELIMINATION) {
+    const deConfig = config as DoubleEliminationConfig;
+
+    return {
+      ...basePayload,
+      formatConfig: {
+        ...(config as unknown as Record<string, unknown>),
+        doubleElimination: {
+          isTrueDoubleElimination: deConfig.isTrueDoubleElimination,
+        },
+      },
+      matchFormat: deConfig.matchFormat as MatchFormat,
+      eliminationMatchFormat: deConfig.matchFormat as MatchFormat,
     };
   }
 

@@ -2,6 +2,7 @@ export enum TournamentFormatType {
   ROUND_ROBIN = 'ROUND_ROBIN',
   SINGLE_ELIMINATION = 'SINGLE_ELIMINATION',
   ROUND_ROBIN_TO_SE = 'ROUND_ROBIN_TO_SE',
+  DOUBLE_ELIMINATION = 'DOUBLE_ELIMINATION',
 }
 
 export type FilterCategory = TournamentFormatType | null;
@@ -57,6 +58,18 @@ export interface SingleEliminationConfig {
   roundFormats?: RoundFormats;
 }
 
+export interface DoubleEliminationConfig {
+  seedingMethod: 'manual' | 'random' | 'ranking';
+  matchFormat: MatchFormatValue;
+  /**
+   * When true, the lower-bracket champion must beat the upper-bracket champion
+   * twice (a bracket-reset / second grand final is created).
+   */
+  isTrueDoubleElimination: boolean;
+  /** Per-round format overrides; rounds not listed use `matchFormat`. */
+  roundFormats?: RoundFormats;
+}
+
 export interface RoundRobinToSEConfig {
   roundRobin: RoundRobinConfig;
   qualifiersPerGroup: number;
@@ -69,7 +82,8 @@ export interface RoundRobinToSEConfig {
 export type FormatConfig =
   | RoundRobinConfig
   | SingleEliminationConfig
-  | RoundRobinToSEConfig;
+  | RoundRobinToSEConfig
+  | DoubleEliminationConfig;
 
 export interface FormatTemplate {
   id: TournamentFormatType;

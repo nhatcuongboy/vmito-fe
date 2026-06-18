@@ -4,6 +4,7 @@ import { Box, Flex, Text, Heading } from '@chakra-ui/react';
 import {
   RefreshCw,
   GitBranch,
+  GitFork,
   Layers,
   Users,
   CalendarDays,
@@ -16,6 +17,7 @@ import { TournamentFormatType } from '../types';
 const FORMAT_ICONS: Record<TournamentFormatType, React.ElementType> = {
   [TournamentFormatType.ROUND_ROBIN]: RefreshCw,
   [TournamentFormatType.SINGLE_ELIMINATION]: GitBranch,
+  [TournamentFormatType.DOUBLE_ELIMINATION]: GitFork,
   [TournamentFormatType.ROUND_ROBIN_TO_SE]: Layers,
 };
 

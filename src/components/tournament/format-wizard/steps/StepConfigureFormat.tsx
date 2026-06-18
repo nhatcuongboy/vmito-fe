@@ -6,6 +6,7 @@ import FormatSidebar from '../components/FormatSidebar';
 import RoundRobinConfig from '../config/RoundRobinConfig';
 import SingleEliminationConfig from '../config/SingleEliminationConfig';
 import RoundRobinToSEConfig from '../config/RoundRobinToSEConfig';
+import DoubleEliminationConfig from '../config/DoubleEliminationConfig';
 import { TournamentFormatType } from '../types';
 
 export default function StepConfigureFormat() {
@@ -22,6 +23,9 @@ export default function StepConfigureFormat() {
         )}
         {selectedFormat === TournamentFormatType.SINGLE_ELIMINATION && (
           <SingleEliminationConfig />
+        )}
+        {selectedFormat === TournamentFormatType.DOUBLE_ELIMINATION && (
+          <DoubleEliminationConfig />
         )}
         {selectedFormat === TournamentFormatType.ROUND_ROBIN_TO_SE && (
           <RoundRobinToSEConfig />

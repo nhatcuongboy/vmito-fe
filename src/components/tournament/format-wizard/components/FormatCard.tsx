@@ -1,7 +1,7 @@
 'use client';
 
 import { Box, Flex, Text } from '@chakra-ui/react';
-import { RefreshCw, GitBranch } from 'lucide-react';
+import { RefreshCw, GitBranch, GitFork } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { TournamentFormatType } from '../types';
 
@@ -21,6 +21,10 @@ const FORMAT_ICONS: Record<
   },
   [TournamentFormatType.SINGLE_ELIMINATION]: {
     icons: [GitBranch],
+    labelKeys: ['bracket'],
+  },
+  [TournamentFormatType.DOUBLE_ELIMINATION]: {
+    icons: [GitFork],
     labelKeys: ['bracket'],
   },
   [TournamentFormatType.ROUND_ROBIN_TO_SE]: {

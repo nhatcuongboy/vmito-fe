@@ -786,6 +786,7 @@ export enum CategoryFormat {
   ROUND_ROBIN = 'ROUND_ROBIN',
   SINGLE_ELIMINATION = 'SINGLE_ELIMINATION',
   ROUND_ROBIN_TO_SE = 'ROUND_ROBIN_TO_SE',
+  DOUBLE_ELIMINATION = 'DOUBLE_ELIMINATION',
 }
 
 export interface Category {
@@ -915,6 +916,12 @@ export interface CategoryMatch {
   notes?: string | null;
   refereeId?: string; // Assigned referee (TournamentUmpire id)
   referee?: TournamentUmpire | null;
+  // Double-elimination bracket linkage. bracketType: 'UPPER' | 'LOWER' | 'GF'.
+  bracketType?: string | null;
+  winnerNextMatchId?: string | null;
+  winnerNextSlot?: number | null;
+  loserNextMatchId?: string | null;
+  loserNextSlot?: number | null;
   createdAt: Date;
   updatedAt: Date;
   participants?: CategoryMatchParticipant[];

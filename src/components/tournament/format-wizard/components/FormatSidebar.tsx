@@ -1,7 +1,13 @@
 'use client';
 
 import { Box, Flex, Text } from '@chakra-ui/react';
-import { LayoutGrid, RefreshCw, GitBranch, Layers } from 'lucide-react';
+import {
+  LayoutGrid,
+  RefreshCw,
+  GitBranch,
+  GitFork,
+  Layers,
+} from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useFormatWizard } from '../FormatWizardContext';
 import { TournamentFormatType } from '../types';
@@ -9,12 +15,14 @@ import { TournamentFormatType } from '../types';
 const FORMAT_ICONS: Record<TournamentFormatType, React.ElementType> = {
   [TournamentFormatType.ROUND_ROBIN]: RefreshCw,
   [TournamentFormatType.SINGLE_ELIMINATION]: GitBranch,
+  [TournamentFormatType.DOUBLE_ELIMINATION]: GitFork,
   [TournamentFormatType.ROUND_ROBIN_TO_SE]: Layers,
 };
 
 const FILTER_ITEMS: { id: TournamentFormatType; icon: React.ElementType }[] = [
   { id: TournamentFormatType.ROUND_ROBIN, icon: RefreshCw },
   { id: TournamentFormatType.SINGLE_ELIMINATION, icon: GitBranch },
+  { id: TournamentFormatType.DOUBLE_ELIMINATION, icon: GitFork },
   { id: TournamentFormatType.ROUND_ROBIN_TO_SE, icon: Layers },
 ];
 

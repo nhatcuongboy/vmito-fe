@@ -1583,6 +1583,16 @@
             "final": "Final",
             "thirdPlace": "3rd Place"
           },
+          "deBracket": {
+            "upperBracket": "Upper Bracket",
+            "lowerBracket": "Lower Bracket",
+            "preQuarterFinals": "Pre-Quarter Finals",
+            "roundOf": "Round of {count}",
+            "lowerRound": "Lower Bracket R{number}",
+            "lowerFinal": "Lower Bracket Finals",
+            "grandFinal": "Grand Final",
+            "ifNecessary": "If Necessary"
+          },
           "matchStatus": {
             "SCHEDULED": "Scheduled",
             "IN_PROGRESS": "In progress",
@@ -1760,6 +1770,13 @@
               "cardLabel": "Bracket",
               "configDescription": "Configure bracket settings."
             },
+            "DOUBLE_ELIMINATION": {
+              "name": "Double Elimination",
+              "subtitle": "Double Elimination",
+              "description": "Teams are placed into upper and lower brackets, and are only eliminated after losing two matches.",
+              "cardLabel": "Bracket",
+              "configDescription": "Configure double elimination settings."
+            },
             "ROUND_ROBIN_TO_SE": {
               "name": "Round Robin to Single Elimination",
               "subtitle": "RR + SE",
@@ -1896,6 +1913,10 @@
               "perRoundTitle": "Per-round format (optional)",
               "perRoundHint": "Rounds left as default use {format}.",
               "useDefault": "Default"
+            },
+            "de": {
+              "isTrueDoubleElimination": "True double elimination",
+              "isTrueDoubleEliminationDesc": "If enabled, the lower bracket champion must beat the upper bracket champion twice to win the grand final (bracket reset)."
             },
             "rrse": {
               "groupStage": "Group Stage",
@@ -2701,6 +2722,11 @@
               "playoffsSubtitle": "Setup bracket and matches.",
               "addBracket": "Add bracket",
               "setupBracket": "Setup bracket",
+              "seedLabel": "Seed {seed}",
+              "grandFinal": "Grand Final",
+              "grandFinalReset": "Grand Final (Reset)",
+              "trueDoubleElimination": "True double elimination",
+              "trueDoubleEliminationDesc": "Lower bracket champion must win twice in the grand final.",
               "placementMatches": "Placement Matches",
               "selectPlacements": "Select which placements will be determined.",
               "playFor3rdPlace": "Play for 3rd place",

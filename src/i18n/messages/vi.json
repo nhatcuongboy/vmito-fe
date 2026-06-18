@@ -1591,6 +1591,16 @@
             "final": "Chung kết",
             "thirdPlace": "Tranh hạng ba"
           },
+          "deBracket": {
+            "upperBracket": "Nhánh thắng",
+            "lowerBracket": "Nhánh thua",
+            "preQuarterFinals": "Vòng 1/8",
+            "roundOf": "Vòng {count} đội",
+            "lowerRound": "Nhánh thua V{number}",
+            "lowerFinal": "Chung kết nhánh thua",
+            "grandFinal": "Chung kết tổng",
+            "ifNecessary": "Nếu cần"
+          },
           "matchStatus": {
             "SCHEDULED": "Đã lên lịch",
             "IN_PROGRESS": "Đang diễn ra",
@@ -1768,6 +1778,13 @@
               "cardLabel": "Nhánh đấu",
               "configDescription": "Cấu hình nhánh đấu."
             },
+            "DOUBLE_ELIMINATION": {
+              "name": "Loại kép",
+              "subtitle": "Loại kép",
+              "description": "Các đội được xếp vào nhánh trên và nhánh dưới, chỉ bị loại sau khi thua hai trận.",
+              "cardLabel": "Nhánh đấu",
+              "configDescription": "Cấu hình loại kép."
+            },
             "ROUND_ROBIN_TO_SE": {
               "name": "Vòng tròn sang Loại trực tiếp",
               "subtitle": "VT + LTT",
@@ -1904,6 +1921,10 @@
               "perRoundTitle": "Thể thức theo từng vòng (tùy chọn)",
               "perRoundHint": "Vòng để mặc định sẽ dùng {format}.",
               "useDefault": "Mặc định"
+            },
+            "de": {
+              "isTrueDoubleElimination": "Loại kép thực sự",
+              "isTrueDoubleEliminationDesc": "Nếu bật, nhà vô địch nhánh dưới phải thắng nhà vô địch nhánh trên hai lần để vô địch chung kết (reset nhánh)."
             },
             "rrse": {
               "groupStage": "Vòng bảng",
@@ -2709,6 +2730,11 @@
               "playoffsSubtitle": "Thiết lập nhánh đấu và trận đấu.",
               "addBracket": "Thêm nhánh đấu",
               "setupBracket": "Thiết lập nhánh đấu",
+              "seedLabel": "Hạt giống {seed}",
+              "grandFinal": "Chung kết",
+              "grandFinalReset": "Chung kết (Reset)",
+              "trueDoubleElimination": "Loại kép thực sự",
+              "trueDoubleEliminationDesc": "Nhà vô địch nhánh dưới phải thắng hai lần ở chung kết.",
               "placementMatches": "Trận xếp hạng",
               "selectPlacements": "Chọn các vị trí sẽ được xác định.",
               "playFor3rdPlace": "Tranh hạng 3",

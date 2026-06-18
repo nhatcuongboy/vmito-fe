@@ -1561,6 +1561,16 @@
             "final": "决赛",
             "thirdPlace": "季军赛"
           },
+          "deBracket": {
+            "upperBracket": "胜者组",
+            "lowerBracket": "败者组",
+            "preQuarterFinals": "预四分之一决赛",
+            "roundOf": "{count}强赛",
+            "lowerRound": "败者组第{number}轮",
+            "lowerFinal": "败者组决赛",
+            "grandFinal": "总决赛",
+            "ifNecessary": "如有需要"
+          },
           "matchStatus": {
             "SCHEDULED": "已安排",
             "IN_PROGRESS": "进行中",
@@ -1738,6 +1748,13 @@
               "cardLabel": "淘汰赛",
               "configDescription": "配置淘汰赛设置。"
             },
+            "DOUBLE_ELIMINATION": {
+              "name": "双败淘汰赛",
+              "subtitle": "双败淘汰",
+              "description": "队伍进入胜者组和败者组，输两场后才被淘汰。",
+              "cardLabel": "淘汰赛",
+              "configDescription": "配置双败淘汰赛设置。"
+            },
             "ROUND_ROBIN_TO_SE": {
               "name": "循环赛转单淘汰",
               "subtitle": "循环+淘汰",
@@ -1874,6 +1891,10 @@
               "perRoundTitle": "各轮赛制（可选）",
               "perRoundHint": "未设置的轮次使用 {format}。",
               "useDefault": "默认"
+            },
+            "de": {
+              "isTrueDoubleElimination": "真正的双败淘汰",
+              "isTrueDoubleEliminationDesc": "启用后，败者组冠军必须在决赛中两次击败胜者组冠军才能夺冠（重置对阵表）。"
             },
             "rrse": {
               "groupStage": "小组赛阶段",
@@ -2679,6 +2700,11 @@
               "playoffsSubtitle": "设置对阵表和比赛。",
               "addBracket": "添加对阵表",
               "setupBracket": "设置对阵表",
+              "seedLabel": "种子 {seed}",
+              "grandFinal": "总决赛",
+              "grandFinalReset": "总决赛（重置）",
+              "trueDoubleElimination": "真正的双败淘汰",
+              "trueDoubleEliminationDesc": "败者组冠军必须在决赛中获胜两次。",
               "placementMatches": "排名赛",
               "selectPlacements": "选择将确定哪些名次。",
               "playFor3rdPlace": "争夺第三名",

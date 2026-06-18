@@ -33,6 +33,8 @@ import SetupPoolsModal, { TSetupStep } from './SetupPoolsModal';
 import AdvancingTeamsModal from './AdvancingTeamsModal';
 import PlayoffsBracketModal from './PlayoffsBracketModal';
 import SingleEliminationBracketModal from './SingleEliminationBracketModal';
+import DoubleEliminationBracketModal from './DoubleEliminationBracketModal';
+import DoubleEliminationBracketViz from './DoubleEliminationBracketViz';
 import BracketVisualization from './BracketVisualization';
 
 interface IRoundsPanelProps {
@@ -93,13 +95,26 @@ const nextPowerOf2 = (n: number): number => {
 const getExpectedEliminationMatchCount = (category: Category): number => {
   const isSingleElimination =
     category.format === CategoryFormat.SINGLE_ELIMINATION;
-  const teamCount = isSingleElimination
-    ? (category._count?.registrations ?? category.registrations?.length ?? 0)
-    : (category.groupCount ?? 0) * (category.winnersPerGroup ?? 0);
+  const isDoubleElimination =
+    category.format === CategoryFormat.DOUBLE_ELIMINATION;
+  const teamCount =
+    isSingleElimination || isDoubleElimination
+      ? (category._count?.registrations ?? category.registrations?.length ?? 0)
+      : (category.groupCount ?? 0) * (category.winnersPerGroup ?? 0);
 
   if (teamCount < 2) return 0;
 
   const bracketSize = nextPowerOf2(teamCount);
+
+  if (isDoubleElimination) {
+    // Pure double elimination: upper (n-1) + lower (n-2) + grand final (1).
+    const deConfig = (
+      category.formatConfig as Record<string, unknown> | undefined
+    )?.doubleElimination as Record<string, unknown> | undefined;
+    const hasReset = deConfig?.isTrueDoubleElimination !== false;
+    return bracketSize * 2 - 2 + (hasReset ? 1 : 0);
+  }
+
   const mainMatches = bracketSize - 1;
   const hasThirdPlace = category.thirdPlaceMatch && bracketSize >= 4;
 
@@ -149,6 +164,8 @@ export default function RoundsPanel({
   const isRoundRobin = activeCategory?.format === CategoryFormat.ROUND_ROBIN;
   const isSingleElimination =
     activeCategory?.format === CategoryFormat.SINGLE_ELIMINATION;
+  const isDoubleElimination =
+    activeCategory?.format === CategoryFormat.DOUBLE_ELIMINATION;
   const isPoolFormat = isRRSE || isRoundRobin;
 
   // SE bracket modal state
@@ -530,9 +547,9 @@ export default function RoundsPanel({
     );
   };
 
-  // ─── Single Elimination Stepper Layout ─────────────────────────────────────
+  // ─── Single / Double Elimination Stepper Layout ────────────────────────────
 
-  if (isSingleElimination) {
+  if (isSingleElimination || isDoubleElimination) {
     const hasBracketMatches = eliminationMatches.length > 0;
 
     return (
@@ -565,15 +582,38 @@ export default function RoundsPanel({
                       p={3}
                       _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
                     >
-                      <BracketVisualization
-                        teamCount={totalRegistrations}
-                        groupCount={1}
-                        winnersPerGroup={totalRegistrations}
-                        thirdPlaceMatch={
-                          activeCategory?.thirdPlaceMatch ?? false
-                        }
-                        compact
-                      />
+                      {isDoubleElimination ? (
+                        <DoubleEliminationBracketViz
+                          teamCount={totalRegistrations}
+                          isTrueDoubleElimination={
+                            (
+                              activeCategory?.formatConfig as
+                                | Record<string, unknown>
+                                | undefined
+                            )?.doubleElimination
+                              ? ((
+                                  (
+                                    activeCategory?.formatConfig as Record<
+                                      string,
+                                      unknown
+                                    >
+                                  ).doubleElimination as Record<string, unknown>
+                                ).isTrueDoubleElimination as boolean) !== false
+                              : true
+                          }
+                          compact
+                        />
+                      ) : (
+                        <BracketVisualization
+                          teamCount={totalRegistrations}
+                          groupCount={1}
+                          winnersPerGroup={totalRegistrations}
+                          thirdPlaceMatch={
+                            activeCategory?.thirdPlaceMatch ?? false
+                          }
+                          compact
+                        />
+                      )}
                     </Box>
                   )}
                   <Button
@@ -608,13 +648,23 @@ export default function RoundsPanel({
 
         {activeCategory && (
           <>
-            <SingleEliminationBracketModal
-              isOpen={isSEBracketModalOpen}
-              onClose={() => setIsSEBracketModalOpen(false)}
-              category={activeCategory}
-              registrations={registrations}
-              onSaved={handleRefreshCategory}
-            />
+            {isDoubleElimination ? (
+              <DoubleEliminationBracketModal
+                isOpen={isSEBracketModalOpen}
+                onClose={() => setIsSEBracketModalOpen(false)}
+                category={activeCategory}
+                registrations={registrations}
+                onSaved={handleRefreshCategory}
+              />
+            ) : (
+              <SingleEliminationBracketModal
+                isOpen={isSEBracketModalOpen}
+                onClose={() => setIsSEBracketModalOpen(false)}
+                category={activeCategory}
+                registrations={registrations}
+                onSaved={handleRefreshCategory}
+              />
+            )}
             <GenerateBracketConfirmModal
               isOpen={isGenerateConfirmOpen}
               onClose={() => setIsGenerateConfirmOpen(false)}
