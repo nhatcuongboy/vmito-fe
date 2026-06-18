@@ -7,7 +7,6 @@ import {
   ChevronUp,
   ChevronDown,
   CheckCircle2,
-  Circle,
   LayoutGrid,
   House,
   UserCog,
@@ -104,12 +103,13 @@ export default function TournamentDashboard({ tournament }: Props) {
       {/* Continue setup banner */}
       <Box borderRadius="xl" overflow="hidden">
         <Flex
-          bg="green.700"
+          bg="green.600"
           px={4}
           pt={4}
           pb={3}
           align="flex-start"
           justify="space-between"
+          _dark={{ bg: 'green.700' }}
         >
           <Box>
             <Text color="white" fontWeight="bold" fontSize="md">
@@ -154,9 +154,10 @@ export default function TournamentDashboard({ tournament }: Props) {
       </Box>
 
       {/* Setup steps */}
-      {STEP_IDS.map((stepId) => {
+      {STEP_IDS.map((stepId, index) => {
         const isDone = completionMap[stepId];
         const isExpanded = expandedSteps.has(stepId);
+        const stepNumber = index + 1;
 
         return (
           <Box
@@ -194,25 +195,42 @@ export default function TournamentDashboard({ tournament }: Props) {
                 },
               }}
             >
+              {/* Step number or checkmark */}
               {isDone ? (
                 <Box color="green.500" flexShrink={0}>
-                  <CheckCircle2 size={22} />
+                  <CheckCircle2 size={24} />
                 </Box>
               ) : (
-                <Box color="gray.300" flexShrink={0}>
-                  <Circle size={22} />
-                </Box>
+                <Flex
+                  w="24px"
+                  h="24px"
+                  borderRadius="full"
+                  bg="gray.100"
+                  color="gray.600"
+                  align="center"
+                  justify="center"
+                  fontSize="xs"
+                  fontWeight="semibold"
+                  flexShrink={0}
+                  _dark={{
+                    bg: 'gray.700',
+                    color: 'gray.300',
+                  }}
+                >
+                  {stepNumber}
+                </Flex>
               )}
-              <Text
-                fontWeight="semibold"
-                flex="1"
-                fontSize="sm"
-                color={isDone ? 'green.700' : 'gray.800'}
-                textDecoration={isDone ? 'line-through' : 'none'}
-                _dark={{ color: isDone ? 'green.100' : 'gray.100' }}
-              >
-                {t(`steps.${stepId}.title`)}
-              </Text>
+              <Box flex="1">
+                <Text
+                  fontWeight="semibold"
+                  fontSize="sm"
+                  color={isDone ? 'green.700' : 'gray.800'}
+                  textDecoration={isDone ? 'line-through' : 'none'}
+                  _dark={{ color: isDone ? 'green.100' : 'gray.100' }}
+                >
+                  {t(`steps.${stepId}.title`)}
+                </Text>
+              </Box>
               {isExpanded ? (
                 <ChevronUp size={18} color="var(--chakra-colors-gray-400)" />
               ) : (
@@ -233,10 +251,7 @@ export default function TournamentDashboard({ tournament }: Props) {
                 <Button
                   size="sm"
                   variant="solid"
-                  bg="gray.900"
-                  color="white"
-                  colorPalette="gray"
-                  _hover={{ bg: 'gray.700' }}
+                  colorPalette="green"
                   onClick={(e: React.MouseEvent) => {
                     e.stopPropagation();
                     handleStepAction(stepId);
@@ -294,7 +309,7 @@ export default function TournamentDashboard({ tournament }: Props) {
           >
             {t('quickActions.customizePage.description')}
           </Text>
-          <Button size="sm" variant="outline" colorPalette="gray">
+          <Button size="sm" variant="solid" colorPalette="green">
             {t('quickActions.customizePage.action')}
           </Button>
         </Box>
@@ -344,7 +359,7 @@ export default function TournamentDashboard({ tournament }: Props) {
           >
             {t('quickActions.inviteAdmins.description')}
           </Text>
-          <Button size="sm" variant="outline" colorPalette="gray">
+          <Button size="sm" variant="solid" colorPalette="green">
             {t('quickActions.inviteAdmins.action')}
           </Button>
         </Box>

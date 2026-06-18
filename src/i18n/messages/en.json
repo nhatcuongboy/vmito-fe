@@ -1689,9 +1689,9 @@
           "title": "Dashboard",
           "share": "Share",
           "continueSetup": {
-            "title": "Continue setup",
-            "description": "Use this guide to get ready for game day.",
-            "progress": "{completed} of {total} complete"
+            "title": "Tournament Setup Guide",
+            "description": "Complete the steps below to prepare your tournament.",
+            "progress": "Completed {completed} of {total} steps"
           },
           "steps": {
             "format": {

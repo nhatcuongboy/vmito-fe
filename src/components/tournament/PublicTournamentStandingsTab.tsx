@@ -1256,22 +1256,15 @@ function StandingsTable({
   const hasResults = rows.some(hasStandingResult);
   const extraColumnsWidth = (showForfeits ? 1 : 0) + (showCancelled ? 1 : 0);
   const metricColumnCount = 6 + extraColumnsWidth;
-  const gridTemplate = showGroup
-    ? {
-        base: `40px minmax(150px, 1fr) 84px repeat(${metricColumnCount}, 48px)`,
-        md: `44px minmax(220px, 1fr) 112px repeat(${metricColumnCount}, 64px)`,
-      }
-    : {
-        base: `40px minmax(150px, 1fr) repeat(${metricColumnCount}, 48px)`,
-        md: `44px minmax(220px, 1fr) repeat(${metricColumnCount}, 64px)`,
-      };
-  const minWidth = showGroup
-    ? showForfeits || showCancelled
-      ? `${700 + extraColumnsWidth * 56}px`
-      : '680px'
-    : showForfeits || showCancelled
-      ? `${600 + extraColumnsWidth * 56}px`
-      : '580px';
+  // Remove the "Bảng" column from grid template - it's now shown under team name
+  const gridTemplate = {
+    base: `40px minmax(150px, 1fr) repeat(${metricColumnCount}, 52px)`,
+    md: `44px minmax(220px, 1fr) repeat(${metricColumnCount}, 64px)`,
+  };
+  const minWidth =
+    showForfeits || showCancelled
+      ? `${620 + extraColumnsWidth * 56}px`
+      : '600px';
 
   return (
     <Box
@@ -1352,11 +1345,35 @@ function StandingsTable({
                 'var(--tournament-border, var(--chakra-colors-gray-700))',
             }}
           >
-            <StandingHeaderCell label={t('columns.rank')} align="center" />
-            <StandingHeaderCell label={t('columns.teamShort')} align="start" />
-            {showGroup && (
-              <StandingHeaderCell label={t('columns.group')} align="center" />
-            )}
+            <Box
+              position="sticky"
+              left={{ base: '16px', md: '20px' }}
+              zIndex={2}
+              bg="gray.50"
+              _dark={{
+                bg: 'var(--tournament-surface-muted, var(--chakra-colors-gray-800))',
+              }}
+            >
+              <StandingHeaderCell label={t('columns.rank')} align="center" />
+            </Box>
+            <Box
+              position="sticky"
+              left={{ base: '56px', md: '64px' }}
+              zIndex={2}
+              bg="gray.50"
+              pr={{ base: 3, md: 4 }}
+              mr={{ base: -3, md: -4 }}
+              boxShadow="4px 0 8px -2px rgba(0, 0, 0, 0.08)"
+              _dark={{
+                bg: 'var(--tournament-surface-muted, var(--chakra-colors-gray-800))',
+                boxShadow: '4px 0 8px -2px rgba(0, 0, 0, 0.3)',
+              }}
+            >
+              <StandingHeaderCell
+                label={t('columns.teamShort')}
+                align="start"
+              />
+            </Box>
             <StandingHeaderCell label={t('columns.pointsShort')} />
             <StandingHeaderCell label={t('columns.playedShort')} />
             <StandingHeaderCell label={t('columns.wonShort')} />
@@ -1397,37 +1414,70 @@ function StandingsTable({
                   borderBottomWidth="1px"
                   borderColor="gray.50"
                   _last={{ borderBottomWidth: 0 }}
-                  _hover={{ bg: 'gray.50' }}
+                  _hover={{
+                    bg: 'gray.50',
+                    '& [data-sticky-cell]': {
+                      bg: 'gray.50',
+                    },
+                  }}
                   _dark={{
                     borderColor:
                       'var(--tournament-border, var(--chakra-colors-gray-800))',
                     _hover: {
                       bg: 'var(--tournament-accent-soft, rgba(34, 197, 94, 0.14))',
+                      '& [data-sticky-cell]': {
+                        bg: 'var(--tournament-accent-soft, rgba(34, 197, 94, 0.14))',
+                      },
                     },
                   }}
                 >
-                  <Flex
-                    w={{ base: 8, md: 8 }}
-                    h={{ base: 8, md: 8 }}
-                    align="center"
-                    justify="center"
-                    borderRadius="full"
-                    bg="gray.100"
-                    color="gray.700"
-                    fontSize="sm"
-                    fontWeight="700"
+                  <Box
+                    data-sticky-cell
+                    position="sticky"
+                    left={{ base: '16px', md: '20px' }}
+                    zIndex={1}
+                    bg="white"
                     _dark={{
-                      bg: 'var(--tournament-surface-muted, var(--chakra-colors-gray-800))',
-                      color: 'gray.50',
-                      borderWidth: '1px',
-                      borderColor:
-                        'var(--tournament-border, var(--chakra-colors-gray-700))',
+                      bg: 'var(--tournament-surface-raised, var(--chakra-colors-gray-900))',
                     }}
                   >
-                    {hasResults ? rank : '-'}
-                  </Flex>
+                    <Flex
+                      w={{ base: 8, md: 8 }}
+                      h={{ base: 8, md: 8 }}
+                      align="center"
+                      justify="center"
+                      borderRadius="full"
+                      bg="gray.100"
+                      color="gray.700"
+                      fontSize="sm"
+                      fontWeight="700"
+                      _dark={{
+                        bg: 'var(--tournament-surface-muted, var(--chakra-colors-gray-800))',
+                        color: 'gray.50',
+                        borderWidth: '1px',
+                        borderColor:
+                          'var(--tournament-border, var(--chakra-colors-gray-700))',
+                      }}
+                    >
+                      {hasResults ? rank : '-'}
+                    </Flex>
+                  </Box>
 
-                  <Box minW={0}>
+                  <Box
+                    data-sticky-cell
+                    position="sticky"
+                    left={{ base: '56px', md: '64px' }}
+                    zIndex={1}
+                    minW={0}
+                    pr={{ base: 3, md: 4 }}
+                    mr={{ base: -3, md: -4 }}
+                    bg="white"
+                    boxShadow="4px 0 8px -2px rgba(0, 0, 0, 0.08)"
+                    _dark={{
+                      bg: 'var(--tournament-surface-raised, var(--chakra-colors-gray-900))',
+                      boxShadow: '4px 0 8px -2px rgba(0, 0, 0, 0.3)',
+                    }}
+                  >
                     <HStack gap={1.5} minW={0}>
                       <Link
                         href={teamHref}
@@ -1471,7 +1521,6 @@ function StandingsTable({
                     </HStack>
                     {showGroup && 'sourceGroupName' in standing && (
                       <Text
-                        display={{ base: 'block', md: 'none' }}
                         mt={0.5}
                         fontSize="xs"
                         color="gray.500"
@@ -1484,24 +1533,6 @@ function StandingsTable({
                       </Text>
                     )}
                   </Box>
-
-                  {showGroup && (
-                    <Text
-                      display={{ base: 'none', md: 'block' }}
-                      fontSize="xs"
-                      fontWeight="600"
-                      color="gray.500"
-                      textAlign="center"
-                      overflow="hidden"
-                      textOverflow="ellipsis"
-                      whiteSpace="nowrap"
-                      _dark={{ color: 'gray.400' }}
-                    >
-                      {'sourceGroupName' in standing
-                        ? standing.sourceGroupName
-                        : ''}
-                    </Text>
-                  )}
 
                   <StandingMetric value={standing.points} isStrong />
                   <StandingMetric value={standing.matchesPlayed} />

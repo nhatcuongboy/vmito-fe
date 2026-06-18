@@ -1523,7 +1523,7 @@
           "schedule": "Lịch thi đấu",
           "standings": "Bảng xếp hạng",
           "manage": "Quản lý",
-          "dashboard": "Tổng quan",
+          "dashboard": "Bảng điều khiển",
           "winners": "Nhà vô địch"
         },
         "enterScores": "Nhập điểm",
@@ -1694,12 +1694,12 @@
           }
         },
         "dashboard": {
-          "title": "Tổng quan",
+          "title": "Bảng điều khiển",
           "share": "Chia sẻ",
           "continueSetup": {
-            "title": "Tiếp tục cài đặt",
-            "description": "Sử dụng hướng dẫn này để chuẩn bị cho ngày thi đấu.",
-            "progress": "{completed} trong {total} hoàn thành"
+            "title": "Hướng dẫn thiết lập giải đấu",
+            "description": "Hoàn thành các bước dưới đây để chuẩn bị giải đấu của bạn.",
+            "progress": "Đã hoàn thành {completed} trong {total} bước"
           },
           "steps": {
             "format": {

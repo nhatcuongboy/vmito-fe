@@ -1493,7 +1493,7 @@
           "schedule": "赛程",
           "standings": "排名",
           "manage": "管理",
-          "dashboard": "仪表板",
+          "dashboard": "控制面板",
           "winners": "优胜者"
         },
         "enterScores": "录入比分",
@@ -1667,9 +1667,9 @@
           "title": "仪表板",
           "share": "分享",
           "continueSetup": {
-            "title": "继续设置",
-            "description": "使用此指南为比赛日做好准备。",
-            "progress": "{completed} / {total} 已完成"
+            "title": "锦标赛设置指南",
+            "description": "完成以下步骤准备您的锦标赛。",
+            "progress": "已完成 {completed} / {total} 步"
           },
           "steps": {
             "format": {
