@@ -2069,7 +2069,8 @@
               "description": "Enter and review match scores"
             },
             "categories": {
-              "title": "Categories"
+              "title": "Categories",
+              "description": "Create and manage competition categories like men's singles, women's doubles, mixed doubles."
             },
             "registration": {
               "title": "Registration",

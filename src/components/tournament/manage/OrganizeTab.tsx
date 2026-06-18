@@ -114,6 +114,7 @@ export default function OrganizeTab({
       <ManageMenuItem
         icon={Layers}
         title={t('organize.categories.title')}
+        description={t('organize.categories.description')}
         preview={<CategoryDotsPreview categories={categories} />}
         isActive={selectedItem === 'categories'}
         onClick={() => onItemClick('categories')}

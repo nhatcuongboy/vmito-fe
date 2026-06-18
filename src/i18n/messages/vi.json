@@ -2077,7 +2077,8 @@
               "description": "Nhập và xem tỉ số các trận đấu"
             },
             "categories": {
-              "title": "Hạng mục"
+              "title": "Hạng mục",
+              "description": "Tạo và quản lý các hạng mục thi đấu như đơn nam, đôi nữ, đôi nam nữ."
             },
             "registration": {
               "title": "Đăng ký",

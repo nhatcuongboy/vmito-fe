@@ -2047,7 +2047,8 @@
               "description": "录入和查看比赛比分"
             },
             "categories": {
-              "title": "类别"
+              "title": "类别",
+              "description": "创建和管理比赛类别，如男子单打、女子双打、混合双打。"
             },
             "registration": {
               "title": "报名",

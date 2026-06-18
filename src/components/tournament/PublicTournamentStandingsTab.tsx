@@ -1349,10 +1349,6 @@ function StandingsTable({
               position="sticky"
               left={{ base: '16px', md: '20px' }}
               zIndex={2}
-              bg="gray.50"
-              _dark={{
-                bg: 'var(--tournament-surface-muted, var(--chakra-colors-gray-800))',
-              }}
             >
               <StandingHeaderCell label={t('columns.rank')} align="center" />
             </Box>
@@ -1360,14 +1356,8 @@ function StandingsTable({
               position="sticky"
               left={{ base: '56px', md: '64px' }}
               zIndex={2}
-              bg="gray.50"
               pr={{ base: 3, md: 4 }}
               mr={{ base: -3, md: -4 }}
-              boxShadow="4px 0 8px -2px rgba(0, 0, 0, 0.08)"
-              _dark={{
-                bg: 'var(--tournament-surface-muted, var(--chakra-colors-gray-800))',
-                boxShadow: '4px 0 8px -2px rgba(0, 0, 0, 0.3)',
-              }}
             >
               <StandingHeaderCell
                 label={t('columns.teamShort')}
@@ -1416,18 +1406,12 @@ function StandingsTable({
                   _last={{ borderBottomWidth: 0 }}
                   _hover={{
                     bg: 'gray.50',
-                    '& [data-sticky-cell]': {
-                      bg: 'gray.50',
-                    },
                   }}
                   _dark={{
                     borderColor:
                       'var(--tournament-border, var(--chakra-colors-gray-800))',
                     _hover: {
                       bg: 'var(--tournament-accent-soft, rgba(34, 197, 94, 0.14))',
-                      '& [data-sticky-cell]': {
-                        bg: 'var(--tournament-accent-soft, rgba(34, 197, 94, 0.14))',
-                      },
                     },
                   }}
                 >
@@ -1436,10 +1420,6 @@ function StandingsTable({
                     position="sticky"
                     left={{ base: '16px', md: '20px' }}
                     zIndex={1}
-                    bg="white"
-                    _dark={{
-                      bg: 'var(--tournament-surface-raised, var(--chakra-colors-gray-900))',
-                    }}
                   >
                     <Flex
                       w={{ base: 8, md: 8 }}
@@ -1471,12 +1451,6 @@ function StandingsTable({
                     minW={0}
                     pr={{ base: 3, md: 4 }}
                     mr={{ base: -3, md: -4 }}
-                    bg="white"
-                    boxShadow="4px 0 8px -2px rgba(0, 0, 0, 0.08)"
-                    _dark={{
-                      bg: 'var(--tournament-surface-raised, var(--chakra-colors-gray-900))',
-                      boxShadow: '4px 0 8px -2px rgba(0, 0, 0, 0.3)',
-                    }}
                   >
                     <HStack gap={1.5} minW={0}>
                       <Link
