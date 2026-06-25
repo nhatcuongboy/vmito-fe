@@ -169,7 +169,7 @@ const buildWarningItems = (
         totalCount: historyCount + 1,
       };
     })
-    .filter((item) => item.totalCount > 1)
+    .filter((item) => item.totalCount >= 3)
     .sort((a, b) => b.totalCount - a.totalCount);
 
 export function getMatchRepeatWarning(
