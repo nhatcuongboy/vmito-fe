@@ -16,6 +16,7 @@ import {
   IBulkScheduleItem,
   LiveScoreUpdateRequest,
   MatchStatus,
+  PickleballServeUpdateRequest,
   UpdateSetScoreRequest,
 } from './types';
 
@@ -295,6 +296,17 @@ export const CategoryService = {
       `/category-matches/${id}/score/undo`,
       undefined,
       { skipGlobalError: true }
+    );
+    return response.data.data!;
+  },
+
+  updatePickleballServe: async (
+    id: string,
+    data: PickleballServeUpdateRequest
+  ): Promise<CategoryMatch> => {
+    const response = await api.patch<ApiResponse<CategoryMatch>>(
+      `/category-matches/${id}/pickleball-serve`,
+      data
     );
     return response.data.data!;
   },

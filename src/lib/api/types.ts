@@ -914,6 +914,8 @@ export interface CategoryMatch {
   player4Score?: number; // For doubles: sum of all sets
   player1Points?: number; // Manual standings points for side 1 (pointsEarning = 'manual')
   player2Points?: number; // Manual standings points for side 2 (pointsEarning = 'manual')
+  servingSide?: 1 | 2 | null; // Pickleball doubles: side currently serving
+  serverNumber?: 1 | 2 | null; // Pickleball doubles: first or second server
   matchFormat?: MatchFormat; // Match format for this specific match/round
   // Per-match scoring-rule overrides. Null = inherit from category.
   pointsToWin?: number | null;
@@ -1140,6 +1142,13 @@ export interface LiveScoreUpdateRequest {
   seq?: number; // monotonic per clientId
 }
 
+export interface PickleballServeUpdateRequest {
+  servingSide: 1 | 2;
+  serverNumber: 1 | 2;
+  clientId?: string;
+  seq?: number;
+}
+
 export interface UpdateSetScoreRequest {
   player1Score: number;
   player2Score: number;
@@ -1174,6 +1183,9 @@ export interface ScoreboardMatch {
   tournamentId: string | null;
   categoryId: string;
   categoryName: string | null;
+  sportType?: SportType | null;
+  teamSize?: number | null;
+  isDoubles?: boolean | null;
   round: string;
   matchNumber: number;
   status: MatchStatus;
@@ -1186,6 +1198,8 @@ export interface ScoreboardMatch {
   score: string | null;
   currentSet: { setNumber: number; side1: number; side2: number } | null;
   setWins: { side1: number; side2: number };
+  servingSide?: 1 | 2 | null;
+  serverNumber?: 1 | 2 | null;
   winnerId: string | null;
   isDraw: boolean;
   isComplete: boolean; // rules say the match is won (referee must confirm End)

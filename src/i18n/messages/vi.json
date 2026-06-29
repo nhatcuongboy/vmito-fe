@@ -3500,7 +3500,11 @@
         "editSetErrorInvalid": "Điểm không hợp lệ.",
         "editSetErrorCap": "Điểm không được vượt {cap}.",
         "editSetErrorIncomplete": "Set cũ phải có tỷ số kết thúc hợp lệ.",
-        "editSetSuccess": "Đã cập nhật điểm set"
+        "editSetSuccess": "Đã cập nhật điểm set",
+        "pickleballServer": "Lượt giao pickleball",
+        "sideLabel": "Bên {side}",
+        "servingSideTooltip": "{team} đang giao bóng",
+        "serverNumberTooltip": "Server {number}"
       },
       "scoreboard": {
         "court": "Sân",

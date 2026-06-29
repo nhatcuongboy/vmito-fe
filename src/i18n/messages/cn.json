@@ -3469,7 +3469,11 @@
         "editSetErrorInvalid": "比分无效。",
         "editSetErrorCap": "比分不能超过 {cap}。",
         "editSetErrorIncomplete": "过往的局必须以有效的胜利比分结束。",
-        "editSetSuccess": "比分已更新"
+        "editSetSuccess": "比分已更新",
+        "pickleballServer": "匹克球发球",
+        "sideLabel": "第 {side} 方",
+        "servingSideTooltip": "{team} 正在发球",
+        "serverNumberTooltip": "第 {number} 发球员"
       },
       "scoreboard": {
         "court": "场地",

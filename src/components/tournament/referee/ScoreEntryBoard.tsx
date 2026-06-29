@@ -19,7 +19,12 @@ import {
 } from 'lucide-react';
 
 import { CategoryService } from '@/lib/api/category.service';
-import { CategoryMatch, CategoryRegistration, MatchSet } from '@/lib/api/types';
+import {
+  CategoryMatch,
+  CategoryRegistration,
+  MatchSet,
+  SportType,
+} from '@/lib/api/types';
 import { getTeamLabel } from '@/lib/tournament/teamLabel';
 import {
   applyDelta,
@@ -34,6 +39,7 @@ import EditSetScoreModal from './EditSetScoreModal';
 interface Props {
   match: CategoryMatch;
   tournamentId: string;
+  sportType?: SportType | null;
   onMatchUpdate: (m: CategoryMatch) => void;
   // When provided, shows a "Forfeit / walkover" control alongside End Match.
   onForfeit?: () => void;
@@ -83,6 +89,15 @@ function getScoreboardSwapKey(matchId: string): string {
   return `${SCOREBOARD_SWAP_KEY_PREFIX}${matchId}`;
 }
 
+function isPickleballDoublesMatch(
+  match: CategoryMatch,
+  sportType?: SportType | null
+): boolean {
+  if (sportType !== SportType.PICKLEBALL) return false;
+  if ((match.category?.teamSize ?? 0) >= 2) return true;
+  return match.participants?.some((p) => p.categoryRegistration?.pair) ?? false;
+}
+
 function getSidePlayerNames(match: CategoryMatch, side: 1 | 2): string {
   const participant = match.participants?.find((p) => p.position === side);
   const registration = participant?.categoryRegistration;
@@ -115,13 +130,16 @@ function getRegistrationPlayerNames(
 export default function ScoreEntryBoard({
   match,
   tournamentId,
+  sportType,
   onMatchUpdate,
   onForfeit,
 }: Props) {
   const t = useTranslations('pages.tournaments.scoreEntry');
 
   const isDoubles =
-    match.participants?.some((p) => p.categoryRegistration?.pair) ?? false;
+    (match.category?.teamSize ?? 0) >= 2 ||
+    (match.participants?.some((p) => p.categoryRegistration?.pair) ?? false);
+  const showPickleballServe = isPickleballDoublesMatch(match, sportType);
   const rules = defaultRules(match);
 
   const clientIdRef = useRef<string>(genClientId());
@@ -134,6 +152,7 @@ export default function ScoreEntryBoard({
     setsOf(match, isDoubles)
   );
   const [busy, setBusy] = useState(false);
+  const [serveBusy, setServeBusy] = useState(false);
   const [endOpen, setEndOpen] = useState(false);
   const [tossOpen, setTossOpen] = useState(false);
   const [editingSetIndex, setEditingSetIndex] = useState<number | null>(null);
@@ -253,11 +272,40 @@ export default function ScoreEntryBoard({
     }
   }, [match.id, isDoubles, onMatchUpdate, refetch]);
 
+  const handlePickleballServe = useCallback(
+    async (servingSide: 1 | 2, serverNumber: 1 | 2) => {
+      if (!showPickleballServe) return;
+      seqRef.current += 1;
+      setServeBusy(true);
+      try {
+        const resp = await CategoryService.updatePickleballServe(match.id, {
+          servingSide,
+          serverNumber,
+          clientId: clientIdRef.current,
+          seq: seqRef.current,
+        });
+        onMatchUpdate(resp);
+      } catch {
+        await refetch();
+      } finally {
+        setServeBusy(false);
+      }
+    },
+    [match.id, onMatchUpdate, refetch, showPickleballServe]
+  );
+
   // External updates (e.g. host correction). Ignore our own broadcast echoes.
   const { isConnected } = useTournamentSocket(tournamentId, {
     onScoreUpdated: (e) => {
       if (e.match.matchId !== match.id) return;
       if (e.clientId === clientIdRef.current) return;
+      if (
+        showPickleballServe &&
+        (e.match.servingSide !== match.servingSide ||
+          e.match.serverNumber !== match.serverNumber)
+      ) {
+        void refetch();
+      }
       if (processingRef.current) return; // don't fight an in-flight burst
       if (e.match.sets.length === 0) return;
       const next = e.match.sets;
@@ -384,6 +432,17 @@ export default function ScoreEntryBoard({
           </IconButton>
         </Flex>
       </Flex>
+
+      {showPickleballServe && (
+        <PickleballServeControl
+          team1={team1}
+          team2={team2}
+          servingSide={match.servingSide ?? 1}
+          serverNumber={match.serverNumber ?? 2}
+          disabled={serveBusy || matchState.complete}
+          onChange={handlePickleballServe}
+        />
+      )}
 
       {/* Two big tappable score panels */}
       <Flex
@@ -518,6 +577,94 @@ function randomInt(max: number): number {
     return values[0] % max;
   }
   return Math.floor(Math.random() * max);
+}
+
+function PickleballServeControl({
+  team1,
+  team2,
+  servingSide,
+  serverNumber,
+  disabled,
+  onChange,
+}: {
+  team1: string;
+  team2: string;
+  servingSide: 1 | 2;
+  serverNumber: 1 | 2;
+  disabled: boolean;
+  onChange: (servingSide: 1 | 2, serverNumber: 1 | 2) => void;
+}) {
+  const t = useTranslations('pages.tournaments.scoreEntry');
+
+  return (
+    <Flex
+      align={{ base: 'stretch', md: 'center' }}
+      justify="space-between"
+      gap={2}
+      px={{ base: 2, md: 3 }}
+      py={2}
+      mx={{ base: 1, md: 2 }}
+      mb={2}
+      borderWidth="1px"
+      borderColor="green.200"
+      borderRadius="xl"
+      bg="green.50"
+      _dark={{
+        bg: 'rgba(22, 101, 52, 0.16)',
+        borderColor: 'green.800',
+      }}
+      flexWrap="wrap"
+      flexShrink={0}
+    >
+      <Text
+        fontSize="sm"
+        fontWeight="semibold"
+        color="green.800"
+        _dark={{ color: 'green.200' }}
+      >
+        {t('pickleballServer')}
+      </Text>
+
+      <HStack gap={2} flexWrap="wrap">
+        <HStack gap={1}>
+          {([1, 2] as const).map((side) => {
+            const label = side === 1 ? team1 : team2;
+            return (
+              <Button
+                key={side}
+                size="xs"
+                variant={servingSide === side ? 'solid' : 'outline'}
+                colorPalette="green"
+                disabled={disabled}
+                onClick={() => onChange(side, serverNumber)}
+                title={t('servingSideTooltip', { team: label })}
+                aria-label={t('servingSideTooltip', { team: label })}
+              >
+                {t('sideLabel', { side })}
+              </Button>
+            );
+          })}
+        </HStack>
+
+        <HStack gap={1}>
+          {([1, 2] as const).map((number) => (
+            <Button
+              key={number}
+              size="xs"
+              variant={serverNumber === number ? 'solid' : 'outline'}
+              colorPalette="blue"
+              disabled={disabled}
+              onClick={() => onChange(servingSide, number)}
+              title={t('serverNumberTooltip', { number })}
+              aria-label={t('serverNumberTooltip', { number })}
+            >
+              {number}
+            </Button>
+          ))}
+        </HStack>
+      </HStack>
+    </Flex>
+  );
 }
 
 function RandomDrawModal({

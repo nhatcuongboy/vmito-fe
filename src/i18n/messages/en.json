@@ -3492,7 +3492,11 @@
         "editSetErrorInvalid": "Invalid score.",
         "editSetErrorCap": "Scores cannot exceed {cap}.",
         "editSetErrorIncomplete": "Past sets must end with a valid winning score.",
-        "editSetSuccess": "Set score updated"
+        "editSetSuccess": "Set score updated",
+        "pickleballServer": "Pickleball server",
+        "sideLabel": "Side {side}",
+        "servingSideTooltip": "{team} is serving",
+        "serverNumberTooltip": "Server {number}"
       },
       "scoreboard": {
         "court": "Court",

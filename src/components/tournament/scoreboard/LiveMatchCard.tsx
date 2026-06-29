@@ -2,7 +2,7 @@
 
 import { Box, Flex, Text, Badge } from '@chakra-ui/react';
 import { useTranslations } from 'next-intl';
-import { ScoreboardMatch } from '@/lib/api/types';
+import { ScoreboardMatch, SportType } from '@/lib/api/types';
 import { getRoundDisplayLabel } from '@/lib/tournament/roundLabel';
 import { formatCourtLabel } from '@/components/tournament/manage/panels/ResultsPanel';
 
@@ -36,6 +36,11 @@ export default function LiveMatchCard({
   const winning2 = match.isComplete
     ? match.pendingWinnerId === match.side2.registrationId
     : s2 > s1;
+  const showPickleballServer =
+    match.sportType === SportType.PICKLEBALL &&
+    (match.isDoubles === true || (match.teamSize ?? 0) >= 2) &&
+    match.servingSide != null &&
+    match.serverNumber != null;
 
   const scoreFont =
     density === 'comfortable'
@@ -98,6 +103,11 @@ export default function LiveMatchCard({
           name={side1Name}
           score={s1}
           setWins={match.setWins.side1}
+          serverNumber={
+            showPickleballServer && match.servingSide === 1
+              ? match.serverNumber
+              : null
+          }
           highlight={winning1}
           scoreFont={scoreFont}
           nameFont={nameFont}
@@ -108,6 +118,11 @@ export default function LiveMatchCard({
           name={side2Name}
           score={s2}
           setWins={match.setWins.side2}
+          serverNumber={
+            showPickleballServer && match.servingSide === 2
+              ? match.serverNumber
+              : null
+          }
           highlight={winning2}
           scoreFont={scoreFont}
           nameFont={nameFont}
@@ -146,6 +161,7 @@ interface SideRowProps {
   name: string;
   score: number;
   setWins: number;
+  serverNumber?: 1 | 2 | null;
   highlight: boolean;
   scoreFont: { base: string; md: string };
   nameFont: string;
@@ -156,6 +172,7 @@ function SideRow({
   name,
   score,
   setWins,
+  serverNumber,
   highlight,
   scoreFont,
   nameFont,
@@ -176,15 +193,35 @@ function SideRow({
           {setWins} {setWins === 1 ? 'set' : 'sets'}
         </Text>
       </Flex>
-      <Text
-        fontSize={scoreFont}
-        fontWeight="black"
-        lineHeight={1}
-        color={highlight ? 'green.300' : 'gray.100'}
-        fontVariantNumeric="tabular-nums"
-      >
-        {score}
-      </Text>
+      <Flex align="center" gap={3} flexShrink={0}>
+        {serverNumber && <ServerDots count={serverNumber} />}
+        <Text
+          fontSize={scoreFont}
+          fontWeight="black"
+          lineHeight={1}
+          color={highlight ? 'green.300' : 'gray.100'}
+          fontVariantNumeric="tabular-nums"
+        >
+          {score}
+        </Text>
+      </Flex>
+    </Flex>
+  );
+}
+
+function ServerDots({ count }: { count: 1 | 2 }) {
+  return (
+    <Flex gap={2} align="center" aria-hidden="true">
+      {Array.from({ length: count }).map((_, index) => (
+        <Box
+          key={index}
+          w={{ base: 3, md: 4 }}
+          h={{ base: 3, md: 4 }}
+          borderRadius="full"
+          bg="white"
+          boxShadow="0 0 10px rgba(255, 255, 255, 0.55)"
+        />
+      ))}
     </Flex>
   );
 }

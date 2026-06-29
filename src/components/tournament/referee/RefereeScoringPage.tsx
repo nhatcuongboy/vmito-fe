@@ -579,6 +579,7 @@ export default function RefereeScoringPage() {
                   <ScoreEntryBoard
                     match={match}
                     tournamentId={tournament.id}
+                    sportType={tournament.sportType}
                     onMatchUpdate={setMatch}
                     onForfeit={() => setForfeitOpen(true)}
                   />
