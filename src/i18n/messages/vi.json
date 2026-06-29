@@ -1702,9 +1702,14 @@
             "progress": "Đã hoàn thành {completed} trong {total} bước"
           },
           "steps": {
+            "categories": {
+              "title": "Tạo hạng mục",
+              "description": "Tạo các hạng mục thi đấu trước khi thiết lập thể thức.",
+              "action": "Quản lý hạng mục"
+            },
             "format": {
-              "title": "Tạo thể thức thi đấu",
-              "description": "Chọn và cấu hình thể thức thi đấu.",
+              "title": "Thiết lập thể thức",
+              "description": "Chọn và cấu hình thể thức cho từng hạng mục.",
               "action": "Quản lý thể thức"
             },
             "teams": {
@@ -2560,7 +2565,10 @@
               "editCategory": "Sửa hạng mục",
               "deleteCategory": "Xóa hạng mục",
               "deleteConfirm": "Bạn có chắc chắn muốn xóa hạng mục này?",
-              "namePlaceholder": "Tên",
+              "nameLabel": "Tên hạng mục",
+              "namePlaceholder": "VD: Đôi nam 3.0",
+              "typeLabel": "Loại hạng mục",
+              "registrationModeLabel": "Cách đăng ký",
               "save": "Lưu",
               "cancel": "Hủy",
               "delete": "Xóa",
@@ -2571,7 +2579,14 @@
               "teamSizeSummary": "{count} VĐV/đội",
               "individual": "Cá nhân",
               "team": "Đội",
-              "teamSizePlaceholder": "Số thành viên mỗi đội",
+              "teamSizeLabel": "Số VĐV mỗi đội",
+              "teamSizePlaceholder": "VD: 2",
+              "teamSizeHelp": "Áp dụng cho hạng mục đăng ký theo đội. Pickleball/cầu lông đôi thường là 2 VĐV mỗi đội.",
+              "validation": {
+                "nameRequired": "Vui lòng nhập tên hạng mục.",
+                "nameDuplicate": "Tên hạng mục này đã tồn tại trong giải đấu.",
+                "teamSizeMin": "Số VĐV mỗi đội phải là số nguyên từ 2 trở lên."
+              },
               "types": {
                 "mensSingle": "Đơn nam",
                 "womensSingle": "Đơn nữ",

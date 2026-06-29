@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { toaster } from '@/components/ui/toaster';
-import { Box, Flex, Heading, Text } from '@chakra-ui/react';
+import { Box, Field, Flex, Heading, Text } from '@chakra-ui/react';
 import { Button, VStack } from '@/components/ui/chakra-compat';
 import { Input } from '@/components/ui/Input';
 import { Plus, Pencil, Trash2 } from 'lucide-react';
@@ -35,6 +35,11 @@ const CATEGORY_COLORS = [
   'red.400',
 ];
 
+type CategoryFieldErrors = Partial<{
+  name: string;
+  teamSize: string;
+}>;
+
 export default function CategoriesPanel({
   tournamentId,
   sportType,
@@ -57,6 +62,37 @@ export default function CategoriesPanel({
     null
   );
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showCreateErrors, setShowCreateErrors] = useState(false);
+  const [showEditErrors, setShowEditErrors] = useState(false);
+
+  const getFieldErrors = (ignoredCategoryId?: string): CategoryFieldErrors => {
+    const errors: CategoryFieldErrors = {};
+    const normalizedName = name.trim().toLocaleLowerCase();
+
+    if (!normalizedName) {
+      errors.name = t('panels.categories.validation.nameRequired');
+    } else if (
+      categories.some(
+        (category) =>
+          category.id !== ignoredCategoryId &&
+          category.name.trim().toLocaleLowerCase() === normalizedName
+      )
+    ) {
+      errors.name = t('panels.categories.validation.nameDuplicate');
+    }
+
+    if (
+      registrationMode === CategoryRegistrationMode.TEAM &&
+      (!Number.isInteger(teamSize) || teamSize < 2)
+    ) {
+      errors.teamSize = t('panels.categories.validation.teamSizeMin');
+    }
+
+    return errors;
+  };
+
+  const createErrors = getFieldErrors();
+  const editErrors = getFieldErrors(editingCategory?.id);
 
   // ── Create ──────────────────────────────────────────────────────────────────
   const handleOpenCreate = () => {
@@ -64,11 +100,15 @@ export default function CategoriesPanel({
     setType(CategoryType.CUSTOM);
     setRegistrationMode(CategoryRegistrationMode.TEAM);
     setTeamSize(2);
+    setShowCreateErrors(false);
     createModal.onOpen();
   };
 
   const handleCreate = async () => {
-    if (!name.trim()) return;
+    if (Object.keys(createErrors).length > 0) {
+      setShowCreateErrors(true);
+      return;
+    }
     try {
       setIsSubmitting(true);
       const defaultScoring =
@@ -110,11 +150,16 @@ export default function CategoriesPanel({
     setType(cat.type);
     setRegistrationMode(cat.registrationMode);
     setTeamSize(cat.teamSize);
+    setShowEditErrors(false);
     editModal.onOpen();
   };
 
   const handleEdit = async () => {
-    if (!editingCategory || !name.trim()) return;
+    if (!editingCategory) return;
+    if (Object.keys(editErrors).length > 0) {
+      setShowEditErrors(true);
+      return;
+    }
     // Skip if no actual change
     if (
       editingCategory.name === name.trim() &&
@@ -273,7 +318,6 @@ export default function CategoriesPanel({
         primaryActionText={t('panels.categories.save')}
         onPrimaryAction={handleCreate}
         isPrimaryLoading={isSubmitting}
-        isPrimaryDisabled={!name.trim()}
         secondaryActionText={t('panels.categories.cancel')}
       >
         <CategoryFields
@@ -285,6 +329,7 @@ export default function CategoriesPanel({
           onTypeChange={setType}
           onRegistrationModeChange={setRegistrationMode}
           onTeamSizeChange={setTeamSize}
+          errors={showCreateErrors ? createErrors : {}}
         />
       </VModal>
 
@@ -296,7 +341,6 @@ export default function CategoriesPanel({
         primaryActionText={t('panels.categories.save')}
         onPrimaryAction={handleEdit}
         isPrimaryLoading={isSubmitting}
-        isPrimaryDisabled={!name.trim()}
         secondaryActionText={t('panels.categories.cancel')}
       >
         <CategoryFields
@@ -308,6 +352,7 @@ export default function CategoriesPanel({
           onTypeChange={setType}
           onRegistrationModeChange={setRegistrationMode}
           onTeamSizeChange={setTeamSize}
+          errors={showEditErrors ? editErrors : {}}
         />
       </VModal>
 
@@ -344,6 +389,7 @@ function CategoryFields({
   onTypeChange,
   onRegistrationModeChange,
   onTeamSizeChange,
+  errors,
 }: {
   name: string;
   type: CategoryType;
@@ -353,6 +399,7 @@ function CategoryFields({
   onTypeChange: (value: CategoryType) => void;
   onRegistrationModeChange: (value: CategoryRegistrationMode) => void;
   onTeamSizeChange: (value: number) => void;
+  errors: CategoryFieldErrors;
 }) {
   const t = useTranslations(
     'pages.tournaments.detail.manage.panels.categories'
@@ -371,64 +418,118 @@ function CategoryFields({
       onTeamSizeChange(2);
     }
   };
+  const handleRegistrationModeChange = (nextMode: CategoryRegistrationMode) => {
+    onRegistrationModeChange(nextMode);
+    onTeamSizeChange(nextMode === CategoryRegistrationMode.INDIVIDUAL ? 1 : 2);
+  };
+  const handleTeamSizeChange = (nextValue: string) => {
+    const nextTeamSize = Number(nextValue);
+    onTeamSizeChange(Number.isFinite(nextTeamSize) ? nextTeamSize : 0);
+  };
 
   return (
-    <VStack gap={3} align="stretch">
-      <Input
-        placeholder={t('namePlaceholder')}
-        value={name}
-        onChange={(e) => onNameChange(e.target.value)}
-      />
-      <select
-        value={type}
-        onChange={(event) =>
-          handleTypeChange(event.target.value as CategoryType)
-        }
-        style={{ border: '1px solid #E2E8F0', borderRadius: 6, padding: 8 }}
-      >
-        <option value={CategoryType.MENS_SINGLE}>
-          {t('types.mensSingle')}
-        </option>
-        <option value={CategoryType.WOMENS_SINGLE}>
-          {t('types.womensSingle')}
-        </option>
-        <option value={CategoryType.MENS_DOUBLE}>
-          {t('types.mensDouble')}
-        </option>
-        <option value={CategoryType.WOMENS_DOUBLE}>
-          {t('types.womensDouble')}
-        </option>
-        <option value={CategoryType.MIXED_DOUBLE}>
-          {t('types.mixedDouble')}
-        </option>
-        <option value={CategoryType.CUSTOM}>{t('types.custom')}</option>
-      </select>
+    <VStack gap={4} align="stretch">
+      <Field.Root invalid={!!errors.name} required>
+        <Field.Label>
+          {t('nameLabel')} <Field.RequiredIndicator />
+        </Field.Label>
+        <Input
+          name="categoryName"
+          autoComplete="off"
+          placeholder={t('namePlaceholder')}
+          value={name}
+          onChange={(e) => onNameChange(e.target.value)}
+        />
+        <Field.ErrorText>{errors.name}</Field.ErrorText>
+      </Field.Root>
+
+      <Field.Root required>
+        <Field.Label>
+          {t('typeLabel')} <Field.RequiredIndicator />
+        </Field.Label>
+        <select
+          name="categoryType"
+          value={type}
+          onChange={(event) =>
+            handleTypeChange(event.target.value as CategoryType)
+          }
+          style={{
+            width: '100%',
+            border: '1px solid #E2E8F0',
+            borderRadius: 6,
+            padding: 8,
+            minHeight: 40,
+            background: 'transparent',
+          }}
+        >
+          <option value={CategoryType.MENS_SINGLE}>
+            {t('types.mensSingle')}
+          </option>
+          <option value={CategoryType.WOMENS_SINGLE}>
+            {t('types.womensSingle')}
+          </option>
+          <option value={CategoryType.MENS_DOUBLE}>
+            {t('types.mensDouble')}
+          </option>
+          <option value={CategoryType.WOMENS_DOUBLE}>
+            {t('types.womensDouble')}
+          </option>
+          <option value={CategoryType.MIXED_DOUBLE}>
+            {t('types.mixedDouble')}
+          </option>
+          <option value={CategoryType.CUSTOM}>{t('types.custom')}</option>
+        </select>
+      </Field.Root>
+
       {isCustom && (
         <>
-          <select
-            value={registrationMode}
-            onChange={(event) =>
-              onRegistrationModeChange(
-                event.target.value as CategoryRegistrationMode
-              )
-            }
-            style={{ border: '1px solid #E2E8F0', borderRadius: 6, padding: 8 }}
-          >
-            <option value={CategoryRegistrationMode.INDIVIDUAL}>
-              {t('individual')}
-            </option>
-            <option value={CategoryRegistrationMode.TEAM}>{t('team')}</option>
-          </select>
-          {registrationMode === CategoryRegistrationMode.TEAM && (
-            <Input
-              type="number"
-              min={2}
-              value={teamSize}
+          <Field.Root required>
+            <Field.Label>
+              {t('registrationModeLabel')} <Field.RequiredIndicator />
+            </Field.Label>
+            <select
+              name="categoryRegistrationMode"
+              value={registrationMode}
               onChange={(event) =>
-                onTeamSizeChange(Math.max(2, Number(event.target.value)))
+                handleRegistrationModeChange(
+                  event.target.value as CategoryRegistrationMode
+                )
               }
-              placeholder={t('teamSizePlaceholder')}
-            />
+              style={{
+                width: '100%',
+                border: '1px solid #E2E8F0',
+                borderRadius: 6,
+                padding: 8,
+                minHeight: 40,
+                background: 'transparent',
+              }}
+            >
+              <option value={CategoryRegistrationMode.INDIVIDUAL}>
+                {t('individual')}
+              </option>
+              <option value={CategoryRegistrationMode.TEAM}>{t('team')}</option>
+            </select>
+          </Field.Root>
+
+          {registrationMode === CategoryRegistrationMode.TEAM && (
+            <Field.Root invalid={!!errors.teamSize} required>
+              <Field.Label>
+                {t('teamSizeLabel')} <Field.RequiredIndicator />
+              </Field.Label>
+              <Input
+                type="number"
+                name="categoryTeamSize"
+                inputMode="numeric"
+                autoComplete="off"
+                min={2}
+                step={1}
+                value={teamSize || ''}
+                onChange={(event) => handleTeamSizeChange(event.target.value)}
+                placeholder={t('teamSizePlaceholder')}
+              />
+              <Field.HelperText>{t('teamSizeHelp')}</Field.HelperText>
+              <Field.ErrorText>{errors.teamSize}</Field.ErrorText>
+            </Field.Root>
           )}
         </>
       )}

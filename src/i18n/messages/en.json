@@ -1694,9 +1694,14 @@
             "progress": "Completed {completed} of {total} steps"
           },
           "steps": {
+            "categories": {
+              "title": "Create categories",
+              "description": "Create the competition categories before setting formats.",
+              "action": "Manage categories"
+            },
             "format": {
-              "title": "Create your format",
-              "description": "Select and configure your format.",
+              "title": "Set up format",
+              "description": "Select and configure the format for each category.",
               "action": "Manage format"
             },
             "teams": {
@@ -2552,7 +2557,10 @@
               "editCategory": "Edit category",
               "deleteCategory": "Delete category",
               "deleteConfirm": "Are you sure you want to delete this category?",
-              "namePlaceholder": "Name",
+              "nameLabel": "Category name",
+              "namePlaceholder": "E.g. Men's doubles 3.0",
+              "typeLabel": "Category type",
+              "registrationModeLabel": "Registration mode",
               "save": "Save",
               "cancel": "Cancel",
               "delete": "Delete",
@@ -2563,7 +2571,14 @@
               "teamSizeSummary": "{count} players/team",
               "individual": "Individual",
               "team": "Team",
-              "teamSizePlaceholder": "Number of players per team",
+              "teamSizeLabel": "Players per team",
+              "teamSizePlaceholder": "E.g. 2",
+              "teamSizeHelp": "Used for team-based categories. Pickleball and badminton doubles usually use 2 players per team.",
+              "validation": {
+                "nameRequired": "Enter a category name.",
+                "nameDuplicate": "A category with this name already exists in this tournament.",
+                "teamSizeMin": "Players per team must be a whole number of 2 or more."
+              },
               "types": {
                 "mensSingle": "Men's singles",
                 "womensSingle": "Women's singles",

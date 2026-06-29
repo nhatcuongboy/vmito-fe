@@ -20,9 +20,17 @@ interface Props {
   tournament: Tournament;
 }
 
-type StepId = 'format' | 'teams' | 'rounds' | 'venue' | 'schedule' | 'publish';
+type StepId =
+  | 'categories'
+  | 'format'
+  | 'teams'
+  | 'rounds'
+  | 'venue'
+  | 'schedule'
+  | 'publish';
 
 const STEP_IDS: StepId[] = [
+  'categories',
   'format',
   'teams',
   'rounds',
@@ -32,6 +40,7 @@ const STEP_IDS: StepId[] = [
 ];
 
 const STEP_MANAGE_OPTION: Partial<Record<StepId, string>> = {
+  categories: 'categories',
   format: 'format',
   teams: 'teams',
   rounds: 'rounds',
@@ -54,6 +63,7 @@ export default function TournamentDashboard({ tournament }: Props) {
     const hasVenue = !!tournament.venue;
 
     return {
+      categories: hasCategories,
       format: hasCategories,
       teams: hasTeams,
       rounds: false, // cannot determine without fetching matches

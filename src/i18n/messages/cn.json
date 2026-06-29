@@ -1672,9 +1672,14 @@
             "progress": "已完成 {completed} / {total} 步"
           },
           "steps": {
+            "categories": {
+              "title": "创建组别",
+              "description": "先创建比赛组别，再设置赛制。",
+              "action": "管理组别"
+            },
             "format": {
-              "title": "创建赛制",
-              "description": "选择并配置您的赛制。",
+              "title": "设置赛制",
+              "description": "为每个组别选择并配置赛制。",
               "action": "管理赛制"
             },
             "teams": {
@@ -2530,7 +2535,10 @@
               "editCategory": "编辑类别",
               "deleteCategory": "删除类别",
               "deleteConfirm": "确定要删除此类别吗？",
-              "namePlaceholder": "名称",
+              "nameLabel": "类别名称",
+              "namePlaceholder": "例如：男子双打 3.0",
+              "typeLabel": "类别类型",
+              "registrationModeLabel": "报名方式",
               "save": "保存",
               "cancel": "取消",
               "delete": "删除",
@@ -2541,7 +2549,14 @@
               "teamSizeSummary": "每队 {count} 名运动员",
               "individual": "个人",
               "team": "队伍",
-              "teamSizePlaceholder": "每队成员数",
+              "teamSizeLabel": "每队运动员数",
+              "teamSizePlaceholder": "例如：2",
+              "teamSizeHelp": "用于按队伍报名的类别。匹克球和羽毛球双打通常每队 2 名运动员。",
+              "validation": {
+                "nameRequired": "请输入类别名称。",
+                "nameDuplicate": "此锦标赛中已存在同名类别。",
+                "teamSizeMin": "每队运动员数必须是大于或等于 2 的整数。"
+              },
               "types": {
                 "mensSingle": "男子单打",
                 "womensSingle": "女子单打",
