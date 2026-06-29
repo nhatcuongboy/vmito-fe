@@ -3,12 +3,14 @@
 import { Badge, Flex } from '@chakra-ui/react';
 import { useTranslations } from 'next-intl';
 import { defaultRules } from '@/lib/scoring/badminton';
-import type { Category, CategoryMatch } from '@/lib/api/types';
+import type { Category, CategoryMatch, SportType } from '@/lib/api/types';
 
 interface Props {
   match: CategoryMatch;
   /** Category fallback when `match.category` is not embedded (carries format overrides). */
   category?: Category | null;
+  /** Tournament sport, so scoring defaults match the sport (e.g. pickleball 11). */
+  sportType?: SportType | null;
   /** Chakra size token forwarded to both badges. */
   size?: 'sm' | 'md' | 'lg';
 }
@@ -19,16 +21,24 @@ interface Props {
  * Shared by the referee score board, the manual score modal, and the match
  * detail modal so the format is described consistently everywhere.
  */
-export default function MatchFormatBadges({ match, category, size }: Props) {
+export default function MatchFormatBadges({
+  match,
+  category,
+  sportType,
+  size,
+}: Props) {
   const t = useTranslations('pages.tournaments.scoreEntry');
-  const rules = defaultRules({
-    matchFormat: match.matchFormat,
-    round: match.round,
-    pointsToWin: match.pointsToWin,
-    winByTwo: match.winByTwo,
-    pointCap: match.pointCap,
-    category: match.category ?? category ?? null,
-  });
+  const rules = defaultRules(
+    {
+      matchFormat: match.matchFormat,
+      round: match.round,
+      pointsToWin: match.pointsToWin,
+      winByTwo: match.winByTwo,
+      pointCap: match.pointCap,
+      category: match.category ?? category ?? null,
+    },
+    sportType
+  );
 
   const bestOfLabel =
     rules.bestOf === 5

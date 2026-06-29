@@ -140,7 +140,7 @@ export default function ScoreEntryBoard({
     (match.category?.teamSize ?? 0) >= 2 ||
     (match.participants?.some((p) => p.categoryRegistration?.pair) ?? false);
   const showPickleballServe = isPickleballDoublesMatch(match, sportType);
-  const rules = defaultRules(match);
+  const rules = defaultRules(match, sportType);
 
   const clientIdRef = useRef<string>(genClientId());
   const boardRef = useRef<HTMLDivElement>(null);

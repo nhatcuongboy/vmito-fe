@@ -3590,6 +3590,12 @@
         "applyToAll": "应用到全部",
         "clearSelection": "清除选择",
         "bulkAssignSuccess": "已为 {count} 场比赛分配裁判",
+        "assignByCourt": "按场地分配",
+        "assignByCourtDesc": "将一名裁判分配给某个场地的所有比赛。",
+        "selectCourt": "选择场地",
+        "applyToCourt": "应用到场地",
+        "courtMatchesCount": "{count} 场比赛",
+        "noCourtMatches": "还没有比赛被安排场地。请先生成赛程。",
         "unassign": "移除",
         "assign": "分配"
       },

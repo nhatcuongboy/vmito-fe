@@ -18,6 +18,7 @@ import {
   CategoryMatch,
   EndCategoryMatchRequest,
   MatchSet,
+  SportType,
 } from '@/lib/api/types';
 import {
   getTeamLabel,
@@ -43,6 +44,8 @@ interface Props {
   onSaved: (m: CategoryMatch) => void;
   /** Category points mode; enables the manual-points tab when 'manual'. */
   pointsEarning?: 'match_results' | 'manual' | 'tiebreakers_only';
+  /** Tournament sport, so scoring defaults match the sport (e.g. pickleball 11). */
+  sportType?: SportType | null;
   /** When provided, renders a Back button that returns to the previous modal. */
   onBack?: () => void;
 }
@@ -65,6 +68,7 @@ export default function ManualScoreModal({
   match,
   onSaved,
   pointsEarning,
+  sportType,
   onBack,
 }: Props) {
   const t = useTranslations('pages.tournaments.manualScore');
@@ -79,8 +83,9 @@ export default function ManualScoreModal({
   const allowManual = pointsEarning === 'manual';
 
   const rules = useMemo(
-    () => (match ? defaultRules(match) : defaultRules()),
-    [match]
+    () =>
+      match ? defaultRules(match, sportType) : defaultRules(null, sportType),
+    [match, sportType]
   );
   const maxSets = rules.bestOf;
   // Always start with a single set; users can add more via the Add Set button.
@@ -262,7 +267,7 @@ export default function ManualScoreModal({
           #{match.matchNumber} · {roundLabel}
         </Text>
         <Box mt={3}>
-          <MatchFormatBadges match={match} />
+          <MatchFormatBadges match={match} sportType={sportType} />
         </Box>
       </ModalHeader>
       <ModalCloseButton onClose={onClose} />

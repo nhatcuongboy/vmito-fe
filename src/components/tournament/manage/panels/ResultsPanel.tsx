@@ -960,6 +960,7 @@ export default function ResultsPanel({
         category={
           detailMatch ? categoryById.get(detailMatch.categoryId) : undefined
         }
+        sportType={tournament.sportType}
         showPlayerNames={showPlayerNames}
         canEdit={canEdit}
         onEditResult={(m) => {
@@ -1006,6 +1007,7 @@ export default function ResultsPanel({
           }}
           match={selected}
           pointsEarning={selectedPointsEarning}
+          sportType={tournament.sportType}
           onSaved={() => void load()}
           onBack={
             editFromDetail && selected

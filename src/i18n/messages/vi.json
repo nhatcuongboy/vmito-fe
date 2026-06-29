@@ -3621,6 +3621,12 @@
         "applyToAll": "Áp dụng cho tất cả",
         "clearSelection": "Bỏ chọn",
         "bulkAssignSuccess": "Đã phân công trọng tài cho {count} trận",
+        "assignByCourt": "Phân công theo sân",
+        "assignByCourtDesc": "Gán một trọng tài cho tất cả trận trên một sân.",
+        "selectCourt": "Chọn sân",
+        "applyToCourt": "Áp dụng cho sân",
+        "courtMatchesCount": "{count} trận",
+        "noCourtMatches": "Chưa có trận nào được xếp sân. Hãy tạo lịch trước.",
         "unassign": "Bỏ phân công",
         "assign": "Phân công"
       },

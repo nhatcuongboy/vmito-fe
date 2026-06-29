@@ -3613,6 +3613,12 @@
         "applyToAll": "Apply to all",
         "clearSelection": "Clear selection",
         "bulkAssignSuccess": "Referee assigned to {count} matches",
+        "assignByCourt": "Assign by court",
+        "assignByCourtDesc": "Assign one referee to all matches on a court.",
+        "selectCourt": "Select a court",
+        "applyToCourt": "Apply to court",
+        "courtMatchesCount": "{count} matches",
+        "noCourtMatches": "No matches have a court yet. Generate the schedule first.",
         "unassign": "Remove",
         "assign": "Assign"
       },

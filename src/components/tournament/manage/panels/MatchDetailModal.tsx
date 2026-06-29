@@ -24,7 +24,12 @@ import {
   UserRound,
 } from 'lucide-react';
 
-import { Category, CategoryMatch, MatchStatus } from '@/lib/api/types';
+import {
+  Category,
+  CategoryMatch,
+  MatchStatus,
+  SportType,
+} from '@/lib/api/types';
 import { resolveMatchSideLabel } from '@/lib/tournament/bracketSlots';
 import { areMatchParticipantsResolved } from '@/lib/tournament/teamLabel';
 import { usePlayoffSlotLabels } from '@/lib/tournament/usePlayoffSlotLabels';
@@ -45,6 +50,8 @@ interface Props {
   allMatches?: CategoryMatch[];
   /** The match's category, used to resolve first-round seed labels. */
   category?: Category;
+  /** Tournament sport, so scoring defaults match the sport (e.g. pickleball 11). */
+  sportType?: SportType | null;
   /** When true, render joined player full names instead of pair/team name. */
   showPlayerNames?: boolean;
   canEdit: boolean;
@@ -66,6 +73,7 @@ export default function MatchDetailModal({
   courtLabel,
   allMatches,
   category,
+  sportType,
   showPlayerNames,
   canEdit,
   onEditResult,
@@ -130,7 +138,11 @@ export default function MatchDetailModal({
         />
 
         <Flex justify="center" mb={4}>
-          <MatchFormatBadges match={match} category={category} />
+          <MatchFormatBadges
+            match={match}
+            category={category}
+            sportType={sportType}
+          />
         </Flex>
 
         {/* Tab switcher */}

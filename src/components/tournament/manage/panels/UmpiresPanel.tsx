@@ -43,6 +43,8 @@ export default function UmpiresPanel({ tournament }: Props) {
   );
   const [bulkRefereeId, setBulkRefereeId] = useState('');
   const [bulkAssigning, setBulkAssigning] = useState(false);
+  const [byCourtId, setByCourtId] = useState('');
+  const [byCourtRefereeId, setByCourtRefereeId] = useState('');
 
   const loadAll = useCallback(async () => {
     const [u, m] = await Promise.all([
@@ -76,6 +78,32 @@ export default function UmpiresPanel({ tournament }: Props) {
     matches.length > 0 && selectedMatchIds.size === matches.length;
   const linkedUmpires = umpires.filter((umpire) => umpire.userId).length;
   const assignedMatches = matches.filter((match) => match.refereeId).length;
+
+  // Distinct courts that currently have scheduled matches, sorted by number.
+  const courtsInMatches = useMemo(() => {
+    const map = new Map<
+      string,
+      { id: string; courtNumber: number; courtName?: string }
+    >();
+    matches.forEach((match) => {
+      if (match.courtId && match.court) {
+        map.set(match.courtId, {
+          id: match.courtId,
+          courtNumber: match.court.courtNumber,
+          courtName: match.court.courtName ?? undefined,
+        });
+      }
+    });
+    return [...map.values()].sort((a, b) => a.courtNumber - b.courtNumber);
+  }, [matches]);
+
+  const byCourtMatchCount = useMemo(
+    () =>
+      byCourtId
+        ? matches.filter((match) => match.courtId === byCourtId).length
+        : 0,
+    [matches, byCourtId]
+  );
 
   const handleAdd = async () => {
     if (!name.trim()) return;
@@ -130,14 +158,17 @@ export default function UmpiresPanel({ tournament }: Props) {
     );
   };
 
-  const assignRefereeToMatches = async (matchIds: string[]) => {
-    if (!bulkRefereeId || matchIds.length === 0) return;
+  const assignRefereeToMatches = async (
+    matchIds: string[],
+    refereeId: string
+  ) => {
+    if (!refereeId || matchIds.length === 0) return;
 
     setBulkAssigning(true);
     try {
       await Promise.all(
         matchIds.map((matchId) =>
-          CategoryService.assignReferee(matchId, bulkRefereeId, {
+          CategoryService.assignReferee(matchId, refereeId, {
             showToast: false,
           })
         )
@@ -153,11 +184,24 @@ export default function UmpiresPanel({ tournament }: Props) {
   };
 
   const handleBulkAssign = async () => {
-    await assignRefereeToMatches(selectedMatches.map((match) => match.id));
+    await assignRefereeToMatches(
+      selectedMatches.map((match) => match.id),
+      bulkRefereeId
+    );
   };
 
   const handleAssignAll = async () => {
-    await assignRefereeToMatches(matches.map((match) => match.id));
+    await assignRefereeToMatches(
+      matches.map((match) => match.id),
+      bulkRefereeId
+    );
+  };
+
+  const handleAssignByCourt = async () => {
+    const matchIds = matches
+      .filter((match) => match.courtId === byCourtId)
+      .map((match) => match.id);
+    await assignRefereeToMatches(matchIds, byCourtRefereeId);
   };
 
   if (loading) {
@@ -391,6 +435,83 @@ export default function UmpiresPanel({ tournament }: Props) {
               {t('clearSelection')}
             </Button>
           </SimpleGrid>
+        </Box>
+
+        {/* Assign by court */}
+        <Box
+          p={{ base: 4, md: 5 }}
+          borderWidth="1px"
+          borderColor="gray.200"
+          _dark={{ borderColor: 'gray.700', bg: 'gray.800' }}
+          borderRadius="xl"
+          bg="gray.50"
+        >
+          <Box mb={3}>
+            <Heading size="sm">{t('assignByCourt')}</Heading>
+            <Text
+              fontSize="sm"
+              color="gray.500"
+              mt={1}
+              _dark={{ color: 'gray.400' }}
+            >
+              {t('assignByCourtDesc')}
+            </Text>
+          </Box>
+
+          {courtsInMatches.length === 0 ? (
+            <Text fontSize="sm" color="gray.500" _dark={{ color: 'gray.400' }}>
+              {t('noCourtMatches')}
+            </Text>
+          ) : (
+            <SimpleGrid columns={{ base: 1, md: 3 }} gap={3}>
+              <NativeSelect
+                value={byCourtId}
+                onChange={(e) => setByCourtId(e.target.value)}
+                disabled={bulkAssigning}
+                aria-label={t('selectCourt')}
+              >
+                <option value="">{t('selectCourt')}</option>
+                {courtsInMatches.map((court) => (
+                  <option key={court.id} value={court.id}>
+                    {court.courtName || `${t('court')} ${court.courtNumber}`}
+                  </option>
+                ))}
+              </NativeSelect>
+
+              <NativeSelect
+                value={byCourtRefereeId}
+                onChange={(e) => setByCourtRefereeId(e.target.value)}
+                disabled={umpires.length === 0 || bulkAssigning}
+                aria-label={t('selectReferee')}
+              >
+                <option value="">{t('selectReferee')}</option>
+                {umpires.map((u) => (
+                  <option key={u.id} value={u.id}>
+                    {u.name}
+                    {!u.userId ? ' (!)' : ''}
+                  </option>
+                ))}
+              </NativeSelect>
+
+              <Button
+                colorPalette="blue"
+                onClick={() => void handleAssignByCourt()}
+                loading={bulkAssigning}
+                disabled={
+                  !byCourtId ||
+                  !byCourtRefereeId ||
+                  byCourtMatchCount === 0 ||
+                  bulkAssigning
+                }
+                w="100%"
+              >
+                {t('applyToCourt')}
+                {byCourtMatchCount > 0
+                  ? ` (${t('courtMatchesCount', { count: byCourtMatchCount })})`
+                  : ''}
+              </Button>
+            </SimpleGrid>
+          )}
         </Box>
 
         <VStack align="stretch" gap={3}>
