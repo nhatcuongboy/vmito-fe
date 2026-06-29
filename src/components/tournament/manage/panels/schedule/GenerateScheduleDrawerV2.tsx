@@ -26,6 +26,7 @@ import { toaster } from '@/components/ui/toaster';
 import TimeSlotPicker from './TimeSlotPicker';
 import CourtSelector from './CourtSelector';
 import { useModal } from '@/components/ui/VModal';
+import dayjs from '@/lib/dayjs';
 
 const DURATION_OPTIONS = Array.from({ length: 36 }, (_, i) => (i + 1) * 5);
 const TIME_BUFFER_OPTIONS = [0, 5, 10, 15, 20, 25, 30, 45, 60];
@@ -165,9 +166,11 @@ export default function GenerateScheduleDrawer({
   const prevIsOpenRef = useRef(false);
   useEffect(() => {
     if (isOpen && !prevIsOpenRef.current) {
-      const startDateStr = tournamentStartDate
-        ? new Date(tournamentStartDate).toISOString().split('T')[0]
-        : new Date().toISOString().split('T')[0];
+      // Use the Vietnam-local calendar date (not the UTC date): tournamentStartDate
+      // is a UTC instant, and toISOString().split('T') could land on the previous
+      // day for late-evening starts. dayjs is configured with default tz
+      // Asia/Ho_Chi_Minh, matching the +07:00 the backend anchors slot times to.
+      const startDateStr = dayjs(tournamentStartDate).tz().format('YYYY-MM-DD');
       const defaultSlot: LocalTimeSlot = {
         id: '1',
         date: startDateStr,

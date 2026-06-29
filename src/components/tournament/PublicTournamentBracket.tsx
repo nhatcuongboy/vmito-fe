@@ -337,9 +337,17 @@ export default function PublicTournamentBracket({
               >
                 {column.label}
               </Text>
-              <Flex direction="column" justify="center" gap={3} flex="1">
+              <Flex direction="column" flex="1">
                 {column.items.map((match) => (
-                  <BracketMatchCard key={match.id} match={match} t={t} />
+                  <Flex
+                    key={match.id}
+                    direction="column"
+                    justify="center"
+                    flex="1"
+                    py={1.5}
+                  >
+                    <BracketMatchCard match={match} t={t} />
+                  </Flex>
                 ))}
               </Flex>
             </Flex>

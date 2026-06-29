@@ -974,8 +974,12 @@ function TeamScorePanel({
             {playerNames}
           </Text>
         )}
-        <Flex align="center" justify="center" gap={{ base: 2, md: 3 }}>
-          {serverDots != null && <ServerDots count={serverDots} />}
+        <Flex
+          direction="column"
+          align="center"
+          justify="center"
+          gap={{ base: 1, md: 2 }}
+        >
           <Text
             fontSize={
               compact ? { base: '6xl', md: '9xl' } : { base: '7xl', md: '9xl' }
@@ -985,6 +989,7 @@ function TeamScorePanel({
           >
             {score}
           </Text>
+          {serverDots != null && <ServerDots count={serverDots} />}
         </Flex>
         <Text fontSize="sm" opacity={0.85}>
           {setWins} ✪
