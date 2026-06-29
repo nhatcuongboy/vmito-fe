@@ -5,11 +5,14 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Badge, Box, Flex, Heading, HStack, Text } from '@chakra-ui/react';
 import {
   BarChart3,
+  Check,
   GitBranch,
   ListTree,
+  Minus,
   RefreshCw,
   RotateCcw,
   Trophy,
+  X,
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
@@ -1263,16 +1266,16 @@ function StandingsTable({
   const showCancelled = rows.some((r) => (r.matchesCancelled ?? 0) > 0);
   const hasResults = rows.some(hasStandingResult);
   const extraColumnsWidth = (showForfeits ? 1 : 0) + (showCancelled ? 1 : 0);
-  const metricColumnCount = 6 + extraColumnsWidth;
-  // Remove the "Bảng" column from grid template - it's now shown under team name
+  // Narrow numeric columns shown before the recent-form column:
+  // played, won, lost, [forfeits], [cancelled], difference.
+  const preFormColumnCount = 4 + extraColumnsWidth;
+  // Column order: rank, team, [narrow numeric...], recent form (wide), points (rightmost).
+  // The "drawn" column is intentionally hidden (badminton/pickleball have no draws).
   const gridTemplate = {
-    base: `40px minmax(150px, 1fr) repeat(${metricColumnCount}, 52px)`,
-    md: `44px minmax(220px, 1fr) repeat(${metricColumnCount}, 64px)`,
+    base: `40px minmax(150px, 1fr) repeat(${preFormColumnCount}, 52px) 132px 56px`,
+    md: `44px minmax(220px, 1fr) repeat(${preFormColumnCount}, 64px) 152px 64px`,
   };
-  const minWidth =
-    showForfeits || showCancelled
-      ? `${620 + extraColumnsWidth * 56}px`
-      : '600px';
+  const minWidth = `${640 + extraColumnsWidth * 56}px`;
 
   return (
     <Box
@@ -1372,10 +1375,8 @@ function StandingsTable({
                 align="start"
               />
             </Box>
-            <StandingHeaderCell label={t('columns.pointsShort')} />
             <StandingHeaderCell label={t('columns.playedShort')} />
             <StandingHeaderCell label={t('columns.wonShort')} />
-            <StandingHeaderCell label={t('columns.drawnShort')} />
             <StandingHeaderCell label={t('columns.lostShort')} />
             {showForfeits && (
               <StandingHeaderCell label={t('columns.forfeits')} />
@@ -1384,6 +1385,8 @@ function StandingsTable({
               <StandingHeaderCell label={t('columns.cancelled')} />
             )}
             <StandingHeaderCell label={t('columns.differenceShort')} />
+            <StandingHeaderCell label={t('columns.recentFormShort')} />
+            <StandingHeaderCell label={t('columns.pointsShort')} isStrong />
           </Box>
 
           <VStack align="stretch" gap={0}>
@@ -1516,10 +1519,8 @@ function StandingsTable({
                     )}
                   </Box>
 
-                  <StandingMetric value={standing.points} isStrong />
                   <StandingMetric value={standing.matchesPlayed} />
                   <StandingMetric value={standing.matchesWon} />
-                  <StandingMetric value={standing.matchesDrawn} />
                   <StandingMetric value={standing.matchesLost} />
                   {showForfeits && (
                     <StandingMetric value={standing.matchesForfeited ?? 0} />
@@ -1541,6 +1542,8 @@ function StandingsTable({
                           : 'neutral'
                     }
                   />
+                  <StandingForm form={standing.recentForm} />
+                  <StandingMetric value={standing.points} isStrong />
                 </Box>
               );
             })}
@@ -1560,23 +1563,75 @@ function getStandingTeamHref(tournament: Tournament, standing: GroupStanding) {
 function StandingHeaderCell({
   label,
   align = 'center',
+  isStrong = false,
 }: {
   label: string;
   align?: 'start' | 'center';
+  isStrong?: boolean;
 }) {
   return (
     <Text
       textAlign={align}
       fontSize="xs"
-      fontWeight="700"
-      color="gray.500"
+      fontWeight={isStrong ? '800' : '700'}
+      color={isStrong ? 'gray.700' : 'gray.500'}
       letterSpacing="0"
       textTransform="uppercase"
       whiteSpace="nowrap"
-      _dark={{ color: 'gray.400' }}
+      _dark={{ color: isStrong ? 'gray.200' : 'gray.400' }}
     >
       {label}
     </Text>
+  );
+}
+
+function StandingForm({ form }: { form?: Array<'W' | 'L' | 'D'> }) {
+  const results = form ?? [];
+  const slots = Array.from({ length: 5 }, (_, index) => results[index] ?? null);
+
+  return (
+    <HStack gap={1} justify="center">
+      {slots.map((result, index) => (
+        <StandingFormDot key={index} result={result} />
+      ))}
+    </HStack>
+  );
+}
+
+function StandingFormDot({ result }: { result: 'W' | 'L' | 'D' | null }) {
+  if (!result) {
+    return (
+      <Box
+        w="20px"
+        h="20px"
+        borderRadius="full"
+        borderWidth="2px"
+        borderColor="gray.200"
+        flexShrink={0}
+        _dark={{ borderColor: 'gray.600' }}
+      />
+    );
+  }
+
+  const styleByResult = {
+    W: { bg: 'green.500', icon: <Check size={12} strokeWidth={3.5} /> },
+    L: { bg: 'red.500', icon: <X size={12} strokeWidth={3.5} /> },
+    D: { bg: 'gray.400', icon: <Minus size={12} strokeWidth={3.5} /> },
+  }[result];
+
+  return (
+    <Flex
+      w="20px"
+      h="20px"
+      borderRadius="full"
+      align="center"
+      justify="center"
+      bg={styleByResult.bg}
+      color="white"
+      flexShrink={0}
+    >
+      {styleByResult.icon}
+    </Flex>
   );
 }
 

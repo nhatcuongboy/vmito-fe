@@ -1240,6 +1240,7 @@ export interface GroupStanding {
   gamesWon: number; // Tổng số set thắng
   gamesLost: number; // Tổng số set thua
   gameDifference: number; // gamesWon - gamesLost
+  recentForm?: Array<'W' | 'L' | 'D'>; // Kết quả 5 trận gần nhất (cũ → mới)
   rank: number; // Thứ hạng trong group
 }
 

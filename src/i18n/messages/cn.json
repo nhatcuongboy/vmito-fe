@@ -1601,6 +1601,7 @@
             "pointsAgainst": "失分",
             "difference": "净胜分",
             "differenceShort": "+/-",
+            "recentFormShort": "近5场",
             "forfeits": "弃",
             "cancelled": "消"
           }
