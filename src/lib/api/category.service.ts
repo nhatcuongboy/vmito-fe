@@ -134,6 +134,17 @@ export const CategoryService = {
     return response.data.data!;
   },
 
+  bulkCreateRegistrations: async (
+    categoryId: string,
+    names: string[]
+  ): Promise<CategoryRegistration[]> => {
+    const response = await api.post<ApiResponse<CategoryRegistration[]>>(
+      `/categories/${categoryId}/registrations/bulk`,
+      { names }
+    );
+    return response.data.data ?? [];
+  },
+
   convertLegacyRegistrationToPair: async (
     categoryId: string,
     registrationId: string,

@@ -219,49 +219,14 @@ export default function TeamsPanel({
           });
           return;
         }
-        for (const [index, line] of lines.entries()) {
-          setBulkProgress({
-            current: index + 1,
-            total: lines.length,
-            currentName: line,
-          });
-
-          try {
-            if (isTeamCategory) {
-              const pair = await TournamentPairService.createPair(
-                tournamentId,
-                { name: line, playerIds: [], type: activeCategory.type }
-              );
-              await CategoryService.createRegistration(
-                activeCategory.id,
-                { tournamentPairId: pair.id },
-                { showToast: false }
-              );
-            } else {
-              const player = await TournamentPlayerService.createPlayer(
-                tournamentId,
-                { name: line },
-                { showToast: false }
-              );
-              await CategoryService.createRegistration(
-                activeCategory.id,
-                { tournamentPlayerId: player.id },
-                { showToast: false }
-              );
-            }
-          } catch (error) {
-            throw new Error(
-              tc('bulkAddItemFailed', {
-                name: line,
-                current: index + 1,
-                total: lines.length,
-                error: getErrorMessage(error, t('panels.teams.unknownError')),
-              })
-            );
-          }
-        }
+        // Single request: the backend creates every pair/player + registration
+        // in one transaction, so we no longer fire N parallel API calls.
+        const created = await CategoryService.bulkCreateRegistrations(
+          activeCategory.id,
+          lines
+        );
         toaster.success({
-          title: tc('bulkAddSuccess', { count: lines.length }),
+          title: tc('bulkAddSuccess', { count: created.length }),
         });
       }
       await loadRegistrations(activeCategory.id);
