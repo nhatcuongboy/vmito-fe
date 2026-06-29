@@ -186,27 +186,40 @@ export default function VenueConfigModal({
 
   const title = existingTournamentVenue ? t('editVenue') : t('addVenue');
 
-  const inputStyle = {
-    border: '1px solid #E2E8F0',
+  const inputProps = {
+    borderWidth: '1px',
+    borderColor: 'gray.200',
     borderRadius: '12px',
-    padding: '12px 16px',
+    px: 4,
+    py: 3,
     fontSize: '14px',
     width: '100%',
-    outline: 'none',
-    background: 'white',
-  };
+    height: 'auto',
+    bg: 'white',
+    color: 'gray.800',
+    _placeholder: { color: 'gray.400' },
+    _dark: {
+      bg: 'gray.700',
+      borderColor: 'gray.600',
+      color: 'gray.100',
+      _placeholder: { color: 'gray.400' },
+    },
+  } as const;
 
-  const counterBtnStyle = {
+  const counterBtnProps = {
     width: '36px',
     height: '36px',
     borderRadius: '50%',
-    border: '1px solid #E2E8F0',
+    borderWidth: '1px',
+    borderColor: 'gray.200',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
     cursor: 'pointer',
-    background: 'white',
-  };
+    bg: 'white',
+    color: 'gray.700',
+    _dark: { bg: 'gray.700', borderColor: 'gray.600', color: 'gray.100' },
+  } as const;
 
   return (
     <VModal
@@ -236,7 +249,7 @@ export default function VenueConfigModal({
           value={name}
           onChange={(e) => setName(e.target.value)}
           placeholder={t('name')}
-          style={inputStyle}
+          {...inputProps}
           _focus={{ borderColor: '#3182ce', boxShadow: '0 0 0 1px #3182ce' }}
         />
 
@@ -246,7 +259,8 @@ export default function VenueConfigModal({
             value={acronym}
             onChange={(e) => setAcronym(e.target.value)}
             placeholder={t('acronym')}
-            style={{ ...inputStyle, maxWidth: '160px' }}
+            {...inputProps}
+            maxW="160px"
             _focus={{ borderColor: '#3182ce', boxShadow: '0 0 0 1px #3182ce' }}
           />
         </Box>
@@ -260,8 +274,8 @@ export default function VenueConfigModal({
             <Box
               as="button"
               onClick={() => handleCourtCountChange(-1)}
-              style={counterBtnStyle}
-              _hover={{ bg: 'gray.50' }}
+              {...counterBtnProps}
+              _hover={{ bg: 'gray.50', _dark: { bg: 'gray.600' } }}
             >
               <Minus size={14} />
             </Box>
@@ -276,8 +290,8 @@ export default function VenueConfigModal({
             <Box
               as="button"
               onClick={() => handleCourtCountChange(1)}
-              style={counterBtnStyle}
-              _hover={{ bg: 'gray.50' }}
+              {...counterBtnProps}
+              _hover={{ bg: 'gray.50', _dark: { bg: 'gray.600' } }}
             >
               <Plus size={14} />
             </Box>
@@ -292,7 +306,7 @@ export default function VenueConfigModal({
               value={court.courtName}
               onChange={(e) => handleCourtNameChange(index, e.target.value)}
               placeholder={`${t('court')} ${index + 1}`}
-              style={inputStyle}
+              {...inputProps}
               _focus={{
                 borderColor: '#3182ce',
                 boxShadow: '0 0 0 1px #3182ce',
