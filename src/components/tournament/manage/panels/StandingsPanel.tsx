@@ -130,6 +130,7 @@ export default function StandingsPanel({
             borderRadius="full"
             bg="gray.100"
             _hover={{ bg: 'gray.200' }}
+            _dark={{ bg: 'gray.700', _hover: { bg: 'gray.600' } }}
             cursor="pointer"
             fontSize="sm"
             fontWeight="medium"

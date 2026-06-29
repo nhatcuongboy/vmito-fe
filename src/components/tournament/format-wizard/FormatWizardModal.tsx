@@ -106,6 +106,7 @@ function WizardContent({
     >
       <Box
         bg="white"
+        _dark={{ bg: 'gray.800' }}
         borderRadius="lg"
         boxShadow="xl"
         w="full"
@@ -144,6 +145,12 @@ function WizardContent({
           fontSize="sm"
           cursor="pointer"
           _hover={{ bg: 'gray.50' }}
+          _dark={{
+            borderColor: 'gray.600',
+            bg: 'gray.700',
+            color: 'gray.100',
+            _hover: { bg: 'gray.600' },
+          }}
           onClick={handleClose}
           align="center"
           gap={1}

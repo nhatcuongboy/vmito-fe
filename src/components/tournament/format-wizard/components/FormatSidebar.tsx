@@ -42,6 +42,7 @@ export default function FormatSidebar({ step }: FormatSidebarProps) {
         flexShrink={0}
         borderRightWidth={{ base: 0, md: '1px' }}
         borderColor="gray.200"
+        _dark={{ borderColor: 'gray.700' }}
         p={5}
         overflowY="auto"
       >
@@ -51,6 +52,7 @@ export default function FormatSidebar({ step }: FormatSidebarProps) {
             w="40px"
             h="40px"
             bg="gray.100"
+            _dark={{ bg: 'gray.700' }}
             borderRadius="lg"
             align="center"
             justify="center"
@@ -118,6 +120,7 @@ export default function FormatSidebar({ step }: FormatSidebarProps) {
         flexShrink={0}
         borderRightWidth={{ base: 0, md: '1px' }}
         borderColor="gray.200"
+        _dark={{ borderColor: 'gray.700' }}
         p={5}
         overflowY="auto"
       >
@@ -126,6 +129,7 @@ export default function FormatSidebar({ step }: FormatSidebarProps) {
             w="40px"
             h="40px"
             bg="gray.100"
+            _dark={{ bg: 'gray.700' }}
             borderRadius="lg"
             align="center"
             justify="center"
@@ -153,6 +157,7 @@ export default function FormatSidebar({ step }: FormatSidebarProps) {
         flexShrink={0}
         borderRightWidth={{ base: 0, md: '1px' }}
         borderColor="gray.200"
+        _dark={{ borderColor: 'gray.700' }}
         p={5}
         overflowY="auto"
       >
@@ -161,6 +166,7 @@ export default function FormatSidebar({ step }: FormatSidebarProps) {
             w="40px"
             h="40px"
             bg="gray.100"
+            _dark={{ bg: 'gray.700' }}
             borderRadius="lg"
             align="center"
             justify="center"
@@ -206,6 +212,11 @@ function SidebarItem({
       fontWeight={isActive ? 'semibold' : 'normal'}
       color={isActive ? 'gray.900' : 'gray.600'}
       _hover={{ bg: 'gray.50' }}
+      _dark={{
+        bg: isActive ? 'gray.700' : 'transparent',
+        color: isActive ? 'white' : 'gray.300',
+        _hover: { bg: 'gray.700' },
+      }}
       onClick={onClick}
       transition="all 0.15s"
     >

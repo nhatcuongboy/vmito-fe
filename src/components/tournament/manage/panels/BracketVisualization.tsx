@@ -10,6 +10,7 @@ import React, {
 } from 'react';
 import { Box, Flex, Text } from '@chakra-ui/react';
 import { useTranslations } from 'next-intl';
+import { useColorMode } from '@/components/ui/color-mode-provider';
 import {
   SingleEliminationBracket,
   createTheme,
@@ -220,6 +221,8 @@ function SortableTeamRow({
     transition,
     isDragging,
   } = useSortable({ id: slotId });
+  const { colorMode } = useColorMode();
+  const isDark = colorMode === 'dark';
 
   return (
     <div
@@ -234,14 +237,22 @@ function SortableTeamRow({
         alignItems: 'center',
         padding: '0 10px',
         height: `${MATCH_H / 2}px`,
-        background: 'white',
-        borderBottom: isLast ? 'none' : '1px solid #f0f4f8',
+        background: isDark ? '#2D3748' : 'white',
+        borderBottom: isLast
+          ? 'none'
+          : `1px solid ${isDark ? '#4A5568' : '#f0f4f8'}`,
       }}
     >
       <span
         style={{
           fontSize: '12px',
-          color: name ? '#2d3748' : '#a0aec0',
+          color: name
+            ? isDark
+              ? '#E2E8F0'
+              : '#2d3748'
+            : isDark
+              ? '#718096'
+              : '#a0aec0',
           flex: 1,
           overflow: 'hidden',
           textOverflow: 'ellipsis',
@@ -253,7 +264,7 @@ function SortableTeamRow({
       </span>
       <div
         style={{
-          color: '#a0aec0',
+          color: isDark ? '#718096' : '#a0aec0',
           cursor: 'grab',
           marginLeft: '6px',
           flexShrink: 0,
@@ -282,6 +293,8 @@ function StaticTeamRow({
 }) {
   const { compact } = useContext(BracketCtx);
   const rowH = compact ? 20 : MATCH_H / 2;
+  const { colorMode } = useColorMode();
+  const isDark = colorMode === 'dark';
 
   return (
     <div
@@ -290,14 +303,16 @@ function StaticTeamRow({
         alignItems: 'center',
         padding: compact ? '0 6px' : '0 10px',
         height: `${rowH}px`,
-        background: 'white',
-        borderBottom: isLast ? 'none' : '1px solid #f0f4f8',
+        background: isDark ? '#2D3748' : 'white',
+        borderBottom: isLast
+          ? 'none'
+          : `1px solid ${isDark ? '#4A5568' : '#f0f4f8'}`,
       }}
     >
       <span
         style={{
           fontSize: compact ? '10px' : '12px',
-          color: '#4a5568',
+          color: isDark ? '#CBD5E0' : '#4a5568',
           flex: 1,
           overflow: 'hidden',
           textOverflow: 'ellipsis',
@@ -310,7 +325,7 @@ function StaticTeamRow({
       {showHandle && (
         <div
           style={{
-            color: '#e2e8f0',
+            color: isDark ? '#4A5568' : '#e2e8f0',
             marginLeft: '6px',
             flexShrink: 0,
             display: 'flex',
@@ -330,6 +345,8 @@ function CustomMatch({ match, topParty, bottomParty }: MatchComponentProps) {
   const { compact } = useContext(BracketCtx);
   const rtbMatch = match as IRTBMatch;
   const canSort = rtbMatch.isFirstRound && !compact;
+  const { colorMode } = useColorMode();
+  const isDark = colorMode === 'dark';
 
   return (
     <div
@@ -338,9 +355,9 @@ function CustomMatch({ match, topParty, bottomParty }: MatchComponentProps) {
         height: '100%',
         borderRadius: '8px',
         overflow: 'hidden',
-        border: '1.5px solid #e2e8f0',
+        border: `1.5px solid ${isDark ? '#4A5568' : '#e2e8f0'}`,
         boxShadow: '0 1px 2px rgba(0,0,0,0.06)',
-        background: 'white',
+        background: isDark ? '#2D3748' : 'white',
       }}
     >
       {canSort ? (
@@ -482,6 +499,8 @@ export default function BracketVisualization({
   consolationMatches,
 }: IBracketVisualizationProps) {
   const t = useTranslations('pages.tournaments.detail.manage');
+  const { colorMode } = useColorMode();
+  const isDark = colorMode === 'dark';
 
   // ── Slot state ──────────────────────────────────────────────────────────────
   const [slots, setSlots] = useState<string[]>(() => {
@@ -733,14 +752,14 @@ export default function BracketVisualization({
       createTheme({
         fontFamily: '"Inter", "Arial", "Helvetica", sans-serif',
         roundHeaders: {
-          background: compact ? '#F8FAFC' : '#F1F5F9',
+          background: isDark ? '#2D3748' : compact ? '#F8FAFC' : '#F1F5F9',
         },
         textColor: {
-          highlighted: '#111827',
+          highlighted: isDark ? '#F7FAFC' : '#111827',
         },
         canvasBackground: 'transparent',
       }),
-    [compact]
+    [compact, isDark]
   );
 
   const bracketOptions = useMemo(
