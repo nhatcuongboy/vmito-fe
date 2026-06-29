@@ -309,12 +309,19 @@ export default function ScoreEntryBoard({
     onScoreUpdated: (e) => {
       if (e.match.matchId !== match.id) return;
       if (e.clientId === clientIdRef.current) return;
+      // Serve state now travels with every score broadcast, so apply it
+      // straight from the event payload instead of refetching the whole match
+      // — the dots stay in lockstep with the score with no extra round-trip.
       if (
         showPickleballServe &&
         (e.match.servingSide !== match.servingSide ||
           e.match.serverNumber !== match.serverNumber)
       ) {
-        void refetch();
+        onMatchUpdate({
+          ...match,
+          servingSide: e.match.servingSide ?? null,
+          serverNumber: e.match.serverNumber ?? null,
+        });
       }
       if (processingRef.current) return; // don't fight an in-flight burst
       if (e.match.sets.length === 0) return;
