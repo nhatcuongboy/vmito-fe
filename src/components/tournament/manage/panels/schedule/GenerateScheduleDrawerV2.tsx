@@ -56,6 +56,8 @@ interface GenerateScheduleDrawerProps {
   isOpen: boolean;
   onClose: () => void;
   tournamentId: string;
+  /** ISO date string (YYYY-MM-DD or full ISO) for the tournament's start date */
+  tournamentStartDate?: string | Date;
   categories: Category[];
   allMatches: CategoryMatch[];
   courts: TournamentCourt[];
@@ -112,6 +114,7 @@ export default function GenerateScheduleDrawer({
   isOpen,
   onClose,
   tournamentId,
+  tournamentStartDate,
   categories,
   allMatches,
   courts,
@@ -131,8 +134,8 @@ export default function GenerateScheduleDrawer({
   const [dragIndex, setDragIndex] = useState<number | null>(null);
 
   // Match durations per round type
-  const [poolPlayDuration, setPoolPlayDuration] = useState(60);
-  const [playoffsDuration, setPlayoffsDuration] = useState(60);
+  const [poolPlayDuration, setPoolPlayDuration] = useState(20);
+  const [playoffsDuration, setPlayoffsDuration] = useState(20);
 
   // Keep scheduled matches toggle
   const [keepScheduledMatches, setKeepScheduledMatches] = useState(false);
@@ -162,9 +165,12 @@ export default function GenerateScheduleDrawer({
   const prevIsOpenRef = useRef(false);
   useEffect(() => {
     if (isOpen && !prevIsOpenRef.current) {
+      const startDateStr = tournamentStartDate
+        ? new Date(tournamentStartDate).toISOString().split('T')[0]
+        : new Date().toISOString().split('T')[0];
       const defaultSlot: LocalTimeSlot = {
         id: '1',
-        date: new Date().toISOString().split('T')[0],
+        date: startDateStr,
         startTime: '08:00',
         endTime: '17:00',
         timeBuffer: 0,
@@ -174,7 +180,7 @@ export default function GenerateScheduleDrawer({
       setExpandedSlotId(defaultSlot.id);
     }
     prevIsOpenRef.current = isOpen;
-  }, [isOpen, getVenueCourts]);
+  }, [isOpen, getVenueCourts, tournamentStartDate]);
 
   const [isLoadingGenerate, setIsLoadingGenerate] = useState(false);
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
@@ -407,6 +413,7 @@ export default function GenerateScheduleDrawer({
         onClose={onClose}
         title={t('title')}
         size="lg"
+        zIndex={1600}
         primaryActionText={t('generateBtn')}
         onPrimaryAction={handleGenerate}
         isPrimaryLoading={isLoadingGenerate}
@@ -526,7 +533,7 @@ export default function GenerateScheduleDrawer({
                 >
                   {DURATION_OPTIONS.map((m) => (
                     <option key={`pp-${m}`} value={m}>
-                      {m} min
+                      {t('min', { count: m })}
                     </option>
                   ))}
                 </select>
@@ -554,7 +561,7 @@ export default function GenerateScheduleDrawer({
                 >
                   {DURATION_OPTIONS.map((m) => (
                     <option key={`po-${m}`} value={m}>
-                      {m} min
+                      {t('min', { count: m })}
                     </option>
                   ))}
                 </select>
@@ -689,7 +696,9 @@ export default function GenerateScheduleDrawer({
                           >
                             {TIME_BUFFER_OPTIONS.map((m) => (
                               <option key={`buf-${slot.id}-${m}`} value={m}>
-                                {m} min
+                                {m === 0
+                                  ? t('noBuffer')
+                                  : t('min', { count: m })}
                               </option>
                             ))}
                           </select>

@@ -38,7 +38,7 @@ export default function SchedulePanel({
     CategoryGroupStageCompletion[]
   >([]);
   const [scheduleType, setScheduleType] = useState<ScheduleType | undefined>(
-    tournament.scheduleType
+    tournament.scheduleType ?? ScheduleType.ASSIGNED
   );
   const typeModal = useModal();
   const manageModal = useModal();
@@ -238,10 +238,13 @@ export default function SchedulePanel({
             {scheduleTypeLabel}
           </Badge>
         </Box>
-        <Button variant="ghost" size="sm" onClick={typeModal.onOpen}>
-          <ArrowLeftRight size={14} />
-          {t('organize.schedule.switchType')}
-        </Button>
+        {/* Tạm ẩn UI đổi loại lịch thi đấu */}
+        {false && (
+          <Button variant="ghost" size="sm" onClick={typeModal.onOpen}>
+            <ArrowLeftRight size={14} />
+            {t('organize.schedule.switchType')}
+          </Button>
+        )}
       </Flex>
 
       {/* Circular progress */}

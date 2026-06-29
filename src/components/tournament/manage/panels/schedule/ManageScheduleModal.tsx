@@ -557,6 +557,7 @@ export default function ManageScheduleModal({
         isOpen={generateDrawerModal.isOpen}
         onClose={generateDrawerModal.onClose}
         tournamentId={tournament.id}
+        tournamentStartDate={tournament.startDate}
         categories={categories}
         allMatches={allMatches}
         courts={courts}
