@@ -2503,7 +2503,48 @@
               "teamDetails": "Chi tiết đội",
               "members": "Thành viên: {current}/{total}",
               "quickCreatePlayer": "Tạo nhanh VĐV mới",
-              "draftTeamWarning": "Đội đang ở trạng thái nháp và chưa thể xếp bảng hoặc tạo lịch."
+              "memberAddFailed": "Không thể thêm VĐV",
+              "draftTeamWarning": "Đội đang ở trạng thái nháp và chưa thể xếp bảng hoặc tạo lịch.",
+              "team": {
+                "title": "Đội",
+                "add": "Thêm đội",
+                "empty": "Chưa có đội nào đăng ký.",
+                "addTitle": "Thêm đội",
+                "editTitle": "Sửa đội",
+                "deleteTitle": "Xóa đội",
+                "deleteConfirm": "Bạn có chắc chắn muốn xóa đội này?",
+                "namePlaceholder": "Tên đội",
+                "multiPlaceholder": "Dán danh sách đội hoặc nhập một tên đội mỗi dòng",
+                "count": "{count} đội",
+                "addSuccess": "Đã thêm đội thành công",
+                "enterAtLeastOne": "Vui lòng nhập ít nhất một đội",
+                "noCategorySelected": "Vui lòng chọn một hạng mục trước khi thêm đội",
+                "bulkAddItemFailed": "Không thể thêm đội \"{name}\" ({current}/{total}): {error}",
+                "bulkAddSuccess": "Đã thêm thành công {count} đội",
+                "addFailed": "Không thể thêm đội",
+                "updateFailed": "Không thể cập nhật đội",
+                "deleteFailed": "Không thể xóa đội"
+              },
+              "player": {
+                "title": "VĐV",
+                "add": "Thêm VĐV",
+                "empty": "Chưa có VĐV nào đăng ký.",
+                "addTitle": "Thêm VĐV",
+                "editTitle": "Sửa VĐV",
+                "deleteTitle": "Xóa VĐV",
+                "deleteConfirm": "Bạn có chắc chắn muốn xóa VĐV này khỏi hạng mục?",
+                "namePlaceholder": "Tên VĐV",
+                "multiPlaceholder": "Dán danh sách VĐV hoặc nhập một tên VĐV mỗi dòng",
+                "count": "{count} VĐV",
+                "addSuccess": "Đã thêm VĐV thành công",
+                "enterAtLeastOne": "Vui lòng nhập ít nhất một VĐV",
+                "noCategorySelected": "Vui lòng chọn một hạng mục trước khi thêm VĐV",
+                "bulkAddItemFailed": "Không thể thêm VĐV \"{name}\" ({current}/{total}): {error}",
+                "bulkAddSuccess": "Đã thêm thành công {count} VĐV",
+                "addFailed": "Không thể thêm VĐV",
+                "updateFailed": "Không thể cập nhật VĐV",
+                "deleteFailed": "Không thể xóa VĐV"
+              }
             },
             "players": {
               "title": "Người chơi",
@@ -2599,6 +2640,7 @@
             "format": {
               "title": "Thể thức",
               "switchFormat": "Đổi thể thức",
+              "defaultFormatHint": "Đang dùng thể thức mặc định. Nhấn \"Đổi thể thức\" để tuỳ chỉnh.",
               "labels": {
                 "poolPlay": "Đấu bảng",
                 "playoffs": "Vòng loại",
@@ -2661,9 +2703,9 @@
                   "FINAL": "Chỉ áp dụng cho trận chung kết. Để trống = dùng luật vòng knockout."
                 },
                 "inheritTitle": "Sử dụng luật của vòng trước",
-                "inheritHintKnockout": "Kết thừa luật từ vòng bảng. Tắt để đặt luật riêng cho các vòng knockout.",
-                "inheritHintFinal": "Kết thừa luật từ vòng knockout (hoặc vòng bảng). Tắt để đặt luật riêng cho chung kết.",
-                "inheritOn": "Kết thừa",
+                "inheritHintKnockout": "Kế thừa luật từ vòng bảng. Tắt để đặt luật riêng cho các vòng knockout.",
+                "inheritHintFinal": "Kế thừa luật từ vòng knockout (hoặc vòng bảng). Tắt để đặt luật riêng cho chung kết.",
+                "inheritOn": "Kế thừa",
                 "inheritOff": "Tùy chỉnh",
                 "summary": {
                   "title": "Cấu hình hiện tại theo vòng",

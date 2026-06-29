@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { Box, Flex, Heading, Text } from '@chakra-ui/react';
 import { Button } from '@/components/ui/chakra-compat';
-import { ChevronDown, RefreshCw, GitBranch } from 'lucide-react';
+import { ChevronDown, RefreshCw, GitBranch, Info } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Category, CategoryFormat, SportType } from '@/lib/api/types';
 import ScoringRulesCard from './ScoringRulesCard';
@@ -74,6 +74,9 @@ export default function FormatPanel({
   const activeCategoryColor =
     CATEGORY_COLORS[activeCategoryIndex % CATEGORY_COLORS.length] ?? '#63B3ED';
   const formatInfo = activeCategory ? FORMAT_INFO[activeCategory.format] : null;
+  const isDefaultFormat =
+    !activeCategory?.formatConfig ||
+    Object.keys(activeCategory.formatConfig).length === 0;
 
   return (
     <Box>
@@ -84,6 +87,38 @@ export default function FormatPanel({
           {t('panels.format.switchFormat')}
         </Button>
       </Flex>
+
+      {/* Default format hint */}
+      {isDefaultFormat && activeCategory && (
+        <Flex
+          align="flex-start"
+          gap={3}
+          px={4}
+          py={3}
+          mb={4}
+          bg="orange.50"
+          borderRadius="lg"
+          borderWidth="1px"
+          borderColor="orange.200"
+          _dark={{ bg: 'orange.900', borderColor: 'orange.700' }}
+        >
+          <Box
+            color="orange.500"
+            flexShrink={0}
+            mt="1px"
+            _dark={{ color: 'orange.300' }}
+          >
+            <Info size={15} />
+          </Box>
+          <Text
+            fontSize="sm"
+            color="orange.800"
+            _dark={{ color: 'orange.200' }}
+          >
+            {t('panels.format.defaultFormatHint')}
+          </Text>
+        </Flex>
+      )}
 
       {/* Category selector */}
       {categories.length > 1 && (

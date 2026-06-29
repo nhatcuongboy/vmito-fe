@@ -2473,7 +2473,48 @@
               "teamDetails": "队伍详情",
               "members": "成员：{current}/{total}",
               "quickCreatePlayer": "快速创建新运动员",
-              "draftTeamWarning": "该队伍仍为草稿，暂时无法分组或排赛程。"
+              "memberAddFailed": "添加运动员失败",
+              "draftTeamWarning": "该队伍仍为草稿，暂时无法分组或排赛程。",
+              "team": {
+                "title": "队伍",
+                "add": "添加队伍",
+                "empty": "尚未有队伍报名。",
+                "addTitle": "添加队伍",
+                "editTitle": "编辑队伍",
+                "deleteTitle": "删除队伍",
+                "deleteConfirm": "确定要移除此队伍吗？",
+                "namePlaceholder": "队伍名称",
+                "multiPlaceholder": "粘贴队伍列表，或每行输入一支队伍",
+                "count": "{count} 支队伍",
+                "addSuccess": "队伍添加成功",
+                "enterAtLeastOne": "请至少输入一支队伍",
+                "noCategorySelected": "请先选择一个类别再添加队伍",
+                "bulkAddItemFailed": "无法添加队伍 \"{name}\" ({current}/{total}): {error}",
+                "bulkAddSuccess": "成功添加 {count} 支队伍",
+                "addFailed": "添加队伍失败",
+                "updateFailed": "更新队伍失败",
+                "deleteFailed": "删除队伍失败"
+              },
+              "player": {
+                "title": "运动员",
+                "add": "添加运动员",
+                "empty": "尚未有运动员报名。",
+                "addTitle": "添加运动员",
+                "editTitle": "编辑运动员",
+                "deleteTitle": "移除运动员",
+                "deleteConfirm": "确定要从此类别中移除此运动员吗？",
+                "namePlaceholder": "运动员姓名",
+                "multiPlaceholder": "粘贴运动员列表，或每行输入一名运动员",
+                "count": "{count} 名运动员",
+                "addSuccess": "运动员添加成功",
+                "enterAtLeastOne": "请至少输入一名运动员",
+                "noCategorySelected": "请先选择一个类别再添加运动员",
+                "bulkAddItemFailed": "无法添加运动员 \"{name}\" ({current}/{total}): {error}",
+                "bulkAddSuccess": "成功添加 {count} 名运动员",
+                "addFailed": "添加运动员失败",
+                "updateFailed": "更新运动员失败",
+                "deleteFailed": "移除运动员失败"
+              }
             },
             "players": {
               "title": "选手",
@@ -2569,6 +2610,7 @@
             "format": {
               "title": "赛制",
               "switchFormat": "切换赛制",
+              "defaultFormatHint": "正在使用默认赛制。点击\"切换赛制\"进行自定义。",
               "labels": {
                 "poolPlay": "小组赛",
                 "playoffs": "淘汰赛",

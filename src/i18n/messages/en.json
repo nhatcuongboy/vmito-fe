@@ -2495,7 +2495,48 @@
               "teamDetails": "Team details",
               "members": "Members: {current}/{total}",
               "quickCreatePlayer": "Quickly create a new player",
-              "draftTeamWarning": "This team is still a draft and cannot be assigned to a pool or scheduled yet."
+              "memberAddFailed": "Failed to add player",
+              "draftTeamWarning": "This team is still a draft and cannot be assigned to a pool or scheduled yet.",
+              "team": {
+                "title": "Teams",
+                "add": "Add team",
+                "empty": "No teams registered yet.",
+                "addTitle": "Add team",
+                "editTitle": "Edit team",
+                "deleteTitle": "Delete team",
+                "deleteConfirm": "Are you sure you want to remove this team?",
+                "namePlaceholder": "Team name",
+                "multiPlaceholder": "Paste teams or enter one team name per line",
+                "count": "{count} teams",
+                "addSuccess": "Team added successfully",
+                "enterAtLeastOne": "Please enter at least one team",
+                "noCategorySelected": "Please select a category before adding teams",
+                "bulkAddItemFailed": "Could not add team \"{name}\" ({current}/{total}): {error}",
+                "bulkAddSuccess": "Added {count} teams successfully",
+                "addFailed": "Failed to add team",
+                "updateFailed": "Failed to update team",
+                "deleteFailed": "Failed to delete team"
+              },
+              "player": {
+                "title": "Players",
+                "add": "Add player",
+                "empty": "No players registered yet.",
+                "addTitle": "Add player",
+                "editTitle": "Edit player",
+                "deleteTitle": "Remove player",
+                "deleteConfirm": "Are you sure you want to remove this player from the category?",
+                "namePlaceholder": "Player name",
+                "multiPlaceholder": "Paste players or enter one player name per line",
+                "count": "{count} players",
+                "addSuccess": "Player added successfully",
+                "enterAtLeastOne": "Please enter at least one player",
+                "noCategorySelected": "Please select a category before adding players",
+                "bulkAddItemFailed": "Could not add player \"{name}\" ({current}/{total}): {error}",
+                "bulkAddSuccess": "Added {count} players successfully",
+                "addFailed": "Failed to add player",
+                "updateFailed": "Failed to update player",
+                "deleteFailed": "Failed to remove player"
+              }
             },
             "players": {
               "title": "Players",
@@ -2591,6 +2632,7 @@
             "format": {
               "title": "Format",
               "switchFormat": "Switch format",
+              "defaultFormatHint": "Using the default format. Click \"Switch format\" to customize.",
               "labels": {
                 "poolPlay": "Pool Play",
                 "playoffs": "Playoffs",

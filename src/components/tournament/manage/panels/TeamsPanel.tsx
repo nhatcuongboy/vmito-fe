@@ -127,6 +127,9 @@ export default function TeamsPanel({
     CATEGORY_COLORS[activeCategoryIndex % CATEGORY_COLORS.length];
   const isTeamCategory =
     activeCategory?.registrationMode === CategoryRegistrationMode.TEAM;
+  const participantCopyScope = isTeamCategory ? 'team' : 'player';
+  const tc = (key: string, values?: Record<string, string | number>) =>
+    t(`panels.teams.${participantCopyScope}.${key}`, values);
   const legacyPlaceholderIds = new Set(
     registrations
       .filter((registration) => !registration.pair)
@@ -176,7 +179,7 @@ export default function TeamsPanel({
 
   const handleAdd = async () => {
     if (!activeCategory) {
-      toaster.error({ title: t('panels.teams.noCategorySelected') });
+      toaster.error({ title: tc('noCategorySelected') });
       return;
     }
     const tournamentId = activeCategory.tournamentId;
@@ -206,13 +209,13 @@ export default function TeamsPanel({
           });
         }
         toaster.success({
-          title: t('panels.teams.addSuccess'),
+          title: tc('addSuccess'),
         });
       } else {
         const lines = parseBulkTeamNames(addMultiText);
         if (lines.length === 0) {
           toaster.error({
-            title: t('panels.teams.enterAtLeastOne'),
+            title: tc('enterAtLeastOne'),
           });
           return;
         }
@@ -248,7 +251,7 @@ export default function TeamsPanel({
             }
           } catch (error) {
             throw new Error(
-              t('panels.teams.bulkAddItemFailed', {
+              tc('bulkAddItemFailed', {
                 name: line,
                 current: index + 1,
                 total: lines.length,
@@ -258,7 +261,7 @@ export default function TeamsPanel({
           }
         }
         toaster.success({
-          title: t('panels.teams.bulkAddSuccess', { count: lines.length }),
+          title: tc('bulkAddSuccess', { count: lines.length }),
         });
       }
       await loadRegistrations(activeCategory.id);
@@ -268,7 +271,7 @@ export default function TeamsPanel({
     } catch (error) {
       console.error('Error adding team(s):', error);
       toaster.error({
-        title: t('panels.teams.addFailed'),
+        title: tc('addFailed'),
         description: getErrorMessage(error, t('panels.teams.unknownError')),
       });
     } finally {
@@ -322,7 +325,7 @@ export default function TeamsPanel({
     } catch (error) {
       console.error('Error editing team:', error);
       toaster.error({
-        title: t('panels.teams.updateFailed'),
+        title: tc('updateFailed'),
         description:
           error instanceof Error
             ? error.message
@@ -346,7 +349,7 @@ export default function TeamsPanel({
       setNewPlayerName('');
     } catch (error) {
       toaster.error({
-        title: t('panels.teams.addFailed'),
+        title: t('panels.teams.memberAddFailed'),
         description: getErrorMessage(error, t('panels.teams.unknownError')),
       });
     }
@@ -371,7 +374,7 @@ export default function TeamsPanel({
     } catch (error) {
       console.error('Error deleting team:', error);
       toaster.error({
-        title: t('panels.teams.deleteFailed'),
+        title: tc('deleteFailed'),
         description:
           error instanceof Error
             ? error.message
@@ -388,7 +391,7 @@ export default function TeamsPanel({
         {/* Header */}
         <Flex justify="space-between" align="center" gap={3}>
           <Flex align="center" gap={2} flexShrink={0}>
-            <Heading size="md">{t('panels.teams.title')}</Heading>
+            <Heading size="md">{tc('title')}</Heading>
           </Flex>
 
           {/* Category dropdown */}
@@ -491,7 +494,7 @@ export default function TeamsPanel({
             leftIcon={<Plus size={14} />}
             onClick={handleOpenAdd}
           >
-            {t('panels.teams.addTeams')}
+            {tc('add')}
           </Button>
         </Flex>
 
@@ -507,7 +510,7 @@ export default function TeamsPanel({
             color="gray.400"
           >
             <Users size={32} />
-            <Text fontSize="sm">{t('panels.teams.noTeams')}</Text>
+            <Text fontSize="sm">{tc('empty')}</Text>
           </Flex>
         ) : (
           <VStack gap={0} align="stretch">
@@ -605,7 +608,7 @@ export default function TeamsPanel({
               pt={3}
               _dark={{ color: 'gray.500' }}
             >
-              {t('panels.teams.teamsCount', { count: registrations.length })}
+              {tc('count', { count: registrations.length })}
             </Text>
           </VStack>
         )}
@@ -615,7 +618,7 @@ export default function TeamsPanel({
       <VModal
         isOpen={addModal.isOpen}
         onClose={addModal.onClose}
-        title={t('panels.teams.addTeamsTitle')}
+        title={tc('addTitle')}
         primaryActionText={t('panels.teams.save')}
         onPrimaryAction={handleAdd}
         isPrimaryLoading={isSubmitting}
@@ -665,7 +668,7 @@ export default function TeamsPanel({
 
           {addMode === 'single' ? (
             <Input
-              placeholder={t('panels.teams.namePlaceholder')}
+              placeholder={tc('namePlaceholder')}
               value={addName}
               onChange={(e) => setAddName(e.target.value)}
               disabled={isSubmitting}
@@ -676,7 +679,7 @@ export default function TeamsPanel({
           ) : (
             <VStack gap={2} align="stretch">
               <Textarea
-                placeholder={t('panels.teams.multiPlaceholder')}
+                placeholder={tc('multiPlaceholder')}
                 value={addMultiText}
                 onChange={(e) => setAddMultiText(e.target.value)}
                 rows={6}
@@ -705,11 +708,7 @@ export default function TeamsPanel({
       <VModal
         isOpen={editModal.isOpen}
         onClose={editModal.onClose}
-        title={
-          isTeamCategory
-            ? t('panels.teams.teamDetails')
-            : t('panels.teams.editTeam')
-        }
+        title={isTeamCategory ? t('panels.teams.teamDetails') : tc('editTitle')}
         primaryActionText={t('panels.teams.save')}
         onPrimaryAction={handleEdit}
         isPrimaryLoading={isSubmitting}
@@ -718,7 +717,7 @@ export default function TeamsPanel({
       >
         <VStack gap={4} align="stretch">
           <Input
-            placeholder={t('panels.teams.namePlaceholder')}
+            placeholder={tc('namePlaceholder')}
             value={editName}
             onChange={(e) => setEditName(e.target.value)}
           />
@@ -801,7 +800,7 @@ export default function TeamsPanel({
       <VModal
         isOpen={deleteModal.isOpen}
         onClose={deleteModal.onClose}
-        title={t('panels.teams.deleteTeam')}
+        title={tc('deleteTitle')}
         primaryActionText={t('panels.teams.delete')}
         onPrimaryAction={handleDelete}
         isPrimaryLoading={isSubmitting}
@@ -809,7 +808,7 @@ export default function TeamsPanel({
         secondaryActionText={t('panels.teams.cancel')}
       >
         <Text fontSize="sm" color="gray.600">
-          {t('panels.teams.deleteConfirm')}
+          {tc('deleteConfirm')}
         </Text>
         {deletingReg && (
           <Text fontSize="sm" fontWeight="semibold" mt={2}>
