@@ -386,8 +386,14 @@ export default function RoundsPanel({
     const ungrouped = matchesByGroup['_ungrouped'] ?? [];
     return ungrouped.filter((m) => m.round !== 'GROUP');
   }, [matchesByGroup]);
+  // The bracket preview is renderable as soon as the advancing config yields at
+  // least two playoff slots — it only needs winnersPerGroup × groupCount. Gating
+  // solely on created elimination matches (which require the group stage to be
+  // finished first) hid the diagram after saving a default playoffs config.
   const isPlayoffsConfigured =
-    eliminationMatches.length > 0 || activeCategory?.thirdPlaceMatch;
+    eliminationMatches.length > 0 ||
+    Boolean(activeCategory?.thirdPlaceMatch) ||
+    winnersPerGroup * groupCount >= 2;
   const hasEliminationMatches = eliminationMatches.length > 0;
   const scoredEliminationMatches = eliminationMatches.filter(
     (match) =>
@@ -739,11 +745,15 @@ export default function RoundsPanel({
                           const groupRegs = group.registrations ?? [];
                           const groupMatchCount =
                             matchesByGroup[group.id]?.length ?? 0;
-                          const poolLabel =
-                            group.name ??
-                            `${t('panels.rounds.poolLabel')} ${
-                              POOL_LABELS[idx] ?? String(idx + 1)
-                            }`;
+                          // Format group name: if name is just a letter (A, B, C...), prepend with translated "Bảng"
+                          const poolLabel = group.name
+                            ? group.name.length === 1 ||
+                              /^[A-Z]$/.test(group.name)
+                              ? `${t('panels.rounds.poolLabel')} ${group.name}`
+                              : group.name
+                            : `${t('panels.rounds.poolLabel')} ${
+                                POOL_LABELS[idx] ?? String(idx + 1)
+                              }`;
                           return (
                             <Box
                               key={group.id}
@@ -1281,9 +1291,13 @@ export default function RoundsPanel({
 
           {groups.map((group) => {
             const groupMatches = matchesByGroup[group.id] || [];
-            const groupName =
-              group.name ||
-              t('panels.rounds.groupLabel', { number: group.groupNumber });
+            // Format group name: if name is just a letter (A, B, C...), prepend with translated "Bảng"
+            // Otherwise use the name as-is or fallback to groupLabel with number
+            const groupName = group.name
+              ? group.name.length === 1 || /^[A-Z]$/.test(group.name)
+                ? `${t('panels.rounds.poolLabel')} ${group.name}`
+                : group.name
+              : t('panels.rounds.groupLabel', { number: group.groupNumber });
             const regCount = group._count?.registrations || 0;
 
             return (

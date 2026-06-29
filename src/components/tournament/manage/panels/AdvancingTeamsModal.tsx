@@ -124,13 +124,19 @@ export default function AdvancingTeamsModal({
 
   const playoffsTeamCount = winnersPerGroup * groupCount;
 
+  // Teams advance as `winnersPerGroup × groupCount`, so only multiples of the
+  // group count are reachable — listing every integer makes intermediate values
+  // snap to the nearest multiple (no-ops). Cap at the (evenly distributed) group
+  // size so we never advance more teams than a group actually contains.
   const teamCountOptions = useMemo(() => {
+    if (groupCount <= 0) return [0];
+    const maxWinnersPerGroup = Math.floor(totalRegistrations / groupCount);
     const options: number[] = [];
-    for (let n = 0; n <= totalRegistrations; n++) {
-      options.push(n);
+    for (let w = 0; w <= maxWinnersPerGroup; w++) {
+      options.push(w * groupCount);
     }
     return options;
-  }, [totalRegistrations]);
+  }, [groupCount, totalRegistrations]);
 
   const handleTeamCountChange = (total: number) => {
     if (total === 0 || groupCount <= 0) {

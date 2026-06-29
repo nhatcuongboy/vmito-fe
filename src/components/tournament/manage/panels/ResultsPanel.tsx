@@ -305,11 +305,18 @@ export default function ResultsPanel({
     const map = new Map<string, string>();
     categories.forEach((category) => {
       category.groups?.forEach((group) => {
-        if (group.name) map.set(group.id, group.name);
+        if (group.name) {
+          // Format group name: if name is just a letter (A, B, C...), prepend with translated "Bảng"
+          const formattedName =
+            group.name.length === 1 || /^[A-Z]$/.test(group.name)
+              ? `${t('panels.rounds.poolLabel')} ${group.name}`
+              : group.name;
+          map.set(group.id, formattedName);
+        }
       });
     });
     return map;
-  }, [categories]);
+  }, [categories, t]);
 
   // Group name for pool matches (e.g. "Pool A"); round label otherwise.
   const resolveRoundOrGroupLabel = useCallback(

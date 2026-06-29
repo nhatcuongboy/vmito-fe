@@ -87,8 +87,16 @@ function localizeGroupLabel(
   label: string,
   t: ReturnType<typeof useTranslations>
 ) {
-  const match = label.match(/^group\s+(.+)$/i);
-  return match ? t('groupNamed', { name: match[1] }) : label;
+  // Handle "Group X" format (old data)
+  const groupMatch = label.match(/^group\s+(.+)$/i);
+  if (groupMatch) {
+    return t('groupNamed', { name: groupMatch[1] });
+  }
+  // Handle single letter format (new data) - A, B, C, etc.
+  if (label.length === 1 && /^[A-Z]$/i.test(label)) {
+    return t('groupNamed', { name: label.toUpperCase() });
+  }
+  return label;
 }
 
 function getStandingTeamLabel(
