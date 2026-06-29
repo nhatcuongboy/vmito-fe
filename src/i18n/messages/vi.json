@@ -2577,6 +2577,37 @@
               "emailPlaceholder": "ten@vidu.com",
               "phone": "Số điện thoại",
               "phonePlaceholder": "Số điện thoại",
+              "bulkImport": {
+                "button": "Thêm hàng loạt",
+                "title": "Thêm người chơi hàng loạt",
+                "description": "Dán danh sách theo thứ tự cột: Mã, Tên, Giới tính, SĐT.",
+                "inputLabel": "Danh sách người chơi",
+                "placeholder": "Mã, Tên, Giới tính, SĐT\nVDV001, Nguyễn Văn A, Nam, 0901234567\n, Trần Thị B, Nữ, 0912345678",
+                "help": "Hỗ trợ dấu phẩy hoặc tab. Có thể bỏ dòng header. Cột sau SĐT sẽ được bỏ qua.",
+                "previewTitle": "Preview {count} người chơi",
+                "errorSummary": "{count} lỗi cần sửa",
+                "readySummary": "Sẵn sàng import",
+                "confirm": "Thêm hàng loạt",
+                "valid": "Hợp lệ",
+                "success": "Đã thêm {count} người chơi",
+                "failed": "Không thể thêm người chơi hàng loạt",
+                "columns": {
+                  "line": "Dòng",
+                  "code": "Mã",
+                  "name": "Tên",
+                  "gender": "Giới tính",
+                  "phone": "SĐT",
+                  "status": "Trạng thái"
+                },
+                "errors": {
+                  "nameRequired": "Thiếu tên",
+                  "invalidGender": "Giới tính không hợp lệ",
+                  "duplicateCodeExisting": "Mã đã tồn tại",
+                  "duplicateCodeBatch": "Mã bị trùng trong danh sách",
+                  "duplicateNameExisting": "Tên đã tồn tại",
+                  "duplicateNameBatch": "Tên bị trùng trong danh sách"
+                }
+              },
               "genderMale": "Nam",
               "genderFemale": "Nữ",
               "genderOther": "Khác",

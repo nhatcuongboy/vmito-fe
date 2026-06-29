@@ -2,7 +2,15 @@
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { toaster } from '@/components/ui/toaster';
-import { Box, Flex, Heading, Text, Input, Image } from '@chakra-ui/react';
+import {
+  Box,
+  Flex,
+  Heading,
+  Text,
+  Input,
+  Image,
+  Textarea,
+} from '@chakra-ui/react';
 import { Button, VStack } from '@/components/ui/chakra-compat';
 import { VSelect } from '@/components/ui/VSelect';
 import { VModal, useModal } from '@/components/ui/VModal';
@@ -14,6 +22,7 @@ import {
   Users,
   Search,
   Link2,
+  Upload,
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import {
@@ -37,7 +46,12 @@ interface PlayersPanelProps {
 
 type ApiErrorLike = {
   message?: string;
-  response?: { data?: { message?: string | string[]; error?: string } };
+  response?: {
+    data?: {
+      message?: unknown;
+      error?: string;
+    };
+  };
 };
 
 const GENDER_VALUES: GenderType[] = [
@@ -51,7 +65,15 @@ const getErrorMessage = (error: unknown, fallback: string): string => {
   const apiError = error as ApiErrorLike;
   const responseMessage = apiError?.response?.data?.message;
   if (Array.isArray(responseMessage)) return responseMessage.join(', ');
-  if (responseMessage) return responseMessage;
+  if (
+    responseMessage &&
+    typeof responseMessage === 'object' &&
+    'message' in responseMessage &&
+    typeof responseMessage.message === 'string'
+  ) {
+    return responseMessage.message;
+  }
+  if (typeof responseMessage === 'string') return responseMessage;
   if (apiError?.response?.data?.error) return apiError.response.data.error;
   if (error instanceof Error) return error.message;
   return fallback;
@@ -67,6 +89,15 @@ interface PlayerFormState {
   levelDescription: string;
   email: string;
   phone: string;
+}
+
+interface BulkImportRow {
+  lineNumber: number;
+  code: string;
+  name: string;
+  gender: GenderType | '';
+  phone: string;
+  errors: string[];
 }
 
 const EMPTY_FORM: PlayerFormState = {
@@ -97,6 +128,71 @@ const playerToForm = (player: TournamentPlayer): PlayerFormState => ({
   phone: player.phone ?? '',
 });
 
+const normalizeImportToken = (value: string): string =>
+  value
+    .trim()
+    .toLocaleLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '');
+
+const parseDelimitedLine = (line: string): string[] => {
+  if (line.includes('\t')) {
+    return line.split('\t').map((part) => part.trim());
+  }
+
+  const values: string[] = [];
+  let current = '';
+  let inQuotes = false;
+
+  for (let index = 0; index < line.length; index += 1) {
+    const char = line[index];
+    const nextChar = line[index + 1];
+
+    if (char === '"' && nextChar === '"') {
+      current += '"';
+      index += 1;
+    } else if (char === '"') {
+      inQuotes = !inQuotes;
+    } else if (char === ',' && !inQuotes) {
+      values.push(current.trim());
+      current = '';
+    } else {
+      current += char;
+    }
+  }
+
+  values.push(current.trim());
+  return values;
+};
+
+const normalizeGender = (value: string): GenderType | '' | null => {
+  const normalized = normalizeImportToken(value);
+  if (!normalized) return '';
+  if (['m', 'male', 'man', 'nam'].includes(normalized)) return 'MALE';
+  if (['f', 'female', 'woman', 'nu'].includes(normalized)) return 'FEMALE';
+  if (['o', 'other', 'khac'].includes(normalized)) return 'OTHER';
+  if (
+    [
+      'prefer not to say',
+      'prefer_not_to_say',
+      'khong tiet lo',
+      'khong muon tiet lo',
+    ].includes(normalized)
+  ) {
+    return 'PREFER_NOT_TO_SAY';
+  }
+  return null;
+};
+
+const isImportHeaderRow = (values: string[]): boolean => {
+  const first = normalizeImportToken(values[0] ?? '');
+  const second = normalizeImportToken(values[1] ?? '');
+  return (
+    ['ma', 'code', 'id', 'player code'].includes(first) &&
+    ['ten', 'name', 'ho ten', 'player name'].includes(second)
+  );
+};
+
 export default function PlayersPanel({ tournament }: PlayersPanelProps) {
   const t = useTranslations('pages.tournaments.detail.manage.panels.players');
   const [players, setPlayers] = useState<TournamentPlayer[]>([]);
@@ -105,6 +201,7 @@ export default function PlayersPanel({ tournament }: PlayersPanelProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const editModal = useModal();
+  const bulkImportModal = useModal();
   const avatarModal = useModal();
   const deleteModal = useModal();
   const detailModal = useModal();
@@ -118,6 +215,7 @@ export default function PlayersPanel({ tournament }: PlayersPanelProps) {
   const [deletingPlayer, setDeletingPlayer] = useState<TournamentPlayer | null>(
     null
   );
+  const [bulkImportText, setBulkImportText] = useState('');
 
   const GENDER_LABELS: Record<GenderType, string> = useMemo(
     () => ({
@@ -154,6 +252,103 @@ export default function PlayersPanel({ tournament }: PlayersPanelProps) {
         .some((field) => field!.toLowerCase().includes(query))
     );
   }, [players, search]);
+
+  const bulkImportRows = useMemo((): BulkImportRow[] => {
+    const existingCodes = new Set(
+      players
+        .map((player) => player.code?.trim().toLocaleLowerCase())
+        .filter((code): code is string => Boolean(code))
+    );
+    const existingNames = new Set(
+      players
+        .map((player) => player.name?.trim().toLocaleLowerCase())
+        .filter(Boolean)
+    );
+    const seenCodes = new Set<string>();
+    const seenNames = new Set<string>();
+    const generatedCodes: string[] = [];
+
+    return bulkImportText
+      .split(/\r?\n/)
+      .map((rawLine, index) => ({ rawLine, lineNumber: index + 1 }))
+      .filter(({ rawLine }) => rawLine.trim().length > 0)
+      .filter(({ rawLine }, index) => {
+        if (index > 0) return true;
+        return !isImportHeaderRow(parseDelimitedLine(rawLine));
+      })
+      .map(({ rawLine, lineNumber }) => {
+        const values = parseDelimitedLine(rawLine);
+        const rawCode = values[0]?.trim() ?? '';
+        const name = values[1]?.trim() ?? '';
+        const rawGender = values[2]?.trim() ?? '';
+        const phone = values[3]?.trim() ?? '';
+        const gender = normalizeGender(rawGender);
+        const code =
+          rawCode ||
+          generateNextTournamentPlayerCode(
+            [
+              ...players,
+              ...generatedCodes.map(
+                (generatedCode, index) =>
+                  ({
+                    id: `bulk-import-${index}`,
+                    name: '',
+                    code: generatedCode,
+                  }) as TournamentPlayer
+              ),
+            ],
+            players.length + generatedCodes.length + 1
+          );
+        const normalizedCode = code.trim().toLocaleLowerCase();
+        const normalizedName = name.trim().toLocaleLowerCase();
+        const errors: string[] = [];
+
+        if (!name) {
+          errors.push(t('bulkImport.errors.nameRequired'));
+        }
+        if (rawGender && gender === null) {
+          errors.push(t('bulkImport.errors.invalidGender'));
+        }
+        if (normalizedCode && existingCodes.has(normalizedCode)) {
+          errors.push(t('bulkImport.errors.duplicateCodeExisting'));
+        }
+        if (normalizedCode && seenCodes.has(normalizedCode)) {
+          errors.push(t('bulkImport.errors.duplicateCodeBatch'));
+        }
+        if (normalizedName && existingNames.has(normalizedName)) {
+          errors.push(t('bulkImport.errors.duplicateNameExisting'));
+        }
+        if (normalizedName && seenNames.has(normalizedName)) {
+          errors.push(t('bulkImport.errors.duplicateNameBatch'));
+        }
+
+        if (normalizedCode) {
+          seenCodes.add(normalizedCode);
+        }
+        if (normalizedName) {
+          seenNames.add(normalizedName);
+        }
+        if (!rawCode) {
+          generatedCodes.push(code);
+        }
+
+        return {
+          lineNumber,
+          code,
+          name,
+          gender: gender ?? '',
+          phone,
+          errors,
+        };
+      });
+  }, [bulkImportText, players, t]);
+
+  const bulkImportErrorCount = bulkImportRows.reduce(
+    (count, row) => count + row.errors.length,
+    0
+  );
+  const canConfirmBulkImport =
+    bulkImportRows.length > 0 && bulkImportErrorCount === 0 && !isSubmitting;
 
   const updateField = (key: keyof PlayerFormState, value: string) =>
     setForm((prev) => ({ ...prev, [key]: value }));
@@ -197,6 +392,11 @@ export default function PlayersPanel({ tournament }: PlayersPanelProps) {
     });
     avatarModal.onClose();
     editModal.onOpen();
+  };
+
+  const handleOpenBulkImport = () => {
+    setBulkImportText('');
+    bulkImportModal.onOpen();
   };
 
   const handleOpenEdit = (player: TournamentPlayer) => {
@@ -248,6 +448,38 @@ export default function PlayersPanel({ tournament }: PlayersPanelProps) {
     }
   };
 
+  const handleBulkImport = async () => {
+    if (!canConfirmBulkImport) return;
+    try {
+      setIsSubmitting(true);
+      await TournamentPlayerService.createBulkPlayers(
+        tournament.id,
+        bulkImportRows.map((row) => ({
+          lineNumber: row.lineNumber,
+          code: row.code,
+          name: row.name,
+          gender: row.gender || undefined,
+          phone: row.phone || undefined,
+        })),
+        { showToast: false }
+      );
+      toaster.success({
+        title: t('bulkImport.success', { count: bulkImportRows.length }),
+      });
+      await loadPlayers();
+      setBulkImportText('');
+      bulkImportModal.onClose();
+    } catch (error) {
+      console.error('Error bulk importing players:', error);
+      toaster.error({
+        title: t('bulkImport.failed'),
+        description: getErrorMessage(error, t('unknownError')),
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   const handleCloseEditModal = () => {
     avatarModal.onClose();
     editModal.onClose();
@@ -291,14 +523,24 @@ export default function PlayersPanel({ tournament }: PlayersPanelProps) {
         {/* Header */}
         <Flex justify="space-between" align="center" gap={3}>
           <Heading size="md">{t('title')}</Heading>
-          <Button
-            size="sm"
-            variant="outline"
-            leftIcon={<Plus size={14} />}
-            onClick={handleOpenAdd}
-          >
-            {t('addPlayer')}
-          </Button>
+          <Flex gap={2} flexWrap="wrap" justify="flex-end">
+            <Button
+              size="sm"
+              variant="outline"
+              leftIcon={<Upload size={14} />}
+              onClick={handleOpenBulkImport}
+            >
+              {t('bulkImport.button')}
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              leftIcon={<Plus size={14} />}
+              onClick={handleOpenAdd}
+            >
+              {t('addPlayer')}
+            </Button>
+          </Flex>
         </Flex>
 
         <Text fontSize="sm" color="gray.500" _dark={{ color: 'gray.400' }}>
@@ -668,6 +910,143 @@ export default function PlayersPanel({ tournament }: PlayersPanelProps) {
               onChange={(e) => updateField('phone', e.target.value)}
             />
           </Box>
+        </VStack>
+      </VModal>
+
+      {/* Bulk Import Modal */}
+      <VModal
+        isOpen={bulkImportModal.isOpen}
+        onClose={bulkImportModal.onClose}
+        zIndex={PANEL_MODAL_Z_INDEX}
+        title={t('bulkImport.title')}
+        description={t('bulkImport.description')}
+        primaryActionText={t('bulkImport.confirm')}
+        onPrimaryAction={handleBulkImport}
+        isPrimaryLoading={isSubmitting}
+        isPrimaryDisabled={!canConfirmBulkImport}
+        secondaryActionText={t('cancel')}
+        size="xl"
+        maxBodyHeight={{ base: '72vh', md: '75vh' }}
+      >
+        <VStack gap={4} align="stretch">
+          <Box>
+            <Text fontSize="sm" fontWeight="medium" mb={1}>
+              {t('bulkImport.inputLabel')}
+            </Text>
+            <Textarea
+              value={bulkImportText}
+              onChange={(event) => setBulkImportText(event.target.value)}
+              placeholder={t('bulkImport.placeholder')}
+              rows={7}
+              resize="vertical"
+              disabled={isSubmitting}
+            />
+            <Text fontSize="xs" color="gray.500" mt={1}>
+              {t('bulkImport.help')}
+            </Text>
+          </Box>
+
+          {bulkImportRows.length > 0 && (
+            <Box>
+              <Flex justify="space-between" align="center" mb={2} gap={3}>
+                <Text fontSize="sm" fontWeight="semibold">
+                  {t('bulkImport.previewTitle', {
+                    count: bulkImportRows.length,
+                  })}
+                </Text>
+                <Text
+                  fontSize="xs"
+                  color={bulkImportErrorCount > 0 ? 'red.500' : 'green.600'}
+                >
+                  {bulkImportErrorCount > 0
+                    ? t('bulkImport.errorSummary', {
+                        count: bulkImportErrorCount,
+                      })
+                    : t('bulkImport.readySummary')}
+                </Text>
+              </Flex>
+              <Box
+                borderWidth="1px"
+                borderColor="gray.200"
+                borderRadius="md"
+                overflowX="auto"
+                _dark={{ borderColor: 'gray.700' }}
+              >
+                <Box as="table" w="full" minW="720px" fontSize="sm">
+                  <Box as="thead" bg="gray.50" _dark={{ bg: 'gray.800' }}>
+                    <Box as="tr">
+                      {[
+                        t('bulkImport.columns.line'),
+                        t('bulkImport.columns.code'),
+                        t('bulkImport.columns.name'),
+                        t('bulkImport.columns.gender'),
+                        t('bulkImport.columns.phone'),
+                        t('bulkImport.columns.status'),
+                      ].map((label) => (
+                        <Box
+                          key={label}
+                          as="th"
+                          px={3}
+                          py={2}
+                          textAlign="left"
+                          fontWeight="semibold"
+                          color="gray.600"
+                          _dark={{ color: 'gray.300' }}
+                        >
+                          {label}
+                        </Box>
+                      ))}
+                    </Box>
+                  </Box>
+                  <Box as="tbody">
+                    {bulkImportRows.map((row) => (
+                      <Box
+                        key={row.lineNumber}
+                        as="tr"
+                        borderTopWidth="1px"
+                        borderColor="gray.100"
+                        bg={row.errors.length > 0 ? 'red.50' : undefined}
+                        _dark={{
+                          borderColor: 'gray.700',
+                          bg:
+                            row.errors.length > 0
+                              ? 'rgba(239, 68, 68, 0.12)'
+                              : undefined,
+                        }}
+                      >
+                        <Box as="td" px={3} py={2}>
+                          {row.lineNumber}
+                        </Box>
+                        <Box as="td" px={3} py={2}>
+                          {row.code || '—'}
+                        </Box>
+                        <Box as="td" px={3} py={2}>
+                          {row.name || '—'}
+                        </Box>
+                        <Box as="td" px={3} py={2}>
+                          {row.gender ? GENDER_LABELS[row.gender] : '—'}
+                        </Box>
+                        <Box as="td" px={3} py={2}>
+                          {row.phone || '—'}
+                        </Box>
+                        <Box as="td" px={3} py={2}>
+                          {row.errors.length > 0 ? (
+                            <Text color="red.600" fontSize="xs">
+                              {row.errors.join(', ')}
+                            </Text>
+                          ) : (
+                            <Text color="green.600" fontSize="xs">
+                              {t('bulkImport.valid')}
+                            </Text>
+                          )}
+                        </Box>
+                      </Box>
+                    ))}
+                  </Box>
+                </Box>
+              </Box>
+            </Box>
+          )}
         </VStack>
       </VModal>
 

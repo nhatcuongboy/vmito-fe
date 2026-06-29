@@ -2547,6 +2547,37 @@
               "emailPlaceholder": "name@example.com",
               "phone": "电话",
               "phonePlaceholder": "电话号码",
+              "bulkImport": {
+                "button": "批量添加",
+                "title": "批量添加选手",
+                "description": "按列顺序粘贴列表：编号、姓名、性别、电话。",
+                "inputLabel": "选手列表",
+                "placeholder": "编号, 姓名, 性别, 电话\nVDV001, Nguyen Van A, Male, 0901234567\n, Tran Thi B, Female, 0912345678",
+                "help": "支持逗号或制表符分隔。可包含表头。电话后的列会被忽略。",
+                "previewTitle": "预览 {count} 名选手",
+                "errorSummary": "需要修复 {count} 个错误",
+                "readySummary": "可以导入",
+                "confirm": "添加选手",
+                "valid": "有效",
+                "success": "已添加 {count} 名选手",
+                "failed": "批量添加选手失败",
+                "columns": {
+                  "line": "行",
+                  "code": "编号",
+                  "name": "姓名",
+                  "gender": "性别",
+                  "phone": "电话",
+                  "status": "状态"
+                },
+                "errors": {
+                  "nameRequired": "缺少姓名",
+                  "invalidGender": "性别无效",
+                  "duplicateCodeExisting": "编号已存在",
+                  "duplicateCodeBatch": "导入列表中编号重复",
+                  "duplicateNameExisting": "姓名已存在",
+                  "duplicateNameBatch": "导入列表中姓名重复"
+                }
+              },
               "genderMale": "男",
               "genderFemale": "女",
               "genderOther": "其他",

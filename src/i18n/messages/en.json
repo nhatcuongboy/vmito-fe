@@ -2569,6 +2569,37 @@
               "emailPlaceholder": "name@example.com",
               "phone": "Phone",
               "phonePlaceholder": "Phone number",
+              "bulkImport": {
+                "button": "Bulk add",
+                "title": "Bulk add players",
+                "description": "Paste the list in column order: Code, Name, Gender, Phone.",
+                "inputLabel": "Player list",
+                "placeholder": "Code, Name, Gender, Phone\nVDV001, Nguyen Van A, Male, 0901234567\n, Tran Thi B, Female, 0912345678",
+                "help": "Comma or tab separated data is supported. Header rows are skipped. Columns after Phone are ignored.",
+                "previewTitle": "Preview {count} players",
+                "errorSummary": "{count} error(s) to fix",
+                "readySummary": "Ready to import",
+                "confirm": "Add players",
+                "valid": "Valid",
+                "success": "Added {count} players",
+                "failed": "Failed to bulk add players",
+                "columns": {
+                  "line": "Line",
+                  "code": "Code",
+                  "name": "Name",
+                  "gender": "Gender",
+                  "phone": "Phone",
+                  "status": "Status"
+                },
+                "errors": {
+                  "nameRequired": "Missing name",
+                  "invalidGender": "Invalid gender",
+                  "duplicateCodeExisting": "Code already exists",
+                  "duplicateCodeBatch": "Duplicate code in import",
+                  "duplicateNameExisting": "Name already exists",
+                  "duplicateNameBatch": "Duplicate name in import"
+                }
+              },
               "genderMale": "Male",
               "genderFemale": "Female",
               "genderOther": "Other",

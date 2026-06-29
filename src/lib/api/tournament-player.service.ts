@@ -28,6 +28,19 @@ export type UpdateTournamentPlayerPayload = {
   userId?: string;
 };
 
+export type BulkTournamentPlayerPayload = {
+  lineNumber?: number;
+  code?: string;
+  name?: string;
+  gender?: GenderType | string;
+  phone?: string;
+};
+
+export type BulkTournamentPlayersResult = {
+  count: number;
+  players: TournamentPlayer[];
+};
+
 export const TournamentPlayerService = {
   // Get all players in a tournament
   getPlayers: async (tournamentId: string): Promise<TournamentPlayer[]> => {
@@ -65,6 +78,22 @@ export const TournamentPlayerService = {
     );
     if (options?.showToast !== false) {
       toaster.success({ title: 'Player created successfully' });
+    }
+    return response.data.data!;
+  },
+
+  // Create multiple tournament players in one BE-validated transaction
+  createBulkPlayers: async (
+    tournamentId: string,
+    rows: BulkTournamentPlayerPayload[],
+    options?: { showToast?: boolean }
+  ): Promise<BulkTournamentPlayersResult> => {
+    const response = await api.post<ApiResponse<BulkTournamentPlayersResult>>(
+      `/tournaments/${tournamentId}/players/bulk-create`,
+      { rows }
+    );
+    if (options?.showToast !== false) {
+      toaster.success({ title: 'Players created successfully' });
     }
     return response.data.data!;
   },
