@@ -228,6 +228,14 @@ export default function ScoreEntryBoard({
     [rules, isDoubles, processQueue]
   );
 
+  // Pickleball doubles serving indicator: show the dots on whichever side the
+  // "Lượt giao pickleball" control currently points to, using the same default
+  // (side 1 / server 2) so the dots and the control always agree.
+  const servingSide = match.servingSide ?? 1;
+  const serverNumber = match.serverNumber ?? 2;
+  const serverDotsForSide = (side: 1 | 2): 1 | 2 | null =>
+    showPickleballServe && servingSide === side ? serverNumber : null;
+
   const sidePanels: TeamScorePanelProps[] = [
     {
       side: 1,
@@ -241,6 +249,7 @@ export default function ScoreEntryBoard({
       onDecrement: () => handleScore(1, -1),
       incLabel: t('addPointFor', { team: team1 }),
       decLabel: t('removePointFor', { team: team1 }),
+      serverDots: serverDotsForSide(1),
     },
     {
       side: 2,
@@ -254,6 +263,7 @@ export default function ScoreEntryBoard({
       onDecrement: () => handleScore(2, -1),
       incLabel: t('addPointFor', { team: team2 }),
       decLabel: t('removePointFor', { team: team2 }),
+      serverDots: serverDotsForSide(2),
     },
   ];
   const visibleSidePanels = isSwapped
@@ -866,6 +876,9 @@ interface TeamScorePanelProps {
   incLabel: string;
   decLabel: string;
   compact?: boolean;
+  // Pickleball doubles: number of server dots to show on this side (the side
+  // currently serving), or null when this side is not serving.
+  serverDots?: 1 | 2 | null;
 }
 
 function TeamScorePanel({
@@ -880,6 +893,7 @@ function TeamScorePanel({
   incLabel,
   decLabel,
   compact = false,
+  serverDots,
 }: TeamScorePanelProps) {
   const bg = colorScheme === 'blue' ? 'blue.500' : 'orange.500';
   const bgHover = colorScheme === 'blue' ? 'blue.600' : 'orange.600';
@@ -960,15 +974,18 @@ function TeamScorePanel({
             {playerNames}
           </Text>
         )}
-        <Text
-          fontSize={
-            compact ? { base: '6xl', md: '9xl' } : { base: '7xl', md: '9xl' }
-          }
-          fontWeight="black"
-          lineHeight={1}
-        >
-          {score}
-        </Text>
+        <Flex align="center" justify="center" gap={{ base: 2, md: 3 }}>
+          {serverDots != null && <ServerDots count={serverDots} />}
+          <Text
+            fontSize={
+              compact ? { base: '6xl', md: '9xl' } : { base: '7xl', md: '9xl' }
+            }
+            fontWeight="black"
+            lineHeight={1}
+          >
+            {score}
+          </Text>
+        </Flex>
         <Text fontSize="sm" opacity={0.85}>
           {setWins} ✪
         </Text>
@@ -993,6 +1010,25 @@ function TeamScorePanel({
       >
         <Minus size={18} />
       </IconButton>
+    </Flex>
+  );
+}
+
+// Pickleball doubles serving indicator: 1 or 2 white dots, matching the public
+// scoreboard (LiveMatchCard) so the referee board reads the same way.
+function ServerDots({ count }: { count: 1 | 2 }) {
+  return (
+    <Flex gap={2} align="center" aria-hidden="true">
+      {Array.from({ length: count }).map((_, index) => (
+        <Box
+          key={index}
+          w={{ base: 3, md: 4 }}
+          h={{ base: 3, md: 4 }}
+          borderRadius="full"
+          bg="white"
+          boxShadow="0 0 10px rgba(255, 255, 255, 0.55)"
+        />
+      ))}
     </Flex>
   );
 }

@@ -770,7 +770,7 @@ export default function BracketVisualization({
         canvasPadding: compact ? 8 : 24,
         spaceBetweenColumns: compact ? 20 : 40,
         spaceBetweenRows: compact ? 10 : 18,
-        connectorColor: '#CBD5E0',
+        connectorColor: isDark ? '#4A5568' : '#CBD5E0',
         connectorColorHighlight: '#2563EB',
         horizontalOffset: 0,
         roundSeparatorWidth: compact ? 20 : 40,
@@ -783,15 +783,15 @@ export default function BracketVisualization({
           height: compact ? 24 : 40,
           marginBottom: compact ? 10 : 20,
           fontSize: compact ? 11 : 14,
-          fontColor: '#111827',
-          backgroundColor: compact ? '#F8FAFC' : '#F1F5F9',
+          fontColor: isDark ? '#F7FAFC' : '#111827',
+          backgroundColor: isDark ? '#2D3748' : compact ? '#F8FAFC' : '#F1F5F9',
           fontFamily: '"Inter", "Arial", "Helvetica", sans-serif',
           roundTextGenerator: (currentRound: number, totalRounds: number) =>
             getRoundName(currentRound - 1, totalRounds, t),
         },
       },
     }),
-    [compact, matchH, matchW, t]
+    [compact, matchH, matchW, t, isDark]
   );
 
   if (flatMatches.length === 0) {

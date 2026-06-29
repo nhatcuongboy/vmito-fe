@@ -64,6 +64,10 @@ function Checkbox({
         align="center"
         justify="center"
         bg={checked ? 'blue.500' : 'white'}
+        _dark={{
+          borderColor: checked ? 'blue.500' : 'gray.600',
+          bg: checked ? 'blue.500' : 'gray.700',
+        }}
         flexShrink={0}
         transition="all 0.15s"
       >
@@ -299,7 +303,14 @@ export default function PlayoffsBracketModal({
             {t('panels.rounds.cancel')}
           </Button>
           <Button
-            style={{ background: '#1a202c', color: 'white' }}
+            bg="gray.900"
+            color="white"
+            _hover={{ bg: 'gray.700' }}
+            _dark={{
+              bg: 'white',
+              color: 'gray.900',
+              _hover: { bg: 'gray.200' },
+            }}
             onClick={handleSave}
             disabled={isSaving}
           >
