@@ -338,6 +338,11 @@ export default function PlayoffsBracketModal({
                 onChange={setThirdPlaceMatch}
                 label={t('panels.rounds.playFor3rdPlace')}
               />
+              {!thirdPlaceMatch && (
+                <Text fontSize="xs" color="gray.500" pl="30px">
+                  {t('panels.rounds.coThirdPlaceHint')}
+                </Text>
+              )}
               <Checkbox
                 checked={fifthPlaceMatch}
                 onChange={(v) => {

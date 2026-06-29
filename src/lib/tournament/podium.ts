@@ -14,6 +14,9 @@ export interface PodiumEntry {
   label: string;
   playerNames?: string;
   detail?: string; // e.g. final score
+  // True when this entry shares its rank with another (e.g. both losing
+  // semifinalists are co-3rd when no 3rd-place playoff is played).
+  tied?: boolean;
 }
 
 // decided = champion confirmed; provisional = leader while a round robin is
@@ -132,6 +135,28 @@ export function computePodium<C extends { id: string }>(
           playerNames: getRegistrationPlayerNames(thirdMatch, thirdPosition),
           detail: thirdMatch.score,
         });
+      } else if (!thirdMatch) {
+        // No 3rd-place playoff configured: both losing semifinalists share 3rd
+        // place (co-bronze) — the standard badminton/pickleball convention.
+        const semiFinals = playoffMatches.filter(
+          (match) =>
+            match.round.toUpperCase() === 'SF' &&
+            match.status === MatchStatus.FINISHED &&
+            match.winnerId
+        );
+        for (const semiFinal of semiFinals) {
+          const loserPosition = semiFinal.participants?.find(
+            (participant) =>
+              participant.categoryRegistrationId !== semiFinal.winnerId
+          )?.position;
+          if (loserPosition === undefined) continue;
+          entries.push({
+            rank: 3,
+            tied: true,
+            label: getTeamLabel(semiFinal, loserPosition),
+            playerNames: getRegistrationPlayerNames(semiFinal, loserPosition),
+          });
+        }
       }
 
       return { category, state: 'decided', entries };

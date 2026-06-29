@@ -302,9 +302,9 @@ function CategoryPodiumCard({
           gap={{ base: 2.5, md: 3 }}
           alignItems="stretch"
         >
-          {entries.map((entry) => (
+          {entries.map((entry, index) => (
             <PodiumCard
-              key={entry.rank}
+              key={`${entry.rank}-${index}`}
               entry={entry}
               showPlayerNames={showPlayerNames}
               t={t}
@@ -327,7 +327,7 @@ function PodiumCard({
 }) {
   const style = RANK_STYLE[entry.rank];
   const Icon = entry.rank === 1 ? Crown : entry.rank === 2 ? Medal : Award;
-  const rankLabel = getPodiumRankLabel(entry.rank, t);
+  const rankLabel = getPodiumRankLabel(entry, t);
   const display = getPodiumEntryDisplay(entry, showPlayerNames);
   const playerLines = showPlayerNames ? getPodiumPlayerNameLines(entry) : [];
 
@@ -429,10 +429,11 @@ function getPodiumPlayerNameLines(entry: PodiumEntry) {
 }
 
 function getPodiumRankLabel(
-  rank: PodiumRank,
+  entry: PodiumEntry,
   t: ReturnType<typeof useTranslations>
 ) {
-  if (rank === 1) return t('champion');
-  if (rank === 2) return t('runnerUp');
+  if (entry.rank === 1) return t('champion');
+  if (entry.rank === 2) return t('runnerUp');
+  if (entry.tied) return t('coThirdPlace');
   return t('thirdPlace');
 }
