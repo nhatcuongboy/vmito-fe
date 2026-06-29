@@ -2496,6 +2496,10 @@
               "members": "Members: {current}/{total}",
               "quickCreatePlayer": "Quickly create a new player",
               "memberAddFailed": "Failed to add player",
+              "selectFromList": "Select players",
+              "searchPlayerPlaceholder": "Search players...",
+              "noAvailablePlayers": "All players are already registered in this category",
+              "selectedCount": "{count} selected",
               "draftTeamWarning": "This team is still a draft and cannot be assigned to a pool or scheduled yet.",
               "team": {
                 "title": "Teams",

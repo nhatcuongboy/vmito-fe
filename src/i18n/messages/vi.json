@@ -2504,6 +2504,10 @@
               "members": "Thành viên: {current}/{total}",
               "quickCreatePlayer": "Tạo nhanh VĐV mới",
               "memberAddFailed": "Không thể thêm VĐV",
+              "selectFromList": "Chọn VĐV",
+              "searchPlayerPlaceholder": "Tìm VĐV...",
+              "noAvailablePlayers": "Tất cả VĐV đã được đăng ký vào nội dung này",
+              "selectedCount": "Đã chọn {count} VĐV",
               "draftTeamWarning": "Đội đang ở trạng thái nháp và chưa thể xếp bảng hoặc tạo lịch.",
               "team": {
                 "title": "Đội",

@@ -136,11 +136,11 @@ export const CategoryService = {
 
   bulkCreateRegistrations: async (
     categoryId: string,
-    names: string[]
+    payload: { names?: string[]; tournamentPlayerIds?: string[] }
   ): Promise<CategoryRegistration[]> => {
     const response = await api.post<ApiResponse<CategoryRegistration[]>>(
       `/categories/${categoryId}/registrations/bulk`,
-      { names }
+      payload
     );
     return response.data.data ?? [];
   },

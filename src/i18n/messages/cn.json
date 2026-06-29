@@ -2474,6 +2474,10 @@
               "members": "成员：{current}/{total}",
               "quickCreatePlayer": "快速创建新运动员",
               "memberAddFailed": "添加运动员失败",
+              "selectFromList": "选择运动员",
+              "searchPlayerPlaceholder": "搜索运动员...",
+              "noAvailablePlayers": "所有运动员均已报名此项目",
+              "selectedCount": "已选择 {count} 名",
               "draftTeamWarning": "该队伍仍为草稿，暂时无法分组或排赛程。",
               "team": {
                 "title": "队伍",

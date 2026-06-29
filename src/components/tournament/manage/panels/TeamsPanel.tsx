@@ -24,7 +24,7 @@ interface TeamsPanelProps {
   onSelectCategory: (category: Category) => void;
 }
 
-type TAddMode = 'single' | 'multiple';
+type TAddMode = 'single' | 'select' | 'multiple';
 type BulkProgress = {
   current: number;
   total: number;
@@ -101,6 +101,8 @@ export default function TeamsPanel({
   const [addMode, setAddMode] = useState<TAddMode>('single');
   const [addName, setAddName] = useState('');
   const [addMultiText, setAddMultiText] = useState('');
+  const [selectedPlayerIds, setSelectedPlayerIds] = useState<string[]>([]);
+  const [playerSearch, setPlayerSearch] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [bulkProgress, setBulkProgress] = useState<BulkProgress | null>(null);
 
@@ -141,6 +143,24 @@ export default function TeamsPanel({
       !legacyPlaceholderIds.has(player.id) || memberIds.includes(player.id)
   );
 
+  // Players that exist in the tournament but are NOT yet registered in this
+  // (individual) category — used by the "select from list" add mode.
+  const registeredPlayerIds = new Set(
+    registrations
+      .map(
+        (registration) =>
+          registration.player?.id ?? registration.tournamentPlayerId
+      )
+      .filter((playerId): playerId is string => Boolean(playerId))
+  );
+  const normalizedPlayerSearch = playerSearch.trim().toLowerCase();
+  const registrablePlayers = players.filter(
+    (player) =>
+      !registeredPlayerIds.has(player.id) &&
+      (normalizedPlayerSearch.length === 0 ||
+        player.name.toLowerCase().includes(normalizedPlayerSearch))
+  );
+
   const loadRegistrations = useCallback(async (categoryId: string) => {
     try {
       setLoading(true);
@@ -173,6 +193,8 @@ export default function TeamsPanel({
     setAddMode('single');
     setAddName('');
     setAddMultiText('');
+    setSelectedPlayerIds([]);
+    setPlayerSearch('');
     setBulkProgress(null);
     addModal.onOpen();
   };
@@ -211,6 +233,22 @@ export default function TeamsPanel({
         toaster.success({
           title: tc('addSuccess'),
         });
+      } else if (addMode === 'select') {
+        if (selectedPlayerIds.length === 0) {
+          toaster.error({
+            title: tc('enterAtLeastOne'),
+          });
+          return;
+        }
+        // Single request: register every selected existing player in one
+        // transaction instead of firing N parallel API calls.
+        const created = await CategoryService.bulkCreateRegistrations(
+          activeCategory.id,
+          { tournamentPlayerIds: selectedPlayerIds }
+        );
+        toaster.success({
+          title: tc('bulkAddSuccess', { count: created.length }),
+        });
       } else {
         const lines = parseBulkTeamNames(addMultiText);
         if (lines.length === 0) {
@@ -223,7 +261,7 @@ export default function TeamsPanel({
         // in one transaction, so we no longer fire N parallel API calls.
         const created = await CategoryService.bulkCreateRegistrations(
           activeCategory.id,
-          lines
+          { names: lines }
         );
         toaster.success({
           title: tc('bulkAddSuccess', { count: created.length }),
@@ -232,6 +270,8 @@ export default function TeamsPanel({
       await loadRegistrations(activeCategory.id);
       setAddName('');
       setAddMultiText('');
+      setSelectedPlayerIds([]);
+      setPlayerSearch('');
       addModal.onClose();
     } catch (error) {
       console.error('Error adding team(s):', error);
@@ -584,23 +624,61 @@ export default function TeamsPanel({
         isOpen={addModal.isOpen}
         onClose={addModal.onClose}
         title={tc('addTitle')}
+        headerRightContent={
+          activeCategory ? (
+            <Flex
+              align="center"
+              gap={1.5}
+              px={2.5}
+              py={1}
+              borderRadius="full"
+              bg="gray.100"
+              maxW="180px"
+              _dark={{ bg: 'gray.700' }}
+            >
+              <Box
+                w={2}
+                h={2}
+                borderRadius="full"
+                bg={activeCategoryColor}
+                flexShrink={0}
+              />
+              <Text
+                fontSize="xs"
+                fontWeight="medium"
+                color="gray.700"
+                _dark={{ color: 'gray.200' }}
+                truncate
+              >
+                {activeCategory.name}
+              </Text>
+            </Flex>
+          ) : undefined
+        }
         primaryActionText={t('panels.teams.save')}
         onPrimaryAction={handleAdd}
         isPrimaryLoading={isSubmitting}
         isPrimaryDisabled={
-          addMode === 'single' ? !addName.trim() : !addMultiText.trim()
+          addMode === 'single'
+            ? !addName.trim()
+            : addMode === 'select'
+              ? selectedPlayerIds.length === 0
+              : !addMultiText.trim()
         }
         secondaryActionText={t('panels.teams.cancel')}
       >
         <VStack gap={4} align="stretch">
-          {/* Single / Multiple toggle */}
+          {/* Add mode toggle */}
           <Flex
             bg="gray.100"
             borderRadius="full"
             p={1}
             _dark={{ bg: 'gray.700' }}
           >
-            {(['single', 'multiple'] as TAddMode[]).map((mode) => (
+            {(isTeamCategory
+              ? (['single', 'multiple'] as TAddMode[])
+              : (['single', 'select', 'multiple'] as TAddMode[])
+            ).map((mode) => (
               <Box
                 key={mode}
                 as="button"
@@ -626,12 +704,14 @@ export default function TeamsPanel({
               >
                 {mode === 'single'
                   ? t('panels.teams.single')
-                  : t('panels.teams.multiple')}
+                  : mode === 'select'
+                    ? t('panels.teams.selectFromList')
+                    : t('panels.teams.multiple')}
               </Box>
             ))}
           </Flex>
 
-          {addMode === 'single' ? (
+          {addMode === 'single' && (
             <Input
               placeholder={tc('namePlaceholder')}
               value={addName}
@@ -641,7 +721,79 @@ export default function TeamsPanel({
                 if (e.key === 'Enter') handleAdd();
               }}
             />
-          ) : (
+          )}
+
+          {addMode === 'select' && (
+            <VStack gap={2} align="stretch">
+              <Input
+                placeholder={t('panels.teams.searchPlayerPlaceholder')}
+                value={playerSearch}
+                onChange={(e) => setPlayerSearch(e.target.value)}
+                disabled={isSubmitting}
+              />
+              {selectedPlayerIds.length > 0 && (
+                <Text
+                  fontSize="sm"
+                  color="gray.500"
+                  _dark={{ color: 'gray.400' }}
+                >
+                  {t('panels.teams.selectedCount', {
+                    count: selectedPlayerIds.length,
+                  })}
+                </Text>
+              )}
+              {registrablePlayers.length === 0 ? (
+                <Box
+                  py={6}
+                  textAlign="center"
+                  fontSize="sm"
+                  color="gray.500"
+                  _dark={{ color: 'gray.400' }}
+                >
+                  {t('panels.teams.noAvailablePlayers')}
+                </Box>
+              ) : (
+                <VStack gap={2} align="stretch" maxH="280px" overflowY="auto">
+                  {registrablePlayers.map((player) => {
+                    const checked = selectedPlayerIds.includes(player.id);
+                    return (
+                      <Flex
+                        key={player.id}
+                        align="center"
+                        gap={3}
+                        borderWidth="1px"
+                        borderRadius="md"
+                        px={3}
+                        py={2}
+                        cursor="pointer"
+                        bg={checked ? 'green.50' : 'transparent'}
+                        borderColor={checked ? 'green.300' : 'border'}
+                        _dark={{
+                          bg: checked ? 'green.900' : 'transparent',
+                          borderColor: checked ? 'green.600' : 'gray.600',
+                        }}
+                        onClick={() => {
+                          if (isSubmitting) return;
+                          setSelectedPlayerIds((current) =>
+                            checked
+                              ? current.filter((id) => id !== player.id)
+                              : [...current, player.id]
+                          );
+                        }}
+                      >
+                        <input type="checkbox" checked={checked} readOnly />
+                        <Text fontSize="sm" color="fg">
+                          {player.name}
+                        </Text>
+                      </Flex>
+                    );
+                  })}
+                </VStack>
+              )}
+            </VStack>
+          )}
+
+          {addMode === 'multiple' && (
             <VStack gap={2} align="stretch">
               <Textarea
                 placeholder={tc('multiPlaceholder')}
