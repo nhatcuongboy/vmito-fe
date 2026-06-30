@@ -1272,8 +1272,8 @@ function StandingsTable({
   // Column order: rank, team, [narrow numeric...], recent form (wide), points (rightmost).
   // The "drawn" column is intentionally hidden (badminton/pickleball have no draws).
   const gridTemplate = {
-    base: `40px minmax(150px, 1fr) repeat(${preFormColumnCount}, 52px) 132px 56px`,
-    md: `44px minmax(220px, 1fr) repeat(${preFormColumnCount}, 64px) 152px 64px`,
+    base: `40px minmax(150px, 1fr) repeat(${preFormColumnCount}, 52px) 56px 132px`,
+    md: `44px minmax(220px, 1fr) repeat(${preFormColumnCount}, 64px) 64px 152px`,
   };
   const minWidth = `${640 + extraColumnsWidth * 56}px`;
 

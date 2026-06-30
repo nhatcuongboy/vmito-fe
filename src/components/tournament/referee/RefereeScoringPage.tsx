@@ -47,6 +47,7 @@ import {
   areMatchParticipantsResolved,
 } from '@/lib/tournament/teamLabel';
 import { getRoundDisplayLabel } from '@/lib/tournament/roundLabel';
+import { defaultRules } from '@/lib/scoring/badminton';
 import { formatCourtLabel } from '@/components/tournament/manage/panels/ResultsPanel';
 import ScoreEntryBoard from './ScoreEntryBoard';
 import ForfeitMatchModal from './ForfeitMatchModal';
@@ -243,6 +244,24 @@ export default function RefereeScoringPage() {
   // Only the live scoreboard needs the full-height, vertically-centered stage.
   // SCHEDULED / terminal states are short, so they sit compactly at the top.
   const isScoringBoard = match.status === 'IN_PROGRESS';
+  // Format badges (best-of / points / current set) live in the header while the
+  // live board is active. Rules come from the same helper the board uses; the
+  // current set is derived from the (server-synced) match so it stays in step.
+  const rules = defaultRules(match, tournament.sportType);
+  const currentSetNumber = match.sets?.[match.sets.length - 1]?.setNumber ?? 1;
+  const bestOfLabel =
+    rules.bestOf === 5
+      ? t('bestOf5')
+      : rules.bestOf === 3
+        ? t('bestOf3')
+        : t('bestOf1');
+  const ruleSummaryLabel = t('ruleSummary', {
+    points: rules.pointsToWin,
+    cap:
+      rules.cap != null && rules.cap > rules.pointsToWin
+        ? ` / ${rules.cap}`
+        : '',
+  });
 
   return (
     <TournamentRefereeDesktopLayout
@@ -312,33 +331,7 @@ export default function RefereeScoringPage() {
             </Button>
 
             <Box flex="1" minW={0}>
-              <Flex align="center" gap={1.5} mb={0.5} flexWrap="wrap">
-                <Text
-                  fontSize="xs"
-                  color="gray.500"
-                  fontWeight="medium"
-                  _dark={{ color: 'gray.400' }}
-                >
-                  {t('refereeArea')}
-                </Text>
-                <Badge colorPalette="green" borderRadius="full" px={2}>
-                  {t(`status.${match.status}`)}
-                </Badge>
-                {categoryName && (
-                  <Badge colorPalette="purple" borderRadius="full" px={2}>
-                    {categoryName}
-                  </Badge>
-                )}
-                <Badge
-                  variant="subtle"
-                  colorPalette="gray"
-                  borderRadius="full"
-                  px={2}
-                >
-                  {roundLabel}
-                </Badge>
-              </Flex>
-              <Flex align="center" gap={3} minW={0}>
+              <Flex align="center" gap={3} minW={0} mb={0.5}>
                 <Text
                   fontWeight="bold"
                   fontSize={{ base: 'md', md: 'lg' }}
@@ -358,9 +351,47 @@ export default function RefereeScoringPage() {
                   {scheduledTime}
                 </Text>
               </Flex>
+              <Flex align="center" gap={1.5} flexWrap="wrap">
+                {categoryName && (
+                  <Badge colorPalette="purple" borderRadius="full" px={2}>
+                    {categoryName}
+                  </Badge>
+                )}
+                <Badge
+                  variant="subtle"
+                  colorPalette="gray"
+                  borderRadius="full"
+                  px={2}
+                >
+                  {roundLabel}
+                </Badge>
+              </Flex>
             </Box>
 
             <HStack gap={2} flexShrink={0}>
+              {isScoringBoard && (
+                <HStack gap={1.5} display={{ base: 'none', md: 'inline-flex' }}>
+                  <Badge colorPalette="purple" borderRadius="full" px={2}>
+                    {bestOfLabel}
+                  </Badge>
+                  <Badge
+                    variant="subtle"
+                    colorPalette="blue"
+                    borderRadius="full"
+                    px={2}
+                  >
+                    {ruleSummaryLabel}
+                  </Badge>
+                  <Badge
+                    variant="subtle"
+                    colorPalette="gray"
+                    borderRadius="full"
+                    px={2}
+                  >
+                    {t('currentSet')} {currentSetNumber}
+                  </Badge>
+                </HStack>
+              )}
               <Badge
                 display={{ base: 'none', sm: 'inline-flex' }}
                 colorPalette="blue"

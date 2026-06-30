@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Box, Flex, Text, Badge, HStack, VStack } from '@chakra-ui/react';
+import { Box, Flex, Text, HStack, VStack } from '@chakra-ui/react';
 import { Button, IconButton } from '@/components/ui/chakra-compat';
 import { VModal } from '@/components/ui/VModal';
 import { useTranslations } from 'next-intl';
@@ -357,17 +357,6 @@ export default function ScoreEntryBoard({
       minH={{ base: 'calc(100dvh - 96px)', md: 'calc(100dvh - 112px)' }}
       bg="transparent"
     >
-      {showPickleballServe && (
-        <PickleballServeControl
-          team1={team1}
-          team2={team2}
-          servingSide={match.servingSide ?? 1}
-          serverNumber={match.serverNumber ?? 2}
-          disabled={serveBusy || matchState.complete}
-          onChange={handlePickleballServe}
-        />
-      )}
-
       {/* Two big tappable score panels */}
       <Flex
         flex="1"
@@ -383,45 +372,53 @@ export default function ScoreEntryBoard({
 
       {/* Set history + controls */}
       <Box px={{ base: 2, md: 3 }} py={{ base: 2, md: 2.5 }} flexShrink={0}>
-        <Flex
-          gap={2}
-          mb={2.5}
-          wrap="wrap"
-          justify="space-between"
-          align="center"
-        >
-          {/* Format badges + connection + action controls */}
-          <Flex
-            align="center"
-            gap={1.5}
-            flexWrap="wrap"
-            color="gray.500"
-            _dark={{ color: 'gray.400' }}
-          >
-            <Badge colorPalette="purple" size="sm">
-              {rules.bestOf === 5
-                ? t('bestOf5')
-                : rules.bestOf === 3
-                  ? t('bestOf3')
-                  : t('bestOf1')}
-            </Badge>
-            <Badge colorPalette="blue" variant="subtle" size="sm">
-              {t('ruleSummary', {
-                points: rules.pointsToWin,
-                cap:
-                  rules.cap != null && rules.cap > rules.pointsToWin
-                    ? ` / ${rules.cap}`
-                    : '',
-              })}
-            </Badge>
-            {isConnected ? (
-              <Wifi size={13} color="green" aria-hidden="true" />
-            ) : (
-              <WifiOff size={13} color="gray" aria-hidden="true" />
+        {/* Serve control (left) · set score pills (center) · tools (right) */}
+        <Flex gap={2} mb={2.5} justify="space-between" align="center">
+          <Flex flex="1" minW={0} justify="flex-start">
+            {showPickleballServe && (
+              <PickleballServeControl
+                team1={team1}
+                team2={team2}
+                servingSide={match.servingSide ?? 1}
+                serverNumber={match.serverNumber ?? 2}
+                disabled={serveBusy || matchState.complete}
+                onChange={handlePickleballServe}
+              />
             )}
-            <Text fontSize="xs">
-              {t('currentSet')} {current?.setNumber ?? 1}
-            </Text>
+          </Flex>
+
+          <Flex gap={1.5} wrap="wrap" justify="center" flexShrink={0}>
+            {displaySets.map((s, i) => (
+              <Button
+                key={i}
+                variant="solid"
+                colorPalette="gray"
+                bg={i === displaySets.length - 1 ? 'gray.700' : 'gray.500'}
+                color="white"
+                _hover={{
+                  bg: i === displaySets.length - 1 ? 'gray.800' : 'gray.600',
+                }}
+                _dark={{
+                  bg: i === displaySets.length - 1 ? 'gray.600' : 'gray.700',
+                }}
+                size="sm"
+                minW="56px"
+                borderRadius="full"
+                onClick={() => setEditingSetIndex(i)}
+                title={t('editSetTooltip', { number: s.setNumber })}
+                aria-label={t('editSetTooltip', { number: s.setNumber })}
+              >
+                {formatSetScore(s)}
+              </Button>
+            ))}
+          </Flex>
+
+          <Flex flex="1" minW={0} align="center" justify="flex-end" gap={1}>
+            {isConnected ? (
+              <Wifi size={14} color="green" aria-hidden="true" />
+            ) : (
+              <WifiOff size={14} color="gray" aria-hidden="true" />
+            )}
             <IconButton
               aria-label={t('randomDraw')}
               title={t('randomDraw')}
@@ -430,7 +427,7 @@ export default function ScoreEntryBoard({
               colorPalette="gray"
               onClick={() => setTossOpen(true)}
             >
-              <Dices size={14} />
+              <Dices size={16} />
             </IconButton>
             <IconButton
               aria-label={t('swapScoreboardSides')}
@@ -440,26 +437,8 @@ export default function ScoreEntryBoard({
               colorPalette={isSwapped ? 'green' : 'gray'}
               onClick={() => setIsSwapped((value) => !value)}
             >
-              <ArrowLeftRight size={14} />
+              <ArrowLeftRight size={16} />
             </IconButton>
-          </Flex>
-          {/* Set score pills */}
-          <Flex gap={1.5} wrap="wrap" justify="flex-end">
-            {displaySets.map((s, i) => (
-              <Button
-                key={i}
-                variant={i === displaySets.length - 1 ? 'solid' : 'subtle'}
-                colorPalette="gray"
-                size="xs"
-                minW="52px"
-                borderRadius="full"
-                onClick={() => setEditingSetIndex(i)}
-                title={t('editSetTooltip', { number: s.setNumber })}
-                aria-label={t('editSetTooltip', { number: s.setNumber })}
-              >
-                {formatSetScore(s)}
-              </Button>
-            ))}
           </Flex>
         </Flex>
 
@@ -499,13 +478,13 @@ export default function ScoreEntryBoard({
             </Button>
           )}
           <Button
-            colorPalette="green"
+            colorPalette="red"
             variant="solid"
             size={{ base: 'sm', md: 'md' }}
             onClick={() => setEndOpen(true)}
             boxShadow={
               matchState.complete
-                ? '0 10px 24px rgba(22, 163, 74, 0.35)'
+                ? '0 10px 24px rgba(220, 38, 38, 0.35)'
                 : undefined
             }
           >
@@ -532,6 +511,8 @@ export default function ScoreEntryBoard({
         onClose={() => setTossOpen(false)}
         team1={team1}
         team2={team2}
+        team1PlayerNames={team1PlayerNames}
+        team2PlayerNames={team2PlayerNames}
       />
 
       <EditSetScoreModal
@@ -583,73 +564,54 @@ function PickleballServeControl({
   const t = useTranslations('pages.tournaments.scoreEntry');
 
   return (
-    <Flex
-      align={{ base: 'stretch', md: 'center' }}
-      justify="space-between"
-      gap={2}
-      px={{ base: 2, md: 3 }}
-      py={2}
-      mx={{ base: 1, md: 2 }}
-      mb={2}
-      borderWidth="1px"
-      borderColor="green.200"
-      borderRadius="xl"
-      bg="green.50"
-      _dark={{
-        bg: 'rgba(22, 101, 52, 0.16)',
-        borderColor: 'green.800',
-      }}
-      flexWrap="wrap"
-      flexShrink={0}
-    >
+    <HStack gap={1.5} flexWrap="wrap" minW={0}>
       <Text
-        fontSize="sm"
+        fontSize="xs"
         fontWeight="semibold"
-        color="green.800"
+        color="green.700"
         _dark={{ color: 'green.200' }}
+        whiteSpace="nowrap"
       >
         {t('pickleballServer')}
       </Text>
 
-      <HStack gap={2} flexWrap="wrap">
-        <HStack gap={1}>
-          {([1, 2] as const).map((side) => {
-            const label = side === 1 ? team1 : team2;
-            return (
-              <Button
-                key={side}
-                size="xs"
-                variant={servingSide === side ? 'solid' : 'outline'}
-                colorPalette="green"
-                disabled={disabled}
-                onClick={() => onChange(side, serverNumber)}
-                title={t('servingSideTooltip', { team: label })}
-                aria-label={t('servingSideTooltip', { team: label })}
-              >
-                {t('sideLabel', { side })}
-              </Button>
-            );
-          })}
-        </HStack>
-
-        <HStack gap={1}>
-          {([1, 2] as const).map((number) => (
+      <HStack gap={1}>
+        {([1, 2] as const).map((side) => {
+          const label = side === 1 ? team1 : team2;
+          return (
             <Button
-              key={number}
+              key={side}
               size="xs"
-              variant={serverNumber === number ? 'solid' : 'outline'}
-              colorPalette="blue"
+              variant={servingSide === side ? 'solid' : 'outline'}
+              colorPalette="green"
               disabled={disabled}
-              onClick={() => onChange(servingSide, number)}
-              title={t('serverNumberTooltip', { number })}
-              aria-label={t('serverNumberTooltip', { number })}
+              onClick={() => onChange(side, serverNumber)}
+              title={t('servingSideTooltip', { team: label })}
+              aria-label={t('servingSideTooltip', { team: label })}
             >
-              {number}
+              {t('sideLabel', { side })}
             </Button>
-          ))}
-        </HStack>
+          );
+        })}
       </HStack>
-    </Flex>
+
+      <HStack gap={1}>
+        {([1, 2] as const).map((number) => (
+          <Button
+            key={number}
+            size="xs"
+            variant={serverNumber === number ? 'solid' : 'outline'}
+            colorPalette="blue"
+            disabled={disabled}
+            onClick={() => onChange(servingSide, number)}
+            title={t('serverNumberTooltip', { number })}
+            aria-label={t('serverNumberTooltip', { number })}
+          >
+            {number}
+          </Button>
+        ))}
+      </HStack>
+    </HStack>
   );
 }
 
@@ -658,21 +620,22 @@ function RandomDrawModal({
   onClose,
   team1,
   team2,
+  team1PlayerNames,
+  team2PlayerNames,
 }: {
   isOpen: boolean;
   onClose: () => void;
   team1: string;
   team2: string;
+  team1PlayerNames?: string;
+  team2PlayerNames?: string;
 }) {
   const t = useTranslations('pages.tournaments.scoreEntry');
-  const [result, setResult] = useState<{
-    team: string;
-    choice: 'serve' | 'side';
-  } | null>(null);
-  const [preview, setPreview] = useState<{
-    team: string;
-    choice: 'serve' | 'side';
-  } | null>(null);
+  const [result, setResult] = useState<{ team: string } | null>(null);
+  const [preview, setPreview] = useState<{ team: string } | null>(null);
+
+  const playerNamesFor = (team: string): string =>
+    team === team1 ? (team1PlayerNames ?? '') : (team2PlayerNames ?? '');
   const [isDrawing, setIsDrawing] = useState(false);
   const intervalRef = useRef<number | null>(null);
   const timeoutRef = useRef<number | null>(null);
@@ -692,7 +655,6 @@ function RandomDrawModal({
     const teams = [team1, team2];
     return {
       team: teams[randomInt(teams.length)] ?? team1,
-      choice: randomInt(2) === 0 ? 'serve' : ('side' as 'serve' | 'side'),
     };
   }, [team1, team2]);
 
@@ -726,8 +688,8 @@ function RandomDrawModal({
   }, [clearDrawTimers, isOpen]);
 
   const shownResult = preview ?? result;
-  const resultChoice = shownResult?.choice;
   const resultTeam = shownResult?.team ?? '—';
+  const resultPlayerNames = shownResult ? playerNamesFor(shownResult.team) : '';
 
   return (
     <VModal
@@ -824,37 +786,62 @@ function RandomDrawModal({
           >
             {shownResult ? resultTeam : '—'}
           </Text>
-          {shownResult && (
-            <Badge
-              mt={3}
-              colorPalette="green"
-              borderRadius="full"
-              px={3}
-              py={1}
+          {resultPlayerNames && (
+            <Text
+              mt={1}
+              fontSize="sm"
+              fontWeight="medium"
+              color="green.700"
+              _dark={{ color: 'green.200' }}
             >
-              {resultChoice === 'serve'
-                ? t('randomDrawServe')
-                : t('randomDrawSide')}
-            </Badge>
+              {resultPlayerNames}
+            </Text>
           )}
         </Box>
 
-        <Flex gap={2} align="center" justify="center" flexWrap="wrap">
-          {[team1, team2].map((team) => (
-            <Badge
-              key={team}
-              variant={shownResult?.team === team ? 'solid' : 'subtle'}
-              colorPalette={shownResult?.team === team ? 'green' : 'gray'}
-              borderRadius="full"
-              px={3}
-              py={1}
-              maxW="full"
-            >
-              <Text as="span" truncate>
-                {team}
-              </Text>
-            </Badge>
-          ))}
+        <Flex gap={2} align="stretch" justify="center" flexWrap="wrap">
+          {[team1, team2].map((team) => {
+            const selected = shownResult?.team === team;
+            const names = playerNamesFor(team);
+            return (
+              <VStack
+                key={team}
+                gap={0.5}
+                px={3}
+                py={2}
+                borderWidth="1px"
+                borderRadius="xl"
+                flex="1"
+                minW="40%"
+                borderColor={selected ? 'green.400' : 'gray.200'}
+                bg={selected ? 'green.50' : 'transparent'}
+                _dark={{
+                  borderColor: selected ? 'green.600' : 'gray.700',
+                  bg: selected ? 'rgba(22, 163, 74, 0.12)' : 'transparent',
+                }}
+              >
+                <Text
+                  fontWeight="semibold"
+                  fontSize="sm"
+                  color={selected ? 'green.700' : undefined}
+                  _dark={{ color: selected ? 'green.200' : undefined }}
+                  textAlign="center"
+                >
+                  {team}
+                </Text>
+                {names && (
+                  <Text
+                    fontSize="xs"
+                    color="gray.500"
+                    _dark={{ color: 'gray.400' }}
+                    textAlign="center"
+                  >
+                    {names}
+                  </Text>
+                )}
+              </VStack>
+            );
+          })}
         </Flex>
       </VStack>
     </VModal>

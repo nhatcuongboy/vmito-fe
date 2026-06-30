@@ -147,7 +147,7 @@ export default function EndMatchConfirmModal({
           {t('cancel')}
         </Button>
         <Button
-          colorPalette="green"
+          colorPalette="red"
           onClick={() => void handleConfirm()}
           loading={submitting}
         >
