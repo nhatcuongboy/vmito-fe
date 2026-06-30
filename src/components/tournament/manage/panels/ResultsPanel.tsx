@@ -18,6 +18,7 @@ import {
   DrawerFooter,
   DrawerHeader,
 } from '@/components/ui/ChakraDrawer';
+import { VModal } from '@/components/ui/VModal';
 import { useLocale, useTranslations } from 'next-intl';
 import {
   Activity,
@@ -148,7 +149,6 @@ export default function ResultsPanel({
   heading,
   hideHeadingOnMobile = false,
   description,
-  onOpenRoundsPanel,
 }: Props) {
   const t = useTranslations('pages.tournaments.manualScore');
   const tManage = useTranslations('pages.tournaments.detail.manage');
@@ -188,6 +188,9 @@ export default function ResultsPanel({
     null
   );
   const [isResetting, setIsResetting] = useState(false);
+  const [bracketCategoryToGenerate, setBracketCategoryToGenerate] =
+    useState<Category | null>(null);
+  const [isGeneratingBracket, setIsGeneratingBracket] = useState(false);
   const realtimeRefreshTimeoutRef = useRef<ReturnType<
     typeof setTimeout
   > | null>(null);
@@ -439,11 +442,13 @@ export default function ResultsPanel({
 
   const activeFilterCount = getActiveFilterCount(filters);
   const bracketReadyCategories = useMemo(() => {
-    if (!canEdit || !onOpenRoundsPanel) return [];
+    if (!canEdit) return [];
 
-    return categories.filter((category) => {
+    return categories.reduce<
+      { category: Category; finished: number; total: number }[]
+    >((acc, category) => {
       if (category.format !== CategoryFormat.ROUND_ROBIN_TO_SE) {
-        return false;
+        return acc;
       }
 
       const categoryMatches = matches.filter(
@@ -452,19 +457,56 @@ export default function ResultsPanel({
       const groupMatches = categoryMatches.filter(
         (match) => match.groupId || match.round === 'GROUP'
       );
-      if (groupMatches.length === 0) return false;
+      if (groupMatches.length === 0) return acc;
 
       const allGroupFinished = groupMatches.every(
         (match) => match.status === MatchStatus.FINISHED
       );
-      if (!allGroupFinished) return false;
+      if (!allGroupFinished) return acc;
 
       const hasBracket = categoryMatches.some(
         (match) => !match.groupId && match.round !== 'GROUP'
       );
-      return !hasBracket;
-    });
-  }, [canEdit, categories, matches, onOpenRoundsPanel]);
+      if (hasBracket) return acc;
+
+      acc.push({
+        category,
+        finished: groupMatches.length,
+        total: groupMatches.length,
+      });
+      return acc;
+    }, []);
+  }, [canEdit, categories, matches]);
+
+  const handleConfirmGenerateBracket = useCallback(async () => {
+    if (!bracketCategoryToGenerate) return;
+    try {
+      setIsGeneratingBracket(true);
+      await CategoryService.completeGroupStage(bracketCategoryToGenerate.id, {
+        showToast: false,
+      });
+      await load();
+      setBracketCategoryToGenerate(null);
+      toaster.success({ title: tManage('panels.rounds.bracketGenerated') });
+    } catch (error: unknown) {
+      const apiError = error as {
+        response?: { data?: { message?: string | string[] } };
+      };
+      const raw = apiError?.response?.data?.message;
+      const message = Array.isArray(raw)
+        ? raw.join(', ')
+        : raw ||
+          (error instanceof Error
+            ? error.message
+            : tManage('panels.rounds.generateBracketFailed'));
+      toaster.error({
+        title: tManage('panels.rounds.generateBracketFailed'),
+        description: message,
+      });
+    } finally {
+      setIsGeneratingBracket(false);
+    }
+  }, [bracketCategoryToGenerate, load, tManage]);
 
   const groups = useMemo(() => {
     const byCat = new Map<string, CategoryMatch[]>();
@@ -805,7 +847,7 @@ export default function ResultsPanel({
         </Flex>
       </Flex>
 
-      {bracketReadyCategories.map((category) => (
+      {bracketReadyCategories.map(({ category, finished, total }) => (
         <Box
           key={category.id}
           mb={5}
@@ -824,22 +866,22 @@ export default function ResultsPanel({
             direction={{ base: 'column', md: 'row' }}
           >
             <Box minW={0}>
-              <Badge
-                colorPalette="green"
-                variant="subtle"
-                borderRadius="full"
-                px={2.5}
-                py={0.5}
-                mb={2}
+              <Text
+                fontSize="sm"
+                fontWeight="bold"
+                color="green.700"
+                mb={1}
+                _dark={{ color: 'green.300' }}
               >
-                {category.name}
-              </Badge>
+                {category.name} ·{' '}
+                {tManage('panels.rounds.groupProgress', { finished, total })}
+              </Text>
               <Text
                 fontWeight="bold"
                 color="green.800"
                 _dark={{ color: 'green.200' }}
               >
-                {tManage('panels.rounds.scheduleBracketReadyTitle')}
+                {tManage('panels.rounds.bracketReadyGenerateTitle')}
               </Text>
               <Text
                 fontSize="sm"
@@ -847,18 +889,17 @@ export default function ResultsPanel({
                 mt={1}
                 _dark={{ color: 'gray.200' }}
               >
-                {tManage('panels.rounds.scheduleBracketReadyDescription')}
+                {tManage('panels.rounds.bracketReadyGenerateDescription')}
               </Text>
             </Box>
             <Button
               size="sm"
               colorPalette="green"
-              variant="outline"
-              onClick={() => onOpenRoundsPanel?.(category.id)}
+              onClick={() => setBracketCategoryToGenerate(category)}
               flexShrink={0}
             >
               <Trophy size={14} />
-              {tManage('panels.rounds.goToRounds')}
+              {tManage('panels.rounds.generatePlayoffs')}
             </Button>
           </Flex>
         </Box>
@@ -1040,6 +1081,24 @@ export default function ResultsPanel({
           onConfirm={handleConfirmDelete}
           isDeleting={isDeleting}
         />
+      )}
+
+      {canEdit && (
+        <VModal
+          isOpen={!!bracketCategoryToGenerate}
+          onClose={() => setBracketCategoryToGenerate(null)}
+          title={tManage('panels.rounds.confirmGenerateTitle')}
+          zIndex={1600}
+          primaryActionText={tManage('panels.rounds.generatePlayoffs')}
+          onPrimaryAction={handleConfirmGenerateBracket}
+          isPrimaryLoading={isGeneratingBracket}
+          primaryColorScheme="green"
+          secondaryActionText={tManage('panels.rounds.cancel')}
+        >
+          <Text fontSize="sm" color="gray.600" _dark={{ color: 'gray.300' }}>
+            {tManage('panels.rounds.confirmGenerateMessage')}
+          </Text>
+        </VModal>
       )}
     </Box>
   );
