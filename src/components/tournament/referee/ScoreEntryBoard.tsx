@@ -13,7 +13,6 @@ import {
   Minus,
   RefreshCw,
   Undo2,
-  Users,
   Wifi,
   WifiOff,
 } from 'lucide-react';
@@ -82,7 +81,6 @@ function setsOf(match: CategoryMatch, isDoubles: boolean): MatchSet[] {
   return sets.map((s) => ({ ...s }));
 }
 
-const PLAYER_NAMES_VISIBILITY_KEY = 'vmito.referee.showPlayerNames';
 const SCOREBOARD_SWAP_KEY_PREFIX = 'vmito.referee.scoreboard.swap.';
 
 function getScoreboardSwapKey(matchId: string): string {
@@ -156,10 +154,6 @@ export default function ScoreEntryBoard({
   const [endOpen, setEndOpen] = useState(false);
   const [tossOpen, setTossOpen] = useState(false);
   const [editingSetIndex, setEditingSetIndex] = useState<number | null>(null);
-  const [showPlayerNames, setShowPlayerNames] = useState(() => {
-    if (typeof window === 'undefined') return false;
-    return window.localStorage.getItem(PLAYER_NAMES_VISIBILITY_KEY) === '1';
-  });
   const [isSwapped, setIsSwapped] = useState(() => {
     if (typeof window === 'undefined') return false;
     return window.localStorage.getItem(getScoreboardSwapKey(match.id)) === '1';
@@ -240,7 +234,7 @@ export default function ScoreEntryBoard({
     {
       side: 1,
       teamName: team1,
-      playerNames: showPlayerNames ? team1PlayerNames : '',
+      playerNames: team1PlayerNames,
       score: current?.player1Score ?? 0,
       setWins: wins.side1,
       colorScheme: 'blue',
@@ -254,7 +248,7 @@ export default function ScoreEntryBoard({
     {
       side: 2,
       teamName: team2,
-      playerNames: showPlayerNames ? team2PlayerNames : '',
+      playerNames: team2PlayerNames,
       score: current?.player2Score ?? 0,
       setWins: wins.side2,
       colorScheme: 'orange',
@@ -346,13 +340,6 @@ export default function ScoreEntryBoard({
 
   useEffect(() => {
     window.localStorage.setItem(
-      PLAYER_NAMES_VISIBILITY_KEY,
-      showPlayerNames ? '1' : '0'
-    );
-  }, [showPlayerNames]);
-
-  useEffect(() => {
-    window.localStorage.setItem(
       getScoreboardSwapKey(match.id),
       isSwapped ? '1' : '0'
     );
@@ -370,86 +357,6 @@ export default function ScoreEntryBoard({
       minH={{ base: 'calc(100dvh - 96px)', md: 'calc(100dvh - 112px)' }}
       bg="transparent"
     >
-      {/* Header: format + connection */}
-      <Flex
-        align="center"
-        justify="space-between"
-        gap={2}
-        px={{ base: 2, md: 3 }}
-        py={{ base: 1.5, md: 2 }}
-        flexShrink={0}
-        flexWrap="wrap"
-      >
-        <Flex align="center" gap={2} flexWrap="wrap">
-          <Badge colorPalette="purple">
-            {rules.bestOf === 5
-              ? t('bestOf5')
-              : rules.bestOf === 3
-                ? t('bestOf3')
-                : t('bestOf1')}
-          </Badge>
-          <Badge colorPalette="blue" variant="subtle">
-            {t('ruleSummary', {
-              points: rules.pointsToWin,
-              cap:
-                rules.cap != null && rules.cap > rules.pointsToWin
-                  ? ` / ${rules.cap}`
-                  : '',
-            })}
-          </Badge>
-        </Flex>
-        <Flex
-          align="center"
-          gap={2}
-          fontSize="sm"
-          color="gray.500"
-          _dark={{ color: 'gray.400' }}
-        >
-          {isConnected ? (
-            <Wifi size={14} color="green" aria-hidden="true" />
-          ) : (
-            <WifiOff size={14} color="gray" aria-hidden="true" />
-          )}
-          <Text>
-            {t('currentSet')} {current?.setNumber ?? 1}
-          </Text>
-          <IconButton
-            aria-label={t('randomDraw')}
-            title={t('randomDraw')}
-            size="sm"
-            variant="ghost"
-            colorPalette="gray"
-            onClick={() => setTossOpen(true)}
-          >
-            <Dices size={16} />
-          </IconButton>
-          <IconButton
-            aria-label={t('swapScoreboardSides')}
-            title={t('swapScoreboardSides')}
-            size="sm"
-            variant={isSwapped ? 'solid' : 'ghost'}
-            colorPalette={isSwapped ? 'green' : 'gray'}
-            onClick={() => setIsSwapped((value) => !value)}
-          >
-            <ArrowLeftRight size={16} />
-          </IconButton>
-          <IconButton
-            aria-label={
-              showPlayerNames ? t('hidePlayerNames') : t('showPlayerNames')
-            }
-            title={
-              showPlayerNames ? t('hidePlayerNames') : t('showPlayerNames')
-            }
-            size="sm"
-            variant={showPlayerNames ? 'solid' : 'ghost'}
-            colorPalette={showPlayerNames ? 'green' : 'gray'}
-            onClick={() => setShowPlayerNames((value) => !value)}
-          >
-            <Users size={16} />
-          </IconButton>
-        </Flex>
-      </Flex>
-
       {showPickleballServe && (
         <PickleballServeControl
           team1={team1}
@@ -476,22 +383,84 @@ export default function ScoreEntryBoard({
 
       {/* Set history + controls */}
       <Box px={{ base: 2, md: 3 }} py={{ base: 2, md: 2.5 }} flexShrink={0}>
-        <Flex gap={2} mb={2.5} wrap="wrap" justify="center">
-          {displaySets.map((s, i) => (
-            <Button
-              key={i}
-              variant={i === displaySets.length - 1 ? 'solid' : 'subtle'}
-              colorPalette="gray"
+        <Flex
+          gap={2}
+          mb={2.5}
+          wrap="wrap"
+          justify="space-between"
+          align="center"
+        >
+          {/* Format badges + connection + action controls */}
+          <Flex
+            align="center"
+            gap={1.5}
+            flexWrap="wrap"
+            color="gray.500"
+            _dark={{ color: 'gray.400' }}
+          >
+            <Badge colorPalette="purple" size="sm">
+              {rules.bestOf === 5
+                ? t('bestOf5')
+                : rules.bestOf === 3
+                  ? t('bestOf3')
+                  : t('bestOf1')}
+            </Badge>
+            <Badge colorPalette="blue" variant="subtle" size="sm">
+              {t('ruleSummary', {
+                points: rules.pointsToWin,
+                cap:
+                  rules.cap != null && rules.cap > rules.pointsToWin
+                    ? ` / ${rules.cap}`
+                    : '',
+              })}
+            </Badge>
+            {isConnected ? (
+              <Wifi size={13} color="green" aria-hidden="true" />
+            ) : (
+              <WifiOff size={13} color="gray" aria-hidden="true" />
+            )}
+            <Text fontSize="xs">
+              {t('currentSet')} {current?.setNumber ?? 1}
+            </Text>
+            <IconButton
+              aria-label={t('randomDraw')}
+              title={t('randomDraw')}
               size="xs"
-              minW="52px"
-              borderRadius="full"
-              onClick={() => setEditingSetIndex(i)}
-              title={t('editSetTooltip', { number: s.setNumber })}
-              aria-label={t('editSetTooltip', { number: s.setNumber })}
+              variant="ghost"
+              colorPalette="gray"
+              onClick={() => setTossOpen(true)}
             >
-              {formatSetScore(s)}
-            </Button>
-          ))}
+              <Dices size={14} />
+            </IconButton>
+            <IconButton
+              aria-label={t('swapScoreboardSides')}
+              title={t('swapScoreboardSides')}
+              size="xs"
+              variant={isSwapped ? 'solid' : 'ghost'}
+              colorPalette={isSwapped ? 'green' : 'gray'}
+              onClick={() => setIsSwapped((value) => !value)}
+            >
+              <ArrowLeftRight size={14} />
+            </IconButton>
+          </Flex>
+          {/* Set score pills */}
+          <Flex gap={1.5} wrap="wrap" justify="flex-end">
+            {displaySets.map((s, i) => (
+              <Button
+                key={i}
+                variant={i === displaySets.length - 1 ? 'solid' : 'subtle'}
+                colorPalette="gray"
+                size="xs"
+                minW="52px"
+                borderRadius="full"
+                onClick={() => setEditingSetIndex(i)}
+                title={t('editSetTooltip', { number: s.setNumber })}
+                aria-label={t('editSetTooltip', { number: s.setNumber })}
+              >
+                {formatSetScore(s)}
+              </Button>
+            ))}
+          </Flex>
         </Flex>
 
         {matchState.complete && (
@@ -747,9 +716,14 @@ function RandomDrawModal({
   }, [clearDrawTimers, pickResult]);
 
   useEffect(() => {
-    if (isOpen) runDraw();
+    if (isOpen) {
+      clearDrawTimers();
+      setResult(null);
+      setPreview(null);
+      setIsDrawing(false);
+    }
     return clearDrawTimers;
-  }, [clearDrawTimers, isOpen, runDraw]);
+  }, [clearDrawTimers, isOpen]);
 
   const shownResult = preview ?? result;
   const resultChoice = shownResult?.choice;
@@ -770,7 +744,12 @@ function RandomDrawModal({
             {t('close')}
           </Button>
           <Button colorPalette="green" onClick={runDraw} disabled={isDrawing}>
-            <RefreshCw size={16} /> {isDrawing ? t('drawing') : t('drawAgain')}
+            <RefreshCw size={16} />{' '}
+            {isDrawing
+              ? t('drawing')
+              : result
+                ? t('drawAgain')
+                : t('startDraw')}
           </Button>
         </HStack>
       }
@@ -821,7 +800,11 @@ function RandomDrawModal({
             color="green.700"
             _dark={{ color: 'green.200' }}
           >
-            {isDrawing ? t('drawing') : t('randomDrawWinner')}
+            {isDrawing
+              ? t('drawing')
+              : shownResult
+                ? t('randomDrawWinner')
+                : t('randomDraw')}
           </Text>
           <Text
             key={resultTeam}
@@ -839,13 +822,21 @@ function RandomDrawModal({
               },
             }}
           >
-            {resultTeam}
+            {shownResult ? resultTeam : '—'}
           </Text>
-          <Badge mt={3} colorPalette="green" borderRadius="full" px={3} py={1}>
-            {resultChoice === 'serve'
-              ? t('randomDrawServe')
-              : t('randomDrawSide')}
-          </Badge>
+          {shownResult && (
+            <Badge
+              mt={3}
+              colorPalette="green"
+              borderRadius="full"
+              px={3}
+              py={1}
+            >
+              {resultChoice === 'serve'
+                ? t('randomDrawServe')
+                : t('randomDrawSide')}
+            </Badge>
+          )}
         </Box>
 
         <Flex gap={2} align="center" justify="center" flexWrap="wrap">

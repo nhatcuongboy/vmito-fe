@@ -421,9 +421,7 @@ export default function TournamentPageShell({
   const [allCategories, setAllCategories] = useState<Category[]>([]);
   const [totalAthletes, setTotalAthletes] = useState(0);
   const [allPlayers, setAllPlayers] = useState<IAllPlayerItem[]>([]);
-  const [teamsView, setTeamsView] = useState<'category' | 'players'>(
-    'category'
-  );
+  const [teamsView, setTeamsView] = useState<'category' | 'players'>('players');
   const [playerSearch, setPlayerSearch] = useState('');
 
   const isHost = useMemo(
@@ -1007,19 +1005,6 @@ export default function TournamentPageShell({
           >
             <Button
               size="sm"
-              variant={teamsView === 'category' ? 'solid' : 'ghost'}
-              colorPalette={teamsView === 'category' ? 'green' : 'gray'}
-              borderRadius="full"
-              px={4}
-              onClick={() => setTeamsView('category')}
-            >
-              <HStack gap={2}>
-                <LayoutList size={15} />
-                <Text>{t('teamsTab.viewByCategory')}</Text>
-              </HStack>
-            </Button>
-            <Button
-              size="sm"
               variant={teamsView === 'players' ? 'solid' : 'ghost'}
               colorPalette={teamsView === 'players' ? 'green' : 'gray'}
               borderRadius="full"
@@ -1029,6 +1014,19 @@ export default function TournamentPageShell({
               <HStack gap={2}>
                 <UsersRound size={15} />
                 <Text>{t('teamsTab.viewAllPlayers')}</Text>
+              </HStack>
+            </Button>
+            <Button
+              size="sm"
+              variant={teamsView === 'category' ? 'solid' : 'ghost'}
+              colorPalette={teamsView === 'category' ? 'green' : 'gray'}
+              borderRadius="full"
+              px={4}
+              onClick={() => setTeamsView('category')}
+            >
+              <HStack gap={2}>
+                <LayoutList size={15} />
+                <Text>{t('teamsTab.viewByCategory')}</Text>
               </HStack>
             </Button>
           </Flex>

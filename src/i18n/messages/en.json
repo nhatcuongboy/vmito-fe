@@ -3480,6 +3480,7 @@
         "randomDrawSide": "Side preference",
         "drawing": "Drawing...",
         "drawAgain": "Draw again",
+        "startDraw": "Start draw",
         "close": "Close",
         "swapScoreboardSides": "Swap display sides",
         "showPlayerNames": "Show player names",

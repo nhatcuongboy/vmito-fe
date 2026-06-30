@@ -256,9 +256,22 @@ function TournamentRow({
         boxShadow: 'md',
         transform: 'translateY(-2px)',
         borderColor: 'green.200',
+        cursor: 'pointer',
       }}
       position="relative"
       overflow="hidden"
+      onClick={(e) => {
+        // Don't trigger navigation if clicking on action buttons
+        const target = e.target as HTMLElement;
+        if (
+          target.closest('button') ||
+          target.closest('[role="menuitem"]') ||
+          target.closest('[data-part="menu-content"]')
+        ) {
+          return;
+        }
+        onOpenPublic();
+      }}
     >
       {/* status accent strip */}
       <Box
@@ -425,6 +438,7 @@ function TournamentRow({
 export default function HostTournamentsPage() {
   const router = useRouter();
   const t = useTranslations('pages.tournaments.hostList');
+  const tStatus = useTranslations('pages.tournaments.status');
   const locale = useLocale();
   const dateLocale = locale === 'vi' ? viLocale : locale === 'cn' ? zhCN : enUS;
 
@@ -494,13 +508,13 @@ export default function HostTournamentsPage() {
   const statusLabelFor = (status: TournamentStatus): string => {
     switch (status) {
       case TournamentStatus.PREPARING:
-        return t('filters.draft');
+        return tStatus('preparing');
       case TournamentStatus.IN_PROGRESS:
-        return t('filters.inProgress');
+        return tStatus('inProgress');
       case TournamentStatus.FINISHED:
-        return t('filters.finished');
+        return tStatus('finished');
       case TournamentStatus.CANCELLED:
-        return t('filters.cancelled');
+        return tStatus('cancelled');
       default:
         return '';
     }
@@ -511,129 +525,42 @@ export default function HostTournamentsPage() {
   return (
     <ProtectedRouteGuard requiredRole={[UserRole.HOST, UserRole.ADMIN]}>
       <PageLayout title={t('pageTitle')} mobileIcon={<Trophy size={20} />}>
-        {/* Hero */}
-        <Box
-          mb={6}
-          p={{ base: 5, md: 6 }}
-          borderRadius="2xl"
-          position="relative"
-          overflow="hidden"
-          style={{
-            background:
-              'linear-gradient(135deg, #ecfdf5 0%, #d1fae5 45%, #ffffff 100%)',
-          }}
-          borderWidth="1px"
-          borderColor="green.100"
-          _dark={{
-            borderColor: 'green.900',
-          }}
-        >
-          {/* decorative blob */}
-          <Box
-            position="absolute"
-            top="-40px"
-            right="-40px"
-            w="180px"
-            h="180px"
-            borderRadius="full"
-            opacity={0.35}
-            style={{
-              background:
-                'radial-gradient(circle, rgba(16,185,129,0.45) 0%, rgba(16,185,129,0) 70%)',
-            }}
-            pointerEvents="none"
-          />
-          <Flex
-            justify="space-between"
-            align={{ base: 'flex-start', md: 'center' }}
-            gap={4}
-            direction={{ base: 'column', md: 'row' }}
-            position="relative"
-          >
-            <HStack gap={3} align="center">
-              <Flex
-                w={{ base: '44px', md: '52px' }}
-                h={{ base: '44px', md: '52px' }}
-                borderRadius="xl"
-                align="center"
-                justify="center"
-                bg="green.500"
-                color="white"
-                boxShadow="md"
-              >
-                <Trophy size={24} />
-              </Flex>
-              <Box>
-                <Text
-                  fontSize={{ base: 'xl', md: '2xl' }}
-                  fontWeight="bold"
-                  lineHeight="1.1"
-                  color="fg"
-                >
-                  {t('pageTitle')}
-                </Text>
-                <Text
-                  fontSize={{ base: 'sm', md: 'md' }}
-                  color="fg.muted"
-                  mt={1}
-                  maxW="520px"
-                >
-                  {t('subtitle')}
-                </Text>
-              </Box>
-            </HStack>
+        {/* Search + Create button */}
+        <Box mb={4}>
+          <Flex gap={2} align="center" mx={{ base: '-16px', md: 0 }}>
+            <Box flex={1}>
+              <AppSearchBar
+                placeholder={t('searchPlaceholder')}
+                value={search}
+                onChange={setSearch}
+                showFilter={false}
+              />
+            </Box>
             <Button
               colorPalette="green"
               size="md"
               borderRadius="full"
               onClick={handleCreate}
               boxShadow="md"
-              alignSelf={{ base: 'stretch', md: 'auto' }}
+              flexShrink={0}
+              display={{ base: 'none', md: 'flex' }}
             >
               <Plus size={18} style={{ marginRight: 6 }} />
               {t('newTournament')}
             </Button>
+            <IconButton
+              colorPalette="green"
+              size="md"
+              borderRadius="full"
+              onClick={handleCreate}
+              boxShadow="md"
+              flexShrink={0}
+              display={{ base: 'flex', md: 'none' }}
+              aria-label={t('newTournament')}
+            >
+              <Plus size={20} />
+            </IconButton>
           </Flex>
-        </Box>
-
-        {/* Stats */}
-        <SimpleGrid columns={{ base: 2, md: 4 }} gap={3} mb={6}>
-          <StatCard
-            icon={<Sparkles size={20} />}
-            label={t('stats.total')}
-            value={stats.total}
-            accent="linear-gradient(135deg, #10b981 0%, #059669 100%)"
-          />
-          <StatCard
-            icon={<FileText size={20} />}
-            label={t('stats.draft')}
-            value={stats.draft}
-            accent="linear-gradient(135deg, #94a3b8 0%, #64748b 100%)"
-          />
-          <StatCard
-            icon={<PlayCircle size={20} />}
-            label={t('stats.inProgress')}
-            value={stats.inProgress}
-            accent="linear-gradient(135deg, #34d399 0%, #059669 100%)"
-          />
-          <StatCard
-            icon={<CheckCircle2 size={20} />}
-            label={t('stats.finished')}
-            value={stats.finished}
-            accent="linear-gradient(135deg, #60a5fa 0%, #2563eb 100%)"
-          />
-        </SimpleGrid>
-
-        {/* Search + filter pills */}
-        <Box mb={4}>
-          <Box mx={{ base: '-16px', md: 0 }}>
-            <AppSearchBar
-              placeholder={t('searchPlaceholder')}
-              value={search}
-              onChange={setSearch}
-              showFilter={false}
-            />
-          </Box>
           <HStack
             gap={2}
             mt={4}

@@ -1385,8 +1385,8 @@ function StandingsTable({
               <StandingHeaderCell label={t('columns.cancelled')} />
             )}
             <StandingHeaderCell label={t('columns.differenceShort')} />
-            <StandingHeaderCell label={t('columns.recentFormShort')} />
             <StandingHeaderCell label={t('columns.pointsShort')} isStrong />
+            <StandingHeaderCell label={t('columns.recentFormShort')} />
           </Box>
 
           <VStack align="stretch" gap={0}>
@@ -1542,8 +1542,8 @@ function StandingsTable({
                           : 'neutral'
                     }
                   />
-                  <StandingForm form={standing.recentForm} />
                   <StandingMetric value={standing.points} isStrong />
+                  <StandingForm form={standing.recentForm} />
                 </Box>
               );
             })}

@@ -3457,6 +3457,7 @@
         "randomDrawSide": "优先选边",
         "drawing": "抽签中...",
         "drawAgain": "重新抽签",
+        "startDraw": "开始抽签",
         "close": "关闭",
         "swapScoreboardSides": "交换显示位置",
         "showPlayerNames": "显示球员姓名",
