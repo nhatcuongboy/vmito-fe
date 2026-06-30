@@ -9,7 +9,7 @@ import {
   useState,
 } from 'react';
 import { usePathname, useSearchParams } from 'next/navigation';
-import { Badge, Box, Flex, Heading, Text } from '@chakra-ui/react';
+import { Badge, Box, Flex, Heading, SimpleGrid, Text } from '@chakra-ui/react';
 import { Button, Input, VStack } from '@/components/ui/chakra-compat';
 import {
   Drawer,
@@ -901,7 +901,7 @@ export default function ResultsPanel({
                 </Heading>
                 <Badge colorPalette="gray">{group.items.length}</Badge>
               </Flex>
-              <VStack align="stretch" gap={3}>
+              <SimpleGrid columns={{ base: 1, lg: 2 }} gap={3}>
                 {group.items.map((match) => (
                   <ResultMatchCard
                     key={match.id}
@@ -916,7 +916,7 @@ export default function ResultsPanel({
                     showPlayerNames={showPlayerNames}
                   />
                 ))}
-              </VStack>
+              </SimpleGrid>
             </Box>
           ))}
         </VStack>
