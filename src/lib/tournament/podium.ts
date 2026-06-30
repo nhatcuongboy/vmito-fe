@@ -1,4 +1,5 @@
 import {
+  CategoryFormat,
   CategoryMatch,
   CategoryStandingsResponse,
   GroupStanding,
@@ -74,7 +75,9 @@ function getRegistrationPlayerNames(
  * from its matches and standings. Handles both elimination brackets (champion
  * is the winner of the final) and pure round robins (top of the standings).
  */
-export function computePodium<C extends { id: string }>(
+export function computePodium<
+  C extends { id: string; format?: CategoryFormat },
+>(
   category: C,
   matches: CategoryMatch[],
   standings: CategoryStandingsResponse
@@ -169,6 +172,23 @@ export function computePodium<C extends { id: string }>(
   // ── Round robin only: podium is the top of the overall standings. ──
   const rows = standings.flatMap((group) => group.standings);
   const playedRows = rows.filter(hasStandingResult);
+
+  // Formats with a playoff stage (e.g. ROUND_ROBIN_TO_SE) only crown a
+  // champion through the bracket. When the bracket has not been generated yet
+  // (no playoff matches), the standings leader is NOT the champion — the
+  // playoffs still decide it. Surface this as "in progress" so the homepage
+  // never shows a (final or provisional) champion before the bracket is played.
+  const expectsPlayoffs =
+    category.format === CategoryFormat.ROUND_ROBIN_TO_SE ||
+    category.format === CategoryFormat.SINGLE_ELIMINATION ||
+    category.format === CategoryFormat.DOUBLE_ELIMINATION;
+  if (expectsPlayoffs) {
+    return {
+      category,
+      state: playedRows.length === 0 ? 'empty' : 'in_progress',
+      entries: [],
+    };
+  }
 
   if (playedRows.length === 0) {
     return { category, state: 'empty', entries: [] };
