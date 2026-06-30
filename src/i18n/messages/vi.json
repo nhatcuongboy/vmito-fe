@@ -3512,7 +3512,11 @@
         "pickleballServer": "Lượt giao",
         "sideLabel": "Bên {side}",
         "servingSideTooltip": "{team} đang giao bóng",
-        "serverNumberTooltip": "Server {number}"
+        "serverNumberTooltip": "Server {number}",
+        "matchHistory": "Lịch sử trận đấu",
+        "matchHistoryEmpty": "Chưa có sự kiện nào",
+        "logServeChanged": "Đổi lượt giao",
+        "logUndo": "Hoàn tác điểm"
       },
       "scoreboard": {
         "court": "Sân",

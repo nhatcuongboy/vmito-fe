@@ -10,6 +10,7 @@ import {
   Check,
   Dices,
   Flag,
+  History,
   Minus,
   RefreshCw,
   Undo2,
@@ -87,6 +88,91 @@ function getScoreboardSwapKey(matchId: string): string {
   return `${SCOREBOARD_SWAP_KEY_PREFIX}${matchId}`;
 }
 
+// The backend stores a point order (`pointLog`) but no per-point timestamps, so
+// the referee-facing match log is captured client-side at tap time and kept in
+// localStorage (per match) so it survives reloads on the same device.
+const MATCH_LOG_KEY_PREFIX = 'vmito.referee.matchlog.';
+const MATCH_LOG_MAX_ENTRIES = 500;
+
+function getMatchLogKey(matchId: string): string {
+  return `${MATCH_LOG_KEY_PREFIX}${matchId}`;
+}
+
+type MatchLogEntry = {
+  id: string;
+  ts: number;
+  kind: 'point' | 'undo' | 'serve';
+  side?: 1 | 2;
+  team?: string;
+  delta?: 1 | -1;
+  setNumber?: number;
+};
+
+function loadMatchLog(matchId: string): MatchLogEntry[] {
+  if (typeof window === 'undefined') return [];
+  try {
+    const raw = window.localStorage.getItem(getMatchLogKey(matchId));
+    if (!raw) return [];
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? (parsed as MatchLogEntry[]) : [];
+  } catch {
+    return [];
+  }
+}
+
+function saveMatchLog(matchId: string, entries: MatchLogEntry[]): void {
+  if (typeof window === 'undefined') return;
+  try {
+    window.localStorage.setItem(
+      getMatchLogKey(matchId),
+      JSON.stringify(entries.slice(-MATCH_LOG_MAX_ENTRIES))
+    );
+  } catch {
+    // Ignore quota / serialization errors — the log is a best-effort aid.
+  }
+}
+
+// Short haptic pulse (no-op where unsupported, e.g. iOS Safari / desktop).
+function vibrate(durationMs: number): void {
+  if (typeof navigator === 'undefined' || !('vibrate' in navigator)) return;
+  try {
+    navigator.vibrate(durationMs);
+  } catch {
+    // Ignore — vibration is a non-critical enhancement.
+  }
+}
+
+// Lazily-created shared AudioContext for the synthesized "tick" (no asset).
+let tickAudioContext: AudioContext | null = null;
+
+function playTick(): void {
+  if (typeof window === 'undefined') return;
+  try {
+    const Ctx =
+      window.AudioContext ??
+      (window as unknown as { webkitAudioContext?: typeof AudioContext })
+        .webkitAudioContext;
+    if (!Ctx) return;
+    tickAudioContext = tickAudioContext ?? new Ctx();
+    const ctx = tickAudioContext;
+    if (ctx.state === 'suspended') void ctx.resume();
+    const now = ctx.currentTime;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = 'square';
+    osc.frequency.setValueAtTime(880, now);
+    gain.gain.setValueAtTime(0.0001, now);
+    gain.gain.exponentialRampToValueAtTime(0.12, now + 0.005);
+    gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.08);
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start(now);
+    osc.stop(now + 0.09);
+  } catch {
+    // Ignore — audio is a non-critical enhancement.
+  }
+}
+
 function isPickleballDoublesMatch(
   match: CategoryMatch,
   sportType?: SportType | null
@@ -143,6 +229,8 @@ export default function ScoreEntryBoard({
   const clientIdRef = useRef<string>(genClientId());
   const boardRef = useRef<HTMLDivElement>(null);
   const seqRef = useRef(0);
+  const logSeqRef = useRef(0);
+  const prevServeRef = useRef<string | null>(null);
   const queueRef = useRef<{ side: 1 | 2; delta: 1 | -1; seq: number }[]>([]);
   const processingRef = useRef(false);
 
@@ -153,6 +241,10 @@ export default function ScoreEntryBoard({
   const [serveBusy, setServeBusy] = useState(false);
   const [endOpen, setEndOpen] = useState(false);
   const [tossOpen, setTossOpen] = useState(false);
+  const [historyOpen, setHistoryOpen] = useState(false);
+  const [logEntries, setLogEntries] = useState<MatchLogEntry[]>(() =>
+    loadMatchLog(match.id)
+  );
   const [editingSetIndex, setEditingSetIndex] = useState<number | null>(null);
   const [isSwapped, setIsSwapped] = useState(() => {
     if (typeof window === 'undefined') return false;
@@ -174,6 +266,23 @@ export default function ScoreEntryBoard({
     setDisplaySets((prev) => (sameSets(prev, next) ? prev : next));
     onMatchUpdate(fresh);
   }, [match.id, isDoubles, onMatchUpdate]);
+
+  const appendLog = useCallback(
+    (entry: Omit<MatchLogEntry, 'id' | 'ts'>) => {
+      logSeqRef.current += 1;
+      const next: MatchLogEntry = {
+        ...entry,
+        id: `${Date.now()}_${logSeqRef.current}`,
+        ts: Date.now(),
+      };
+      setLogEntries((prev) => {
+        const updated = [...prev, next].slice(-MATCH_LOG_MAX_ENTRIES);
+        saveMatchLog(match.id, updated);
+        return updated;
+      });
+    },
+    [match.id]
+  );
 
   const processQueue = useCallback(async () => {
     if (processingRef.current) return;
@@ -217,9 +326,24 @@ export default function ScoreEntryBoard({
       seqRef.current += 1;
       setDisplaySets((prev) => applyDelta(prev, side, delta, rules, isDoubles));
       queueRef.current.push({ side, delta, seq: seqRef.current });
+      appendLog({
+        kind: 'point',
+        side,
+        delta,
+        team: side === 1 ? team1 : team2,
+        setNumber: current?.setNumber ?? 1,
+      });
       void processQueue();
     },
-    [rules, isDoubles, processQueue]
+    [
+      rules,
+      isDoubles,
+      processQueue,
+      appendLog,
+      team1,
+      team2,
+      current?.setNumber,
+    ]
   );
 
   // Pickleball doubles serving indicator: show the dots on whichever side the
@@ -271,10 +395,11 @@ export default function ScoreEntryBoard({
       const next = setsOf(resp, isDoubles);
       setDisplaySets((prev) => (sameSets(prev, next) ? prev : next));
       onMatchUpdate(resp);
+      appendLog({ kind: 'undo' });
     } catch {
       await refetch();
     }
-  }, [match.id, isDoubles, onMatchUpdate, refetch]);
+  }, [match.id, isDoubles, onMatchUpdate, refetch, appendLog]);
 
   const handlePickleballServe = useCallback(
     async (servingSide: 1 | 2, serverNumber: 1 | 2) => {
@@ -334,7 +459,11 @@ export default function ScoreEntryBoard({
     setIsSwapped(
       window.localStorage.getItem(getScoreboardSwapKey(match.id)) === '1'
     );
+    setLogEntries(loadMatchLog(match.id));
     queueRef.current = [];
+    // Reset the serve tracker so the new match's first serve state isn't
+    // mistaken for a rotation. Runs before the serve-logging effect below.
+    prevServeRef.current = null;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [match.id]);
 
@@ -344,6 +473,26 @@ export default function ScoreEntryBoard({
       isSwapped ? '1' : '0'
     );
   }, [isSwapped, match.id]);
+
+  // Log serve rotations (manual or auto). Both the referee's serve control and
+  // the server's automatic rotation surface here as servingSide/serverNumber
+  // changes, so we record them off a single source of truth. A ref tracks the
+  // previous value so the initial render (and match swaps) don't log a phantom.
+  useEffect(() => {
+    if (!showPickleballServe) {
+      prevServeRef.current = null;
+      return;
+    }
+    const signature = `${match.servingSide ?? 1}:${match.serverNumber ?? 2}`;
+    if (prevServeRef.current === null) {
+      prevServeRef.current = signature;
+      return;
+    }
+    if (prevServeRef.current !== signature) {
+      prevServeRef.current = signature;
+      appendLog({ kind: 'serve' });
+    }
+  }, [match.servingSide, match.serverNumber, showPickleballServe, appendLog]);
 
   const formatSetScore = (set: MatchSet) =>
     isSwapped
@@ -419,6 +568,16 @@ export default function ScoreEntryBoard({
             ) : (
               <WifiOff size={14} color="gray" aria-hidden="true" />
             )}
+            <IconButton
+              aria-label={t('matchHistory')}
+              title={t('matchHistory')}
+              size="xs"
+              variant="ghost"
+              colorPalette="gray"
+              onClick={() => setHistoryOpen(true)}
+            >
+              <History size={16} />
+            </IconButton>
             <IconButton
               aria-label={t('randomDraw')}
               title={t('randomDraw')}
@@ -513,6 +672,12 @@ export default function ScoreEntryBoard({
         team2={team2}
         team1PlayerNames={team1PlayerNames}
         team2PlayerNames={team2PlayerNames}
+      />
+
+      <MatchHistoryModal
+        isOpen={historyOpen}
+        onClose={() => setHistoryOpen(false)}
+        entries={logEntries}
       />
 
       <EditSetScoreModal
@@ -848,6 +1013,111 @@ function RandomDrawModal({
   );
 }
 
+function MatchHistoryModal({
+  isOpen,
+  onClose,
+  entries,
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+  entries: MatchLogEntry[];
+}) {
+  const t = useTranslations('pages.tournaments.scoreEntry');
+
+  const formatTime = (ts: number) => {
+    const date = new Date(ts);
+    const hours = `${date.getHours()}`.padStart(2, '0');
+    const minutes = `${date.getMinutes()}`.padStart(2, '0');
+    return `${hours}:${minutes}`;
+  };
+
+  // Newest first — the referee usually wants to confirm the most recent action.
+  const ordered = entries.slice().reverse();
+
+  const describe = (entry: MatchLogEntry): string => {
+    if (entry.kind === 'serve') return t('logServeChanged');
+    if (entry.kind === 'undo') return t('logUndo');
+    const sign = entry.delta === -1 ? '−1' : '+1';
+    return `${entry.team ?? ''} ${sign}`.trim();
+  };
+
+  return (
+    <VModal
+      isOpen={isOpen}
+      onClose={onClose}
+      title={t('matchHistory')}
+      size="md"
+      titleAlign="center"
+      hideSecondaryAction
+      maxBodyHeight={{ base: '70vh', md: '72vh' }}
+      closeButtonAriaLabel={t('close')}
+    >
+      {ordered.length === 0 ? (
+        <Text
+          textAlign="center"
+          color="gray.500"
+          _dark={{ color: 'gray.400' }}
+          py={6}
+        >
+          {t('matchHistoryEmpty')}
+        </Text>
+      ) : (
+        <VStack align="stretch" gap={0}>
+          {ordered.map((entry) => {
+            const isServe = entry.kind === 'serve';
+            const isUndo = entry.kind === 'undo';
+            const isMinus = entry.kind === 'point' && entry.delta === -1;
+            return (
+              <Flex
+                key={entry.id}
+                align="center"
+                justify="space-between"
+                gap={3}
+                py={2.5}
+                borderBottomWidth="1px"
+                borderColor="gray.100"
+                _dark={{ borderColor: 'gray.700' }}
+              >
+                <Text
+                  fontSize="sm"
+                  fontWeight="medium"
+                  color="gray.500"
+                  _dark={{ color: 'gray.400' }}
+                  minW="44px"
+                >
+                  {formatTime(entry.ts)}
+                </Text>
+                <Text
+                  flex="1"
+                  fontSize="sm"
+                  fontWeight={isServe || isUndo ? 'medium' : 'semibold'}
+                  textAlign="right"
+                  color={
+                    isServe
+                      ? 'blue.500'
+                      : isUndo || isMinus
+                        ? 'gray.500'
+                        : undefined
+                  }
+                  _dark={{
+                    color: isServe
+                      ? 'blue.300'
+                      : isUndo || isMinus
+                        ? 'gray.400'
+                        : undefined,
+                  }}
+                >
+                  {describe(entry)}
+                </Text>
+              </Flex>
+            );
+          })}
+        </VStack>
+      )}
+    </VModal>
+  );
+}
+
 interface TeamScorePanelProps {
   side: 1 | 2;
   teamName: string;
@@ -882,6 +1152,22 @@ function TeamScorePanel({
 }: TeamScorePanelProps) {
   const bg = colorScheme === 'blue' ? 'blue.500' : 'orange.500';
   const bgHover = colorScheme === 'blue' ? 'blue.600' : 'orange.600';
+  // Tap feedback: a brief white flash (keyed remount restarts the animation),
+  // a short haptic pulse, and a synthesized "tick" on each point.
+  const [flashKey, setFlashKey] = useState(0);
+
+  const handleIncrement = useCallback(() => {
+    setFlashKey((value) => value + 1);
+    vibrate(18);
+    playTick();
+    onIncrement();
+  }, [onIncrement]);
+
+  const handleDecrement = useCallback(() => {
+    vibrate(10);
+    onDecrement();
+  }, [onDecrement]);
+
   return (
     <Flex
       direction="column"
@@ -896,6 +1182,7 @@ function TeamScorePanel({
         tabIndex={disabled ? -1 : 0}
         aria-disabled={disabled}
         flex="1"
+        position="relative"
         bg={bg}
         color="white"
         cursor={disabled ? 'not-allowed' : 'pointer'}
@@ -910,12 +1197,12 @@ function TeamScorePanel({
         }}
         touchAction="manipulation"
         userSelect="none"
-        onClick={disabled ? undefined : onIncrement}
+        onClick={disabled ? undefined : handleIncrement}
         onKeyDown={(e) => {
           if (disabled) return;
           if (e.key === 'Enter' || e.key === ' ') {
             e.preventDefault();
-            onIncrement();
+            handleIncrement();
           }
         }}
         aria-label={incLabel}
@@ -930,6 +1217,23 @@ function TeamScorePanel({
             : { base: '30dvh', md: '52dvh' }
         }
       >
+        {flashKey > 0 && (
+          <Box
+            key={flashKey}
+            position="absolute"
+            inset={0}
+            bg="white"
+            pointerEvents="none"
+            aria-hidden="true"
+            animation="scoreFlash 0.28s ease-out"
+            css={{
+              '@keyframes scoreFlash': {
+                from: { opacity: 0.45 },
+                to: { opacity: 0 },
+              },
+            }}
+          />
+        )}
         <Text
           fontSize="md"
           fontWeight="semibold"
@@ -982,7 +1286,7 @@ function TeamScorePanel({
       </Box>
       <IconButton
         aria-label={decLabel}
-        onClick={onDecrement}
+        onClick={handleDecrement}
         disabled={disabled}
         variant="ghost"
         position="absolute"

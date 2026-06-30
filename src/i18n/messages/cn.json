@@ -3481,7 +3481,11 @@
         "pickleballServer": "发球",
         "sideLabel": "第 {side} 方",
         "servingSideTooltip": "{team} 正在发球",
-        "serverNumberTooltip": "第 {number} 发球员"
+        "serverNumberTooltip": "第 {number} 发球员",
+        "matchHistory": "比赛记录",
+        "matchHistoryEmpty": "暂无记录",
+        "logServeChanged": "发球轮换",
+        "logUndo": "撤销得分"
       },
       "scoreboard": {
         "court": "场地",

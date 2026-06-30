@@ -3504,7 +3504,11 @@
         "pickleballServer": "Server",
         "sideLabel": "Side {side}",
         "servingSideTooltip": "{team} is serving",
-        "serverNumberTooltip": "Server {number}"
+        "serverNumberTooltip": "Server {number}",
+        "matchHistory": "Match history",
+        "matchHistoryEmpty": "No events yet",
+        "logServeChanged": "Serve changed",
+        "logUndo": "Point undone"
       },
       "scoreboard": {
         "court": "Court",
