@@ -1633,7 +1633,9 @@
             "differenceShort": "+/-",
             "recentFormShort": "5 trận gần nhất",
             "forfeits": "BC",
-            "cancelled": "H"
+            "forfeitsTooltip": "Số trận thua do bỏ cuộc (đã tính trong cột Thua)",
+            "cancelled": "H",
+            "cancelledTooltip": "Số trận bị hủy (đã tính trong cột Thua)"
           }
         },
         "homeTab": {

@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useParams, usePathname, useSearchParams } from 'next/navigation';
-import { Box, Flex, Text, Badge, Heading } from '@chakra-ui/react';
+import { Box, Flex, Text, Badge, Heading, SimpleGrid } from '@chakra-ui/react';
 import { Button, VStack } from '@/components/ui/chakra-compat';
 import { useLocale, useTranslations } from 'next-intl';
 import { useRouter } from '@/i18n/config';
@@ -643,7 +643,7 @@ export default function RefereeMatchListPage() {
                       </Heading>
                       <Badge colorPalette="gray">{group.items.length}</Badge>
                     </Flex>
-                    <VStack align="stretch" gap={3}>
+                    <SimpleGrid columns={{ base: 1, lg: 2 }} gap={3}>
                       {group.items.map((match) => (
                         <ResultMatchCard
                           key={match.id}
@@ -659,7 +659,7 @@ export default function RefereeMatchListPage() {
                           domId={getMatchCardDomId(match)}
                         />
                       ))}
-                    </VStack>
+                    </SimpleGrid>
                   </Box>
                 ))
               )}

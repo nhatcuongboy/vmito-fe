@@ -1625,7 +1625,9 @@
             "differenceShort": "+/-",
             "recentFormShort": "Last 5",
             "forfeits": "F",
-            "cancelled": "C"
+            "forfeitsTooltip": "Matches lost by forfeit (already included in the Lost column)",
+            "cancelled": "C",
+            "cancelledTooltip": "Cancelled matches (already included in the Lost column)"
           }
         },
         "homeTab": {

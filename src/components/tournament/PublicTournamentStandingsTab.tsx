@@ -1379,10 +1379,16 @@ function StandingsTable({
             <StandingHeaderCell label={t('columns.wonShort')} />
             <StandingHeaderCell label={t('columns.lostShort')} />
             {showForfeits && (
-              <StandingHeaderCell label={t('columns.forfeits')} />
+              <StandingHeaderCell
+                label={t('columns.forfeits')}
+                tooltip={t('columns.forfeitsTooltip')}
+              />
             )}
             {showCancelled && (
-              <StandingHeaderCell label={t('columns.cancelled')} />
+              <StandingHeaderCell
+                label={t('columns.cancelled')}
+                tooltip={t('columns.cancelledTooltip')}
+              />
             )}
             <StandingHeaderCell label={t('columns.differenceShort')} />
             <StandingHeaderCell label={t('columns.pointsShort')} isStrong />
@@ -1564,10 +1570,12 @@ function StandingHeaderCell({
   label,
   align = 'center',
   isStrong = false,
+  tooltip,
 }: {
   label: string;
   align?: 'start' | 'center';
   isStrong?: boolean;
+  tooltip?: string;
 }) {
   return (
     <Text
@@ -1578,6 +1586,8 @@ function StandingHeaderCell({
       letterSpacing="0"
       textTransform="uppercase"
       whiteSpace="nowrap"
+      title={tooltip}
+      cursor={tooltip ? 'help' : undefined}
       _dark={{ color: isStrong ? 'gray.200' : 'gray.400' }}
     >
       {label}
