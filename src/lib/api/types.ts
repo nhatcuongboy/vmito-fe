@@ -1526,6 +1526,59 @@ export interface IValidateScheduleResponse {
   errors: { field: string; message: string }[];
 }
 
+// ===== Next Available Court mode (live queue) =====
+export enum TournamentCourtStatus {
+  AVAILABLE = 'AVAILABLE',
+  OCCUPIED = 'OCCUPIED',
+  MAINTENANCE = 'MAINTENANCE',
+}
+
+export interface ICourtCurrentMatch {
+  matchId: string;
+  categoryId: string;
+  round: string;
+  matchNumber: number;
+  status: string;
+  participants: IQueuedMatchParticipant[];
+}
+
+export interface ICourtAvailability {
+  courtId: string;
+  courtNumber: number;
+  courtName?: string;
+  status: TournamentCourtStatus;
+  currentMatchId?: string;
+  currentMatch?: ICourtCurrentMatch;
+  estimatedAvailableAt?: string;
+}
+
+export interface IQueuedMatchParticipant {
+  id: string;
+  name: string;
+}
+
+export interface IQueuedMatch {
+  matchId: string;
+  categoryId: string;
+  round: string;
+  matchNumber: number;
+  queueOrder: number;
+  estimatedDuration?: number;
+  participants: IQueuedMatchParticipant[];
+}
+
+export interface IAutoAssignResult {
+  success: boolean;
+  matchId: string;
+  courtId?: string;
+  assignedAt?: string;
+  error?: string;
+}
+
+export interface IInitializeQueueResponse {
+  queuedCount: number;
+}
+
 // Image category enum
 export enum EImageCategory {
   SESSION_COVER = 'SESSION_COVER',

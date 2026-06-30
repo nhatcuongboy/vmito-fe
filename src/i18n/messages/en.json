@@ -2384,7 +2384,39 @@
                 "tbd": "TBD",
                 "unknown": "Unknown",
                 "delete": "Delete"
-              }
+              },
+              "liveQueue": {
+                "title": "Live court assignment",
+                "subtitle": "Queue matches and auto-assign them to courts as they free up.",
+                "initialize": "Initialize queue",
+                "assignNext": "Assign next",
+                "refresh": "Refresh",
+                "courts": "Courts",
+                "noCourts": "No courts configured for this tournament.",
+                "queue": "Queue",
+                "emptyQueue": "No matches in queue",
+                "emptyQueueHint": "Use \"Initialize queue\" to add unscheduled matches.",
+                "matchLabel": "Match {number}",
+                "status": {
+                  "AVAILABLE": "Available",
+                  "OCCUPIED": "In use",
+                  "MAINTENANCE": "Maintenance"
+                },
+                "loadFailed": "Failed to load court assignment data.",
+                "actionFailed": "Action failed. Please try again.",
+                "initializeSuccess": "{count} matches added to the queue.",
+                "assignedSuccess": "Next match assigned to a court.",
+                "assignNothing": "Nothing to assign right now.",
+                "addMatch": "Add match",
+                "noAddable": "No matches available to add.",
+                "returnToQueue": "Return to queue",
+                "availableAt": "free ~{time}",
+                "addedSuccess": "Match added to the queue.",
+                "returnedSuccess": "Match returned to the queue."
+              },
+              "finishedMatches": "finished",
+              "onCourtMatches": "on court",
+              "waitingMatches": "waiting in queue"
             },
             "sponsors": {
               "title": "Sponsors",

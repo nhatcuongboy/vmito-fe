@@ -231,6 +231,7 @@ export default function ScoreEntryBoard({
   const seqRef = useRef(0);
   const logSeqRef = useRef(0);
   const prevServeRef = useRef<string | null>(null);
+  const prevCompleteRef = useRef(false);
   const queueRef = useRef<{ side: 1 | 2; delta: 1 | -1; seq: number }[]>([]);
   const processingRef = useRef(false);
 
@@ -464,6 +465,9 @@ export default function ScoreEntryBoard({
     // Reset the serve tracker so the new match's first serve state isn't
     // mistaken for a rotation. Runs before the serve-logging effect below.
     prevServeRef.current = null;
+    // Reset the completion tracker so an already-complete match swapped in
+    // doesn't auto-pop the end modal on mount.
+    prevCompleteRef.current = true;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [match.id]);
 
@@ -493,6 +497,18 @@ export default function ScoreEntryBoard({
       appendLog({ kind: 'serve' });
     }
   }, [match.servingSide, match.serverNumber, showPickleballServe, appendLog]);
+
+  // Pop the end-match confirmation as soon as the score first satisfies the win
+  // condition (badminton or pickleball). A ref tracks the previous completion
+  // so the modal only auto-opens on the transition into "complete" — if the
+  // referee cancels it stays closed, and only reopens after the score drops
+  // below the threshold (undo) and reaches it again.
+  useEffect(() => {
+    if (matchState.complete && !prevCompleteRef.current) {
+      setEndOpen(true);
+    }
+    prevCompleteRef.current = matchState.complete;
+  }, [matchState.complete]);
 
   const formatSetScore = (set: MatchSet) =>
     isSwapped

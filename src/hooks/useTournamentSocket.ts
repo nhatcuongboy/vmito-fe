@@ -12,6 +12,7 @@ export enum TournamentEventType {
   SCORE_UPDATED = 'tournament_match_score_updated',
   MATCH_ENDED = 'tournament_match_ended',
   REFEREE_ASSIGNED = 'tournament_match_referee_assigned',
+  SCHEDULE_UPDATED = 'tournament_schedule_updated',
 }
 
 export interface TournamentMatchEvent {
@@ -21,11 +22,17 @@ export interface TournamentMatchEvent {
   seq?: number; // monotonic per clientId (score updates)
 }
 
+/** Fired when the live court queue / assignments change. No match payload. */
+export interface TournamentScheduleEvent {
+  tournamentId: string;
+}
+
 export interface UseTournamentSocketOptions {
   onScoreUpdated?: (e: TournamentMatchEvent) => void;
   onMatchStarted?: (e: TournamentMatchEvent) => void;
   onMatchEnded?: (e: TournamentMatchEvent) => void;
   onRefereeAssigned?: (e: TournamentMatchEvent) => void;
+  onScheduleUpdated?: (e: TournamentScheduleEvent) => void;
   onReconnect?: () => void;
 }
 
@@ -92,6 +99,10 @@ export function useTournamentSocket(
     );
     socket.on(TournamentEventType.REFEREE_ASSIGNED, (e: TournamentMatchEvent) =>
       optionsRef.current.onRefereeAssigned?.(e)
+    );
+    socket.on(
+      TournamentEventType.SCHEDULE_UPDATED,
+      (e: TournamentScheduleEvent) => optionsRef.current.onScheduleUpdated?.(e)
     );
 
     return () => {

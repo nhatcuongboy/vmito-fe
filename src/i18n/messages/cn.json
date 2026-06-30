@@ -2362,7 +2362,39 @@
                 "tbd": "待定",
                 "unknown": "未知",
                 "delete": "删除"
-              }
+              },
+              "liveQueue": {
+                "title": "实时场地分配",
+                "subtitle": "将比赛加入队列，场地空出后自动分配。",
+                "initialize": "初始化队列",
+                "assignNext": "分配下一场",
+                "refresh": "刷新",
+                "courts": "场地",
+                "noCourts": "本赛事尚未配置场地。",
+                "queue": "队列",
+                "emptyQueue": "队列为空",
+                "emptyQueueHint": "使用“初始化队列”添加未排程的比赛。",
+                "matchLabel": "第 {number} 场",
+                "status": {
+                  "AVAILABLE": "空闲",
+                  "OCCUPIED": "使用中",
+                  "MAINTENANCE": "维护中"
+                },
+                "loadFailed": "加载场地分配数据失败。",
+                "actionFailed": "操作失败，请重试。",
+                "initializeSuccess": "已将 {count} 场比赛加入队列。",
+                "assignedSuccess": "已将下一场比赛分配到场地。",
+                "assignNothing": "当前没有可分配的内容。",
+                "addMatch": "添加比赛",
+                "noAddable": "没有可添加的比赛。",
+                "returnToQueue": "退回队列",
+                "availableAt": "约 {time} 空闲",
+                "addedSuccess": "已将比赛加入队列。",
+                "returnedSuccess": "已将比赛退回队列。"
+              },
+              "finishedMatches": "已结束",
+              "onCourtMatches": "场上进行中",
+              "waitingMatches": "队列等待中"
             },
             "sponsors": {
               "title": "赞助商",

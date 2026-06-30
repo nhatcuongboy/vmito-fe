@@ -14,11 +14,13 @@ import {
   Tournament,
   CategoryMatch,
   ScheduleType,
+  MatchStatus,
 } from '@/lib/api/types';
 import { TournamentService } from '@/lib/api/tournament.service';
 import { CategoryService } from '@/lib/api/category.service';
 import ScheduleTypeModal from './schedule/ScheduleTypeModal';
 import ManageScheduleModal from './schedule/ManageScheduleModal';
+import NextAvailableCourtModal from './schedule/NextAvailableCourtModal';
 
 interface SchedulePanelProps {
   categories: Category[];
@@ -42,6 +44,7 @@ export default function SchedulePanel({
   );
   const typeModal = useModal();
   const manageModal = useModal();
+  const liveQueueModal = useModal();
   const clearModal = useModal();
   const deleteUnscheduledModal = useModal();
   const [isClearing, setIsClearing] = useState(false);
@@ -128,6 +131,8 @@ export default function SchedulePanel({
     fetchMatches();
   }, [checkGroupStageCompletion, tournament.id]);
 
+  const isQueueMode = scheduleType === ScheduleType.NEXT_AVAILABLE;
+
   const totalMatches =
     allMatches.length > 0
       ? allMatches.length
@@ -136,8 +141,21 @@ export default function SchedulePanel({
     (m) => m.startTime && m.courtId
   ).length;
   const unscheduledMatches = totalMatches - scheduledMatches;
-  const progress =
-    totalMatches > 0 ? (scheduledMatches / totalMatches) * 100 : 0;
+
+  // Queue-mode buckets: matches flow waiting -> on court -> finished. In this
+  // mode "scheduled" (court + time) isn't a meaningful progress metric.
+  const finishedMatches = allMatches.filter(
+    (m) => m.status === MatchStatus.FINISHED
+  ).length;
+  const onCourtMatches = allMatches.filter(
+    (m) => m.courtId && m.status !== MatchStatus.FINISHED
+  ).length;
+  const waitingMatches = allMatches.filter(
+    (m) => !m.courtId && m.status === MatchStatus.SCHEDULED
+  ).length;
+
+  const completedCount = isQueueMode ? finishedMatches : scheduledMatches;
+  const progress = totalMatches > 0 ? (completedCount / totalMatches) * 100 : 0;
   const circumference = 2 * Math.PI * 44;
   const dashOffset = circumference - (progress / 100) * circumference;
 
@@ -238,13 +256,10 @@ export default function SchedulePanel({
             {scheduleTypeLabel}
           </Badge>
         </Box>
-        {/* Tạm ẩn UI đổi loại lịch thi đấu */}
-        {false && (
-          <Button variant="ghost" size="sm" onClick={typeModal.onOpen}>
-            <ArrowLeftRight size={14} />
-            {t('organize.schedule.switchType')}
-          </Button>
-        )}
+        <Button variant="ghost" size="sm" onClick={typeModal.onOpen}>
+          <ArrowLeftRight size={14} />
+          {t('organize.schedule.switchType')}
+        </Button>
       </Flex>
 
       {/* Circular progress */}
@@ -283,7 +298,7 @@ export default function SchedulePanel({
             justify="center"
           >
             <Text fontSize="lg" fontWeight="bold" color="green.600">
-              {scheduledMatches} / {totalMatches}
+              {completedCount} / {totalMatches}
             </Text>
           </Flex>
         </Box>
@@ -291,53 +306,101 @@ export default function SchedulePanel({
 
       {/* Stats */}
       <VStack gap={2} align="stretch">
-        <Flex align="center" gap={2}>
-          <Box w="8px" h="8px" borderRadius="full" bg="green.400" />
-          <Text fontSize="sm">
-            {scheduledMatches} {t('organize.schedule.scheduledMatches')}
-          </Text>
-        </Flex>
-        <Flex align="center" gap={2}>
-          <Box w="8px" h="8px" borderRadius="full" bg="gray.300" />
-          <Text fontSize="sm" color="gray.500" _dark={{ color: 'gray.400' }}>
-            {unscheduledMatches} {t('organize.schedule.unscheduledMatches')}
-          </Text>
-        </Flex>
+        {isQueueMode ? (
+          <>
+            <Flex align="center" gap={2}>
+              <Box w="8px" h="8px" borderRadius="full" bg="green.400" />
+              <Text fontSize="sm">
+                {finishedMatches} {t('organize.schedule.finishedMatches')}
+              </Text>
+            </Flex>
+            <Flex align="center" gap={2}>
+              <Box w="8px" h="8px" borderRadius="full" bg="orange.400" />
+              <Text fontSize="sm">
+                {onCourtMatches} {t('organize.schedule.onCourtMatches')}
+              </Text>
+            </Flex>
+            <Flex align="center" gap={2}>
+              <Box w="8px" h="8px" borderRadius="full" bg="gray.300" />
+              <Text
+                fontSize="sm"
+                color="gray.500"
+                _dark={{ color: 'gray.400' }}
+              >
+                {waitingMatches} {t('organize.schedule.waitingMatches')}
+              </Text>
+            </Flex>
+          </>
+        ) : (
+          <>
+            <Flex align="center" gap={2}>
+              <Box w="8px" h="8px" borderRadius="full" bg="green.400" />
+              <Text fontSize="sm">
+                {scheduledMatches} {t('organize.schedule.scheduledMatches')}
+              </Text>
+            </Flex>
+            <Flex align="center" gap={2}>
+              <Box w="8px" h="8px" borderRadius="full" bg="gray.300" />
+              <Text
+                fontSize="sm"
+                color="gray.500"
+                _dark={{ color: 'gray.400' }}
+              >
+                {unscheduledMatches} {t('organize.schedule.unscheduledMatches')}
+              </Text>
+            </Flex>
+          </>
+        )}
       </VStack>
 
-      {/* Manage schedule button */}
-      <Button bg="gray.800" color="white" w="100%" onClick={manageModal.onOpen}>
+      {/* Manage schedule button — routes by schedule type */}
+      <Button
+        bg="gray.800"
+        color="white"
+        w="100%"
+        onClick={
+          scheduleType === ScheduleType.NEXT_AVAILABLE
+            ? liveQueueModal.onOpen
+            : manageModal.onOpen
+        }
+      >
         <Settings size={16} />
         {t('organize.schedule.manageSchedule')}
       </Button>
 
-      {/* Clear all schedule button */}
-      <Button
-        variant="outline"
-        colorScheme="red"
-        color="red.600"
-        borderColor="red.200"
-        w="100%"
-        onClick={clearModal.onOpen}
-        disabled={scheduledMatches === 0}
-      >
-        <Trash2 size={16} />
-        {t('organize.schedule.clearAll')}
-      </Button>
+      {/* Clear all / delete unscheduled belong to the ASSIGNED flow. In queue
+          mode these operate on the live queue and would wipe it, so hide them. */}
+      {!isQueueMode && (
+        <>
+          {/* Clear all schedule button */}
+          <Button
+            variant="outline"
+            colorScheme="red"
+            color="red.600"
+            borderColor="red.200"
+            w="100%"
+            onClick={clearModal.onOpen}
+            disabled={scheduledMatches === 0}
+          >
+            <Trash2 size={16} />
+            {t('organize.schedule.clearAll')}
+          </Button>
 
-      {/* Delete unscheduled matches button */}
-      <Button
-        variant="outline"
-        colorScheme="red"
-        color="red.600"
-        borderColor="red.200"
-        w="100%"
-        onClick={deleteUnscheduledModal.onOpen}
-        disabled={unscheduledMatches === 0}
-      >
-        <Trash2 size={16} />
-        {t('organize.schedule.deleteUnscheduled')}
-      </Button>
+          {/* Delete unscheduled matches button */}
+          <Button
+            variant="outline"
+            colorScheme="red"
+            color="red.600"
+            borderColor="red.200"
+            w="100%"
+            onClick={deleteUnscheduledModal.onOpen}
+            disabled={unscheduledMatches === 0}
+          >
+            <Trash2 size={16} />
+            {t('organize.schedule.deleteUnscheduled')}
+          </Button>
+        </>
+      )}
 
       {/* Schedule Type Modal */}
       <ScheduleTypeModal
@@ -347,13 +410,24 @@ export default function SchedulePanel({
         onConfirm={handleTypeChange}
       />
 
-      {/* Manage Schedule Modal */}
+      {/* Manage Schedule Modal (ASSIGNED mode) */}
       <ManageScheduleModal
         isOpen={manageModal.isOpen}
         onClose={manageModal.onClose}
         tournament={tournament}
         categories={categories}
         onScheduleSaved={handleScheduleSaved}
+      />
+
+      {/* Live court assignment (NEXT_AVAILABLE mode) */}
+      <NextAvailableCourtModal
+        isOpen={liveQueueModal.isOpen}
+        onClose={() => {
+          liveQueueModal.onClose();
+          handleScheduleSaved();
+        }}
+        tournament={tournament}
+        categories={categories}
       />
 
       {/* Clear All Schedule Confirmation Modal */}

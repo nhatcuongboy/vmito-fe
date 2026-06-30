@@ -2392,7 +2392,39 @@
                 "tbd": "Chưa xác định",
                 "unknown": "Không xác định",
                 "delete": "Xóa"
-              }
+              },
+              "liveQueue": {
+                "title": "Phân sân trực tiếp",
+                "subtitle": "Đưa trận vào hàng đợi và tự gán vào sân ngay khi có sân trống.",
+                "initialize": "Khởi tạo hàng đợi",
+                "assignNext": "Gán trận kế tiếp",
+                "refresh": "Làm mới",
+                "courts": "Sân",
+                "noCourts": "Giải đấu chưa cấu hình sân nào.",
+                "queue": "Hàng đợi",
+                "emptyQueue": "Hàng đợi trống",
+                "emptyQueueHint": "Dùng \"Khởi tạo hàng đợi\" để thêm các trận chưa xếp lịch.",
+                "matchLabel": "Trận {number}",
+                "status": {
+                  "AVAILABLE": "Trống",
+                  "OCCUPIED": "Đang thi đấu",
+                  "MAINTENANCE": "Bảo trì"
+                },
+                "loadFailed": "Không tải được dữ liệu phân sân.",
+                "actionFailed": "Thao tác thất bại. Vui lòng thử lại.",
+                "initializeSuccess": "Đã thêm {count} trận vào hàng đợi.",
+                "assignedSuccess": "Đã gán trận kế tiếp vào sân.",
+                "assignNothing": "Hiện chưa có gì để gán.",
+                "addMatch": "Thêm trận",
+                "noAddable": "Không còn trận nào để thêm.",
+                "returnToQueue": "Trả về hàng đợi",
+                "availableAt": "trống ~{time}",
+                "addedSuccess": "Đã thêm trận vào hàng đợi.",
+                "returnedSuccess": "Đã trả trận về hàng đợi."
+              },
+              "finishedMatches": "đã xong",
+              "onCourtMatches": "đang trên sân",
+              "waitingMatches": "đang chờ trong hàng đợi"
             },
             "sponsors": {
               "title": "Nhà tài trợ",
