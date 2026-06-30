@@ -1223,9 +1223,10 @@ function TeamScorePanel({
             position="absolute"
             inset={0}
             bg="white"
+            opacity={0}
             pointerEvents="none"
             aria-hidden="true"
-            animation="scoreFlash 0.28s ease-out"
+            animation="scoreFlash 0.28s ease-out forwards"
             css={{
               '@keyframes scoreFlash': {
                 from: { opacity: 0.45 },
