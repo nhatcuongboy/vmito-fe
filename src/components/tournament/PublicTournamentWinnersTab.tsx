@@ -204,7 +204,6 @@ export default function PublicTournamentWinnersTab({
             active={showPlayerNames}
             onToggle={() => setShowPlayerNames((prev) => !prev)}
             title={t('showPlayerNames')}
-            label={t('showPlayerNamesBadge')}
           />
         </Flex>
       </Flex>

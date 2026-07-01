@@ -675,6 +675,8 @@ export default function RefereeMatchListPage() {
                 statusOptions={statusOptions}
                 teamOptions={teamOptions}
                 onToggle={updateFilterList}
+                showPlayerNames={showPlayerNames}
+                onTogglePlayerNames={() => setShowPlayerNames((prev) => !prev)}
               />
             </VStack>
           )}

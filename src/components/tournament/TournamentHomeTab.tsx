@@ -89,7 +89,6 @@ interface TournamentHomeTabProps {
   isLoadingCategories?: boolean;
   canManageTournament: boolean;
   slug: string;
-  onNavigateToTeams?: (view: 'category' | 'players') => void;
 }
 
 const URL_PATTERN = /(https?:\/\/[^\s]+)/g;
@@ -561,7 +560,6 @@ export default function TournamentHomeTab({
   isLoadingCategories = false,
   canManageTournament,
   slug,
-  onNavigateToTeams,
 }: TournamentHomeTabProps) {
   const t = useTranslations('pages.tournaments.detail.homeTab');
   const tBoard = useTranslations('pages.tournaments.scoreboard');
@@ -710,7 +708,7 @@ export default function TournamentHomeTab({
   };
 
   return (
-    <VStack align="stretch" gap={4}>
+    <VStack align="stretch" gap={4} pt={{ base: 4, md: 0 }}>
       {/* Mobile cover */}
       <Box
         display={{ base: 'block', md: 'none' }}
@@ -757,59 +755,29 @@ export default function TournamentHomeTab({
           gap={{ base: 3, md: 4 }}
           mb={4}
         >
-          <Flex
-            align="center"
-            gap={2}
-            minW={0}
-            w="fit-content"
-            role="group"
-            cursor={onNavigateToTeams ? 'pointer' : 'default'}
-            onClick={() => onNavigateToTeams?.('category')}
-            _hover={onNavigateToTeams ? { color: 'green.600' } : undefined}
-          >
+          <Flex align="center" gap={2} minW={0}>
             <Users size={16} color="var(--chakra-colors-gray-500)" />
             {isLoadingCategories ? (
               <Skeleton height="16px" width="132px" borderRadius="md" />
             ) : (
               <Text
                 fontSize="sm"
-                color={onNavigateToTeams ? 'blue.500' : 'gray.600'}
-                textDecoration={onNavigateToTeams ? 'underline' : 'none'}
-                _dark={{
-                  color: onNavigateToTeams ? 'blue.300' : 'gray.300',
-                }}
-                _groupHover={
-                  onNavigateToTeams ? { color: 'blue.600' } : undefined
-                }
+                color="gray.600"
+                _dark={{ color: 'gray.300' }}
               >
                 {t('overview.teamsParticipating', { count: totalTeams })}
               </Text>
             )}
           </Flex>
-          <Flex
-            align="center"
-            gap={2}
-            minW={0}
-            w="fit-content"
-            role="group"
-            cursor={onNavigateToTeams ? 'pointer' : 'default'}
-            onClick={() => onNavigateToTeams?.('players')}
-            _hover={onNavigateToTeams ? { color: 'green.600' } : undefined}
-          >
+          <Flex align="center" gap={2} minW={0}>
             <UserRound size={16} color="var(--chakra-colors-gray-500)" />
             {isLoadingCategories ? (
               <Skeleton height="16px" width="132px" borderRadius="md" />
             ) : (
               <Text
                 fontSize="sm"
-                color={onNavigateToTeams ? 'blue.500' : 'gray.600'}
-                textDecoration={onNavigateToTeams ? 'underline' : 'none'}
-                _dark={{
-                  color: onNavigateToTeams ? 'blue.300' : 'gray.300',
-                }}
-                _groupHover={
-                  onNavigateToTeams ? { color: 'blue.600' } : undefined
-                }
+                color="gray.600"
+                _dark={{ color: 'gray.300' }}
               >
                 {t('overview.athletesParticipating', {
                   count: totalAthletes,
@@ -817,54 +785,25 @@ export default function TournamentHomeTab({
               </Text>
             )}
           </Flex>
-          <Flex
-            align="center"
-            gap={2}
-            minW={0}
-            w="fit-content"
-            role="group"
-            cursor="pointer"
-            onClick={() => {
-              const d = new Date(tournament.startDate)
-                .toISOString()
-                .slice(0, 10);
-              router.push(`/tournament/${slug}/schedule?from=${d}&to=${d}`);
-            }}
-            _hover={{ color: 'green.600' }}
-          >
+          <Flex align="center" gap={2} minW={0}>
             <CalendarDays size={16} color="var(--chakra-colors-gray-500)" />
             <Text
               fontSize="sm"
-              color="blue.500"
-              textDecoration="underline"
+              color="gray.600"
               lineClamp={1}
-              _dark={{ color: 'blue.300' }}
-              _groupHover={{ color: 'blue.600' }}
+              _dark={{ color: 'gray.300' }}
             >
               {formattedDate}
             </Text>
           </Flex>
           {overviewVenueName && (
-            <Flex
-              align="center"
-              gap={2}
-              minW={0}
-              w="fit-content"
-              role="group"
-              cursor="pointer"
-              onClick={() =>
-                displayVenues[0] && handleOpenDirections(displayVenues[0].venue)
-              }
-              _hover={{ color: 'green.600' }}
-            >
+            <Flex align="center" gap={2} minW={0}>
               <MapPin size={16} color="var(--chakra-colors-gray-500)" />
               <Text
                 fontSize="sm"
-                color="blue.500"
-                textDecoration="underline"
+                color="gray.600"
                 lineClamp={1}
-                _dark={{ color: 'blue.300' }}
-                _groupHover={{ color: 'blue.600' }}
+                _dark={{ color: 'gray.300' }}
               >
                 {overviewVenueName}
               </Text>

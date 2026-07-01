@@ -20,7 +20,7 @@ export function DiscoveryTabNav() {
     { id: ROUTES.HOME, label: t('findSessions') },
     { id: ROUTES.BROWSE.VENUES.LIST, label: t('findVenues') },
     { id: ROUTES.CLUBS.BROWSE, label: t('findClubs') },
-    // { id: ROUTES.BROWSE.TOURNAMENTS.LIST, label: t('findTournaments') },
+    { id: ROUTES.BROWSE.TOURNAMENTS.LIST, label: t('findTournaments') },
   ];
 
   // Helper to check which tab is active

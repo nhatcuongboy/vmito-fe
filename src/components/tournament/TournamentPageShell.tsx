@@ -35,7 +35,6 @@ import { useAuthStore } from '@/stores/useAuthStore';
 import {
   CircleUserRound,
   SquarePen,
-  Trophy,
   ArrowRight,
   LayoutList,
   UsersRound,
@@ -378,7 +377,7 @@ function PlayerRow({
 
         <Box flex="1" minW={0}>
           <Text
-            fontSize={{ base: 'md', md: 'lg' }}
+            fontSize={{ base: 'sm', md: 'md' }}
             fontWeight="semibold"
             lineClamp={1}
           >
@@ -386,8 +385,8 @@ function PlayerRow({
           </Text>
           {player.categories.length > 0 && (
             <Text
-              mt={1}
-              fontSize="sm"
+              mt={0.5}
+              fontSize="xs"
               color="gray.500"
               lineClamp={1}
               _dark={{ color: 'gray.400' }}
@@ -520,9 +519,7 @@ export default function TournamentPageShell({
   const bottomNavTabs = tabs;
 
   const appRootHref = '/';
-  const topBarIcon = (
-    <Trophy size={22} strokeWidth={2} color="var(--chakra-colors-yellow-400)" />
-  );
+  const topBarIcon = <Image src="/icons/app-logo.png" h="28px" alt="Vmito" />;
 
   const getCategoryTypeLabel = useCallback(
     (type: CategoryType) => {
@@ -943,6 +940,7 @@ export default function TournamentPageShell({
           showTopBarMenuButton={false}
           showTopBarLogo
           topBarLogoHref={appRootHref}
+          centerTitle
           showTopBarAuthActions={false}
           disableSidebarOffset
           rightContent={<TournamentTopBarMenu />}
@@ -1018,9 +1016,6 @@ export default function TournamentPageShell({
           isLoadingCategories={loadingTeams}
           canManageTournament={isHostOrAdmin}
           slug={slug}
-          onNavigateToTeams={(view) => {
-            router.push(`/tournament/${slug}/teams?view=${view}`);
-          }}
         />
       )}
       {activeTab === 1 && (
@@ -1286,6 +1281,7 @@ export default function TournamentPageShell({
         showTopBarMenuButton={false}
         showTopBarLogo
         topBarLogoHref={appRootHref}
+        centerTitle
         showTopBarAuthActions={false}
         disableSidebarOffset
         rightContent={<TournamentTopBarMenu />}

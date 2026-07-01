@@ -9,6 +9,7 @@ import {
   useState,
 } from 'react';
 import { usePathname, useSearchParams } from 'next/navigation';
+import { useRouter } from '@/i18n/config';
 import { Badge, Box, Flex, Heading, SimpleGrid, Text } from '@chakra-ui/react';
 import { Button, Input, VStack } from '@/components/ui/chakra-compat';
 import {
@@ -31,6 +32,7 @@ import {
   List,
   RotateCcw,
   Search,
+  ShieldCheck,
   Trophy,
   X,
 } from 'lucide-react';
@@ -160,6 +162,7 @@ export default function ResultsPanel({
   const tRounds = useTranslations('pages.tournaments.manualScore.rounds');
   const locale = useLocale();
   const { user } = useAuthStore();
+  const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const currentQuery = searchParams.toString();
@@ -554,6 +557,10 @@ export default function ResultsPanel({
 
   // Any viewer can open the read-only detail modal; editing is gated inside it.
   const openMatch = (match: CategoryMatch) => {
+    if (filters.refereeOnly) {
+      router.push(`/tournament/${tournament.slug}/referee/${match.id}`);
+      return;
+    }
     setDetailMatch(match);
   };
 
@@ -727,11 +734,35 @@ export default function ResultsPanel({
                 placeholder={t('filters.searchPlaceholder')}
               />
             </Box>
-            <PlayerNamesToggle
-              active={showPlayerNames}
-              onToggle={() => setShowPlayerNames((prev) => !prev)}
-              title={t('showPlayerNames')}
-            />
+            {(refereeAccess.canRefereeAny ||
+              refereeAccess.hasOwnAssignments) && (
+              <Button
+                size="sm"
+                variant="outline"
+                colorPalette={filters.refereeOnly ? 'green' : 'gray'}
+                bg={filters.refereeOnly ? 'green.500' : 'transparent'}
+                color={filters.refereeOnly ? 'white' : undefined}
+                borderColor={filters.refereeOnly ? 'green.400' : 'gray.200'}
+                onClick={() =>
+                  setFilters((prev) => ({
+                    ...prev,
+                    refereeOnly: !prev.refereeOnly,
+                  }))
+                }
+                aria-label={t('filters.referee')}
+                flexShrink={0}
+                h={9}
+                w={9}
+                px={0}
+                transition="all 0.15s ease"
+                _hover={{
+                  bg: filters.refereeOnly ? 'green.600' : 'gray.100',
+                  borderColor: filters.refereeOnly ? 'green.500' : 'gray.300',
+                }}
+              >
+                <ShieldCheck size={15} />
+              </Button>
+            )}
             <Button
               size="sm"
               variant="outline"
@@ -766,21 +797,12 @@ export default function ResultsPanel({
               )}
             </Button>
           </Flex>
-
-          <Box display={{ base: 'none', md: 'block' }} flexShrink={0}>
-            <PlayerNamesToggle
-              active={showPlayerNames}
-              onToggle={() => setShowPlayerNames((prev) => !prev)}
-              title={t('showPlayerNames')}
-              label={t('showPlayerNamesBadge')}
-            />
-          </Box>
         </Flex>
 
         <Flex
           align="center"
           gap={3}
-          justify={{ base: 'stretch', md: 'flex-end' }}
+          justify="flex-end"
           w={{ base: 'full', md: 'auto' }}
         >
           <Box display={{ base: 'none', md: 'block' }} w="280px">
@@ -797,7 +819,7 @@ export default function ResultsPanel({
             align="center"
             gap={2}
             justify="space-between"
-            w={{ base: 'full', md: 'auto' }}
+            w={{ base: 'auto', md: 'auto' }}
             p={{ base: 0, md: 1 }}
             borderWidth={{ base: 0, md: '1px' }}
             borderColor={{ md: 'gray.200' }}
@@ -840,6 +862,40 @@ export default function ResultsPanel({
               />
             </Flex>
           </Flex>
+
+          <Button
+            display={{
+              base: 'none',
+              md:
+                refereeAccess.canRefereeAny || refereeAccess.hasOwnAssignments
+                  ? 'inline-flex'
+                  : 'none',
+            }}
+            size="sm"
+            variant="outline"
+            colorPalette={filters.refereeOnly ? 'green' : 'gray'}
+            bg={filters.refereeOnly ? 'green.500' : 'transparent'}
+            color={filters.refereeOnly ? 'white' : undefined}
+            borderColor={filters.refereeOnly ? 'green.400' : 'gray.200'}
+            onClick={() =>
+              setFilters((prev) => ({
+                ...prev,
+                refereeOnly: !prev.refereeOnly,
+              }))
+            }
+            aria-label={t('filters.referee')}
+            flexShrink={0}
+            h={9}
+            w={9}
+            px={0}
+            transition="all 0.15s ease"
+            _hover={{
+              bg: filters.refereeOnly ? 'green.600' : 'gray.100',
+              borderColor: filters.refereeOnly ? 'green.500' : 'gray.300',
+            }}
+          >
+            <ShieldCheck size={15} />
+          </Button>
 
           <Button
             display={{ base: 'none', md: 'inline-flex' }}
@@ -1005,10 +1061,8 @@ export default function ResultsPanel({
         statusOptions={statusOptions}
         teamOptions={teamOptions}
         onToggle={updateFilterList}
-        currentUserId={user?.id}
-        showRefereeFilter={
-          refereeAccess.canRefereeAny || refereeAccess.hasOwnAssignments
-        }
+        showPlayerNames={showPlayerNames}
+        onTogglePlayerNames={() => setShowPlayerNames((prev) => !prev)}
       />
 
       <MatchDetailModal
@@ -1317,9 +1371,9 @@ export function ResultMatchCard({
             colorPalette={statusTone.colorPalette}
             variant={statusTone.variant}
             borderRadius="full"
-            px={{ base: 2.5, md: 3 }}
-            py={1}
-            fontSize={{ base: 'xs', md: 'sm' }}
+            px={{ base: 2, md: 2.5 }}
+            py={0.5}
+            fontSize="xs"
             fontWeight="semibold"
             whiteSpace="nowrap"
             flexShrink={0}
@@ -1653,8 +1707,8 @@ export function FilterDrawer({
   statusOptions,
   teamOptions,
   onToggle,
-  currentUserId,
-  showRefereeFilter,
+  showPlayerNames,
+  onTogglePlayerNames,
 }: {
   isOpen: boolean;
   onClose: () => void;
@@ -1669,8 +1723,8 @@ export function FilterDrawer({
     key: K,
     value: ResultFilters[K][number]
   ) => void;
-  currentUserId?: string;
-  showRefereeFilter?: boolean;
+  showPlayerNames: boolean;
+  onTogglePlayerNames: () => void;
 }) {
   const t = useTranslations('pages.tournaments.manualScore');
 
@@ -1697,24 +1751,19 @@ export function FilterDrawer({
         </DrawerHeader>
         <DrawerBody>
           <VStack align="stretch" gap={6}>
-            {currentUserId && showRefereeFilter && (
-              <FilterSection title={t('filters.referee')}>
-                <Button
-                  size="md"
-                  variant={filters.refereeOnly ? 'solid' : 'outline'}
-                  colorPalette={filters.refereeOnly ? 'green' : 'gray'}
-                  borderRadius="full"
-                  onClick={() =>
-                    setFilters((prev) => ({
-                      ...prev,
-                      refereeOnly: !prev.refereeOnly,
-                    }))
-                  }
-                >
-                  {t('filters.refereeOnlyLabel')}
-                </Button>
-              </FilterSection>
-            )}
+            <FilterSection title={t('showPlayerNamesBadge')}>
+              <Button
+                size="md"
+                variant={showPlayerNames ? 'solid' : 'outline'}
+                colorPalette={showPlayerNames ? 'green' : 'gray'}
+                borderRadius="full"
+                onClick={onTogglePlayerNames}
+              >
+                {showPlayerNames
+                  ? t('showPlayerNamesBadge')
+                  : t('showPlayerNames')}
+              </Button>
+            </FilterSection>
 
             <FilterSection title={t('filters.categories')}>
               <ChipGroup

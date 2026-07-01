@@ -148,6 +148,12 @@ export default function RoundsPanel({
   const [isCompleting, setIsCompleting] = useState(false);
   const [isGenerateConfirmOpen, setIsGenerateConfirmOpen] = useState(false);
   const [isRegenerateConfirmOpen, setIsRegenerateConfirmOpen] = useState(false);
+  const [isGenerateGroupConfirmOpen, setIsGenerateGroupConfirmOpen] =
+    useState(false);
+  const [
+    isGenerateEliminationConfirmOpen,
+    setIsGenerateEliminationConfirmOpen,
+  ] = useState(false);
   const [generationPreview, setGenerationPreview] =
     useState<MatchGenerationPreview | null>(null);
   const [isDeleteAllMatchesOpen, setIsDeleteAllMatchesOpen] = useState(false);
@@ -337,10 +343,12 @@ export default function RoundsPanel({
         return;
       }
       if (preview.requiresForceReplaceScheduledMatches) {
+        // Stronger, specific confirm (losing court/time assignments).
         setIsRegenerateConfirmOpen(true);
         return;
       }
-      await runGenerateAllMatches(false);
+      // Plain case: ask for a simple confirmation before generating.
+      setIsGenerateGroupConfirmOpen(true);
     } catch (error: unknown) {
       const message =
         error instanceof Error
@@ -556,8 +564,9 @@ export default function RoundsPanel({
     <Flex justify="flex-end" gap={2} flexWrap="wrap">
       <Button
         size="sm"
-        variant="outline"
+        variant="ghost"
         colorPalette="red"
+        borderRadius="lg"
         leftIcon={<Trash2 size={14} />}
         disabled={tournamentMatchCount === 0 || isDeletingAllMatches}
         onClick={() => setIsDeleteAllMatchesOpen(true)}
@@ -569,6 +578,46 @@ export default function RoundsPanel({
 
   const roundsModals = (
     <>
+      <VModal
+        isOpen={isGenerateGroupConfirmOpen}
+        onClose={() => setIsGenerateGroupConfirmOpen(false)}
+        title={t('panels.rounds.confirmGenerateGroupTitle')}
+        size="sm"
+        primaryActionText={t('panels.rounds.confirmGenerateAction')}
+        onPrimaryAction={() => {
+          setIsGenerateGroupConfirmOpen(false);
+          void runGenerateAllMatches(false);
+        }}
+        isPrimaryLoading={isGenerating}
+        isSecondaryDisabled={isGenerating}
+      >
+        <Text fontSize="sm" color="gray.700" _dark={{ color: 'gray.200' }}>
+          {totalGroupMatches > 0
+            ? t('panels.rounds.confirmRegenerateGroupDesc')
+            : t('panels.rounds.confirmGenerateGroupDesc')}
+        </Text>
+      </VModal>
+
+      <VModal
+        isOpen={isGenerateEliminationConfirmOpen}
+        onClose={() => setIsGenerateEliminationConfirmOpen(false)}
+        title={t('panels.rounds.confirmGenerateEliminationTitle')}
+        size="sm"
+        primaryActionText={t('panels.rounds.confirmGenerateAction')}
+        onPrimaryAction={() => {
+          setIsGenerateEliminationConfirmOpen(false);
+          void handleGenerateEliminationShells();
+        }}
+        isPrimaryLoading={isGeneratingShells}
+        isSecondaryDisabled={isGeneratingShells}
+      >
+        <Text fontSize="sm" color="gray.700" _dark={{ color: 'gray.200' }}>
+          {hasEliminationMatches
+            ? t('panels.rounds.confirmRegenerateEliminationDesc')
+            : t('panels.rounds.confirmGenerateEliminationDesc')}
+        </Text>
+      </VModal>
+
       <VModal
         isOpen={isRegenerateConfirmOpen}
         onClose={() => {
@@ -831,9 +880,6 @@ export default function RoundsPanel({
                     {t('panels.rounds.setupBracket')}
                   </Button>
                   <GenerateBracketSection
-                    hasGroupStage={false}
-                    finishedGroupMatches={0}
-                    totalGroupMatches={0}
                     hasBracket={hasBracketMatches}
                     canGenerate={totalRegistrations >= 2}
                     isLoading={isCompleting}
@@ -1086,7 +1132,9 @@ export default function RoundsPanel({
                       <Flex gap={2} flexWrap="wrap">
                         <Button
                           size="sm"
-                          variant="outline"
+                          variant="subtle"
+                          colorPalette="gray"
+                          borderRadius="lg"
                           flex="1"
                           leftIcon={<Edit size={14} />}
                           onClick={() => {
@@ -1098,7 +1146,9 @@ export default function RoundsPanel({
                         </Button>
                         <Button
                           size="sm"
-                          variant="outline"
+                          variant="subtle"
+                          colorPalette="gray"
+                          borderRadius="lg"
                           flex="1"
                           leftIcon={<Edit size={14} />}
                           onClick={() => {
@@ -1117,8 +1167,9 @@ export default function RoundsPanel({
                       <Button
                         size="sm"
                         w="full"
-                        colorPalette="blue"
-                        variant={totalGroupMatches > 0 ? 'outline' : 'solid'}
+                        borderRadius="lg"
+                        colorPalette={totalGroupMatches > 0 ? 'gray' : 'blue'}
+                        variant={totalGroupMatches > 0 ? 'subtle' : 'solid'}
                         leftIcon={<RefreshCw size={14} />}
                         loading={isGenerating}
                         disabled={isGenerating || !hasTeamsInGroups}
@@ -1132,14 +1183,13 @@ export default function RoundsPanel({
                       {/* Chốt đội đi tiếp: fills the playoff bracket with the
                           advancing teams once the group stage is done. Lives
                           here (not under Playoffs) since it's the natural next
-                          step right after group matches finish. */}
+                          step right after group matches finish. Only shown once
+                          group matches exist, so a fresh category isn't cluttered
+                          with a disabled finalize button. */}
                       {isRRSE &&
-                        (!allGroupMatchesFinished || hasEliminationMatches) && (
+                        (totalGroupMatches > 0 || hasEliminationMatches) && (
                           <GenerateBracketSection
-                            hasGroupStage
                             variant="finalize"
-                            finishedGroupMatches={finishedGroupMatches}
-                            totalGroupMatches={totalGroupMatches}
                             hasBracket={bracketFilled}
                             canGenerate={
                               allGroupMatchesFinished &&
@@ -1325,7 +1375,9 @@ export default function RoundsPanel({
                           )}
                           <Button
                             size="sm"
-                            variant="outline"
+                            variant="subtle"
+                            colorPalette="gray"
+                            borderRadius="lg"
                             w="full"
                             leftIcon={<Edit size={14} />}
                             onClick={() => setIsPlayoffsModalOpen(true)}
@@ -1337,6 +1389,8 @@ export default function RoundsPanel({
                         <Button
                           size="sm"
                           variant="outline"
+                          colorPalette="gray"
+                          borderRadius="lg"
                           w="full"
                           onClick={() => setIsPlayoffsModalOpen(true)}
                         >
@@ -1348,17 +1402,20 @@ export default function RoundsPanel({
                           <Button
                             size="sm"
                             w="full"
-                            colorPalette="blue"
-                            variant={
-                              hasEliminationMatches ? 'outline' : 'solid'
+                            borderRadius="lg"
+                            colorPalette={
+                              hasEliminationMatches ? 'gray' : 'blue'
                             }
-                            leftIcon={<ListTree size={14} />}
+                            variant={hasEliminationMatches ? 'subtle' : 'solid'}
+                            leftIcon={<RefreshCw size={14} />}
                             disabled={
                               touchedEliminationMatches > 0 ||
                               isGeneratingShells
                             }
                             loading={isGeneratingShells}
-                            onClick={handleGenerateEliminationShells}
+                            onClick={() =>
+                              setIsGenerateEliminationConfirmOpen(true)
+                            }
                           >
                             {hasEliminationMatches
                               ? t('panels.rounds.regenerateEliminationGames')
@@ -1963,9 +2020,6 @@ function BracketReadyBanner({
 // bracket (from group standings for RRSE, or from all registrations for SE).
 
 function GenerateBracketSection({
-  hasGroupStage,
-  finishedGroupMatches,
-  totalGroupMatches,
   hasBracket,
   canGenerate,
   scoredMatches = 0,
@@ -1973,9 +2027,6 @@ function GenerateBracketSection({
   onClick,
   variant = 'bracket',
 }: {
-  hasGroupStage: boolean;
-  finishedGroupMatches: number;
-  totalGroupMatches: number;
   hasBracket: boolean;
   canGenerate: boolean;
   scoredMatches?: number;
@@ -1995,23 +2046,28 @@ function GenerateBracketSection({
         ? t('panels.rounds.regenerateBracket')
         : t('panels.rounds.generatePlayoffs');
 
+  // Lightweight: a single clear button plus one small helper line, instead of a
+  // heavy bordered card — keeps the section uncluttered.
+  const helper =
+    !canGenerate && !hasBracket
+      ? { text: t('panels.rounds.generateBracketLocked'), tone: 'muted' }
+      : !canGenerate && hasBracket && scoredMatches > 0
+        ? {
+            text: t('panels.rounds.regenerateBracketLocked', {
+              scored: scoredMatches,
+            }),
+            tone: 'warn',
+          }
+        : canGenerate && hasBracket
+          ? { text: t('panels.rounds.overwriteWarning'), tone: 'warn' }
+          : null;
+
   return (
-    <Box
-      borderWidth="1px"
-      borderColor="gray.200"
-      borderRadius="lg"
-      p={2.5}
-      bg="gray.50"
-      _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
-    >
-      {hasBracket && (
-        <Text fontSize="xs" color="orange.600" mb={1.5}>
-          {t('panels.rounds.overwriteWarning')}
-        </Text>
-      )}
+    <VStack align="stretch" gap={1.5}>
       <Button
         size="sm"
         w="full"
+        borderRadius="lg"
         colorPalette={hasBracket ? 'orange' : 'green'}
         variant={hasBracket ? 'outline' : 'solid'}
         leftIcon={<Trophy size={14} />}
@@ -2021,31 +2077,17 @@ function GenerateBracketSection({
       >
         {primaryLabel}
       </Button>
-      {!canGenerate && !hasBracket && (
+      {helper && (
         <Text
           fontSize="xs"
-          color="gray.400"
-          mt={1.5}
           textAlign="center"
-          _dark={{ color: 'gray.500' }}
+          color={helper.tone === 'warn' ? 'orange.600' : 'fg.muted'}
+          _dark={helper.tone === 'warn' ? { color: 'orange.400' } : undefined}
         >
-          {t('panels.rounds.generateBracketLocked')}
+          {helper.text}
         </Text>
       )}
-      {!canGenerate && hasBracket && scoredMatches > 0 && (
-        <Text
-          fontSize="xs"
-          color="orange.600"
-          mt={1.5}
-          textAlign="center"
-          _dark={{ color: 'orange.400' }}
-        >
-          {t('panels.rounds.regenerateBracketLocked', {
-            scored: scoredMatches,
-          })}
-        </Text>
-      )}
-    </Box>
+    </VStack>
   );
 }
 
