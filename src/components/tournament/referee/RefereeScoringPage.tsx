@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { useParams, useRouter as useNextRouter } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import type { ReactNode } from 'react';
 import {
   Badge,
@@ -56,8 +56,6 @@ import { TournamentMatchListSkeleton } from '@/components/tournament/skeletons';
 import TournamentRefereeDesktopLayout from '@/components/tournament/TournamentRefereeDesktopLayout';
 import { useTournamentSocket } from '@/hooks/useTournamentSocket';
 
-const REFEREE_RETURN_URL_STORAGE_PREFIX = 'vmito.referee.returnUrl.';
-
 function getGenderTranslationKey(gender?: string) {
   if (gender === 'PREFER_NOT_TO_SAY') return 'preferNotToSay';
   return gender?.toLowerCase();
@@ -72,7 +70,6 @@ export default function RefereeScoringPage() {
   const tGuard = useTranslations('auth.guard');
   const locale = useLocale();
   const router = useI18nRouter();
-  const nextRouter = useNextRouter();
   const { user } = useAuthStore();
 
   const [match, setMatch] = useState<CategoryMatch | null>(null);
@@ -144,17 +141,13 @@ export default function RefereeScoringPage() {
   });
 
   const goBack = useCallback(() => {
-    if (typeof window !== 'undefined') {
-      const returnUrl = window.sessionStorage.getItem(
-        `${REFEREE_RETURN_URL_STORAGE_PREFIX}${tournamentParam}`
-      );
-      if (returnUrl?.includes(`/tournament/${tournamentParam}/referee`)) {
-        nextRouter.push(returnUrl);
-        return;
-      }
-    }
-    router.push(`/tournament/${tournamentParam}/referee`);
-  }, [nextRouter, router, tournamentParam]);
+    const params = new URLSearchParams({
+      referee: '1',
+      players: '1',
+      focusMatch: matchId,
+    });
+    router.push(`/tournament/${tournamentParam}/schedule?${params}`);
+  }, [matchId, router, tournamentParam]);
 
   const formatDateTime = (value?: Date | string) => {
     if (!value) return '—';

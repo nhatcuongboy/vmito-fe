@@ -112,6 +112,7 @@ export interface ChipOption {
 }
 
 const SHOW_PLAYER_NAMES_STORAGE_KEY = 'vmito.schedule.showPlayerNames';
+const SCHEDULE_MATCH_CARD_ID_PREFIX = 'schedule-match-card-';
 
 export const EMPTY_FILTERS: ResultFilters = {
   categoryIds: [],
@@ -151,6 +152,7 @@ const FILTER_PARAM_KEYS = {
   viewMode: 'view',
   showPlayerNames: 'players',
   refereeOnly: 'referee',
+  focusMatch: 'focusMatch',
 } as const;
 
 export default function ResultsPanel({
@@ -206,6 +208,7 @@ export default function ResultsPanel({
   const [bracketCategoryToGenerate, setBracketCategoryToGenerate] =
     useState<Category | null>(null);
   const [isGeneratingBracket, setIsGeneratingBracket] = useState(false);
+  const lastScrolledMatchIdRef = useRef<string | null>(null);
   const realtimeRefreshTimeoutRef = useRef<ReturnType<
     typeof setTimeout
   > | null>(null);
@@ -561,9 +564,52 @@ export default function ResultsPanel({
     }));
   }, [filteredMatches, categoryById]);
 
+  const focusedMatchId = searchParams.get(FILTER_PARAM_KEYS.focusMatch);
+  const getMatchCardDomId = useCallback(
+    (match: CategoryMatch) => makeScheduleMatchCardDomId(match.id),
+    []
+  );
+
+  useEffect(() => {
+    if (loading || !focusedMatchId) return;
+    if (lastScrolledMatchIdRef.current === focusedMatchId) return;
+
+    const frame = window.requestAnimationFrame(() => {
+      const element = document.getElementById(
+        makeScheduleMatchCardDomId(focusedMatchId)
+      );
+      if (!element) return;
+      element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      if (element instanceof HTMLElement) {
+        element.focus({ preventScroll: true });
+      }
+      lastScrolledMatchIdRef.current = focusedMatchId;
+    });
+
+    return () => window.cancelAnimationFrame(frame);
+  }, [filteredMatches, focusedMatchId, loading, viewMode]);
+
   // Any viewer can open the read-only detail modal; editing is gated inside it.
   const openMatch = (match: CategoryMatch) => {
     if (filters.refereeOnly) {
+      const nextParams = buildResultFilterSearchParams(
+        currentQuery,
+        filters,
+        viewMode,
+        showPlayerNames
+      );
+      nextParams.set(FILTER_PARAM_KEYS.refereeOnly, '1');
+      nextParams.set(FILTER_PARAM_KEYS.showPlayerNames, '1');
+      nextParams.set(FILTER_PARAM_KEYS.focusMatch, match.id);
+      const query = nextParams.toString();
+      const returnUrl = `/tournament/${tournament.slug}/schedule${
+        query ? `?${query}` : ''
+      }`;
+
+      if (typeof window !== 'undefined') {
+        window.history.replaceState(window.history.state, '', returnUrl);
+      }
+
       router.push(`/tournament/${tournament.slug}/referee/${match.id}`);
       return;
     }
@@ -1031,6 +1077,7 @@ export default function ResultsPanel({
           courtAbbreviation={courtAbbreviation}
           allMatches={matches}
           showPlayerNames={showPlayerNames}
+          getMatchCardDomId={getMatchCardDomId}
         />
       ) : (
         <VStack align="stretch" gap={6}>
@@ -1065,6 +1112,7 @@ export default function ResultsPanel({
                     allMatches={matches}
                     category={categoryById.get(match.categoryId)}
                     showPlayerNames={showPlayerNames}
+                    domId={getMatchCardDomId(match)}
                   />
                 ))}
               </SimpleGrid>
@@ -2447,6 +2495,10 @@ function getLastSetScore(match: CategoryMatch, side: 1 | 2) {
   const lastSet = match.sets?.[match.sets.length - 1];
   if (!lastSet) return undefined;
   return side === 1 ? lastSet.player1Score : lastSet.player2Score;
+}
+
+function makeScheduleMatchCardDomId(matchId: string) {
+  return `${SCHEDULE_MATCH_CARD_ID_PREFIX}${matchId}`;
 }
 
 function getRegistrationId(match: CategoryMatch, position: 1 | 2) {

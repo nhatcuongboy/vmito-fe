@@ -267,7 +267,7 @@ function TeamRow({
       <Box flex="1" minW={0}>
         <Flex align="center" gap={2} minW={0}>
           <Text
-            fontSize={{ base: 'md', md: 'lg' }}
+            fontSize={{ base: 'sm', md: 'md' }}
             fontWeight="semibold"
             lineClamp={1}
           >
@@ -276,8 +276,8 @@ function TeamRow({
         </Flex>
         {team.members && team.members.length > 0 && (
           <Text
-            mt={1}
-            fontSize="sm"
+            mt={0.5}
+            fontSize="xs"
             color="gray.500"
             lineClamp={1}
             _dark={{ color: 'gray.400' }}
