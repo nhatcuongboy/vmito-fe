@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { ReactNode, useCallback, useEffect, useMemo, useState } from 'react';
 import {
   Box,
   Badge,
@@ -58,6 +58,7 @@ import {
   getUniqueTournamentPlayerCode,
 } from '@/components/tournament/player/PublicTournamentPlayerPage';
 import { getTournamentPlayerDisplayCode } from '@/lib/tournament/codes';
+import { CONTENT_PT_OFFSET, TOP_BAR_HEIGHT_DESKTOP } from '@/constants';
 
 import {
   TournamentContentSkeleton,
@@ -855,6 +856,68 @@ export default function TournamentPageShell({
     [router, slug]
   );
 
+  const renderDesktopTournamentFrame = (
+    content: ReactNode,
+    sidebarTournament: Tournament | null,
+    showStatusBadge: boolean
+  ) => {
+    const isManageTab = activeTab === 4 && canManage;
+
+    return (
+      <Box
+        display={{ base: 'none', md: 'flex' }}
+        mx={{ md: 4, xl: 6 }}
+        h={{
+          md: `calc(100vh - ${TOP_BAR_HEIGHT_DESKTOP}px - env(safe-area-inset-top) - ${CONTENT_PT_OFFSET})`,
+        }}
+        minH={0}
+        bg="transparent"
+        borderWidth="1px"
+        borderColor="gray.200"
+        borderTopRadius="2xl"
+        borderBottomRadius={0}
+        boxShadow="var(--tournament-shadow)"
+        overflow="hidden"
+        _dark={{
+          bg: 'transparent',
+          borderColor: 'var(--tournament-border)',
+          boxShadow: 'var(--tournament-shadow)',
+        }}
+      >
+        <TournamentSidebar
+          tournament={sidebarTournament}
+          tabs={tabs}
+          activeTab={activeTab}
+          onTabChange={handleTabChange}
+          showStatusBadge={showStatusBadge}
+          variant="embedded"
+        />
+        <Box
+          flex="1"
+          minW={0}
+          h="100%"
+          overflowY={isManageTab ? 'hidden' : 'auto'}
+          bg="transparent"
+          _dark={{ bg: 'transparent' }}
+          css={{
+            '&::-webkit-scrollbar': { width: '6px' },
+            '&::-webkit-scrollbar-thumb': {
+              background: 'rgba(148, 163, 184, 0.42)',
+              borderRadius: '999px',
+            },
+          }}
+        >
+          <Box
+            h={isManageTab ? '100%' : undefined}
+            p={isManageTab ? 0 : { md: 6, xl: 8 }}
+          >
+            {content}
+          </Box>
+        </Box>
+      </Box>
+    );
+  };
+
   if (loading) {
     return (
       <>
@@ -876,28 +939,15 @@ export default function TournamentPageShell({
           px={{ base: '24px', md: 0 }}
           pb={{
             base: 'calc(64px + env(safe-area-inset-bottom) + 24px)',
-            md: '24px',
+            md: 0,
           }}
         >
           {/* Desktop: real sidebar (skeleton header, real tabs) + content skeleton */}
-          <Flex
-            display={{ base: 'none', md: 'flex' }}
-            gap={6}
-            pt={{ md: 6 }}
-            pl={{ md: 4 }}
-            pr={{ md: 6 }}
-          >
-            <TournamentSidebar
-              tournament={null}
-              tabs={tabs}
-              activeTab={activeTab}
-              onTabChange={handleTabChange}
-              showStatusBadge={false}
-            />
-            <Box flex="1" minW={0}>
-              <TournamentContentSkeleton />
-            </Box>
-          </Flex>
+          {renderDesktopTournamentFrame(
+            <TournamentContentSkeleton />,
+            null,
+            false
+          )}
 
           {/* Mobile: content skeleton only */}
           <Box display={{ base: 'block', md: 'none' }}>
@@ -1229,28 +1279,11 @@ export default function TournamentPageShell({
         px={{ base: '24px', md: 0 }}
         pb={{
           base: 'calc(64px + env(safe-area-inset-bottom) + 24px)',
-          md: '24px',
+          md: 0,
         }}
       >
-        {/* Desktop: sidebar + content */}
-        <Flex
-          display={{ base: 'none', md: 'flex' }}
-          gap={6}
-          pt={{ md: 6 }}
-          pl={{ md: 4 }}
-          pr={{ md: 6 }}
-        >
-          <TournamentSidebar
-            tournament={tournament}
-            tabs={tabs}
-            activeTab={activeTab}
-            onTabChange={handleTabChange}
-            showStatusBadge={canManage}
-          />
-          <Box flex="1" minW={0}>
-            {renderContent()}
-          </Box>
-        </Flex>
+        {/* Desktop: sidebar + content in one tournament container */}
+        {renderDesktopTournamentFrame(renderContent(), tournament, canManage)}
 
         {/* Mobile: content only */}
         <Box display={{ base: 'block', md: 'none' }}>{renderContent()}</Box>

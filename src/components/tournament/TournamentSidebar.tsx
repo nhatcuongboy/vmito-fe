@@ -22,6 +22,7 @@ interface TournamentSidebarProps {
   activeTab: number;
   onTabChange: (tabIndex: number) => void;
   showStatusBadge?: boolean;
+  variant?: 'card' | 'embedded';
 }
 
 export default function TournamentSidebar({
@@ -30,6 +31,7 @@ export default function TournamentSidebar({
   activeTab,
   onTabChange,
   showStatusBadge = false,
+  variant = 'card',
 }: TournamentSidebarProps) {
   const t = useTranslations('pages.tournaments.detail.publicationStatus');
   const locale = useLocale();
@@ -78,6 +80,7 @@ export default function TournamentSidebar({
       width="250px"
       isCollapsed={isCollapsed}
       topOffset="80px"
+      variant={variant}
     />
   );
 }

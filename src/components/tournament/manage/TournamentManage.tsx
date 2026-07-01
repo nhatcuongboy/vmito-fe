@@ -390,108 +390,106 @@ export default function TournamentManage({
   }
 
   return (
-    <>
-      {/* Page heading */}
-      <Flex justify="space-between" align="center" mb={4}>
-        <Heading size="xl">{t('title')}</Heading>
-      </Flex>
-
-      {/* Sub-tabs: Organize / Settings */}
-      <Tabs defaultValue="organize">
-        <TabsList
-          bg="gray.100"
-          borderRadius="full"
-          p={1}
-          mb={4}
-          w="fit-content"
-          borderWidth="1px"
-          borderColor="transparent"
-          _dark={{
-            bg: 'var(--tournament-surface-muted, var(--chakra-colors-gray-800))',
-            borderColor:
-              'var(--tournament-border, var(--chakra-colors-gray-700))',
-            boxShadow: 'var(--tournament-shadow-soft, none)',
+    <Box h={{ md: '100%' }} minH={0}>
+      <Tabs defaultValue="organize" display="flex" h={{ md: '100%' }} minH={0}>
+        {/* Left column: heading, tabs, and menu items */}
+        <Box
+          flex={{ md: '0 0 42%', xl: '0 0 38%' }}
+          minW={0}
+          h={{ md: '100%' }}
+          px={{ md: 6, xl: 8 }}
+          py={{ md: 6, xl: 8 }}
+          overflowY={{ md: 'auto' }}
+          css={{
+            '&::-webkit-scrollbar': { width: '4px' },
+            '&::-webkit-scrollbar-thumb': {
+              background: 'rgba(148, 163, 184, 0.42)',
+              borderRadius: '999px',
+            },
           }}
         >
-          <TabsTrigger
-            value="organize"
-            borderRadius="full"
-            px={5}
-            py={1.5}
-            fontSize="sm"
-          >
-            {t('tabs.organize')}
-          </TabsTrigger>
-          <TabsTrigger
-            value="settings"
-            borderRadius="full"
-            px={5}
-            py={1.5}
-            fontSize="sm"
-          >
-            {t('tabs.settings')}
-          </TabsTrigger>
-        </TabsList>
+          <Flex justify="space-between" align="center" mb={4} flexShrink={0}>
+            <Heading size="xl">{t('title')}</Heading>
+          </Flex>
 
-        {/* 2-column layout */}
-        <Flex gap={6} align="flex-start">
-          {/* Left column: menu items */}
-          <Box flex={{ md: '0 1 42%', xl: '0 1 38%' }} minW={0}>
-            <TabsContent value="organize">
-              <OrganizeTab
-                tournament={tournament}
-                categories={categories}
-                selectedItem={selectedItem}
-                onItemClick={handleItemClick}
-                onTournamentUpdate={(updated) => onTournamentUpdate?.(updated)}
-              />
-            </TabsContent>
-            <TabsContent value="settings">
-              <SettingsTab
-                tournament={tournament}
-                selectedItem={selectedItem}
-                onItemClick={handleItemClick}
-              />
-            </TabsContent>
-          </Box>
-
-          {/* Right column: detail panel (desktop only) */}
-          <Box
-            display={{ base: 'none', md: 'block' }}
-            flex={{ md: '0 0 58%', xl: '0 0 62%' }}
-            minW={0}
-            position="sticky"
-            top="80px"
-            maxH="calc(100vh - 120px)"
-            overflowY="auto"
-            css={{
-              '&::-webkit-scrollbar': { width: '4px' },
-              '&::-webkit-scrollbar-thumb': {
-                background: 'rgba(148, 163, 184, 0.45)',
-                borderRadius: '2px',
-              },
+          <TabsList
+            bg="gray.100"
+            borderRadius="full"
+            p={1}
+            mb={4}
+            w="100%"
+            flexShrink={0}
+            borderWidth="1px"
+            borderColor="transparent"
+            _dark={{
+              bg: 'var(--tournament-surface-muted, var(--chakra-colors-gray-800))',
+              borderColor:
+                'var(--tournament-border, var(--chakra-colors-gray-700))',
+              boxShadow: 'var(--tournament-shadow-soft, none)',
             }}
           >
-            {selectedItem && selectedItem !== 'publish' && (
-              <Box
-                borderWidth="1px"
-                borderColor="gray.200"
-                borderRadius="xl"
-                p={5}
-                bg="white"
-                boxShadow="sm"
-                _dark={{
-                  bg: 'var(--tournament-surface-raised, var(--chakra-colors-gray-800))',
-                  borderColor:
-                    'var(--tournament-border, var(--chakra-colors-gray-700))',
-                  boxShadow: 'var(--tournament-shadow)',
-                }}
-              >
-                {renderPanel()}
-              </Box>
-            )}
-          </Box>
-        </Flex>
+            <TabsTrigger
+              value="organize"
+              borderRadius="full"
+              px={5}
+              py={1.5}
+              fontSize="sm"
+              flex="1"
+            >
+              {t('tabs.organize')}
+            </TabsTrigger>
+            <TabsTrigger
+              value="settings"
+              borderRadius="full"
+              px={5}
+              py={1.5}
+              fontSize="sm"
+              flex="1"
+            >
+              {t('tabs.settings')}
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="organize">
+            <OrganizeTab
+              tournament={tournament}
+              categories={categories}
+              selectedItem={selectedItem}
+              onItemClick={handleItemClick}
+              onTournamentUpdate={(updated) => onTournamentUpdate?.(updated)}
+            />
+          </TabsContent>
+          <TabsContent value="settings">
+            <SettingsTab
+              tournament={tournament}
+              selectedItem={selectedItem}
+              onItemClick={handleItemClick}
+            />
+          </TabsContent>
+        </Box>
+
+        {/* Right column: detail panel (desktop only) */}
+        <Box
+          display={{ base: 'none', md: 'block' }}
+          flex={{ md: '0 0 58%', xl: '0 0 62%' }}
+          minW={0}
+          h={{ md: '100%' }}
+          px={{ md: 6, xl: 8 }}
+          py={{ md: 6, xl: 8 }}
+          borderLeftWidth="1px"
+          borderColor="gray.200"
+          overflowY="auto"
+          _dark={{ borderColor: 'var(--tournament-border)' }}
+          css={{
+            '&::-webkit-scrollbar': { width: '4px' },
+            '&::-webkit-scrollbar-thumb': {
+              background: 'rgba(148, 163, 184, 0.45)',
+              borderRadius: '999px',
+            },
+          }}
+        >
+          {selectedItem && selectedItem !== 'publish' && renderPanel()}
+        </Box>
       </Tabs>
 
       {/* Mobile drawer */}
@@ -549,6 +547,6 @@ export default function TournamentManage({
         onClose={duplicateModal.onClose}
         tournament={tournament}
       />
-    </>
+    </Box>
   );
 }

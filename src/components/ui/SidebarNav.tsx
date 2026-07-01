@@ -37,6 +37,8 @@ interface SidebarNavProps {
   topOffset?: string;
   /** Custom class or style. Passed to the outermost Box. */
   className?: string;
+  /** Visual treatment for standalone cards vs. embedded sidebars. */
+  variant?: 'card' | 'embedded';
 }
 
 /**
@@ -60,7 +62,10 @@ export default function SidebarNav({
   width = '250px',
   isCollapsed = false,
   topOffset = '80px',
+  variant = 'card',
 }: SidebarNavProps) {
+  const isEmbedded = variant === 'embedded';
+
   // Normalise to sections so the renderer is uniform
   const resolvedSections: SidebarNavSection[] = useMemo(
     () => sections ?? (items ? [{ items }] : []),
@@ -171,20 +176,23 @@ export default function SidebarNav({
     <Box
       w={isCollapsed ? '76px' : width}
       flexShrink={0}
-      position="sticky"
-      top={topOffset}
-      alignSelf="flex-start"
-      height={`calc(100vh - ${topOffset})`}
+      position={isEmbedded ? 'relative' : 'sticky'}
+      top={isEmbedded ? undefined : topOffset}
+      alignSelf={isEmbedded ? 'stretch' : 'flex-start'}
+      height={isEmbedded ? '100%' : `calc(100vh - ${topOffset})`}
       bg="white"
       _dark={{
         bg: 'var(--tournament-surface, var(--chakra-colors-gray-800))',
         borderColor: 'var(--tournament-border, var(--chakra-colors-gray-700))',
-        boxShadow: 'var(--tournament-shadow, 0 18px 46px rgba(0, 0, 0, 0.26))',
+        boxShadow: isEmbedded
+          ? 'none'
+          : 'var(--tournament-shadow, 0 18px 46px rgba(0, 0, 0, 0.26))',
       }}
-      borderRadius="2xl"
-      borderWidth="1px"
+      borderRadius={isEmbedded ? 0 : '2xl'}
+      borderWidth={isEmbedded ? 0 : '1px'}
+      borderRightWidth={isEmbedded ? '1px' : undefined}
       borderColor="gray.200"
-      boxShadow="sm"
+      boxShadow={isEmbedded ? 'none' : 'sm'}
       backdropFilter="blur(18px)"
       overflow="hidden"
       display="flex"

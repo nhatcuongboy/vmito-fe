@@ -472,6 +472,16 @@ export default function RoundsPanel({
     Boolean(activeCategory?.thirdPlaceMatch) ||
     winnersPerGroup * groupCount >= 2;
   const hasEliminationMatches = eliminationMatches.length > 0;
+  const finishedEliminationMatches = eliminationMatches.filter(
+    (match) => match.status === MatchStatus.FINISHED
+  ).length;
+  const expectedEliminationMatches = activeCategory
+    ? getExpectedEliminationMatchCount(activeCategory)
+    : 0;
+  const playoffProgressTotal = Math.max(
+    eliminationMatches.length,
+    expectedEliminationMatches
+  );
   const scoredEliminationMatches = eliminationMatches.filter(
     (match) =>
       match.status === MatchStatus.FINISHED ||
@@ -1148,6 +1158,23 @@ export default function RoundsPanel({
                               compact
                             />
                           </Box>
+                          {playoffProgressTotal > 0 && (
+                            <Badge
+                              alignSelf="flex-start"
+                              colorPalette={
+                                finishedEliminationMatches ===
+                                playoffProgressTotal
+                                  ? 'green'
+                                  : 'gray'
+                              }
+                              variant="subtle"
+                            >
+                              {t('panels.rounds.playoffsProgress', {
+                                finished: finishedEliminationMatches,
+                                total: playoffProgressTotal,
+                              })}
+                            </Badge>
+                          )}
                           <Button
                             size="sm"
                             variant="outline"
