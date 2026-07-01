@@ -22,6 +22,7 @@ import {
   Navigation,
   UserCheck,
   Feather,
+  Facebook,
 } from 'lucide-react';
 import { useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
@@ -63,6 +64,19 @@ const SessionDetailBody = ({
 
   const displayHostName = session.hostName || session.host?.name || '';
   const skillLevelColor = getSkillLevelColor(session.requiredLevels);
+  const isCrawled = session.isCrawled === true;
+
+  // For crawled sessions, tapping the author opens their Facebook profile
+  const handleHostClick = isCrawled
+    ? session.externalAuthorUrl
+      ? () =>
+          window.open(
+            session.externalAuthorUrl,
+            '_blank',
+            'noopener,noreferrer'
+          )
+      : undefined
+    : onHostClick;
 
   const formatDetailDate = (dateString: string | Date): string => {
     const date = dayjs
@@ -201,9 +215,11 @@ const SessionDetailBody = ({
       <Flex
         align="center"
         gap={4}
-        cursor={onHostClick ? 'pointer' : 'default'}
-        onClick={onHostClick}
-        _hover={onHostClick ? { bg: 'gray.50', _dark: { bg: 'gray.700' } } : {}}
+        cursor={handleHostClick ? 'pointer' : 'default'}
+        onClick={handleHostClick}
+        _hover={
+          handleHostClick ? { bg: 'gray.50', _dark: { bg: 'gray.700' } } : {}
+        }
         borderRadius="xl"
         py={1.5}
         px={2.5}
@@ -221,21 +237,31 @@ const SessionDetailBody = ({
           <Avatar.Fallback name={displayHostName}>
             {displayHostName ? displayHostName.charAt(0).toUpperCase() : ''}
           </Avatar.Fallback>
-          {session.host?.image && <Avatar.Image src={session.host.image} />}
+          {(isCrawled ? session.externalAuthorAvatar : session.host?.image) && (
+            <Avatar.Image
+              src={
+                (isCrawled
+                  ? session.externalAuthorAvatar
+                  : session.host?.image) || undefined
+              }
+            />
+          )}
         </Avatar.Root>
         <Box flex={1}>
           <Flex align="center" gap={2}>
             <Text fontWeight="semibold" fontSize="md">
               {displayHostName}
             </Text>
-            <AppPlayerRating userId={session.hostId} showBullet />
+            {!isCrawled && (
+              <AppPlayerRating userId={session.hostId} showBullet />
+            )}
           </Flex>
           <Text fontSize="xs" color="gray.500">
-            {t('host')}
+            {isCrawled ? t('crawledBadge') : t('host')}
           </Text>
         </Box>
         <Flex gap={2}>
-          {session.hostPhone && session.allowZaloContact && (
+          {!isCrawled && session.hostPhone && session.allowZaloContact && (
             <IconButton
               aria-label="Zalo host"
               size="sm"
@@ -262,7 +288,7 @@ const SessionDetailBody = ({
               }
             />
           )}
-          {session.hostPhone && (
+          {!isCrawled && session.hostPhone && (
             <IconButton
               aria-label="Call host"
               size="sm"
@@ -281,6 +307,33 @@ const SessionDetailBody = ({
           )}
         </Flex>
       </Flex>
+
+      {/* Crawled source: link to the original Facebook group */}
+      {isCrawled && session.externalGroupUrl && (
+        <Flex
+          align="center"
+          gap={2}
+          mt={3}
+          color="blue.500"
+          cursor="pointer"
+          w="fit-content"
+          _hover={{ textDecoration: 'underline' }}
+          onClick={() =>
+            window.open(
+              session.externalGroupUrl,
+              '_blank',
+              'noopener,noreferrer'
+            )
+          }
+        >
+          <Icon as={Facebook} boxSize={4} flexShrink={0} />
+          <Text fontSize="sm" lineClamp={1}>
+            {session.externalSource
+              ? `${t('crawledSourcePrefix')}: ${session.externalSource}`
+              : t('crawledSourcePrefix')}
+          </Text>
+        </Flex>
+      )}
 
       {/* Description / Note */}
       {session.description && (
@@ -304,52 +357,62 @@ const SessionDetailBody = ({
         </Box>
       )}
 
-      {/* Participants Section */}
-      <Separator my={4} />
-      <SessionParticipantList
-        players={session.players}
-        approvedPlayersCount={approvedPlayersCount}
-        maxPlayers={maxPlayers}
-        session={session}
-      />
+      {/* Participants Section — crawled sessions have no managed players */}
+      {!isCrawled && (
+        <>
+          <Separator my={4} />
+          <SessionParticipantList
+            players={session.players}
+            approvedPlayersCount={approvedPlayersCount}
+            maxPlayers={maxPlayers}
+            session={session}
+          />
+        </>
+      )}
 
       {/* Session Details Grid, Skill Levels, Fee — hidden on desktop (shown in sidebar) */}
       <Box display={{ base: 'block', md: 'none' }}>
         {/* Session Details Grid */}
         <Separator my={4} />
         <Grid templateColumns="1fr 1fr" gap={3}>
-          {/* Courts */}
-          <Flex align="center" gap={2}>
-            <Icon as={LayoutGrid} boxSize={5} color="green.500" />
-            <Text fontSize="sm">
-              {session.numberOfCourts} {t('courtsAvailable')}
-              {session.courts && session.courts.length > 0 && (
-                <Text as="span" color="gray.500" ml={1}>
-                  (
-                  {session.courts
-                    .slice()
-                    .sort((a, b) => a.courtNumber - b.courtNumber)
-                    .map((court) => court.courtNumber)
-                    .join(', ')}
-                  )
-                </Text>
-              )}
-            </Text>
-          </Flex>
+          {/* Courts / Max Players / Current Players — hidden for crawled */}
+          {!isCrawled && (
+            <Flex align="center" gap={2}>
+              <Icon as={LayoutGrid} boxSize={5} color="green.500" />
+              <Text fontSize="sm">
+                {session.numberOfCourts} {t('courtsAvailable')}
+                {session.courts && session.courts.length > 0 && (
+                  <Text as="span" color="gray.500" ml={1}>
+                    (
+                    {session.courts
+                      .slice()
+                      .sort((a, b) => a.courtNumber - b.courtNumber)
+                      .map((court) => court.courtNumber)
+                      .join(', ')}
+                    )
+                  </Text>
+                )}
+              </Text>
+            </Flex>
+          )}
 
-          {/* Max Players */}
-          <Flex align="center" gap={2}>
-            <Icon as={Users} boxSize={5} color="green.500" />
-            <Text fontSize="sm">{t('maxPlayers', { count: maxPlayers })}</Text>
-          </Flex>
+          {!isCrawled && (
+            <Flex align="center" gap={2}>
+              <Icon as={Users} boxSize={5} color="green.500" />
+              <Text fontSize="sm">
+                {t('maxPlayers', { count: maxPlayers })}
+              </Text>
+            </Flex>
+          )}
 
-          {/* Current Players */}
-          <Flex align="center" gap={2}>
-            <Icon as={UserCheck} boxSize={5} color="green.500" />
-            <Text fontSize="sm">
-              {approvedPlayersCount}/{maxPlayers} {t('players')}
-            </Text>
-          </Flex>
+          {!isCrawled && (
+            <Flex align="center" gap={2}>
+              <Icon as={UserCheck} boxSize={5} color="green.500" />
+              <Text fontSize="sm">
+                {approvedPlayersCount}/{maxPlayers} {t('players')}
+              </Text>
+            </Flex>
+          )}
 
           {/* Shuttlecock */}
           {session.shuttlecock && (

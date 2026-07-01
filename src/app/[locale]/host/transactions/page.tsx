@@ -17,7 +17,6 @@ import { Calendar, Receipt } from 'lucide-react';
 import ProtectedRouteGuard from '@/components/guards/ProtectedRouteGuard';
 import PageLayout from '@/components/layout/PageLayout';
 import {
-  PaymentApprovalModal,
   PaymentStatusBadge,
   TransactionSummaryList,
 } from '@/components/payment';
@@ -25,6 +24,8 @@ import { Button } from '@/components/ui/chakra-compat';
 import { VModal } from '@/components/ui/VModal';
 import { FeeService } from '@/lib/api/fee.service';
 import { PaymentService } from '@/lib/api/payment.service';
+import { useRouter } from '@/i18n/config';
+import { ROUTES } from '@/constants';
 import {
   HostTransactionSummary,
   PaymentMethod,
@@ -81,6 +82,7 @@ function summarizeUserPayments(
 function HostTransactionsContent() {
   const t = useTranslations('payment');
   const tCommon = useTranslations('common');
+  const router = useRouter();
 
   const [summaries, setSummaries] = useState<HostTransactionSummary[]>([]);
   const [paymentDetailsByUser, setPaymentDetailsByUser] = useState<
@@ -89,9 +91,6 @@ function HostTransactionsContent() {
   const [selectedSummary, setSelectedSummary] =
     useState<HostTransactionSummary | null>(null);
   const [selectedPayments, setSelectedPayments] = useState<PaymentRecord[]>([]);
-  const [selectedPayment, setSelectedPayment] = useState<PaymentRecord | null>(
-    null
-  );
   const [isLoading, setIsLoading] = useState(true);
   const [isDetailLoading, setIsDetailLoading] = useState(false);
 
@@ -146,36 +145,6 @@ function HostTransactionsContent() {
     }
   }, [t, tCommon]);
 
-  const refreshSelectedUser = useCallback(
-    async (summary: HostTransactionSummary) => {
-      if (!canLoadHostTransactionDetails(summary)) {
-        setSelectedPayments([]);
-        return;
-      }
-
-      const payments = (
-        await PaymentService.getHostTransactionsWithUser(summary.userId)
-      ).filter(isBillablePaymentRecord);
-      const nextSummary = summarizeUserPayments(summary, payments);
-
-      setPaymentDetailsByUser((previous) => ({
-        ...previous,
-        [summary.userId]: payments,
-      }));
-      setSelectedPayments(payments);
-      setSummaries((previous) => {
-        const withoutUser = previous.filter(
-          (item) => item.userId !== summary.userId
-        );
-        return nextSummary ? [...withoutUser, nextSummary] : withoutUser;
-      });
-      if (nextSummary) {
-        setSelectedSummary(nextSummary);
-      }
-    },
-    []
-  );
-
   useEffect(() => {
     loadTransactions();
   }, [loadTransactions]);
@@ -221,51 +190,10 @@ function HostTransactionsContent() {
   const handleCloseDetail = () => {
     setSelectedSummary(null);
     setSelectedPayments([]);
-    setSelectedPayment(null);
   };
 
-  const handleApprovePayment = async (
-    notes?: string,
-    amount?: number,
-    paymentMethod?: PaymentMethod
-  ) => {
-    if (!selectedPayment || !selectedSummary) return;
-
-    try {
-      await PaymentService.approvePayment(selectedPayment.id, {
-        hostNotes: notes,
-        amount,
-        paymentMethod,
-      });
-      await refreshSelectedUser(selectedSummary);
-      setSelectedPayment(null);
-    } catch (error) {
-      console.error('Failed to approve payment:', error);
-      toaster.error({
-        title: tCommon('error'),
-        description: t('approvePaymentFailed'),
-      });
-      throw error;
-    }
-  };
-
-  const handleRejectPayment = async (notes?: string) => {
-    if (!selectedPayment || !selectedSummary) return;
-
-    try {
-      await PaymentService.rejectPayment(selectedPayment.id, {
-        hostNotes: notes || t('rejectReason'),
-      });
-      await refreshSelectedUser(selectedSummary);
-      setSelectedPayment(null);
-    } catch (error) {
-      console.error('Failed to reject payment:', error);
-      toaster.error({
-        title: tCommon('error'),
-        description: t('rejectPaymentFailed'),
-      });
-      throw error;
-    }
+  const handleOpenPaymentPage = (payment: PaymentRecord) => {
+    router.push(`${ROUTES.HOST.SESSIONS.DETAIL(payment.sessionId)}?tab=4`);
   };
 
   if (isLoading) {
@@ -395,7 +323,7 @@ function HostTransactionsContent() {
                       <Button
                         size="xs"
                         variant="outline"
-                        onClick={() => setSelectedPayment(payment)}
+                        onClick={() => handleOpenPaymentPage(payment)}
                       >
                         {t('viewDetails')}
                       </Button>
@@ -407,16 +335,6 @@ function HostTransactionsContent() {
           </VStack>
         )}
       </VModal>
-
-      {selectedPayment && (
-        <PaymentApprovalModal
-          isOpen={Boolean(selectedPayment)}
-          onClose={() => setSelectedPayment(null)}
-          paymentRecord={selectedPayment}
-          onApprove={handleApprovePayment}
-          onReject={handleRejectPayment}
-        />
-      )}
     </Container>
   );
 }

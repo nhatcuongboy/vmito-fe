@@ -16,6 +16,7 @@ import {
   Calendar,
   Clock,
   ClipboardList,
+  Facebook,
   Feather,
   Info,
   LayoutGrid,
@@ -78,6 +79,7 @@ const SessionDetailStickyBar = ({
   const isAdmin = user?.role === UserRole.ADMIN;
   const canManage = isOwner || isAdmin;
   const skillLevelColor = getSkillLevelColor(session.requiredLevels);
+  const isCrawled = session.isCrawled === true;
   const [isLevelDescriptionsOpen, setIsLevelDescriptionsOpen] = useState(false);
   const isPastEndTime = session.endTime
     ? new Date(session.endTime) < new Date()
@@ -138,6 +140,27 @@ const SessionDetailStickyBar = ({
     const buttonSize = displayMode === 'sidebar' ? 'lg' : 'md';
     const buttonRadius = displayMode === 'sidebar' ? 'xl' : 'lg';
     const buttonW = displayMode === 'sidebar' ? 'full' : undefined;
+
+    // Crawled (vãng lai) sessions are view-only → link out to the FB post
+    if (isCrawled) {
+      return (
+        <Button
+          colorPalette="green"
+          variant="solid"
+          size={buttonSize}
+          w={buttonW}
+          fontWeight="semibold"
+          borderRadius={buttonRadius}
+          disabled={!session.externalUrl}
+          onClick={() =>
+            window.open(session.externalUrl, '_blank', 'noopener,noreferrer')
+          }
+        >
+          <Icon as={Facebook} boxSize={4} />
+          {t('viewOriginalPost')}
+        </Button>
+      );
+    }
 
     const manageHref =
       user?.role === UserRole.PLAYER
@@ -354,42 +377,45 @@ const SessionDetailStickyBar = ({
 
               <Separator />
 
-              {/* Courts */}
-              <Flex align="center" gap={3}>
-                <Icon
-                  as={LayoutGrid}
-                  boxSize={4}
-                  color="green.500"
-                  flexShrink={0}
-                />
-                <Text fontSize="sm">
-                  {session.numberOfCourts} {t('courtsAvailable')}
-                  {session.courts && session.courts.length > 0 && (
-                    <Text as="span" color="gray.500" ml={1}>
-                      (
-                      {session.courts
-                        .slice()
-                        .sort((a, b) => a.courtNumber - b.courtNumber)
-                        .map((court) => court.courtNumber)
-                        .join(', ')}
-                      )
-                    </Text>
-                  )}
-                </Text>
-              </Flex>
+              {/* Courts / Players — hidden for crawled (no managed players) */}
+              {!isCrawled && (
+                <Flex align="center" gap={3}>
+                  <Icon
+                    as={LayoutGrid}
+                    boxSize={4}
+                    color="green.500"
+                    flexShrink={0}
+                  />
+                  <Text fontSize="sm">
+                    {session.numberOfCourts} {t('courtsAvailable')}
+                    {session.courts && session.courts.length > 0 && (
+                      <Text as="span" color="gray.500" ml={1}>
+                        (
+                        {session.courts
+                          .slice()
+                          .sort((a, b) => a.courtNumber - b.courtNumber)
+                          .map((court) => court.courtNumber)
+                          .join(', ')}
+                        )
+                      </Text>
+                    )}
+                  </Text>
+                </Flex>
+              )}
 
-              {/* Players */}
-              <Flex align="center" gap={3}>
-                <Icon
-                  as={UserCheck}
-                  boxSize={4}
-                  color="green.500"
-                  flexShrink={0}
-                />
-                <Text fontSize="sm">
-                  {approvedPlayersCount}/{maxPlayers} {t('players')}
-                </Text>
-              </Flex>
+              {!isCrawled && (
+                <Flex align="center" gap={3}>
+                  <Icon
+                    as={UserCheck}
+                    boxSize={4}
+                    color="green.500"
+                    flexShrink={0}
+                  />
+                  <Text fontSize="sm">
+                    {approvedPlayersCount}/{maxPlayers} {t('players')}
+                  </Text>
+                </Flex>
+              )}
 
               {/* Shuttlecock */}
               {session.shuttlecock && (

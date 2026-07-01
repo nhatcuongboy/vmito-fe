@@ -144,13 +144,16 @@ const FindSessionCard = ({
           mr={2}
           color="green.500"
           mt={isCompact ? 0.5 : 1}
+          flexShrink={0}
         />
-        <Box flex="1" overflow="hidden">
-          <Flex align="center" gap={2} wrap="wrap">
+        <Box flex="1" overflow="hidden" minW={0}>
+          <Flex align="center" gap={2}>
             <Text
               fontWeight="medium"
               fontSize={isCompact ? 'sm' : 'md'}
               lineClamp={1}
+              flex="1"
+              minW={0}
             >
               {session.venue?.name
                 ? formatVenueName(
@@ -160,7 +163,12 @@ const FindSessionCard = ({
                 : session.location}
             </Text>
             {distance !== undefined && (
-              <Badge colorPalette="green" variant="subtle" size="sm">
+              <Badge
+                colorPalette="green"
+                variant="subtle"
+                size="sm"
+                flexShrink={0}
+              >
                 {distance < 1
                   ? `${Math.round(distance * 1000)}m`
                   : `${distance.toFixed(1)}km`}
@@ -183,14 +191,38 @@ const FindSessionCard = ({
       </Flex>
     ) : null;
 
-  // Source row for crawled sessions: Facebook group name + attribution note
+  // Source row for crawled sessions: Facebook group name (links to the group) +
+  // attribution note. The group link sits above the full-card link overlay.
+  const crawledSourceLabel = session.externalSource
+    ? `${session.externalSource} · ${t('crawledSourcePrefix')}`
+    : t('crawledSourcePrefix');
   const crawledSourceRow = isCrawled ? (
-    <Flex align="center" gap={2} color="blue.500">
-      <Icon as={Facebook} boxSize={4} />
+    <Flex
+      align="center"
+      gap={2}
+      color="blue.500"
+      position="relative"
+      zIndex={3}
+      w="fit-content"
+      maxW="full"
+      cursor={session.externalGroupUrl ? 'pointer' : 'default'}
+      _hover={session.externalGroupUrl ? { textDecoration: 'underline' } : {}}
+      onClick={
+        session.externalGroupUrl
+          ? (e: React.MouseEvent) => {
+              e.stopPropagation();
+              window.open(
+                session.externalGroupUrl,
+                '_blank',
+                'noopener,noreferrer'
+              );
+            }
+          : undefined
+      }
+    >
+      <Icon as={Facebook} boxSize={4} flexShrink={0} />
       <Text fontSize="sm" lineClamp={1}>
-        {session.externalSource
-          ? `${session.externalSource} · ${t('crawledSourcePrefix')}`
-          : t('crawledSourcePrefix')}
+        {crawledSourceLabel}
       </Text>
     </Flex>
   ) : null;
@@ -247,14 +279,16 @@ const FindSessionCard = ({
     </Badge>
   ) : null;
 
-  // "⚡ Khách vãng lai" badge for crawled Facebook sessions
+  // "Bài đăng Facebook" badge for crawled Facebook sessions
   const crawledBadge = isCrawled ? (
     <Badge
       colorPalette="blue"
       variant="solid"
       borderWidth="1px"
       borderColor="blue.400"
+      gap={1}
     >
+      <Icon as={Facebook} boxSize={3} />
       {t('crawledBadge')}
     </Badge>
   ) : null;
@@ -337,7 +371,18 @@ const FindSessionCard = ({
         compactTopContent={compactTopContent}
         actions={actions}
         onHostClick={
-          isCrawled || !onHostClick ? undefined : () => onHostClick(session)
+          isCrawled
+            ? session.externalAuthorUrl
+              ? () =>
+                  window.open(
+                    session.externalAuthorUrl,
+                    '_blank',
+                    'noopener,noreferrer'
+                  )
+              : undefined
+            : onHostClick
+              ? () => onHostClick(session)
+              : undefined
         }
       />
 

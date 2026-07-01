@@ -696,6 +696,13 @@ const BaseSessionCard = ({
               w="100%"
               h="100%"
               objectFit="cover"
+              onError={(e) => {
+                // Hotlinked Facebook images can expire — fall back to default
+                const img = e.currentTarget as HTMLImageElement;
+                if (img.src !== DEFAULT_COVER_PHOTO) {
+                  img.src = DEFAULT_COVER_PHOTO;
+                }
+              }}
             />
             {/* Status Badge Overlay */}
             <Box position="absolute" top={3} right={3}>
@@ -819,8 +826,16 @@ const BaseSessionCard = ({
                         ? displayHostName.charAt(0).toUpperCase()
                         : ''}
                     </Avatar.Fallback>
-                    {session.host?.image && (
-                      <Avatar.Image src={session.host.image} />
+                    {(isCrawled
+                      ? session.externalAuthorAvatar
+                      : session.host?.image) && (
+                      <Avatar.Image
+                        src={
+                          (isCrawled
+                            ? session.externalAuthorAvatar
+                            : session.host?.image) || undefined
+                        }
+                      />
                     )}
                   </Avatar.Root>
                 </Box>
@@ -840,7 +855,10 @@ const BaseSessionCard = ({
                 >
                   {displayHostName}
                 </Text>
-                <AppPlayerRating userId={session.hostId} showBullet />
+                {/* Bot has no meaningful rating for crawled sessions */}
+                {!isCrawled && (
+                  <AppPlayerRating userId={session.hostId} showBullet />
+                )}
                 {hostActions}
               </Flex>
             )}

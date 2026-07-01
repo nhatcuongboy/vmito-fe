@@ -132,7 +132,8 @@ export const PublicSessionDetailContent = ({
   ]);
 
   const fetchRegistrationStatus = useCallback(async () => {
-    if (!user || !session) {
+    // Crawled (vãng lai) sessions are view-only — no registration to fetch
+    if (!user || !session || session.isCrawled) {
       setIsRegistrationLoading(false);
       return;
     }

@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { ISession, SessionStatus } from '@/lib/api/types';
 import { Box, Badge, Flex, Icon, Image } from '@chakra-ui/react';
 import { IconButton } from '@/components/ui/chakra-compat';
-import { ChevronLeft, Share2 } from 'lucide-react';
+import { ChevronLeft, Share2, Facebook } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { DEFAULT_COVER_PHOTO } from '@/constants';
 import { statusColors, getStatusLabel } from './BaseSessionCard';
@@ -130,6 +130,13 @@ const SessionDetailHero = ({
             objectFit="cover"
             draggable={false}
             pointerEvents="none"
+            onError={(e) => {
+              // Hotlinked Facebook images can expire — fall back to default
+              const img = e.currentTarget as HTMLImageElement;
+              if (img.src !== DEFAULT_COVER_PHOTO) {
+                img.src = DEFAULT_COVER_PHOTO;
+              }
+            }}
           />
         </motion.div>
       </AnimatePresence>
@@ -230,26 +237,36 @@ const SessionDetailHero = ({
         </Flex>
       )}
 
-      {/* Slot Availability Badge - bottom left */}
+      {/* Bottom-left badge: crawled → "Facebook post"; else slot availability */}
       <Badge
         position="absolute"
         bottom={5}
         left={3}
-        colorPalette={isClosed || isFull ? 'gray' : 'teal'}
+        colorPalette={
+          session.isCrawled ? 'blue' : isClosed || isFull ? 'gray' : 'teal'
+        }
         variant="solid"
         fontSize="sm"
         px={3}
         py={1}
         borderRadius="full"
         fontWeight="600"
+        gap={1}
         boxShadow="0 2px 8px rgba(0, 0, 0, 0.2)"
         backdropFilter="blur(8px)"
       >
-        {isClosed
-          ? t('registrationClosed')
-          : isFull
-            ? t('slotsFull')
-            : t('slotsAvailable', { count: availableSlots })}
+        {session.isCrawled ? (
+          <>
+            <Icon as={Facebook} boxSize={3.5} />
+            {t('crawledBadge')}
+          </>
+        ) : isClosed ? (
+          t('registrationClosed')
+        ) : isFull ? (
+          t('slotsFull')
+        ) : (
+          t('slotsAvailable', { count: availableSlots })
+        )}
       </Badge>
 
       {/* Status Badge - bottom right */}

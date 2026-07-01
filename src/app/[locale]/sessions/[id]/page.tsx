@@ -67,13 +67,19 @@ export async function generateMetadata({
       : session.location) || 'Địa điểm chưa xác định';
   const description = `Tham gia giao lưu cầu lông cùng ${session.host?.name || 'host'} tại ${locationName}. Chi tiết: ${session.description || 'Bấm để xem chi tiết.'}`;
 
-  const images = session.coverPhoto
-    ? [session.coverPhoto]
-    : [DEFAULT_COVER_PHOTO];
+  // Crawled (vãng lai) sessions are short-lived, scraped from public Facebook
+  // posts, and deleted nightly. Do NOT index them: it would create mass
+  // soft-404s and duplicate/scraped-content penalties. Use the default OG image
+  // since hotlinked Facebook images expire and would break link previews.
+  const images =
+    session.isCrawled || !session.coverPhoto
+      ? [DEFAULT_COVER_PHOTO]
+      : [session.coverPhoto];
 
   return {
     title,
     description,
+    ...(session.isCrawled ? { robots: { index: false, follow: false } } : {}),
     openGraph: {
       title,
       description,
@@ -96,9 +102,11 @@ export default async function PublicSessionDetailPage({ params }: PageProps) {
     .default;
   const nameFormat = messages.venue.nameFormat;
 
-  // Generate structured data if session exists
+  // Generate structured data for real sessions only. Crawled (vãng lai) posts
+  // are scraped third-party content — emitting a SportsEvent schema for them on
+  // our domain would be misleading and bad for SEO.
   let eventSchema = null;
-  if (session) {
+  if (session && !session.isCrawled) {
     const locationName =
       (session.venue?.name
         ? formatVenueName(session.venue.name, nameFormat)

@@ -195,6 +195,21 @@ export interface SessionPaymentsResponse {
   stats: PaymentStats;
 }
 
+// Response for getHostTransactionsWithUser
+export interface HostTransactionsWithUserResponse {
+  user: {
+    id: string;
+    name: string;
+    image?: string;
+  };
+  payments: PaymentRecord[];
+  summary: {
+    totalAmount: number; // VND
+    paidAmount: number; // VND
+    pendingAmount: number; // VND
+  };
+}
+
 // Request types for fee configuration
 export interface CreateSessionFeeConfigRequest {
   feeType: FeeType;
@@ -422,6 +437,9 @@ export interface ISession {
   isCrawled?: boolean;
   externalUrl?: string; // link bài Facebook gốc
   externalSource?: string; // tên group Facebook nguồn
+  externalAuthorUrl?: string; // link trang cá nhân FB của chủ bài
+  externalAuthorAvatar?: string; // ảnh đại diện FB của chủ bài (hotlink)
+  externalGroupUrl?: string; // link group Facebook nguồn
 }
 
 // Player types
