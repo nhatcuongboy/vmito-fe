@@ -97,9 +97,9 @@ export default function TournamentRefereeDesktopLayout({
     <Flex
       className="tournament-shell"
       gap={{ base: 0, md: 6 }}
-      pt={{ md: 6 }}
-      pl={{ md: 4 }}
-      pr={{ md: 6 }}
+      pt={showSidebar ? { md: 6 } : undefined}
+      pl={showSidebar ? { md: 4 } : undefined}
+      pr={showSidebar ? { md: 6 } : undefined}
       align="flex-start"
       bg="var(--tournament-bg)"
       minH="100dvh"

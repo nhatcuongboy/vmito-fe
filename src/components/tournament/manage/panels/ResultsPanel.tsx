@@ -464,10 +464,17 @@ export default function ResultsPanel({
       );
       if (!allGroupFinished) return acc;
 
-      const hasBracket = categoryMatches.some(
-        (match) => !match.groupId && match.round !== 'GROUP'
+      // Empty playoff shells (created ahead of time via "Phát sinh trận vòng
+      // loại" so they can be scheduled) must NOT count as "already generated".
+      // Only a bracket that has been filled with participants means the
+      // advancing teams are locked in — until then, keep offering to finalize.
+      const bracketFilled = categoryMatches.some(
+        (match) =>
+          !match.groupId &&
+          match.round !== 'GROUP' &&
+          (match.participants?.length ?? 0) > 0
       );
-      if (hasBracket) return acc;
+      if (bracketFilled) return acc;
 
       acc.push({
         category,
@@ -1003,6 +1010,7 @@ export default function ResultsPanel({
         }
         sportType={tournament.sportType}
         showPlayerNames={showPlayerNames}
+        tournamentId={tournament.id}
         canEdit={canEdit}
         onEditResult={(m) => {
           setDetailMatch(null);

@@ -3764,10 +3764,12 @@
         "walkover": "轮空胜",
         "draw": "平局",
         "matchDetail": {
+          "title": "比赛详情",
           "tabDetails": "详情",
           "tabStats": "统计",
           "editResult": "修改成绩",
           "awaitingFeeders": "该比赛需等待上一轮比赛结束以确定两支队伍。",
+          "referee": "裁判",
           "matchOptions": "比赛选项",
           "bySet": "各局",
           "schedule": "安排赛程",

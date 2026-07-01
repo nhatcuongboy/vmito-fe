@@ -3804,10 +3804,12 @@
         "walkover": "W/O",
         "draw": "Draw",
         "matchDetail": {
+          "title": "Match Details",
           "tabDetails": "Details",
           "tabStats": "Stats",
           "editResult": "Edit result",
           "awaitingFeeders": "This match is waiting for the previous round to finish before both teams are known.",
+          "referee": "Referee",
           "matchOptions": "Match options",
           "bySet": "By set",
           "schedule": "Schedule",

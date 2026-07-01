@@ -18,6 +18,7 @@ import {
   MoreVertical,
   NotebookText,
   RotateCcw,
+  Shield,
   SquarePen,
   Trash2,
   Trophy,
@@ -29,6 +30,7 @@ import {
   CategoryMatch,
   MatchStatus,
   SportType,
+  UserRole,
 } from '@/lib/api/types';
 import { resolveMatchSideLabel } from '@/lib/tournament/bracketSlots';
 import { areMatchParticipantsResolved } from '@/lib/tournament/teamLabel';
@@ -36,6 +38,8 @@ import { usePlayoffSlotLabels } from '@/lib/tournament/usePlayoffSlotLabels';
 import { getMatchDisplayCode } from '@/lib/tournament/codes';
 import { formatTimeByDevicePreference } from '@/utils/time-helpers';
 import MatchFormatBadges from '@/components/tournament/MatchFormatBadges';
+import { useRouter } from '@/i18n/config';
+import { useAuthStore } from '@/stores/useAuthStore';
 
 interface Props {
   isOpen: boolean;
@@ -60,9 +64,9 @@ interface Props {
   onResetResult?: (match: CategoryMatch) => void;
   /** Open the scheduling sheet (time, court, referee) for this match. */
   onSchedule?: (match: CategoryMatch) => void;
+  /** Tournament ID used to build the referee scoring page link. */
+  tournamentId?: string;
 }
-
-type DetailTab = 'details' | 'stats';
 
 export default function MatchDetailModal({
   isOpen,
@@ -80,10 +84,12 @@ export default function MatchDetailModal({
   onDeleteMatch,
   onResetResult,
   onSchedule,
+  tournamentId,
 }: Props) {
   const t = useTranslations('pages.tournaments.manualScore');
+  const router = useRouter();
+  const currentUser = useAuthStore((s) => s.user);
   const slotLabels = usePlayoffSlotLabels();
-  const [tab, setTab] = useState<DetailTab>('details');
   const [optionsOpen, setOptionsOpen] = useState(false);
 
   // Reset transient UI each time the modal is opened or the match changes.
@@ -92,7 +98,6 @@ export default function MatchDetailModal({
       setOptionsOpen(false);
       return;
     }
-    setTab('details');
     setOptionsOpen(false);
   }, [isOpen, match?.id]);
 
@@ -112,11 +117,21 @@ export default function MatchDetailModal({
   const win1 = isWinner(match, 1);
   const win2 = isWinner(match, 2);
   const canResetResult = onResetResult && hasResettableResult(match);
+  const isAssignedReferee =
+    !!match.referee?.userId && match.referee.userId === currentUser?.id;
+  const canReferee =
+    tournamentId &&
+    currentUser &&
+    currentUser.role !== UserRole.GUEST &&
+    (canEdit || isAssignedReferee);
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} size="md">
       <ModalCloseButton onClose={onClose} />
       <ModalHeader>
+        <Text fontSize="lg" fontWeight="bold">
+          {t('matchDetail.title')}
+        </Text>
         <Text
           fontSize="sm"
           fontWeight="medium"
@@ -125,149 +140,135 @@ export default function MatchDetailModal({
         >
           {getMatchDisplayCode(match)} · {roundOrGroupLabel}
         </Text>
-      </ModalHeader>
-
-      <ModalBody>
-        <MatchupHeader
-          team1={team1}
-          team2={team2}
-          score1={score1}
-          score2={score2}
-          win1={win1}
-          win2={win2}
-        />
-
-        <Flex justify="center" mb={4}>
+        <Box mt={2}>
           <MatchFormatBadges
             match={match}
             category={category}
             sportType={sportType}
           />
-        </Flex>
+        </Box>
+      </ModalHeader>
 
-        {/* Tab switcher */}
-        <Flex
-          p={1}
-          gap={1}
-          bg="gray.100"
-          _dark={{ bg: 'gray.700' }}
-          borderRadius="full"
-          mb={4}
-        >
-          <TabButton
-            active={tab === 'details'}
-            onClick={() => setTab('details')}
-          >
-            {t('matchDetail.tabDetails')}
-          </TabButton>
-          <TabButton active={tab === 'stats'} onClick={() => setTab('stats')}>
-            {t('matchDetail.tabStats')}
-          </TabButton>
-        </Flex>
+      <ModalBody>
+        <MatchupHeader team1={team1} team2={team2} win1={win1} win2={win2} />
 
-        {tab === 'details' ? (
-          <DetailsTab
-            match={match}
-            categoryName={categoryName}
-            roundOrGroupLabel={roundOrGroupLabel}
-            courtLabel={courtLabel}
-          />
-        ) : (
-          <StatsTab match={match} team1={team1} team2={team2} />
-        )}
+        <ScoreBar score1={score1} score2={score2} label={t('points')} />
+
+        <DetailsTab
+          match={match}
+          categoryName={categoryName}
+          roundOrGroupLabel={roundOrGroupLabel}
+          courtLabel={courtLabel}
+        />
       </ModalBody>
 
-      {canEdit && (
-        <ModalFooter
-          justifyContent="space-between"
-          alignItems="stretch"
-          direction={{ base: 'column', sm: 'row' }}
-          gap={2}
-          pt={5}
-        >
-          <Button
-            flex="1"
-            w={{ base: 'full', sm: 'auto' }}
-            variant="outline"
-            colorPalette="gray"
-            onClick={() => onEditResult(match)}
-            disabled={!participantsResolved}
-            title={
-              participantsResolved
-                ? undefined
-                : t('matchDetail.awaitingFeeders')
-            }
-          >
-            <SquarePen size={16} /> {t('matchDetail.editResult')}
-          </Button>
-
-          {onSchedule && (
-            <Button
-              flex="1"
-              w={{ base: 'full', sm: 'auto' }}
-              variant="outline"
-              colorPalette="gray"
-              onClick={() => onSchedule(match)}
-            >
-              <CalendarClock size={16} /> {t('matchDetail.schedule')}
-            </Button>
-          )}
-
-          <Box position="relative" flex="1" w={{ base: 'full', sm: 'auto' }}>
-            <Button
-              w="full"
-              variant="outline"
-              colorPalette="gray"
-              onClick={() => setOptionsOpen((open) => !open)}
-            >
-              <MoreVertical size={16} /> {t('matchDetail.matchOptions')}
-            </Button>
-            {optionsOpen && (
-              <Box
-                position="absolute"
-                bottom="calc(100% + 8px)"
-                right={0}
-                minW="180px"
-                bg="white"
-                _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
-                borderWidth="1px"
-                borderColor="gray.200"
-                borderRadius="lg"
-                boxShadow="lg"
-                p={1}
-                zIndex={10}
+      {(canEdit || canReferee) && (
+        <ModalFooter pt={4}>
+          <Flex wrap="wrap" gap={2} w="full">
+            {canEdit && (
+              <Button
+                flex="1"
+                minW="calc(50% - 4px)"
+                variant="solid"
+                colorPalette="blue"
+                onClick={() => onEditResult(match)}
+                disabled={!participantsResolved}
+                title={
+                  participantsResolved
+                    ? undefined
+                    : t('matchDetail.awaitingFeeders')
+                }
               >
-                {canResetResult && (
-                  <Button
-                    w="full"
-                    variant="ghost"
-                    colorPalette="red"
-                    color="red.500"
-                    justifyContent="flex-start"
-                    onClick={() => {
-                      setOptionsOpen(false);
-                      onResetResult(match);
-                    }}
-                  >
-                    <RotateCcw size={14} /> {t('matchDetail.resetResult')}
-                  </Button>
-                )}
+                <SquarePen size={16} /> {t('matchDetail.editResult')}
+              </Button>
+            )}
+
+            {canReferee && (
+              <Button
+                flex="1"
+                minW="calc(50% - 4px)"
+                variant="solid"
+                colorPalette="green"
+                onClick={() =>
+                  router.push(
+                    `/tournament/${tournamentId}/referee/${match.id}` as never
+                  )
+                }
+              >
+                <Shield size={16} /> {t('matchDetail.referee')}
+              </Button>
+            )}
+
+            {canEdit && onSchedule && (
+              <Button
+                flex="1"
+                minW="calc(50% - 4px)"
+                variant="outline"
+                colorPalette="gray"
+                onClick={() => onSchedule(match)}
+              >
+                <CalendarClock size={16} /> {t('matchDetail.schedule')}
+              </Button>
+            )}
+
+            {canEdit && (
+              <Box position="relative" flex="1" minW="calc(50% - 4px)">
                 <Button
                   w="full"
-                  variant="ghost"
-                  colorPalette="red"
-                  color="red.500"
-                  justifyContent="flex-start"
-                  onClick={() => {
-                    setOptionsOpen(false);
-                    onDeleteMatch(match);
-                  }}
+                  variant="outline"
+                  colorPalette="gray"
+                  onClick={() => setOptionsOpen((open) => !open)}
                 >
-                  <Trash2 size={14} /> {t('deleteMatch')}
+                  <MoreVertical size={16} /> {t('matchDetail.matchOptions')}
                 </Button>
+                {optionsOpen && (
+                  <Box
+                    position="absolute"
+                    bottom="calc(100% + 8px)"
+                    right={0}
+                    minW="180px"
+                    bg="white"
+                    _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
+                    borderWidth="1px"
+                    borderColor="gray.200"
+                    borderRadius="lg"
+                    boxShadow="lg"
+                    p={1}
+                    zIndex={10}
+                  >
+                    {canResetResult && (
+                      <Button
+                        w="full"
+                        variant="ghost"
+                        colorPalette="red"
+                        color="red.500"
+                        justifyContent="flex-start"
+                        onClick={() => {
+                          setOptionsOpen(false);
+                          onResetResult(match);
+                        }}
+                      >
+                        <RotateCcw size={14} /> {t('matchDetail.resetResult')}
+                      </Button>
+                    )}
+                    <Button
+                      w="full"
+                      variant="ghost"
+                      colorPalette="red"
+                      color="red.500"
+                      justifyContent="flex-start"
+                      onClick={() => {
+                        setOptionsOpen(false);
+                        onDeleteMatch(match);
+                      }}
+                    >
+                      <Trash2 size={14} /> {t('deleteMatch')}
+                    </Button>
+                  </Box>
+                )}
               </Box>
             )}
-          </Box>
+          </Flex>
         </ModalFooter>
       )}
     </Modal>
@@ -418,22 +419,16 @@ function RefereeInfoRow({
 function MatchupHeader({
   team1,
   team2,
-  score1,
-  score2,
   win1,
   win2,
 }: {
   team1: string;
   team2: string;
-  score1?: number;
-  score2?: number;
   win1: boolean;
   win2: boolean;
 }) {
-  const hasScore = score1 !== undefined || score2 !== undefined;
-
   return (
-    <Box mb={5}>
+    <Box mb={3}>
       <Flex align="stretch" gap={{ base: 2, sm: 3 }} minW={0}>
         <MatchupTeamCard label={team1} highlight={win1} align="left" />
 
@@ -456,23 +451,52 @@ function MatchupHeader({
 
         <MatchupTeamCard label={team2} highlight={win2} align="right" />
       </Flex>
+    </Box>
+  );
+}
 
-      {hasScore && (
-        <Flex
-          align="center"
-          justify="center"
-          gap={2}
-          mt={3}
-          color="gray.700"
-          _dark={{ color: 'gray.100' }}
+function ScoreBar({
+  score1,
+  score2,
+  label,
+}: {
+  score1?: number;
+  score2?: number;
+  label: string;
+}) {
+  const total1 = score1 ?? 0;
+  const total2 = score2 ?? 0;
+  const sum = total1 + total2;
+  const pct1 = sum > 0 ? (total1 / sum) * 100 : 50;
+
+  return (
+    <Box mb={4}>
+      <Flex justify="space-between" align="center" mb={2}>
+        <Text fontWeight="black" fontSize="lg">
+          {total1}
+        </Text>
+        <Text
+          fontSize="sm"
+          fontWeight="semibold"
+          color="gray.600"
+          _dark={{ color: 'gray.300' }}
         >
-          <MatchScoreValue score={score1} highlight={win1} />
-          <Text fontSize="sm" fontWeight="black" color="gray.400">
-            -
-          </Text>
-          <MatchScoreValue score={score2} highlight={win2} />
-        </Flex>
-      )}
+          {label}
+        </Text>
+        <Text fontWeight="black" fontSize="lg">
+          {total2}
+        </Text>
+      </Flex>
+      <Flex
+        h="8px"
+        borderRadius="full"
+        overflow="hidden"
+        bg="gray.100"
+        _dark={{ bg: 'gray.700' }}
+      >
+        <Box w={`${pct1}%`} bg="yellow.400" />
+        <Box flex="1" bg="yellow.200" />
+      </Flex>
     </Box>
   );
 }
@@ -535,149 +559,11 @@ function MatchupTeamCard({
   );
 }
 
-function MatchScoreValue({
-  score,
-  highlight,
-}: {
-  score?: number;
-  highlight: boolean;
-}) {
-  return (
-    <Flex
-      align="center"
-      justify="center"
-      minW="46px"
-      h="34px"
-      px={3}
-      borderRadius="full"
-      bg={highlight ? 'green.50' : 'gray.100'}
-      color={highlight ? 'green.600' : 'gray.600'}
-      fontSize="xl"
-      fontWeight="black"
-      fontVariantNumeric="tabular-nums"
-      _dark={{
-        bg: highlight ? 'green.900/30' : 'gray.800',
-        color: highlight ? 'green.300' : 'gray.300',
-      }}
-    >
-      {score ?? '-'}
-    </Flex>
-  );
-}
-
 function splitTeamLabel(label: string) {
   return label
     .split(/\s+\/\s+/)
     .map((part) => part.trim())
     .filter(Boolean);
-}
-
-function StatsTab({
-  match,
-  team1,
-  team2,
-}: {
-  match: CategoryMatch;
-  team1: string;
-  team2: string;
-}) {
-  const t = useTranslations('pages.tournaments.manualScore');
-  const sets = match.sets ?? [];
-  const total1 = totalScore(match, 1) ?? 0;
-  const total2 = totalScore(match, 2) ?? 0;
-  const sum = total1 + total2;
-  const pct1 = sum > 0 ? (total1 / sum) * 100 : 50;
-
-  return (
-    <Box display="flex" flexDirection="column" gap={5}>
-      <Box>
-        <Flex justify="space-between" align="center" mb={2}>
-          <Text fontWeight="black" fontSize="lg">
-            {total1}
-          </Text>
-          <Text
-            fontSize="sm"
-            fontWeight="semibold"
-            color="gray.600"
-            _dark={{ color: 'gray.300' }}
-          >
-            {t('points')}
-          </Text>
-          <Text fontWeight="black" fontSize="lg">
-            {total2}
-          </Text>
-        </Flex>
-        <Flex
-          h="8px"
-          borderRadius="full"
-          overflow="hidden"
-          bg="gray.100"
-          _dark={{ bg: 'gray.700' }}
-        >
-          <Box w={`${pct1}%`} bg="yellow.400" />
-          <Box flex="1" bg="yellow.200" />
-        </Flex>
-      </Box>
-
-      {sets.length > 1 && (
-        <Box>
-          <Text
-            fontSize="sm"
-            fontWeight="semibold"
-            color="gray.600"
-            mb={2}
-            _dark={{ color: 'gray.300' }}
-          >
-            {t('matchDetail.bySet')}
-          </Text>
-          <Box display="flex" flexDirection="column" gap={2}>
-            <SetStatsRow
-              label={team1}
-              scores={sets.map((s) => s.player1Score)}
-              winnerFlags={sets.map((s) => s.player1Score > s.player2Score)}
-            />
-            <SetStatsRow
-              label={team2}
-              scores={sets.map((s) => s.player2Score)}
-              winnerFlags={sets.map((s) => s.player2Score > s.player1Score)}
-            />
-          </Box>
-        </Box>
-      )}
-    </Box>
-  );
-}
-
-function SetStatsRow({
-  label,
-  scores,
-  winnerFlags,
-}: {
-  label: string;
-  scores: number[];
-  winnerFlags: boolean[];
-}) {
-  return (
-    <Flex align="center" justify="space-between" gap={3}>
-      <Text fontSize="sm" lineClamp={1} flex="1" minW={0}>
-        {label}
-      </Text>
-      <Flex gap={3} flexShrink={0}>
-        {scores.map((score, index) => (
-          <Text
-            key={index}
-            w="22px"
-            textAlign="center"
-            fontWeight={winnerFlags[index] ? 'bold' : 'normal'}
-            color={winnerFlags[index] ? 'fg' : 'gray.500'}
-            _dark={{ color: winnerFlags[index] ? 'fg' : 'gray.400' }}
-          >
-            {score}
-          </Text>
-        ))}
-      </Flex>
-    </Flex>
-  );
 }
 
 function InfoRow({
@@ -721,37 +607,6 @@ function InfoRow({
         )}
       </Box>
     </Flex>
-  );
-}
-
-function TabButton({
-  active,
-  onClick,
-  children,
-}: {
-  active: boolean;
-  onClick: () => void;
-  children: React.ReactNode;
-}) {
-  return (
-    <Box
-      as="button"
-      flex="1"
-      py={2}
-      borderRadius="full"
-      fontWeight="semibold"
-      fontSize="sm"
-      bg={active ? 'white' : 'transparent'}
-      color={active ? 'fg' : 'gray.500'}
-      boxShadow={active ? 'sm' : 'none'}
-      _dark={{
-        bg: active ? 'gray.900' : 'transparent',
-        color: active ? 'fg' : 'gray.400',
-      }}
-      onClick={onClick}
-    >
-      {children}
-    </Box>
   );
 }
 

@@ -3812,10 +3812,12 @@
         "walkover": "Xử thắng",
         "draw": "Hòa",
         "matchDetail": {
+          "title": "Chi tiết trận đấu",
           "tabDetails": "Chi tiết",
           "tabStats": "Thống kê",
           "editResult": "Nhập kết quả",
           "awaitingFeeders": "Trận này đang chờ kết quả các trận vòng trước để xác định đủ 2 đội.",
+          "referee": "Trọng tài",
           "matchOptions": "Tùy chọn",
           "bySet": "Theo set",
           "schedule": "Lên lịch",

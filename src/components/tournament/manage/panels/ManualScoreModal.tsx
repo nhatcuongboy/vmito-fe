@@ -97,10 +97,11 @@ export default function ManualScoreModal({
     [match, sportType]
   );
   const maxSets = rules.bestOf;
-  // Maximum allowed score per side. With a hard cap, that's the cap. Without a
-  // cap and "win by 2" enabled, a set can run past the target via deuce
-  // (e.g. 22-20, 24-22), so allow a generous ceiling instead of the target.
-  const maxScore = rules.cap ?? (rules.winBy >= 2 ? 99 : rules.pointsToWin);
+  // Maximum allowed score per side. With a hard cap use the cap. Without a
+  // cap and "win by 2" deuce, going above pointsToWin is only valid when the
+  // other side is also in deuce territory — that is handled per-input in
+  // updateScore. Use pointsToWin as the base UI hint.
+  const maxScore = rules.cap ?? rules.pointsToWin;
   // Always start with a single set; users can add more via the Add Set button.
   const minSets = 1;
 
@@ -181,9 +182,21 @@ export default function ManualScoreModal({
   const updateScore = (index: number, side: 1 | 2, raw: string) => {
     // Allow empty string so the input doesn't auto-fill 0.
     let sanitized = raw.replace(/[^0-9]/g, '');
-    // Enforce per-set score cap.
-    if (sanitized !== '' && Number(sanitized) > maxScore) {
-      sanitized = String(maxScore);
+    if (sanitized !== '') {
+      const entered = Number(sanitized);
+      if (rules.cap != null) {
+        // Hard cap: clamp to cap.
+        if (entered > rules.cap) sanitized = String(rules.cap);
+      } else if (entered > rules.pointsToWin) {
+        // No hard cap: a score above pointsToWin is only reachable in deuce,
+        // which requires the other side to be within (winBy - 1) of pointsToWin.
+        const otherKey = side === 1 ? 'player2Score' : 'player1Score';
+        const otherScore = toNum(sets[index]?.[otherKey] ?? '');
+        const deuceThreshold = rules.pointsToWin - (rules.winBy - 1);
+        if (rules.winBy < 2 || otherScore < deuceThreshold) {
+          sanitized = String(rules.pointsToWin);
+        }
+      }
     }
     setSets((prev) => {
       const next = prev.map((s, i) =>

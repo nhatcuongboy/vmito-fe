@@ -221,21 +221,26 @@ function SidebarCollapseButton({
       display="inline-flex"
       alignItems="center"
       justifyContent="center"
-      w="32px"
-      h="32px"
+      w="26px"
+      h="26px"
       borderRadius="md"
-      bg="rgba(15, 23, 42, 0.72)"
-      color="white"
+      bg="white"
+      color="gray.500"
       borderWidth="1px"
-      borderColor="rgba(255, 255, 255, 0.28)"
-      boxShadow="0 8px 20px rgba(15, 23, 42, 0.22)"
-      backdropFilter="blur(10px)"
+      borderColor="gray.200"
+      boxShadow="xs"
       transition="all 0.15s"
-      _hover={{ bg: 'rgba(15, 23, 42, 0.86)' }}
-      _active={{ transform: 'scale(0.96)' }}
+      _hover={{ bg: 'gray.50', color: 'gray.700', borderColor: 'gray.300' }}
+      _active={{ transform: 'scale(0.95)' }}
+      _dark={{
+        bg: 'gray.800',
+        color: 'gray.400',
+        borderColor: 'gray.700',
+        _hover: { bg: 'gray.700', color: 'gray.200' },
+      }}
       onClick={onToggle}
     >
-      <Icon size={17} />
+      <Icon size={14} />
     </Box>
   );
 }

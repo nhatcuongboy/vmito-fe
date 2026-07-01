@@ -1260,7 +1260,7 @@ function TeamScorePanel({
         >
           {teamName}
         </Text>
-        {playerNames && (
+        {playerNames && playerNames !== teamName && (
           <Text
             fontSize={compact ? 'xs' : 'sm'}
             fontWeight="medium"

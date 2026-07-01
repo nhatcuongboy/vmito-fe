@@ -443,6 +443,7 @@ export default function PublicTournamentTeamPage() {
         canEdit={false}
         onEditResult={ignoreReadonlyMatchAction}
         onDeleteMatch={ignoreReadonlyMatchAction}
+        tournamentId={tournamentId}
       />
     </>
   );
