@@ -7,7 +7,7 @@ import {
   usePathname,
   useSearchParams,
 } from 'next/navigation';
-import { Box, Flex, Text } from '@chakra-ui/react';
+import { Box } from '@chakra-ui/react';
 
 import { TournamentService } from '@/lib/api/tournament.service';
 import { ScoreboardMatch, Tournament, TournamentCourt } from '@/lib/api/types';
@@ -202,6 +202,7 @@ export default function PublicScoreboardPage() {
         gridSize={gridSize}
         isFullscreen={isFullscreen}
         isConnected={isConnected}
+        tournamentName={tournament?.name}
         onToggleCourt={toggleCourt}
         onClearCourts={() => setParam('courts', null)}
         onGridSize={(n) => setParam('grid', String(n))}
@@ -212,14 +213,6 @@ export default function PublicScoreboardPage() {
         onToggleFullscreen={toggleFullscreen}
         onShare={() => setShareOpen(true)}
       />
-
-      {tournament && (
-        <Flex px={4} py={2} align="center" justify="center">
-          <Text fontWeight="bold" color="gray.300">
-            {tournament.name}
-          </Text>
-        </Flex>
-      )}
 
       {display.length === 0 ? (
         <ScoreboardEmptyState

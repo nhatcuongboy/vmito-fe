@@ -1,6 +1,12 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
   useParams,
@@ -11,14 +17,22 @@ import {
 import {
   Badge,
   Box,
+  Button as ChakraButton,
   Flex,
   Grid,
   Heading,
   Image,
+  MenuContent,
+  MenuItem,
+  MenuPositioner,
+  MenuRoot,
+  MenuTrigger,
   Spinner,
   Text,
 } from '@chakra-ui/react';
 import {
+  Check,
+  ChevronDown,
   EyeOff,
   Maximize,
   Minimize,
@@ -35,7 +49,7 @@ import {
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
-import { Button } from '@/components/ui/chakra-compat';
+import { VTooltip } from '@/components/ui/VTooltip';
 import { toaster } from '@/components/ui/toaster';
 import { CategoryService } from '@/lib/api/category.service';
 import { TournamentPlayerService } from '@/lib/api/tournament-player.service';
@@ -764,6 +778,38 @@ function ShowcaseToolbar({
 }) {
   const t = useTranslations('pages.tournaments.showcase');
 
+  const modeOptions: Array<{
+    value: ShowcaseMode;
+    label: string;
+    icon: React.ReactNode;
+  }> = [
+    { value: 'random', label: t('randomPlayers'), icon: <Users size={16} /> },
+    {
+      value: 'single',
+      label: t('singlePlayer'),
+      icon: <UserRound size={16} />,
+    },
+    { value: 'pairs', label: t('pairs'), icon: <UsersRound size={16} /> },
+    { value: 'matches', label: t('matches'), icon: <Swords size={16} /> },
+  ];
+  const activeMode =
+    modeOptions.find((o) => o.value === mode) ?? modeOptions[0];
+
+  const orderOptions: Array<{
+    value: ShowcaseOrder;
+    label: string;
+    icon: React.ReactNode;
+  }> = [
+    { value: 'random', label: t('randomOrder'), icon: <Shuffle size={16} /> },
+    {
+      value: 'schedule',
+      label: t('scheduleOrder'),
+      icon: <Trophy size={16} />,
+    },
+  ];
+  const activeOrder =
+    orderOptions.find((o) => o.value === order) ?? orderOptions[0];
+
   return (
     <Flex
       position="fixed"
@@ -771,67 +817,71 @@ function ShowcaseToolbar({
       left={0}
       right={0}
       zIndex={20}
-      direction={{ base: 'column', md: 'row' }}
-      px={{ base: 2.5, md: 5 }}
+      align="center"
+      gap={2}
+      px={{ base: 3, md: 5 }}
       py={{ base: 2, md: 3 }}
-      gap={{ base: 2, md: 3 }}
-      align={{ base: 'stretch', md: 'center' }}
       bg="rgba(8, 9, 13, 0.82)"
       backdropFilter="blur(16px)"
       borderBottomWidth="1px"
       borderColor="whiteAlpha.200"
+      wrap="wrap"
     >
-      <Flex
-        gap={{ base: 1.5, md: 2 }}
-        overflowX={{ base: 'auto', md: 'visible' }}
-        pb={{ base: 0.5, md: 0 }}
-        css={{
-          scrollbarWidth: 'none',
-          WebkitOverflowScrolling: 'touch',
-          '&::-webkit-scrollbar': { display: 'none' },
-        }}
-      >
-        <ToolbarChip
-          active={mode === 'random'}
-          onClick={() => onMode('random')}
-          icon={<Users size={16} />}
-        >
-          {t('randomPlayers')}
-        </ToolbarChip>
-        <ToolbarChip
-          active={mode === 'single'}
-          onClick={() => onMode('single')}
-          icon={<UserRound size={16} />}
-        >
-          {t('singlePlayer')}
-        </ToolbarChip>
-        <ToolbarChip
-          active={mode === 'pairs'}
-          onClick={() => onMode('pairs')}
-          icon={<UsersRound size={16} />}
-        >
-          {t('pairs')}
-        </ToolbarChip>
-        <ToolbarChip
-          active={mode === 'matches'}
-          onClick={() => onMode('matches')}
-          icon={<Swords size={16} />}
-        >
-          {t('matches')}
-        </ToolbarChip>
-      </Flex>
+      {/* Left: selectors */}
+      <Flex align="center" gap={2} wrap="wrap" flexShrink={0}>
+        {/* Mode dropdown */}
+        <MenuRoot positioning={{ placement: 'bottom-start' }}>
+          <MenuTrigger asChild>
+            <ShowcaseTrigger>
+              {activeMode.icon}
+              <Text as="span">{activeMode.label}</Text>
+              <ChevronDown size={14} />
+            </ShowcaseTrigger>
+          </MenuTrigger>
+          <MenuPositioner>
+            <ShowcaseMenuContent>
+              {modeOptions.map((option) => (
+                <ShowcaseMenuItem
+                  key={option.value}
+                  value={option.value}
+                  active={mode === option.value}
+                  icon={option.icon}
+                  onClick={() => onMode(option.value)}
+                >
+                  {option.label}
+                </ShowcaseMenuItem>
+              ))}
+            </ShowcaseMenuContent>
+          </MenuPositioner>
+        </MenuRoot>
 
-      <Flex
-        align="center"
-        gap={{ base: 1.5, md: 2 }}
-        overflowX={{ base: 'auto', md: 'visible' }}
-        pb={{ base: 0.5, md: 0 }}
-        css={{
-          scrollbarWidth: 'none',
-          WebkitOverflowScrolling: 'touch',
-          '&::-webkit-scrollbar': { display: 'none' },
-        }}
-      >
+        {/* Order dropdown */}
+        <MenuRoot positioning={{ placement: 'bottom-start' }}>
+          <MenuTrigger asChild>
+            <ShowcaseTrigger>
+              {activeOrder.icon}
+              <Text as="span">{activeOrder.label}</Text>
+              <ChevronDown size={14} />
+            </ShowcaseTrigger>
+          </MenuTrigger>
+          <MenuPositioner>
+            <ShowcaseMenuContent>
+              {orderOptions.map((option) => (
+                <ShowcaseMenuItem
+                  key={option.value}
+                  value={option.value}
+                  active={order === option.value}
+                  icon={option.icon}
+                  onClick={() => onOrder(option.value)}
+                >
+                  {option.label}
+                </ShowcaseMenuItem>
+              ))}
+            </ShowcaseMenuContent>
+          </MenuPositioner>
+        </MenuRoot>
+
+        {/* Duration segmented control */}
         <Flex
           gap={1}
           p={1}
@@ -852,45 +902,30 @@ function ShowcaseToolbar({
             </ToolbarChip>
           ))}
         </Flex>
+      </Flex>
 
-        <ToolbarChip
-          active={order === 'random'}
-          onClick={() => onOrder('random')}
-          icon={<Shuffle size={16} />}
-        >
-          {t('randomOrder')}
-        </ToolbarChip>
-        <ToolbarChip
-          active={order === 'schedule'}
-          onClick={() => onOrder('schedule')}
-          icon={<Trophy size={16} />}
-        >
-          {t('scheduleOrder')}
-        </ToolbarChip>
-
-        <Box flex={{ base: '0 0 8px', md: 1 }} />
-
-        <HeaderActionButton
+      {/* Right: actions */}
+      <Flex align="center" gap={1.5} ml="auto" justify="flex-end" wrap="wrap">
+        <ShowcaseIconButton
           label={isPaused ? t('play') : t('pause')}
           onClick={onPauseToggle}
           icon={isPaused ? <Play size={16} /> : <Pause size={16} />}
           highlight
         />
-        <HeaderActionButton
+        <ShowcaseIconButton
           label={t('share')}
           onClick={onShare}
           icon={<Share2 size={16} />}
         />
-        <HeaderActionButton
+        <ShowcaseIconButton
           label={isFullscreen ? t('exitFullscreen') : t('fullscreen')}
           onClick={onFullscreen}
           icon={isFullscreen ? <Minimize size={16} /> : <Maximize size={16} />}
         />
-        <HeaderActionButton
+        <ShowcaseIconButton
           label={t('hideControls')}
           onClick={onToggleControls}
           icon={<EyeOff size={16} />}
-          subtle
         />
       </Flex>
     </Flex>
@@ -939,37 +974,127 @@ function ToolbarChip({
   );
 }
 
-function HeaderActionButton({
+const ShowcaseTrigger = React.forwardRef<
+  HTMLButtonElement,
+  React.ComponentProps<typeof ChakraButton>
+>(function ShowcaseTrigger(props, ref) {
+  return (
+    <ChakraButton
+      ref={ref}
+      size="sm"
+      variant="outline"
+      h={{ base: '34px', md: '36px' }}
+      px={3}
+      gap={2}
+      borderRadius="md"
+      bg="whiteAlpha.100"
+      borderWidth="1px"
+      borderColor="whiteAlpha.200"
+      color="whiteAlpha.900"
+      fontSize={{ base: 'xs', md: 'sm' }}
+      fontWeight="bold"
+      flexShrink={0}
+      _hover={{ bg: 'whiteAlpha.200', borderColor: 'cyan.200' }}
+      {...props}
+    />
+  );
+});
+
+function ShowcaseMenuContent({ children }: { children: React.ReactNode }) {
+  return (
+    <MenuContent
+      bg="rgba(12, 14, 20, 0.98)"
+      backdropFilter="blur(16px)"
+      borderWidth="1px"
+      borderColor="whiteAlpha.300"
+      color="whiteAlpha.900"
+      minW="180px"
+      boxShadow="0 12px 32px rgba(0, 0, 0, 0.6)"
+      zIndex={2000}
+    >
+      {children}
+    </MenuContent>
+  );
+}
+
+function ShowcaseMenuItem({
+  value,
+  active,
+  icon,
+  onClick,
+  children,
+}: {
+  value: string;
+  active: boolean;
+  icon?: React.ReactNode;
+  onClick: () => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <MenuItem
+      value={value}
+      onClick={onClick}
+      color={active ? 'cyan.300' : 'whiteAlpha.900'}
+      fontWeight={active ? 'bold' : 'medium'}
+      _hover={{ bg: 'whiteAlpha.200' }}
+      _highlighted={{ bg: 'whiteAlpha.200' }}
+      justifyContent="space-between"
+      gap={3}
+    >
+      <Flex as="span" align="center" gap={2}>
+        {icon}
+        <Text as="span">{children}</Text>
+      </Flex>
+      {active && <Check size={15} />}
+    </MenuItem>
+  );
+}
+
+function ShowcaseIconButton({
   label,
   onClick,
   icon,
   highlight = false,
-  subtle = false,
 }: {
   label: string;
   onClick: () => void;
   icon: React.ReactNode;
   highlight?: boolean;
-  subtle?: boolean;
 }) {
   return (
-    <Button
-      size="sm"
-      variant={subtle ? 'ghost' : 'outline'}
-      onClick={onClick}
-      aria-label={label}
-      minW={{ base: '34px', md: 'auto' }}
-      h={{ base: '34px', md: '36px' }}
-      px={{ base: 2, md: 3 }}
-      flexShrink={0}
-      color={highlight ? 'green.300' : undefined}
-      borderColor={highlight ? 'green.700' : undefined}
+    <VTooltip
+      content={label}
+      portalled={false}
+      openDelay={150}
+      contentProps={{
+        bg: 'gray.800',
+        color: 'white',
+        borderColor: 'gray.600',
+      }}
     >
-      {icon}
-      <Box as="span" display={{ base: 'none', md: 'inline' }}>
-        {label}
-      </Box>
-    </Button>
+      <ChakraButton
+        size="sm"
+        variant="outline"
+        onClick={onClick}
+        aria-label={label}
+        h={{ base: '34px', md: '36px' }}
+        w={{ base: '34px', md: '36px' }}
+        minW={{ base: '34px', md: '36px' }}
+        px={0}
+        borderRadius="md"
+        bg={highlight ? 'green.950' : 'whiteAlpha.100'}
+        borderWidth="1px"
+        borderColor={highlight ? 'green.700' : 'whiteAlpha.200'}
+        color={highlight ? 'green.300' : 'whiteAlpha.900'}
+        flexShrink={0}
+        _hover={{
+          bg: highlight ? 'green.900' : 'whiteAlpha.200',
+          borderColor: highlight ? 'green.500' : 'cyan.200',
+        }}
+      >
+        {icon}
+      </ChakraButton>
+    </VTooltip>
   );
 }
 
