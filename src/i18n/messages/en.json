@@ -3623,7 +3623,15 @@
         "qrTitle": "Share scoreboard",
         "copyLink": "Copy link",
         "linkCopied": "Link copied",
-        "liveScoreboard": "Live scoreboard"
+        "liveScoreboard": "Live scoreboard",
+        "overlay": {
+          "title": "Livestream overlay links",
+          "description": "Paste a link into an OBS browser source. Each court link automatically switches to whichever match is live on that court.",
+          "court": "Court",
+          "linkCopied": "Link copied",
+          "noCourts": "No courts have been set up for this tournament yet.",
+          "close": "Close"
+        }
       },
       "showcase": {
         "showcaseTitle": "Athlete showcase",

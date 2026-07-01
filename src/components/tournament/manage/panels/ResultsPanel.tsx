@@ -30,6 +30,7 @@ import {
   Filter,
   Flag,
   List,
+  MonitorPlay,
   RotateCcw,
   Search,
   ShieldCheck,
@@ -59,6 +60,7 @@ import { toaster } from '@/components/ui/toaster';
 import ManualScoreModal from './ManualScoreModal';
 import MatchDetailModal from './MatchDetailModal';
 import ResetMatchResultConfirmModal from './ResetMatchResultConfirmModal';
+import OverlayLinksModal from './OverlayLinksModal';
 import DeleteMatchConfirmModal from './schedule/DeleteMatchConfirmModal';
 import EditMatchTimeSheet from './schedule/EditMatchTimeSheet';
 import { TournamentMatchListSkeleton } from '@/components/tournament/skeletons';
@@ -160,6 +162,7 @@ export default function ResultsPanel({
   const t = useTranslations('pages.tournaments.manualScore');
   const tManage = useTranslations('pages.tournaments.detail.manage');
   const tRounds = useTranslations('pages.tournaments.manualScore.rounds');
+  const tOverlay = useTranslations('pages.tournaments.scoreboard.overlay');
   const locale = useLocale();
   const { user } = useAuthStore();
   const router = useRouter();
@@ -186,6 +189,7 @@ export default function ResultsPanel({
     );
   });
   const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [isOverlayLinksOpen, setIsOverlayLinksOpen] = useState(false);
   const [filters, setFilters] = useState<ResultFilters>(() =>
     parseFiltersFromSearchParams(searchParams)
   );
@@ -931,6 +935,23 @@ export default function ResultsPanel({
               </Badge>
             )}
           </Button>
+
+          {canEdit && (
+            <Button
+              display={{ base: 'none', md: 'inline-flex' }}
+              size="sm"
+              variant="outline"
+              colorPalette="gray"
+              onClick={() => setIsOverlayLinksOpen(true)}
+              aria-label={tOverlay('title')}
+              flexShrink={0}
+              h={9}
+              w={9}
+              px={0}
+            >
+              <MonitorPlay size={15} />
+            </Button>
+          )}
         </Flex>
       </Flex>
 
@@ -1063,6 +1084,13 @@ export default function ResultsPanel({
         onToggle={updateFilterList}
         showPlayerNames={showPlayerNames}
         onTogglePlayerNames={() => setShowPlayerNames((prev) => !prev)}
+      />
+
+      <OverlayLinksModal
+        isOpen={isOverlayLinksOpen}
+        onClose={() => setIsOverlayLinksOpen(false)}
+        tournamentId={tournament.id}
+        courts={courts}
       />
 
       <MatchDetailModal

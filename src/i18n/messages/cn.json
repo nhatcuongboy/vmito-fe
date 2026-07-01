@@ -3583,7 +3583,15 @@
         "qrTitle": "分享记分牌",
         "copyLink": "复制链接",
         "linkCopied": "已复制链接",
-        "liveScoreboard": "实时记分牌"
+        "liveScoreboard": "实时记分牌",
+        "overlay": {
+          "title": "直播叠加层链接",
+          "description": "将链接粘贴到 OBS 的浏览器源中。每个球场链接会自动切换到该球场正在进行的比赛。",
+          "court": "球场",
+          "linkCopied": "已复制链接",
+          "noCourts": "该赛事尚未设置任何球场。",
+          "close": "关闭"
+        }
       },
       "showcase": {
         "showcaseTitle": "运动员展示",

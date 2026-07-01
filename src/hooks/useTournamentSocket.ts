@@ -13,6 +13,7 @@ export enum TournamentEventType {
   MATCH_ENDED = 'tournament_match_ended',
   REFEREE_ASSIGNED = 'tournament_match_referee_assigned',
   SCHEDULE_UPDATED = 'tournament_schedule_updated',
+  ENDED = 'tournament_ended',
 }
 
 export interface TournamentMatchEvent {
@@ -27,12 +28,19 @@ export interface TournamentScheduleEvent {
   tournamentId: string;
 }
 
+/** Fired when the tournament is finished or cancelled. */
+export interface TournamentEndedEvent {
+  tournamentId: string;
+  status?: string;
+}
+
 export interface UseTournamentSocketOptions {
   onScoreUpdated?: (e: TournamentMatchEvent) => void;
   onMatchStarted?: (e: TournamentMatchEvent) => void;
   onMatchEnded?: (e: TournamentMatchEvent) => void;
   onRefereeAssigned?: (e: TournamentMatchEvent) => void;
   onScheduleUpdated?: (e: TournamentScheduleEvent) => void;
+  onTournamentEnded?: (e: TournamentEndedEvent) => void;
   onReconnect?: () => void;
 }
 
@@ -73,7 +81,6 @@ export function useTournamentSocket(
     });
 
     const joinRoom = () => socket.emit('joinTournament', tournamentId);
-
     socket.on('connect', () => {
       setIsConnected(true);
       setConnectionError(null);
@@ -104,6 +111,16 @@ export function useTournamentSocket(
       TournamentEventType.SCHEDULE_UPDATED,
       (e: TournamentScheduleEvent) => optionsRef.current.onScheduleUpdated?.(e)
     );
+    socket.on(TournamentEventType.ENDED, (e: TournamentEndedEvent) => {
+      optionsRef.current.onTournamentEnded?.(e);
+      // The tournament is over — no further updates will arrive. Drop the socket
+      // and disable auto-reconnect so spectator overlays stop consuming
+      // resources instead of endlessly reconnecting to a dead room.
+      socket.io.opts.reconnection = false;
+      socket.removeAllListeners();
+      socket.disconnect();
+      setIsConnected(false);
+    });
 
     return () => {
       socket.emit('leaveTournament', tournamentId);

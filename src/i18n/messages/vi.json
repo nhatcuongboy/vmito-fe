@@ -3631,7 +3631,15 @@
         "qrTitle": "Chia sẻ bảng điểm",
         "copyLink": "Sao chép liên kết",
         "linkCopied": "Đã sao chép liên kết",
-        "liveScoreboard": "Bảng điểm live"
+        "liveScoreboard": "Bảng điểm live",
+        "overlay": {
+          "title": "Liên kết overlay livestream",
+          "description": "Dán liên kết vào Browser Source của OBS. Mỗi liên kết theo sân sẽ tự động chuyển sang trận đang diễn ra trên sân đó.",
+          "court": "Sân",
+          "linkCopied": "Đã sao chép liên kết",
+          "noCourts": "Giải đấu này chưa thiết lập sân nào.",
+          "close": "Đóng"
+        }
       },
       "showcase": {
         "showcaseTitle": "Showcase vận động viên",
