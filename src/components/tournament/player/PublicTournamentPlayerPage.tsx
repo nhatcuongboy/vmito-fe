@@ -517,6 +517,12 @@ export default function PublicTournamentPlayerPage() {
                         bg="white"
                         boxShadow="0 10px 26px rgba(15, 23, 42, 0.04)"
                         transition="border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease"
+                        cursor="pointer"
+                        onClick={() =>
+                          router.push(
+                            `/tournament/${tournamentId}/category/${category.id}`
+                          )
+                        }
                         _hover={{
                           borderColor: 'green.300',
                           boxShadow: '0 14px 34px rgba(15, 23, 42, 0.08)',

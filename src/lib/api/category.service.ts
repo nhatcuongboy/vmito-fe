@@ -537,13 +537,43 @@ export const CategoryService = {
     return response.data.data!;
   },
 
+  getMatchGenerationPreview: async (
+    categoryId: string
+  ): Promise<{
+    existingMatches: number;
+    scheduledAssignedMatches: number;
+    inProgressMatches: number;
+    finishedMatches: number;
+    canGenerate: boolean;
+    requiresForceReplaceScheduledMatches: boolean;
+    blockingReason?: 'HAS_STARTED_OR_FINISHED_MATCHES';
+  }> => {
+    const response = await api.get<
+      ApiResponse<{
+        existingMatches: number;
+        scheduledAssignedMatches: number;
+        inProgressMatches: number;
+        finishedMatches: number;
+        canGenerate: boolean;
+        requiresForceReplaceScheduledMatches: boolean;
+        blockingReason?: 'HAS_STARTED_OR_FINISHED_MATCHES';
+      }>
+    >(`/categories/${categoryId}/matches/generation-preview`);
+    return response.data.data!;
+  },
+
   generateAllGroupMatches: async (
     categoryId: string,
-    options?: { showToast?: boolean }
+    options?: {
+      showToast?: boolean;
+      forceReplaceScheduledMatches?: boolean;
+    }
   ): Promise<Array<{ group: CategoryGroup; matches: CategoryMatch[] }>> => {
     const response = await api.post<
       ApiResponse<Array<{ group: CategoryGroup; matches: CategoryMatch[] }>>
-    >(`/categories/${categoryId}/groups/generate-all-matches`);
+    >(`/categories/${categoryId}/groups/generate-all-matches`, {
+      forceReplaceScheduledMatches: options?.forceReplaceScheduledMatches,
+    });
     if (options?.showToast !== false) {
       toaster.success({ title: 'All matches generated successfully' });
     }

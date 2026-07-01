@@ -16,7 +16,6 @@ import {
 } from 'lucide-react';
 import {
   Category,
-  CategoryMatch,
   TournamentCourt,
   ICourtConstraint,
   IGenerateScheduleResponse,
@@ -25,7 +24,6 @@ import { ScheduleGeneratorService } from '@/lib/api/schedule-generator.service';
 import { toaster } from '@/components/ui/toaster';
 import TimeSlotPicker from './TimeSlotPicker';
 import CourtSelector from './CourtSelector';
-import { useModal } from '@/components/ui/VModal';
 import dayjs from '@/lib/dayjs';
 
 const DURATION_OPTIONS = Array.from({ length: 36 }, (_, i) => (i + 1) * 5);
@@ -60,7 +58,6 @@ interface GenerateScheduleDrawerProps {
   /** ISO date string (YYYY-MM-DD or full ISO) for the tournament's start date */
   tournamentStartDate?: string | Date;
   categories: Category[];
-  allMatches: CategoryMatch[];
   courts: TournamentCourt[];
   venueName?: string;
   onGenerated: (response: IGenerateScheduleResponse) => void;
@@ -78,7 +75,7 @@ function DraggableCategoryItem({
   color: string;
   index: number;
   onDragStart: (index: number) => void;
-  onDragOver: (e: React.DragEvent, index: number) => void;
+  onDragOver: (e: React.DragEvent, _index: number) => void;
   onDrop: (index: number) => void;
 }) {
   return (
@@ -117,7 +114,6 @@ export default function GenerateScheduleDrawer({
   tournamentId,
   tournamentStartDate,
   categories,
-  allMatches,
   courts,
   onGenerated,
 }: GenerateScheduleDrawerProps) {
@@ -125,10 +121,6 @@ export default function GenerateScheduleDrawer({
     'pages.tournaments.detail.manage.organize.schedule.generate'
   );
   const locale = useLocale();
-  const tc = useTranslations(
-    'pages.tournaments.detail.manage.organize.schedule.constraints'
-  );
-
   // Category priority
   const [orderedCategories, setOrderedCategories] =
     useState<Category[]>(categories);
@@ -205,7 +197,7 @@ export default function GenerateScheduleDrawer({
 
   // Drag and drop for categories
   const handleDragStart = (index: number) => setDragIndex(index);
-  const handleDragOver = (e: React.DragEvent, index: number) => {
+  const handleDragOver = (e: React.DragEvent, _index: number) => {
     e.preventDefault();
   };
   const handleDrop = (dropIndex: number) => {
@@ -403,7 +395,26 @@ export default function GenerateScheduleDrawer({
       onClose();
     } catch (error) {
       console.error('Generate error:', error);
-      toaster.error({ title: t('generationFailed') });
+      const apiError = error as {
+        response?: {
+          data?: {
+            message?: string;
+            data?: { code?: string; message?: string };
+            error?: { code?: string; message?: string };
+          };
+        };
+      };
+      const code =
+        apiError.response?.data?.data?.code ||
+        apiError.response?.data?.error?.code;
+      if (code === 'MATCHES_NOT_GENERATED') {
+        toaster.error({
+          title: t('matchesNotGeneratedTitle'),
+          description: t('matchesNotGeneratedDescription'),
+        });
+      } else {
+        toaster.error({ title: t('generationFailed') });
+      }
     } finally {
       setIsLoadingGenerate(false);
     }

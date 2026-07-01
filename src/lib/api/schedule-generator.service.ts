@@ -14,6 +14,41 @@ import {
 } from './types';
 
 export const ScheduleGeneratorService = {
+  getReadiness: async (
+    tournamentId: string
+  ): Promise<{
+    totalMatches: number;
+    schedulableMatches: number;
+    scheduledMatches: number;
+    unscheduledMatches: number;
+    inProgressMatches: number;
+    finishedMatches: number;
+    categoriesWithoutMatches: Array<{
+      categoryId: string;
+      categoryName: string;
+    }>;
+    canGenerateSchedule: boolean;
+    blockingReason?: 'MATCHES_NOT_GENERATED' | 'NO_SCHEDULABLE_MATCHES';
+  }> => {
+    const response = await api.get<
+      ApiResponse<{
+        totalMatches: number;
+        schedulableMatches: number;
+        scheduledMatches: number;
+        unscheduledMatches: number;
+        inProgressMatches: number;
+        finishedMatches: number;
+        categoriesWithoutMatches: Array<{
+          categoryId: string;
+          categoryName: string;
+        }>;
+        canGenerateSchedule: boolean;
+        blockingReason?: 'MATCHES_NOT_GENERATED' | 'NO_SCHEDULABLE_MATCHES';
+      }>
+    >(`/tournaments/${tournamentId}/schedule/readiness`);
+    return response.data.data!;
+  },
+
   generate: async (
     tournamentId: string,
     data: IGenerateScheduleRequest

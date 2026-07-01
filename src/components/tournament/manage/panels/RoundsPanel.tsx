@@ -11,6 +11,7 @@ import {
   ListTree,
   RefreshCw,
   Shuffle,
+  Trash2,
   Trophy,
   Users,
   Zap,
@@ -27,6 +28,7 @@ import {
 } from '@/lib/api/types';
 import { TournamentMatchListSkeleton } from '@/components/tournament/skeletons';
 import { CategoryService } from '@/lib/api/category.service';
+import { TournamentService } from '@/lib/api/tournament.service';
 import { toaster } from '@/components/ui/toaster';
 import { VModal } from '@/components/ui/VModal';
 import SetupPoolsModal, { TSetupStep } from './SetupPoolsModal';
@@ -86,6 +88,10 @@ const STATUS_COLOR_MAP: Record<string, string> = {
   [MatchStatus.CANCELLED]: 'red',
 };
 
+type MatchGenerationPreview = Awaited<
+  ReturnType<typeof CategoryService.getMatchGenerationPreview>
+>;
+
 const nextPowerOf2 = (n: number): number => {
   let power = 1;
   while (power < n) power *= 2;
@@ -140,6 +146,11 @@ export default function RoundsPanel({
   const [isGenerating, setIsGenerating] = useState(false);
   const [isCompleting, setIsCompleting] = useState(false);
   const [isGenerateConfirmOpen, setIsGenerateConfirmOpen] = useState(false);
+  const [isRegenerateConfirmOpen, setIsRegenerateConfirmOpen] = useState(false);
+  const [generationPreview, setGenerationPreview] =
+    useState<MatchGenerationPreview | null>(null);
+  const [isDeleteAllMatchesOpen, setIsDeleteAllMatchesOpen] = useState(false);
+  const [isDeletingAllMatches, setIsDeletingAllMatches] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [groupCountInput, setGroupCountInput] = useState<number>(2);
 
@@ -286,11 +297,17 @@ export default function RoundsPanel({
     }
   };
 
-  const handleGenerateAllMatches = async () => {
+  const runGenerateAllMatches = async (
+    forceReplaceScheduledMatches = false
+  ) => {
     if (!activeCategory) return;
     try {
       setIsGenerating(true);
-      await CategoryService.generateAllGroupMatches(activeCategory.id);
+      await CategoryService.generateAllGroupMatches(activeCategory.id, {
+        forceReplaceScheduledMatches,
+      });
+      setIsRegenerateConfirmOpen(false);
+      setGenerationPreview(null);
       await loadGroupsAndMatches(activeCategory.id);
     } catch (error: unknown) {
       const message =
@@ -300,6 +317,62 @@ export default function RoundsPanel({
       toaster.error({ title: message });
     } finally {
       setIsGenerating(false);
+    }
+  };
+
+  const handleGenerateAllMatches = async () => {
+    if (!activeCategory) return;
+    try {
+      setIsGenerating(true);
+      const preview = await CategoryService.getMatchGenerationPreview(
+        activeCategory.id
+      );
+      setGenerationPreview(preview);
+      if (!preview.canGenerate) {
+        toaster.error({
+          title: t('panels.rounds.cannotRegenerateStartedTitle'),
+          description: t('panels.rounds.cannotRegenerateStartedDesc'),
+        });
+        return;
+      }
+      if (preview.requiresForceReplaceScheduledMatches) {
+        setIsRegenerateConfirmOpen(true);
+        return;
+      }
+      await runGenerateAllMatches(false);
+    } catch (error: unknown) {
+      const message =
+        error instanceof Error
+          ? error.message
+          : t('panels.rounds.generateMatchesFailed');
+      toaster.error({ title: message });
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  const handleDeleteAllMatches = async () => {
+    if (!activeCategory?.tournamentId) return;
+    try {
+      setIsDeletingAllMatches(true);
+      const result = await TournamentService.deleteAllMatches(
+        activeCategory.tournamentId
+      );
+      toaster.success({
+        title: t('panels.rounds.deleteAllMatchesSuccess', {
+          count: result.deletedCount,
+        }),
+      });
+      setIsDeleteAllMatchesOpen(false);
+      await loadGroupsAndMatches(activeCategory.id);
+    } catch (error: unknown) {
+      const message =
+        error instanceof Error
+          ? error.message
+          : t('panels.rounds.deleteAllMatchesError');
+      toaster.error({ title: message });
+    } finally {
+      setIsDeletingAllMatches(false);
     }
   };
 
@@ -364,6 +437,10 @@ export default function RoundsPanel({
     (sum, matches) => sum + matches.length,
     0
   );
+  const tournamentMatchCount = Math.max(
+    totalMatches,
+    categories.reduce((sum, cat) => sum + (cat._count?.matches ?? 0), 0)
+  );
   const allGroupsHaveMatches =
     groups.length > 0 &&
     groups.every((g) => (matchesByGroup[g.id]?.length || 0) > 0);
@@ -416,6 +493,66 @@ export default function RoundsPanel({
   const totalGroupMatches = groupStageMatches.length;
   const allGroupMatchesFinished =
     totalGroupMatches > 0 && finishedGroupMatches === totalGroupMatches;
+
+  const roundsActions = (
+    <Flex justify="flex-end" gap={2} flexWrap="wrap">
+      <Button
+        size="sm"
+        variant="outline"
+        colorScheme="red"
+        color="red.600"
+        borderColor="red.200"
+        leftIcon={<Trash2 size={14} />}
+        disabled={tournamentMatchCount === 0 || isDeletingAllMatches}
+        onClick={() => setIsDeleteAllMatchesOpen(true)}
+      >
+        {t('panels.rounds.deleteAllMatches')}
+      </Button>
+    </Flex>
+  );
+
+  const roundsModals = (
+    <>
+      <VModal
+        isOpen={isRegenerateConfirmOpen}
+        onClose={() => {
+          setIsRegenerateConfirmOpen(false);
+          setGenerationPreview(null);
+        }}
+        title={t('panels.rounds.replaceScheduledConfirmTitle')}
+        size="sm"
+        primaryActionText={t('panels.rounds.replaceScheduledConfirmAction')}
+        primaryColorScheme="red"
+        onPrimaryAction={() => runGenerateAllMatches(true)}
+        isPrimaryLoading={isGenerating}
+        isSecondaryDisabled={isGenerating}
+      >
+        <Text fontSize="sm" color="gray.700" _dark={{ color: 'gray.200' }}>
+          {t('panels.rounds.replaceScheduledConfirmDesc', {
+            count: generationPreview?.scheduledAssignedMatches ?? 0,
+          })}
+        </Text>
+      </VModal>
+
+      <VModal
+        isOpen={isDeleteAllMatchesOpen}
+        onClose={() => setIsDeleteAllMatchesOpen(false)}
+        title={t('panels.rounds.deleteAllMatchesConfirmTitle')}
+        size="sm"
+        primaryActionText={t('panels.rounds.deleteAllMatchesConfirmAction')}
+        primaryColorScheme="red"
+        onPrimaryAction={handleDeleteAllMatches}
+        isPrimaryLoading={isDeletingAllMatches}
+        isSecondaryDisabled={isDeletingAllMatches}
+      >
+        <Text fontSize="sm" color="gray.700" _dark={{ color: 'gray.200' }}>
+          {t('panels.rounds.deleteAllMatchesConfirmDesc', {
+            count: tournamentMatchCount,
+          })}
+        </Text>
+      </VModal>
+    </>
+  );
 
   const advancingSlots = useMemo(() => {
     if (!isAdvancingConfigured || groupCount <= 0) return [];
@@ -565,6 +702,7 @@ export default function RoundsPanel({
         </Flex>
 
         <CategorySelector />
+        {roundsActions}
 
         {loading ? (
           <TournamentMatchListSkeleton count={4} />
@@ -678,6 +816,7 @@ export default function RoundsPanel({
               isLoading={isCompleting}
               hasBracket={hasEliminationMatches}
             />
+            {roundsModals}
           </>
         )}
       </VStack>
@@ -695,6 +834,7 @@ export default function RoundsPanel({
         </Flex>
 
         <CategorySelector />
+        {roundsActions}
 
         {loading ? (
           <TournamentMatchListSkeleton count={4} />
@@ -1082,6 +1222,7 @@ export default function RoundsPanel({
               isLoading={isCompleting}
               hasBracket={hasEliminationMatches}
             />
+            {roundsModals}
           </>
         )}
       </VStack>
@@ -1098,6 +1239,7 @@ export default function RoundsPanel({
       </Flex>
 
       <CategorySelector />
+      {roundsActions}
 
       {loading ? (
         <TournamentMatchListSkeleton count={4} />
@@ -1462,6 +1604,7 @@ export default function RoundsPanel({
           })}
         </VStack>
       )}
+      {roundsModals}
     </VStack>
   );
 }

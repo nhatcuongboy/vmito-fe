@@ -45,7 +45,12 @@ interface ManageScheduleModalProps {
   tournament: Tournament;
   categories: Category[];
   onScheduleSaved?: () => void;
+  onOpenRoundsPanel?: (categoryId: string) => void;
 }
+
+type ScheduleReadiness = Awaited<
+  ReturnType<typeof ScheduleGeneratorService.getReadiness>
+>;
 
 export default function ManageScheduleModal({
   isOpen,
@@ -53,6 +58,7 @@ export default function ManageScheduleModal({
   tournament,
   categories,
   onScheduleSaved,
+  onOpenRoundsPanel,
 }: ManageScheduleModalProps) {
   const t = useTranslations(
     'pages.tournaments.detail.manage.organize.schedule.manager'
@@ -69,6 +75,7 @@ export default function ManageScheduleModal({
   >(new Map());
   const [defaultMatchLength] = useState(60);
   const [manualEntry, setManualEntry] = useState(false);
+  const [readiness, setReadiness] = useState<ScheduleReadiness | null>(null);
 
   const generateDrawerModal = useModal();
   const resultModal = useModal();
@@ -103,14 +110,17 @@ export default function ManageScheduleModal({
     const fetchData = async () => {
       setIsLoading(true);
       try {
-        const [matchesData, courtsData, umpiresData] = await Promise.all([
-          TournamentService.getAllMatches(tournament.id),
-          TournamentService.getCourts(tournament.id),
-          TournamentService.getUmpires(tournament.id),
-        ]);
+        const [matchesData, courtsData, umpiresData, readinessData] =
+          await Promise.all([
+            TournamentService.getAllMatches(tournament.id),
+            TournamentService.getCourts(tournament.id),
+            TournamentService.getUmpires(tournament.id),
+            ScheduleGeneratorService.getReadiness(tournament.id),
+          ]);
         setAllMatches(matchesData);
         setCourts(courtsData);
         setUmpires(umpiresData);
+        setReadiness(readinessData);
       } catch (error) {
         console.error('Error loading schedule data:', error);
         toaster.error({ title: t('loadFailed') });
@@ -122,6 +132,10 @@ export default function ManageScheduleModal({
   }, [isOpen, t, tournament.id]);
 
   const hasScheduledMatches = allMatches.some((m) => m.startTime && m.courtId);
+  const hasGeneratedMatches =
+    (readiness?.totalMatches ?? allMatches.length) > 0;
+  const firstRoundsCategoryId =
+    readiness?.categoriesWithoutMatches[0]?.categoryId ?? categories[0]?.id;
 
   // Only show courts that are associated with a venue (courts the tournament has configured).
   // Falls back to all courts if none have a venue association.
@@ -451,6 +465,36 @@ export default function ManageScheduleModal({
         {/* Content */}
         {isLoading ? (
           <TournamentMatchListSkeleton count={5} />
+        ) : !hasGeneratedMatches && dirtyMatches.size === 0 && !manualEntry ? (
+          <Flex
+            direction="column"
+            align="center"
+            justify="center"
+            minH="400px"
+            gap={4}
+          >
+            <Text fontSize="4xl">🏆</Text>
+            <Text
+              color="gray.500"
+              textAlign="center"
+              maxW="340px"
+              _dark={{ color: 'gray.400' }}
+            >
+              {t('matchesNotGeneratedTitle')}
+            </Text>
+            <Button
+              bg="gray.800"
+              color="white"
+              onClick={() => {
+                onClose();
+                if (firstRoundsCategoryId) {
+                  onOpenRoundsPanel?.(firstRoundsCategoryId);
+                }
+              }}
+            >
+              {t('goToRounds')}
+            </Button>
+          </Flex>
         ) : !hasScheduledMatches && dirtyMatches.size === 0 && !manualEntry ? (
           /* Empty state */
           <Flex
@@ -559,7 +603,6 @@ export default function ManageScheduleModal({
         tournamentId={tournament.id}
         tournamentStartDate={tournament.startDate}
         categories={categories}
-        allMatches={allMatches}
         courts={courts}
         venueName={tournament.venue?.name}
         onGenerated={handleBackendGenerated}

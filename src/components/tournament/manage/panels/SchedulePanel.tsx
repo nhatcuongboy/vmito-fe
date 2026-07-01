@@ -46,9 +46,7 @@ export default function SchedulePanel({
   const manageModal = useModal();
   const liveQueueModal = useModal();
   const clearModal = useModal();
-  const deleteAllMatchesModal = useModal();
   const [isClearing, setIsClearing] = useState(false);
-  const [isDeletingAllMatches, setIsDeletingAllMatches] = useState(false);
   const completionModal = useModal();
   const {
     isOpen: isCompletionModalOpen,
@@ -206,26 +204,6 @@ export default function SchedulePanel({
     }
   }, [tournament.id, t, clearModal, handleScheduleSaved]);
 
-  const handleDeleteAllMatches = useCallback(async () => {
-    setIsDeletingAllMatches(true);
-    try {
-      const result = await TournamentService.deleteAllMatches(tournament.id);
-      if (result.deletedCount > 0) {
-        toaster.success({
-          title: t('organize.schedule.deleteAllMatchesSuccess', {
-            count: result.deletedCount,
-          }),
-        });
-      }
-      deleteAllMatchesModal.onClose();
-      await handleScheduleSaved();
-    } catch {
-      toaster.error({ title: t('organize.schedule.deleteAllMatchesError') });
-    } finally {
-      setIsDeletingAllMatches(false);
-    }
-  }, [tournament.id, t, deleteAllMatchesModal, handleScheduleSaved]);
-
   const scheduleTypeLabel =
     scheduleType === ScheduleType.ASSIGNED
       ? t('organize.schedule.scheduleType.assigned.title')
@@ -364,38 +342,21 @@ export default function SchedulePanel({
         {t('organize.schedule.manageSchedule')}
       </Button>
 
-      {/* Clear all / delete unscheduled belong to the ASSIGNED flow. In queue
+      {/* Clear all assignments belongs to the ASSIGNED flow. In queue
           mode these operate on the live queue and would wipe it, so hide them. */}
       {!isQueueMode && (
-        <>
-          {/* Clear all schedule button */}
-          <Button
-            variant="outline"
-            colorScheme="red"
-            color="red.600"
-            borderColor="red.200"
-            w="100%"
-            onClick={clearModal.onOpen}
-            disabled={scheduledMatches === 0}
-          >
-            <Trash2 size={16} />
-            {t('organize.schedule.clearAll')}
-          </Button>
-
-          {/* Delete all matches button */}
-          <Button
-            variant="outline"
-            colorScheme="red"
-            color="red.600"
-            borderColor="red.200"
-            w="100%"
-            onClick={deleteAllMatchesModal.onOpen}
-            disabled={totalMatches === 0}
-          >
-            <Trash2 size={16} />
-            {t('organize.schedule.deleteAllMatches')}
-          </Button>
-        </>
+        <Button
+          variant="outline"
+          colorScheme="red"
+          color="red.600"
+          borderColor="red.200"
+          w="100%"
+          onClick={clearModal.onOpen}
+          disabled={scheduledMatches === 0}
+        >
+          <Trash2 size={16} />
+          {t('organize.schedule.clearAll')}
+        </Button>
       )}
 
       {/* Schedule Type Modal */}
@@ -413,6 +374,7 @@ export default function SchedulePanel({
         tournament={tournament}
         categories={categories}
         onScheduleSaved={handleScheduleSaved}
+        onOpenRoundsPanel={onOpenRoundsPanel}
       />
 
       {/* Live court assignment (NEXT_AVAILABLE mode) */}
@@ -440,25 +402,6 @@ export default function SchedulePanel({
       >
         <Text fontSize="sm" color="gray.700">
           {t('organize.schedule.clearAllConfirmDesc')}
-        </Text>
-      </VModal>
-
-      {/* Delete All Matches Confirmation Modal */}
-      <VModal
-        isOpen={deleteAllMatchesModal.isOpen}
-        onClose={deleteAllMatchesModal.onClose}
-        title={t('organize.schedule.deleteAllMatchesConfirmTitle')}
-        size="sm"
-        primaryActionText={t('organize.schedule.deleteAllMatchesConfirm')}
-        primaryColorScheme="red"
-        onPrimaryAction={handleDeleteAllMatches}
-        isPrimaryLoading={isDeletingAllMatches}
-        isSecondaryDisabled={isDeletingAllMatches}
-      >
-        <Text fontSize="sm" color="gray.700">
-          {t('organize.schedule.deleteAllMatchesConfirmDesc', {
-            count: totalMatches,
-          })}
         </Text>
       </VModal>
 
