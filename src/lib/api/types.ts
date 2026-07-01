@@ -418,6 +418,10 @@ export interface ISession {
     courts: number;
   };
   viewCount?: number;
+  // Crawled (vãng lai) sessions imported from public Facebook posts — view-only
+  isCrawled?: boolean;
+  externalUrl?: string; // link bài Facebook gốc
+  externalSource?: string; // tên group Facebook nguồn
 }
 
 // Player types

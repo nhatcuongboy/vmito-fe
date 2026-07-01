@@ -51,6 +51,7 @@ import {
   Square,
   ChevronRight,
   Info,
+  Facebook,
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { FeeService } from '@/lib/api/fee.service';
@@ -213,6 +214,9 @@ const BaseSessionCard = ({
   const maxPlayers = session.numberOfCourts * session.maxPlayersPerCourt;
   const totalPlayers = session._count?.players || 0;
   const isFull = totalPlayers >= maxPlayers;
+  // Crawled (vãng lai) Facebook sessions have no managed players — hide the
+  // capacity / slot-ratio rows that only apply to internal sessions.
+  const isCrawled = session.isCrawled === true;
 
   // Helper function: Handle share action
   const handleShare = async (e: React.MouseEvent) => {
@@ -408,6 +412,27 @@ const BaseSessionCard = ({
           <Icon as={Settings} boxSize={4} />
           {t('manageSession')}
         </NextLinkButton>
+      );
+    }
+
+    // External link button — crawled (vãng lai) Facebook sessions are view-only,
+    // this sends the user to the original public post to contact the host there.
+    if (actions.showExternalLinkButton && actions.externalUrl) {
+      buttons.push(
+        <Button
+          key="external-link"
+          colorPalette="green"
+          variant="solid"
+          size="sm"
+          shadow="md"
+          onClick={(e: React.MouseEvent) => {
+            e.stopPropagation();
+            window.open(actions.externalUrl, '_blank', 'noopener,noreferrer');
+          }}
+        >
+          <Icon as={Facebook} boxSize={4} />
+          {t('viewOriginalPost')}
+        </Button>
       );
     }
 
@@ -847,19 +872,23 @@ const BaseSessionCard = ({
                     {convertedSession.numberOfCourts} {t('courtsAvailable')}
                   </Text>
                 </Flex>
-                <Flex align="center" gap={1}>
-                  <Icon as={Users} boxSize={4} color="green.500" />
-                  <Text fontSize="xs">
-                    {t('maxPlayers', { count: convertedSession.maxPlayers })}
-                  </Text>
-                </Flex>
-                <Flex align="center" gap={1}>
-                  <Icon as={UserCheck} boxSize={4} color="green.500" />
-                  <Text fontSize="xs">
-                    {convertedSession.totalPlayers}/
-                    {convertedSession.maxPlayers} {t('players')}
-                  </Text>
-                </Flex>
+                {!isCrawled && (
+                  <Flex align="center" gap={1}>
+                    <Icon as={Users} boxSize={4} color="green.500" />
+                    <Text fontSize="xs">
+                      {t('maxPlayers', { count: convertedSession.maxPlayers })}
+                    </Text>
+                  </Flex>
+                )}
+                {!isCrawled && (
+                  <Flex align="center" gap={1}>
+                    <Icon as={UserCheck} boxSize={4} color="green.500" />
+                    <Text fontSize="xs">
+                      {convertedSession.totalPlayers}/
+                      {convertedSession.maxPlayers} {t('players')}
+                    </Text>
+                  </Flex>
+                )}
                 {session.shuttlecock && (
                   <Flex align="center" gap={1}>
                     <Icon as={Feather} boxSize={4} color="green.500" />
@@ -899,20 +928,24 @@ const BaseSessionCard = ({
                     )}
                   </Text>
                 </Flex>
-                <Flex align="center" gap={2}>
-                  <Icon as={Users} boxSize={5} color="green.500" />
-                  <Text fontSize="sm">
-                    {t('maxPlayers', { count: convertedSession.maxPlayers })}
-                  </Text>
-                </Flex>
+                {!isCrawled && (
+                  <Flex align="center" gap={2}>
+                    <Icon as={Users} boxSize={5} color="green.500" />
+                    <Text fontSize="sm">
+                      {t('maxPlayers', { count: convertedSession.maxPlayers })}
+                    </Text>
+                  </Flex>
+                )}
 
-                <Flex align="center" gap={2}>
-                  <Icon as={UserCheck} boxSize={5} color="green.500" />
-                  <Text fontSize="sm">
-                    {convertedSession.totalPlayers}/
-                    {convertedSession.maxPlayers} {t('players')}
-                  </Text>
-                </Flex>
+                {!isCrawled && (
+                  <Flex align="center" gap={2}>
+                    <Icon as={UserCheck} boxSize={5} color="green.500" />
+                    <Text fontSize="sm">
+                      {convertedSession.totalPlayers}/
+                      {convertedSession.maxPlayers} {t('players')}
+                    </Text>
+                  </Flex>
+                )}
                 {session.shuttlecock && (
                   <Flex align="center" gap={2}>
                     <Icon as={Feather} boxSize={5} color="green.500" />

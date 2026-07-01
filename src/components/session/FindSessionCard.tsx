@@ -3,7 +3,7 @@
 import { ISession, UserRole } from '@/lib/api/types';
 import { Box, Flex, Icon, Text, Badge } from '@chakra-ui/react';
 import { IconButton } from '@/components/ui/chakra-compat';
-import { MapPin, Navigation } from 'lucide-react';
+import { MapPin, Navigation, Facebook } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { formatVenueName, getGoogleMapsUrl } from '@/utils';
 import { AppAddressDisplay } from '@/components/common/AppAddressDisplay';
@@ -83,6 +83,10 @@ const FindSessionCard = ({
   const isOwner = session.hostId === user?.id;
   const isAdmin = user?.role === UserRole.ADMIN;
   const canManage = isOwner || isAdmin;
+
+  // Crawled (vãng lai) Facebook sessions render a read-only variant:
+  // no slot ratio, no host/registration actions — only "view original post".
+  const isCrawled = session.isCrawled === true;
 
   // Calculate if session is full (only count approved players)
   const maxPlayers = session.numberOfCourts * session.maxPlayersPerCourt;
@@ -179,6 +183,25 @@ const FindSessionCard = ({
       </Flex>
     ) : null;
 
+  // Source row for crawled sessions: Facebook group name + attribution note
+  const crawledSourceRow = isCrawled ? (
+    <Flex align="center" gap={2} color="blue.500">
+      <Icon as={Facebook} boxSize={4} />
+      <Text fontSize="sm" lineClamp={1}>
+        {session.externalSource
+          ? `${session.externalSource} · ${t('crawledSourcePrefix')}`
+          : t('crawledSourcePrefix')}
+      </Text>
+    </Flex>
+  ) : null;
+
+  const extraInfoRows = (
+    <>
+      {locationRow}
+      {crawledSourceRow}
+    </>
+  );
+
   // Slot availability badge - hidden if session is expired
   const isExpired =
     session.status === 'PREPARING' &&
@@ -224,9 +247,23 @@ const FindSessionCard = ({
     </Badge>
   ) : null;
 
+  // "⚡ Khách vãng lai" badge for crawled Facebook sessions
+  const crawledBadge = isCrawled ? (
+    <Badge
+      colorPalette="blue"
+      variant="solid"
+      borderWidth="1px"
+      borderColor="blue.400"
+    >
+      {t('crawledBadge')}
+    </Badge>
+  ) : null;
+
   const combinedBadges = (
     <Flex gap={1}>
-      {showSlotBadge && slotAvailabilityBadge}
+      {crawledBadge}
+      {/* Crawled sessions have no managed player slots — hide the slot badge */}
+      {!isCrawled && showSlotBadge && slotAvailabilityBadge}
       {registrationStatusBadge}
     </Flex>
   );
@@ -247,42 +284,61 @@ const FindSessionCard = ({
   //   - APPROVED: show "Vào sân" (view session)
   //   - PENDING/REJECTED: show "Xem đăng ký" (view registration)
   //   - No registration: show "Đăng ký" (register)
-  const actions: SessionActionConfig = {
-    // Hide all extra buttons
-    showMoreButton: false,
-    showCallButton: false,
-    showDownloadButton: false,
-    showShareButton: false,
-    showDeleteButton: false,
+  const actions: SessionActionConfig = isCrawled
+    ? {
+        // Crawled (vãng lai) sessions are view-only: no host/registration
+        // actions on Vmito — only a link out to the original Facebook post.
+        showMoreButton: false,
+        showCallButton: false,
+        showDownloadButton: false,
+        showShareButton: false,
+        showDeleteButton: false,
+        showManageButton: false,
+        showViewSessionButton: false,
+        showViewRegistrationButton: false,
+        showRegisterButton: false,
+        showExternalLinkButton: !!session.externalUrl,
+        externalUrl: session.externalUrl,
+      }
+    : {
+        // Hide all extra buttons
+        showMoreButton: false,
+        showCallButton: false,
+        showDownloadButton: false,
+        showShareButton: false,
+        showDeleteButton: false,
 
-    // For owner or ADMIN: show ONLY manage button
-    showManageButton: canManage,
-    manageButtonHref: `/host/sessions/${session.slug || session.id}`,
+        // For owner or ADMIN: show ONLY manage button
+        showManageButton: canManage,
+        manageButtonHref: `/host/sessions/${session.slug || session.id}`,
 
-    // For non-owners: show ONE button based on status
-    // Priority: APPROVED > PENDING/REJECTED > No registration
-    showViewSessionButton: !canManage && userRegistrationStatus === 'APPROVED',
-    showViewRegistrationButton:
-      !canManage &&
-      !!userRegistrationStatus &&
-      userRegistrationStatus !== 'APPROVED',
-    onViewRegistration: onOpenViewRegistrationModal,
-    showRegisterButton: !canManage && !userRegistrationStatus && !isJoined,
-    onRegister: handleRegister,
-    registerButtonDisabled: isFull,
-  };
+        // For non-owners: show ONE button based on status
+        // Priority: APPROVED > PENDING/REJECTED > No registration
+        showViewSessionButton:
+          !canManage && userRegistrationStatus === 'APPROVED',
+        showViewRegistrationButton:
+          !canManage &&
+          !!userRegistrationStatus &&
+          userRegistrationStatus !== 'APPROVED',
+        onViewRegistration: onOpenViewRegistrationModal,
+        showRegisterButton: !canManage && !userRegistrationStatus && !isJoined,
+        onRegister: handleRegister,
+        registerButtonDisabled: isFull,
+      };
 
   return (
     <>
       <BaseSessionCard
         session={session}
         variant={variant}
-        extraInfoRows={locationRow}
+        extraInfoRows={extraInfoRows}
         registrationBadgeContent={combinedBadges}
         coverPhotoOverlay={coverPhotoOverlay}
         compactTopContent={compactTopContent}
         actions={actions}
-        onHostClick={onHostClick ? () => onHostClick(session) : undefined}
+        onHostClick={
+          isCrawled || !onHostClick ? undefined : () => onHostClick(session)
+        }
       />
 
       {/* Login prompt modal */}

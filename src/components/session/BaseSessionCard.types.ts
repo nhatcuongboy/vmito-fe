@@ -129,4 +129,16 @@ export interface SessionActionConfig {
    * Status of registration status fetching for current user
    */
   isRegistrationLoading?: boolean;
+
+  /**
+   * Show "Xem bài gốc" (view original post) button for crawled (vãng lai)
+   * Facebook sessions. Opens {@link externalUrl} in a new tab.
+   */
+  showExternalLinkButton?: boolean;
+
+  /**
+   * URL of the original Facebook post, opened when the external-link button
+   * is clicked. Required when showExternalLinkButton is true.
+   */
+  externalUrl?: string;
 }
