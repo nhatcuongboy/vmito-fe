@@ -1,11 +1,12 @@
 'use client';
 
-import { Suspense, useCallback, useEffect, useState } from 'react';
+import { Suspense, useCallback, useEffect, useMemo, useState } from 'react';
 import {
   Box,
   Badge,
   Container,
   Heading,
+  Input,
   Text,
   Spinner,
   HStack,
@@ -13,7 +14,7 @@ import {
   VStack,
 } from '@chakra-ui/react';
 import { useTranslations } from 'next-intl';
-import { Calendar, Receipt } from 'lucide-react';
+import { Calendar, Receipt, Search } from 'lucide-react';
 import ProtectedRouteGuard from '@/components/guards/ProtectedRouteGuard';
 import PageLayout from '@/components/layout/PageLayout';
 import {
@@ -23,6 +24,7 @@ import {
 } from '@/components/payment';
 import { Button } from '@/components/ui/chakra-compat';
 import { VModal } from '@/components/ui/VModal';
+import { VSelect } from '@/components/ui/VSelect';
 import { FeeService } from '@/lib/api/fee.service';
 import { PaymentService } from '@/lib/api/payment.service';
 import {
@@ -94,6 +96,25 @@ function HostTransactionsContent() {
   );
   const [isLoading, setIsLoading] = useState(true);
   const [isDetailLoading, setIsDetailLoading] = useState(false);
+
+  // Filter state
+  const [searchQuery, setSearchQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState<'all' | 'pending' | 'paid'>(
+    'all'
+  );
+
+  const filteredSummaries = useMemo(() => {
+    return summaries.filter((s) => {
+      const matchesSearch = s.userName
+        .toLowerCase()
+        .includes(searchQuery.toLowerCase().trim());
+      const matchesStatus =
+        statusFilter === 'all' ||
+        (statusFilter === 'pending' && s.pendingAmount > 0) ||
+        (statusFilter === 'paid' && s.pendingAmount === 0);
+      return matchesSearch && matchesStatus;
+    });
+  }, [summaries, searchQuery, statusFilter]);
 
   const loadTransactions = useCallback(async () => {
     setIsLoading(true);
@@ -286,12 +307,49 @@ function HostTransactionsContent() {
         <Heading size="lg">{t('transactionHistory')}</Heading>
       </HStack>
 
-      <Text color="fg.muted" mb={6}>
+      <Text color="fg.muted" mb={4}>
         {t('hostTransactionsDescription')}
       </Text>
 
+      {/* Filter bar */}
+      <HStack mb={6} gap={3} wrap="wrap">
+        <Box flex={1} minW="180px" position="relative">
+          <Box
+            position="absolute"
+            left={3}
+            top="50%"
+            transform="translateY(-50%)"
+            color="fg.muted"
+            pointerEvents="none"
+            zIndex={1}
+          >
+            <Search size={15} />
+          </Box>
+          <Input
+            pl={9}
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder={t('searchByPlayer')}
+            size="sm"
+          />
+        </Box>
+        <Box minW="150px">
+          <VSelect
+            value={statusFilter}
+            onChange={(e) =>
+              setStatusFilter(e.target.value as 'all' | 'pending' | 'paid')
+            }
+            size="sm"
+          >
+            <option value="all">{t('filterAll')}</option>
+            <option value="pending">{t('filterHasPending')}</option>
+            <option value="paid">{t('filterAllPaid')}</option>
+          </VSelect>
+        </Box>
+      </HStack>
+
       <TransactionSummaryList
-        summaries={summaries}
+        summaries={filteredSummaries}
         viewType="host"
         onSelectSummary={handleSelectSummary}
         isLoading={isLoading}
