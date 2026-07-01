@@ -1159,6 +1159,7 @@
       "keyFeatures": "Key Features",
       "gettingStarted": "Getting Started",
       "copyright": "All rights reserved.",
+      "developedBy": "Developed by Nhat Cuong.",
       "features": {
         "sessionManagement": {
           "title": "Session Management",

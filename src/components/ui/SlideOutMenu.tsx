@@ -1539,6 +1539,15 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
                   >
                     {`© ${new Date().getFullYear()} ${common('appName')}. All Rights Reserved!`}
                   </Text>
+                  <Text
+                    fontSize="xs"
+                    color="gray.400"
+                    textAlign="center"
+                    display={{ base: 'block', md: 'block' }}
+                    mt={1}
+                  >
+                    {common('developedBy')}
+                  </Text>
                 </>
               )}
             </Box>

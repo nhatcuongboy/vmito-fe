@@ -1139,6 +1139,7 @@
       "keyFeatures": "主要功能",
       "gettingStarted": "入门指南",
       "copyright": "版权所有。",
+      "developedBy": "由 Nhat Cuong 开发。",
       "features": {
         "sessionManagement": {
           "title": "场次管理",
