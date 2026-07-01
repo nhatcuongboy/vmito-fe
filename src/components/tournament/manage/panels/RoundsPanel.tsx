@@ -512,13 +512,6 @@ export default function RoundsPanel({
   const finishedEliminationMatches = eliminationMatches.filter(
     (match) => match.status === MatchStatus.FINISHED
   ).length;
-  const expectedEliminationMatches = activeCategory
-    ? getExpectedEliminationMatchCount(activeCategory)
-    : 0;
-  const playoffProgressTotal = Math.max(
-    eliminationMatches.length,
-    expectedEliminationMatches
-  );
   const scoredEliminationMatches = eliminationMatches.filter(
     (match) =>
       match.status === MatchStatus.FINISHED ||
@@ -1046,20 +1039,31 @@ export default function RoundsPanel({
                         })}
                       </Flex>
 
-                      {/* Group-stage progress */}
-                      {totalGroupMatches > 0 && (
-                        <Text
-                          fontSize="xs"
-                          fontWeight="medium"
-                          color={
-                            allGroupMatchesFinished ? 'green.600' : 'gray.500'
+                      {/* Group-stage status — always visible so the host can
+                          tell at a glance whether matches were generated and
+                          how many, instead of only showing a count once > 0. */}
+                      {totalGroupMatches > 0 ? (
+                        <Badge
+                          alignSelf="flex-start"
+                          colorPalette={
+                            allGroupMatchesFinished ? 'green' : 'gray'
                           }
+                          variant="outline"
                         >
-                          {t('panels.rounds.groupProgress', {
-                            finished: finishedGroupMatches,
+                          {t('panels.rounds.groupMatchesStatus', {
                             total: totalGroupMatches,
+                            finished: finishedGroupMatches,
                           })}
-                        </Text>
+                        </Badge>
+                      ) : (
+                        <Badge
+                          alignSelf="flex-start"
+                          colorPalette="gray"
+                          variant="outline"
+                          color="fg.muted"
+                        >
+                          {t('panels.rounds.groupMatchesNotGenerated')}
+                        </Badge>
                       )}
 
                       {/* Edit buttons */}
@@ -1089,6 +1093,25 @@ export default function RoundsPanel({
                           {t('panels.rounds.editMatches')}
                         </Button>
                       </Flex>
+
+                      {/* Explicit generate — mirrors "Phát sinh trận vòng loại"
+                          in the playoff section, so both stages follow the same
+                          Configure → Generate model instead of the pool matches
+                          being generated implicitly on modal save. */}
+                      <Button
+                        size="sm"
+                        w="full"
+                        colorPalette="blue"
+                        variant={totalGroupMatches > 0 ? 'outline' : 'solid'}
+                        leftIcon={<RefreshCw size={14} />}
+                        loading={isGenerating}
+                        disabled={isGenerating || !hasTeamsInGroups}
+                        onClick={handleGenerateAllMatches}
+                      >
+                        {totalGroupMatches > 0
+                          ? t('panels.rounds.regenerateGroupGames')
+                          : t('panels.rounds.generateGroupGames')}
+                      </Button>
 
                       {/* Chốt đội đi tiếp: fills the playoff bracket with the
                           advancing teams once the group stage is done. Lives
@@ -1207,8 +1230,13 @@ export default function RoundsPanel({
                     <VStack gap={3} align="stretch">
                       {isPlayoffsConfigured ? (
                         <>
-                          {/* Bracket thumbnail */}
+                          {/* Bracket thumbnail. When no shells exist yet this is
+                              only a preview of the shape derived from the
+                              advancing-teams config, so dim it and label it as
+                              such — otherwise it's indistinguishable from real
+                              generated matches. */}
                           <Box
+                            position="relative"
                             bg="white"
                             borderRadius="xl"
                             borderWidth="1.5px"
@@ -1217,31 +1245,56 @@ export default function RoundsPanel({
                             p={3}
                             _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
                           >
-                            <BracketVisualization
-                              teamCount={winnersPerGroup * groupCount}
-                              groupCount={groupCount}
-                              winnersPerGroup={winnersPerGroup || 2}
-                              thirdPlaceMatch={
-                                activeCategory?.thirdPlaceMatch ?? false
-                              }
-                              compact
-                            />
+                            <Box opacity={hasEliminationMatches ? 1 : 0.5}>
+                              <BracketVisualization
+                                teamCount={winnersPerGroup * groupCount}
+                                groupCount={groupCount}
+                                winnersPerGroup={winnersPerGroup || 2}
+                                thirdPlaceMatch={
+                                  activeCategory?.thirdPlaceMatch ?? false
+                                }
+                                compact
+                              />
+                            </Box>
+                            {!hasEliminationMatches && (
+                              <Badge
+                                position="absolute"
+                                top={2}
+                                right={2}
+                                colorPalette="gray"
+                                variant="solid"
+                              >
+                                {t('panels.rounds.bracketPreviewLabel')}
+                              </Badge>
+                            )}
                           </Box>
-                          {playoffProgressTotal > 0 && (
+                          {/* Count reflects real generated shells only (not the
+                              config-derived expected count), so the host can
+                              tell whether matches exist yet. */}
+                          {hasEliminationMatches ? (
                             <Badge
                               alignSelf="flex-start"
                               colorPalette={
                                 finishedEliminationMatches ===
-                                playoffProgressTotal
+                                eliminationMatches.length
                                   ? 'green'
                                   : 'gray'
                               }
                               variant="outline"
                             >
-                              {t('panels.rounds.playoffsProgress', {
+                              {t('panels.rounds.playoffMatchesStatus', {
+                                total: eliminationMatches.length,
                                 finished: finishedEliminationMatches,
-                                total: playoffProgressTotal,
                               })}
+                            </Badge>
+                          ) : (
+                            <Badge
+                              alignSelf="flex-start"
+                              colorPalette="gray"
+                              variant="outline"
+                              color="fg.muted"
+                            >
+                              {t('panels.rounds.playoffMatchesNotGenerated')}
                             </Badge>
                           )}
                           <Button

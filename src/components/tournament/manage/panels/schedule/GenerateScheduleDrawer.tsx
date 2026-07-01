@@ -171,7 +171,7 @@ export default function GenerateScheduleDrawer({
       );
       if (unscheduledMatches.length === 0) {
         toaster.error({
-          title: 'All matches already scheduled',
+          title: t('allScheduled'),
         });
         return;
       }
@@ -187,7 +187,7 @@ export default function GenerateScheduleDrawer({
         }));
 
       if (slotConfigs.length === 0) {
-        toaster.error({ title: 'No courts selected' });
+        toaster.error({ title: t('noCourts') });
         return;
       }
 
@@ -205,8 +205,8 @@ export default function GenerateScheduleDrawer({
 
       if (result.scheduled.length === 0) {
         toaster.error({
-          title: 'Could not generate schedule',
-          description: 'Insufficient time slots or courts',
+          title: t('generationFailed'),
+          description: t('generationFailedDesc'),
         });
         return;
       }
@@ -214,7 +214,7 @@ export default function GenerateScheduleDrawer({
       onGenerated(result);
     } catch (error) {
       console.error('Generate error:', error);
-      toaster.error({ title: 'Generation failed' });
+      toaster.error({ title: t('error') });
     } finally {
       setIsLoadingGenerate(false);
     }

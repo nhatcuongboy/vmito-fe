@@ -69,10 +69,10 @@ export default function AdminGeneralPage() {
       setMigrateResult(null);
       const result = await VenueService.migrateAddresses();
       setMigrateResult(result);
-      toaster.success({ title: 'Migration complete' });
+      toaster.success({ title: t('migrationComplete') });
     } catch (error) {
       console.error('Migration failed:', error);
-      toaster.error({ title: tc('error'), description: 'Migration failed' });
+      toaster.error({ title: tc('error'), description: t('migrationFailed') });
     } finally {
       setIsMigrating(false);
     }

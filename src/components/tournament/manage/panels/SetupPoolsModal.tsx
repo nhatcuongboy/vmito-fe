@@ -479,20 +479,33 @@ export default function SetupPoolsModal({
     setCustomMatches(null);
   };
 
-  const handleGenerateGames = () => {
+  const validatePools = (): boolean => {
     if (previewTeams.length < 2) {
       toaster.error({ title: t('panels.rounds.needAtLeast2Teams') });
-      return;
+      return false;
     }
     const badPool = previewPools.find((p) => p.teams.length < 2);
     if (badPool) {
       toaster.error({
         title: t('panels.rounds.poolNeedsMinTeams', { pool: badPool.name }),
       });
-      return;
+      return false;
     }
+    return true;
+  };
+
+  // Manual method: proceed to the matches step to enter matches by hand.
+  const handleEnterMatches = () => {
+    if (!validatePools()) return;
     setCustomMatches(null); // ensure fresh auto-generated matches on first open
     setStep('matches');
+  };
+
+  // Auto method: save the pool configuration only. Round-robin matches are
+  // generated later via the explicit "Phát sinh trận vòng bảng" button.
+  const handleSavePoolsConfig = () => {
+    if (!validatePools()) return;
+    handleSavePress();
   };
 
   const handleEditMatchesConfirm = (
@@ -554,15 +567,13 @@ export default function SetupPoolsModal({
         }
       }
 
+      // Only persist explicit, manually-entered matches here. Auto round-robin
+      // generation is a separate, explicit step ("Phát sinh trận vòng bảng" in
+      // the rounds panel) so that saving pool configuration never silently
+      // (re)creates matches — keeping the Configure → Generate model consistent
+      // with the playoff section.
       if (customMatches) {
-        // Save custom-edited matches one by one
-        const groupNameToId: Record<string, string> = {};
-        newGroups.forEach((g, idx) => {
-          groupNameToId[
-            `${poolLabelText} ${POOL_LABELS[idx] ?? String(idx + 1)}`
-          ] = g.id;
-        });
-        // Fetch registrations to build name→id map
+        // Fetch registrations to validate participant IDs still exist
         const regs = await CategoryService.getRegistrations(category.id);
         const regIdSet = new Set(regs.map((r) => r.id));
         let matchNumber = 1;
@@ -577,14 +588,13 @@ export default function SetupPoolsModal({
             ],
           });
         }
-      } else {
-        // Generate round-robin matches automatically
-        await CategoryService.generateAllGroupMatches(category.id, {
-          showToast: false,
-        });
       }
 
-      toaster.success({ title: t('panels.rounds.matchesSaved') });
+      toaster.success({
+        title: customMatches
+          ? t('panels.rounds.matchesSaved')
+          : t('panels.rounds.poolsSaved'),
+      });
       onSaved();
       onClose();
     } catch (error: unknown) {
@@ -617,14 +627,26 @@ export default function SetupPoolsModal({
           <Button variant="ghost" onClick={onClose}>
             {t('panels.rounds.cancel')}
           </Button>
-          <Button
-            style={{ background: '#1a202c', color: 'white' }}
-            leftIcon={<Sparkles size={14} />}
-            onClick={handleGenerateGames}
-            disabled={registrations.length < 2 || loadingData}
-          >
-            {t('panels.rounds.generateGroupGames')}
-          </Button>
+          {matchMethod === 'manual' ? (
+            <Button
+              style={{ background: '#1a202c', color: 'white' }}
+              leftIcon={<Sparkles size={14} />}
+              onClick={handleEnterMatches}
+              disabled={registrations.length < 2 || loadingData}
+            >
+              {t('panels.rounds.enterMatches')}
+            </Button>
+          ) : (
+            <Button
+              style={{ background: '#1a202c', color: 'white' }}
+              onClick={handleSavePoolsConfig}
+              disabled={registrations.length < 2 || loadingData || isSaving}
+            >
+              {isSaving
+                ? t('panels.rounds.saving')
+                : t('panels.rounds.savePools')}
+            </Button>
+          )}
         </>
       ) : (
         <>
