@@ -55,7 +55,10 @@ import { getRoundDisplayLabel } from '@/lib/tournament/roundLabel';
 import { getTeamLabel } from '@/lib/tournament/teamLabel';
 import { resolveMatchSideLabel } from '@/lib/tournament/bracketSlots';
 import { usePlayoffSlotLabels } from '@/lib/tournament/usePlayoffSlotLabels';
-import { formatTimeByDevicePreference } from '@/utils/time-helpers';
+import {
+  formatTimeByDevicePreference,
+  formatTimeRangeByDevicePreference,
+} from '@/utils/time-helpers';
 import { toaster } from '@/components/ui/toaster';
 import ManualScoreModal from './ManualScoreModal';
 import MatchDetailModal from './MatchDetailModal';
@@ -64,7 +67,6 @@ import OverlayLinksModal from './OverlayLinksModal';
 import DeleteMatchConfirmModal from './schedule/DeleteMatchConfirmModal';
 import EditMatchTimeSheet from './schedule/EditMatchTimeSheet';
 import { TournamentMatchListSkeleton } from '@/components/tournament/skeletons';
-import PlayerNamesToggle from '@/components/tournament/PlayerNamesToggle';
 import { useTournamentSocket } from '@/hooks/useTournamentSocket';
 import { useAuthStore } from '@/stores/useAuthStore';
 
@@ -1263,6 +1265,7 @@ export function ResultMatchCard({
 }) {
   const t = useTranslations('pages.tournaments.manualScore');
   const tRounds = useTranslations('pages.tournaments.manualScore.rounds');
+  const locale = useLocale();
   const slotLabels = usePlayoffSlotLabels();
   const accent = getMatchAccent(match);
 
@@ -1278,9 +1281,13 @@ export function ResultMatchCard({
   const win2 = match.winnerId === getRegistrationId(match, 2);
   const topLabel =
     roundOrGroupLabel ?? getRoundDisplayLabel(match.round, tRounds);
-  const timeLabel = match.startTime
-    ? formatTimeByDevicePreference(new Date(match.startTime))
-    : '';
+  const isInProgress = match.status === MatchStatus.IN_PROGRESS;
+  const now = useMinuteTicker(isInProgress && !!match.startTime);
+  const timeLabel = getMatchTimeLabel(match);
+  const elapsedLabel =
+    isInProgress && match.startTime
+      ? formatCompactElapsedTime(match.startTime, now, locale)
+      : '';
   const courtLabel = match.court
     ? formatCourtWithVenue(match.court, t('court'), courtAbbreviation)
     : '';
@@ -1394,7 +1401,13 @@ export function ResultMatchCard({
             {timeLabel ? ` · ${timeLabel}` : ''}
           </Text>
         </Flex>
-        <Flex align="center" justify="flex-end" gap={2} flexShrink={0}>
+        <Flex
+          direction="column"
+          align="flex-end"
+          justify="flex-start"
+          gap={1.5}
+          flexShrink={0}
+        >
           <Badge
             colorPalette={statusTone.colorPalette}
             variant={statusTone.variant}
@@ -1411,6 +1424,21 @@ export function ResultMatchCard({
               <Text as="span">{statusTone.label}</Text>
             </Flex>
           </Badge>
+          {isInProgress && elapsedLabel && (
+            <Badge
+              colorPalette="green"
+              variant="subtle"
+              borderRadius="full"
+              px={{ base: 2, md: 2.5 }}
+              py={0.5}
+              fontSize="2xs"
+              fontWeight="semibold"
+              whiteSpace="nowrap"
+              flexShrink={0}
+            >
+              {elapsedLabel}
+            </Badge>
+          )}
         </Flex>
       </Flex>
 
@@ -1434,6 +1462,59 @@ export function ResultMatchCard({
       </Box>
     </Box>
   );
+}
+
+function getMatchTimeLabel(match: CategoryMatch) {
+  if (!match.startTime) return '';
+
+  if (match.status === MatchStatus.FINISHED && match.endTime) {
+    return formatTimeRangeByDevicePreference(match.startTime, match.endTime);
+  }
+
+  return formatTimeByDevicePreference(match.startTime);
+}
+
+function useMinuteTicker(enabled: boolean) {
+  const [now, setNow] = useState(() => Date.now());
+
+  useEffect(() => {
+    if (!enabled) return;
+
+    setNow(Date.now());
+    const intervalId = window.setInterval(() => {
+      setNow(Date.now());
+    }, 60_000);
+
+    return () => window.clearInterval(intervalId);
+  }, [enabled]);
+
+  return now;
+}
+
+function formatCompactElapsedTime(
+  startTime: string | Date,
+  now: number,
+  locale: string
+) {
+  const start = new Date(startTime).getTime();
+  if (!Number.isFinite(start)) return '';
+
+  const elapsedMinutes = Math.max(0, Math.floor((now - start) / 60_000));
+  const hours = Math.floor(elapsedMinutes / 60);
+  const minutes = elapsedMinutes % 60;
+
+  if (locale.startsWith('vi')) {
+    if (hours > 0) return `${hours}g ${String(minutes).padStart(2, '0')}p`;
+    return elapsedMinutes > 0 ? `${elapsedMinutes}p` : '<1p';
+  }
+
+  if (locale.startsWith('zh') || locale.startsWith('cn')) {
+    if (hours > 0) return `${hours}时${String(minutes).padStart(2, '0')}分`;
+    return elapsedMinutes > 0 ? `${elapsedMinutes}分` : '<1分';
+  }
+
+  if (hours > 0) return `${hours}h ${String(minutes).padStart(2, '0')}m`;
+  return elapsedMinutes > 0 ? `${elapsedMinutes}m` : '<1m';
 }
 
 function CardTeamRow({
