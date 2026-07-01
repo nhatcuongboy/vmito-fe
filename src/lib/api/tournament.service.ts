@@ -312,6 +312,17 @@ export const TournamentService = {
     return response.data.data ?? { success: true, deletedCount: 0 };
   },
 
+  // Delete ALL matches in the tournament including those that are scheduled
+  // (but preserve matches that are IN_PROGRESS or FINISHED)
+  deleteAllMatches: async (
+    tournamentId: string
+  ): Promise<{ success: boolean; deletedCount: number }> => {
+    const response = await api.delete<
+      ApiResponse<{ success: boolean; deletedCount: number }>
+    >(`/tournaments/${tournamentId}/schedule/matches/all`);
+    return response.data.data ?? { success: true, deletedCount: 0 };
+  },
+
   // Update schedule type
   updateScheduleType: async (
     tournamentId: string,

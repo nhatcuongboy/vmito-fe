@@ -497,9 +497,7 @@ export default function PublicTournamentStandingsTab({
     });
   }, [t, visibleBlocks]);
 
-  // A group's 1st-placed team gets a trophy only once the group stage is fully
-  // played AND the elimination bracket has been generated ("Sinh lại bracket"),
-  // i.e. the standings are final and the winners have advanced.
+  // A group's 1st-placed team gets a trophy once the group stage is fully played.
   const winnerHighlightByCategory = useMemo(() => {
     const map = new Map<string, boolean>();
     for (const category of categories) {
@@ -512,10 +510,7 @@ export default function PublicTournamentStandingsTab({
       const groupStageComplete =
         groupMatches.length > 0 &&
         groupMatches.every((m) => m.status === MatchStatus.FINISHED);
-      const bracketGenerated = categoryMatches.some(
-        (m) => (m.round ?? '').toUpperCase() !== 'GROUP'
-      );
-      map.set(category.id, groupStageComplete && bracketGenerated);
+      map.set(category.id, groupStageComplete);
     }
     return map;
   }, [categories, matches]);

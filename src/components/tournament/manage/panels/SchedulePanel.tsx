@@ -46,9 +46,9 @@ export default function SchedulePanel({
   const manageModal = useModal();
   const liveQueueModal = useModal();
   const clearModal = useModal();
-  const deleteUnscheduledModal = useModal();
+  const deleteAllMatchesModal = useModal();
   const [isClearing, setIsClearing] = useState(false);
-  const [isDeletingUnscheduled, setIsDeletingUnscheduled] = useState(false);
+  const [isDeletingAllMatches, setIsDeletingAllMatches] = useState(false);
   const completionModal = useModal();
   const {
     isOpen: isCompletionModalOpen,
@@ -206,29 +206,25 @@ export default function SchedulePanel({
     }
   }, [tournament.id, t, clearModal, handleScheduleSaved]);
 
-  const handleDeleteUnscheduled = useCallback(async () => {
-    setIsDeletingUnscheduled(true);
+  const handleDeleteAllMatches = useCallback(async () => {
+    setIsDeletingAllMatches(true);
     try {
-      const result = await TournamentService.deleteUnscheduledMatches(
-        tournament.id
-      );
+      const result = await TournamentService.deleteAllMatches(tournament.id);
       if (result.deletedCount > 0) {
         toaster.success({
-          title: t('organize.schedule.deleteUnscheduledSuccess', {
+          title: t('organize.schedule.deleteAllMatchesSuccess', {
             count: result.deletedCount,
           }),
         });
-      } else {
-        toaster.info({ title: t('organize.schedule.deleteUnscheduledNone') });
       }
-      deleteUnscheduledModal.onClose();
+      deleteAllMatchesModal.onClose();
       await handleScheduleSaved();
     } catch {
-      toaster.error({ title: t('organize.schedule.deleteUnscheduledError') });
+      toaster.error({ title: t('organize.schedule.deleteAllMatchesError') });
     } finally {
-      setIsDeletingUnscheduled(false);
+      setIsDeletingAllMatches(false);
     }
-  }, [tournament.id, t, deleteUnscheduledModal, handleScheduleSaved]);
+  }, [tournament.id, t, deleteAllMatchesModal, handleScheduleSaved]);
 
   const scheduleTypeLabel =
     scheduleType === ScheduleType.ASSIGNED
@@ -386,18 +382,18 @@ export default function SchedulePanel({
             {t('organize.schedule.clearAll')}
           </Button>
 
-          {/* Delete unscheduled matches button */}
+          {/* Delete all matches button */}
           <Button
             variant="outline"
             colorScheme="red"
             color="red.600"
             borderColor="red.200"
             w="100%"
-            onClick={deleteUnscheduledModal.onOpen}
-            disabled={unscheduledMatches === 0}
+            onClick={deleteAllMatchesModal.onOpen}
+            disabled={totalMatches === 0}
           >
             <Trash2 size={16} />
-            {t('organize.schedule.deleteUnscheduled')}
+            {t('organize.schedule.deleteAllMatches')}
           </Button>
         </>
       )}
@@ -447,21 +443,21 @@ export default function SchedulePanel({
         </Text>
       </VModal>
 
-      {/* Delete Unscheduled Matches Confirmation Modal */}
+      {/* Delete All Matches Confirmation Modal */}
       <VModal
-        isOpen={deleteUnscheduledModal.isOpen}
-        onClose={deleteUnscheduledModal.onClose}
-        title={t('organize.schedule.deleteUnscheduledConfirmTitle')}
+        isOpen={deleteAllMatchesModal.isOpen}
+        onClose={deleteAllMatchesModal.onClose}
+        title={t('organize.schedule.deleteAllMatchesConfirmTitle')}
         size="sm"
-        primaryActionText={t('organize.schedule.deleteUnscheduledConfirm')}
+        primaryActionText={t('organize.schedule.deleteAllMatchesConfirm')}
         primaryColorScheme="red"
-        onPrimaryAction={handleDeleteUnscheduled}
-        isPrimaryLoading={isDeletingUnscheduled}
-        isSecondaryDisabled={isDeletingUnscheduled}
+        onPrimaryAction={handleDeleteAllMatches}
+        isPrimaryLoading={isDeletingAllMatches}
+        isSecondaryDisabled={isDeletingAllMatches}
       >
         <Text fontSize="sm" color="gray.700">
-          {t('organize.schedule.deleteUnscheduledConfirmDesc', {
-            count: unscheduledMatches,
+          {t('organize.schedule.deleteAllMatchesConfirmDesc', {
+            count: totalMatches,
           })}
         </Text>
       </VModal>
