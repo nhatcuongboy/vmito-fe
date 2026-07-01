@@ -550,9 +550,7 @@ export default function RoundsPanel({
       <Button
         size="sm"
         variant="outline"
-        colorScheme="red"
-        color="red.600"
-        borderColor="red.200"
+        colorPalette="red"
         leftIcon={<Trash2 size={14} />}
         disabled={tournamentMatchCount === 0 || isDeletingAllMatches}
         onClick={() => setIsDeleteAllMatchesOpen(true)}
@@ -929,7 +927,7 @@ export default function RoundsPanel({
                   subtitle={t('panels.rounds.poolPlaySubtitle')}
                 >
                   {isPoolsConfigured ? (
-                    <VStack gap={3} align="stretch">
+                    <VStack gap={2.5} align="stretch">
                       {/* Pool summary — side-by-side grids */}
                       <Flex gap={3} flexWrap="wrap">
                         {groups.map((group, idx) => {
@@ -1050,6 +1048,11 @@ export default function RoundsPanel({
                             allGroupMatchesFinished ? 'green' : 'gray'
                           }
                           variant="outline"
+                          borderRadius="md"
+                          px={2}
+                          py={0.5}
+                          fontSize="xs"
+                          fontWeight="medium"
                         >
                           {t('panels.rounds.groupMatchesStatus', {
                             total: totalGroupMatches,
@@ -1061,6 +1064,11 @@ export default function RoundsPanel({
                           alignSelf="flex-start"
                           colorPalette="gray"
                           variant="outline"
+                          borderRadius="md"
+                          px={2}
+                          py={0.5}
+                          fontSize="xs"
+                          fontWeight="medium"
                           color="fg.muted"
                         >
                           {t('panels.rounds.groupMatchesNotGenerated')}
@@ -1282,6 +1290,11 @@ export default function RoundsPanel({
                                   : 'gray'
                               }
                               variant="outline"
+                              borderRadius="md"
+                              px={2}
+                              py={0.5}
+                              fontSize="xs"
+                              fontWeight="medium"
                             >
                               {t('panels.rounds.playoffMatchesStatus', {
                                 total: eliminationMatches.length,
@@ -1293,6 +1306,11 @@ export default function RoundsPanel({
                               alignSelf="flex-start"
                               colorPalette="gray"
                               variant="outline"
+                              borderRadius="md"
+                              px={2}
+                              py={0.5}
+                              fontSize="xs"
+                              fontWeight="medium"
                               color="fg.muted"
                             >
                               {t('panels.rounds.playoffMatchesNotGenerated')}
@@ -1301,6 +1319,7 @@ export default function RoundsPanel({
                           <Button
                             size="sm"
                             variant="outline"
+                            w="full"
                             leftIcon={<Edit size={14} />}
                             onClick={() => setIsPlayoffsModalOpen(true)}
                           >
@@ -1974,25 +1993,12 @@ function GenerateBracketSection({
       borderWidth="1px"
       borderColor="gray.200"
       borderRadius="lg"
-      p={3}
+      p={2.5}
       bg="gray.50"
       _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
     >
-      {hasGroupStage && totalGroupMatches > 0 && (
-        <Text
-          fontSize="xs"
-          fontWeight="medium"
-          color={canGenerate ? 'green.600' : 'gray.500'}
-          mb={2}
-        >
-          {t('panels.rounds.groupProgress', {
-            finished: finishedGroupMatches,
-            total: totalGroupMatches,
-          })}
-        </Text>
-      )}
       {hasBracket && (
-        <Text fontSize="xs" color="orange.600" mb={2}>
+        <Text fontSize="xs" color="orange.600" mb={1.5}>
           {t('panels.rounds.overwriteWarning')}
         </Text>
       )}
@@ -2012,7 +2018,7 @@ function GenerateBracketSection({
         <Text
           fontSize="xs"
           color="gray.400"
-          mt={2}
+          mt={1.5}
           textAlign="center"
           _dark={{ color: 'gray.500' }}
         >
@@ -2023,7 +2029,7 @@ function GenerateBracketSection({
         <Text
           fontSize="xs"
           color="orange.600"
-          mt={2}
+          mt={1.5}
           textAlign="center"
           _dark={{ color: 'orange.400' }}
         >

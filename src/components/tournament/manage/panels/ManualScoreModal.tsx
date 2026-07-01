@@ -11,7 +11,16 @@ import {
   ModalCloseButton,
 } from '@/components/ui/ChakraModal';
 import { useTranslations } from 'next-intl';
-import { ArrowLeft, Flag, Minus, Plus, Send, Trophy } from 'lucide-react';
+import {
+  ArrowLeft,
+  CheckCircle2,
+  AlertCircle,
+  Flag,
+  Minus,
+  Plus,
+  Send,
+  Trophy,
+} from 'lucide-react';
 
 import { CategoryService } from '@/lib/api/category.service';
 import {
@@ -88,8 +97,10 @@ export default function ManualScoreModal({
     [match, sportType]
   );
   const maxSets = rules.bestOf;
-  // Maximum allowed score per side: hard cap if set, otherwise the points target.
-  const maxScore = rules.cap ?? rules.pointsToWin;
+  // Maximum allowed score per side. With a hard cap, that's the cap. Without a
+  // cap and "win by 2" enabled, a set can run past the target via deuce
+  // (e.g. 22-20, 24-22), so allow a generous ceiling instead of the target.
+  const maxScore = rules.cap ?? (rules.winBy >= 2 ? 99 : rules.pointsToWin);
   // Always start with a single set; users can add more via the Add Set button.
   const minSets = 1;
 
@@ -297,20 +308,6 @@ export default function ManualScoreModal({
             <Text fontSize="sm">{t('matchDetail.awaitingFeeders')}</Text>
           </Box>
         )}
-        <Flex justify="space-between" align="flex-start" mb={4} gap={3}>
-          <TeamHeading label={team1} align="left" />
-          <Text
-            color="gray.400"
-            fontSize="lg"
-            lineHeight="1.4"
-            pt={1}
-            flexShrink={0}
-          >
-            {t('vs')}
-          </Text>
-          <TeamHeading label={team2} align="right" />
-        </Flex>
-
         <Flex
           gap={2}
           mb={5}
@@ -324,18 +321,18 @@ export default function ManualScoreModal({
           {modes.map((m) => (
             <Button
               key={m}
-              size="md"
+              size="sm"
               flex="1"
               variant={mode === m ? 'solid' : 'outline'}
               colorPalette={mode === m ? 'blue' : 'gray'}
               onClick={() => setMode(m)}
               leftIcon={
                 m === 'score' ? (
-                  <Send size={16} />
+                  <Send size={14} />
                 ) : m === 'forfeit' ? (
-                  <Flag size={16} />
+                  <Flag size={14} />
                 ) : (
-                  <Trophy size={16} />
+                  <Trophy size={14} />
                 )
               }
             >
@@ -375,45 +372,70 @@ export default function ManualScoreModal({
               >
                 {team2}
               </Text>
+              <Box flex="0 0 24px" />
             </Flex>
-            {sets.map((s, i) => (
-              <Flex key={i} align="center" gap={2} mb={3}>
-                <Text fontSize="sm" color="gray.500" flex="0 0 72px">
-                  {t('set')} {i + 1}
-                </Text>
-                <Input
-                  type="number"
-                  inputMode="numeric"
-                  min={0}
-                  max={maxScore}
-                  placeholder="0"
-                  value={s.player1Score}
-                  onChange={(e) => updateScore(i, 1, e.target.value)}
-                  onFocus={(e) => e.target.select()}
-                  textAlign="center"
-                  h="48px"
-                  fontSize="lg"
-                  fontWeight="semibold"
-                />
-                <Text color="gray.400" flex="0 0 18px" textAlign="center">
-                  -
-                </Text>
-                <Input
-                  type="number"
-                  inputMode="numeric"
-                  min={0}
-                  max={maxScore}
-                  placeholder="0"
-                  value={s.player2Score}
-                  onChange={(e) => updateScore(i, 2, e.target.value)}
-                  onFocus={(e) => e.target.select()}
-                  textAlign="center"
-                  h="48px"
-                  fontSize="lg"
-                  fontWeight="semibold"
-                />
-              </Flex>
-            ))}
+            {sets.map((s, i) => {
+              const a = toNum(s.player1Score);
+              const b = toNum(s.player2Score);
+              const hasInput = s.player1Score !== '' || s.player2Score !== '';
+              const setDone = isSetComplete(a, b, rules).complete;
+              return (
+                <Flex key={i} align="center" gap={2} mb={3}>
+                  <Text fontSize="sm" color="gray.500" flex="0 0 72px">
+                    {t('set')} {i + 1}
+                  </Text>
+                  <Input
+                    type="number"
+                    inputMode="numeric"
+                    min={0}
+                    max={maxScore}
+                    placeholder="0"
+                    value={s.player1Score}
+                    onChange={(e) => updateScore(i, 1, e.target.value)}
+                    onFocus={(e) => e.target.select()}
+                    textAlign="center"
+                    h="48px"
+                    fontSize="lg"
+                    fontWeight="semibold"
+                  />
+                  <Text color="gray.400" flex="0 0 18px" textAlign="center">
+                    -
+                  </Text>
+                  <Input
+                    type="number"
+                    inputMode="numeric"
+                    min={0}
+                    max={maxScore}
+                    placeholder="0"
+                    value={s.player2Score}
+                    onChange={(e) => updateScore(i, 2, e.target.value)}
+                    onFocus={(e) => e.target.select()}
+                    textAlign="center"
+                    h="48px"
+                    fontSize="lg"
+                    fontWeight="semibold"
+                  />
+                  <Flex
+                    flex="0 0 24px"
+                    justify="center"
+                    align="center"
+                    color={
+                      setDone
+                        ? 'green.500'
+                        : hasInput
+                          ? 'orange.400'
+                          : 'transparent'
+                    }
+                  >
+                    {setDone ? (
+                      <CheckCircle2 size={20} aria-label={t('setValid')} />
+                    ) : hasInput ? (
+                      <AlertCircle size={20} aria-label={t('setIncomplete')} />
+                    ) : null}
+                  </Flex>
+                </Flex>
+              );
+            })}
 
             <Flex gap={3} mt={2}>
               <Button

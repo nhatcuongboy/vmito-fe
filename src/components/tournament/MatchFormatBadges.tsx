@@ -61,6 +61,11 @@ export default function MatchFormatBadges({
               : '',
         })}
       </Badge>
+      {rules.winBy >= 2 && (
+        <Badge colorPalette="orange" variant="subtle" size={size}>
+          {t('winByTwo')}
+        </Badge>
+      )}
     </Flex>
   );
 }
