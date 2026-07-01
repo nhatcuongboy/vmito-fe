@@ -512,21 +512,22 @@ export default function RoundsPanel({
   const finishedEliminationMatches = eliminationMatches.filter(
     (match) => match.status === MatchStatus.FINISHED
   ).length;
+  // A first-round BYE is auto-finished with score 'BYE'; that's a seeding
+  // artefact, not a played result, so it must not count as "scored" (otherwise
+  // a freshly-seeded bracket with byes would wrongly look locked).
+  const isPlayedResult = (match: CategoryMatch) =>
+    (Boolean(match.score) && match.score !== 'BYE') ||
+    (match.sets?.length ?? 0) > 0;
   const scoredEliminationMatches = eliminationMatches.filter(
     (match) =>
-      match.status === MatchStatus.FINISHED ||
-      Boolean(match.score) ||
-      (match.sets?.length ?? 0) > 0
+      (match.status === MatchStatus.FINISHED && match.score !== 'BYE') ||
+      isPlayedResult(match)
   ).length;
   // Mirrors the backend's HAS_SCORED_ELIMINATION guard in
-  // regenerateEliminationShells, which also blocks on IN_PROGRESS (even before
-  // any score is recorded) — a match started at 0-0 must still block
-  // regenerating the shells, unlike scoredEliminationMatches above.
+  // regenerateEliminationShells: blocks on IN_PROGRESS (a match started at 0-0
+  // must still block) or a real played result — but not on auto-BYE matches.
   const touchedEliminationMatches = eliminationMatches.filter(
-    (match) =>
-      match.status === MatchStatus.IN_PROGRESS ||
-      match.status === MatchStatus.FINISHED ||
-      Boolean(match.score)
+    (match) => match.status === MatchStatus.IN_PROGRESS || isPlayedResult(match)
   ).length;
 
   // Group-stage completion progress (used to gate bracket generation)

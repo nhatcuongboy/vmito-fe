@@ -1351,7 +1351,7 @@ function CardTeamRow({
       minW={0}
     >
       <Text
-        fontSize={{ base: 'md', md: 'lg' }}
+        fontSize={{ base: 'sm', md: 'md' }}
         fontWeight={highlight ? 'bold' : 'medium'}
         lineClamp={1}
         minW={0}
@@ -1370,7 +1370,7 @@ function CardTeamRow({
             <Text
               key={index}
               textAlign="center"
-              fontSize={{ base: 'md', md: 'lg' }}
+              fontSize={{ base: 'sm', md: 'md' }}
               fontWeight={setWins[index] ? 'bold' : 'normal'}
               color={setWins[index] ? 'fg' : 'gray.400'}
               fontVariantNumeric="tabular-nums"
@@ -1385,7 +1385,7 @@ function CardTeamRow({
       ) : (
         total !== undefined && (
           <Text
-            fontSize={{ base: 'md', md: 'lg' }}
+            fontSize={{ base: 'sm', md: 'md' }}
             fontWeight={highlight ? 'bold' : 'medium'}
             textAlign="center"
             fontVariantNumeric="tabular-nums"
