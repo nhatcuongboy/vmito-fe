@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import {
   Box,
   Flex,
@@ -8,7 +8,6 @@ import {
   Badge,
   HStack,
   VStack,
-  SimpleGrid,
   Image,
   MenuRoot,
   MenuTrigger,
@@ -38,13 +37,10 @@ import {
   Calendar,
   MapPin,
   Layers,
-  FileText,
-  PlayCircle,
-  CheckCircle2,
-  Sparkles,
 } from 'lucide-react';
 import { ROUTES } from '@/constants';
 import { toaster } from '@/components/ui/toaster';
+import { useAuthStore } from '@/stores/useAuthStore';
 
 type TStatusFilter = 'all' | TournamentStatus;
 
@@ -73,60 +69,6 @@ const STATUS_THEME: Record<
     gradient: 'linear-gradient(135deg, #fca5a5 0%, #dc2626 100%)',
   },
 };
-
-function StatCard({
-  icon,
-  label,
-  value,
-  accent,
-}: {
-  icon: React.ReactNode;
-  label: string;
-  value: number;
-  accent: string;
-}) {
-  return (
-    <Box
-      p={{ base: 3, md: 4 }}
-      bg="white"
-      _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
-      borderWidth="1px"
-      borderColor="gray.100"
-      borderRadius="xl"
-      transition="all 0.2s"
-      _hover={{ boxShadow: 'sm', transform: 'translateY(-1px)' }}
-    >
-      <Flex align="center" gap={3}>
-        <Flex
-          w="40px"
-          h="40px"
-          borderRadius="lg"
-          align="center"
-          justify="center"
-          flexShrink={0}
-          style={{ background: accent, color: 'white' }}
-        >
-          {icon}
-        </Flex>
-        <Box minW={0}>
-          <Text
-            fontSize="xs"
-            color="fg.muted"
-            textTransform="uppercase"
-            letterSpacing="0.04em"
-            fontWeight="semibold"
-            truncate
-          >
-            {label}
-          </Text>
-          <Text fontSize="xl" fontWeight="bold" lineHeight="1.2">
-            {value}
-          </Text>
-        </Box>
-      </Flex>
-    </Box>
-  );
-}
 
 function StatusBadge({
   status,
@@ -441,6 +383,8 @@ export default function HostTournamentsPage() {
   const tStatus = useTranslations('pages.tournaments.status');
   const locale = useLocale();
   const dateLocale = locale === 'vi' ? viLocale : locale === 'cn' ? zhCN : enUS;
+  const user = useAuthStore((state) => state.user);
+  const isAdmin = user?.role === UserRole.ADMIN;
 
   const [tournaments, setTournaments] = useState<Tournament[]>([]);
   const [loading, setLoading] = useState(true);
@@ -448,21 +392,25 @@ export default function HostTournamentsPage() {
   const [statusFilter, setStatusFilter] = useState<TStatusFilter>('all');
   const [deleting, setDeleting] = useState<string | null>(null);
 
-  useEffect(() => {
-    loadTournaments();
-  }, []);
+  const loadTournaments = useCallback(async () => {
+    if (!user?.id) return;
 
-  const loadTournaments = async () => {
     try {
       setLoading(true);
-      const data = await TournamentService.getMyTournaments();
+      const data = isAdmin
+        ? await TournamentService.getManageableTournaments()
+        : await TournamentService.getMyTournaments();
       setTournaments(data);
     } catch (error: unknown) {
       console.error('Failed to load tournaments:', error);
     } finally {
       setLoading(false);
     }
-  };
+  }, [isAdmin, user?.id]);
+
+  useEffect(() => {
+    void loadTournaments();
+  }, [loadTournaments]);
 
   const handleDelete = async (id: string) => {
     if (!confirm(t('deleteConfirm'))) return;
@@ -524,7 +472,10 @@ export default function HostTournamentsPage() {
 
   return (
     <ProtectedRouteGuard requiredRole={[UserRole.HOST, UserRole.ADMIN]}>
-      <PageLayout title={t('pageTitle')} mobileIcon={<Trophy size={20} />}>
+      <PageLayout
+        title={isAdmin ? t('adminPageTitle') : t('pageTitle')}
+        mobileIcon={<Trophy size={20} />}
+      >
         {/* Search + Create button */}
         <Box mb={4}>
           <Flex gap={2} align="center" mx={{ base: '-16px', md: 0 }}>
@@ -635,12 +586,16 @@ export default function HostTournamentsPage() {
             <Text fontSize="lg" fontWeight="semibold" color="fg">
               {search || statusFilter !== 'all'
                 ? t('noResultsTitle')
-                : t('emptyTitle')}
+                : isAdmin
+                  ? t('adminEmptyTitle')
+                  : t('emptyTitle')}
             </Text>
             <Text color="fg.muted" maxW="420px">
               {search || statusFilter !== 'all'
                 ? t('noResultsDesc')
-                : t('emptyDesc')}
+                : isAdmin
+                  ? t('adminEmptyDesc')
+                  : t('emptyDesc')}
             </Text>
             {!search && statusFilter === 'all' && (
               <Button

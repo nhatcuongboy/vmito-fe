@@ -87,7 +87,7 @@ export const ClubsService = {
   // ===========================================
 
   /**
-   * Get all clubs for management (host view)
+   * Get clubs for management. Admin receives the system-wide list.
    */
   getClubsToManage: async (): Promise<IClub[]> => {
     const response = await api.get<ApiResponse<IClub[]>>('/clubs/manage');

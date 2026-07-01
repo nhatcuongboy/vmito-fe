@@ -48,6 +48,10 @@ export interface PaginatedUsers {
   };
 }
 
+type UsersApiResponse = ApiResponse<User[] | PaginatedUsers> & {
+  pagination?: PaginatedUsers['pagination'];
+};
+
 export const AdminService = {
   /**
    * Get all users (Admin only)
@@ -78,8 +82,9 @@ export const AdminService = {
     const queryString = searchParams.toString();
     const url = queryString ? `/users?${queryString}` : '/users';
 
-    const response = await api.get<ApiResponse<User[] | PaginatedUsers>>(url);
+    const response = await api.get<UsersApiResponse>(url);
     const payload = response.data.data;
+    const topLevelPagination = response.data.pagination;
 
     if (Array.isArray(payload)) {
       const limit = params?.limit ?? payload.length;
@@ -87,12 +92,18 @@ export const AdminService = {
       const start = (page - 1) * limit;
 
       return {
-        data: params?.limit ? payload.slice(start, start + limit) : payload,
+        data: topLevelPagination
+          ? payload
+          : params?.limit
+            ? payload.slice(start, start + limit)
+            : payload,
         pagination: {
-          page,
-          limit,
-          total: payload.length,
-          totalPages: limit ? Math.ceil(payload.length / limit) : 0,
+          page: topLevelPagination?.page ?? page,
+          limit: topLevelPagination?.limit ?? limit,
+          total: topLevelPagination?.total ?? payload.length,
+          totalPages:
+            topLevelPagination?.totalPages ??
+            (limit ? Math.ceil(payload.length / limit) : 0),
         },
       };
     }

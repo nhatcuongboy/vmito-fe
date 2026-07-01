@@ -84,6 +84,7 @@ function AdminUsersContent() {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [totalCount, setTotalCount] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
   const [page, setPage] = useState(1);
 
   // URL-synced filters
@@ -144,15 +145,17 @@ function AdminUsersContent() {
       });
       setUsers(result.data);
       setTotalCount(result.pagination.total);
+      setTotalPages(result.pagination.totalPages);
     } catch (error) {
       console.error('Failed to fetch users:', error);
       toaster.error({ title: t('users.loadError') });
       setUsers([]);
       setTotalCount(0);
+      setTotalPages(0);
     } finally {
       setLoading(false);
     }
-  }, [filters.q, filters.role, page]);
+  }, [filters.q, filters.role, page, t]);
 
   useEffect(() => {
     if (!isHydrated) return;
@@ -167,7 +170,7 @@ function AdminUsersContent() {
       return;
     }
     fetchUsers();
-  }, [isHydrated, isAuthenticated, currentUser, router, fetchUsers]);
+  }, [isHydrated, isAuthenticated, currentUser, router, fetchUsers, t]);
 
   // Debounce: write keyword to URL 500ms after the user stops typing
   useEffect(() => {
@@ -260,7 +263,13 @@ function AdminUsersContent() {
     setIsDeleteOpen(true);
   };
 
-  const totalPages = Math.ceil(totalCount / PAGE_SIZE);
+  const showingFrom = totalCount === 0 ? 0 : (page - 1) * PAGE_SIZE + 1;
+  const showingTo = Math.min(page * PAGE_SIZE, totalCount);
+  const totalRecordsLabel = `Total records: ${totalCount.toLocaleString()}`;
+  const paginationLabel =
+    totalCount > 0
+      ? `${totalRecordsLabel} · Showing ${showingFrom.toLocaleString()}-${showingTo.toLocaleString()}`
+      : totalRecordsLabel;
 
   return (
     <MainLayout title="Admin - Users">
@@ -413,16 +422,24 @@ function AdminUsersContent() {
                 No users found
               </Box>
             )}
+            <Box px={4} py={3} borderTopWidth="1px" borderColor="gray.100">
+              {totalPages > 1 ? (
+                <VTablePagination
+                  page={page}
+                  totalPages={totalPages}
+                  totalCount={totalCount}
+                  pageSize={PAGE_SIZE}
+                  isLoading={loading}
+                  label={paginationLabel}
+                  onPageChange={setPage}
+                />
+              ) : (
+                <Text fontSize="sm" color="gray.500">
+                  {totalRecordsLabel}
+                </Text>
+              )}
+            </Box>
           </TableContainer>
-
-          <VTablePagination
-            page={page}
-            totalPages={totalPages}
-            totalCount={totalCount}
-            pageSize={PAGE_SIZE}
-            isLoading={loading}
-            onPageChange={setPage}
-          />
         </VStack>
 
         {/* Create User Dialog */}

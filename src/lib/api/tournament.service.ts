@@ -32,6 +32,12 @@ export const TournamentService = {
     return response.data.data || [];
   },
 
+  // Get all tournaments for admins/management surfaces.
+  getManageableTournaments: async (): Promise<Tournament[]> => {
+    const response = await api.get<ApiResponse<Tournament[]>>('/tournaments');
+    return response.data.data || [];
+  },
+
   // Get tournament by ID
   getTournament: async (id: string): Promise<Tournament> => {
     const response = await dedupGet<ApiResponse<Tournament>>(

@@ -252,7 +252,9 @@ export default function ManagingPage() {
             <HStack gap={2} flex={{ base: '1 1 100%', md: 'initial' }}>
               <Shield size={20} />
               <Heading size={{ base: 'md', md: 'lg' }}>
-                {t('clubs.managingGroups')}
+                {isAdmin
+                  ? t('clubs.adminManagingGroups')
+                  : t('clubs.managingGroups')}
               </Heading>
               <Badge
                 colorPalette="green"
@@ -288,7 +290,9 @@ export default function ManagingPage() {
               borderStyle="dashed"
             >
               <Shield size={48} color="#A0AEC0" />
-              <Text color="fg.muted">{t('clubs.noManagedClubs')}</Text>
+              <Text color="fg.muted">
+                {isAdmin ? t('clubs.noSystemClubs') : t('clubs.noManagedClubs')}
+              </Text>
               {canAccessHostFeatures && (
                 <Button
                   colorPalette="green"

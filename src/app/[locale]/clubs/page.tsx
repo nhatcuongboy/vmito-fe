@@ -19,13 +19,13 @@ import {
   Filter,
   MapPin,
   Plus,
-  RefreshCw,
   Star,
   Users,
   X,
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import dynamic from 'next/dynamic';
+import { useInView } from 'react-intersection-observer';
 import { Button, IconButton } from '@/components/ui/chakra-compat';
 import { useDisclosure } from '@/components/ui/ChakraHooks';
 import { toaster } from '@/components/ui/toaster';
@@ -109,6 +109,7 @@ function BrowseClubsContent() {
   const [fullClubs, setFullClubs] = useState<IClub[]>([]);
   const [totalCount, setTotalCount] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [isLoadingFullDetails, setIsLoadingFullDetails] = useState(false);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(false);
@@ -137,6 +138,12 @@ function BrowseClubsContent() {
 
   const { isOpen: showFilters, onToggle: toggleFilters } = useDisclosure(false);
   const debouncedSearch = useDebounce(search, 500);
+  const loadingMoreRef = useRef(false);
+
+  const { ref, inView } = useInView({
+    threshold: 0.1,
+    rootMargin: '100px',
+  });
 
   // Sync pending filters when drawer opens
   useEffect(() => {
@@ -175,7 +182,14 @@ function BrowseClubsContent() {
 
   const fetchClubs = async (pageNum: number, append = false) => {
     try {
-      setIsLoading(true);
+      if (append) {
+        if (loadingMoreRef.current) return;
+        loadingMoreRef.current = true;
+        setIsLoadingMore(true);
+      } else {
+        setIsLoading(true);
+      }
+
       const activeSortOption =
         CLUB_SORT_OPTIONS.find((option) => option.value === sort) ??
         CLUB_SORT_OPTIONS[0];
@@ -239,19 +253,33 @@ function BrowseClubsContent() {
       }
 
       if (append) {
-        setClubs((prev) => [...prev, ...items]);
+        setClubs((prev) => {
+          const existingIds = new Set(prev.map((club) => club.id));
+          const newClubs = items.filter((club) => !existingIds.has(club.id));
+          return [...prev, ...newClubs];
+        });
+        setPage(pageNum);
       } else {
         setClubs(items);
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        if (typeof window !== 'undefined') {
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
       }
 
       setTotalCount(response.total);
       setHasMore(pageNum < (response.totalPages || 0));
     } catch (error) {
       console.error('Failed to fetch clubs:', error);
-      setClubs([]);
+      if (!append) {
+        setClubs([]);
+      }
     } finally {
-      setIsLoading(false);
+      if (append) {
+        loadingMoreRef.current = false;
+        setIsLoadingMore(false);
+      } else {
+        setIsLoading(false);
+      }
     }
   };
 
@@ -260,6 +288,20 @@ function BrowseClubsContent() {
     fetchClubs(1);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [debouncedSearch, cities, districts, sortByDistance, sort, userLocation]);
+
+  // Trigger load more when the sentinel is close to the viewport.
+  useEffect(() => {
+    if (
+      inView &&
+      hasMore &&
+      !isLoading &&
+      !isLoadingMore &&
+      !loadingMoreRef.current
+    ) {
+      fetchClubs(page + 1, true);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [inView, hasMore, isLoading, isLoadingMore, page]);
 
   // Fetch full club details when in map mode
   useEffect(() => {
@@ -281,12 +323,6 @@ function BrowseClubsContent() {
       fetchFullDetails();
     }
   }, [viewMode, clubs]);
-
-  const handleLoadMore = () => {
-    const nextPage = page + 1;
-    setPage(nextPage);
-    fetchClubs(nextPage, true);
-  };
 
   // Near me handler
   const handleNearMe = async () => {
@@ -1005,18 +1041,21 @@ function BrowseClubsContent() {
           </SimpleGrid>
 
           {hasMore && (
-            <Flex justify="center" mt={8}>
-              <Button
-                onClick={handleLoadMore}
-                loading={isLoading}
-                colorPalette="green"
-                variant="outline"
-                size="lg"
-              >
-                <RefreshCw size={16} />
-                {t('common.loadMore')}
-              </Button>
-            </Flex>
+            <Box ref={ref} mt={8} mb={10} width="full">
+              <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} gap={4}>
+                {Array.from({ length: 3 }).map((_, index) => (
+                  <ClubCardSkeleton
+                    key={`club-load-more-skeleton-${index}`}
+                    variant={skeletonVariant}
+                  />
+                ))}
+              </SimpleGrid>
+              <Flex justify="center" mt={4}>
+                <Text color="gray.500" fontSize="sm">
+                  Đang tải thêm...
+                </Text>
+              </Flex>
+            </Box>
           )}
         </>
       )}
