@@ -478,8 +478,9 @@ export default function TournamentManage({
           py={{ md: 6, xl: 8 }}
           borderLeftWidth="1px"
           borderColor="gray.200"
+          bg="white"
           overflowY="auto"
-          _dark={{ borderColor: 'var(--tournament-border)' }}
+          _dark={{ borderColor: 'var(--tournament-border)', bg: 'gray.800' }}
           css={{
             '&::-webkit-scrollbar': { width: '4px' },
             '&::-webkit-scrollbar-thumb': {

@@ -590,6 +590,22 @@ export const CategoryService = {
     return response.data.data || [];
   },
 
+  // Create (or re-create) the playoff bracket shells for a RRSE category.
+  // Backs the "Phát sinh trận vòng loại" button — decoupled from group-match
+  // generation and from filling participants (completeGroupStage).
+  generateEliminationShells: async (
+    categoryId: string,
+    options?: { showToast?: boolean }
+  ): Promise<CategoryMatch[]> => {
+    const response = await api.post<ApiResponse<CategoryMatch[]>>(
+      `/categories/${categoryId}/generate-elimination-shells`
+    );
+    if (options?.showToast !== false) {
+      toaster.success({ title: 'Elimination bracket generated successfully' });
+    }
+    return response.data.data ?? [];
+  },
+
   // Complete group stage / generate the elimination bracket
   completeGroupStage: async (
     categoryId: string,

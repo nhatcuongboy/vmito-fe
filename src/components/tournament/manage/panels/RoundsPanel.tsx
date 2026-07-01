@@ -144,6 +144,7 @@ export default function RoundsPanel({
   const [isCreatingGroups, setIsCreatingGroups] = useState(false);
   const [isAssigning, setIsAssigning] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [isGeneratingShells, setIsGeneratingShells] = useState(false);
   const [isCompleting, setIsCompleting] = useState(false);
   const [isGenerateConfirmOpen, setIsGenerateConfirmOpen] = useState(false);
   const [isRegenerateConfirmOpen, setIsRegenerateConfirmOpen] = useState(false);
@@ -351,6 +352,42 @@ export default function RoundsPanel({
     }
   };
 
+  const handleGenerateEliminationShells = async () => {
+    if (!activeCategory) return;
+    try {
+      setIsGeneratingShells(true);
+      await CategoryService.generateEliminationShells(activeCategory.id, {
+        showToast: false,
+      });
+      await loadGroupsAndMatches(activeCategory.id);
+      toaster.success({
+        title: t('panels.rounds.eliminationGamesGenerated'),
+      });
+    } catch (error: unknown) {
+      const apiError = error as {
+        response?: { data?: { code?: string; message?: string | string[] } };
+      };
+      const code = apiError?.response?.data?.code;
+      if (code === 'HAS_SCORED_ELIMINATION') {
+        toaster.error({ title: t('panels.rounds.eliminationHasScores') });
+        return;
+      }
+      const raw = apiError?.response?.data?.message;
+      const message = Array.isArray(raw)
+        ? raw.join(', ')
+        : raw ||
+          (error instanceof Error
+            ? error.message
+            : t('panels.rounds.generateEliminationFailed'));
+      toaster.error({
+        title: t('panels.rounds.generateEliminationFailed'),
+        description: message,
+      });
+    } finally {
+      setIsGeneratingShells(false);
+    }
+  };
+
   const handleDeleteAllMatches = async () => {
     if (!activeCategory?.tournamentId) return;
     try {
@@ -487,6 +524,16 @@ export default function RoundsPanel({
       match.status === MatchStatus.FINISHED ||
       Boolean(match.score) ||
       (match.sets?.length ?? 0) > 0
+  ).length;
+  // Mirrors the backend's HAS_SCORED_ELIMINATION guard in
+  // regenerateEliminationShells, which also blocks on IN_PROGRESS (even before
+  // any score is recorded) — a match started at 0-0 must still block
+  // regenerating the shells, unlike scoredEliminationMatches above.
+  const touchedEliminationMatches = eliminationMatches.filter(
+    (match) =>
+      match.status === MatchStatus.IN_PROGRESS ||
+      match.status === MatchStatus.FINISHED ||
+      Boolean(match.score)
   ).length;
 
   // Group-stage completion progress (used to gate bracket generation)
@@ -712,7 +759,6 @@ export default function RoundsPanel({
         </Flex>
 
         <CategorySelector />
-        {roundsActions}
 
         {loading ? (
           <TournamentMatchListSkeleton count={4} />
@@ -829,6 +875,8 @@ export default function RoundsPanel({
             {roundsModals}
           </>
         )}
+
+        {roundsActions}
       </VStack>
     );
   }
@@ -844,7 +892,6 @@ export default function RoundsPanel({
         </Flex>
 
         <CategorySelector />
-        {roundsActions}
 
         {loading ? (
           <TournamentMatchListSkeleton count={4} />
@@ -1042,6 +1089,28 @@ export default function RoundsPanel({
                           {t('panels.rounds.editMatches')}
                         </Button>
                       </Flex>
+
+                      {/* Chốt đội đi tiếp: fills the playoff bracket with the
+                          advancing teams once the group stage is done. Lives
+                          here (not under Playoffs) since it's the natural next
+                          step right after group matches finish. */}
+                      {isRRSE &&
+                        (!allGroupMatchesFinished || hasEliminationMatches) && (
+                          <GenerateBracketSection
+                            hasGroupStage
+                            variant="finalize"
+                            finishedGroupMatches={finishedGroupMatches}
+                            totalGroupMatches={totalGroupMatches}
+                            hasBracket={hasEliminationMatches}
+                            canGenerate={
+                              allGroupMatchesFinished &&
+                              scoredEliminationMatches === 0
+                            }
+                            scoredMatches={scoredEliminationMatches}
+                            isLoading={isCompleting}
+                            onClick={() => setIsGenerateConfirmOpen(true)}
+                          />
+                        )}
                     </VStack>
                   ) : (
                     <Button
@@ -1167,7 +1236,7 @@ export default function RoundsPanel({
                                   ? 'green'
                                   : 'gray'
                               }
-                              variant="subtle"
+                              variant="outline"
                             >
                               {t('panels.rounds.playoffsProgress', {
                                 finished: finishedEliminationMatches,
@@ -1194,21 +1263,28 @@ export default function RoundsPanel({
                           {t('panels.rounds.addBracket')}
                         </Button>
                       )}
-                      {(!allGroupMatchesFinished || hasEliminationMatches) && (
-                        <GenerateBracketSection
-                          hasGroupStage
-                          finishedGroupMatches={finishedGroupMatches}
-                          totalGroupMatches={totalGroupMatches}
-                          hasBracket={hasEliminationMatches}
-                          canGenerate={
-                            allGroupMatchesFinished &&
-                            scoredEliminationMatches === 0
-                          }
-                          scoredMatches={scoredEliminationMatches}
-                          isLoading={isCompleting}
-                          onClick={() => setIsGenerateConfirmOpen(true)}
-                        />
-                      )}
+                      {isAdvancingConfigured &&
+                        winnersPerGroup * groupCount >= 2 && (
+                          <Button
+                            size="sm"
+                            w="full"
+                            colorPalette="blue"
+                            variant={
+                              hasEliminationMatches ? 'outline' : 'solid'
+                            }
+                            leftIcon={<ListTree size={14} />}
+                            disabled={
+                              touchedEliminationMatches > 0 ||
+                              isGeneratingShells
+                            }
+                            loading={isGeneratingShells}
+                            onClick={handleGenerateEliminationShells}
+                          >
+                            {hasEliminationMatches
+                              ? t('panels.rounds.regenerateEliminationGames')
+                              : t('panels.rounds.generateEliminationGames')}
+                          </Button>
+                        )}
                     </VStack>
                   </StepperSection>
                 )}
@@ -1252,6 +1328,8 @@ export default function RoundsPanel({
             {roundsModals}
           </>
         )}
+
+        {roundsActions}
       </VStack>
     );
   }
@@ -1266,7 +1344,6 @@ export default function RoundsPanel({
       </Flex>
 
       <CategorySelector />
-      {roundsActions}
 
       {loading ? (
         <TournamentMatchListSkeleton count={4} />
@@ -1420,7 +1497,7 @@ export default function RoundsPanel({
                   >
                     {isGenerating
                       ? t('panels.rounds.generating')
-                      : t('panels.rounds.generateAllMatches')}
+                      : t('panels.rounds.generateGroupGames')}
                   </Button>
                 </>
               )}
@@ -1631,6 +1708,8 @@ export default function RoundsPanel({
           })}
         </VStack>
       )}
+
+      {roundsActions}
       {roundsModals}
     </VStack>
   );
@@ -1690,13 +1769,7 @@ function StepperSection({
         </Box>
       </Flex>
 
-      <Box
-        ml="20px"
-        pl={5}
-        borderLeftWidth="2px"
-        borderColor="gray.200"
-        _dark={{ borderColor: 'gray.700' }}
-      >
+      <Box ml="20px" pl={5}>
         {children}
       </Box>
     </Box>
@@ -1797,8 +1870,8 @@ function BracketReadyBanner({
           flexShrink={0}
         >
           {hasBracket
-            ? t('panels.rounds.regenerateBracket')
-            : t('panels.rounds.generatePlayoffs')}
+            ? t('panels.rounds.refinalizeAdvancing')
+            : t('panels.rounds.finalizeAdvancing')}
         </Button>
       </Flex>
     </Box>
@@ -1818,6 +1891,7 @@ function GenerateBracketSection({
   scoredMatches = 0,
   isLoading,
   onClick,
+  variant = 'bracket',
 }: {
   hasGroupStage: boolean;
   finishedGroupMatches: number;
@@ -1827,8 +1901,19 @@ function GenerateBracketSection({
   scoredMatches?: number;
   isLoading: boolean;
   onClick: () => void;
+  // 'finalize' → RRSE "Chốt đội đi tiếp" (fill advancing teams into the shells);
+  // 'bracket' → direct SE/DE "Tạo nhánh đấu" (build the bracket from scratch).
+  variant?: 'finalize' | 'bracket';
 }) {
   const t = useTranslations('pages.tournaments.detail.manage');
+  const primaryLabel =
+    variant === 'finalize'
+      ? hasBracket
+        ? t('panels.rounds.refinalizeAdvancing')
+        : t('panels.rounds.finalizeAdvancing')
+      : hasBracket
+        ? t('panels.rounds.regenerateBracket')
+        : t('panels.rounds.generatePlayoffs');
 
   return (
     <Box
@@ -1867,9 +1952,7 @@ function GenerateBracketSection({
         loading={isLoading}
         onClick={onClick}
       >
-        {hasBracket
-          ? t('panels.rounds.regenerateBracket')
-          : t('panels.rounds.generatePlayoffs')}
+        {primaryLabel}
       </Button>
       {!canGenerate && !hasBracket && (
         <Text

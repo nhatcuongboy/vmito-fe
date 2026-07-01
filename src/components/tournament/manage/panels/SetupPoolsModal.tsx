@@ -623,7 +623,7 @@ export default function SetupPoolsModal({
             onClick={handleGenerateGames}
             disabled={registrations.length < 2 || loadingData}
           >
-            {t('panels.rounds.generateGames')}
+            {t('panels.rounds.generateGroupGames')}
           </Button>
         </>
       ) : (
@@ -1044,13 +1044,16 @@ export default function SetupPoolsModal({
 
         {/* ─── Step 2: Match list ──────────────────────────────────────── */}
         {step === 'matches' && (
-          <Box maxW="560px" mx="auto" py={2}>
+          <Box maxW="1200px" mx="auto" py={2} px={4}>
             {/* Edit matches button */}
             <Box mb={4}>
               <Button
                 size="sm"
                 variant="outline"
                 w="full"
+                maxW="400px"
+                mx="auto"
+                display="block"
                 onClick={() => setIsEditMatchesOpen(true)}
               >
                 {t('panels.rounds.editMatches')}
@@ -1058,7 +1061,15 @@ export default function SetupPoolsModal({
             </Box>
 
             {/* Match cards */}
-            <VStack gap={3} align="stretch">
+            <Box
+              display="grid"
+              gridTemplateColumns={{
+                base: 'repeat(2, 1fr)',
+                md: 'repeat(3, 1fr)',
+                lg: 'repeat(4, 1fr)',
+              }}
+              gap={3}
+            >
               {(() => {
                 // Display priority: customMatches → existingMatches → previewMatches
                 const displayMatches: Array<{
@@ -1121,7 +1132,7 @@ export default function SetupPoolsModal({
                   </Box>
                 ));
               })()}
-            </VStack>
+            </Box>
           </Box>
         )}
       </VModal>
