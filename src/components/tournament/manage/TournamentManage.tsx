@@ -122,11 +122,11 @@ export default function TournamentManage({
   const [categories, setCategories] = useState<Category[]>([]);
   const [loadingCategories, setLoadingCategories] = useState(true);
   const [sponsors, setSponsors] = useState<Sponsor[]>([]);
-  const [selectedItem, setSelectedItem] = useState<string | null>(() =>
-    searchParams.get('option') === 'registration'
-      ? null
-      : searchParams.get('option')
-  );
+  const [selectedItem, setSelectedItem] = useState<string | null>(() => {
+    const option = searchParams.get('option');
+    if (option === 'registration') return null;
+    return option ?? 'teams';
+  });
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(
     null
   );
@@ -192,7 +192,7 @@ export default function TournamentManage({
       setSelectedItem(null);
       return;
     }
-    setSelectedItem(option);
+    setSelectedItem(option ?? 'teams');
   }, [searchParams]);
 
   const handleItemClick = useCallback(
@@ -389,9 +389,48 @@ export default function TournamentManage({
     return <TournamentManageSkeleton />;
   }
 
+  const SETTINGS_ITEMS = new Set([
+    'managers',
+    'name',
+    'dates',
+    'visibility',
+    'location',
+    'banner',
+    'videos',
+    'contact',
+    'sponsors',
+    'duplicate',
+    'delete',
+    'publish',
+  ]);
+
+  const activeManageTab =
+    selectedItem && SETTINGS_ITEMS.has(selectedItem) ? 'settings' : 'organize';
+
+  const handleManageTabChange = (tab: string) => {
+    if (
+      tab === 'organize' &&
+      selectedItem &&
+      SETTINGS_ITEMS.has(selectedItem)
+    ) {
+      handleItemClick('teams');
+    } else if (
+      tab === 'settings' &&
+      (!selectedItem || !SETTINGS_ITEMS.has(selectedItem))
+    ) {
+      handleItemClick('managers');
+    }
+  };
+
   return (
     <Box h={{ md: '100%' }} minH={0}>
-      <Tabs defaultValue="organize" display="flex" h={{ md: '100%' }} minH={0}>
+      <Tabs
+        value={activeManageTab}
+        onValueChange={handleManageTabChange}
+        display="flex"
+        h={{ md: '100%' }}
+        minH={0}
+      >
         {/* Left column: heading, tabs, and menu items */}
         <Box
           flex={{ md: '0 0 42%', xl: '0 0 38%' }}

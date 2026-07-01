@@ -42,6 +42,12 @@ interface PageLayoutProps extends Omit<ContainerProps, 'title'> {
   showTopBarAiAssistantButton?: boolean;
   /** Disable the left margin offset normally applied for the global sidebar */
   disableSidebarOffset?: boolean;
+  /**
+   * Vertical gap between the top bar and the page content. Defaults to
+   * CONTENT_PT_OFFSET; pass '0px' to butt the content right up against the bar
+   * (e.g. the tournament shell, whose bordered container needs no extra gap).
+   */
+  contentTopOffset?: string;
   rootClassName?: string;
   topBarClassName?: string;
 }
@@ -75,6 +81,7 @@ export default function PageLayout({
   showTopBarAuthActions = true,
   showTopBarAiAssistantButton = true,
   disableSidebarOffset = false,
+  contentTopOffset = CONTENT_PT_OFFSET,
   rootClassName,
   topBarClassName,
   ...containerProps
@@ -145,10 +152,10 @@ export default function PageLayout({
             ? isDiscoveryPage
               ? `calc(${TOP_BAR_HEIGHT_MOBILE}px + env(safe-area-inset-top) + 112px)`
               : `calc(${TOP_BAR_HEIGHT_MOBILE}px + env(safe-area-inset-top) + 44px)`
-            : `calc(${TOP_BAR_HEIGHT_MOBILE}px + env(safe-area-inset-top) + ${CONTENT_PT_OFFSET})`,
+            : `calc(${TOP_BAR_HEIGHT_MOBILE}px + env(safe-area-inset-top) + ${contentTopOffset})`,
           md: subHeader
-            ? CONTENT_PT_OFFSET
-            : `calc(${TOP_BAR_HEIGHT_DESKTOP}px + env(safe-area-inset-top) + ${CONTENT_PT_OFFSET})`,
+            ? contentTopOffset
+            : `calc(${TOP_BAR_HEIGHT_DESKTOP}px + env(safe-area-inset-top) + ${contentTopOffset})`,
         }}
         pb="calc(64px + env(safe-area-inset-bottom) + 24px)"
         {...containerProps}

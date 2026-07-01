@@ -509,6 +509,13 @@ export default function RoundsPanel({
     Boolean(activeCategory?.thirdPlaceMatch) ||
     winnersPerGroup * groupCount >= 2;
   const hasEliminationMatches = eliminationMatches.length > 0;
+  // "Filled" = advancing teams have actually been seeded into the shells.
+  // Empty shells (created ahead of time so they can be scheduled) are NOT
+  // filled, so finalizing them is a first-time "Chốt đội đi tiếp", not a
+  // "Chốt lại" — this keeps the label consistent with the schedule page.
+  const bracketFilled = eliminationMatches.some(
+    (match) => (match.participants?.length ?? 0) > 0
+  );
   const finishedEliminationMatches = eliminationMatches.filter(
     (match) => match.status === MatchStatus.FINISHED
   ).length;
@@ -1133,7 +1140,7 @@ export default function RoundsPanel({
                             variant="finalize"
                             finishedGroupMatches={finishedGroupMatches}
                             totalGroupMatches={totalGroupMatches}
-                            hasBracket={hasEliminationMatches}
+                            hasBracket={bracketFilled}
                             canGenerate={
                               allGroupMatchesFinished &&
                               scoredEliminationMatches === 0

@@ -194,7 +194,12 @@ export default function ManualScoreModal({
         const otherScore = toNum(sets[index]?.[otherKey] ?? '');
         const deuceThreshold = rules.pointsToWin - (rules.winBy - 1);
         if (rules.winBy < 2 || otherScore < deuceThreshold) {
+          // Other side hasn't reached deuce territory — can't go above pointsToWin.
           sanitized = String(rules.pointsToWin);
+        } else if (entered > otherScore + rules.winBy) {
+          // In deuce: the winning score can be at most otherScore + winBy
+          // (e.g. with winBy=2 and opponent at 11, max is 13, not 14+).
+          sanitized = String(otherScore + rules.winBy);
         }
       }
     }

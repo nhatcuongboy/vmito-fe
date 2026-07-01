@@ -27,7 +27,6 @@ import {
   Trash2,
   CheckCircle,
   MonitorPlay,
-  Gavel,
   NotebookText,
   Sparkles,
   GitBranch,
@@ -39,7 +38,6 @@ import {
   CategoryType,
   CategoryRegistrationMode,
   TournamentVenue,
-  UserRole,
   Venue,
   Sponsor,
   CategoryFormat,
@@ -63,7 +61,6 @@ import PublicTournamentWinnersTab from '@/components/tournament/PublicTournament
 import TournamentQrBar from '@/components/tournament/TournamentQrBar';
 import { TournamentTableSkeleton } from '@/components/tournament/skeletons';
 import { useRouter } from '@/i18n/config';
-import { useAuthStore } from '@/stores/useAuthStore';
 import { getGoogleMapsUrl } from '@/utils';
 import { Button } from '@/components/ui/chakra-compat';
 import { toaster } from '@/components/ui/toaster';
@@ -92,6 +89,7 @@ interface TournamentHomeTabProps {
   isLoadingCategories?: boolean;
   canManageTournament: boolean;
   slug: string;
+  onNavigateToTeams?: (view: 'category' | 'players') => void;
 }
 
 const URL_PATTERN = /(https?:\/\/[^\s]+)/g;
@@ -563,19 +561,12 @@ export default function TournamentHomeTab({
   isLoadingCategories = false,
   canManageTournament,
   slug,
+  onNavigateToTeams,
 }: TournamentHomeTabProps) {
   const t = useTranslations('pages.tournaments.detail.homeTab');
   const tBoard = useTranslations('pages.tournaments.scoreboard');
-  const tRef = useTranslations('pages.tournaments.scoreEntry');
   const locale = useLocale();
   const router = useRouter();
-  const { user } = useAuthStore();
-  const isTournamentHost = !!user && user.id === tournament.hostId;
-  const canReferee =
-    isTournamentHost ||
-    [UserRole.REFEREE, UserRole.HOST, UserRole.ADMIN].includes(
-      user?.role as UserRole
-    );
   const [tournamentVenues, setTournamentVenues] = useState<IHomeVenueItem[]>(
     []
   );
@@ -669,10 +660,6 @@ export default function TournamentHomeTab({
 
   const handleViewShowcase = () => {
     router.push(`/tournament/${slug}/showcase`);
-  };
-
-  const handleRefereeArea = () => {
-    router.push(`/tournament/${slug}/referee`);
   };
 
   const handleViewStandings = () => {
@@ -770,29 +757,59 @@ export default function TournamentHomeTab({
           gap={{ base: 3, md: 4 }}
           mb={4}
         >
-          <Flex align="center" gap={2} minW={0}>
+          <Flex
+            align="center"
+            gap={2}
+            minW={0}
+            w="fit-content"
+            role="group"
+            cursor={onNavigateToTeams ? 'pointer' : 'default'}
+            onClick={() => onNavigateToTeams?.('category')}
+            _hover={onNavigateToTeams ? { color: 'green.600' } : undefined}
+          >
             <Users size={16} color="var(--chakra-colors-gray-500)" />
             {isLoadingCategories ? (
               <Skeleton height="16px" width="132px" borderRadius="md" />
             ) : (
               <Text
                 fontSize="sm"
-                color="gray.600"
-                _dark={{ color: 'gray.300' }}
+                color={onNavigateToTeams ? 'blue.500' : 'gray.600'}
+                textDecoration={onNavigateToTeams ? 'underline' : 'none'}
+                _dark={{
+                  color: onNavigateToTeams ? 'blue.300' : 'gray.300',
+                }}
+                _groupHover={
+                  onNavigateToTeams ? { color: 'blue.600' } : undefined
+                }
               >
                 {t('overview.teamsParticipating', { count: totalTeams })}
               </Text>
             )}
           </Flex>
-          <Flex align="center" gap={2} minW={0}>
+          <Flex
+            align="center"
+            gap={2}
+            minW={0}
+            w="fit-content"
+            role="group"
+            cursor={onNavigateToTeams ? 'pointer' : 'default'}
+            onClick={() => onNavigateToTeams?.('players')}
+            _hover={onNavigateToTeams ? { color: 'green.600' } : undefined}
+          >
             <UserRound size={16} color="var(--chakra-colors-gray-500)" />
             {isLoadingCategories ? (
               <Skeleton height="16px" width="132px" borderRadius="md" />
             ) : (
               <Text
                 fontSize="sm"
-                color="gray.600"
-                _dark={{ color: 'gray.300' }}
+                color={onNavigateToTeams ? 'blue.500' : 'gray.600'}
+                textDecoration={onNavigateToTeams ? 'underline' : 'none'}
+                _dark={{
+                  color: onNavigateToTeams ? 'blue.300' : 'gray.300',
+                }}
+                _groupHover={
+                  onNavigateToTeams ? { color: 'blue.600' } : undefined
+                }
               >
                 {t('overview.athletesParticipating', {
                   count: totalAthletes,
@@ -800,25 +817,54 @@ export default function TournamentHomeTab({
               </Text>
             )}
           </Flex>
-          <Flex align="center" gap={2} minW={0}>
+          <Flex
+            align="center"
+            gap={2}
+            minW={0}
+            w="fit-content"
+            role="group"
+            cursor="pointer"
+            onClick={() => {
+              const d = new Date(tournament.startDate)
+                .toISOString()
+                .slice(0, 10);
+              router.push(`/tournament/${slug}/schedule?from=${d}&to=${d}`);
+            }}
+            _hover={{ color: 'green.600' }}
+          >
             <CalendarDays size={16} color="var(--chakra-colors-gray-500)" />
             <Text
               fontSize="sm"
-              color="gray.600"
+              color="blue.500"
+              textDecoration="underline"
               lineClamp={1}
-              _dark={{ color: 'gray.300' }}
+              _dark={{ color: 'blue.300' }}
+              _groupHover={{ color: 'blue.600' }}
             >
               {formattedDate}
             </Text>
           </Flex>
           {overviewVenueName && (
-            <Flex align="center" gap={2} minW={0}>
+            <Flex
+              align="center"
+              gap={2}
+              minW={0}
+              w="fit-content"
+              role="group"
+              cursor="pointer"
+              onClick={() =>
+                displayVenues[0] && handleOpenDirections(displayVenues[0].venue)
+              }
+              _hover={{ color: 'green.600' }}
+            >
               <MapPin size={16} color="var(--chakra-colors-gray-500)" />
               <Text
                 fontSize="sm"
-                color="gray.600"
+                color="blue.500"
+                textDecoration="underline"
                 lineClamp={1}
-                _dark={{ color: 'gray.300' }}
+                _dark={{ color: 'blue.300' }}
+                _groupHover={{ color: 'blue.600' }}
               >
                 {overviewVenueName}
               </Text>
@@ -929,32 +975,6 @@ export default function TournamentHomeTab({
               </Text>
             </Flex>
           </Box>
-          {canReferee && (
-            <Box
-              borderWidth="1px"
-              borderColor="gray.200"
-              borderRadius="lg"
-              px={3}
-              py={2}
-              cursor="pointer"
-              _hover={{ bg: 'gray.50' }}
-              _dark={{
-                borderColor: 'gray.700',
-                _hover: { bg: 'gray.700' },
-              }}
-              onClick={handleRefereeArea}
-              minH="56px"
-            >
-              <Flex align="center" gap={2} h="full">
-                <Box color="gray.500" flexShrink={0}>
-                  <Gavel size={16} />
-                </Box>
-                <Text fontSize="sm" fontWeight="medium" lineHeight="1.3">
-                  {tRef('refereeArea')}
-                </Text>
-              </Flex>
-            </Box>
-          )}
         </Grid>
       </Box>
 
@@ -1056,7 +1076,7 @@ export default function TournamentHomeTab({
                       _dark={{ _hover: { bg: 'gray.700' } }}
                       onClick={() =>
                         router.push(
-                          `/tournament/${slug}/standings?category=${category.id}`
+                          `/tournament/${slug}/teams?view=category#category-${category.id}`
                         )
                       }
                     >

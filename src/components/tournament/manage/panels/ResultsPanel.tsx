@@ -45,6 +45,7 @@ import {
   Tournament,
   TournamentCourt,
   TournamentUmpire,
+  UserRole,
 } from '@/lib/api/types';
 import { getMatchDisplayCode } from '@/lib/tournament/codes';
 import { getRoundDisplayLabel } from '@/lib/tournament/roundLabel';
@@ -61,6 +62,7 @@ import EditMatchTimeSheet from './schedule/EditMatchTimeSheet';
 import { TournamentMatchListSkeleton } from '@/components/tournament/skeletons';
 import PlayerNamesToggle from '@/components/tournament/PlayerNamesToggle';
 import { useTournamentSocket } from '@/hooks/useTournamentSocket';
+import { useAuthStore } from '@/stores/useAuthStore';
 
 interface Props {
   tournament: Tournament;
@@ -93,6 +95,7 @@ export interface ResultFilters {
   dateFrom: string;
   dateTo: string;
   query: string;
+  refereeOnly: boolean;
 }
 
 export interface ChipOption {
@@ -113,6 +116,7 @@ export const EMPTY_FILTERS: ResultFilters = {
   dateFrom: '',
   dateTo: '',
   query: '',
+  refereeOnly: false,
 };
 
 export const CATEGORY_COLORS = [
@@ -140,6 +144,7 @@ const FILTER_PARAM_KEYS = {
   query: 'q',
   viewMode: 'view',
   showPlayerNames: 'players',
+  refereeOnly: 'referee',
 } as const;
 
 export default function ResultsPanel({
@@ -154,6 +159,7 @@ export default function ResultsPanel({
   const tManage = useTranslations('pages.tournaments.detail.manage');
   const tRounds = useTranslations('pages.tournaments.manualScore.rounds');
   const locale = useLocale();
+  const { user } = useAuthStore();
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const currentQuery = searchParams.toString();
@@ -422,9 +428,27 @@ export default function ResultsPanel({
     [t]
   );
 
+  // Referee-filter context. The referee scoring page is role-gated (a host,
+  // admin, or REFEREE can open ANY match's scoring page — there is no per-match
+  // referee scoping), so "matches I can referee" prefers the matches explicitly
+  // assigned to me, and falls back to every match I'm allowed to referee when I
+  // have no assignments yet.
+  const refereeAccess = useMemo(() => {
+    const canRefereeAny =
+      !!user &&
+      (user.id === tournament.hostId ||
+        user.role === UserRole.ADMIN ||
+        user.role === UserRole.REFEREE);
+    const hasOwnAssignments =
+      !!user && matches.some((match) => match.referee?.userId === user.id);
+    return { canRefereeAny, hasOwnAssignments };
+  }, [user, tournament.hostId, matches]);
+
   const filteredMatches = useMemo(() => {
     return matches
-      .filter((match) => matchMatchesFilters(match, filters))
+      .filter((match) =>
+        matchMatchesFilters(match, filters, user?.id, refereeAccess)
+      )
       .sort((a, b) => {
         // Matches with a scheduled time come first, ordered chronologically.
         // Unscheduled matches go to the bottom, ordered by match number.
@@ -438,7 +462,7 @@ export default function ResultsPanel({
         if (bTime !== null) return 1;
         return a.matchNumber - b.matchNumber;
       });
-  }, [matches, filters]);
+  }, [matches, filters, user?.id, refereeAccess]);
 
   const activeFilterCount = getActiveFilterCount(filters);
   const bracketReadyCategories = useMemo(() => {
@@ -906,7 +930,7 @@ export default function ResultsPanel({
               flexShrink={0}
             >
               <Trophy size={14} />
-              {tManage('panels.rounds.generatePlayoffs')}
+              {tManage('panels.rounds.finalizeAdvancing')}
             </Button>
           </Flex>
         </Box>
@@ -981,6 +1005,10 @@ export default function ResultsPanel({
         statusOptions={statusOptions}
         teamOptions={teamOptions}
         onToggle={updateFilterList}
+        currentUserId={user?.id}
+        showRefereeFilter={
+          refereeAccess.canRefereeAny || refereeAccess.hasOwnAssignments
+        }
       />
 
       <MatchDetailModal
@@ -1625,6 +1653,8 @@ export function FilterDrawer({
   statusOptions,
   teamOptions,
   onToggle,
+  currentUserId,
+  showRefereeFilter,
 }: {
   isOpen: boolean;
   onClose: () => void;
@@ -1639,6 +1669,8 @@ export function FilterDrawer({
     key: K,
     value: ResultFilters[K][number]
   ) => void;
+  currentUserId?: string;
+  showRefereeFilter?: boolean;
 }) {
   const t = useTranslations('pages.tournaments.manualScore');
 
@@ -1665,15 +1697,24 @@ export function FilterDrawer({
         </DrawerHeader>
         <DrawerBody>
           <VStack align="stretch" gap={6}>
-            <FilterSection title={t('filters.search')}>
-              <SearchInput
-                value={filters.query}
-                onChange={(value) =>
-                  setFilters((prev) => ({ ...prev, query: value }))
-                }
-                placeholder={t('filters.searchPlaceholder')}
-              />
-            </FilterSection>
+            {currentUserId && showRefereeFilter && (
+              <FilterSection title={t('filters.referee')}>
+                <Button
+                  size="md"
+                  variant={filters.refereeOnly ? 'solid' : 'outline'}
+                  colorPalette={filters.refereeOnly ? 'green' : 'gray'}
+                  borderRadius="full"
+                  onClick={() =>
+                    setFilters((prev) => ({
+                      ...prev,
+                      refereeOnly: !prev.refereeOnly,
+                    }))
+                  }
+                >
+                  {t('filters.refereeOnlyLabel')}
+                </Button>
+              </FilterSection>
+            )}
 
             <FilterSection title={t('filters.categories')}>
               <ChipGroup
@@ -1971,11 +2012,24 @@ function CalendarHeaderCell({ children }: { children: React.ReactNode }) {
 
 export function matchMatchesFilters(
   match: CategoryMatch,
-  filters: ResultFilters
+  filters: ResultFilters,
+  currentUserId?: string,
+  refereeAccess?: { canRefereeAny: boolean; hasOwnAssignments: boolean }
 ) {
   const query = normalizeSearchText(filters.query);
   if (query && !getMatchSearchText(match).includes(query)) {
     return false;
+  }
+
+  if (filters.refereeOnly) {
+    const isMine = !!currentUserId && match.referee?.userId === currentUserId;
+    // Prefer explicitly-assigned matches; if I have none but I'm allowed to
+    // referee (host / admin / REFEREE), fall back to every match I can referee.
+    if (refereeAccess?.hasOwnAssignments) {
+      if (!isMine) return false;
+    } else if (!refereeAccess?.canRefereeAny && !isMine) {
+      return false;
+    }
   }
 
   if (
@@ -2036,7 +2090,8 @@ export function getActiveFilterCount(filters: ResultFilters) {
     filters.teamIds.length +
     (filters.dateFrom ? 1 : 0) +
     (filters.dateTo ? 1 : 0) +
-    (filters.query.trim() ? 1 : 0)
+    (filters.query.trim() ? 1 : 0) +
+    (filters.refereeOnly ? 1 : 0)
   );
 }
 
@@ -2113,6 +2168,7 @@ function parseFiltersFromSearchParams(
     dateFrom: searchParams.get(FILTER_PARAM_KEYS.dateFrom) ?? '',
     dateTo: searchParams.get(FILTER_PARAM_KEYS.dateTo) ?? '',
     query: searchParams.get(FILTER_PARAM_KEYS.query) ?? '',
+    refereeOnly: searchParams.get(FILTER_PARAM_KEYS.refereeOnly) === '1',
   };
 }
 
@@ -2132,6 +2188,11 @@ function buildResultFilterSearchParams(
   setStringParam(params, FILTER_PARAM_KEYS.dateFrom, filters.dateFrom);
   setStringParam(params, FILTER_PARAM_KEYS.dateTo, filters.dateTo);
   setStringParam(params, FILTER_PARAM_KEYS.query, filters.query.trim());
+  setStringParam(
+    params,
+    FILTER_PARAM_KEYS.refereeOnly,
+    filters.refereeOnly ? '1' : ''
+  );
   setStringParam(
     params,
     FILTER_PARAM_KEYS.viewMode,
@@ -2175,7 +2236,8 @@ function areResultFiltersEqual(a: ResultFilters, b: ResultFilters) {
     areStringArraysEqual(a.teamIds, b.teamIds) &&
     a.dateFrom === b.dateFrom &&
     a.dateTo === b.dateTo &&
-    a.query === b.query
+    a.query === b.query &&
+    a.refereeOnly === b.refereeOnly
   );
 }
 

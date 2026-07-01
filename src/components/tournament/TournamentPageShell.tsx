@@ -28,7 +28,7 @@ import {
 } from '@/lib/api/types';
 import { CategoryService } from '@/lib/api/category.service';
 import { TournamentPlayerService } from '@/lib/api/tournament-player.service';
-import { useParams } from 'next/navigation';
+import { useParams, useSearchParams } from 'next/navigation';
 import { Link, useRouter } from '@/i18n/config';
 import { useTranslations } from 'next-intl';
 import { useAuthStore } from '@/stores/useAuthStore';
@@ -58,7 +58,7 @@ import {
   getUniqueTournamentPlayerCode,
 } from '@/components/tournament/player/PublicTournamentPlayerPage';
 import { getTournamentPlayerDisplayCode } from '@/lib/tournament/codes';
-import { CONTENT_PT_OFFSET, TOP_BAR_HEIGHT_DESKTOP } from '@/constants';
+import { TOP_BAR_HEIGHT_DESKTOP } from '@/constants';
 
 import {
   TournamentContentSkeleton,
@@ -151,6 +151,7 @@ function TeamCategoryCard({
 }) {
   return (
     <Box
+      id={`category-${categoryBlock.id}`}
       borderWidth="1px"
       borderColor="gray.200"
       borderTopWidth="4px"
@@ -422,7 +423,20 @@ export default function TournamentPageShell({
   const [allCategories, setAllCategories] = useState<Category[]>([]);
   const [totalAthletes, setTotalAthletes] = useState(0);
   const [allPlayers, setAllPlayers] = useState<IAllPlayerItem[]>([]);
-  const [teamsView, setTeamsView] = useState<'category' | 'players'>('players');
+  const searchParams = useSearchParams();
+  const [teamsView, setTeamsView] = useState<'category' | 'players'>(() =>
+    searchParams.get('view') === 'category' ? 'category' : 'players'
+  );
+
+  const handleTeamsViewChange = useCallback(
+    (view: 'category' | 'players') => {
+      setTeamsView(view);
+      const params = new URLSearchParams(searchParams.toString());
+      params.set('view', view);
+      router.replace(`?${params.toString()}`, { scroll: false });
+    },
+    [router, searchParams]
+  );
   const [playerSearch, setPlayerSearch] = useState('');
 
   const isHost = useMemo(
@@ -866,15 +880,15 @@ export default function TournamentPageShell({
     return (
       <Box
         display={{ base: 'none', md: 'flex' }}
-        mx={{ md: 4, xl: 6 }}
         h={{
-          md: `calc(100vh - ${TOP_BAR_HEIGHT_DESKTOP}px - env(safe-area-inset-top) - ${CONTENT_PT_OFFSET})`,
+          md: `calc(100vh - ${TOP_BAR_HEIGHT_DESKTOP}px - env(safe-area-inset-top))`,
         }}
         minH={0}
         bg="transparent"
         borderWidth="1px"
         borderColor="gray.200"
-        borderTopRadius="2xl"
+        borderTopLeftRadius="2xl"
+        borderTopRightRadius={0}
         borderBottomRadius={0}
         boxShadow="var(--tournament-shadow)"
         overflow="hidden"
@@ -936,7 +950,6 @@ export default function TournamentPageShell({
           topBarClassName="tournament-topbar"
           bg="var(--tournament-bg)"
           maxW="full"
-          px={{ base: '24px', md: 0 }}
           pb={{
             base: 'calc(64px + env(safe-area-inset-bottom) + 24px)',
             md: 0,
@@ -1005,6 +1018,9 @@ export default function TournamentPageShell({
           isLoadingCategories={loadingTeams}
           canManageTournament={isHostOrAdmin}
           slug={slug}
+          onNavigateToTeams={(view) => {
+            router.push(`/tournament/${slug}/teams?view=${view}`);
+          }}
         />
       )}
       {activeTab === 1 && (
@@ -1020,65 +1036,66 @@ export default function TournamentPageShell({
                 {t('tabs.teams')}
               </Heading>
             </Box>
+          </Flex>
+
+          {/* View toggle: by category vs. all players */}
+          <Flex align="center" justify="space-between" gap={3}>
             {canManage && (
               <Button
-                alignSelf={{ base: 'stretch', md: 'center' }}
-                size="md"
+                size="sm"
                 variant="subtle"
                 colorPalette="gray"
                 borderRadius="full"
-                px={5}
+                px={4}
                 onClick={handleManageTeamsClick}
               >
                 <HStack gap={2}>
-                  <SquarePen size={16} />
+                  <SquarePen size={15} />
                   <Text>{t('teamsTab.manageTeams')}</Text>
                 </HStack>
               </Button>
             )}
-          </Flex>
-
-          {/* View toggle: by category vs. all players */}
-          <Flex
-            p={1}
-            gap={1}
-            borderWidth="1px"
-            borderColor="gray.200"
-            borderRadius="full"
-            bg="gray.50"
-            w="fit-content"
-            _dark={{
-              bg: 'var(--tournament-surface-muted, var(--chakra-colors-gray-800))',
-              borderColor:
-                'var(--tournament-border, var(--chakra-colors-gray-700))',
-            }}
-          >
-            <Button
-              size="sm"
-              variant={teamsView === 'players' ? 'solid' : 'ghost'}
-              colorPalette={teamsView === 'players' ? 'green' : 'gray'}
+            <Flex
+              p={1}
+              gap={1}
+              borderWidth="1px"
+              borderColor="gray.200"
               borderRadius="full"
-              px={4}
-              onClick={() => setTeamsView('players')}
+              bg="gray.50"
+              ml="auto"
+              _dark={{
+                bg: 'var(--tournament-surface-muted, var(--chakra-colors-gray-800))',
+                borderColor:
+                  'var(--tournament-border, var(--chakra-colors-gray-700))',
+              }}
             >
-              <HStack gap={2}>
-                <UsersRound size={15} />
-                <Text>{t('teamsTab.viewAllPlayers')}</Text>
-              </HStack>
-            </Button>
-            <Button
-              size="sm"
-              variant={teamsView === 'category' ? 'solid' : 'ghost'}
-              colorPalette={teamsView === 'category' ? 'green' : 'gray'}
-              borderRadius="full"
-              px={4}
-              onClick={() => setTeamsView('category')}
-            >
-              <HStack gap={2}>
-                <LayoutList size={15} />
-                <Text>{t('teamsTab.viewByCategory')}</Text>
-              </HStack>
-            </Button>
+              <Button
+                size="sm"
+                variant={teamsView === 'players' ? 'solid' : 'ghost'}
+                colorPalette={teamsView === 'players' ? 'green' : 'gray'}
+                borderRadius="full"
+                px={4}
+                onClick={() => handleTeamsViewChange('players')}
+              >
+                <HStack gap={2}>
+                  <UsersRound size={15} />
+                  <Text>{t('teamsTab.viewAllPlayers')}</Text>
+                </HStack>
+              </Button>
+              <Button
+                size="sm"
+                variant={teamsView === 'category' ? 'solid' : 'ghost'}
+                colorPalette={teamsView === 'category' ? 'green' : 'gray'}
+                borderRadius="full"
+                px={4}
+                onClick={() => handleTeamsViewChange('category')}
+              >
+                <HStack gap={2}>
+                  <LayoutList size={15} />
+                  <Text>{t('teamsTab.viewByCategory')}</Text>
+                </HStack>
+              </Button>
+            </Flex>
           </Flex>
 
           {teamsView === 'category' ? (
@@ -1276,6 +1293,7 @@ export default function TournamentPageShell({
         topBarClassName="tournament-topbar"
         bg="var(--tournament-bg)"
         maxW="full"
+        contentTopOffset="0px"
         px={{ base: '24px', md: 0 }}
         pb={{
           base: 'calc(64px + env(safe-area-inset-bottom) + 24px)',

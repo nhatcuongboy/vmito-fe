@@ -742,6 +742,9 @@ function parseFiltersFromSearchParams(
     dateFrom: searchParams.get(FILTER_PARAM_KEYS.dateFrom) ?? '',
     dateTo: searchParams.get(FILTER_PARAM_KEYS.dateTo) ?? '',
     query: '',
+    // The referee area already scopes matches to the current user, so the
+    // "my matches" referee filter isn't surfaced here.
+    refereeOnly: false,
   };
 }
 
