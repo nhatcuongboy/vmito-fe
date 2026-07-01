@@ -159,7 +159,7 @@ function AdminNotificationsContent() {
       setTotalPages(Math.max(1, result.pagination.totalPages));
     } catch (error) {
       console.error('Failed to fetch admin notifications:', error);
-      toaster.error({ title: 'Failed to load notifications' });
+      toaster.error({ title: t('notifications.loadError') });
     } finally {
       setIsLoading(false);
     }
@@ -243,12 +243,12 @@ function AdminNotificationsContent() {
       await NotificationService.deleteAdminNotification(
         notificationToDelete.id
       );
-      toaster.success({ title: 'Notification deleted' });
+      toaster.success({ title: t('notifications.deleteSuccess') });
       setNotificationToDelete(null);
       await fetchNotifications();
     } catch (error) {
       console.error('Failed to delete notification:', error);
-      toaster.error({ title: 'Failed to delete notification' });
+      toaster.error({ title: t('notifications.deleteError') });
     } finally {
       setIsDeleting(false);
     }

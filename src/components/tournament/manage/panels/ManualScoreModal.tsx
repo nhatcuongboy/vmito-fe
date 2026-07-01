@@ -88,6 +88,8 @@ export default function ManualScoreModal({
     [match, sportType]
   );
   const maxSets = rules.bestOf;
+  // Maximum allowed score per side: hard cap if set, otherwise the points target.
+  const maxScore = rules.cap ?? rules.pointsToWin;
   // Always start with a single set; users can add more via the Add Set button.
   const minSets = 1;
 
@@ -167,7 +169,11 @@ export default function ManualScoreModal({
 
   const updateScore = (index: number, side: 1 | 2, raw: string) => {
     // Allow empty string so the input doesn't auto-fill 0.
-    const sanitized = raw.replace(/[^0-9]/g, '');
+    let sanitized = raw.replace(/[^0-9]/g, '');
+    // Enforce per-set score cap.
+    if (sanitized !== '' && Number(sanitized) > maxScore) {
+      sanitized = String(maxScore);
+    }
     setSets((prev) => {
       const next = prev.map((s, i) =>
         i === index
@@ -379,6 +385,7 @@ export default function ManualScoreModal({
                   type="number"
                   inputMode="numeric"
                   min={0}
+                  max={maxScore}
                   placeholder="0"
                   value={s.player1Score}
                   onChange={(e) => updateScore(i, 1, e.target.value)}
@@ -395,6 +402,7 @@ export default function ManualScoreModal({
                   type="number"
                   inputMode="numeric"
                   min={0}
+                  max={maxScore}
                   placeholder="0"
                   value={s.player2Score}
                   onChange={(e) => updateScore(i, 2, e.target.value)}

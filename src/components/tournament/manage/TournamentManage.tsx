@@ -464,6 +464,7 @@ export default function TournamentManage({
               tournament={tournament}
               selectedItem={selectedItem}
               onItemClick={handleItemClick}
+              onTournamentUpdate={(updated) => onTournamentUpdate?.(updated)}
             />
           </TabsContent>
         </Box>

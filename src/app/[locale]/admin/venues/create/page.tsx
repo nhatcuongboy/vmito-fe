@@ -27,6 +27,7 @@ import PageLayout from '@/components/layout/PageLayout';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
+import { useTranslations } from 'next-intl';
 
 const venueSchema = z.object({
   name: z.string().min(2, 'Tên phải có ít nhất 2 ký tự'),
@@ -74,6 +75,7 @@ const SectionLabel = ({ title }: { title: string }) => (
 
 export default function CreateVenuePage() {
   const router = useRouter();
+  const t = useTranslations('admin');
   const [venueImages, setVenueImages] = useState<ISessionImage[]>([]);
   const [venueBannerIndex, setVenueBannerIndex] = useState(0);
 
@@ -132,11 +134,11 @@ export default function CreateVenuePage() {
       const result = await VenueService.createVenue(
         payload as Omit<Venue, 'id'>
       );
-      toaster.success({ title: 'Tạo sân thành công' });
+      toaster.success({ title: t('venues.createSuccess') });
       router.push(`/venues/${result.slug || result.id}`);
     } catch (_error) {
       console.error('Failed to create venue:', _error);
-      toaster.error({ title: 'Không thể tạo sân' });
+      toaster.error({ title: t('venues.createError') });
     }
   };
 

@@ -146,7 +146,7 @@ function AdminUsersContent() {
       setTotalCount(result.pagination.total);
     } catch (error) {
       console.error('Failed to fetch users:', error);
-      toaster.error({ title: 'Failed to load users' });
+      toaster.error({ title: t('users.loadError') });
       setUsers([]);
       setTotalCount(0);
     } finally {
@@ -162,7 +162,7 @@ function AdminUsersContent() {
     }
     if (!currentUser) return;
     if (currentUser.role !== UserRole.ADMIN) {
-      toaster.error({ title: 'Access denied. Admin only.' });
+      toaster.error({ title: t('accessDeniedAdmin') });
       router.replace('/dashboard');
       return;
     }
@@ -206,13 +206,13 @@ function AdminUsersContent() {
   const handleCreate = async (data: CreateUserFormValues) => {
     try {
       await AdminService.createUser(data);
-      toaster.success({ title: 'User created successfully' });
+      toaster.success({ title: t('users.createSuccess') });
       setIsCreateOpen(false);
       createForm.reset();
       fetchUsers();
     } catch (error) {
       console.error('Failed to create user:', error);
-      toaster.error({ title: 'Failed to create user' });
+      toaster.error({ title: t('users.createError') });
     }
   };
 
@@ -224,12 +224,12 @@ function AdminUsersContent() {
         role: data.role,
       };
       await AdminService.updateUser(selectedUser.id, updateData);
-      toaster.success({ title: 'User updated successfully' });
+      toaster.success({ title: t('users.updateSuccess') });
       setIsEditOpen(false);
       fetchUsers();
     } catch (error) {
       console.error('Failed to update user:', error);
-      toaster.error({ title: 'Failed to update user' });
+      toaster.error({ title: t('users.updateError') });
     }
   };
 
@@ -237,12 +237,12 @@ function AdminUsersContent() {
     if (!selectedUser) return;
     try {
       await AdminService.deleteUser(selectedUser.id);
-      toaster.success({ title: 'User deleted successfully' });
+      toaster.success({ title: t('users.deleteSuccess') });
       setIsDeleteOpen(false);
       fetchUsers();
     } catch (error) {
       console.error('Failed to delete user:', error);
-      toaster.error({ title: 'Failed to delete user' });
+      toaster.error({ title: t('users.deleteError') });
     }
   };
 

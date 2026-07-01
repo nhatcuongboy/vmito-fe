@@ -17,17 +17,20 @@ import { useLocale, useTranslations } from 'next-intl';
 import { Tournament } from '@/lib/api/types';
 import { useAuthStore } from '@/stores/useAuthStore';
 import ManageMenuItem from './ManageMenuItem';
+import TournamentStatusBanner from './TournamentStatusBanner';
 
 interface SettingsTabProps {
   tournament: Tournament;
   selectedItem: string | null;
   onItemClick: (item: string) => void;
+  onTournamentUpdate: (updated: Tournament) => void;
 }
 
 export default function SettingsTab({
   tournament,
   selectedItem,
   onItemClick,
+  onTournamentUpdate,
 }: SettingsTabProps) {
   const t = useTranslations('pages.tournaments.detail.manage');
   const locale = useLocale();
@@ -51,6 +54,12 @@ export default function SettingsTab({
 
   return (
     <VStack gap={3} align="stretch">
+      {/* Lifecycle status: start / finish / cancel the tournament */}
+      <TournamentStatusBanner
+        tournament={tournament}
+        onUpdate={onTournamentUpdate}
+      />
+
       {/* Tournament managers (host/admin only) */}
       {isHostOrAdmin && (
         <ManageMenuItem

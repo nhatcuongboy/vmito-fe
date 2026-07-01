@@ -28,6 +28,7 @@ import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { use } from 'react';
+import { useTranslations } from 'next-intl';
 
 const venueSchema = z.object({
   name: z.string().min(2, 'Tên phải có ít nhất 2 ký tự'),
@@ -80,6 +81,7 @@ export default function EditVenuePage({
 }) {
   const { id } = use(params);
   const router = useRouter();
+  const t = useTranslations('admin');
   const [venueImages, setVenueImages] = useState<ISessionImage[]>([]);
   const [venueBannerIndex, setVenueBannerIndex] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
@@ -189,9 +191,9 @@ export default function EditVenuePage({
           (error as { response?: { status?: number } })?.response?.status ===
           404
         ) {
-          toaster.error({ title: 'Không tìm thấy sân' });
+          toaster.error({ title: t('venues.notFound') });
         } else {
-          toaster.error({ title: 'Không thể tải thông tin sân' });
+          toaster.error({ title: t('venues.loadError') });
         }
         router.push('/admin/venues');
       } finally {
@@ -224,11 +226,11 @@ export default function EditVenuePage({
         id,
         payload as Partial<Venue>
       );
-      toaster.success({ title: 'Cập nhật sân thành công' });
+      toaster.success({ title: t('venues.updateSuccess') });
       router.push(`/venues/${result.slug || result.id}`);
     } catch (_error) {
       console.error('Failed to update venue:', _error);
-      toaster.error({ title: 'Không thể cập nhật sân' });
+      toaster.error({ title: t('venues.updateError') });
     }
   };
 
