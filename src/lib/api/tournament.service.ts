@@ -350,10 +350,25 @@ export const TournamentService = {
 
   addVenue: async (
     tournamentId: string,
-    data: {
-      venueId: string;
-      courts?: { courtNumber: number; courtName?: string }[];
-    }
+    data:
+      | {
+          /** Linked mode — points to an existing Venue record. */
+          venueId: string;
+          courts?: { courtNumber: number; courtName?: string }[];
+        }
+      | {
+          /** Inline mode — stores address directly without a Venue record. */
+          venueId?: never;
+          name: string;
+          acronym?: string;
+          placeId?: string;
+          address?: string;
+          lat?: number;
+          lng?: number;
+          district?: string;
+          city?: string;
+          courts?: { courtNumber: number; courtName?: string }[];
+        }
   ): Promise<TournamentVenue> => {
     const response = await api.post<ApiResponse<TournamentVenue>>(
       `/tournaments/${tournamentId}/venues`,

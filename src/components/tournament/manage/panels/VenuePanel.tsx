@@ -68,7 +68,7 @@ export default function VenuePanel({
       setRemovingId(confirmRemoveVenue.id);
       await TournamentService.removeVenue(
         tournament.id,
-        confirmRemoveVenue.venueId
+        confirmRemoveVenue.venueId ?? confirmRemoveVenue.id
       );
       setVenues((prev) => prev.filter((v) => v.id !== confirmRemoveVenue.id));
       onTournamentChanged?.();
@@ -166,10 +166,10 @@ export default function VenuePanel({
                 borderRadius="2xl"
                 overflow="hidden"
               >
-                {tv.venue.lat && tv.venue.lng ? (
+                {(tv.venue?.lat ?? tv.lat) && (tv.venue?.lng ?? tv.lng) ? (
                   <VenueMapPin
-                    lat={tv.venue.lat}
-                    lng={tv.venue.lng}
+                    lat={(tv.venue?.lat ?? tv.lat)!}
+                    lng={(tv.venue?.lng ?? tv.lng)!}
                     height="200px"
                     zoom={15}
                   />
@@ -197,9 +197,9 @@ export default function VenuePanel({
                       color="gray.800"
                       _dark={{ color: 'gray.100' }}
                     >
-                      {tv.venue.name}
+                      {tv.venue?.name ?? tv.name}
                     </Text>
-                    {tv.venue.acronym && (
+                    {(tv.venue?.acronym ?? tv.acronym) && (
                       <Box
                         bg="gray.100"
                         px={2}
@@ -213,20 +213,22 @@ export default function VenuePanel({
                           color="gray.600"
                           _dark={{ color: 'gray.300' }}
                         >
-                          {tv.venue.acronym}
+                          {tv.venue?.acronym ?? tv.acronym}
                         </Text>
                       </Box>
                     )}
                   </Flex>
-                  {tv.venue.address && (
+                  {(tv.venue?.address ?? tv.address) && (
                     <Text
                       fontSize="sm"
                       color="gray.500"
                       mb={1}
                       _dark={{ color: 'gray.400' }}
                     >
-                      {tv.venue.address}
-                      {tv.venue.city ? `, ${tv.venue.city}` : ''}
+                      {tv.venue?.address ?? tv.address}
+                      {(tv.venue?.city ?? tv.city)
+                        ? `, ${tv.venue?.city ?? tv.city}`
+                        : ''}
                     </Text>
                   )}
                   {tv.courts && tv.courts.length > 0 && (
@@ -244,10 +246,10 @@ export default function VenuePanel({
                         .join(', ')}
                     </Text>
                   )}
-                  {tv.venue.lat && tv.venue.lng && (
+                  {(tv.venue?.lat ?? tv.lat) && (tv.venue?.lng ?? tv.lng) && (
                     <Button
                       as="a"
-                      href={`https://www.google.com/maps/dir/?api=1&destination=${tv.venue.lat},${tv.venue.lng}`}
+                      href={`https://www.google.com/maps/dir/?api=1&destination=${tv.venue?.lat ?? tv.lat},${tv.venue?.lng ?? tv.lng}`}
                       variant="outline"
                       size="xs"
                       colorPalette="green"
@@ -255,7 +257,7 @@ export default function VenuePanel({
                       onClick={(event) => {
                         event.preventDefault();
                         window.open(
-                          `https://www.google.com/maps/dir/?api=1&destination=${tv.venue.lat},${tv.venue.lng}`,
+                          `https://www.google.com/maps/dir/?api=1&destination=${tv.venue?.lat ?? tv.lat},${tv.venue?.lng ?? tv.lng}`,
                           '_blank',
                           'noopener,noreferrer'
                         );
@@ -324,7 +326,7 @@ export default function VenuePanel({
             color="gray.800"
             _dark={{ color: 'gray.100' }}
           >
-            {confirmRemoveVenue?.venue.name}
+            {confirmRemoveVenue?.venue?.name ?? confirmRemoveVenue?.name}
           </Text>{' '}
           {t('removeConfirmSuffix')}
         </Text>

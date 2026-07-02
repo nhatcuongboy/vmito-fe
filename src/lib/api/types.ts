@@ -1021,8 +1021,18 @@ export interface TournamentCourt {
 export interface TournamentVenue {
   id: string;
   tournamentId: string;
-  venueId: string;
-  venue: Venue;
+  /** Linked to an existing Venue record. Optional when using inline address. */
+  venueId?: string;
+  venue?: Venue;
+  /** Inline address fields — used when venueId is absent (address-only mode). */
+  name?: string;
+  acronym?: string;
+  placeId?: string;
+  address?: string;
+  lat?: number;
+  lng?: number;
+  district?: string;
+  city?: string;
   courts?: TournamentCourt[];
   createdAt: Date;
 }

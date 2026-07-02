@@ -5,7 +5,6 @@ import { VStack } from '@/components/ui/chakra-compat';
 import { Minus, Plus } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useEffect, useState } from 'react';
-import { VenueService } from '@/lib/api/venue.service';
 import { TournamentService } from '@/lib/api/tournament.service';
 import { TournamentVenue, Venue } from '@/lib/api/types';
 import { toaster } from '@/components/ui/toaster';
@@ -63,10 +62,28 @@ export default function VenueConfigModal({
   useEffect(() => {
     if (isOpen) {
       if (existingTournamentVenue) {
-        setSelectedVenue(existingTournamentVenue.venue);
-        setLocation(null);
-        setName(existingTournamentVenue.venue.name ?? '');
-        setAcronym(existingTournamentVenue.venue.acronym ?? '');
+        const isLinked = !!existingTournamentVenue.venue;
+        if (isLinked) {
+          // Linked mode: venue is a proper Venue record
+          setSelectedVenue(existingTournamentVenue.venue!);
+          setLocation(null);
+          setName(existingTournamentVenue.venue!.name ?? '');
+          setAcronym(existingTournamentVenue.venue!.acronym ?? '');
+        } else {
+          // Inline mode: address stored directly on TournamentVenue
+          setSelectedVenue(null);
+          setLocation({
+            placeId: existingTournamentVenue.placeId ?? '',
+            name: existingTournamentVenue.name ?? '',
+            address: existingTournamentVenue.address ?? '',
+            lat: existingTournamentVenue.lat ?? 0,
+            lng: existingTournamentVenue.lng ?? 0,
+            district: existingTournamentVenue.district,
+            city: existingTournamentVenue.city,
+          });
+          setName(existingTournamentVenue.name ?? '');
+          setAcronym(existingTournamentVenue.acronym ?? '');
+        }
         const existingCourts = existingTournamentVenue.courts ?? [];
         if (existingCourts.length > 0) {
           setCourtCount(existingCourts.length);
@@ -127,52 +144,60 @@ export default function VenueConfigModal({
       toaster.error({ title: t('nameRequired') });
       return;
     }
+    if (!name.trim()) {
+      toaster.error({ title: t('nameRequired') });
+      return;
+    }
+
+    const courtPayload = courts.map((c) => ({
+      courtNumber: c.courtNumber,
+      courtName: c.courtName || undefined,
+    }));
 
     try {
       setIsSaving(true);
 
-      const venue =
-        selectedVenue ??
-        (await VenueService.findOrCreateVenue({
+      if (selectedVenue) {
+        // --- Linked mode: user selected an existing verified venue ---
+        const venueId = selectedVenue.id;
+
+        // If editing and the venue changed, remove the old link first
+        if (
+          existingTournamentVenue &&
+          existingTournamentVenue.venueId !== venueId
+        ) {
+          await TournamentService.removeVenue(
+            tournamentId,
+            existingTournamentVenue.venueId!
+          );
+        }
+
+        await TournamentService.addVenue(tournamentId, {
+          venueId,
+          courts: courtPayload,
+        });
+      } else {
+        // --- Inline mode: store address directly, no venues table record ---
+        if (existingTournamentVenue && existingTournamentVenue.venueId) {
+          // Was previously linked — remove the old venue link
+          await TournamentService.removeVenue(
+            tournamentId,
+            existingTournamentVenue.venueId
+          );
+        }
+
+        await TournamentService.addVenue(tournamentId, {
+          name: name.trim() || location!.name,
+          acronym: acronym.trim() || undefined,
           placeId: location!.placeId,
-          name: location!.name,
           address: location!.address,
           lat: location!.lat,
           lng: location!.lng,
           district: location!.district,
           city: location!.city,
-        }));
-      const venueId = venue.id;
-
-      // If editing and venue changed, remove old venue first
-      if (
-        existingTournamentVenue &&
-        existingTournamentVenue.venueId !== venueId
-      ) {
-        await TournamentService.removeVenue(
-          tournamentId,
-          existingTournamentVenue.venueId
-        );
-      }
-
-      // Update name/acronym if changed
-      if (
-        name.trim() !== venue.name ||
-        acronym.trim() !== (venue.acronym ?? '')
-      ) {
-        await VenueService.updateVenue(venueId, {
-          name: name.trim() || venue.name,
-          acronym: acronym.trim() || undefined,
+          courts: courtPayload,
         });
       }
-
-      await TournamentService.addVenue(tournamentId, {
-        venueId,
-        courts: courts.map((c) => ({
-          courtNumber: c.courtNumber,
-          courtName: c.courtName || undefined,
-        })),
-      });
 
       toaster.success({ title: t('venueSaved') });
       onSaved();
@@ -236,8 +261,10 @@ export default function VenueConfigModal({
         <LocationAutocomplete
           onSelect={handleLocationSelect}
           defaultValue={
-            existingTournamentVenue?.venue.address ||
-            existingTournamentVenue?.venue.name
+            existingTournamentVenue?.venue?.address ??
+            existingTournamentVenue?.address ??
+            existingTournamentVenue?.venue?.name ??
+            existingTournamentVenue?.name
           }
           placeholder={t('address')}
           suggestionsPlacement="inline"

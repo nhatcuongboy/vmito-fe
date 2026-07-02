@@ -616,7 +616,13 @@ export default function TournamentHomeTab({
 
         setTournamentVenues(
           data
-            .filter((tournamentVenue) => !!tournamentVenue.venue)
+            .filter(
+              (
+                tv
+              ): tv is TournamentVenue & {
+                venue: NonNullable<TournamentVenue['venue']>;
+              } => !!tv.venue
+            )
             .map((tournamentVenue) => ({
               id: tournamentVenue.id,
               venue: tournamentVenue.venue,
