@@ -356,6 +356,7 @@ export default function SuggestionsList({
       hasSlots: false,
       minAvailableSlots: 0,
       splitEvenly: false,
+      sessionType: 'all',
     });
     setPendingSortByDistance(false);
     setPendingUserLocation(null);

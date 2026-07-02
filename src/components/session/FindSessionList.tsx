@@ -84,6 +84,7 @@ const SESSION_FILTERS_SCHEMA = {
   hasSlots: booleanField(false),
   minSlots: numberField(0),
   splitEvenly: booleanField(false),
+  sessionType: stringField('all'),
   near: booleanField(false),
   sort: stringField('date_asc'),
 };
@@ -137,6 +138,9 @@ export default function FindSessionList({
       hasSlots: urlFilters.hasSlots,
       minAvailableSlots: urlFilters.minSlots,
       splitEvenly: urlFilters.splitEvenly,
+      sessionType: ['regular', 'facebook'].includes(urlFilters.sessionType)
+        ? (urlFilters.sessionType as 'regular' | 'facebook')
+        : 'all',
     }),
     [urlFilters]
   );
@@ -239,9 +243,9 @@ export default function FindSessionList({
       const currentPage = isLoadMore && !isMapMode ? page + 1 : 1;
 
       // Prepare filters for API
-      const apiFilters: Parameters<
-        typeof SessionService.getAvailableSessions
-      >[0] = {
+      const apiFilters: NonNullable<
+        Parameters<typeof SessionService.getAvailableSessions>[0]
+      > = {
         date: filters.date,
         searchQuery: filters.searchQuery,
         // Send City NAME(s) instead of CODE(s) — comma-separated for multi-select
@@ -263,6 +267,7 @@ export default function FindSessionList({
         hasSlots: filters.hasSlots ? true : undefined,
         minAvailableSlots:
           filters.minAvailableSlots > 0 ? filters.minAvailableSlots : undefined,
+        sessionType: filters.sessionType as 'all' | 'regular' | 'facebook',
         page: currentPage,
         limit: effectiveLimit,
       };
@@ -408,6 +413,7 @@ export default function FindSessionList({
     filters.levels,
     filters.timeRanges,
     filters.splitEvenly,
+    filters.sessionType,
     sortByDistance,
     userLocation,
     filters.searchQuery,
@@ -449,6 +455,7 @@ export default function FindSessionList({
       hasSlots: pendingFilters.hasSlots,
       minSlots: pendingFilters.minAvailableSlots,
       splitEvenly: pendingFilters.splitEvenly,
+      sessionType: pendingFilters.sessionType,
       near: pendingSortByDistance,
     });
     if (pendingUserLocation) {
@@ -472,6 +479,7 @@ export default function FindSessionList({
       hasSlots: false,
       minAvailableSlots: 0,
       splitEvenly: false,
+      sessionType: 'all',
     });
     setPendingSortByDistance(false);
     setPendingUserLocation(null);
@@ -496,6 +504,7 @@ export default function FindSessionList({
     (filters.minAvailableSlots > 0 ? 1 : 0) +
     (filters.minFee > 0 || filters.maxFee < 200000 ? 1 : 0) +
     (filters.splitEvenly ? 1 : 0) +
+    (filters.sessionType !== 'all' ? 1 : 0) +
     (sortByDistance ? 1 : 0);
 
   // Count of non-search filters for showing the clear-all button
@@ -644,6 +653,36 @@ export default function FindSessionList({
                   boxSize={3}
                   cursor="pointer"
                   onClick={handleClearVenueFilter}
+                  _hover={{ color: 'red.500' }}
+                />
+              </Badge>
+            )}
+
+            {/* Session type */}
+            {filters.sessionType !== 'all' && (
+              <Badge
+                colorPalette={
+                  filters.sessionType === 'facebook' ? 'blue' : 'green'
+                }
+                variant="subtle"
+                px={3}
+                py={1.5}
+                borderRadius="full"
+                display="flex"
+                alignItems="center"
+                gap={2}
+                boxShadow="sm"
+              >
+                <Text fontSize="xs" fontWeight="semibold">
+                  {filters.sessionType === 'facebook'
+                    ? t('filters.facebookSessions')
+                    : t('filters.regularSessions')}
+                </Text>
+                <Icon
+                  as={X}
+                  boxSize={3}
+                  cursor="pointer"
+                  onClick={() => setUrlFilters({ sessionType: 'all' })}
                   _hover={{ color: 'red.500' }}
                 />
               </Badge>

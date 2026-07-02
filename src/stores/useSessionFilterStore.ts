@@ -17,6 +17,7 @@ export interface SessionFilters {
   hasSlots: boolean;
   minAvailableSlots: number;
   splitEvenly: boolean; // New field for split payment option
+  sessionType: 'all' | 'regular' | 'facebook';
 }
 
 export type ViewMode = 'grid' | 'list' | 'map';
@@ -100,6 +101,7 @@ const defaultFilters: SessionFilters = {
   hasSlots: false,
   minAvailableSlots: 0,
   splitEvenly: false,
+  sessionType: 'all',
 };
 
 export const useSessionFilterStore = create<SessionFilterState>()(

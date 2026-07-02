@@ -85,6 +85,7 @@ export const SessionService = {
     excludeStatuses?: string[];
     endTimeBefore?: string;
     endTimeAfter?: string;
+    sessionType?: 'all' | 'regular' | 'facebook';
   }): Promise<{
     data: ISession[];
     total: number;
@@ -108,6 +109,8 @@ export const SessionService = {
       params.append('endTimeBefore', filters.endTimeBefore);
     if (filters?.endTimeAfter)
       params.append('endTimeAfter', filters.endTimeAfter);
+    if (filters?.sessionType && filters.sessionType !== 'all')
+      params.append('sessionType', filters.sessionType);
 
     const url = params.toString()
       ? `/sessions?${params.toString()}`
@@ -143,6 +146,7 @@ export const SessionService = {
       excludeStatuses?: string[];
       sortBy?: string;
       sortOrder?: 'asc' | 'desc';
+      sessionType?: 'all' | 'regular' | 'facebook';
     }
   ): Promise<{
     data: ISession[];
@@ -161,6 +165,8 @@ export const SessionService = {
       params.append('excludeStatus', filters.excludeStatus);
     if (filters?.sortBy) params.append('sortBy', filters.sortBy);
     if (filters?.sortOrder) params.append('sortOrder', filters.sortOrder);
+    if (filters?.sessionType && filters.sessionType !== 'all')
+      params.append('sessionType', filters.sessionType);
 
     const response = await api.get<
       ApiResponse<{
@@ -202,6 +208,7 @@ export const SessionService = {
     hostId?: string;
     sortBy?: string;
     sortOrder?: 'asc' | 'desc';
+    sessionType?: 'all' | 'regular' | 'facebook';
   }): Promise<{
     data: ISession[];
     pagination: {
@@ -239,6 +246,8 @@ export const SessionService = {
     if (filters?.hostId) params.append('hostId', filters.hostId);
     if (filters?.sortBy) params.append('sortBy', filters.sortBy);
     if (filters?.sortOrder) params.append('sortOrder', filters.sortOrder);
+    if (filters?.sessionType && filters.sessionType !== 'all')
+      params.append('sessionType', filters.sessionType);
 
     const url = params.toString()
       ? `/sessions/available?${params.toString()}`

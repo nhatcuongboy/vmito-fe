@@ -238,36 +238,50 @@ const SessionDetailHero = ({
       )}
 
       {/* Bottom-left badge: crawled → "Facebook post"; else slot availability */}
-      <Badge
-        position="absolute"
-        bottom={5}
-        left={3}
-        colorPalette={
-          session.isCrawled ? 'blue' : isClosed || isFull ? 'gray' : 'teal'
-        }
-        variant="solid"
-        fontSize="sm"
-        px={3}
-        py={1}
-        borderRadius="full"
-        fontWeight="600"
-        gap={1}
-        boxShadow="0 2px 8px rgba(0, 0, 0, 0.2)"
-        backdropFilter="blur(8px)"
-      >
-        {session.isCrawled ? (
-          <>
-            <Icon as={Facebook} boxSize={3.5} />
-            {t('crawledBadge')}
-          </>
-        ) : isClosed ? (
-          t('registrationClosed')
-        ) : isFull ? (
-          t('slotsFull')
-        ) : (
-          t('slotsAvailable', { count: availableSlots })
-        )}
-      </Badge>
+      {session.isCrawled ? (
+        <Badge
+          position="absolute"
+          bottom={5}
+          left={3}
+          bg="blackAlpha.600"
+          _dark={{ bg: 'whiteAlpha.200' }}
+          color="white"
+          borderWidth="1px"
+          borderColor="whiteAlpha.200"
+          backdropFilter="blur(4px)"
+          fontSize="sm"
+          px={3}
+          py={1}
+          borderRadius="full"
+          fontWeight="medium"
+          gap={1}
+        >
+          <Icon as={Facebook} boxSize={3.5} />
+          {t('crawledBadge')}
+        </Badge>
+      ) : (
+        <Badge
+          position="absolute"
+          bottom={5}
+          left={3}
+          colorPalette={isClosed || isFull ? 'gray' : 'teal'}
+          variant="solid"
+          fontSize="sm"
+          px={3}
+          py={1}
+          borderRadius="full"
+          fontWeight="600"
+          gap={1}
+          boxShadow="0 2px 8px rgba(0, 0, 0, 0.2)"
+          backdropFilter="blur(8px)"
+        >
+          {isClosed
+            ? t('registrationClosed')
+            : isFull
+              ? t('slotsFull')
+              : t('slotsAvailable', { count: availableSlots })}
+        </Badge>
+      )}
 
       {/* Status Badge - bottom right */}
       <Badge

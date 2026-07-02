@@ -249,16 +249,43 @@ const SessionDetailBody = ({
         </Avatar.Root>
         <Box flex={1}>
           <Flex align="center" gap={2}>
-            <Text fontWeight="semibold" fontSize="md">
+            <Text fontWeight="bold" fontSize="lg">
               {displayHostName}
             </Text>
             {!isCrawled && (
               <AppPlayerRating userId={session.hostId} showBullet />
             )}
           </Flex>
-          <Text fontSize="xs" color="gray.500">
-            {isCrawled ? t('crawledBadge') : t('host')}
-          </Text>
+          {isCrawled ? (
+            <Text fontSize="xs" color="gray.500" fontStyle="italic" mt={0.5}>
+              Đăng trên Facebook •{' '}
+              {session.externalGroupUrl ? (
+                <Box
+                  as="span"
+                  cursor="pointer"
+                  _hover={{ textDecoration: 'underline' }}
+                  onClick={(e: React.MouseEvent) => {
+                    e.stopPropagation();
+                    window.open(
+                      session.externalGroupUrl,
+                      '_blank',
+                      'noopener,noreferrer'
+                    );
+                  }}
+                >
+                  {session.externalSource || t('crawledSourcePrefix')}
+                </Box>
+              ) : (
+                <Box as="span">
+                  {session.externalSource || t('crawledSourcePrefix')}
+                </Box>
+              )}
+            </Text>
+          ) : (
+            <Text fontSize="xs" color="gray.500">
+              {t('host')}
+            </Text>
+          )}
         </Box>
         <Flex gap={2}>
           {!isCrawled && session.hostPhone && session.allowZaloContact && (
@@ -308,49 +335,35 @@ const SessionDetailBody = ({
         </Flex>
       </Flex>
 
-      {/* Crawled source: link to the original Facebook group */}
-      {isCrawled && session.externalGroupUrl && (
-        <Flex
-          align="center"
-          gap={2}
-          mt={3}
-          color="gray.900"
-          _dark={{ color: 'whiteAlpha.900' }}
-          cursor="pointer"
-          w="fit-content"
-          _hover={{ textDecoration: 'underline' }}
-          onClick={() =>
-            window.open(
-              session.externalGroupUrl,
-              '_blank',
-              'noopener,noreferrer'
-            )
-          }
-        >
-          <Avatar.Root size="xs" bg="blue.500" flexShrink={0}>
-            <Avatar.Fallback name={session.externalSource || 'FB'} />
-          </Avatar.Root>
-          <Text fontSize="sm" fontWeight="medium">
-            {session.externalSource || t('crawledSourcePrefix')}
-          </Text>
-        </Flex>
-      )}
-
       {/* Description / Note */}
       {session.description && (
-        <Box>
-          <Separator my={4} />
+        <Box mt={6} mb={4}>
+          <Text
+            fontWeight="bold"
+            fontSize="lg"
+            mb={3}
+            display="flex"
+            alignItems="center"
+            gap={2}
+          >
+            <Icon as={Info} color="green.500" boxSize={5} />
+            {t('description') || 'Mô tả chi tiết'}
+          </Text>
           <Box
-            bg="gray.50"
-            _dark={{ bg: 'gray.700' }}
+            bg="green.50"
+            _dark={{ bg: 'whiteAlpha.100' }}
             borderRadius="xl"
+            borderLeftWidth="4px"
+            borderLeftColor="green.500"
             p={{ base: 4, md: 5 }}
+            boxShadow="sm"
           >
             <Text
               fontSize={{ base: 'sm', md: 'md' }}
-              color="gray.700"
-              _dark={{ color: 'gray.300' }}
+              color="gray.800"
+              _dark={{ color: 'gray.100' }}
               whiteSpace="pre-wrap"
+              lineHeight="relaxed"
             >
               {session.description}
             </Text>
