@@ -397,7 +397,7 @@ const BaseSessionCard = ({
     if (actions.showManageButton && canManage) {
       const manageHref =
         actions.manageButtonHref ||
-        (user?.role === UserRole.PLAYER
+        (user?.role === UserRole.PLAYER || user?.role === UserRole.REFEREE
           ? `/player/sessions/${session.slug || session.id}`
           : `/host/sessions/${session.slug || session.id}`);
       buttons.push(

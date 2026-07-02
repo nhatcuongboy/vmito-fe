@@ -43,11 +43,17 @@ export default function ProtectedRouteGuard({
   }, [isHydrated, isAuthenticated, router, redirectTo]);
 
   // Check role permission if required
-  // When PLAYER_VIP_ENABLED is true, PLAYER can access HOST-restricted pages
+  // REFEREE keeps normal PLAYER access, plus referee-specific routes elsewhere.
   const hasRequiredRole = () => {
     if (requiredRole.length === 0) return true;
     const userRole = user?.role || '';
     if (requiredRole.includes(userRole)) return true;
+    if (
+      userRole === UserRole.REFEREE &&
+      requiredRole.includes(UserRole.PLAYER)
+    ) {
+      return true;
+    }
     // If requiredRole includes HOST, allow VIP PLAYER access
     if (
       requiredRole.includes(UserRole.HOST) &&

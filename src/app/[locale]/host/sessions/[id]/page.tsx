@@ -120,8 +120,11 @@ function HostSessionContent({ params }: { params: { id: string } }) {
   ];
 
   const filteredOriginalTabs = allNavigationTabs.filter((tab) => {
-    if (user?.role === UserRole.PLAYER && !canAccessHostFeatures) {
-      // Disable Courts (2), Matches (3), and Payment (4) for non-VIP PLAYER
+    if (
+      (user?.role === UserRole.PLAYER || user?.role === UserRole.REFEREE) &&
+      !canAccessHostFeatures
+    ) {
+      // Disable Courts (2), Matches (3), and Payment (4) for non-VIP PLAYER/REFEREE
       return tab.id !== 2 && tab.id !== 3 && tab.id !== 4;
     }
     return true;

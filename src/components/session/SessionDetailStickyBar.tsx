@@ -167,7 +167,7 @@ const SessionDetailStickyBar = ({
     }
 
     const manageHref =
-      user?.role === UserRole.PLAYER
+      user?.role === UserRole.PLAYER || user?.role === UserRole.REFEREE
         ? `/player/sessions/${session.slug || session.id}`
         : `/host/sessions/${session.slug || session.id}`;
 
