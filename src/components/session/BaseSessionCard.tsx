@@ -842,27 +842,64 @@ const BaseSessionCard = ({
                     )}
                   </Avatar.Root>
                 </Box>
-                <Text
-                  position="relative"
-                  zIndex={3}
-                  fontSize="sm"
-                  fontWeight="medium"
-                  cursor={onHostClick ? 'pointer' : 'default'}
-                  _hover={onHostClick ? { textDecoration: 'underline' } : {}}
-                  onClick={(e) => {
-                    if (onHostClick) {
-                      e.stopPropagation();
-                      onHostClick(e);
-                    }
-                  }}
-                >
-                  {displayHostName}
-                </Text>
-                {/* Bot has no meaningful rating for crawled sessions */}
-                {!isCrawled && (
-                  <AppPlayerRating userId={session.hostId} showBullet />
-                )}
-                {hostActions}
+                <Flex direction="column" align="flex-start" minW={0} flex={1}>
+                  <Flex align="center" gap={2} maxW="full">
+                    <Text
+                      position="relative"
+                      zIndex={3}
+                      fontSize="sm"
+                      fontWeight="semibold"
+                      cursor={onHostClick ? 'pointer' : 'default'}
+                      _hover={
+                        onHostClick ? { textDecoration: 'underline' } : {}
+                      }
+                      onClick={(e) => {
+                        if (onHostClick) {
+                          e.stopPropagation();
+                          onHostClick(e);
+                        }
+                      }}
+                      lineClamp={1}
+                    >
+                      {displayHostName}
+                    </Text>
+                    {/* Bot has no meaningful rating for crawled sessions */}
+                    {!isCrawled && (
+                      <AppPlayerRating userId={session.hostId} showBullet />
+                    )}
+                    {hostActions}
+                  </Flex>
+                  {isCrawled && session.externalSource && (
+                    <Text
+                      position="relative"
+                      zIndex={3}
+                      fontSize="xs"
+                      color="gray.500"
+                      _dark={{ color: 'whiteAlpha.600' }}
+                      lineClamp={1}
+                      cursor={session.externalGroupUrl ? 'pointer' : 'default'}
+                      _hover={
+                        session.externalGroupUrl
+                          ? { textDecoration: 'underline' }
+                          : {}
+                      }
+                      onClick={
+                        session.externalGroupUrl
+                          ? (e: React.MouseEvent) => {
+                              e.stopPropagation();
+                              window.open(
+                                session.externalGroupUrl,
+                                '_blank',
+                                'noopener,noreferrer'
+                              );
+                            }
+                          : undefined
+                      }
+                    >
+                      {session.externalSource}
+                    </Text>
+                  )}
+                </Flex>
               </Flex>
             )}
 
@@ -911,15 +948,14 @@ const BaseSessionCard = ({
                   </Flex>
                 )}
                 {session.shuttlecock && (
-                  <Flex align="flex-start" gap={1}>
+                  <Flex align="center" gap={1} minW={0}>
                     <Icon
                       as={Feather}
                       boxSize={4}
                       color="green.500"
-                      mt="2px"
                       flexShrink={0}
                     />
-                    <Text fontSize="xs" lineClamp={2}>
+                    <Text fontSize="xs" lineClamp={1} minW={0}>
                       {t('shuttlecock') + ' ' + session.shuttlecock}
                     </Text>
                   </Flex>
@@ -974,15 +1010,14 @@ const BaseSessionCard = ({
                   </Flex>
                 )}
                 {session.shuttlecock && (
-                  <Flex align="flex-start" gap={2}>
+                  <Flex align="center" gap={2} minW={0}>
                     <Icon
                       as={Feather}
                       boxSize={5}
                       color="green.500"
-                      mt="2px"
                       flexShrink={0}
                     />
-                    <Text fontSize="sm" lineClamp={2}>
+                    <Text fontSize="sm" lineClamp={1} minW={0}>
                       {t('shuttlecock') + ' ' + session.shuttlecock}
                     </Text>
                   </Flex>

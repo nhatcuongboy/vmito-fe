@@ -191,48 +191,7 @@ const FindSessionCard = ({
       </Flex>
     ) : null;
 
-  // Source row for crawled sessions: Facebook group avatar + name (links to the group).
-  // Placed above the location row, directly below the poster's name.
-  const crawledSourceRow = isCrawled ? (
-    <Flex
-      align="center"
-      gap={2}
-      color="gray.900"
-      _dark={{ color: 'whiteAlpha.900' }}
-      position="relative"
-      zIndex={3}
-      w="fit-content"
-      maxW="full"
-      cursor={session.externalGroupUrl ? 'pointer' : 'default'}
-      _hover={session.externalGroupUrl ? { textDecoration: 'underline' } : {}}
-      onClick={
-        session.externalGroupUrl
-          ? (e: React.MouseEvent) => {
-              e.stopPropagation();
-              window.open(
-                session.externalGroupUrl,
-                '_blank',
-                'noopener,noreferrer'
-              );
-            }
-          : undefined
-      }
-    >
-      <Avatar.Root size="xs" bg="blue.500" flexShrink={0}>
-        <Avatar.Fallback name={session.externalSource || 'FB'} />
-      </Avatar.Root>
-      <Text fontSize="sm" lineClamp={1} fontWeight="medium">
-        {session.externalSource || t('crawledSourcePrefix')}
-      </Text>
-    </Flex>
-  ) : null;
-
-  const extraInfoRows = (
-    <>
-      {crawledSourceRow}
-      {locationRow}
-    </>
-  );
+  const extraInfoRows = <>{locationRow}</>;
 
   // Slot availability badge - hidden if session is expired
   const isExpired =
@@ -279,13 +238,15 @@ const FindSessionCard = ({
     </Badge>
   ) : null;
 
-  // "Bài đăng Facebook" badge for crawled Facebook sessions
+  // "Bài đăng Facebook" badge for crawled Facebook sessions (translucent gray to balance visual weight)
   const crawledBadge = isCrawled ? (
     <Badge
-      colorPalette="blue"
-      variant="solid"
+      bg="blackAlpha.600"
+      _dark={{ bg: 'whiteAlpha.200' }}
+      color="white"
       borderWidth="1px"
-      borderColor="blue.400"
+      borderColor="whiteAlpha.200"
+      backdropFilter="blur(4px)"
       gap={1}
     >
       <Icon as={Facebook} boxSize={3} />
