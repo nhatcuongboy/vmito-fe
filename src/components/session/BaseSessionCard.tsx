@@ -650,7 +650,6 @@ const BaseSessionCard = ({
               }
         }
         maxW="400px"
-        minW="300px"
         w="100%"
         mx="auto"
         display="flex"
@@ -743,8 +742,8 @@ const BaseSessionCard = ({
 
         {/* Content Section */}
         <Box
-          p={isCompact ? 3 : 5}
-          pb={isCompact ? 3 : 5}
+          p={isCompact ? 3 : { base: 4, sm: 5 }}
+          pb={isCompact ? 3 : { base: 4, sm: 5 }}
           flex="1"
           display="flex"
           flexDirection="column"
@@ -1185,7 +1184,12 @@ const BaseSessionCard = ({
               ) : (
                 <>
                   {/* Row 1: Price and Top Actions */}
-                  <Flex align="flex-start" justify="space-between" gap={3}>
+                  <Flex
+                    align="flex-start"
+                    justify="space-between"
+                    gap={2}
+                    wrap="wrap"
+                  >
                     {/* Price Section */}
                     <Box flexShrink={0} pt={0.5}>
                       {session.feeConfig && (
@@ -1232,10 +1236,11 @@ const BaseSessionCard = ({
                         zIndex={3}
                         flex="1"
                         textAlign="right"
+                        minW="120px"
                         onMouseEnter={() => setIsMouseOverActionButton(true)}
                         onMouseLeave={() => setIsMouseOverActionButton(false)}
                       >
-                        <Flex justify="flex-end" gap={2}>
+                        <Flex justify="flex-end" gap={2} wrap="wrap">
                           {topActionsRendered || oldTopActions || actionButtons}
                         </Flex>
                       </Box>
