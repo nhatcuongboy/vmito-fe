@@ -1,7 +1,7 @@
 'use client';
 
 import { ISession, UserRole } from '@/lib/api/types';
-import { Box, Flex, Icon, Text, Badge } from '@chakra-ui/react';
+import { Box, Flex, Icon, Text, Badge, Avatar } from '@chakra-ui/react';
 import { IconButton } from '@/components/ui/chakra-compat';
 import { MapPin, Navigation, Facebook } from 'lucide-react';
 import { useTranslations } from 'next-intl';
@@ -75,7 +75,7 @@ const FindSessionCard = ({
 
   const {
     isOpen: isDeleteModalOpen,
-    onOpen: onOpenDeleteModal,
+    onOpen: _onOpenDeleteModal,
     onClose: onCloseDeleteModal,
   } = useModal();
 
@@ -191,16 +191,14 @@ const FindSessionCard = ({
       </Flex>
     ) : null;
 
-  // Source row for crawled sessions: Facebook group name (links to the group) +
-  // attribution note. The group link sits above the full-card link overlay.
-  const crawledSourceLabel = session.externalSource
-    ? `${session.externalSource} · ${t('crawledSourcePrefix')}`
-    : t('crawledSourcePrefix');
+  // Source row for crawled sessions: Facebook group avatar + name (links to the group).
+  // Placed above the location row, directly below the poster's name.
   const crawledSourceRow = isCrawled ? (
     <Flex
       align="center"
       gap={2}
-      color="blue.500"
+      color="gray.900"
+      _dark={{ color: 'whiteAlpha.900' }}
       position="relative"
       zIndex={3}
       w="fit-content"
@@ -220,17 +218,19 @@ const FindSessionCard = ({
           : undefined
       }
     >
-      <Icon as={Facebook} boxSize={4} flexShrink={0} />
-      <Text fontSize="sm" lineClamp={1}>
-        {crawledSourceLabel}
+      <Avatar.Root size="xs" bg="blue.500" flexShrink={0}>
+        <Avatar.Fallback name={session.externalSource || 'FB'} />
+      </Avatar.Root>
+      <Text fontSize="sm" lineClamp={1} fontWeight="medium">
+        {session.externalSource || t('crawledSourcePrefix')}
       </Text>
     </Flex>
   ) : null;
 
   const extraInfoRows = (
     <>
-      {locationRow}
       {crawledSourceRow}
+      {locationRow}
     </>
   );
 

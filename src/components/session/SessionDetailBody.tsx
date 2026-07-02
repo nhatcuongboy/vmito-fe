@@ -22,7 +22,6 @@ import {
   Navigation,
   UserCheck,
   Feather,
-  Facebook,
 } from 'lucide-react';
 import { useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
@@ -315,7 +314,8 @@ const SessionDetailBody = ({
           align="center"
           gap={2}
           mt={3}
-          color="blue.500"
+          color="gray.900"
+          _dark={{ color: 'whiteAlpha.900' }}
           cursor="pointer"
           w="fit-content"
           _hover={{ textDecoration: 'underline' }}
@@ -327,11 +327,11 @@ const SessionDetailBody = ({
             )
           }
         >
-          <Icon as={Facebook} boxSize={4} flexShrink={0} />
-          <Text fontSize="sm" lineClamp={1}>
-            {session.externalSource
-              ? `${t('crawledSourcePrefix')}: ${session.externalSource}`
-              : t('crawledSourcePrefix')}
+          <Avatar.Root size="xs" bg="blue.500" flexShrink={0}>
+            <Avatar.Fallback name={session.externalSource || 'FB'} />
+          </Avatar.Root>
+          <Text fontSize="sm" fontWeight="medium">
+            {session.externalSource || t('crawledSourcePrefix')}
           </Text>
         </Flex>
       )}

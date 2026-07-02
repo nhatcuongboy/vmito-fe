@@ -146,12 +146,15 @@ const SessionDetailStickyBar = ({
     if (isCrawled) {
       return (
         <Button
-          colorPalette="green"
           variant="solid"
           size={buttonSize}
           w={buttonW}
           fontWeight="semibold"
           borderRadius={buttonRadius}
+          bg="#1877F2"
+          color="white"
+          _hover={{ bg: '#166FE5' }}
+          _active={{ bg: '#1558B0' }}
           disabled={!session.externalUrl}
           onClick={() =>
             window.open(session.externalUrl, '_blank', 'noopener,noreferrer')

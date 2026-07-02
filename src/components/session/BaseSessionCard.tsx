@@ -421,10 +421,13 @@ const BaseSessionCard = ({
       buttons.push(
         <Button
           key="external-link"
-          colorPalette="green"
           variant="solid"
           size="sm"
           shadow="md"
+          bg="#1877F2"
+          color="white"
+          _hover={{ bg: '#166FE5' }}
+          _active={{ bg: '#1558B0' }}
           onClick={(e: React.MouseEvent) => {
             e.stopPropagation();
             window.open(actions.externalUrl, '_blank', 'noopener,noreferrer');
@@ -908,9 +911,15 @@ const BaseSessionCard = ({
                   </Flex>
                 )}
                 {session.shuttlecock && (
-                  <Flex align="center" gap={1}>
-                    <Icon as={Feather} boxSize={4} color="green.500" />
-                    <Text fontSize="xs">
+                  <Flex align="flex-start" gap={1}>
+                    <Icon
+                      as={Feather}
+                      boxSize={4}
+                      color="green.500"
+                      mt="2px"
+                      flexShrink={0}
+                    />
+                    <Text fontSize="xs" lineClamp={2}>
                       {t('shuttlecock') + ' ' + session.shuttlecock}
                     </Text>
                   </Flex>
@@ -965,9 +974,15 @@ const BaseSessionCard = ({
                   </Flex>
                 )}
                 {session.shuttlecock && (
-                  <Flex align="center" gap={2}>
-                    <Icon as={Feather} boxSize={5} color="green.500" />
-                    <Text fontSize="sm">
+                  <Flex align="flex-start" gap={2}>
+                    <Icon
+                      as={Feather}
+                      boxSize={5}
+                      color="green.500"
+                      mt="2px"
+                      flexShrink={0}
+                    />
+                    <Text fontSize="sm" lineClamp={2}>
                       {t('shuttlecock') + ' ' + session.shuttlecock}
                     </Text>
                   </Flex>

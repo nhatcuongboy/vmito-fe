@@ -1,7 +1,7 @@
 'use client';
 
 import { ISession } from '@/lib/api/types';
-import { Box, Flex, Grid, Icon, Portal, Spinner } from '@chakra-ui/react';
+import { Box, Flex, Grid, Icon, Portal } from '@chakra-ui/react';
 import { ArrowRight } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { TOP_BAR_HEIGHT_DESKTOP } from '@/constants';
@@ -23,6 +23,7 @@ import SessionDetailBody from './SessionDetailBody';
 import SessionDetailStickyBar from './SessionDetailStickyBar';
 import SessionRecommendations from './SessionRecommendations';
 import DetailViewCountFooter from '@/components/common/DetailViewCountFooter';
+import SessionDetailSkeleton from './SessionDetailSkeleton';
 
 interface PublicSessionDetailContentProps {
   sessionId: string;
@@ -192,11 +193,7 @@ export const PublicSessionDetailContent = ({
   };
 
   if (loading) {
-    return (
-      <Flex justify="center" align="center" minH="300px">
-        <Spinner size="xl" color="green.500" borderWidth="3px" />
-      </Flex>
-    );
+    return <SessionDetailSkeleton />;
   }
 
   if (error || !session) {
