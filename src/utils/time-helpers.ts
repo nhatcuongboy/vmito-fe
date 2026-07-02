@@ -79,82 +79,32 @@ export const is24HourFormat = (): boolean => {
   }
 };
 
-const get12HourTimeParts = (
-  dateString: string | Date
-): { time: string; period: 'AM' | 'PM' } => {
-  const date = new Date(dateString);
-  const hours = date.getHours();
-  const hour12 = hours % 12 || 12;
-  const minutes = date.getMinutes().toString().padStart(2, '0');
-
-  return {
-    time: `${hour12.toString().padStart(2, '0')}:${minutes}`,
-    period: hours < 12 ? 'AM' : 'PM',
-  };
-};
-
 /**
- * Format time string based on device's time format preference
+ * Format time string in 24h format (HH:mm), always — regardless of OS/locale setting.
  * @param dateString - Time string or Date object
- * @returns Formatted time string (HH:MM or h:MM AM/PM)
+ * @returns Formatted time string, e.g. "20:00"
  */
 export const formatTimeByDevicePreference = (
   dateString: string | Date
 ): string => {
   const date = new Date(dateString);
-  const use24Hour = is24HourFormat();
-
-  try {
-    if (!use24Hour) {
-      const { time, period } = get12HourTimeParts(date);
-      return `${time} ${period}`;
-    }
-
-    return date.toLocaleTimeString(undefined, {
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: false,
-    });
-  } catch (error) {
-    console.warn('Error formatting time:', error);
-    // Fallback to 24-hour format
-    return date.toLocaleTimeString('en-US', {
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: false,
-    });
-  }
+  const h = date.getHours().toString().padStart(2, '0');
+  const m = date.getMinutes().toString().padStart(2, '0');
+  return `${h}:${m}`;
 };
 
 /**
- * Format a time range with a compact AM/PM label when the device uses 12-hour time.
- * Examples: "03:00 - 05:00 AM", "11:30 AM - 01:30 PM", or "15:00 - 17:00".
+ * Format a time range in 24h format (HH:mm - HH:mm), always.
+ * Example: "20:00 - 22:00".
  */
 export const formatTimeRangeByDevicePreference = (
   startTime: string | Date,
   endTime?: string | Date | null,
   endFallback?: string
 ): string => {
-  const use24Hour = is24HourFormat();
-
+  const start = formatTimeByDevicePreference(startTime);
   if (!endTime) {
-    return endFallback
-      ? `${formatTimeByDevicePreference(startTime)} - ${endFallback}`
-      : formatTimeByDevicePreference(startTime);
+    return endFallback ? `${start} - ${endFallback}` : start;
   }
-
-  if (use24Hour) {
-    return `${formatTimeByDevicePreference(startTime)} - ${formatTimeByDevicePreference(
-      endTime
-    )}`;
-  }
-
-  const start = get12HourTimeParts(startTime);
-  const end = get12HourTimeParts(endTime);
-
-  if (start.period === end.period) {
-    return `${start.time} - ${end.time} ${end.period}`;
-  }
-
-  return `${start.time} ${start.period} - ${end.time} ${end.period}`;
+  return `${start} - ${formatTimeByDevicePreference(endTime)}`;
 };

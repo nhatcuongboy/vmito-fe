@@ -28,6 +28,7 @@ import {
 import { ScheduleQueueService } from '@/lib/api/schedule-generator.service';
 import { toaster } from '@/components/ui/toaster';
 import { useTournamentSocket } from '@/hooks/useTournamentSocket';
+import { formatTimeByDevicePreference } from '@/utils/time-helpers';
 
 interface NextAvailableCourtModalProps {
   isOpen: boolean;
@@ -200,11 +201,7 @@ export default function NextAvailableCourtModal({
     (c) => c.status === TournamentCourtStatus.AVAILABLE
   ).length;
 
-  const formatTime = (iso: string) =>
-    new Date(iso).toLocaleTimeString(locale, {
-      hour: '2-digit',
-      minute: '2-digit',
-    });
+  const formatTime = (iso: string) => formatTimeByDevicePreference(iso);
 
   return (
     <VModal
