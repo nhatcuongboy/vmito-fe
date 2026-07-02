@@ -593,7 +593,7 @@ export default function PublicTournamentStandingsTab({
   }
 
   return (
-    <Box>
+    <Box pt={{ base: 4, md: 0 }}>
       <Flex
         align={{ base: 'stretch', md: 'center' }}
         justify="space-between"
@@ -637,7 +637,6 @@ export default function PublicTournamentStandingsTab({
             active={showPlayerNames}
             onToggle={() => setShowPlayerNames((prev) => !prev)}
             title={t('showPlayerNames')}
-            label={t('showPlayerNamesBadge')}
           />
         </HStack>
       </Flex>
@@ -649,97 +648,61 @@ export default function PublicTournamentStandingsTab({
         gap={3}
         mb={{ base: 3, md: 4 }}
       >
-        <Flex
-          align="center"
-          direction="row"
-          gap={{ base: 3, md: 2 }}
-          minW={0}
-          overflowX="auto"
-          css={{
-            scrollbarWidth: 'none',
-            '&::-webkit-scrollbar': { display: 'none' },
-          }}
-        >
-          <HStack
-            gap="2px"
-            p="2px"
-            bg="gray.100"
-            borderWidth="1px"
-            borderColor="transparent"
-            _dark={{
-              bg: 'var(--tournament-surface-muted, var(--chakra-colors-gray-800))',
-              borderColor:
-                'var(--tournament-border, var(--chakra-colors-gray-700))',
-            }}
-            borderRadius="full"
-            w="fit-content"
-            flexShrink={0}
-          >
-            <Button
-              flex="unset"
-              size="xs"
-              variant={stageView === 'pool' ? 'solid' : 'ghost'}
-              colorPalette={stageView === 'pool' ? 'green' : 'gray'}
-              borderRadius="full"
-              px={{ base: 3, sm: 3.5 }}
-              onClick={() => setStageView('pool')}
-            >
-              <ListTree size={14} /> {t('poolPlay')}
-            </Button>
-            <Button
-              flex="unset"
-              size="xs"
-              variant={stageView === 'playoffs' ? 'solid' : 'ghost'}
-              colorPalette={stageView === 'playoffs' ? 'green' : 'gray'}
-              borderRadius="full"
-              px={{ base: 3, sm: 3.5 }}
-              onClick={() => setStageView('playoffs')}
-            >
-              <GitBranch size={14} /> {t('playoffs')}
-            </Button>
-          </HStack>
-
+        <Box flexShrink={0}>
           {stageView === 'pool' && (
-            <HStack
-              gap="2px"
-              p="2px"
-              bg="gray.100"
-              borderWidth="1px"
-              borderColor="transparent"
-              _dark={{
-                bg: 'var(--tournament-surface-muted, var(--chakra-colors-gray-800))',
-                borderColor:
-                  'var(--tournament-border, var(--chakra-colors-gray-700))',
-              }}
-              borderRadius="full"
-              w="fit-content"
-              flexShrink={0}
-            >
-              <Button
-                flex="unset"
-                size="xs"
-                variant={standingView === 'pools' ? 'solid' : 'ghost'}
-                colorPalette={standingView === 'pools' ? 'green' : 'gray'}
-                borderRadius="full"
-                px={{ base: 3, sm: 3.5 }}
-                onClick={() => setStandingView('pools')}
+            <Box w="fit-content" minW="120px">
+              <LegacySelect
+                value={standingView}
+                onChange={(event) =>
+                  setStandingView(event.target.value as StandingView)
+                }
+                size="sm"
               >
-                {t('pools')}
-              </Button>
-              <Button
-                flex="unset"
-                size="xs"
-                variant={standingView === 'overall' ? 'solid' : 'ghost'}
-                colorPalette={standingView === 'overall' ? 'green' : 'gray'}
-                borderRadius="full"
-                px={{ base: 3, sm: 3.5 }}
-                onClick={() => setStandingView('overall')}
-              >
-                {t('overall')}
-              </Button>
-            </HStack>
+                <option value="pools">{t('pools')}</option>
+                <option value="overall">{t('overall')}</option>
+              </LegacySelect>
+            </Box>
           )}
-        </Flex>
+        </Box>
+
+        <HStack
+          gap="2px"
+          p="2px"
+          bg="gray.100"
+          borderWidth="1px"
+          borderColor="transparent"
+          _dark={{
+            bg: 'var(--tournament-surface-muted, var(--chakra-colors-gray-800))',
+            borderColor:
+              'var(--tournament-border, var(--chakra-colors-gray-700))',
+          }}
+          borderRadius="full"
+          w="fit-content"
+          flexShrink={0}
+        >
+          <Button
+            flex="unset"
+            size="xs"
+            variant={stageView === 'pool' ? 'solid' : 'ghost'}
+            colorPalette={stageView === 'pool' ? 'green' : 'gray'}
+            borderRadius="full"
+            px={{ base: 3, sm: 3.5 }}
+            onClick={() => setStageView('pool')}
+          >
+            <ListTree size={14} /> {t('poolPlay')}
+          </Button>
+          <Button
+            flex="unset"
+            size="xs"
+            variant={stageView === 'playoffs' ? 'solid' : 'ghost'}
+            colorPalette={stageView === 'playoffs' ? 'green' : 'gray'}
+            borderRadius="full"
+            px={{ base: 3, sm: 3.5 }}
+            onClick={() => setStageView('playoffs')}
+          >
+            <GitBranch size={14} /> {t('playoffs')}
+          </Button>
+        </HStack>
       </Flex>
 
       {error ? (

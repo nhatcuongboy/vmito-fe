@@ -12,6 +12,7 @@ import { usePathname, useSearchParams } from 'next/navigation';
 import { useRouter } from '@/i18n/config';
 import { Badge, Box, Flex, Heading, SimpleGrid, Text } from '@chakra-ui/react';
 import { Button, Input, VStack } from '@/components/ui/chakra-compat';
+import { AppSearchBar } from '@/components/common/AppSearchBar';
 import {
   Drawer,
   DrawerBody,
@@ -27,12 +28,10 @@ import {
   Check,
   CircleSlash,
   Clock,
-  Filter,
   Flag,
   List,
   MonitorPlay,
   RotateCcw,
-  Search,
   ShieldCheck,
   Trophy,
   X,
@@ -740,20 +739,18 @@ export default function ResultsPanel({
     return <TournamentMatchListSkeleton count={6} />;
   }
 
+  const canShowRefereeFilter =
+    refereeAccess.canRefereeAny || refereeAccess.hasOwnAssignments;
+
   return (
     <Box>
-      <Flex
-        align={{ base: 'stretch', md: 'center' }}
-        justify="space-between"
-        gap={3}
-        mb={5}
-        direction={{ base: 'column', md: 'row' }}
-      >
+      <Flex direction="column" gap={3} mb={5}>
         <Flex
           align={{ base: 'stretch', md: 'center' }}
           gap={3}
           direction={{ base: 'column', md: 'row' }}
-          minW={0}
+          justify="space-between"
+          w="full"
         >
           <Box flex={1} minW={0}>
             <Heading
@@ -771,30 +768,32 @@ export default function ResultsPanel({
             )}
           </Box>
 
-          <Flex
-            display={{ base: 'flex', md: 'none' }}
-            align="center"
-            gap={2}
-            w="full"
-          >
-            <Box flex={1} minW={0}>
-              <SearchInput
-                value={filters.query}
-                onChange={(value) =>
-                  setFilters((prev) => ({ ...prev, query: value }))
-                }
-                placeholder={t('filters.searchPlaceholder')}
-              />
-            </Box>
-            {(refereeAccess.canRefereeAny ||
-              refereeAccess.hasOwnAssignments) && (
+          <Box w={{ base: 'full', md: '360px' }} minW={0}>
+            <AppSearchBar
+              value={filters.query}
+              onChange={(value) =>
+                setFilters((prev) => ({ ...prev, query: value }))
+              }
+              placeholder={t('filters.searchPlaceholder')}
+              onFilterClick={() => setIsFilterOpen(true)}
+              activeFilterCount={activeFilterCount}
+              showFilter={true}
+              showCitySelector={false}
+            />
+          </Box>
+        </Flex>
+
+        <Flex align="center" justify="space-between" gap={3} w="full">
+          <Flex align="center" gap={2}>
+            {canShowRefereeFilter && (
               <Button
                 size="sm"
                 variant="outline"
                 colorPalette={filters.refereeOnly ? 'green' : 'gray'}
                 bg={filters.refereeOnly ? 'green.500' : 'transparent'}
                 color={filters.refereeOnly ? 'white' : undefined}
-                borderColor={filters.refereeOnly ? 'green.400' : 'gray.200'}
+                borderWidth="2px"
+                borderColor={filters.refereeOnly ? 'green.500' : 'green.200'}
                 onClick={() =>
                   setFilters((prev) => ({
                     ...prev,
@@ -803,101 +802,64 @@ export default function ResultsPanel({
                 }
                 aria-label={t('filters.referee')}
                 flexShrink={0}
+                w="auto"
+                minW="fit-content"
                 h={9}
-                w={9}
-                px={0}
+                px={3}
+                gap={1.5}
+                borderRadius="full"
                 transition="all 0.15s ease"
                 _hover={{
                   bg: filters.refereeOnly ? 'green.600' : 'gray.100',
-                  borderColor: filters.refereeOnly ? 'green.500' : 'gray.300',
+                  borderColor: filters.refereeOnly ? 'green.600' : 'green.300',
                 }}
               >
                 <ShieldCheck size={15} />
+                <Text fontSize="sm" fontWeight="semibold">
+                  {t('filters.referee')}
+                </Text>
               </Button>
             )}
-            <Button
-              size="sm"
-              variant="outline"
-              colorPalette="gray"
-              onClick={() => setIsFilterOpen(true)}
-              aria-label={t('filters.title')}
-              flexShrink={0}
-              h={9}
-              w={9}
-              px={0}
-              position="relative"
-            >
-              <Filter size={16} />
-              {activeFilterCount > 0 && (
-                <Badge
-                  position="absolute"
-                  top="-1"
-                  right="-1"
-                  colorPalette="green"
-                  borderRadius="full"
-                  minW={4}
-                  h={4}
-                  px={1}
-                  fontSize="2xs"
-                  lineHeight="1"
-                  display="inline-flex"
-                  alignItems="center"
-                  justifyContent="center"
-                >
-                  {activeFilterCount}
-                </Badge>
-              )}
-            </Button>
-          </Flex>
-        </Flex>
 
-        <Flex
-          align="center"
-          gap={3}
-          justify="flex-end"
-          w={{ base: 'full', md: 'auto' }}
-        >
-          <Box display={{ base: 'none', md: 'block' }} w="280px">
-            <SearchInput
-              value={filters.query}
-              onChange={(value) =>
-                setFilters((prev) => ({ ...prev, query: value }))
-              }
-              placeholder={t('filters.searchPlaceholder')}
-            />
-          </Box>
+            {canEdit && (
+              <Button
+                display={{ base: 'none', md: 'inline-flex' }}
+                size="sm"
+                variant="outline"
+                colorPalette="gray"
+                onClick={() => setIsOverlayLinksOpen(true)}
+                aria-label={tOverlay('title')}
+                flexShrink={0}
+                h={9}
+                w={9}
+                px={0}
+              >
+                <MonitorPlay size={15} />
+              </Button>
+            )}
+          </Flex>
 
           <Flex
             align="center"
             gap={2}
             justify="space-between"
             w={{ base: 'auto', md: 'auto' }}
-            p={{ base: 0, md: 1 }}
-            borderWidth={{ base: 0, md: '1px' }}
-            borderColor={{ md: 'gray.200' }}
-            borderRadius={{ base: 'md', md: 'lg' }}
-            bg={{ base: 'transparent', md: 'white' }}
-            boxShadow={{ base: 'none', md: 'sm' }}
-            _dark={{
-              bg: {
-                base: 'transparent',
-                md: 'var(--tournament-surface, var(--chakra-colors-gray-900))',
-              },
-              borderColor: {
-                md: 'var(--tournament-border, var(--chakra-colors-gray-700))',
-              },
-              boxShadow: { base: 'none', md: 'var(--tournament-shadow-soft)' },
-            }}
+            p={0}
           >
             <Flex
-              flex={{ base: 1, sm: '0 1 auto' }}
-              minW={0}
-              p={{ base: 0.5, md: 0.5 }}
-              gap={1}
-              borderRadius="md"
-              bg="gray.100"
+              p={0.5}
+              gap={0.5}
+              borderWidth="1px"
+              borderColor="gray.200"
+              borderRadius="lg"
+              bg="white"
+              ml="auto"
+              shadow="sm"
+              h="fit-content"
               _dark={{
-                bg: 'var(--tournament-surface-muted, var(--chakra-colors-gray-800))',
+                bg: 'var(--tournament-surface, var(--chakra-colors-gray-800))',
+                borderColor:
+                  'var(--tournament-border, var(--chakra-colors-gray-700))',
               }}
             >
               <ModeButton
@@ -914,92 +876,6 @@ export default function ResultsPanel({
               />
             </Flex>
           </Flex>
-
-          <Button
-            display={{
-              base: 'none',
-              md:
-                refereeAccess.canRefereeAny || refereeAccess.hasOwnAssignments
-                  ? 'inline-flex'
-                  : 'none',
-            }}
-            size="sm"
-            variant="outline"
-            colorPalette={filters.refereeOnly ? 'green' : 'gray'}
-            bg={filters.refereeOnly ? 'green.500' : 'transparent'}
-            color={filters.refereeOnly ? 'white' : undefined}
-            borderColor={filters.refereeOnly ? 'green.400' : 'gray.200'}
-            onClick={() =>
-              setFilters((prev) => ({
-                ...prev,
-                refereeOnly: !prev.refereeOnly,
-              }))
-            }
-            aria-label={t('filters.referee')}
-            flexShrink={0}
-            h={9}
-            w={9}
-            px={0}
-            transition="all 0.15s ease"
-            _hover={{
-              bg: filters.refereeOnly ? 'green.600' : 'gray.100',
-              borderColor: filters.refereeOnly ? 'green.500' : 'gray.300',
-            }}
-          >
-            <ShieldCheck size={15} />
-          </Button>
-
-          <Button
-            display={{ base: 'none', md: 'inline-flex' }}
-            size="sm"
-            variant="outline"
-            colorPalette="gray"
-            onClick={() => setIsFilterOpen(true)}
-            aria-label={t('filters.title')}
-            flexShrink={0}
-            h={9}
-            w={9}
-            px={0}
-            position="relative"
-          >
-            <Filter size={15} />
-            {activeFilterCount > 0 && (
-              <Badge
-                position="absolute"
-                top="-1"
-                right="-1"
-                colorPalette="green"
-                borderRadius="full"
-                minW={4}
-                h={4}
-                px={1}
-                fontSize="2xs"
-                lineHeight="1"
-                display="inline-flex"
-                alignItems="center"
-                justifyContent="center"
-              >
-                {activeFilterCount}
-              </Badge>
-            )}
-          </Button>
-
-          {canEdit && (
-            <Button
-              display={{ base: 'none', md: 'inline-flex' }}
-              size="sm"
-              variant="outline"
-              colorPalette="gray"
-              onClick={() => setIsOverlayLinksOpen(true)}
-              aria-label={tOverlay('title')}
-              flexShrink={0}
-              h={9}
-              w={9}
-              px={0}
-            >
-              <MonitorPlay size={15} />
-            </Button>
-          )}
         </Flex>
       </Flex>
 
@@ -1134,6 +1010,7 @@ export default function ResultsPanel({
         onToggle={updateFilterList}
         showPlayerNames={showPlayerNames}
         onTogglePlayerNames={() => setShowPlayerNames((prev) => !prev)}
+        showRefereeFilter={canShowRefereeFilter}
       />
 
       <OverlayLinksModal
@@ -1866,6 +1743,7 @@ export function FilterDrawer({
   onToggle,
   showPlayerNames,
   onTogglePlayerNames,
+  showRefereeFilter,
 }: {
   isOpen: boolean;
   onClose: () => void;
@@ -1882,6 +1760,7 @@ export function FilterDrawer({
   ) => void;
   showPlayerNames: boolean;
   onTogglePlayerNames: () => void;
+  showRefereeFilter: boolean;
 }) {
   const t = useTranslations('pages.tournaments.manualScore');
 
@@ -1908,7 +1787,7 @@ export function FilterDrawer({
         </DrawerHeader>
         <DrawerBody>
           <VStack align="stretch" gap={6}>
-            <FilterSection title={t('showPlayerNamesBadge')}>
+            <Flex gap={2} wrap="wrap">
               <Button
                 size="md"
                 variant={showPlayerNames ? 'solid' : 'outline'}
@@ -1916,11 +1795,29 @@ export function FilterDrawer({
                 borderRadius="full"
                 onClick={onTogglePlayerNames}
               >
-                {showPlayerNames
-                  ? t('showPlayerNamesBadge')
-                  : t('showPlayerNames')}
+                {t('showPlayerNamesBadge')}
               </Button>
-            </FilterSection>
+
+              {showRefereeFilter && (
+                <Button
+                  size="md"
+                  variant={filters.refereeOnly ? 'solid' : 'outline'}
+                  colorPalette={filters.refereeOnly ? 'green' : 'gray'}
+                  borderRadius="full"
+                  borderWidth="2px"
+                  borderColor={filters.refereeOnly ? 'green.500' : 'green.200'}
+                  onClick={() =>
+                    setFilters((prev) => ({
+                      ...prev,
+                      refereeOnly: !prev.refereeOnly,
+                    }))
+                  }
+                  leftIcon={<ShieldCheck size={16} />}
+                >
+                  {t('filters.referee')}
+                </Button>
+              )}
+            </Flex>
 
             <FilterSection title={t('filters.categories')}>
               <ChipGroup
@@ -2126,6 +2023,7 @@ export function ModeButton({
       minW={isIconOnly ? 8 : { base: 0, sm: 24 }}
       w={isIconOnly ? 8 : undefined}
       px={isIconOnly ? 0 : 3}
+      borderRadius="md"
       fontSize="sm"
       fontWeight="semibold"
     >
@@ -2156,43 +2054,6 @@ function EmptyResults({ onClear }: { onClear: () => void }) {
       <Button variant="outline" colorPalette="gray" onClick={onClear}>
         <RotateCcw size={16} /> {t('filters.clear')}
       </Button>
-    </Box>
-  );
-}
-
-function SearchInput({
-  value,
-  onChange,
-  placeholder,
-}: {
-  value: string;
-  onChange: (value: string) => void;
-  placeholder: string;
-}) {
-  return (
-    <Box position="relative" w="full">
-      <Box
-        position="absolute"
-        left={3}
-        top="50%"
-        transform="translateY(-50%)"
-        color="gray.400"
-        pointerEvents="none"
-      >
-        <Search size={15} />
-      </Box>
-      <Input
-        value={value}
-        onChange={(event) => onChange(event.target.value)}
-        placeholder={placeholder}
-        pl={9}
-        h={9}
-        borderRadius="full"
-        bg="white"
-        _dark={{
-          bg: 'var(--tournament-surface, var(--chakra-colors-gray-900))',
-        }}
-      />
     </Box>
   );
 }

@@ -80,16 +80,36 @@ export default function ManageMenuItem({
   return (
     <Flex
       borderWidth="1px"
-      borderColor={isActive ? 'gray.400' : 'gray.200'}
+      borderColor={
+        isActive ? (variant === 'danger' ? 'red.300' : 'green.300') : 'gray.200'
+      }
       borderRadius="xl"
-      bg={isActive ? 'gray.50' : 'white'}
-      px={4}
+      bg={isActive ? (variant === 'danger' ? 'red.50' : 'green.50') : 'white'}
+      px={3.5}
       py={3}
       align="center"
       gap={3}
       cursor={onClick ? 'pointer' : 'default'}
       onClick={onClick}
-      _hover={onClick ? { bg: 'gray.50', borderColor: 'gray.300' } : {}}
+      boxShadow={isActive ? '0 10px 26px rgba(16, 185, 129, 0.12)' : 'sm'}
+      _hover={
+        onClick
+          ? {
+              bg: isActive
+                ? variant === 'danger'
+                  ? 'red.50'
+                  : 'green.50'
+                : 'gray.50',
+              borderColor: isActive
+                ? variant === 'danger'
+                  ? 'red.300'
+                  : 'green.300'
+                : 'gray.300',
+              transform: 'translateY(-1px)',
+              boxShadow: 'md',
+            }
+          : {}
+      }
       _dark={{
         bg: isActive
           ? 'var(--tournament-accent-soft, rgba(34, 197, 94, 0.14))'
@@ -112,13 +132,28 @@ export default function ManageMenuItem({
       transition="all 0.15s"
     >
       <Flex
-        w="32px"
-        h="32px"
+        w="38px"
+        h="38px"
         align="center"
         justify="center"
         flexShrink={0}
-        color={variant === 'danger' ? 'red.500' : 'gray.500'}
-        _dark={{ color: variant === 'danger' ? 'red.300' : 'gray.300' }}
+        borderRadius="xl"
+        bg={
+          isActive
+            ? variant === 'danger'
+              ? 'red.100'
+              : 'green.100'
+            : 'gray.100'
+        }
+        color={
+          variant === 'danger' ? 'red.500' : isActive ? 'green.700' : 'gray.600'
+        }
+        _dark={{
+          bg: isActive
+            ? 'var(--tournament-accent-soft, rgba(34, 197, 94, 0.18))'
+            : 'var(--tournament-surface-raised, var(--chakra-colors-gray-700))',
+          color: variant === 'danger' ? 'red.300' : 'gray.200',
+        }}
       >
         <Icon size={20} />
       </Flex>
@@ -126,8 +161,9 @@ export default function ManageMenuItem({
         <Flex align="center" gap={2}>
           <Text
             fontWeight="semibold"
-            fontSize="sm"
+            fontSize={{ base: 'sm', md: 'sm' }}
             color={variant === 'danger' ? 'red.600' : 'fg'}
+            lineClamp={1}
           >
             {title}
           </Text>

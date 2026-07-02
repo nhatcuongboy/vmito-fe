@@ -53,7 +53,7 @@ export default function SettingsTab({
     : undefined;
 
   return (
-    <VStack gap={3} align="stretch">
+    <VStack gap={2.5} align="stretch">
       {/* Lifecycle status: start / finish / cancel the tournament */}
       <TournamentStatusBanner
         tournament={tournament}

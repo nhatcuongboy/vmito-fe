@@ -51,6 +51,8 @@ interface PageLayoutProps extends Omit<ContainerProps, 'title'> {
   contentTopOffset?: string;
   rootClassName?: string;
   topBarClassName?: string;
+  /** On desktop, render this content centered in the top bar (search bar) instead of the title */
+  topBarSearchContent?: ReactNode;
 }
 
 export default function PageLayout({
@@ -85,6 +87,7 @@ export default function PageLayout({
   contentTopOffset = CONTENT_PT_OFFSET,
   rootClassName,
   topBarClassName,
+  topBarSearchContent,
   ...containerProps
 }: PageLayoutProps) {
   const isMainPage = useIsMainPage();
@@ -95,6 +98,7 @@ export default function PageLayout({
     '/',
     ROUTES.BROWSE.VENUES.LIST,
     ROUTES.CLUBS.BROWSE,
+    ROUTES.BROWSE.TOURNAMENTS.LIST,
   ].some((path) => {
     const normalized =
       pathname.replace(/^\/[a-z]{2}(\/|$)/, '/').replace(/\/$/, '') || '/';
@@ -133,6 +137,7 @@ export default function PageLayout({
         showAiAssistantButton={showTopBarAiAssistantButton}
         showCitySelector={isDiscoveryPage}
         className={topBarClassName}
+        desktopSearchContent={topBarSearchContent}
       />
       {isDiscoveryPage && <CityOnboardingModal />}
       {isDiscoveryPage && <DiscoveryTabNav />}

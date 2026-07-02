@@ -800,7 +800,8 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
                         </Flex>
                       </NextLinkButton>
                     </VTooltip>
-                    {canAccessHostFeatures &&
+                    {(canAccessHostFeatures ||
+                      user?.role === UserRole.REFEREE) &&
                       (user?.role === UserRole.ADMIN ||
                         user?.role === UserRole.HOST ||
                         user?.role === UserRole.REFEREE) && (

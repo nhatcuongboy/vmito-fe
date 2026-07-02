@@ -25,6 +25,7 @@ import {
   LuUserCheck,
   LuUsers,
 } from 'react-icons/lu';
+import { FaBell } from 'react-icons/fa6';
 import {
   PopoverRoot,
   PopoverTrigger,
@@ -308,26 +309,33 @@ export default function NotificationBell({
             minW={{ base: '36px', md: '40px' }}
             h={{ base: '36px', md: '40px' }}
             borderRadius="full"
-            color={isOpen ? 'white' : 'blue.600'}
-            bg={isOpen ? 'blue.600' : 'blue.50'}
+            color={isOpen ? 'green.600' : 'black'}
+            bg={isOpen ? 'green.50' : 'gray.100'}
             border="1px solid"
-            borderColor={isOpen ? 'blue.600' : 'blue.100'}
-            boxShadow={isOpen ? '0 4px 12px rgba(59,130,246,0.28)' : 'none'}
+            borderColor={isOpen ? 'green.200' : 'gray.200'}
+            boxShadow="sm"
             _dark={{
-              color: isOpen ? 'white' : 'blue.200',
-              bg: isOpen ? 'blue.500' : 'blue.950',
-              borderColor: isOpen ? 'blue.500' : 'blue.800',
+              color: isOpen ? 'green.200' : 'white',
+              bg: isOpen ? 'green.950' : 'gray.800',
+              borderColor: isOpen ? 'green.800' : 'gray.700',
             }}
             _hover={{
-              bg: isOpen ? 'blue.700' : 'blue.100',
-              borderColor: 'blue.300',
+              bg: isOpen ? 'green.100' : 'gray.200',
+              borderColor: isOpen ? 'green.300' : 'gray.300',
               transform: 'translateY(-1px)',
-              boxShadow: '0 6px 16px rgba(59,130,246,0.26)',
+              boxShadow: isOpen
+                ? '0 4px 12px rgba(34,197,94,0.15)'
+                : '0 4px 12px rgba(0,0,0,0.08)',
+              _dark: {
+                bg: isOpen ? 'green.900' : 'gray.700',
+                borderColor: isOpen ? 'green.700' : 'gray.600',
+                boxShadow: 'none',
+              },
             }}
             _active={{ transform: 'translateY(0) scale(0.96)' }}
             transition="all 0.2s ease"
           >
-            <LuBell size={18} />
+            <FaBell size={16} />
           </IconButton>
 
           {totalBadgeCount > 0 && (

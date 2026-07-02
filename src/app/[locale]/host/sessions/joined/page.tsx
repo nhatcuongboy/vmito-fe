@@ -279,6 +279,7 @@ function PlayerSessionsContent() {
             showDateFilter={true}
             showSearchFilter={true}
             showLevelFilter={false}
+            hideSearchOnDesktop={true}
             topAddon={
               <StatusTabSwitch
                 activeTab={sessionStatusTab}

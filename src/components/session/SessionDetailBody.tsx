@@ -258,7 +258,6 @@ const SessionDetailBody = ({
           </Flex>
           {isCrawled ? (
             <Text fontSize="xs" color="gray.500" fontStyle="italic" mt={0.5}>
-              Đăng trên Facebook •{' '}
               {session.externalGroupUrl ? (
                 <Box
                   as="span"
@@ -337,18 +336,7 @@ const SessionDetailBody = ({
 
       {/* Description / Note */}
       {session.description && (
-        <Box mt={6} mb={4}>
-          <Text
-            fontWeight="bold"
-            fontSize="lg"
-            mb={3}
-            display="flex"
-            alignItems="center"
-            gap={2}
-          >
-            <Icon as={Info} color="green.500" boxSize={5} />
-            {t('description') || 'Mô tả chi tiết'}
-          </Text>
+        <Box mt={4} mb={3}>
           <Box
             bg="green.50"
             _dark={{ bg: 'whiteAlpha.100' }}

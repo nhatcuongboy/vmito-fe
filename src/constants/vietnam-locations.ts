@@ -10,6 +10,7 @@ export interface IDistrict {
 export interface ICity {
   code: string;
   name: string;
+  shortName: string;
   districts: IDistrict[];
 }
 
@@ -22,6 +23,7 @@ export const VIETNAM_CITIES: ICity[] = [
   {
     code: 'HCM',
     name: 'Hồ Chí Minh',
+    shortName: 'HCM',
     districts: [
       { code: 'Q1', name: 'Quận 1' },
       { code: 'Q2', name: 'Quận 2' },
@@ -52,6 +54,7 @@ export const VIETNAM_CITIES: ICity[] = [
   {
     code: 'HN',
     name: 'Hà Nội',
+    shortName: 'HN',
     districts: [
       { code: 'HK', name: 'Quận Hoàn Kiếm' },
       { code: 'BD', name: 'Quận Ba Đình' },
@@ -78,6 +81,7 @@ export const VIETNAM_CITIES: ICity[] = [
   {
     code: 'DNG',
     name: 'Đà Nẵng',
+    shortName: 'ĐN',
     districts: [
       { code: 'HCh', name: 'Quận Hải Châu' },
       { code: 'CLe', name: 'Quận Cẩm Lệ' },
@@ -92,6 +96,7 @@ export const VIETNAM_CITIES: ICity[] = [
   {
     code: 'CT',
     name: 'Cần Thơ',
+    shortName: 'CT',
     districts: [
       { code: 'NK', name: 'Quận Ninh Kiều' },
       { code: 'BTh', name: 'Quận Bình Thủy' },
@@ -107,6 +112,7 @@ export const VIETNAM_CITIES: ICity[] = [
   {
     code: 'HP',
     name: 'Hải Phòng',
+    shortName: 'HP',
     districts: [
       { code: 'HB', name: 'Quận Hồng Bàng' },
       { code: 'LĐ', name: 'Quận Lê Chân' },
@@ -127,6 +133,7 @@ export const VIETNAM_CITIES: ICity[] = [
   {
     code: 'NT',
     name: 'Nha Trang',
+    shortName: 'NT',
     districts: [
       { code: 'NT', name: 'Thành phố Nha Trang' },
       { code: 'CH', name: 'Thành phố Cam Ranh' },
@@ -140,6 +147,7 @@ export const VIETNAM_CITIES: ICity[] = [
   {
     code: 'VT',
     name: 'Vũng Tàu',
+    shortName: 'VT',
     districts: [
       { code: 'VT', name: 'Thành phố Vũng Tàu' },
       { code: 'BR', name: 'Thành phố Bà Rịa' },
@@ -154,6 +162,7 @@ export const VIETNAM_CITIES: ICity[] = [
   {
     code: 'BD',
     name: 'Bình Dương',
+    shortName: 'BD',
     districts: [
       { code: 'TDM', name: 'Thành phố Thủ Dầu Một' },
       { code: 'TU', name: 'Thành phố Thuận An' },
@@ -169,6 +178,7 @@ export const VIETNAM_CITIES: ICity[] = [
   {
     code: 'DNI',
     name: 'Đồng Nai',
+    shortName: 'ĐNai',
     districts: [
       { code: 'BH', name: 'Thành phố Biên Hòa' },
       { code: 'LK', name: 'Thành phố Long Khánh' },

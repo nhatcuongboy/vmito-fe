@@ -44,7 +44,13 @@ export default function CitySelector() {
     }
     if (buttonRef.current) {
       const rect = buttonRef.current.getBoundingClientRect();
-      setDropdownPos({ top: rect.bottom + 6, left: rect.left });
+      const menuWidth = 190;
+      const padding = 16;
+      let left = rect.left;
+      if (left + menuWidth > window.innerWidth - padding) {
+        left = window.innerWidth - menuWidth - padding;
+      }
+      setDropdownPos({ top: rect.bottom + 6, left });
     }
     setIsOpen(true);
   };
@@ -90,12 +96,27 @@ export default function CitySelector() {
           }
         />
 
-        {/* Text + chevron: hidden on mobile */}
+        {/* Short text for mobile */}
+        <Text
+          display={{ base: 'block', md: 'none' }}
+          fontSize="sm"
+          fontWeight="600"
+          maxW="80px"
+          overflow="hidden"
+          whiteSpace="nowrap"
+          textOverflow="ellipsis"
+          color={isOpen ? 'green.800' : 'green.700'}
+          _dark={{ color: isOpen ? 'green.200' : 'green.300' }}
+        >
+          {selectedCity?.shortName ?? selectedCity?.name ?? 'Chọn TP'}
+        </Text>
+
+        {/* Full text for desktop */}
         <Text
           display={{ base: 'none', md: 'block' }}
           fontSize="sm"
           fontWeight="600"
-          maxW="160px"
+          maxW="140px"
           overflow="hidden"
           whiteSpace="nowrap"
           textOverflow="ellipsis"
@@ -104,7 +125,7 @@ export default function CitySelector() {
         >
           {selectedCity?.name ?? 'Chọn thành phố'}
         </Text>
-        <Box display={{ base: 'none', md: 'block' }}>
+        <Box display="block">
           <ChevronDown
             size={12}
             color={

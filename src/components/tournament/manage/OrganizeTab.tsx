@@ -1,6 +1,5 @@
 'use client';
 
-import { Box, Flex, Text } from '@chakra-ui/react';
 import { VStack } from '@/components/ui/chakra-compat';
 import {
   Users,
@@ -27,39 +26,6 @@ interface OrganizeTabProps {
   onTournamentUpdate: (updated: Tournament) => void;
 }
 
-const CATEGORY_COLORS = [
-  'yellow.400',
-  'blue.300',
-  'green.400',
-  'purple.400',
-  'pink.400',
-  'orange.400',
-  'cyan.400',
-  'red.400',
-];
-
-function CategoryDotsPreview({ categories }: { categories: Category[] }) {
-  if (categories.length === 0) return null;
-
-  return (
-    <Flex gap={4} flexWrap="wrap">
-      {categories.map((cat, idx) => (
-        <Flex key={cat.id} align="center" gap={1.5}>
-          <Box
-            w="8px"
-            h="8px"
-            borderRadius="full"
-            bg={CATEGORY_COLORS[idx % CATEGORY_COLORS.length]}
-          />
-          <Text fontSize="xs" color="gray.600" _dark={{ color: 'gray.300' }}>
-            {cat.name}
-          </Text>
-        </Flex>
-      ))}
-    </Flex>
-  );
-}
-
 export default function OrganizeTab({
   tournament,
   categories,
@@ -76,7 +42,7 @@ export default function OrganizeTab({
   );
 
   return (
-    <VStack gap={3} align="stretch">
+    <VStack gap={2.5} align="stretch">
       {/* Publish status banner - always visible */}
       <PublishStatusBanner
         tournament={tournament}
@@ -108,7 +74,6 @@ export default function OrganizeTab({
         icon={Layers}
         title={t('organize.categories.title')}
         description={t('organize.categories.description')}
-        preview={<CategoryDotsPreview categories={categories} />}
         isActive={selectedItem === 'categories'}
         onClick={() => onItemClick('categories')}
       />

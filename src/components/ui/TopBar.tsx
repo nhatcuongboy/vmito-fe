@@ -28,6 +28,8 @@ import SubNavigation, { NavItem } from './SubNavigation';
 import AiAssistantTopBarButton from './AiAssistantTopBarButton';
 import { useAiAssistantVisibility } from '@/hooks/useAiAssistantVisibility';
 import CitySelector from './CitySelector';
+import { useTopBarSearch } from '@/contexts/TopBarSearchContext';
+import { AppSearchBar } from '@/components/common/AppSearchBar';
 
 interface TopBarProps {
   showBackButton?: boolean;
@@ -51,6 +53,8 @@ interface TopBarProps {
   showAiAssistantButton?: boolean;
   showCitySelector?: boolean;
   className?: string;
+  /** On desktop, render this content centered in the top bar instead of the title */
+  desktopSearchContent?: React.ReactNode;
 }
 
 export default function TopBar({
@@ -73,6 +77,7 @@ export default function TopBar({
   showAiAssistantButton = true,
   showCitySelector = false,
   className,
+  desktopSearchContent,
 }: TopBarProps) {
   const common = useTranslations('common');
   const appName = common('appName');
@@ -81,6 +86,25 @@ export default function TopBar({
   const pathname = usePathname();
   const { toggleCollapse } = useSidebar();
   const showAiAssistant = useAiAssistantVisibility();
+  const { searchConfig, callbacksRef } = useTopBarSearch();
+
+  // Context search config takes priority; construct AppSearchBar. Fall back to prop.
+  const resolvedDesktopSearch = searchConfig ? (
+    <AppSearchBar
+      value={searchConfig.value}
+      onChange={(val) => callbacksRef.current?.onChange(val)}
+      placeholder={searchConfig.placeholder}
+      onFilterClick={
+        searchConfig.hasFilterClick
+          ? () => callbacksRef.current?.onFilterClick?.()
+          : undefined
+      }
+      activeFilterCount={searchConfig.activeFilterCount}
+      showFilter={searchConfig.showFilter}
+    />
+  ) : (
+    desktopSearchContent
+  );
 
   const normalizedPath =
     pathname.replace(/^\/[a-z]{2}(\/|$)/, '/').replace(/\/$/, '') || '/';
@@ -243,7 +267,14 @@ export default function TopBar({
                 </Box>
               )}
 
-              {showCitySelector && variant !== 'secondary' && <CitySelector />}
+              {showCitySelector && variant !== 'secondary' && (
+                <Box
+                  display={{ base: 'none', md: 'block' }}
+                  ml={{ base: 0, md: 3 }}
+                >
+                  <CitySelector />
+                </Box>
+              )}
 
               {/* Back button logic */}
               {(showBackButton || variant === 'secondary') && (
@@ -319,6 +350,23 @@ export default function TopBar({
               )}
             </Flex>
 
+            {/* Desktop search content - shown only on desktop, centered */}
+            {resolvedDesktopSearch && (
+              <Flex
+                flex={1}
+                minW={0}
+                mx={2}
+                height="100%"
+                align="center"
+                justify="center"
+                display={{ base: 'none', md: 'flex' }}
+              >
+                <Box w="100%" maxW="500px">
+                  {resolvedDesktopSearch}
+                </Box>
+              </Flex>
+            )}
+
             {/* App title - centered in the space between the side actions.
                 Kept in normal flow (not absolutely positioned) so it can never
                 sit underneath the action buttons, and truncates with a single
@@ -331,6 +379,9 @@ export default function TopBar({
                 height="100%"
                 align="center"
                 justify="center"
+                display={
+                  resolvedDesktopSearch ? { base: 'flex', md: 'none' } : 'flex'
+                }
               >
                 <Heading
                   size={{ base: 'md', md: 'lg' }}

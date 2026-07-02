@@ -50,6 +50,7 @@ import { IClubListItem, IClub } from '@/types/club';
 import PageLayout from '@/components/layout/PageLayout';
 import { useDebounce } from '@/hooks/useDebounce';
 import { AppSearchBar } from '@/components/common/AppSearchBar';
+import { useRegisterTopBarSearch } from '@/contexts/TopBarSearchContext';
 
 const LoginPromptModal = dynamic(
   () => import('@/components/auth/LoginPromptModal'),
@@ -439,6 +440,16 @@ function BrowseClubsContent() {
   const SortButtonIcon = sortByDistance ? MapPin : activeSortOption.icon;
   const skeletonVariant = viewMode === 'list' ? 'list' : 'grid';
 
+  // Register desktop search bar in the top bar
+  useRegisterTopBarSearch({
+    value: search,
+    onChange: setSearch,
+    placeholder: t('clubs.searchPlaceholder'),
+    onFilterClick: toggleFilters,
+    activeFilterCount: activeFilterCount,
+    showFilter: true,
+  });
+
   return (
     <Box>
       {/* Search Bar - Fixed on mobile, sticky on desktop */}
@@ -456,6 +467,7 @@ function BrowseClubsContent() {
         bg={{ base: 'bg', md: 'transparent' }}
         pt={2}
         pb={{ base: 0, md: 2 }}
+        display={{ base: 'block', md: 'none' }}
       >
         <Box w="100%" maxW="650px" mx="auto">
           <AppSearchBar
@@ -465,6 +477,7 @@ function BrowseClubsContent() {
             onFilterClick={toggleFilters}
             activeFilterCount={activeFilterCount}
             showFilter={true}
+            showCitySelector={true}
           />
         </Box>
       </Box>

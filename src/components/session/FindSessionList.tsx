@@ -69,6 +69,8 @@ import { SessionCardSkeleton } from './SessionCardSkeleton';
 import SessionSearchBar from './SessionSearchBar';
 import ResultsHeader from './ResultsHeader';
 import SessionMap from './SessionMap';
+import { AppSearchBar } from '@/components/common/AppSearchBar';
+import { useRegisterTopBarSearch } from '@/contexts/TopBarSearchContext';
 
 const PAGE_SIZE = 12;
 const MAP_PAGE_SIZE = 500; // fetch all for map view
@@ -591,6 +593,16 @@ export default function FindSessionList({
     router.push(ROUTES.SESSIONS.NEW);
   };
 
+  // Register desktop search bar in the top bar
+  useRegisterTopBarSearch({
+    value: filters.searchQuery ?? '',
+    onChange: handleSearchQueryChange,
+    placeholder: t('searchPlaceholder'),
+    onFilterClick: toggleFilters,
+    activeFilterCount: activeFilterCount,
+    showFilter: true,
+  });
+
   return (
     <Box>
       {/* Search Bar & Main Controls */}
@@ -604,6 +616,8 @@ export default function FindSessionList({
         hideCreateOnMobile={true}
         topOffset={0}
         fixedOnMobile={true}
+        hideOnDesktop={true}
+        showCitySelector={true}
       />
 
       {/* Filter Drawer */}

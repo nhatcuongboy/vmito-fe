@@ -20,6 +20,8 @@ export default function SessionSearchBar({
   hideCreateOnMobile = false,
   topOffset = 0,
   fixedOnMobile = false,
+  hideOnDesktop = false,
+  showCitySelector = false,
 }: SessionSearchBarProps) {
   const t = useTranslations('session');
 
@@ -84,6 +86,7 @@ export default function SessionSearchBar({
           md: 'none',
         }}
         mb={{ base: topAddon ? 4 : 0, md: 0 }}
+        display={hideOnDesktop ? { base: 'block', md: 'none' } : 'block'}
       >
         <Flex
           direction={{ base: 'column-reverse', md: 'column' }}
@@ -107,6 +110,7 @@ export default function SessionSearchBar({
                 onFilterClick={onToggleFilters}
                 activeFilterCount={activeFilterCount}
                 showFilter={true}
+                showCitySelector={showCitySelector}
               />
             </Box>
           </Flex>

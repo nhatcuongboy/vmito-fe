@@ -60,6 +60,7 @@ import VenueRequestModal from './VenueRequestModal';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { usePreferenceStore } from '@/stores/usePreferenceStore';
 import { usePathname, useRouter } from '@/i18n/config';
+import { useRegisterTopBarSearch } from '@/contexts/TopBarSearchContext';
 
 const LoginPromptModal = dynamic(
   () => import('@/components/auth/LoginPromptModal'),
@@ -503,6 +504,16 @@ export default function VenueSearchList() {
     filters.city.length + filters.district.length + (filters.near ? 1 : 0);
   const hasVenueSearch = filters.q.trim().length > 0;
 
+  // Register desktop search bar in the top bar
+  useRegisterTopBarSearch({
+    value: keyword,
+    onChange: setKeyword,
+    placeholder: t('venue.searchPlaceholder'),
+    onFilterClick: toggleFilters,
+    activeFilterCount: activeFilterCount,
+    showFilter: true,
+  });
+
   // Sort dropdown state
   const [isSortOpen, setIsSortOpen] = useState(false);
   const sortDropdownRef = useRef<HTMLDivElement>(null);
@@ -586,6 +597,7 @@ export default function VenueSearchList() {
         bg={{ base: 'bg', md: 'transparent' }}
         pt={2}
         pb={{ base: 0, md: 2 }}
+        display={{ base: 'block', md: 'none' }}
       >
         <Flex align="center" gap={2} w="100%" maxW="650px" mx="auto">
           <Box flex={1} w="100%">
@@ -596,6 +608,7 @@ export default function VenueSearchList() {
               onFilterClick={toggleFilters}
               activeFilterCount={activeFilterCount}
               showFilter={true}
+              showCitySelector={true}
             />
           </Box>
         </Flex>

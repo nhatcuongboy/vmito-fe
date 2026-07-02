@@ -6,6 +6,8 @@ import { useDisclosure } from '@/components/ui/ChakraHooks';
 
 import { useState, useEffect } from 'react';
 import SessionSearchBar from './SessionSearchBar';
+import { AppSearchBar } from '@/components/common/AppSearchBar';
+import { useRegisterTopBarSearch } from '@/contexts/TopBarSearchContext';
 import {
   Badge,
   Box,
@@ -43,6 +45,7 @@ const SessionFilters: React.FC<ISessionFiltersProps> = ({
   onCreateClick,
   topAddon,
   hideCreateOnMobile = false,
+  hideSearchOnDesktop = false,
 }) => {
   const t = useTranslations('session.filters');
   const tSession = useTranslations('session');
@@ -170,6 +173,20 @@ const SessionFilters: React.FC<ISessionFiltersProps> = ({
     colorPalette: getSkillLevelColor([level]).colorPalette,
   }));
 
+  // Register desktop search bar in the top bar
+  useRegisterTopBarSearch(
+    showSearchFilter && hideSearchOnDesktop
+      ? {
+          value: searchTerm,
+          onChange: setSearchTerm,
+          placeholder: tSession('searchPlaceholder'),
+          onFilterClick: toggleDrawer,
+          activeFilterCount: activeFilterCount,
+          showFilter: true,
+        }
+      : null
+  );
+
   return (
     <>
       {/* Sticky Search Bar */}
@@ -182,6 +199,7 @@ const SessionFilters: React.FC<ISessionFiltersProps> = ({
           onCreateClick={onCreateClick}
           topAddon={topAddon}
           hideCreateOnMobile={hideCreateOnMobile}
+          hideOnDesktop={hideSearchOnDesktop}
         />
       )}
 

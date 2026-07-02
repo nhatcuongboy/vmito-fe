@@ -26,6 +26,7 @@ import { format } from 'date-fns';
 import { vi as viLocale, enUS, zhCN } from 'date-fns/locale';
 import { useLocale, useTranslations } from 'next-intl';
 import { AppSearchBar } from '@/components/common/AppSearchBar';
+import { useRegisterTopBarSearch } from '@/contexts/TopBarSearchContext';
 import { HostTournamentListSkeleton } from '@/components/tournament/skeletons';
 import {
   Trophy,
@@ -37,6 +38,7 @@ import {
   Calendar,
   MapPin,
   Layers,
+  Gavel,
 } from 'lucide-react';
 import { ROUTES } from '@/constants';
 import { toaster } from '@/components/ui/toaster';
@@ -170,6 +172,8 @@ function TournamentRow({
   statusLabel,
   publishLabel,
   t,
+  showDelete = true,
+  isReferee = false,
 }: {
   tournament: Tournament;
   deleting: boolean;
@@ -180,6 +184,8 @@ function TournamentRow({
   statusLabel: string;
   publishLabel: string;
   t: (key: string) => string;
+  showDelete?: boolean;
+  isReferee?: boolean;
 }) {
   const theme = STATUS_THEME[tournament.status];
   const venueName = tournament.venue?.name;
@@ -320,8 +326,12 @@ function TournamentRow({
             display={{ base: 'none', md: 'inline-flex' }}
             loading={deleting}
           >
-            <Settings size={14} style={{ marginRight: 6 }} />
-            {t('card.manage')}
+            {isReferee ? (
+              <Gavel size={14} style={{ marginRight: 6 }} />
+            ) : (
+              <Settings size={14} style={{ marginRight: 6 }} />
+            )}
+            {isReferee ? t('card.referee') : t('card.manage')}
           </Button>
           <IconButton
             aria-label={t('card.openPublic')}
@@ -357,16 +367,20 @@ function TournamentRow({
                 >
                   <MenuItem value="manage" onClick={onManage}>
                     <HStack gap={2}>
-                      <Settings size={16} />
-                      <Text>{t('card.manage')}</Text>
+                      {isReferee ? <Gavel size={16} /> : <Settings size={16} />}
+                      <Text>
+                        {isReferee ? t('card.referee') : t('card.manage')}
+                      </Text>
                     </HStack>
                   </MenuItem>
-                  <MenuItem value="delete" color="red.500" onClick={onDelete}>
-                    <HStack gap={2}>
-                      <Trash2 size={16} />
-                      <Text>{t('card.delete')}</Text>
-                    </HStack>
-                  </MenuItem>
+                  {showDelete && (
+                    <MenuItem value="delete" color="red.500" onClick={onDelete}>
+                      <HStack gap={2}>
+                        <Trash2 size={16} />
+                        <Text>{t('card.delete')}</Text>
+                      </HStack>
+                    </MenuItem>
+                  )}
                 </MenuContent>
               </MenuPositioner>
             </Portal>
@@ -391,6 +405,14 @@ export default function HostTournamentsPage() {
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<TStatusFilter>('all');
   const [deleting, setDeleting] = useState<string | null>(null);
+
+  // Register desktop search bar in the top bar
+  useRegisterTopBarSearch({
+    placeholder: t('searchPlaceholder'),
+    value: search,
+    onChange: setSearch,
+    showFilter: false,
+  });
 
   const loadTournaments = useCallback(async () => {
     if (!user?.id) return;
@@ -471,7 +493,9 @@ export default function HostTournamentsPage() {
   const handleCreate = () => router.push(ROUTES.HOST.TOURNAMENTS.NEW);
 
   return (
-    <ProtectedRouteGuard requiredRole={[UserRole.HOST, UserRole.ADMIN]}>
+    <ProtectedRouteGuard
+      requiredRole={[UserRole.HOST, UserRole.ADMIN, UserRole.REFEREE]}
+    >
       <PageLayout
         title={isAdmin ? t('adminPageTitle') : t('pageTitle')}
         mobileIcon={<Trophy size={20} />}
@@ -479,7 +503,7 @@ export default function HostTournamentsPage() {
         {/* Search + Create button */}
         <Box mb={4}>
           <Flex gap={2} align="center" mx={{ base: '-16px', md: 0 }}>
-            <Box flex={1}>
+            <Box flex={1} display={{ base: 'block', md: 'none' }}>
               <AppSearchBar
                 placeholder={t('searchPlaceholder')}
                 value={search}
@@ -487,30 +511,34 @@ export default function HostTournamentsPage() {
                 showFilter={false}
               />
             </Box>
-            <Button
-              colorPalette="green"
-              size="md"
-              borderRadius="full"
-              onClick={handleCreate}
-              boxShadow="md"
-              flexShrink={0}
-              display={{ base: 'none', md: 'flex' }}
-            >
-              <Plus size={18} style={{ marginRight: 6 }} />
-              {t('newTournament')}
-            </Button>
-            <IconButton
-              colorPalette="green"
-              size="md"
-              borderRadius="full"
-              onClick={handleCreate}
-              boxShadow="md"
-              flexShrink={0}
-              display={{ base: 'flex', md: 'none' }}
-              aria-label={t('newTournament')}
-            >
-              <Plus size={20} />
-            </IconButton>
+            {user?.role !== UserRole.REFEREE && (
+              <>
+                <Button
+                  colorPalette="green"
+                  size="md"
+                  borderRadius="full"
+                  onClick={handleCreate}
+                  boxShadow="md"
+                  flexShrink={0}
+                  display={{ base: 'none', md: 'flex' }}
+                >
+                  <Plus size={18} style={{ marginRight: 6 }} />
+                  {t('newTournament')}
+                </Button>
+                <IconButton
+                  colorPalette="green"
+                  size="md"
+                  borderRadius="full"
+                  onClick={handleCreate}
+                  boxShadow="md"
+                  flexShrink={0}
+                  display={{ base: 'flex', md: 'none' }}
+                  aria-label={t('newTournament')}
+                >
+                  <Plus size={20} />
+                </IconButton>
+              </>
+            )}
           </Flex>
           <HStack
             gap={2}
@@ -597,17 +625,19 @@ export default function HostTournamentsPage() {
                   ? t('adminEmptyDesc')
                   : t('emptyDesc')}
             </Text>
-            {!search && statusFilter === 'all' && (
-              <Button
-                colorPalette="green"
-                borderRadius="full"
-                onClick={handleCreate}
-                mt={2}
-              >
-                <Plus size={16} style={{ marginRight: 6 }} />
-                {t('createFirst')}
-              </Button>
-            )}
+            {!search &&
+              statusFilter === 'all' &&
+              user?.role !== UserRole.REFEREE && (
+                <Button
+                  colorPalette="green"
+                  borderRadius="full"
+                  onClick={handleCreate}
+                  mt={2}
+                >
+                  <Plus size={16} style={{ marginRight: 6 }} />
+                  {t('createFirst')}
+                </Button>
+              )}
           </Flex>
         ) : (
           <VStack gap={3} align="stretch">
@@ -616,10 +646,20 @@ export default function HostTournamentsPage() {
                 key={tournament.id}
                 tournament={tournament}
                 deleting={deleting === tournament.id}
-                onManage={() => router.push(`/tournament/${tournament.slug}`)}
-                onOpenPublic={() =>
-                  router.push(`/tournament/${tournament.slug}`)
-                }
+                onManage={() => {
+                  if (user?.role === UserRole.REFEREE) {
+                    router.push(`/tournament/${tournament.slug}/referee`);
+                  } else {
+                    router.push(`/tournament/${tournament.slug}`);
+                  }
+                }}
+                onOpenPublic={() => {
+                  if (user?.role === UserRole.REFEREE) {
+                    router.push(`/tournament/${tournament.slug}/referee`);
+                  } else {
+                    router.push(`/tournament/${tournament.slug}`);
+                  }
+                }}
                 onDelete={() => handleDelete(tournament.id)}
                 dateFormatted={format(
                   new Date(tournament.startDate),
@@ -629,6 +669,8 @@ export default function HostTournamentsPage() {
                 statusLabel={statusLabelFor(tournament.status)}
                 publishLabel={t('card.draftBadge')}
                 t={t}
+                showDelete={user?.role !== UserRole.REFEREE}
+                isReferee={user?.role === UserRole.REFEREE}
               />
             ))}
           </VStack>

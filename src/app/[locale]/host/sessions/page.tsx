@@ -346,6 +346,7 @@ function HostSessionsContent() {
               }
             }}
             hideCreateOnMobile={true}
+            hideSearchOnDesktop={true}
             topAddon={
               <StatusTabSwitch
                 activeTab={sessionStatusTab}

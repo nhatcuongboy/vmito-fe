@@ -17,13 +17,22 @@ import PageLayout from '@/components/layout/PageLayout';
 import { TournamentService } from '@/lib/api/tournament.service';
 import { Tournament, TournamentStatus } from '@/lib/api/types';
 import { Suspense, useEffect, useState } from 'react';
-import { Calendar, Heart, Share2, ChevronDown } from 'lucide-react';
-import { TOP_BAR_HEIGHT_MOBILE, TOP_BAR_HEIGHT_DESKTOP } from '@/constants';
+import {
+  Calendar,
+  Heart,
+  Share2,
+  ChevronDown,
+  Plus,
+  Swords,
+} from 'lucide-react';
+import { TOP_BAR_HEIGHT_MOBILE } from '@/constants';
 import { TournamentCardsGridSkeleton } from '@/components/tournament/skeletons';
 
 const BADMINTON_PLACEHOLDER = '/icons/app-logo.png';
 
 import { AppSearchBar } from '@/components/common/AppSearchBar';
+import { useRegisterTopBarSearch } from '@/contexts/TopBarSearchContext';
+import AppEmptyState from '@/components/ui/AppEmptyState';
 
 function isSameCalendarDay(first: Date, second: Date) {
   return (
@@ -42,6 +51,14 @@ function TournamentsContent() {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('ALL');
   const [isFilterOpen, setIsFilterOpen] = useState(false);
+
+  // Register desktop search bar in the top bar
+  useRegisterTopBarSearch({
+    placeholder: t('searchEvents'),
+    value: searchTerm,
+    onChange: setSearchTerm,
+    showFilter: false,
+  });
 
   useEffect(() => {
     loadTournaments();
@@ -175,54 +192,51 @@ function TournamentsContent() {
       minH="100vh"
     >
       <VStack gap={6} alignItems="stretch">
-        {/* Search Bar */}
+        {/* Search Bar - mobile only, fixed between TopBar and DiscoveryTabNav tabs */}
         <Box
-          position="sticky"
+          position="fixed"
           top={{
-            base: `calc(${TOP_BAR_HEIGHT_MOBILE + 44}px + env(safe-area-inset-top))`,
-            md: `calc(${TOP_BAR_HEIGHT_DESKTOP}px + env(safe-area-inset-top))`,
+            base: `calc(${TOP_BAR_HEIGHT_MOBILE}px + env(safe-area-inset-top))`,
           }}
           left={0}
           right={0}
           width="100vw"
-          marginLeft="calc(50% - 50vw)"
           zIndex={1100}
-          bg="transparent"
-          py={2}
-          transition="all 0.2s"
+          bg="bg"
+          pt={2}
+          pb={0}
+          display={{ base: 'block', md: 'none' }}
         >
-          <Flex align="center" gap={2} w="100%" maxW="650px" mx="auto">
-            <Box flex={1} w="100%">
-              <AppSearchBar
-                placeholder={t('searchEvents')}
-                value={searchTerm}
-                onChange={setSearchTerm}
-                showFilter={false}
-              />
-            </Box>
-          </Flex>
+          <Box w="100%" maxW="650px" mx="auto">
+            <AppSearchBar
+              placeholder={t('searchEvents')}
+              value={searchTerm}
+              onChange={setSearchTerm}
+              showFilter={false}
+              showCitySelector={true}
+            />
+          </Box>
         </Box>
 
-        {/* Run your own event link */}
-        <Text
-          display={{ base: 'none', md: 'block' }}
-          textAlign="center"
-          fontSize="sm"
-          color="fg.muted"
-          fontWeight="medium"
-          cursor="pointer"
-          _hover={{ textDecoration: 'underline' }}
-          onClick={() => router.push('/host/tournaments/new')}
+        {/* Create Tournament button - desktop only, aligned right like clubs */}
+        <Flex
+          justify="flex-end"
+          mt={2}
+          mb={3}
+          display={{ base: 'none', md: 'flex' }}
         >
-          {t('runYourOwnEvent')}
-        </Text>
+          <Button
+            colorPalette="green"
+            size="sm"
+            onClick={() => router.push('/host/tournaments/new')}
+          >
+            <Plus size={16} />
+            {t('createTournament')}
+          </Button>
+        </Flex>
 
-        {/* Explore Section */}
-        <Flex justify="space-between" alignItems="center" pt={4}>
-          <Heading size="lg" fontWeight="bold" color="fg">
-            {t('explore')}
-          </Heading>
-
+        {/* Filter row */}
+        <Flex justify="flex-end" alignItems="center" pt={1}>
           {/* Status Filter Dropdown */}
           <Box position="relative">
             <Button
@@ -292,11 +306,14 @@ function TournamentsContent() {
           <>
             {/* Tournament Cards Grid */}
             {filteredTournaments.length === 0 ? (
-              <Box textAlign="center" py={10}>
-                <Text color="fg.muted" fontSize="lg">
-                  {t('noTournamentsFound')}
-                </Text>
-              </Box>
+              <AppEmptyState
+                minH={{ base: '300px', md: '340px' }}
+                icon={
+                  <Swords size={40} color="var(--chakra-colors-gray-400)" />
+                }
+                title={t('noTournamentsFound')}
+                description={searchTerm ? undefined : null}
+              />
             ) : (
               <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={5}>
                 {filteredTournaments.map((tournament) => {

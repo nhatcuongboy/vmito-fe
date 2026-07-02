@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Box, Flex, Heading, useBreakpointValue } from '@chakra-ui/react';
+import { Box, useBreakpointValue } from '@chakra-ui/react';
 import { useTranslations } from 'next-intl';
 import {
   Tournament,
@@ -53,6 +53,24 @@ interface TournamentManageProps {
   tournament: Tournament;
   onTournamentUpdate?: (updated: Tournament) => void;
 }
+
+const SETTINGS_ITEMS = new Set([
+  'managers',
+  'name',
+  'dates',
+  'visibility',
+  'location',
+  'banner',
+  'videos',
+  'contact',
+  'sponsors',
+  'duplicate',
+  'delete',
+  'publish',
+]);
+
+const getManageTabForItem = (item: string | null) =>
+  item && SETTINGS_ITEMS.has(item) ? 'settings' : 'organize';
 
 const buildFormatUpdatePayload = (
   format: TournamentFormatType,
@@ -127,6 +145,9 @@ export default function TournamentManage({
     if (option === 'registration') return null;
     return option ?? 'teams';
   });
+  const [activeManageTab, setActiveManageTab] = useState(() =>
+    getManageTabForItem(searchParams.get('option') ?? 'teams')
+  );
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(
     null
   );
@@ -134,7 +155,7 @@ export default function TournamentManage({
   const formatModal = useModal();
   const duplicateModal = useModal();
 
-  const isMobile = useBreakpointValue({ base: true, md: false });
+  const isMobile = useBreakpointValue({ base: true, md: false }) ?? true;
 
   const loadCategories = useCallback(async () => {
     try {
@@ -194,6 +215,10 @@ export default function TournamentManage({
     }
     setSelectedItem(option ?? 'teams');
   }, [searchParams]);
+
+  useEffect(() => {
+    setActiveManageTab(getManageTabForItem(selectedItem));
+  }, [selectedItem]);
 
   const handleItemClick = useCallback(
     (item: string) => {
@@ -389,25 +414,13 @@ export default function TournamentManage({
     return <TournamentManageSkeleton />;
   }
 
-  const SETTINGS_ITEMS = new Set([
-    'managers',
-    'name',
-    'dates',
-    'visibility',
-    'location',
-    'banner',
-    'videos',
-    'contact',
-    'sponsors',
-    'duplicate',
-    'delete',
-    'publish',
-  ]);
-
-  const activeManageTab =
-    selectedItem && SETTINGS_ITEMS.has(selectedItem) ? 'settings' : 'organize';
-
   const handleManageTabChange = (tab: string) => {
+    setActiveManageTab(tab);
+
+    if (isMobile) {
+      return;
+    }
+
     if (
       tab === 'organize' &&
       selectedItem &&
@@ -447,43 +460,62 @@ export default function TournamentManage({
             },
           }}
         >
-          <Flex justify="space-between" align="center" mb={4} flexShrink={0}>
-            <Heading size="xl">{t('title')}</Heading>
-          </Flex>
-
           <TabsList
-            bg="gray.100"
-            borderRadius="full"
+            bg="green.50"
+            borderRadius="xl"
             p={1}
-            mb={4}
+            mb={3}
             w="100%"
             flexShrink={0}
             borderWidth="1px"
-            borderColor="transparent"
+            borderColor="green.100"
+            boxShadow="0 8px 22px rgba(22, 163, 74, 0.12)"
             _dark={{
-              bg: 'var(--tournament-surface-muted, var(--chakra-colors-gray-800))',
+              bg: 'var(--tournament-surface, var(--chakra-colors-gray-800))',
               borderColor:
                 'var(--tournament-border, var(--chakra-colors-gray-700))',
               boxShadow: 'var(--tournament-shadow-soft, none)',
             }}
+            css={{
+              '& [data-state="active"]': {
+                background: 'var(--chakra-colors-green-600)',
+                color: 'white',
+                boxShadow: '0 8px 18px rgba(22, 163, 74, 0.26)',
+              },
+              '& [data-state="active"]:hover': {
+                background: 'var(--chakra-colors-green-700)',
+              },
+              '& [data-state="inactive"]': {
+                color: 'var(--chakra-colors-green-900)',
+              },
+              '& [data-state="inactive"]:hover': {
+                background: 'rgba(187, 247, 208, 0.6)',
+              },
+            }}
           >
             <TabsTrigger
               value="organize"
-              borderRadius="full"
+              variant="ghost"
+              borderRadius="lg"
               px={5}
-              py={1.5}
+              py={2}
               fontSize="sm"
+              fontWeight="semibold"
               flex="1"
+              _active={{ transform: 'none' }}
             >
               {t('tabs.organize')}
             </TabsTrigger>
             <TabsTrigger
               value="settings"
-              borderRadius="full"
+              variant="ghost"
+              borderRadius="lg"
               px={5}
-              py={1.5}
+              py={2}
               fontSize="sm"
+              fontWeight="semibold"
               flex="1"
+              _active={{ transform: 'none' }}
             >
               {t('tabs.settings')}
             </TabsTrigger>

@@ -5,7 +5,7 @@ import { CONTAINER_PX } from '@/constants';
 
 export interface TabItem {
   id: string;
-  label: string;
+  label: React.ReactNode;
   badge?: number | string;
 }
 
