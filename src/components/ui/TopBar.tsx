@@ -27,6 +27,7 @@ import UserMenu from './UserMenu';
 import SubNavigation, { NavItem } from './SubNavigation';
 import AiAssistantTopBarButton from './AiAssistantTopBarButton';
 import { useAiAssistantVisibility } from '@/hooks/useAiAssistantVisibility';
+import CitySelector from './CitySelector';
 
 interface TopBarProps {
   showBackButton?: boolean;
@@ -48,6 +49,7 @@ interface TopBarProps {
   showLogoDesktopOnly?: boolean;
   showAuthActions?: boolean;
   showAiAssistantButton?: boolean;
+  showCitySelector?: boolean;
   className?: string;
 }
 
@@ -69,6 +71,7 @@ export default function TopBar({
   showLogoDesktopOnly = false,
   showAuthActions = true,
   showAiAssistantButton = true,
+  showCitySelector = false,
   className,
 }: TopBarProps) {
   const common = useTranslations('common');
@@ -239,6 +242,8 @@ export default function TopBar({
                   </Link>
                 </Box>
               )}
+
+              {showCitySelector && variant !== 'secondary' && <CitySelector />}
 
               {/* Back button logic */}
               {(showBackButton || variant === 'secondary') && (

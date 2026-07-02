@@ -13,6 +13,11 @@ export interface ICity {
   districts: IDistrict[];
 }
 
+/** Strip Vietnamese administrative prefixes before sending city name to the API. */
+export function normalizeCityForApi(name: string): string {
+  return name.replace(/^(TP\.|Thành phố|Tỉnh)\s+/i, '').trim();
+}
+
 export const VIETNAM_CITIES: ICity[] = [
   {
     code: 'HCM',

@@ -6,7 +6,10 @@ import AppEmptyState from '@/components/ui/AppEmptyState';
 import { useLevelLabel } from '@/hooks/useLevelLabel';
 import { VModal } from '@/components/ui/VModal';
 import { ROUTES, TIME_RANGES, BOTTOM_TAB_HEIGHT } from '@/constants';
-import { VIETNAM_CITIES } from '@/constants/vietnam-locations';
+import {
+  VIETNAM_CITIES,
+  normalizeCityForApi,
+} from '@/constants/vietnam-locations';
 import { RatingStatsProvider } from '@/contexts/RatingStatsContext';
 import { useRouter } from '@/i18n/config';
 import { ExtractedSessionData } from '@/lib/api/ai.service';
@@ -194,7 +197,7 @@ export default function FindSessionList({
   const tVenue = useTranslations('venue');
   const { getLevelShortLabel } = useLevelLabel();
   const { user } = useAuthStore();
-  const { useAiForCreation } = usePreferenceStore();
+  const { useAiForCreation, preferredCity } = usePreferenceStore();
 
   const { ref, inView } = useInView({
     threshold: 0.1,
@@ -252,12 +255,18 @@ export default function FindSessionList({
         city:
           filters.cities.length > 0
             ? filters.cities
-                .map(
-                  (code) =>
-                    VIETNAM_CITIES.find((c) => c.code === code)?.name ?? code
-                )
+                .map((code) => {
+                  const name =
+                    VIETNAM_CITIES.find((c) => c.code === code)?.name ?? code;
+                  return normalizeCityForApi(name);
+                })
                 .join(',')
-            : undefined,
+            : preferredCity
+              ? normalizeCityForApi(
+                  VIETNAM_CITIES.find((c) => c.code === preferredCity)?.name ??
+                    preferredCity
+                )
+              : undefined,
         // Send cleaned District name(s) — comma-separated for multi-select
         district:
           filters.districts.length > 0
@@ -420,6 +429,7 @@ export default function FindSessionList({
     sortBy,
     refreshKey,
     viewMode, // re-fetch with larger limit when switching to/from map mode
+    preferredCity,
   ]);
 
   // Trigger load more when in view

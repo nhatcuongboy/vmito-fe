@@ -4,7 +4,10 @@ import { Button, IconButton } from '@/components/ui/chakra-compat';
 import { useDisclosure } from '@/components/ui/ChakraHooks';
 import AppEmptyState from '@/components/ui/AppEmptyState';
 import { toaster } from '@/components/ui/toaster';
-import { VIETNAM_CITIES } from '@/constants/vietnam-locations';
+import {
+  VIETNAM_CITIES,
+  normalizeCityForApi,
+} from '@/constants/vietnam-locations';
 import {
   TOP_BAR_HEIGHT_MOBILE,
   TOP_BAR_HEIGHT_DESKTOP,
@@ -55,6 +58,7 @@ import {
 import { AppSearchBar } from '@/components/common/AppSearchBar';
 import VenueRequestModal from './VenueRequestModal';
 import { useAuthStore } from '@/stores/useAuthStore';
+import { usePreferenceStore } from '@/stores/usePreferenceStore';
 import { usePathname, useRouter } from '@/i18n/config';
 
 const LoginPromptModal = dynamic(
@@ -147,6 +151,7 @@ export default function VenueSearchList() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const { isAuthenticated } = useAuthStore();
+  const { preferredCity } = usePreferenceStore();
   const [venues, setVenues] = useState<Venue[]>([]);
   const [totalCount, setTotalCount] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
@@ -258,12 +263,18 @@ export default function VenueSearchList() {
           city:
             filters.city.length > 0
               ? filters.city
-                  .map(
-                    (code) =>
-                      VIETNAM_CITIES.find((c) => c.code === code)?.name ?? code
-                  )
+                  .map((code) => {
+                    const name =
+                      VIETNAM_CITIES.find((c) => c.code === code)?.name ?? code;
+                    return normalizeCityForApi(name);
+                  })
                   .join(',')
-              : undefined,
+              : preferredCity
+                ? normalizeCityForApi(
+                    VIETNAM_CITIES.find((c) => c.code === preferredCity)
+                      ?.name ?? preferredCity
+                  )
+                : undefined,
           district:
             filters.district.length > 0
               ? filters.district.join(',')
@@ -361,6 +372,7 @@ export default function VenueSearchList() {
     filters.sort,
     userLocation,
     viewMode, // re-fetch with larger limit when switching to/from map mode
+    preferredCity,
   ]);
 
   // Trigger load more when in view

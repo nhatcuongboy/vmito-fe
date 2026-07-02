@@ -4,6 +4,7 @@ import { ReactNode } from 'react';
 import { Box, Container, ContainerProps } from '@chakra-ui/react';
 import PageWrapper from './PageWrapper';
 import TopBar from '../ui/TopBar';
+import CityOnboardingModal from '../ui/CityOnboardingModal';
 import { DiscoveryTabNav } from '../navigation/DiscoveryTabNav';
 import { usePathname } from '@/i18n/config';
 import { ROUTES } from '@/constants';
@@ -130,8 +131,10 @@ export default function PageLayout({
         showLogoDesktopOnly={showTopBarLogoDesktopOnly}
         showAuthActions={showTopBarAuthActions}
         showAiAssistantButton={showTopBarAiAssistantButton}
+        showCitySelector={isDiscoveryPage}
         className={topBarClassName}
       />
+      {isDiscoveryPage && <CityOnboardingModal />}
       {isDiscoveryPage && <DiscoveryTabNav />}
       {!isDiscoveryPage && subHeader && (
         <Box
