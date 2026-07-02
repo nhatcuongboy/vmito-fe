@@ -65,20 +65,13 @@ export const is24HourFormat = (): boolean => {
   }
 
   try {
-    const formatter = new Intl.DateTimeFormat(undefined, {
-      hour: 'numeric',
-    });
-    const { hour12 } = formatter.resolvedOptions();
-
-    if (typeof hour12 === 'boolean') {
-      return !hour12;
-    }
-
-    const parts = formatter.formatToParts(new Date(2000, 0, 1, 13, 0, 0));
-    const hasDayPeriod = parts.some((part) => part.type === 'dayPeriod');
-    const hourPart = parts.find((part) => part.type === 'hour')?.value || '';
-
-    return !hasDayPeriod && hourPart.includes('13');
+    // Most reliable method: format a known 13:00 (1 PM) test time and check if "13" appears.
+    // resolvedOptions().hour12 is not trustworthy on macOS — browsers resolve it from the
+    // locale default (e.g. en-US → 12h) and may ignore the OS-level 24-hour preference.
+    const testDate = new Date(2000, 0, 1, 13, 0, 0);
+    const formatter = new Intl.DateTimeFormat(undefined, { hour: 'numeric' });
+    const formatted = formatter.format(testDate);
+    return formatted.includes('13');
   } catch (error) {
     console.warn('Error detecting time format:', error);
     // Default to 24-hour format if detection fails
