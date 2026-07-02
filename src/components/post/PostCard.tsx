@@ -20,6 +20,7 @@ import { PostAvatar } from './PostAvatar';
 import { postsService } from '@/lib/api/posts.service';
 import { toaster } from '@/components/ui/toaster';
 import VModal from '@/components/ui/VModal';
+import { normalizeImageUrl } from '@/lib/images/normalizeImageUrl';
 
 const localeMap: Record<string, Locale> = { vi, en: enUS, cn: zhCN };
 
@@ -27,6 +28,36 @@ interface PostCardProps {
   post: Post;
   onPostUpdate?: () => void;
   currentUserId?: string;
+}
+
+interface PostMediaImageProps {
+  src: string;
+  alt: string;
+  className: string;
+}
+
+function PostMediaImage({ src, alt, className }: PostMediaImageProps) {
+  const [hasError, setHasError] = useState(false);
+  const imageSrc = normalizeImageUrl(src);
+
+  if (!imageSrc || hasError) {
+    return (
+      <div
+        className={`${className} flex cursor-default items-center justify-center bg-gray-100 text-sm font-medium text-gray-400 dark:bg-gray-900 dark:text-gray-500`}
+        aria-label={alt}
+      />
+    );
+  }
+
+  return (
+    <img // eslint-disable-line @next/next/no-img-element
+      src={imageSrc}
+      alt={alt}
+      loading="lazy"
+      onError={() => setHasError(true)}
+      className={`${className} cursor-pointer transition duration-200 hover:opacity-95`}
+    />
+  );
 }
 
 export function PostCard({ post, onPostUpdate, currentUserId }: PostCardProps) {
@@ -259,12 +290,11 @@ export function PostCard({ post, onPostUpdate, currentUserId }: PostCardProps) {
           }`}
         >
           {postImages.map((img, index) => (
-            <img // eslint-disable-line @next/next/no-img-element
+            <PostMediaImage
               key={img.id}
               src={img.url}
               alt={t('postImage', { index: index + 1 })}
-              loading="lazy"
-              className={`${getImageClassName(index)} cursor-pointer transition duration-200 hover:opacity-95`}
+              className={getImageClassName(index)}
             />
           ))}
         </div>

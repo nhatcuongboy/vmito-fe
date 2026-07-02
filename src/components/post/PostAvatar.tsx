@@ -1,6 +1,7 @@
 'use client';
 
 import Image from 'next/image';
+import { normalizeImageUrl } from '@/lib/images/normalizeImageUrl';
 
 interface PostAvatarProps {
   name: string;
@@ -23,15 +24,16 @@ export function PostAvatar({
 }: PostAvatarProps) {
   const initial = name?.trim().charAt(0).toUpperCase() || '?';
   const fontSize = Math.max(12, Math.round(size * 0.4));
+  const imageSrc = normalizeImageUrl(image);
 
   return (
     <span
       className={`relative flex shrink-0 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-green-100 to-green-200 text-green-700 dark:from-gray-600 dark:to-gray-700 dark:text-gray-100 ${className}`}
       style={{ width: size, height: size }}
     >
-      {image ? (
+      {imageSrc ? (
         <Image
-          src={image}
+          src={imageSrc}
           alt={name}
           width={size}
           height={size}

@@ -15,6 +15,7 @@ import AppMultiImageUpload, {
 } from '@/components/session/AppMultiImageUpload';
 import { EImageCategory } from '@/lib/api/types';
 import { useAuthStore } from '@/stores/useAuthStore';
+import { normalizeImageUrl } from '@/lib/images/normalizeImageUrl';
 
 interface CreatePostModalProps {
   isOpen: boolean;
@@ -62,7 +63,7 @@ export function CreatePostModal({
         content: content.trim(),
         location: location || undefined,
         images: images.map((image, index) => ({
-          url: image.url,
+          url: normalizeImageUrl(image.url) ?? image.url,
           publicId: image.publicId,
           order: index,
         })),
