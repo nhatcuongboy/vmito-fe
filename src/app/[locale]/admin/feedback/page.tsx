@@ -54,8 +54,6 @@ import {
   type IFeedback,
 } from '@/types/feedback';
 
-const PAGE_SIZE = 20;
-
 const FEEDBACK_FILTERS_SCHEMA = {
   q: stringField(''),
   type: stringField(''),
@@ -97,6 +95,7 @@ function AdminFeedbackContent() {
   const [feedbackItems, setFeedbackItems] = useState<IFeedback[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(20);
   const [selectedFeedback, setSelectedFeedback] = useState<IFeedback | null>(
     null
   );
@@ -178,13 +177,10 @@ function AdminFeedbackContent() {
     });
   }, [feedbackItems, filters.q]);
 
-  const totalPages = Math.max(
-    1,
-    Math.ceil(filteredFeedback.length / PAGE_SIZE)
-  );
+  const totalPages = Math.max(1, Math.ceil(filteredFeedback.length / pageSize));
   const paginatedFeedback = filteredFeedback.slice(
-    (page - 1) * PAGE_SIZE,
-    page * PAGE_SIZE
+    (page - 1) * pageSize,
+    page * pageSize
   );
 
   const activeFilterCount = [filters.type, filters.status].filter(
@@ -436,14 +432,20 @@ function AdminFeedbackContent() {
             )}
           </TableContainer>
 
-          <VTablePagination
-            page={page}
-            totalPages={totalPages}
-            totalCount={filteredFeedback.length}
-            pageSize={PAGE_SIZE}
-            isLoading={isLoading}
-            onPageChange={setPage}
-          />
+          {filteredFeedback.length > 0 && (
+            <VTablePagination
+              page={page}
+              totalPages={totalPages}
+              totalCount={filteredFeedback.length}
+              pageSize={pageSize}
+              isLoading={isLoading}
+              onPageChange={setPage}
+              onPageSizeChange={(newSize) => {
+                setPageSize(newSize);
+                setPage(1);
+              }}
+            />
+          )}
         </VStack>
 
         <VModal

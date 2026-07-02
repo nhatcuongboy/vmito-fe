@@ -3,6 +3,7 @@
 import React, { useCallback, useMemo, useState } from 'react';
 import {
   Box,
+  Button,
   Flex,
   HStack,
   IconButton,
@@ -16,10 +17,12 @@ import {
 import {
   ArrowDown,
   ArrowUp,
+  ChevronDown,
   ChevronLeft,
   ChevronRight,
   ChevronsUpDown,
   ListFilter,
+  MoreHorizontal,
 } from 'lucide-react';
 import type { BoxProps } from '@chakra-ui/react';
 
@@ -68,6 +71,10 @@ export interface IVTablePaginationProps {
   onPageChange: (page: number) => void;
   /** Optional label slot, e.g. "120 items · page 2/6" */
   label?: string;
+  /** Callback when page size changes */
+  onPageSizeChange?: (pageSize: number) => void;
+  /** Options for page size dropdown */
+  pageSizeOptions?: number[];
 }
 
 // ─── Components ───────────────────────────────────────────────────────────────
@@ -390,8 +397,10 @@ export const VTablePagination = ({
   isLoading = false,
   onPageChange,
   label,
+  onPageSizeChange,
+  pageSizeOptions = [10, 20, 50, 100],
 }: IVTablePaginationProps) => {
-  if (totalPages <= 1) return null;
+  if (totalPages <= 1 && !onPageSizeChange) return null;
 
   const defaultLabel = (() => {
     if (totalCount !== undefined && pageSize !== undefined) {
@@ -404,31 +413,130 @@ export const VTablePagination = ({
     return `${page} / ${totalPages}`;
   })();
 
+  const getPaginationItems = () => {
+    const range = (start: number, end: number) => {
+      return Array.from({ length: end - start + 1 }, (_, i) => start + i);
+    };
+    if (totalPages <= 7) return range(1, totalPages);
+    if (page <= 4) return [...range(1, 5), '...', totalPages];
+    if (page >= totalPages - 3)
+      return [1, '...', ...range(totalPages - 4, totalPages)];
+    return [1, '...', page - 1, page, page + 1, '...', totalPages];
+  };
+
+  const paginationItems = getPaginationItems();
+
   return (
-    <Flex justify="space-between" align="center" pt={2}>
+    <Flex justify="space-between" align="center" pt={4} wrap="wrap" gap={4}>
       <Text fontSize="sm" color="gray.500">
         {label ?? defaultLabel}
       </Text>
-      <HStack gap={2}>
-        <IconButton
-          size="sm"
-          variant="outline"
-          aria-label="Previous page"
-          onClick={() => onPageChange(page - 1)}
-          disabled={page <= 1 || isLoading}
-        >
-          <ChevronLeft size={16} />
-        </IconButton>
-        <IconButton
-          size="sm"
-          variant="outline"
-          aria-label="Next page"
-          onClick={() => onPageChange(page + 1)}
-          disabled={page >= totalPages || isLoading}
-        >
-          <ChevronRight size={16} />
-        </IconButton>
-      </HStack>
+
+      <Flex align="center" gap={4}>
+        <HStack gap={1}>
+          <IconButton
+            size="sm"
+            variant="ghost"
+            aria-label="Previous page"
+            onClick={() => onPageChange(page - 1)}
+            disabled={page <= 1 || isLoading}
+            color="gray.500"
+          >
+            <ChevronLeft size={16} />
+          </IconButton>
+
+          {paginationItems.map((item, index) => {
+            if (item === '...') {
+              const isPrev = index < paginationItems.length / 2;
+              return (
+                <IconButton
+                  key={`ellipsis-${index}`}
+                  size="sm"
+                  variant="ghost"
+                  aria-label={isPrev ? 'Previous 5 pages' : 'Next 5 pages'}
+                  disabled={isLoading}
+                  onClick={() => {
+                    const newPage = isPrev
+                      ? Math.max(1, page - 5)
+                      : Math.min(totalPages, page + 5);
+                    onPageChange(newPage);
+                  }}
+                  color="blue.500"
+                >
+                  <MoreHorizontal size={16} />
+                </IconButton>
+              );
+            }
+
+            const pageNum = item as number;
+            const isCurrent = pageNum === page;
+            return (
+              <Button
+                key={pageNum}
+                size="sm"
+                variant={isCurrent ? 'outline' : 'ghost'}
+                borderColor={isCurrent ? 'blue.500' : 'transparent'}
+                color={isCurrent ? 'blue.600' : 'gray.600'}
+                _dark={{
+                  color: isCurrent ? 'blue.400' : 'gray.300',
+                  borderColor: isCurrent ? 'blue.400' : 'transparent',
+                }}
+                onClick={() => onPageChange(pageNum)}
+                disabled={isLoading}
+                minW="32px"
+                px={2}
+              >
+                {pageNum}
+              </Button>
+            );
+          })}
+
+          <IconButton
+            size="sm"
+            variant="ghost"
+            aria-label="Next page"
+            onClick={() => onPageChange(page + 1)}
+            disabled={page >= totalPages || isLoading}
+            color="gray.500"
+          >
+            <ChevronRight size={16} />
+          </IconButton>
+        </HStack>
+
+        {onPageSizeChange && pageSize !== undefined && (
+          <MenuRoot positioning={{ placement: 'bottom-end' }}>
+            <MenuTrigger asChild>
+              <Button
+                size="sm"
+                variant="outline"
+                fontWeight="normal"
+                borderColor="blue.500"
+                color="blue.600"
+                _dark={{
+                  color: 'blue.400',
+                  borderColor: 'blue.400',
+                }}
+              >
+                {pageSize} / page{' '}
+                <ChevronDown size={14} style={{ marginLeft: 4 }} />
+              </Button>
+            </MenuTrigger>
+            <MenuContent minW="100px" zIndex={100}>
+              {pageSizeOptions.map((size) => (
+                <MenuItem
+                  key={size}
+                  value={String(size)}
+                  onClick={() => onPageSizeChange(size)}
+                  fontWeight={pageSize === size ? 'bold' : 'normal'}
+                  color={pageSize === size ? 'blue.600' : undefined}
+                >
+                  {size} / page
+                </MenuItem>
+              ))}
+            </MenuContent>
+          </MenuRoot>
+        )}
+      </Flex>
     </Flex>
   );
 };

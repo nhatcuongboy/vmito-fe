@@ -60,8 +60,6 @@ import { FilterDrawer } from '@/components/ui/FilterDrawer';
 import { FilterChip } from '@/components/ui/FilterChip';
 import VModal from '@/components/ui/VModal';
 
-const PAGE_SIZE = 20;
-
 const ADMIN_VENUE_FILTERS_SCHEMA = {
   q: stringField(''),
   city: stringArrayField(),
@@ -90,6 +88,7 @@ function AdminVenuesContent() {
   const [loading, setLoading] = useState(true);
   const [totalCount, setTotalCount] = useState(0);
   const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(20);
 
   // URL-synced filters
   const [filters, setFilters] = useUrlFilters(ADMIN_VENUE_FILTERS_SCHEMA);
@@ -165,7 +164,7 @@ function AdminVenuesContent() {
               : filters.sort,
           sortOrder: filters.order,
           page: targetPage,
-          limit: PAGE_SIZE,
+          limit: pageSize,
         };
 
         const result = await VenueService.searchVenues(apiFilters);
@@ -218,6 +217,7 @@ function AdminVenuesContent() {
       filters.sort,
       filters.order,
       page,
+      pageSize,
       t,
     ]
   );
@@ -247,7 +247,7 @@ function AdminVenuesContent() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [keyword]);
 
-  const totalPages = Math.ceil(totalCount / PAGE_SIZE);
+  const totalPages = Math.ceil(totalCount / pageSize);
 
   const handlePageChange = (next: number) => {
     setPage(next);
@@ -868,14 +868,20 @@ function AdminVenuesContent() {
             )}
           </TableContainer>
 
-          <VTablePagination
-            page={page}
-            totalPages={totalPages}
-            totalCount={totalCount}
-            pageSize={PAGE_SIZE}
-            isLoading={loading}
-            onPageChange={handlePageChange}
-          />
+          {totalCount > 0 && (
+            <VTablePagination
+              page={page}
+              totalPages={totalPages}
+              totalCount={totalCount}
+              pageSize={pageSize}
+              isLoading={loading}
+              onPageChange={handlePageChange}
+              onPageSizeChange={(newSize) => {
+                setPageSize(newSize);
+                setPage(1);
+              }}
+            />
+          )}
         </VStack>
 
         {/* Delete Confirmation Modal */}

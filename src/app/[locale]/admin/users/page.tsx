@@ -45,8 +45,6 @@ import { SearchFilterBar } from '@/components/ui/SearchFilterBar';
 import { FilterDrawer } from '@/components/ui/FilterDrawer';
 import { FilterChip } from '@/components/ui/FilterChip';
 
-const PAGE_SIZE = 20;
-
 const USER_FILTERS_SCHEMA = {
   q: stringField(''),
   role: stringField(''),
@@ -86,6 +84,7 @@ function AdminUsersContent() {
   const [totalCount, setTotalCount] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
   const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(20);
 
   // URL-synced filters
   const [filters, setFilters] = useUrlFilters(USER_FILTERS_SCHEMA);
@@ -141,7 +140,7 @@ function AdminUsersContent() {
         search: filters.q || undefined,
         role: filters.role || undefined,
         page,
-        limit: PAGE_SIZE,
+        limit: pageSize,
       });
       setUsers(result.data);
       setTotalCount(result.pagination.total);
@@ -155,7 +154,7 @@ function AdminUsersContent() {
     } finally {
       setLoading(false);
     }
-  }, [filters.q, filters.role, page, t]);
+  }, [filters.q, filters.role, page, pageSize, t]);
 
   useEffect(() => {
     if (!isHydrated) return;
@@ -263,8 +262,8 @@ function AdminUsersContent() {
     setIsDeleteOpen(true);
   };
 
-  const showingFrom = totalCount === 0 ? 0 : (page - 1) * PAGE_SIZE + 1;
-  const showingTo = Math.min(page * PAGE_SIZE, totalCount);
+  const showingFrom = totalCount === 0 ? 0 : (page - 1) * pageSize + 1;
+  const showingTo = Math.min(page * pageSize, totalCount);
   const totalRecordsLabel = `Total records: ${totalCount.toLocaleString()}`;
   const paginationLabel =
     totalCount > 0
@@ -422,23 +421,23 @@ function AdminUsersContent() {
                 No users found
               </Box>
             )}
-            <Box px={4} py={3} borderTopWidth="1px" borderColor="gray.100">
-              {totalPages > 1 ? (
+            {totalCount > 0 && (
+              <Box px={4} py={3} borderTopWidth="1px" borderColor="gray.100">
                 <VTablePagination
                   page={page}
                   totalPages={totalPages}
                   totalCount={totalCount}
-                  pageSize={PAGE_SIZE}
+                  pageSize={pageSize}
                   isLoading={loading}
                   label={paginationLabel}
                   onPageChange={setPage}
+                  onPageSizeChange={(newSize) => {
+                    setPageSize(newSize);
+                    setPage(1);
+                  }}
                 />
-              ) : (
-                <Text fontSize="sm" color="gray.500">
-                  {totalRecordsLabel}
-                </Text>
-              )}
-            </Box>
+              </Box>
+            )}
           </TableContainer>
         </VStack>
 
