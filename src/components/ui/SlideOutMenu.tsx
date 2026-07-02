@@ -802,7 +802,8 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
                     </VTooltip>
                     {canAccessHostFeatures &&
                       (user?.role === UserRole.ADMIN ||
-                        user?.role === UserRole.HOST) && (
+                        user?.role === UserRole.HOST ||
+                        user?.role === UserRole.REFEREE) && (
                         <VTooltip
                           content={nav('tournaments')}
                           positioning={{
