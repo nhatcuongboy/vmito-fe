@@ -12,6 +12,7 @@ export const VenueService = {
     radius?: number;
     status?: string;
     isVerified?: boolean;
+    hasNewAddress?: boolean;
     sortBy?: string;
     sortOrder?: string;
     page?: number;

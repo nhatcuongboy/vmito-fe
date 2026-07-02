@@ -65,6 +65,7 @@ const ADMIN_VENUE_FILTERS_SCHEMA = {
   city: stringArrayField(),
   district: stringArrayField(),
   isVerified: stringField(''),
+  hasNewAddress: stringField(''),
   status: stringField(''),
   closureStatus: stringField(''),
   sort: stringField('createdAt'),
@@ -100,6 +101,7 @@ function AdminVenuesContent() {
   const [pendingCities, setPendingCities] = useState<string[]>([]);
   const [pendingDistricts, setPendingDistricts] = useState<string[]>([]);
   const [pendingIsVerified, setPendingIsVerified] = useState('');
+  const [pendingHasNewAddress, setPendingHasNewAddress] = useState('');
   const [pendingStatus, setPendingStatus] = useState('');
   const [pendingClosureStatus, setPendingClosureStatus] = useState('');
 
@@ -119,6 +121,7 @@ function AdminVenuesContent() {
       setPendingCities(filters.city);
       setPendingDistricts(filters.district);
       setPendingIsVerified(filters.isVerified);
+      setPendingHasNewAddress(filters.hasNewAddress);
       setPendingStatus(filters.status);
       setPendingClosureStatus(filters.closureStatus);
     }
@@ -154,6 +157,12 @@ function AdminVenuesContent() {
             filters.isVerified === '1'
               ? true
               : filters.isVerified === '0'
+                ? false
+                : undefined,
+          hasNewAddress:
+            filters.hasNewAddress === '1'
+              ? true
+              : filters.hasNewAddress === '0'
                 ? false
                 : undefined,
           status: filters.status || undefined,
@@ -212,6 +221,7 @@ function AdminVenuesContent() {
       citiesKey,
       districtsKey,
       filters.isVerified,
+      filters.hasNewAddress,
       filters.status,
       filters.closureStatus,
       filters.sort,
@@ -259,6 +269,7 @@ function AdminVenuesContent() {
     filters.city.length +
     filters.district.length +
     (filters.isVerified ? 1 : 0) +
+    (filters.hasNewAddress ? 1 : 0) +
     (filters.status ? 1 : 0) +
     (filters.closureStatus ? 1 : 0);
 
@@ -291,6 +302,7 @@ function AdminVenuesContent() {
       city: pendingCities,
       district: pendingDistricts,
       isVerified: pendingIsVerified,
+      hasNewAddress: pendingHasNewAddress,
       status: pendingStatus,
       closureStatus: pendingClosureStatus,
     });
@@ -302,6 +314,7 @@ function AdminVenuesContent() {
     setPendingCities([]);
     setPendingDistricts([]);
     setPendingIsVerified('');
+    setPendingHasNewAddress('');
     setPendingStatus('');
     setPendingClosureStatus('');
   };
@@ -442,8 +455,22 @@ function AdminVenuesContent() {
           {!loading &&
             (filters.city.length > 0 ||
               filters.district.length > 0 ||
+              filters.hasNewAddress ||
               filters.isVerified) && (
               <Flex align="center" flexWrap="wrap" gap={2} mb={-2} minH="28px">
+                {filters.hasNewAddress && (
+                  <FilterChip
+                    label={
+                      filters.hasNewAddress === '1'
+                        ? 'Đã có địa chỉ mới'
+                        : 'Chưa có địa chỉ mới'
+                    }
+                    colorPalette={
+                      filters.hasNewAddress === '1' ? 'green' : 'orange'
+                    }
+                    onRemove={() => setFilters({ hasNewAddress: '' })}
+                  />
+                )}
                 {filters.isVerified && (
                   <FilterChip
                     label={
@@ -573,6 +600,52 @@ function AdminVenuesContent() {
                       _hover={{ transform: 'scale(1.05)' }}
                       borderWidth={
                         pendingIsVerified === opt.value ? '0' : '2px'
+                      }
+                    >
+                      {opt.label}
+                    </Badge>
+                  ))}
+                </Flex>
+              </Box>
+
+              <Box h="1px" bg="gray.200" _dark={{ bg: 'gray.700' }} />
+
+              {/* hasNewAddress Filter */}
+              <Box>
+                <Text
+                  fontSize="sm"
+                  fontWeight="bold"
+                  color="gray.700"
+                  _dark={{ color: 'gray.200' }}
+                  mb={3}
+                >
+                  Trạng thái địa chỉ mới
+                </Text>
+                <Flex gap={2} flexWrap="wrap">
+                  {[
+                    { value: '', label: 'Tất cả' },
+                    { value: '1', label: 'Đã có' },
+                    { value: '0', label: 'Chưa có' },
+                  ].map((opt) => (
+                    <Badge
+                      key={opt.value || 'all'}
+                      px={4}
+                      py={2}
+                      borderRadius="lg"
+                      cursor="pointer"
+                      variant={
+                        pendingHasNewAddress === opt.value ? 'solid' : 'outline'
+                      }
+                      colorPalette={
+                        pendingHasNewAddress === opt.value ? 'green' : 'gray'
+                      }
+                      onClick={() => setPendingHasNewAddress(opt.value)}
+                      fontSize="sm"
+                      fontWeight="medium"
+                      transition="all 0.2s"
+                      _hover={{ transform: 'scale(1.05)' }}
+                      borderWidth={
+                        pendingHasNewAddress === opt.value ? '0' : '2px'
                       }
                     >
                       {opt.label}
