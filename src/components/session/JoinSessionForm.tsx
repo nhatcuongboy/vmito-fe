@@ -6,7 +6,7 @@ import {
   IconButton,
   VStack,
 } from '@/components/ui/chakra-compat';
-import { VALID_LEVELS } from '@/constants/levels';
+import { VALID_LEVELS, sortLevelsByRank } from '@/constants/levels';
 import { useLevelLabel } from '@/hooks/useLevelLabel';
 import { getSkillLevelColor } from '@/lib/utils/skillLevel.utils';
 import { GenderType, ISession } from '@/lib/api/types';
@@ -57,7 +57,7 @@ export default function JoinSessionForm({
 
   const availableLevels = useMemo(() => {
     if (session.requiredLevels && session.requiredLevels.length > 0) {
-      return [...session.requiredLevels].sort((a, b) => a - b);
+      return sortLevelsByRank(session.requiredLevels);
     }
     return VALID_LEVELS;
   }, [session.requiredLevels]);

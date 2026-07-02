@@ -30,6 +30,7 @@ import { useLocale, useTranslations } from 'next-intl';
 import { Locale } from '@/i18n/locales';
 import FeeDetailPopover from '@/components/fee/FeeDetailPopover';
 import { getSkillLevelColor } from '@/lib/utils/skillLevel.utils';
+import { sortLevelsByRank } from '@/constants/levels';
 import { StarRatingDisplay } from '@/components/rating';
 import { RatingService } from '@/lib/api/rating.service';
 import { useState, useEffect } from 'react';
@@ -247,24 +248,24 @@ const BaseSessionCard = ({
             />
             <Wrap gap={1}>
               {session.requiredLevels && session.requiredLevels.length > 0 ? (
-                Array.from(new Set(session.requiredLevels))
-                  .sort((a, b) => a - b)
-                  .map((level) => {
-                    const levelColor = getSkillLevelColor([level]);
-                    return (
-                      <Badge
-                        key={level}
-                        colorPalette={levelColor.colorPalette}
-                        fontSize="sm"
-                        variant="solid"
-                        px={2}
-                        py={0.5}
-                        borderRadius="md"
-                      >
-                        {getLevelShortLabel(level)}
-                      </Badge>
-                    );
-                  })
+                sortLevelsByRank(
+                  Array.from(new Set(session.requiredLevels))
+                ).map((level) => {
+                  const levelColor = getSkillLevelColor([level]);
+                  return (
+                    <Badge
+                      key={level}
+                      colorPalette={levelColor.colorPalette}
+                      fontSize="sm"
+                      variant="solid"
+                      px={2}
+                      py={0.5}
+                      borderRadius="md"
+                    >
+                      {getLevelShortLabel(level)}
+                    </Badge>
+                  );
+                })
               ) : (
                 <Badge
                   colorPalette={skillLevelColor.colorPalette}

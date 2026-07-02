@@ -46,6 +46,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { SessionService } from '@/lib/api/session.service';
 import FeeDetailPopover from '@/components/fee/FeeDetailPopover';
 import { getSkillLevelColor } from '@/lib/utils/skillLevel.utils';
+import { sortLevelsByRank } from '@/constants/levels';
 import { FeeService } from '@/lib/api/fee.service';
 import { AppAddressDisplay } from '@/components/common/AppAddressDisplay';
 import LevelBadgeWithDescription from './LevelBadgeWithDescription';
@@ -681,28 +682,28 @@ export default function SessionInfo({
           <InfoRow icon={Award} label={t('requiredLevels')}>
             <Flex gap={2} flexWrap="wrap" align="center">
               {session.requiredLevels && session.requiredLevels.length > 0 ? (
-                Array.from(new Set(session.requiredLevels))
-                  .sort((a, b) => a - b)
-                  .map((level: number) => {
-                    const levelColor = getSkillLevelColor([level]);
-                    return (
-                      <LevelBadgeWithDescription
-                        key={level}
-                        level={level}
-                        colorPalette={levelColor.colorPalette}
-                        variant="solid"
-                        fontSize="xs"
-                        fontWeight="bold"
-                        px={2.5}
-                        py={0.5}
-                        borderRadius="full"
-                        borderWidth="1px"
-                        borderColor={levelColor.borderColor}
-                      >
-                        {getLevelShortLabel(level)}
-                      </LevelBadgeWithDescription>
-                    );
-                  })
+                sortLevelsByRank(
+                  Array.from(new Set(session.requiredLevels))
+                ).map((level: number) => {
+                  const levelColor = getSkillLevelColor([level]);
+                  return (
+                    <LevelBadgeWithDescription
+                      key={level}
+                      level={level}
+                      colorPalette={levelColor.colorPalette}
+                      variant="solid"
+                      fontSize="xs"
+                      fontWeight="bold"
+                      px={2.5}
+                      py={0.5}
+                      borderRadius="full"
+                      borderWidth="1px"
+                      borderColor={levelColor.borderColor}
+                    >
+                      {getLevelShortLabel(level)}
+                    </LevelBadgeWithDescription>
+                  );
+                })
               ) : (
                 <Badge
                   colorPalette="gray"

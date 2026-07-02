@@ -140,8 +140,11 @@
     "aiAssistant": "Trợ lý AI",
     "contact": "Liên hệ",
     "bugReport": "Báo cáo lỗi",
+    "developedBy": "Phát triển bởi Nhật Cường.",
     "levels": {
+      "9": "Yếu-",
       "1": "Yếu",
+      "10": "Yếu+",
       "2": "Trung bình yếu",
       "3": "Trung bình-",
       "4": "Trung bình",
@@ -151,7 +154,9 @@
       "8": "Chuyên nghiệp"
     },
     "levelShorts": {
+      "9": "Yếu-",
       "1": "Yếu",
+      "10": "Yếu+",
       "2": "TBY",
       "3": "TB-",
       "4": "TB",
@@ -475,7 +480,9 @@
     "allLevels": "Tất cả trình độ",
     "levelsLabel": "Trình độ",
     "levels": {
+      "9": "Yếu-",
       "1": "Yếu",
+      "10": "Yếu+",
       "2": "Trung bình yếu",
       "3": "Trung bình-",
       "4": "Trung bình",

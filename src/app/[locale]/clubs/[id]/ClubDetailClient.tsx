@@ -43,6 +43,7 @@ import { toaster } from '@/components/ui/toaster';
 import { useAuthStore } from '@/stores/useAuthStore';
 import PageLayout from '@/components/layout/PageLayout';
 import DetailViewCountFooter from '@/components/common/DetailViewCountFooter';
+import { sortLevelsByRank } from '@/constants/levels';
 import { DEFAULT_COVER_PHOTO, ROUTES } from '@/constants';
 import { getGoogleMapsUrl } from '@/utils';
 import { useLevelLabel } from '@/hooks/useLevelLabel';
@@ -107,13 +108,14 @@ const getClubRequiredLevels = (club: IClub | null): number[] => {
     [];
   const rawLevelValues = Array.isArray(rawLevels) ? rawLevels : [rawLevels];
 
-  return Array.from(
+  const uniqueLevels = Array.from(
     new Set(
       rawLevelValues
         .map(extractLevelNumber)
         .filter((l): l is number => l !== null)
     )
-  ).sort((a, b) => a - b);
+  );
+  return sortLevelsByRank(uniqueLevels);
 };
 
 const getVenueNameFromScheduleNote = (note?: string): string | null => {
@@ -192,7 +194,7 @@ export default function ClubDetailClient({
       .filter((l): l is number => l !== undefined && l !== null);
 
     if (levels.length === 0) return null;
-    const uniqueLevels = Array.from(new Set(levels)).sort((a, b) => a - b);
+    const uniqueLevels = sortLevelsByRank(Array.from(new Set(levels)));
     return uniqueLevels.map((l) => getLevelShortLabel(l)).join(', ');
   };
 

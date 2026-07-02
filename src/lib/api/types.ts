@@ -54,7 +54,9 @@ export enum PlayerStatus {
 }
 
 export enum PlayerLevel {
+  BEGINNER_MINUS = 9,
   BEGINNER = 1,
+  BEGINNER_PLUS = 10,
   ADVANCED_BEGINNER = 2,
   LOW_INTERMEDIATE = 3,
   INTERMEDIATE = 4,
@@ -68,6 +70,14 @@ export interface LevelDescription {
   level: number;
   description: string;
   updatedAt?: string;
+}
+
+export interface LevelDefinition {
+  id: number;
+  code: string;
+  shortLabel: string;
+  sortOrder: number;
+  active: boolean;
 }
 
 // ============================================

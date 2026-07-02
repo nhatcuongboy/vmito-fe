@@ -19,12 +19,13 @@ import { VModal } from './VModal';
 import ChangePasswordModal from './ChangePasswordModal';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { AdminService, UpdateUserData } from '@/lib/api/admin.service';
-import { Gender, GenderType, PlayerLevel } from '@/lib/api/types';
+import { Gender, GenderType } from '@/lib/api/types';
 import { toaster } from '@/components/ui/toaster';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { compressImage } from '@/lib/utils/image';
+import { VALID_LEVELS } from '@/constants/levels';
 
 // Zod schema for user profile validation
 const userProfileSchema = z.object({
@@ -322,30 +323,11 @@ export default function UserProfileModal({
                 onChange={(e) => field.onChange(e.target.value)}
               >
                 <option value="">{common('selectLevel')}</option>
-                <option value={String(PlayerLevel.BEGINNER)}>
-                  {common('levels.1')}
-                </option>
-                <option value={String(PlayerLevel.ADVANCED_BEGINNER)}>
-                  {common('levels.2')}
-                </option>
-                <option value={String(PlayerLevel.LOW_INTERMEDIATE)}>
-                  {common('levels.3')}
-                </option>
-                <option value={String(PlayerLevel.INTERMEDIATE)}>
-                  {common('levels.4')}
-                </option>
-                <option value={String(PlayerLevel.HIGH_INTERMEDIATE)}>
-                  {common('levels.5')}
-                </option>
-                <option value={String(PlayerLevel.ADVANCED)}>
-                  {common('levels.6')}
-                </option>
-                <option value={String(PlayerLevel.SEMI_PRO)}>
-                  {common('levels.7')}
-                </option>
-                <option value={String(PlayerLevel.PRO)}>
-                  {common('levels.8')}
-                </option>
+                {VALID_LEVELS.map((level) => (
+                  <option key={level} value={String(level)}>
+                    {common(`levels.${level}`)}
+                  </option>
+                ))}
               </VSelect>
             )}
           />

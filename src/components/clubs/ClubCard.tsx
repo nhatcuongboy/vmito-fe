@@ -26,6 +26,7 @@ import { DEFAULT_COVER_PHOTO } from '@/constants';
 import { stripHtml } from '@/utils';
 import { useLevelLabel } from '@/hooks/useLevelLabel';
 import { getSkillLevelColor } from '@/lib/utils/skillLevel.utils';
+import { getLevelRank, sortLevelsByRank } from '@/constants/levels';
 
 interface ClubCardProps {
   club: IClubListItem;
@@ -79,12 +80,15 @@ export default function ClubCard({ club, variant = 'grid' }: ClubCardProps) {
   const getLevelDisplay = () => {
     if (!club.requiredLevels || club.requiredLevels.length === 0) return null;
 
-    const sorted = [...club.requiredLevels].sort((a, b) => a - b);
+    const sorted = sortLevelsByRank(club.requiredLevels);
     if (sorted.length === 1) return getLevelLabel(sorted[0]);
 
     // Check if it's a continuous range
     const isContinuous = sorted.every(
-      (val, i) => i === 0 || val === sorted[i - 1] + 1
+      (level, i) =>
+        i === 0 ||
+        (getLevelRank(level) ?? Number.MAX_SAFE_INTEGER) ===
+          (getLevelRank(sorted[i - 1]) ?? Number.MAX_SAFE_INTEGER) + 1
     );
     if (isContinuous && sorted.length > 2) {
       return `${getLevelLabel(sorted[0])} - ${getLevelLabel(sorted[sorted.length - 1])}`;
@@ -100,7 +104,7 @@ export default function ClubCard({ club, variant = 'grid' }: ClubCardProps) {
 
   const levelText = getLevelDisplay();
   const skillColor = club.requiredLevels?.length
-    ? getSkillLevelColor([Math.max(...club.requiredLevels)]).color
+    ? getSkillLevelColor([sortLevelsByRank(club.requiredLevels).at(-1)!]).color
     : undefined;
 
   if (variant === 'list') {

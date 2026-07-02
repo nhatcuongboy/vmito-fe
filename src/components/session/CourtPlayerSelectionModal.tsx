@@ -22,6 +22,7 @@ import {
   getMatchRepeatWarning,
   MatchRepeatWarningResult,
 } from '@/utils/match-repeat-warning';
+import { LEVEL_DEFINITIONS } from '@/constants/levels';
 
 type SelectionMode = 'auto' | 'manual';
 
@@ -568,21 +569,17 @@ const CourtPlayerSelectionModal: React.FC<ICourtPlayerSelectionModalProps> = ({
 
 // ─── Auto-Assign Sub-Component ───────────────────────────────────────────────
 
-const LEVEL_SHORT_LABELS: Record<number, string> = {
-  1: 'Yếu',
-  2: 'TBY',
-  3: 'TB-',
-  4: 'TB',
-  5: 'TB+',
-  6: 'Khá',
-  7: 'BC',
-  8: 'CN',
-};
+const LEVEL_SHORT_LABELS = Object.fromEntries(
+  LEVEL_DEFINITIONS.map((level) => [level.id, level.shortLabel])
+) as Record<number, string>;
 
 const normalizeAiReasonLevels = (reason: string) =>
-  reason.replace(/\b(?:Level|Cấp|等级)\s*([1-8])\b/gi, (_, level: string) => {
-    return LEVEL_SHORT_LABELS[Number(level)] ?? _;
-  });
+  reason.replace(
+    /\b(?:Level|Cấp|等级)\s*(10|[1-9])\b/gi,
+    (_, level: string) => {
+      return LEVEL_SHORT_LABELS[Number(level)] ?? _;
+    }
+  );
 
 interface IAutoAssignContentProps {
   court: Court;

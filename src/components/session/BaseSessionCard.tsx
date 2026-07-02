@@ -60,6 +60,7 @@ import { useLocale, useTranslations } from 'next-intl';
 import { Locale } from '@/i18n/locales';
 import FeeDetailPopover from '@/components/fee/FeeDetailPopover';
 import { getSkillLevelColor } from '@/lib/utils/skillLevel.utils';
+import { VALID_LEVELS, sortLevelsByRank } from '@/constants/levels';
 import { AppPlayerRating } from '@/components/rating';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { DEFAULT_COVER_PHOTO } from '@/constants';
@@ -71,7 +72,6 @@ import { Link } from '@/i18n/config';
 import SessionShareImageModal from './SessionShareImageModal';
 import LevelDescriptionsModal from './LevelDescriptionsModal';
 import LevelBadgeWithDescription from './LevelBadgeWithDescription';
-import { VALID_LEVELS } from '@/constants/levels';
 
 // Helper functions for formatting with locale support
 export const formatDate = (
@@ -589,7 +589,7 @@ const BaseSessionCard = ({
     }
 
     // For multiple levels, show only the highest level color
-    const highestLevel = Math.max(...session.requiredLevels);
+    const highestLevel = sortLevelsByRank(session.requiredLevels).at(-1)!;
     const highestLevelColor = getSkillLevelColor([highestLevel]).color;
     return [highestLevelColor];
   };
@@ -984,29 +984,29 @@ const BaseSessionCard = ({
               />
               <Wrap gap={1}>
                 {session.requiredLevels && session.requiredLevels.length > 0 ? (
-                  Array.from(new Set(session.requiredLevels))
-                    .sort((a, b) => a - b)
-                    .map((level) => {
-                      const levelColor = getSkillLevelColor([level]);
-                      return (
-                        <LevelBadgeWithDescription
-                          key={level}
-                          level={level}
-                          colorPalette={levelColor.colorPalette}
-                          variant="solid"
-                          size={isCompact ? 'sm' : 'md'}
-                          fontSize="xs"
-                          fontWeight="bold"
-                          px={isCompact ? 2 : 2.5}
-                          py={0.5}
-                          borderRadius="full"
-                          borderWidth="1px"
-                          borderColor={levelColor.borderColor}
-                        >
-                          {getLevelShortLabel(level)}
-                        </LevelBadgeWithDescription>
-                      );
-                    })
+                  sortLevelsByRank(
+                    Array.from(new Set(session.requiredLevels))
+                  ).map((level) => {
+                    const levelColor = getSkillLevelColor([level]);
+                    return (
+                      <LevelBadgeWithDescription
+                        key={level}
+                        level={level}
+                        colorPalette={levelColor.colorPalette}
+                        variant="solid"
+                        size={isCompact ? 'sm' : 'md'}
+                        fontSize="xs"
+                        fontWeight="bold"
+                        px={isCompact ? 2 : 2.5}
+                        py={0.5}
+                        borderRadius="full"
+                        borderWidth="1px"
+                        borderColor={levelColor.borderColor}
+                      >
+                        {getLevelShortLabel(level)}
+                      </LevelBadgeWithDescription>
+                    );
+                  })
                 ) : (
                   <Badge
                     colorPalette="gray"

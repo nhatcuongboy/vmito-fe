@@ -139,8 +139,11 @@
     "aiAssistant": "AI Assistant",
     "contact": "Contact Us",
     "bugReport": "Bug Report",
+    "developedBy": "Developed by Nhat Cuong.",
     "levels": {
+      "9": "Weak-",
       "1": "Weak",
+      "10": "Weak+",
       "2": "Advanced Beginner",
       "3": "Low Intermediate",
       "4": "Intermediate",
@@ -150,7 +153,9 @@
       "8": "Pro"
     },
     "levelShorts": {
+      "9": "Yếu-",
       "1": "Yếu",
+      "10": "Yếu+",
       "2": "TBY",
       "3": "TB-",
       "4": "TB",
@@ -473,7 +478,9 @@
     "allLevels": "All Levels",
     "levelsLabel": "Levels",
     "levels": {
+      "9": "Weak-",
       "1": "Beginner",
+      "10": "Weak+",
       "2": "Advanced Beginner",
       "3": "Low Intermediate",
       "4": "Intermediate",

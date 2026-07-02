@@ -7,7 +7,7 @@ export function useLevelLabel() {
 
   /**
    * Get the translated label for a numeric level.
-   * @param level - The numeric level (1-8)
+   * @param level - The stable numeric level ID
    * @returns The translated label string
    */
   const getLevelLabel = (level?: number | string | null) => {
@@ -18,7 +18,7 @@ export function useLevelLabel() {
 
   /**
    * Get the abbreviated translated label for a numeric level.
-   * @param level - The numeric level (1-8)
+   * @param level - The stable numeric level ID
    * @returns The abbreviated translated label string
    */
   const getLevelShortLabel = (level?: number | string | null) => {

@@ -39,6 +39,7 @@ import { NextLinkButton } from '@/components/ui/NextLinkButton';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { useLevelLabel } from '@/hooks/useLevelLabel';
 import { getSkillLevelColor } from '@/lib/utils/skillLevel.utils';
+import { sortLevelsByRank } from '@/constants/levels';
 import dayjs from '@/lib/dayjs';
 import LevelBadgeWithDescription from './LevelBadgeWithDescription';
 import LevelDescriptionsModal from './LevelDescriptionsModal';
@@ -444,29 +445,29 @@ const SessionDetailStickyBar = ({
                 <Wrap gap={1}>
                   {session.requiredLevels &&
                   session.requiredLevels.length > 0 ? (
-                    Array.from(new Set(session.requiredLevels))
-                      .sort((a, b) => a - b)
-                      .map((level) => {
-                        const levelColor = getSkillLevelColor([level]);
-                        return (
-                          <LevelBadgeWithDescription
-                            key={level}
-                            level={level}
-                            colorPalette={levelColor.colorPalette}
-                            variant="solid"
-                            size="sm"
-                            fontSize="xs"
-                            fontWeight="bold"
-                            px={2}
-                            py={0.5}
-                            borderRadius="full"
-                            borderWidth="1px"
-                            borderColor={levelColor.borderColor}
-                          >
-                            {getLevelShortLabel(level)}
-                          </LevelBadgeWithDescription>
-                        );
-                      })
+                    sortLevelsByRank(
+                      Array.from(new Set(session.requiredLevels))
+                    ).map((level) => {
+                      const levelColor = getSkillLevelColor([level]);
+                      return (
+                        <LevelBadgeWithDescription
+                          key={level}
+                          level={level}
+                          colorPalette={levelColor.colorPalette}
+                          variant="solid"
+                          size="sm"
+                          fontSize="xs"
+                          fontWeight="bold"
+                          px={2}
+                          py={0.5}
+                          borderRadius="full"
+                          borderWidth="1px"
+                          borderColor={levelColor.borderColor}
+                        >
+                          {getLevelShortLabel(level)}
+                        </LevelBadgeWithDescription>
+                      );
+                    })
                   ) : (
                     <Badge
                       colorPalette="gray"

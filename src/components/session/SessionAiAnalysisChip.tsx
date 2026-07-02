@@ -8,6 +8,7 @@ import { useTranslations, useLocale } from 'next-intl';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { useAiAssistantStore } from '@/stores/useAiAssistantStore';
 import { Locale } from '@/i18n/locales';
+import { sortLevelsByRank } from '@/constants/levels';
 
 interface ISessionAiAnalysisChipProps {
   session: ISession;
@@ -44,8 +45,7 @@ const buildAnalysisPrompt = (
 
   const requiredLevels =
     session.requiredLevels && session.requiredLevels.length > 0
-      ? Array.from(new Set(session.requiredLevels))
-          .sort((a, b) => a - b)
+      ? sortLevelsByRank(Array.from(new Set(session.requiredLevels)))
           .map((level) => `${getLevelShortLabel(level)} (${level})`)
           .join(', ')
       : isVi

@@ -2,6 +2,7 @@
  * Skill level color coding utility
  * Maps session required levels to color schemes for visual indication
  */
+import { getLevelRank, sortLevelsByRank } from '@/constants/levels';
 
 export interface SkillLevelColor {
   color: string;
@@ -13,7 +14,7 @@ export interface SkillLevelColor {
 
 /**
  * Get skill level color based on session required levels
- * @param requiredLevels Array of required level numbers (1-7)
+ * @param requiredLevels Array of stable level IDs
  * @returns Color scheme object with color, label, and emoji
  */
 export const getSkillLevelColor = (
@@ -30,13 +31,13 @@ export const getSkillLevelColor = (
     };
   }
 
-  // Calculate average level to determine category
-  const avgLevel =
-    requiredLevels.reduce((sum, level) => sum + level, 0) /
-    requiredLevels.length;
+  // Calculate average rank to determine category. Level IDs are stable keys,
+  // not sortable skill scores.
+  const ranks = requiredLevels.map((level) => getLevelRank(level) ?? 0);
+  const avgRank = ranks.reduce((sum, rank) => sum + rank, 0) / ranks.length;
 
-  // Beginner: Levels 1-2 (Green)
-  if (avgLevel <= 2) {
+  // Beginner band: Y-, Y, Y+, TBY
+  if (avgRank <= 3) {
     return {
       color: 'green.600',
       colorPalette: 'green',
@@ -46,8 +47,8 @@ export const getSkillLevelColor = (
     };
   }
 
-  // Intermediate: Levels 3-5 (Yellow) - includes TB-, TB, TB+
-  if (avgLevel <= 5) {
+  // Intermediate band: TB-, TB, TB+
+  if (avgRank <= 6) {
     return {
       color: 'yellow.600',
       colorPalette: 'yellow',
@@ -69,7 +70,7 @@ export const getSkillLevelColor = (
 
 /**
  * Get skill level description for display
- * @param requiredLevels Array of required level numbers
+ * @param requiredLevels Array of stable level IDs
  * @returns Human-readable description
  */
 export const getSkillLevelDescription = (
@@ -79,8 +80,9 @@ export const getSkillLevelDescription = (
     return 'All levels welcome';
   }
 
-  const min = Math.min(...requiredLevels);
-  const max = Math.max(...requiredLevels);
+  const sorted = sortLevelsByRank(requiredLevels);
+  const min = sorted[0];
+  const max = sorted[sorted.length - 1];
 
   if (min === max) {
     return `Level ${min}`;

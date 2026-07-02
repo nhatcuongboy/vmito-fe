@@ -30,6 +30,7 @@ import { Link } from '@/i18n/config';
 import { Locale } from '@/i18n/locales';
 import { useLevelLabel } from '@/hooks/useLevelLabel';
 import { getSkillLevelColor } from '@/lib/utils/skillLevel.utils';
+import { sortLevelsByRank } from '@/constants/levels';
 import { AppPlayerRating } from '@/components/rating';
 import { AppAddressDisplay } from '@/components/common/AppAddressDisplay';
 import dayjs from '@/lib/dayjs';
@@ -430,9 +431,8 @@ const SessionDetailBody = ({
           <Icon as={Shield} boxSize={5} color={skillLevelColor.color} />
           <Wrap gap={1}>
             {session.requiredLevels && session.requiredLevels.length > 0 ? (
-              Array.from(new Set(session.requiredLevels))
-                .sort((a, b) => a - b)
-                .map((level) => {
+              sortLevelsByRank(Array.from(new Set(session.requiredLevels))).map(
+                (level) => {
                   const levelColor = getSkillLevelColor([level]);
                   return (
                     <LevelBadgeWithDescription
@@ -452,7 +452,8 @@ const SessionDetailBody = ({
                       {getLevelShortLabel(level)}
                     </LevelBadgeWithDescription>
                   );
-                })
+                }
+              )
             ) : (
               <Badge
                 colorPalette="gray"
