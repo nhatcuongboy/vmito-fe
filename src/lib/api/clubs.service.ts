@@ -320,6 +320,16 @@ export const ClubsService = {
   },
 
   /**
+   * Get all pending join requests across all clubs (Admin only)
+   */
+  getAdminJoinRequests: async (): Promise<IClubJoinRequest[]> => {
+    const response = await api.get<ApiResponse<IClubJoinRequest[]>>(
+      '/clubs/admin/join-requests'
+    );
+    return response.data.data || [];
+  },
+
+  /**
    * Get all clubs pending approval (Admin only)
    */
   getPendingClubs: async (): Promise<IClub[]> => {
