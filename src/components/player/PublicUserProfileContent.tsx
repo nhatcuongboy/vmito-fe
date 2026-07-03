@@ -115,7 +115,7 @@ export default function PublicUserProfileContent({
   const [ratings, setRatings] = useState<Rating[]>([]);
   const [hostedSessions, setHostedSessions] = useState<ISession[]>([]);
   const [clubs, setClubs] = useState<IClub[]>([]);
-  const [totalHostedSessions, setTotalHostedSessions] = useState(0);
+  const [allHostedSessionsCount, setAllHostedSessionsCount] = useState(0);
   const [activeHostedSessionsCount, setActiveHostedSessionsCount] = useState(0);
   const [endedHostedSessionsCount, setEndedHostedSessionsCount] = useState(0);
   const [totalSessionPages, setTotalSessionPages] = useState(0);
@@ -199,6 +199,7 @@ export default function PublicUserProfileContent({
 
         const [
           hostedSessionsResponse,
+          allCountResponse,
           activeCountResponse,
           endedCountResponse,
         ] = await Promise.all([
@@ -208,6 +209,10 @@ export default function PublicUserProfileContent({
             sortBy: 'startTime',
             sortOrder: 'desc',
             ...sessionFilters,
+          }),
+          SessionService.getPublicSessions(userId, {
+            page: 1,
+            limit: 1,
           }),
           SessionService.getPublicSessions(userId, {
             page: 1,
@@ -225,7 +230,7 @@ export default function PublicUserProfileContent({
         ]);
 
         setHostedSessions(hostedSessionsResponse.data);
-        setTotalHostedSessions(hostedSessionsResponse.total);
+        setAllHostedSessionsCount(allCountResponse.total);
         setActiveHostedSessionsCount(activeCountResponse.total);
         setEndedHostedSessionsCount(endedCountResponse.total);
         setTotalSessionPages(hostedSessionsResponse.totalPages);
@@ -450,7 +455,7 @@ export default function PublicUserProfileContent({
                       color="gray.800"
                       _dark={{ color: 'gray.100' }}
                     >
-                      {totalHostedSessions}
+                      {allHostedSessionsCount}
                     </Text>
                   </Box>
 
@@ -791,7 +796,7 @@ export default function PublicUserProfileContent({
                 color="gray.800"
                 _dark={{ color: 'gray.100' }}
               >
-                {t('hostedSessions')} ({totalHostedSessions})
+                {t('hostedSessions')} ({allHostedSessionsCount})
               </Text>
             </Flex>
 

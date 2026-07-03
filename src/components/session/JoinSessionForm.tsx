@@ -1,4 +1,5 @@
 import { Input } from '@/components/ui/Input';
+import { VSelect } from '@/components/ui/VSelect';
 import {
   Button,
   FormControl,
@@ -211,32 +212,19 @@ export default function JoinSessionForm({
                 <Text fontSize="sm" mb={1} color="fg.muted" fontWeight="medium">
                   {tPlayer('gender')}
                 </Text>
-                <select
+                <VSelect
                   value={player.gender}
                   onChange={(e: ChangeEvent<HTMLSelectElement>) =>
                     onUpdatePlayer(index, 'gender', e.target.value)
                   }
-                  style={{
-                    width: '100%',
-                    padding: '10px 12px',
-                    borderRadius: '6px',
-                    border: '1px solid var(--chakra-colors-border)',
-                    backgroundColor: 'var(--chakra-colors-bg)',
-                    color: 'inherit',
-                    fontSize: '14px',
-                    height: '40px', // Match Chakra Input height
-                  }}
+                  size="md"
                 >
                   {genderOptions.map((option) => (
-                    <option
-                      key={option.value}
-                      value={option.value}
-                      style={{ backgroundColor: 'var(--chakra-colors-bg)' }}
-                    >
+                    <option key={option.value} value={option.value}>
                       {tPlayer(option.labelKey)}
                     </option>
                   ))}
-                </select>
+                </VSelect>
               </Box>
 
               <FormControl isRequired isInvalid={!!errors[index]?.level}>
@@ -246,40 +234,21 @@ export default function JoinSessionForm({
                     *
                   </Text>
                 </Text>
-                <select
+                <VSelect
                   value={player.level}
                   onChange={(e: ChangeEvent<HTMLSelectElement>) =>
                     onUpdatePlayer(index, 'level', parseInt(e.target.value))
                   }
-                  style={{
-                    width: '100%',
-                    padding: '10px 12px',
-                    borderRadius: '6px',
-                    border: errors[index]?.level
-                      ? '1px solid var(--chakra-colors-red-500)'
-                      : '1px solid var(--chakra-colors-border)',
-                    backgroundColor: 'var(--chakra-colors-bg)',
-                    color: 'inherit',
-                    fontSize: '14px',
-                    height: '40px', // Match Chakra Input height
-                  }}
+                  size="md"
+                  aria-invalid={!!errors[index]?.level}
                 >
-                  <option
-                    value={0}
-                    style={{ backgroundColor: 'var(--chakra-colors-bg)' }}
-                  >
-                    {tPlayer('selectLevel')}
-                  </option>
+                  <option value={0}>{tPlayer('selectLevel')}</option>
                   {availableLevels.map((l) => (
-                    <option
-                      key={l}
-                      value={l}
-                      style={{ backgroundColor: 'var(--chakra-colors-bg)' }}
-                    >
+                    <option key={l} value={l}>
                       {getLevelShortLabel(l)}
                     </option>
                   ))}
-                </select>
+                </VSelect>
                 {errors[index]?.level && (
                   <Text fontSize="xs" color="fg.error" mt={1}>
                     {t('validation.levelRequired')}

@@ -43,14 +43,15 @@ export default function JoinSessionModal({
   });
 
   const modalTitle = isAdditionalRegistration
-    ? `${t('addGuest')}: ${session.name}`
-    : `${t('joinSession')}: ${session.name}`;
+    ? t('addGuest')
+    : t('joinSession');
 
   return (
     <VModal
       isOpen={isOpen}
       onClose={onClose}
       title={modalTitle}
+      description={session.name}
       primaryActionText={`${t('submitRegistration')} (${players.length})`}
       onPrimaryAction={handleSubmit}
       isPrimaryLoading={loading}

@@ -186,23 +186,6 @@ const SessionDetailStickyBar = ({
         ? `/player/sessions/${session.slug || session.id}`
         : `/host/sessions/${session.slug || session.id}`;
 
-    if (canManage && isClosed) {
-      return (
-        <NextLinkButton
-          href={manageHref}
-          colorPalette="gray"
-          variant="subtle"
-          size={buttonSize}
-          w={buttonW}
-          fontWeight="semibold"
-          borderRadius={buttonRadius}
-        >
-          <Icon as={ClipboardList} boxSize={4} />
-          {t('viewEndedSession')}
-        </NextLinkButton>
-      );
-    }
-
     if (canManage) {
       return (
         <NextLinkButton

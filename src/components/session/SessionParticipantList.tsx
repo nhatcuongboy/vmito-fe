@@ -1,16 +1,28 @@
 'use client';
 
 import { ISession, Player } from '@/lib/api/types';
-import { Avatar, Badge, Box, Flex, Text, Wrap } from '@chakra-ui/react';
+import {
+  Avatar,
+  Badge,
+  Box,
+  Flex,
+  HStack,
+  Separator,
+  Text,
+  VStack,
+  Wrap,
+} from '@chakra-ui/react';
 import { Icon } from '@chakra-ui/react';
-import { Users } from 'lucide-react';
+import { Trophy, User, UserCheck, Users } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { getSkillLevelColor } from '@/lib/utils/skillLevel.utils';
 import { useLevelLabel } from '@/hooks/useLevelLabel';
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 import { Button } from '@/components/ui/chakra-compat';
 import { VTooltip } from '@/components/ui/VTooltip';
 import SessionAiAnalysisChip from './SessionAiAnalysisChip';
+import { VModal } from '@/components/ui/VModal';
+import { useRouter } from '@/i18n/config';
 
 interface ISessionParticipantListProps {
   players?: Player[];
@@ -28,8 +40,11 @@ const SessionParticipantList = ({
   session,
 }: ISessionParticipantListProps) => {
   const t = useTranslations('session');
-  const { getLevelShortLabel } = useLevelLabel();
+  const common = useTranslations('common');
+  const router = useRouter();
+  const { getLevelLabel, getLevelShortLabel } = useLevelLabel();
   const [isExpanded, setIsExpanded] = useState(false);
+  const [selectedPlayer, setSelectedPlayer] = useState<Player | null>(null);
 
   const approvedPlayers =
     players?.filter((p) => p.registrationStatus === 'APPROVED') || [];
@@ -46,6 +61,25 @@ const SessionParticipantList = ({
         availableSlots,
         Math.max(0, MAX_VISIBLE_AVATARS - visiblePlayers.length)
       );
+  const selectedPlayerName = selectedPlayer
+    ? selectedPlayer.user?.name ||
+      selectedPlayer.name ||
+      `P${selectedPlayer.playerNumber}`
+    : '';
+
+  const getGenderLabel = (gender?: Player['gender']) => {
+    if (gender === 'MALE') return common('male');
+    if (gender === 'FEMALE') return common('female');
+    if (gender === 'OTHER') return common('other');
+    if (gender === 'PREFER_NOT_TO_SAY') return common('preferNotToSay');
+    return common('unknown');
+  };
+
+  const handleViewProfile = () => {
+    if (!selectedPlayer?.userId) return;
+    router.push(`/user/${selectedPlayer.userId}`);
+    setSelectedPlayer(null);
+  };
 
   return (
     <Box>
@@ -84,7 +118,25 @@ const SessionParticipantList = ({
                   openDelay={200}
                 >
                   <Flex direction="column" align="center" gap={1} minW="56px">
-                    <Box position="relative" display="inline-block">
+                    <Box
+                      as="button"
+                      {...({ type: 'button' } as Record<string, unknown>)}
+                      position="relative"
+                      display="inline-block"
+                      borderRadius="full"
+                      cursor="pointer"
+                      aria-label={t('viewPlayerDetails', {
+                        name: displayName,
+                      })}
+                      onClick={() => setSelectedPlayer(player)}
+                      _focusVisible={{
+                        outline: '2px solid',
+                        outlineColor: 'green.500',
+                        outlineOffset: '3px',
+                      }}
+                      _hover={{ transform: 'translateY(-1px)' }}
+                      transition="transform 0.15s ease"
+                    >
                       <Box
                         borderRadius="full"
                         borderWidth="2px"
@@ -217,8 +269,152 @@ const SessionParticipantList = ({
           </Text>
         </Flex>
       )}
+
+      <VModal
+        isOpen={!!selectedPlayer}
+        onClose={() => setSelectedPlayer(null)}
+        title={t('playerDetails')}
+        size="sm"
+        secondaryActionText={common('close')}
+        primaryActionText={
+          selectedPlayer?.userId ? t('viewPlayerProfile') : undefined
+        }
+        onPrimaryAction={handleViewProfile}
+        hideSecondaryAction={false}
+      >
+        {selectedPlayer && (
+          <VStack align="stretch" gap={4}>
+            <VStack align="center" gap={3}>
+              <Box position="relative">
+                <Avatar.Root
+                  boxSize="80px"
+                  borderWidth="3px"
+                  borderColor={selectedPlayer.userId ? 'green.400' : 'gray.300'}
+                  bg="green.500"
+                >
+                  <Avatar.Fallback name={selectedPlayerName}>
+                    {selectedPlayerName.charAt(0).toUpperCase()}
+                  </Avatar.Fallback>
+                  {selectedPlayer.user?.image && (
+                    <Avatar.Image src={selectedPlayer.user.image} />
+                  )}
+                </Avatar.Root>
+                <Badge
+                  position="absolute"
+                  bottom="-2"
+                  left="50%"
+                  transform="translateX(-50%)"
+                  colorPalette={selectedPlayer.userId ? 'green' : 'gray'}
+                  variant="solid"
+                  borderRadius="full"
+                  px={2}
+                  whiteSpace="nowrap"
+                >
+                  <HStack gap={1}>
+                    <Box
+                      as={selectedPlayer.userId ? UserCheck : User}
+                      boxSize={3}
+                    />
+                    <Text as="span" fontSize="2xs">
+                      {selectedPlayer.userId ? t('member') : t('guest')}
+                    </Text>
+                  </HStack>
+                </Badge>
+              </Box>
+              <Text fontSize="lg" fontWeight="bold" textAlign="center" mt={2}>
+                {selectedPlayerName}
+              </Text>
+            </VStack>
+
+            <Separator />
+
+            <VStack align="stretch" gap={2}>
+              <PlayerInfoRow
+                label={common('gender')}
+                value={getGenderLabel(selectedPlayer.gender)}
+              />
+              <PlayerInfoRow
+                label={common('level')}
+                value={
+                  selectedPlayer.level
+                    ? getLevelLabel(selectedPlayer.level)
+                    : common('unknown')
+                }
+                valueNode={
+                  selectedPlayer.level ? (
+                    <Badge
+                      colorPalette={
+                        getSkillLevelColor([selectedPlayer.level]).colorPalette
+                      }
+                      variant="subtle"
+                      borderRadius="full"
+                    >
+                      <HStack gap={1}>
+                        <Box as={Trophy} boxSize={3} />
+                        <Text as="span">
+                          {getLevelLabel(selectedPlayer.level)}
+                        </Text>
+                      </HStack>
+                    </Badge>
+                  ) : undefined
+                }
+              />
+              {selectedPlayer.levelDescription && (
+                <PlayerInfoRow
+                  label={t('levelDescription')}
+                  value={selectedPlayer.levelDescription}
+                />
+              )}
+              {selectedPlayer.club?.name && (
+                <PlayerInfoRow
+                  label={t('club')}
+                  value={selectedPlayer.club.name}
+                  valueNode={
+                    <Badge variant="subtle" colorPalette="green">
+                      {selectedPlayer.club.name}
+                    </Badge>
+                  }
+                />
+              )}
+            </VStack>
+          </VStack>
+        )}
+      </VModal>
     </Box>
   );
 };
+
+function PlayerInfoRow({
+  label,
+  value,
+  valueNode,
+}: {
+  label: string;
+  value: string;
+  valueNode?: ReactNode;
+}) {
+  return (
+    <Flex
+      align="flex-start"
+      justify="space-between"
+      gap={4}
+      bg={{ base: 'gray.50', _dark: 'whiteAlpha.50' }}
+      borderRadius="md"
+      px={3}
+      py={2}
+    >
+      <Text fontSize="sm" color="fg.muted">
+        {label}
+      </Text>
+      <Box textAlign="right" maxW="65%">
+        {valueNode ?? (
+          <Text fontSize="sm" fontWeight="medium" color="fg">
+            {value}
+          </Text>
+        )}
+      </Box>
+    </Flex>
+  );
+}
 
 export default SessionParticipantList;

@@ -2016,30 +2016,6 @@ export default function SessionForm({
                       />
                     </Box>
 
-                    {/* Default Club */}
-                    {canAccessHostFeatures && (
-                      <Field.Root>
-                        <Field.Label>{t('defaultClub')}</Field.Label>
-                        <Controller
-                          control={control}
-                          name="clubId"
-                          render={({ field }) => (
-                            <SearchableSelect
-                              value={field.value || ''}
-                              onChange={(value) => field.onChange(value)}
-                              options={clubOptions}
-                              placeholder={t('selectDefaultClub')}
-                              searchPlaceholder={t('searchDefaultClub')}
-                              isLoading={isClubsLoading}
-                            />
-                          )}
-                        />
-                        <Text fontSize="xs" color="fg.muted" mt={1}>
-                          {t('defaultClubDescription')}
-                        </Text>
-                      </Field.Root>
-                    )}
-
                     {/* Court Appearance */}
                     {canAccessHostFeatures && (
                       <Box>
@@ -2231,6 +2207,30 @@ export default function SessionForm({
                         </Field.Root>
                       </Box>
                     </Grid>
+
+                    {/* Default Club */}
+                    {canAccessHostFeatures && (
+                      <Field.Root>
+                        <Field.Label>{t('defaultClub')}</Field.Label>
+                        <Controller
+                          control={control}
+                          name="clubId"
+                          render={({ field }) => (
+                            <SearchableSelect
+                              value={field.value || ''}
+                              onChange={(value) => field.onChange(value)}
+                              options={clubOptions}
+                              placeholder={t('selectDefaultClub')}
+                              searchPlaceholder={t('searchDefaultClub')}
+                              isLoading={isClubsLoading}
+                            />
+                          )}
+                        />
+                        <Text fontSize="xs" color="fg.muted" mt={1}>
+                          {t('defaultClubDescription')}
+                        </Text>
+                      </Field.Root>
+                    )}
                   </Stack>
                 </Collapsible.Content>
               </Collapsible.Root>
