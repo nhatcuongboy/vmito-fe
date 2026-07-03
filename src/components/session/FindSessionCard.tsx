@@ -1,7 +1,7 @@
 'use client';
 
 import { ISession, UserRole } from '@/lib/api/types';
-import { Box, Flex, Icon, Text, Badge, Avatar } from '@chakra-ui/react';
+import { Box, Flex, Icon, Text, Badge } from '@chakra-ui/react';
 import { IconButton } from '@/components/ui/chakra-compat';
 import { MapPin, Navigation, Facebook } from 'lucide-react';
 import { useTranslations } from 'next-intl';
@@ -28,6 +28,7 @@ interface FindSessionCardProps {
   session: ISession;
   variant?: ViewMode;
   onJoin: (session: ISession) => void;
+  onAddGuest?: (session: ISession) => void;
   isJoined?: boolean;
   userRegistrationStatus?: 'PENDING' | 'APPROVED' | 'REJECTED' | null;
   onRegistrationUpdate?: () => void | Promise<void>;
@@ -43,6 +44,7 @@ const FindSessionCard = ({
   session,
   variant = 'grid',
   onJoin,
+  onAddGuest,
   isJoined = false,
   userRegistrationStatus = null,
   onRegistrationUpdate,
@@ -215,16 +217,16 @@ const FindSessionCard = ({
     <Badge
       colorPalette={
         userRegistrationStatus === 'APPROVED'
-          ? 'green'
+          ? 'yellow'
           : userRegistrationStatus === 'PENDING'
             ? 'yellow'
             : 'red'
       }
-      variant="solid"
+      variant={userRegistrationStatus === 'APPROVED' ? 'subtle' : 'solid'}
       borderWidth="1px"
       borderColor={
         userRegistrationStatus === 'APPROVED'
-          ? 'green.400'
+          ? 'yellow.200'
           : userRegistrationStatus === 'PENDING'
             ? 'yellow.400'
             : 'red.400'
@@ -272,6 +274,14 @@ const FindSessionCard = ({
     onJoin(session);
   };
 
+  const handleAddGuest = () => {
+    if (!user) {
+      onOpenLoginModal();
+      return;
+    }
+    onAddGuest?.(session);
+  };
+
   // Action configuration for find session card
   // Logic: Show only ONE button
   // - If user is host/admin: show "Host" (manage) button only
@@ -316,6 +326,12 @@ const FindSessionCard = ({
           !!userRegistrationStatus &&
           userRegistrationStatus !== 'APPROVED',
         onViewRegistration: onOpenViewRegistrationModal,
+        showAddGuestButton:
+          !canManage &&
+          !!userRegistrationStatus &&
+          !!onAddGuest &&
+          userRegistrationStatus !== null,
+        onAddGuest: handleAddGuest,
         showRegisterButton: !canManage && !userRegistrationStatus && !isJoined,
         onRegister: handleRegister,
         registerButtonDisabled: isFull,

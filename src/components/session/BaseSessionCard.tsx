@@ -490,20 +490,37 @@ const BaseSessionCard = ({
     if (actions.showViewRegistrationButton && actions.onViewRegistration) {
       return (
         <Flex w={isCompact ? 'auto' : 'full'} justify="flex-end">
-          <Button
-            colorPalette="green"
-            variant="subtle"
-            size="sm"
-            shadow="md"
-            loading={actions.isRegistrationLoading}
-            onClick={(e: React.MouseEvent) => {
-              e.stopPropagation();
-              actions.onViewRegistration?.();
-            }}
-          >
-            <Icon as={ClipboardList} boxSize={4} />
-            {t('viewMyRegistration')}
-          </Button>
+          <Flex gap={2} align="center">
+            <Button
+              colorPalette="green"
+              variant="subtle"
+              size="sm"
+              shadow="md"
+              loading={actions.isRegistrationLoading}
+              onClick={(e: React.MouseEvent) => {
+                e.stopPropagation();
+                actions.onViewRegistration?.();
+              }}
+            >
+              <Icon as={ClipboardList} boxSize={4} />
+              {t('viewMyRegistration')}
+            </Button>
+            {actions.showAddGuestButton && actions.onAddGuest && (
+              <IconButton
+                size="sm"
+                variant="outline"
+                colorPalette="green"
+                aria-label={t('addGuest')}
+                shadow="md"
+                icon={<Icon as={UserPlus} />}
+                disabled={isFull}
+                onClick={(e: React.MouseEvent) => {
+                  e.stopPropagation();
+                  actions.onAddGuest?.();
+                }}
+              />
+            )}
+          </Flex>
         </Flex>
       );
     }
@@ -515,16 +532,33 @@ const BaseSessionCard = ({
         `/player/sessions/${session.slug || session.id}`;
       return (
         <Flex w={isCompact ? 'auto' : 'full'} justify="flex-end">
-          <NextLinkButton
-            href={viewSessionHref}
-            colorPalette="green"
-            variant="solid"
-            size="sm"
-            loading={actions.isRegistrationLoading}
-          >
-            <Icon as={LogIn} boxSize={4} />
-            {t('viewSession')}
-          </NextLinkButton>
+          <Flex gap={2} align="center">
+            <NextLinkButton
+              href={viewSessionHref}
+              colorPalette="green"
+              variant="solid"
+              size="sm"
+              loading={actions.isRegistrationLoading}
+            >
+              <Icon as={LogIn} boxSize={4} />
+              {t('viewSession')}
+            </NextLinkButton>
+            {actions.showAddGuestButton && actions.onAddGuest && (
+              <IconButton
+                size="sm"
+                variant="outline"
+                colorPalette="green"
+                aria-label={t('addGuest')}
+                shadow="md"
+                icon={<Icon as={UserPlus} />}
+                disabled={isFull}
+                onClick={(e: React.MouseEvent) => {
+                  e.stopPropagation();
+                  actions.onAddGuest?.();
+                }}
+              />
+            )}
+          </Flex>
         </Flex>
       );
     }

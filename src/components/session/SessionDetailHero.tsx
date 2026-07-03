@@ -15,6 +15,7 @@ interface ISessionDetailHeroProps {
   session: ISession;
   availableSlots: number;
   isFull: boolean;
+  userRegistrationStatus?: 'PENDING' | 'APPROVED' | 'REJECTED' | null;
   onBack?: () => void;
   showBackButton?: boolean;
 }
@@ -29,6 +30,7 @@ const SessionDetailHero = ({
   session,
   availableSlots,
   isFull,
+  userRegistrationStatus,
   onBack,
   showBackButton = true,
 }: ISessionDetailHeroProps) => {
@@ -92,6 +94,26 @@ const SessionDetailHero = ({
     session.status === 'PREPARING' && isPastEndTime
       ? 'gray'
       : statusColors[session.status] || 'gray';
+
+  const approvedBadge =
+    userRegistrationStatus === 'APPROVED' ? (
+      <Badge
+        colorPalette="yellow"
+        variant="subtle"
+        fontSize="sm"
+        px={3}
+        py={1}
+        borderRadius="full"
+        fontWeight="600"
+        gap={1}
+        boxShadow="0 2px 8px rgba(0, 0, 0, 0.2)"
+        backdropFilter="blur(8px)"
+        borderWidth="1px"
+        borderColor="yellow.200"
+      >
+        {t('registrationApproved')}
+      </Badge>
+    ) : null;
 
   return (
     <Box
@@ -260,27 +282,27 @@ const SessionDetailHero = ({
           {t('crawledBadge')}
         </Badge>
       ) : (
-        <Badge
-          position="absolute"
-          bottom={5}
-          left={3}
-          colorPalette={isClosed || isFull ? 'gray' : 'teal'}
-          variant="solid"
-          fontSize="sm"
-          px={3}
-          py={1}
-          borderRadius="full"
-          fontWeight="600"
-          gap={1}
-          boxShadow="0 2px 8px rgba(0, 0, 0, 0.2)"
-          backdropFilter="blur(8px)"
-        >
-          {isClosed
-            ? t('registrationClosed')
-            : isFull
-              ? t('slotsFull')
-              : t('slotsAvailable', { count: availableSlots })}
-        </Badge>
+        <Flex position="absolute" bottom={5} left={3} gap={1} zIndex={100}>
+          {approvedBadge}
+          <Badge
+            colorPalette={isClosed || isFull ? 'gray' : 'teal'}
+            variant="solid"
+            fontSize="sm"
+            px={3}
+            py={1}
+            borderRadius="full"
+            fontWeight="600"
+            gap={1}
+            boxShadow="0 2px 8px rgba(0, 0, 0, 0.2)"
+            backdropFilter="blur(8px)"
+          >
+            {isClosed
+              ? t('registrationClosed')
+              : isFull
+                ? t('slotsFull')
+                : t('slotsAvailable', { count: availableSlots })}
+          </Badge>
+        </Flex>
       )}
 
       {/* Status Badge - bottom right */}

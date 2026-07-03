@@ -239,6 +239,7 @@ export const PublicSessionDetailContent = ({
               session={session}
               availableSlots={availableSlots}
               isFull={isFull}
+              userRegistrationStatus={userRegistrationStatus}
               onBack={onBack}
               showBackButton={showBackButton}
             />

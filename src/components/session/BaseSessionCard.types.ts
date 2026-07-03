@@ -79,6 +79,16 @@ export interface SessionActionConfig {
   showManageButton?: boolean;
 
   /**
+   * Show add guest button next to other primary actions
+   */
+  showAddGuestButton?: boolean;
+
+  /**
+   * Callback when add guest button is clicked
+   */
+  onAddGuest?: () => void;
+
+  /**
    * Custom href for manage button
    * Auto-computed based on user role if not provided
    */

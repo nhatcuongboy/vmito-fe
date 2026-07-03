@@ -69,7 +69,6 @@ import { SessionCardSkeleton } from './SessionCardSkeleton';
 import SessionSearchBar from './SessionSearchBar';
 import ResultsHeader from './ResultsHeader';
 import SessionMap from './SessionMap';
-import { AppSearchBar } from '@/components/common/AppSearchBar';
 import { useRegisterTopBarSearch } from '@/contexts/TopBarSearchContext';
 
 const PAGE_SIZE = 12;
@@ -179,6 +178,8 @@ export default function FindSessionList({
   const [selectedSessionForDetail, setSelectedSessionForDetail] =
     useState<ISession | null>(null);
   const [isJoinModalOpen, setIsJoinModalOpen] = useState(false);
+  const [isAdditionalRegistration, setIsAdditionalRegistration] =
+    useState(false);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const [isAIModalOpen, setIsAIModalOpen] = useState(false);
   const [isLoginPromptOpen, setIsLoginPromptOpen] = useState(false);
@@ -529,6 +530,20 @@ export default function FindSessionList({
         router.push(ROUTES.AUTH.SIGNIN);
         return;
       }
+      setIsAdditionalRegistration(false);
+      setSelectedSession(session);
+      setIsJoinModalOpen(true);
+    },
+    [user, router]
+  );
+
+  const handleAddGuestClick = useCallback(
+    (session: ISession) => {
+      if (!user) {
+        router.push(ROUTES.AUTH.SIGNIN);
+        return;
+      }
+      setIsAdditionalRegistration(true);
       setSelectedSession(session);
       setIsJoinModalOpen(true);
     },
@@ -1036,6 +1051,7 @@ export default function FindSessionList({
                 session={session}
                 variant={viewMode}
                 onJoin={handleJoinClick}
+                onAddGuest={handleAddGuestClick}
                 isJoined={joinedSessionIds.has(session.id)}
                 userRegistrationStatus={
                   registrationStatusMap[session.id] || null
@@ -1109,6 +1125,7 @@ export default function FindSessionList({
               ROUTES.SESSIONS.DETAIL(selectedSession.id, selectedSession.slug)
             );
           }}
+          isAdditionalRegistration={isAdditionalRegistration}
         />
       )}
 
