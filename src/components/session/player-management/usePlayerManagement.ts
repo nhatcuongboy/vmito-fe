@@ -346,12 +346,11 @@ export const usePlayerManagement = (
           originalPlayer.gender !== playerToUpdate.gender
         : Boolean(playerToUpdate.clubId || playerToUpdate.isClubMember);
 
-      const { customFee, ...playerUpdatePayload } = playerToUpdate;
-
-      await PlayerService.updatePlayerBySession(session.id, playerId, {
-        ...playerUpdatePayload,
-        customFee: customFee ?? null,
-      });
+      await PlayerService.updatePlayerBySession(
+        session.id,
+        playerId,
+        playerToUpdate
+      );
 
       if (shouldRecalculatePayments) {
         try {

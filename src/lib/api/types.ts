@@ -494,7 +494,6 @@ export interface Player {
   isClubMember?: boolean;
   clubId?: string;
   clubFeeApplied?: boolean;
-  customFee?: number | null; // Custom fee override for this player in this session
   club?: {
     id: string;
     name: string;

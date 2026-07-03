@@ -34,12 +34,12 @@ import {
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { NewPlayer } from './types';
-import { IClub, IClubFeeConfig } from '@/types/club';
+import { IClub } from '@/types/club';
 import { SearchableSelect } from '@/components/ui/SearchableSelect';
 import { useDebounce } from '@/hooks/useDebounce';
 import { Controller, useForm } from 'react-hook-form';
 import { z } from 'zod';
-import { ClubsService } from '@/lib/api/clubs.service';
+import { pickClubFee, useClubSessionFees } from './useClubSessionFees';
 
 const GENDER_OPTIONS = ['MALE', 'FEMALE'] as const;
 const CONTROL_BG = { base: 'white', _dark: 'gray.900' } as const;
@@ -58,7 +58,6 @@ type AddPlayerFormValues = {
     levelDescription?: string;
     isClubMember: boolean;
     clubId?: string;
-    customFee?: number | null;
   }[];
 };
 
@@ -77,7 +76,6 @@ const toFormPlayer = (
   levelDescription: player.levelDescription || '',
   isClubMember: !!player.isClubMember,
   clubId: player.clubId || '',
-  customFee: player.customFee ?? null,
 });
 
 interface AddPlayerModalProps {
@@ -129,25 +127,25 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
   const tCommon = useTranslations('common');
   const { getLevelShortLabel } = useLevelLabel();
 
-  // Fee configuration state per player
+  // Club fixed-fee section state per player
   const [expandedFeeConfigs, setExpandedFeeConfigs] = useState<{
     [key: number]: boolean;
   }>({});
-  const [clubFeeConfigs, setClubFeeConfigs] = useState<{
-    [key: number]: IClubFeeConfig | null;
-  }>({});
-  const [loadingClubFees, setLoadingClubFees] = useState<{
-    [key: number]: boolean;
-  }>({});
-  const [customFeeInputs, setCustomFeeInputs] = useState<{
-    [key: number]: string;
-  }>({});
   // Explicit on/off state per player (undefined = derive from data)
-  const [enabledCustomFees, setEnabledCustomFees] = useState<{
+  const [enabledClubFees, setEnabledClubFees] = useState<{
     [key: number]: boolean;
   }>({});
-  // Per-player flag: apply the fetched club fee to the amount once available
-  const pendingClubFeeFillRefs = useRef<{ [key: number]: boolean }>({});
+
+  // Fixed per-session fees of all clubs for the session's month. Only clubs
+  // with a configured fee can be selected; the fee is shown read-only.
+  const { feesByClubId, isLoading: isLoadingClubFees } = useClubSessionFees(
+    clubs,
+    session?.startTime,
+    isOpen
+  );
+  const clubsWithFixedFee = clubs.filter(
+    (club) => pickClubFee(feesByClubId[club.id]) !== null
+  );
 
   const nameInputRefs = useRef<(HTMLInputElement | null)[]>([]);
   const prevPlayersLength = useRef(newPlayers.length);
@@ -173,7 +171,6 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
               levelDescription: z.string().optional(),
               isClubMember: z.boolean(),
               clubId: z.string().optional(),
-              customFee: z.number().nullable().optional(),
             })
             .superRefine((player, ctx) => {
               if (player.isClubMember && !player.clubId) {
@@ -225,126 +222,25 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
     }
   }, [isOpen, newPlayers, reset]);
 
-  // Fetch club fee when club or gender changes for each player, then — if the
-  // user just switched the club — apply that fee to the amount. When the club
-  // has no configured fee, the amount is cleared to blank.
-  useEffect(() => {
-    newPlayers.forEach((player, index) => {
-      const pickFee = (config: IClubFeeConfig | null): number | null => {
-        if (!config) return null;
-        const gender = player.gender || 'MALE';
-        return gender === 'FEMALE'
-          ? (config.femaleFeePerSession ?? config.maleFeePerSession ?? null)
-          : (config.maleFeePerSession ?? config.femaleFeePerSession ?? null);
-      };
-
-      const applyPendingFill = (config: IClubFeeConfig | null) => {
-        if (!pendingClubFeeFillRefs.current[index] || !player.clubId) return;
-        pendingClubFeeFillRefs.current[index] = false;
-        const fee = pickFee(config);
-        handleCustomFeeChange(index, fee !== null ? fee.toString() : '');
-      };
-
-      const fetchClubFee = async () => {
-        if (!player.clubId || !session?.startTime || !player.isClubMember) {
-          setClubFeeConfigs((prev) => ({ ...prev, [index]: null }));
-          applyPendingFill(null);
-          return;
-        }
-
-        setLoadingClubFees((prev) => ({ ...prev, [index]: true }));
-        try {
-          const sessionDate = new Date(session.startTime);
-          const config = await ClubsService.getClubFeeForMonth(
-            player.clubId,
-            sessionDate.getFullYear(),
-            sessionDate.getMonth() + 1
-          );
-          setClubFeeConfigs((prev) => ({ ...prev, [index]: config }));
-          applyPendingFill(config);
-        } catch (error) {
-          console.error('Failed to fetch club fee:', error);
-          setClubFeeConfigs((prev) => ({ ...prev, [index]: null }));
-          applyPendingFill(null);
-        } finally {
-          setLoadingClubFees((prev) => ({ ...prev, [index]: false }));
-        }
-      };
-
-      fetchClubFee();
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
-    newPlayers.map((p) => `${p.clubId}-${p.gender}`).join(','),
-    session?.startTime,
-  ]);
-
-  // Initialize custom fee inputs from newPlayers
-  useEffect(() => {
-    const inputs: { [key: number]: string } = {};
-    newPlayers.forEach((player, index) => {
-      if (
-        player.customFee !== null &&
-        player.customFee !== undefined &&
-        customFeeInputs[index] === undefined
-      ) {
-        inputs[index] = player.customFee.toLocaleString('vi-VN');
-      }
-    });
-    if (Object.keys(inputs).length > 0) {
-      setCustomFeeInputs((prev) => ({ ...prev, ...inputs }));
-    }
-  }, [newPlayers]);
-
-  // Handle custom fee input change (formats with thousand separators).
-  // Returns the parsed numeric value (or null) so callers can sync the form.
-  const handleCustomFeeChange = (
-    index: number,
-    value: string
-  ): number | null => {
-    const digits = value.replace(/[^0-9]/g, '');
-    if (digits === '') {
-      setCustomFeeInputs((prev) => ({ ...prev, [index]: '' }));
-      onUpdatePlayer(index, 'customFee', null);
-      return null;
-    }
-    const numValue = parseInt(digits, 10);
-    setCustomFeeInputs((prev) => ({
-      ...prev,
-      [index]: numValue.toLocaleString('vi-VN'),
-    }));
-    onUpdatePlayer(index, 'customFee', numValue);
-    return numValue;
+  // Whether the club fixed-fee section is enabled for a player
+  const isClubFeeEnabled = (index: number, player: NewPlayer): boolean => {
+    if (enabledClubFees[index] !== undefined) return enabledClubFees[index];
+    return !!player.clubId;
   };
 
-  // Whether the custom fee section is enabled for a player
-  const isCustomFeeEnabled = (index: number, player: NewPlayer): boolean => {
-    if (enabledCustomFees[index] !== undefined) return enabledCustomFees[index];
-    return (
-      (player.customFee !== null && player.customFee !== undefined) ||
-      !!player.clubId
-    );
-  };
-
-  // Toggle the custom fee feature on/off for a player
-  const handleToggleCustomFee = (index: number, enabled: boolean) => {
-    setEnabledCustomFees((prev) => ({ ...prev, [index]: enabled }));
+  // Toggle the club fixed-fee feature on/off for a player
+  const handleToggleClubFee = (index: number, enabled: boolean) => {
+    setEnabledClubFees((prev) => ({ ...prev, [index]: enabled }));
     setExpandedFeeConfigs((prev) => ({ ...prev, [index]: enabled }));
     if (!enabled) {
-      handleCustomFeeChange(index, '');
       onUpdatePlayer(index, 'clubId', null);
       onUpdatePlayer(index, 'isClubMember', false);
     }
   };
 
-  // Auto-fill club fee when club is selected
   const handleClubChange = (index: number, clubId: string) => {
     onUpdatePlayer(index, 'clubId', clubId || null);
     onUpdatePlayer(index, 'isClubMember', !!clubId);
-    if (clubId) {
-      // Apply the club's fee to the amount once it's fetched.
-      pendingClubFeeFillRefs.current[index] = true;
-    }
   };
 
   // Toggle fee config expansion
@@ -405,6 +301,10 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
           const nameError = getFieldError(index, 'name');
           const levelError = getFieldError(index, 'level');
           const clubError = getFieldError(index, 'clubId');
+          // Fixed per-session fee of the selected club (per player gender)
+          const clubFee = player.clubId
+            ? pickClubFee(feesByClubId[player.clubId], player.gender)
+            : null;
 
           return (
             <Card
@@ -673,7 +573,7 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
                     />
                   </Field.Root>
 
-                  {/* Fee Configuration Section (Collapsible) */}
+                  {/* Club Fixed Fee Section (Collapsible) */}
                   <Box
                     borderWidth="1px"
                     borderColor="gray.200"
@@ -694,43 +594,43 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
                           fontWeight="semibold"
                           color="gray.700"
                         >
-                          {t('customFeeSection')}
+                          {t('clubFixedFeeSection')}
                         </Text>
                       </HStack>
 
                       <HStack gap={2} flexShrink={0}>
                         <VSwitch
-                          checked={isCustomFeeEnabled(index, player)}
+                          checked={isClubFeeEnabled(index, player)}
                           onCheckedChange={(details) =>
-                            handleToggleCustomFee(index, !!details.checked)
+                            handleToggleClubFee(index, !!details.checked)
                           }
                           colorPalette="green"
                           size="sm"
                           aria-label={
-                            isCustomFeeEnabled(index, player)
-                              ? t('disableCustomFee')
-                              : t('enableCustomFee')
+                            isClubFeeEnabled(index, player)
+                              ? t('disableClubFixedFee')
+                              : t('enableClubFixedFee')
                           }
                         />
                         <Button
                           type="button"
                           onClick={() =>
-                            isCustomFeeEnabled(index, player) &&
+                            isClubFeeEnabled(index, player) &&
                             toggleFeeConfig(index)
                           }
                           variant="ghost"
                           boxSize={7}
                           minW={7}
                           p={0}
-                          disabled={!isCustomFeeEnabled(index, player)}
-                          opacity={isCustomFeeEnabled(index, player) ? 1 : 0.45}
+                          disabled={!isClubFeeEnabled(index, player)}
+                          opacity={isClubFeeEnabled(index, player) ? 1 : 0.45}
                           _hover={
-                            isCustomFeeEnabled(index, player)
+                            isClubFeeEnabled(index, player)
                               ? { bg: 'gray.50' }
                               : undefined
                           }
                         >
-                          {isCustomFeeEnabled(index, player) &&
+                          {isClubFeeEnabled(index, player) &&
                           expandedFeeConfigs[index] ? (
                             <ChevronUp size={18} />
                           ) : (
@@ -740,7 +640,7 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
                       </HStack>
                     </Flex>
 
-                    {isCustomFeeEnabled(index, player) &&
+                    {isClubFeeEnabled(index, player) &&
                       expandedFeeConfigs[index] && (
                         <VStack
                           align="stretch"
@@ -749,102 +649,93 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
                           pt={0}
                           bg="gray.50"
                         >
-                          {/* Club Select - inline with label */}
-                          <Flex align="center" gap={3}>
-                            <Text
-                              fontSize="sm"
-                              color="gray.600"
-                              fontWeight="medium"
-                              w="90px"
-                              flexShrink={0}
-                            >
-                              {t('clubMember')}
+                          {isLoadingClubFees ? (
+                            <Text fontSize="sm" color="gray.500">
+                              {t('loadingClubFee')}...
                             </Text>
-                            <Box flex={1}>
-                              <Controller
-                                control={control}
-                                name={`players.${index}.clubId`}
-                                render={({ field }) => (
-                                  <select
-                                    value={field.value || ''}
-                                    onChange={(e) => {
-                                      field.onChange(e.target.value);
-                                      handleClubChange(index, e.target.value);
-                                    }}
-                                    style={{
-                                      width: '100%',
-                                      padding: '8px',
-                                      borderRadius: '6px',
-                                      border: '1px solid #E2E8F0',
-                                      backgroundColor: 'white',
-                                      color: 'inherit',
-                                      fontSize: '14px',
-                                    }}
-                                  >
-                                    <option value="">
-                                      {t('selectClubPlaceholder')}
-                                    </option>
-                                    {clubs.map((club) => (
-                                      <option key={club.id} value={club.id}>
-                                        {club.name}
-                                      </option>
-                                    ))}
-                                  </select>
-                                )}
-                              />
-                            </Box>
-                          </Flex>
-
-                          {/* Custom Fee Input */}
-                          <Flex align="center" gap={3}>
-                            <Text
-                              fontSize="sm"
-                              color="gray.600"
-                              fontWeight="medium"
-                              w="90px"
-                              flexShrink={0}
-                            >
-                              {t('customFeeAmount')}
+                          ) : clubsWithFixedFee.length === 0 ? (
+                            <Text fontSize="sm" color="gray.500">
+                              {t('noClubWithFixedFee')}
                             </Text>
-                            <Box flex={1}>
-                              <Controller
-                                control={control}
-                                name={`players.${index}.customFee`}
-                                render={({ field }) => (
-                                  <Input
-                                    type="text"
-                                    inputMode="numeric"
-                                    value={customFeeInputs[index] ?? ''}
-                                    onChange={(
-                                      e: React.ChangeEvent<HTMLInputElement>
-                                    ) => {
-                                      const numValue = handleCustomFeeChange(
-                                        index,
-                                        e.target.value
-                                      );
-                                      field.onChange(numValue);
-                                    }}
-                                    size="md"
-                                    bg="white"
-                                    isDisabled={!!loadingClubFees[index]}
-                                    rightElement={
-                                      <Text
-                                        fontSize="sm"
-                                        color="gray.500"
-                                        fontWeight="medium"
+                          ) : (
+                            <>
+                              {/* Club Select - inline with label */}
+                              <Flex align="center" gap={3}>
+                                <Text
+                                  fontSize="sm"
+                                  color="gray.600"
+                                  fontWeight="medium"
+                                  w="90px"
+                                  flexShrink={0}
+                                >
+                                  {t('clubMember')}
+                                </Text>
+                                <Box flex={1}>
+                                  <Controller
+                                    control={control}
+                                    name={`players.${index}.clubId`}
+                                    render={({ field }) => (
+                                      <select
+                                        value={field.value || ''}
+                                        onChange={(e) => {
+                                          field.onChange(e.target.value);
+                                          handleClubChange(
+                                            index,
+                                            e.target.value
+                                          );
+                                        }}
+                                        style={{
+                                          width: '100%',
+                                          padding: '8px',
+                                          borderRadius: '6px',
+                                          border: '1px solid #E2E8F0',
+                                          backgroundColor: 'white',
+                                          color: 'inherit',
+                                          fontSize: '14px',
+                                        }}
                                       >
-                                        VNĐ
-                                      </Text>
-                                    }
+                                        <option value="">
+                                          {t('selectClubPlaceholder')}
+                                        </option>
+                                        {clubsWithFixedFee.map((club) => (
+                                          <option key={club.id} value={club.id}>
+                                            {club.name}
+                                          </option>
+                                        ))}
+                                      </select>
+                                    )}
                                   />
-                                )}
-                              />
-                            </Box>
-                          </Flex>
+                                </Box>
+                              </Flex>
 
-                          <Text fontSize="xs" color="gray.500">
-                            💡 {t('customFeeHint')}
-                          </Text>
+                              {/* Club fee shown read-only for host awareness */}
+                              {player.clubId && clubFee !== null && (
+                                <Flex align="center" gap={3}>
+                                  <Text
+                                    fontSize="sm"
+                                    color="gray.600"
+                                    fontWeight="medium"
+                                    w="90px"
+                                    flexShrink={0}
+                                  >
+                                    {t('clubFeePerSession')}
+                                  </Text>
+                                  <Text
+                                    fontSize="sm"
+                                    fontWeight="semibold"
+                                    color="green.600"
+                                  >
+                                    {clubFee.toLocaleString('vi-VN')} VNĐ /{' '}
+                                    {t('session')}
+                                  </Text>
+                                </Flex>
+                              )}
+
+                              <Text fontSize="xs" color="gray.500">
+                                💡 {t('clubFixedFeeHint')}
+                              </Text>
+                            </>
+                          )}
                         </VStack>
                       )}
                   </Box>
