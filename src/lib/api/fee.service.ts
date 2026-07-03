@@ -5,6 +5,7 @@ import {
   CreateSessionFeeConfigRequest,
   UpdateSessionFeeConfigRequest,
   FeeType,
+  ISession,
 } from './types';
 
 export const FeeService = {
@@ -122,5 +123,30 @@ export const FeeService = {
     const maxFee = Math.max(maleFee, femaleFee);
 
     return `${FeeService.formatFee(minFee)}-${FeeService.formatFee(maxFee)}`;
+  },
+
+  canViewerSeeSessionFee: (
+    session: Pick<ISession, 'clubId' | 'hostId'>,
+    viewerUserId?: string,
+    viewerClubIds?: Set<string>
+  ): boolean => {
+    if (!session.clubId) return true;
+    if (viewerUserId && viewerUserId === session.hostId) return true;
+    return Boolean(viewerClubIds?.has(session.clubId));
+  },
+
+  getSessionFeeDisplayText: (
+    session: Pick<ISession, 'feeConfig' | 'clubId' | 'hostId'>,
+    viewerUserId?: string,
+    viewerClubIds?: Set<string>,
+    hiddenFeeText = 'Liên hệ host'
+  ): string => {
+    if (
+      !FeeService.canViewerSeeSessionFee(session, viewerUserId, viewerClubIds)
+    ) {
+      return hiddenFeeText;
+    }
+
+    return FeeService.getFeeDisplayText(session.feeConfig);
   },
 };

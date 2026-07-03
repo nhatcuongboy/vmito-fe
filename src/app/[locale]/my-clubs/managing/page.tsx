@@ -28,6 +28,7 @@ import {
   ChevronRight,
   Check,
   ClipboardList,
+  DollarSign,
   MapPin,
   Plus,
   Shield,
@@ -139,6 +140,20 @@ export default function ManagingPage() {
                 variant="ghost"
                 colorPalette="gray"
                 p={{ base: 1, md: 2 }}
+                aria-label={t('clubs.feeConfiguration')}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  router.push(ROUTES.HOST.CLUBS.FEES(club.id));
+                }}
+              >
+                <DollarSign size={16} />
+              </Button>
+              <Button
+                size="sm"
+                variant="ghost"
+                colorPalette="gray"
+                p={{ base: 1, md: 2 }}
+                aria-label={t('common.edit')}
                 onClick={(e) => {
                   e.stopPropagation();
                   router.push(`/host/clubs/${club.id}/edit`);

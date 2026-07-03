@@ -64,6 +64,7 @@ import { VALID_LEVELS, sortLevelsByRank } from '@/constants/levels';
 import { AppPlayerRating } from '@/components/rating';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { DEFAULT_COVER_PHOTO } from '@/constants';
+import { useMyClubIds } from '@/hooks/useMyClubIds';
 import { Button, IconButton } from '@/components/ui/chakra-compat';
 import { NextLinkButton } from '@/components/ui/NextLinkButton';
 import { toaster } from '@/components/ui/toaster';
@@ -202,6 +203,7 @@ const BaseSessionCard = ({
   const { getLevelShortLabel } = useLevelLabel();
   const locale = useLocale();
   const { user } = useAuthStore();
+  const { clubIds: viewerClubIds } = useMyClubIds();
   const [isLoading, setIsLoading] = useState(false);
   const [isShareImageModalOpen, setIsShareImageModalOpen] = useState(false);
   const [isLevelDescriptionsOpen, setIsLevelDescriptionsOpen] = useState(false);
@@ -214,6 +216,17 @@ const BaseSessionCard = ({
   const maxPlayers = session.numberOfCourts * session.maxPlayersPerCourt;
   const totalPlayers = session._count?.players || 0;
   const isFull = totalPlayers >= maxPlayers;
+  const canSeeSessionFee = FeeService.canViewerSeeSessionFee(
+    session,
+    user?.id,
+    viewerClubIds
+  );
+  const feeDisplayText = FeeService.getSessionFeeDisplayText(
+    session,
+    user?.id,
+    viewerClubIds,
+    t('contactHostForFee')
+  );
   // Crawled (vãng lai) Facebook sessions have no managed players — hide the
   // capacity / slot-ratio rows that only apply to internal sessions.
   const isCrawled = session.isCrawled === true;
@@ -1146,9 +1159,10 @@ const BaseSessionCard = ({
                             color={{ base: 'red.600', _dark: 'red.300' }}
                             whiteSpace="nowrap"
                           >
-                            {FeeService.getFeeDisplayText(session.feeConfig)}
+                            {feeDisplayText}
                           </Text>
-                          {session.feeConfig.feeType === FeeType.FIXED &&
+                          {canSeeSessionFee &&
+                            session.feeConfig.feeType === FeeType.FIXED &&
                             ((session.feeConfig.maleFee || 0) > 0 ||
                               (session.feeConfig.femaleFee || 0) > 0) && (
                               <Text
@@ -1206,9 +1220,10 @@ const BaseSessionCard = ({
                               color={{ base: 'red.600', _dark: 'red.300' }}
                               whiteSpace="nowrap"
                             >
-                              {FeeService.getFeeDisplayText(session.feeConfig)}
+                              {feeDisplayText}
                             </Text>
-                            {session.feeConfig.feeType === FeeType.FIXED &&
+                            {canSeeSessionFee &&
+                              session.feeConfig.feeType === FeeType.FIXED &&
                               ((session.feeConfig.maleFee || 0) > 0 ||
                                 (session.feeConfig.femaleFee || 0) > 0) && (
                                 <Text
@@ -1221,7 +1236,7 @@ const BaseSessionCard = ({
                                   /slot
                                 </Text>
                               )}
-                            {!isCompact && (
+                            {!isCompact && canSeeSessionFee && (
                               <FeeDetailPopover feeConfig={session.feeConfig} />
                             )}
                           </Flex>

@@ -52,6 +52,8 @@ import { AppAddressDisplay } from '@/components/common/AppAddressDisplay';
 import LevelBadgeWithDescription from './LevelBadgeWithDescription';
 import LevelDescriptionsModal from './LevelDescriptionsModal';
 import { useDownloadSessionImage } from '@/hooks/useDownloadSessionImage';
+import { useAuthStore } from '@/stores/useAuthStore';
+import { useMyClubIds } from '@/hooks/useMyClubIds';
 
 interface InfoRowProps extends FlexProps {
   icon: React.ElementType;
@@ -488,6 +490,8 @@ export default function SessionInfo({
   const tLevelDescriptions = useTranslations('common.levelDescriptions');
   const locale = useLocale();
   const { getLevelShortLabel } = useLevelLabel();
+  const { user } = useAuthStore();
+  const { clubIds: viewerClubIds } = useMyClubIds();
   const [playerStats, setPlayerStats] = useState<PlayerStatistics | null>(null);
   const [playerDoublesStats, setPlayerDoublesStats] =
     useState<PlayerDoublesMatchStats>(EMPTY_DOUBLES_MATCH_STATS);
@@ -497,6 +501,17 @@ export default function SessionInfo({
   const { downloadSessionImage, isDownloading } = useDownloadSessionImage();
 
   const showExtendedInfo = !compactUntilMaxPlayers || isExpanded;
+  const canSeeSessionFee = FeeService.canViewerSeeSessionFee(
+    session,
+    user?.id,
+    viewerClubIds
+  );
+  const feeDisplayText = FeeService.getSessionFeeDisplayText(
+    session,
+    user?.id,
+    viewerClubIds,
+    tSession('contactHostForFee')
+  );
 
   const playerAchievementExportId =
     player && playerStats
@@ -751,14 +766,16 @@ export default function SessionInfo({
             <InfoRow icon={DollarSign} label={t('fee')}>
               <Flex align="center">
                 <Text color="green.600" fontWeight="bold">
-                  {FeeService.getFeeDisplayText(session.feeConfig)}
+                  {feeDisplayText}
                 </Text>
-                {session.feeConfig.feeType === 'FIXED' && (
+                {canSeeSessionFee && session.feeConfig.feeType === 'FIXED' && (
                   <Text ml={1} color="gray.500" fontSize="sm">
                     /slot
                   </Text>
                 )}
-                <FeeDetailPopover feeConfig={session.feeConfig} />
+                {canSeeSessionFee && (
+                  <FeeDetailPopover feeConfig={session.feeConfig} />
+                )}
               </Flex>
             </InfoRow>
           )}

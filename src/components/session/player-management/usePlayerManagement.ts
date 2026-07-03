@@ -107,7 +107,7 @@ export const usePlayerManagement = (
         level: getDefaultLevel(),
         levelDescription: '',
         requireConfirmInfo: false,
-        isClubMember: false,
+        isClubMember: undefined,
         clubId: undefined,
       },
     ]);
@@ -278,11 +278,24 @@ export const usePlayerManagement = (
 
       if (playersToCreate.length > 0) {
         const playersToCreateSubmitted = playersToCreate.map(
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars
-          ({ playerNumber, level, ...rest }: NewPlayer) => ({
-            ...rest,
-            level: level === null ? undefined : level,
-          })
+          ({
+            playerNumber: _playerNumber,
+            level,
+            isClubMember,
+            clubId,
+            ...rest
+          }: NewPlayer) => {
+            const playerData = {
+              ...rest,
+              level: level === null ? undefined : level,
+            };
+
+            if (isClubMember) {
+              return { ...playerData, isClubMember, clubId };
+            }
+
+            return playerData;
+          }
         );
         await PlayerService.createBulkPlayers(
           session.id,

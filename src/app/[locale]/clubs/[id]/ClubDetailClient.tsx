@@ -27,6 +27,7 @@ import {
   Calendar,
   MessageSquare,
   Settings,
+  DollarSign,
   Info,
   Image as ImageIcon,
   TrendingUp,
@@ -1336,21 +1337,40 @@ export default function ClubDetailClient({
 
                 {/* CTA Button */}
                 {isUserAdmin && (
-                  <Button
-                    colorPalette="green"
-                    variant="surface"
-                    size="xl"
-                    w="full"
-                    onClick={() => router.push(ROUTES.HOST.CLUBS.EDIT(club.id))}
-                    borderRadius="2xl"
-                    shadow="sm"
-                    _hover={{ shadow: 'md', transform: 'translateY(-2px)' }}
-                    transition="all 0.2s"
-                    mb={4}
-                  >
-                    <Settings size={20} />
-                    {t('common.edit')}
-                  </Button>
+                  <VStack gap={3} mb={4}>
+                    <Button
+                      colorPalette="green"
+                      variant="surface"
+                      size="xl"
+                      w="full"
+                      onClick={() =>
+                        router.push(ROUTES.HOST.CLUBS.FEES(club.id))
+                      }
+                      borderRadius="2xl"
+                      shadow="sm"
+                      _hover={{ shadow: 'md', transform: 'translateY(-2px)' }}
+                      transition="all 0.2s"
+                    >
+                      <DollarSign size={20} />
+                      {t('clubs.feeConfiguration')}
+                    </Button>
+                    <Button
+                      colorPalette="green"
+                      variant="surface"
+                      size="xl"
+                      w="full"
+                      onClick={() =>
+                        router.push(ROUTES.HOST.CLUBS.EDIT(club.id))
+                      }
+                      borderRadius="2xl"
+                      shadow="sm"
+                      _hover={{ shadow: 'md', transform: 'translateY(-2px)' }}
+                      transition="all 0.2s"
+                    >
+                      <Settings size={20} />
+                      {t('common.edit')}
+                    </Button>
+                  </VStack>
                 )}
 
                 {!isUserMember && !isUserAdmin && !hasPendingRequest && (

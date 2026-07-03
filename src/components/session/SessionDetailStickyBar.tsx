@@ -44,6 +44,7 @@ import dayjs from '@/lib/dayjs';
 import LevelBadgeWithDescription from './LevelBadgeWithDescription';
 import LevelDescriptionsModal from './LevelDescriptionsModal';
 import { formatTimeRangeByDevicePreference } from '@/utils/time-helpers';
+import { useMyClubIds } from '@/hooks/useMyClubIds';
 
 interface ISessionDetailStickyBarProps {
   session: ISession;
@@ -77,6 +78,7 @@ const SessionDetailStickyBar = ({
   const { getLevelShortLabel } = useLevelLabel();
   const { isCollapsed } = useSidebar();
   const { user } = useAuthStore();
+  const { clubIds: viewerClubIds } = useMyClubIds();
   const isAdmin = user?.role === UserRole.ADMIN;
   const canManage = isOwner || isAdmin;
   const skillLevelColor = getSkillLevelColor(session.requiredLevels);
@@ -89,6 +91,17 @@ const SessionDetailStickyBar = ({
     session.status === SessionStatus.FINISHED ||
     session.status === SessionStatus.CANCELLED ||
     isPastEndTime;
+  const canSeeSessionFee = FeeService.canViewerSeeSessionFee(
+    session,
+    user?.id,
+    viewerClubIds
+  );
+  const feeDisplayText = FeeService.getSessionFeeDisplayText(
+    session,
+    user?.id,
+    viewerClubIds,
+    t('contactHostForFee')
+  );
 
   const formatDetailDate = (dateString: string | Date): string => {
     const date = dayjs
@@ -306,14 +319,17 @@ const SessionDetailStickyBar = ({
               <Flex align="center" gap={2}>
                 <Icon as={Banknote} boxSize={5} color="red.600" />
                 <Text fontSize="2xl" fontWeight="bold" color="red.600">
-                  {FeeService.getFeeDisplayText(session.feeConfig)}
+                  {feeDisplayText}
                 </Text>
-                {session.feeConfig.feeType === FeeType.FIXED && (
-                  <Text fontSize="sm" color="gray.500" fontWeight="normal">
-                    /slot
-                  </Text>
+                {canSeeSessionFee &&
+                  session.feeConfig.feeType === FeeType.FIXED && (
+                    <Text fontSize="sm" color="gray.500" fontWeight="normal">
+                      /slot
+                    </Text>
+                  )}
+                {canSeeSessionFee && (
+                  <FeeDetailPopover feeConfig={session.feeConfig} />
                 )}
-                <FeeDetailPopover feeConfig={session.feeConfig} />
               </Flex>
             </Box>
           )}
@@ -566,19 +582,22 @@ const SessionDetailStickyBar = ({
                   color="red.600"
                   whiteSpace="nowrap"
                 >
-                  {FeeService.getFeeDisplayText(session.feeConfig)}
+                  {feeDisplayText}
                 </Text>
-                {session.feeConfig.feeType === FeeType.FIXED && (
-                  <Text
-                    fontSize="sm"
-                    color="gray.500"
-                    fontWeight="normal"
-                    whiteSpace="nowrap"
-                  >
-                    /slot
-                  </Text>
+                {canSeeSessionFee &&
+                  session.feeConfig.feeType === FeeType.FIXED && (
+                    <Text
+                      fontSize="sm"
+                      color="gray.500"
+                      fontWeight="normal"
+                      whiteSpace="nowrap"
+                    >
+                      /slot
+                    </Text>
+                  )}
+                {canSeeSessionFee && (
+                  <FeeDetailPopover feeConfig={session.feeConfig} />
                 )}
-                <FeeDetailPopover feeConfig={session.feeConfig} />
               </Flex>
             </Box>
           )}

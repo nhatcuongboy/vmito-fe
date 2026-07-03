@@ -22,7 +22,8 @@ import PageLayout from '@/components/layout/PageLayout';
 const ClubFeesPage = () => {
   const t = useTranslations('clubs');
   const params = useParams();
-  const groupId = params.id as string;
+  const routeClubId = params.id as string;
+  const [clubId, setClubId] = useState('');
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [formData, setFormData] = useState({
@@ -38,11 +39,27 @@ const ClubFeesPage = () => {
   );
   const [selectedYear, setSelectedYear] = useState(currentDate.getFullYear());
 
+  const resolveClubId = useCallback(async () => {
+    if (!routeClubId) return '';
+
+    try {
+      const club = await ClubsService.getClub(routeClubId);
+      return club.id;
+    } catch {
+      const club = await ClubsService.getClubDetails(routeClubId);
+      return club.id;
+    }
+  }, [routeClubId]);
+
   const loadFees = useCallback(async () => {
     try {
       setLoading(true);
+      const resolvedClubId = clubId || (await resolveClubId());
+      if (!resolvedClubId) return;
+
+      setClubId(resolvedClubId);
       const feeConfig = await ClubsService.getClubFeeForMonth(
-        groupId,
+        resolvedClubId,
         selectedYear,
         selectedMonth
       );
@@ -67,18 +84,22 @@ const ClubFeesPage = () => {
     } finally {
       setLoading(false);
     }
-  }, [groupId, selectedMonth, selectedYear, t]);
+  }, [clubId, resolveClubId, selectedMonth, selectedYear, t]);
 
   useEffect(() => {
-    if (groupId) {
+    if (routeClubId) {
       loadFees();
     }
-  }, [groupId, loadFees]);
+  }, [routeClubId, loadFees]);
 
   const handleSave = async () => {
     try {
       setSaving(true);
-      await ClubsService.upsertClubFee(groupId, {
+      const resolvedClubId = clubId || (await resolveClubId());
+      if (!resolvedClubId) return;
+
+      setClubId(resolvedClubId);
+      await ClubsService.upsertClubFee(resolvedClubId, {
         month: selectedMonth,
         year: selectedYear,
         maleFeeMonthly: formData.maleFeeMonthly

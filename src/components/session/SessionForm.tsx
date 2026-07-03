@@ -103,6 +103,8 @@ import { VSwitch } from '@/components/ui/VSwitch';
 import { VModal } from '@/components/ui/VModal';
 import { SearchableSelect } from '@/components/ui/SearchableSelect';
 import { VenueService } from '@/lib/api/venue.service';
+import { ClubsService } from '@/lib/api/clubs.service';
+import { IClub } from '@/types/club';
 import AISessionModal from '@/components/session/AISessionModal';
 import { ExtractedSessionData } from '@/lib/api/ai.service';
 import AppMultiImageUpload, {
@@ -253,6 +255,7 @@ function createSessionFormSchema(
       // Required fields
       name: z.string().min(1, t('validation.sessionNameRequired')),
       selectedVenueId: z.string().min(1, t('validation.locationRequired')),
+      clubId: z.string().optional(),
       hostName: z.string().min(1, t('validation.hostNameRequired')),
       hostPhone: z.string().optional(),
       startTime: z.string().min(1, t('validation.startTimeRequired')),
@@ -374,6 +377,7 @@ export default function SessionForm({
         description: initialData.description || '',
         referenceVideoUrl: initialData.referenceVideoUrl || '',
         selectedVenueId: initialData.venue?.id || '',
+        clubId: initialData.clubId || '',
         hostName: initialData.hostName || initialData.host?.name || '',
         hostPhone: initialData.hostPhone || '',
         startTime: initialData.startTime
@@ -409,6 +413,7 @@ export default function SessionForm({
       description: '',
       referenceVideoUrl: '',
       selectedVenueId: '',
+      clubId: '',
       hostName: user?.name || '',
       hostPhone: '',
       startTime: '',
@@ -466,6 +471,8 @@ export default function SessionForm({
 
   // State for async data and modal
   const [venues, setVenues] = useState<Venue[]>([]);
+  const [clubs, setClubs] = useState<IClub[]>([]);
+  const [isClubsLoading, setIsClubsLoading] = useState(false);
   const [selectedVenueObj, setSelectedVenueObj] = useState<Venue | null>(
     isEditMode && initialData?.venue ? (initialData.venue as Venue) : null
   );
@@ -621,6 +628,18 @@ export default function SessionForm({
     return opts;
   }, [venues, selectedVenueObj, tVenue]);
 
+  const clubOptions = useMemo(
+    () => [
+      { value: '', label: t('noDefaultClub') },
+      ...clubs.map((club) => ({
+        value: club.id,
+        label: club.name,
+        sublabel: club.host?.name || club.hostName || undefined,
+      })),
+    ],
+    [clubs, t]
+  );
+
   // Debounced venue search handler (server-side)
   const handleVenueSearch = useCallback((keyword: string) => {
     if (venueSearchTimerRef.current) clearTimeout(venueSearchTimerRef.current);
@@ -652,7 +671,28 @@ export default function SessionForm({
       }
     };
     fetchVenues();
+  }, []);
 
+  useEffect(() => {
+    if (!canAccessHostFeatures) return;
+
+    const fetchClubs = async () => {
+      try {
+        setIsClubsLoading(true);
+        const result = await ClubsService.getClubsToManage();
+        setClubs(result);
+      } catch (error) {
+        console.error('Error fetching manageable clubs:', error);
+        setClubs([]);
+      } finally {
+        setIsClubsLoading(false);
+      }
+    };
+
+    fetchClubs();
+  }, [canAccessHostFeatures]);
+
+  useEffect(() => {
     const error = searchParams.get('error');
     const details = searchParams.get('details');
     if (error) {
@@ -992,6 +1032,7 @@ export default function SessionForm({
           referenceVideoUrl: data.referenceVideoUrl?.trim() || null,
           hostName: data.hostName.trim(),
           hostPhone: data.hostPhone?.trim() || '',
+          clubId: data.clubId || null,
           maxPlayersPerCourt: data.maxPlayersPerCourt,
           requirePlayerInfo: data.requirePlayerInfo,
           allowGuestJoin: data.allowGuestJoin,
@@ -1038,6 +1079,7 @@ export default function SessionForm({
           referenceVideoUrl: data.referenceVideoUrl?.trim() || null,
           hostName: data.hostName.trim(),
           hostPhone: data.hostPhone?.trim() || '',
+          clubId: data.clubId || null,
           numberOfCourts: data.courts.length,
           sessionDuration,
           maxPlayersPerCourt: data.maxPlayersPerCourt,
@@ -1378,6 +1420,29 @@ export default function SessionForm({
                     {errors.selectedVenueId?.message}
                   </Field.ErrorText>
                 </Field.Root>
+
+                {canAccessHostFeatures && (
+                  <Field.Root>
+                    <Field.Label>{t('defaultClub')}</Field.Label>
+                    <Controller
+                      control={control}
+                      name="clubId"
+                      render={({ field }) => (
+                        <SearchableSelect
+                          value={field.value || ''}
+                          onChange={(value) => field.onChange(value)}
+                          options={clubOptions}
+                          placeholder={t('selectDefaultClub')}
+                          searchPlaceholder={t('searchDefaultClub')}
+                          isLoading={isClubsLoading}
+                        />
+                      )}
+                    />
+                    <Text fontSize="xs" color="fg.muted" mt={1}>
+                      {t('defaultClubDescription')}
+                    </Text>
+                  </Field.Root>
+                )}
               </Stack>
             </Box>
 

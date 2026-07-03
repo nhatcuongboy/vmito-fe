@@ -427,6 +427,12 @@ export interface ISession {
   updatedAt: Date;
   location?: string;
   venue?: Venue;
+  clubId?: string | null;
+  club?: {
+    id: string;
+    name: string;
+    color?: string;
+  } | null;
   description?: string;
   courts?: Court[];
   players?: Player[];
@@ -583,6 +589,8 @@ export interface BulkPlayerData {
   phone?: string;
   requireConfirmInfo?: boolean;
   userId?: string; // Optional userId to link with existing user
+  isClubMember?: boolean;
+  clubId?: string;
 }
 
 export interface BulkPlayersResponse {
@@ -631,6 +639,7 @@ export interface CreateSessionRequest {
   defaultMatchType?: 'SINGLES' | 'DOUBLES';
   courts?: CourtConfig[];
   venue?: Omit<Venue, 'id' | 'createdAt' | 'updatedAt'>; // Inline venue object (backend doesn't support venueId)
+  clubId?: string | null;
   feeConfig?: CreateSessionFeeConfigRequest; // Fee configuration
   coverPhoto?: string;
   coverPhotoPublicId?: string;
