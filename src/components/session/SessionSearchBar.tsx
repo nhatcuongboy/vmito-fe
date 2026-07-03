@@ -28,16 +28,26 @@ export default function SessionSearchBar({
   // Local input value — updates immediately for snappy typing feel
   const [localValue, setLocalValue] = useState(searchQuery);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // Tracks the last value we pushed out via the debounced onSearchChange so we
+  // can tell our own URL echo apart from a genuinely external change.
+  const lastEmittedRef = useRef(searchQuery);
 
-  // Sync external value (e.g. reset from URL) into local state
+  // Sync external value into local state ONLY when it changed from something
+  // other than our own debounced emit (e.g. clear button, filter reset,
+  // back/forward navigation). Syncing on our own URL echo would clobber the
+  // characters typed while the (slow) navigation was still in flight.
   useEffect(() => {
-    setLocalValue(searchQuery);
+    if (searchQuery !== lastEmittedRef.current) {
+      lastEmittedRef.current = searchQuery;
+      setLocalValue(searchQuery);
+    }
   }, [searchQuery]);
 
   const handleChange = (val: string) => {
     setLocalValue(val);
     if (timerRef.current) clearTimeout(timerRef.current);
     timerRef.current = setTimeout(() => {
+      lastEmittedRef.current = val;
       onSearchChange(val);
     }, 400);
   };

@@ -60,6 +60,7 @@ import { useLocale, useTranslations } from 'next-intl';
 import { Locale } from '@/i18n/locales';
 import FeeDetailPopover from '@/components/fee/FeeDetailPopover';
 import { getSkillLevelColor } from '@/lib/utils/skillLevel.utils';
+import { normalizeImageUrl } from '@/lib/images/normalizeImageUrl';
 import { VALID_LEVELS, sortLevelsByRank } from '@/constants/levels';
 import { AppPlayerRating } from '@/components/rating';
 import { useAuthStore } from '@/stores/useAuthStore';
@@ -767,7 +768,7 @@ const BaseSessionCard = ({
         {!isCompact && (
           <Box position="relative" h="180px" overflow="hidden">
             <Image
-              src={session.coverPhoto || DEFAULT_COVER_PHOTO}
+              src={normalizeImageUrl(session.coverPhoto) || DEFAULT_COVER_PHOTO}
               alt={session.name}
               w="100%"
               h="100%"
@@ -906,11 +907,11 @@ const BaseSessionCard = ({
                       ? session.externalAuthorAvatar
                       : session.host?.image) && (
                       <Avatar.Image
-                        src={
-                          (isCrawled
+                        src={normalizeImageUrl(
+                          isCrawled
                             ? session.externalAuthorAvatar
-                            : session.host?.image) || undefined
-                        }
+                            : session.host?.image
+                        )}
                       />
                     )}
                   </Avatar.Root>
