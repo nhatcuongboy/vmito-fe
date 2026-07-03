@@ -7,6 +7,7 @@ import {
   IClubJoinRequest,
   IJoinClubResponse,
   IClubMember,
+  IClubMonthlyMember,
   ICreateClubDto,
   IUpdateClubDto,
   IClubFeeConfig,
@@ -275,6 +276,48 @@ export const ClubsService = {
       data
     );
     return response.data.data!;
+  },
+
+  /**
+   * Get monthly fixed members for a club month
+   */
+  getClubMonthlyMembers: async (
+    clubId: string,
+    year: number,
+    month: number
+  ): Promise<IClubMonthlyMember[]> => {
+    const response = await api.get<ApiResponse<IClubMonthlyMember[]>>(
+      `/clubs/${clubId}/monthly-members/${year}/${month}`
+    );
+    return response.data.data || [];
+  },
+
+  /**
+   * Mark a club member as fixed for a month
+   */
+  upsertClubMonthlyMember: async (
+    clubId: string,
+    data: { userId: string; year: number; month: number }
+  ): Promise<IClubMonthlyMember> => {
+    const response = await api.post<ApiResponse<IClubMonthlyMember>>(
+      `/clubs/${clubId}/monthly-members`,
+      data
+    );
+    return response.data.data!;
+  },
+
+  /**
+   * Remove a member from the fixed monthly list
+   */
+  deleteClubMonthlyMember: async (
+    clubId: string,
+    userId: string,
+    year: number,
+    month: number
+  ): Promise<void> => {
+    await api.delete(
+      `/clubs/${clubId}/monthly-members/${userId}/${year}/${month}`
+    );
   },
 
   /**

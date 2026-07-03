@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState, useCallback } from 'react';
 import { useTranslations } from 'next-intl';
-import { Box, Flex, Heading, Text } from '@chakra-ui/react';
+import { Badge, Box, Flex, Heading, Text } from '@chakra-ui/react';
 import {
   Button,
   VStack,
@@ -14,6 +14,7 @@ import {
 } from '@/components/ui/chakra-compat';
 import { useParams } from 'next/navigation';
 import { ClubsService } from '@/lib/api/clubs.service';
+import { EMemberStatus, IClubMember, IClubMonthlyMember } from '@/types/club';
 import { toaster } from '@/components/ui/toaster';
 import { Field } from '@/components/ui/Field';
 import LoadingSpinner from '@/components/ui/loading-spinner';
@@ -51,11 +52,18 @@ type FormData = z.infer<typeof schema>;
 
 const ClubFeesPage = () => {
   const t = useTranslations('clubs');
+  const tCommon = useTranslations('common');
   const params = useParams();
   const routeClubId = params.id as string;
   const [clubId, setClubId] = useState('');
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [clubMembers, setClubMembers] = useState<IClubMember[]>([]);
+  const [monthlyMembers, setMonthlyMembers] = useState<IClubMonthlyMember[]>(
+    []
+  );
+  const [selectedMonthlyUserId, setSelectedMonthlyUserId] = useState('');
+  const [monthlyMemberSaving, setMonthlyMemberSaving] = useState(false);
 
   const {
     control,
@@ -97,11 +105,24 @@ const ClubFeesPage = () => {
       if (!resolvedClubId) return;
 
       setClubId(resolvedClubId);
-      const feeConfig = await ClubsService.getClubFeeForMonth(
-        resolvedClubId,
-        selectedYear,
-        selectedMonth
-      );
+      const [feeConfig, membersData, monthlyMembersData] = await Promise.all([
+        ClubsService.getClubFeeForMonth(
+          resolvedClubId,
+          selectedYear,
+          selectedMonth
+        ),
+        ClubsService.getClubMembers(resolvedClubId),
+        ClubsService.getClubMonthlyMembers(
+          resolvedClubId,
+          selectedYear,
+          selectedMonth
+        ),
+      ]);
+
+      setClubMembers(membersData);
+      setMonthlyMembers(monthlyMembersData);
+      setSelectedMonthlyUserId('');
+
       if (feeConfig) {
         reset({
           maleFeeMonthly: feeConfig.maleFeeMonthly?.toString() || '',
@@ -161,6 +182,74 @@ const ClubFeesPage = () => {
       toaster.error({ title: t('failedToUpdateFees') });
     } finally {
       setSaving(false);
+    }
+  };
+
+  const monthlyMemberUserIds = new Set(
+    monthlyMembers.map((member) => member.userId)
+  );
+  const availableMonthlyMembers = clubMembers.filter(
+    (member) =>
+      member.status === EMemberStatus.ACTIVE &&
+      !monthlyMemberUserIds.has(member.userId)
+  );
+
+  const getGenderLabel = (gender?: string) => {
+    switch (gender) {
+      case 'MALE':
+        return tCommon('male');
+      case 'FEMALE':
+        return tCommon('female');
+      case 'OTHER':
+        return tCommon('other');
+      case 'PREFER_NOT_TO_SAY':
+        return tCommon('preferNotToSay');
+      default:
+        return '';
+    }
+  };
+
+  const handleAddMonthlyMember = async () => {
+    if (!selectedMonthlyUserId || !clubId) return;
+
+    try {
+      setMonthlyMemberSaving(true);
+      const added = await ClubsService.upsertClubMonthlyMember(clubId, {
+        userId: selectedMonthlyUserId,
+        year: selectedYear,
+        month: selectedMonth,
+      });
+      setMonthlyMembers((prev) => [...prev, added]);
+      setSelectedMonthlyUserId('');
+      toaster.success({ title: t('monthlyMemberAddedSuccess') });
+    } catch (error) {
+      console.error('Failed to add monthly member:', error);
+      toaster.error({ title: t('failedToUpdateMonthlyMembers') });
+    } finally {
+      setMonthlyMemberSaving(false);
+    }
+  };
+
+  const handleRemoveMonthlyMember = async (userId: string) => {
+    if (!clubId) return;
+
+    try {
+      setMonthlyMemberSaving(true);
+      await ClubsService.deleteClubMonthlyMember(
+        clubId,
+        userId,
+        selectedYear,
+        selectedMonth
+      );
+      setMonthlyMembers((prev) =>
+        prev.filter((member) => member.userId !== userId)
+      );
+      toaster.success({ title: t('monthlyMemberRemovedSuccess') });
+    } catch (error) {
+      console.error('Failed to remove monthly member:', error);
+      toaster.error({ title: t('failedToUpdateMonthlyMembers') });
+    } finally {
+      setMonthlyMemberSaving(false);
     }
   };
 
@@ -361,6 +450,105 @@ const ClubFeesPage = () => {
               </Flex>
             </VStack>
           </form>
+        </Box>
+
+        <Box bg="bg" p={6} borderRadius="lg" shadow="sm" borderWidth="1px">
+          <VStack spacing={5} align="stretch">
+            <Box>
+              <Flex justify="space-between" align="center" gap={3} wrap="wrap">
+                <Box>
+                  <Heading size="sm">{t('monthlyMembers')}</Heading>
+                  <Text fontSize="sm" color="fg.muted" mt={1}>
+                    {t('monthlyMembersDescription')}
+                  </Text>
+                </Box>
+                <Badge colorPalette="green" variant="subtle">
+                  {t(`month${selectedMonth}`)} {selectedYear}
+                </Badge>
+              </Flex>
+            </Box>
+
+            <HStack spacing={3} align="flex-end">
+              <Box flex="1" minW={0}>
+                <Field label={t('selectMember')}>
+                  <VSelect
+                    value={selectedMonthlyUserId}
+                    onChange={(e) => setSelectedMonthlyUserId(e.target.value)}
+                    disabled={monthlyMemberSaving}
+                  >
+                    <option value="">{t('selectMember')}</option>
+                    {availableMonthlyMembers.map((member) => (
+                      <option key={member.userId} value={member.userId}>
+                        {member.user.name}
+                      </option>
+                    ))}
+                  </VSelect>
+                </Field>
+              </Box>
+              <Button
+                colorPalette="green"
+                onClick={handleAddMonthlyMember}
+                disabled={!selectedMonthlyUserId}
+                loading={monthlyMemberSaving}
+              >
+                {t('addMonthlyMember')}
+              </Button>
+            </HStack>
+
+            <Divider />
+
+            {monthlyMembers.length === 0 ? (
+              <Text color="fg.muted" fontSize="sm">
+                {t('noMonthlyMembers')}
+              </Text>
+            ) : (
+              <VStack spacing={2} align="stretch">
+                {monthlyMembers.map((member) => (
+                  <Flex
+                    key={member.id}
+                    justify="space-between"
+                    align="center"
+                    gap={3}
+                    p={3}
+                    borderWidth="1px"
+                    borderColor="border"
+                    borderRadius="md"
+                  >
+                    <Box minW={0}>
+                      <Flex align="center" gap={2}>
+                        <Text fontWeight="semibold" lineClamp={1}>
+                          {member.user.name}
+                        </Text>
+                        {member.user.gender && (
+                          <Badge
+                            colorPalette={
+                              member.user.gender === 'FEMALE' ? 'pink' : 'blue'
+                            }
+                            variant="subtle"
+                            flexShrink={0}
+                          >
+                            {getGenderLabel(member.user.gender)}
+                          </Badge>
+                        )}
+                      </Flex>
+                      <Text fontSize="sm" color="fg.muted" lineClamp={1}>
+                        {member.user.email}
+                      </Text>
+                    </Box>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      colorPalette="red"
+                      loading={monthlyMemberSaving}
+                      onClick={() => handleRemoveMonthlyMember(member.userId)}
+                    >
+                      {t('remove')}
+                    </Button>
+                  </Flex>
+                ))}
+              </VStack>
+            )}
+          </VStack>
         </Box>
       </VStack>
     </PageLayout>

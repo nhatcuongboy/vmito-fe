@@ -72,6 +72,25 @@ export interface IClubMember {
   };
 }
 
+export interface IClubMonthlyMember {
+  id: string;
+  clubId: string;
+  userId: string;
+  month: number;
+  year: number;
+  createdAt: string;
+  updatedAt: string;
+  user: {
+    id: string;
+    name: string;
+    email: string;
+    gender?: string;
+    image?: string;
+    phone?: string;
+    level?: number;
+  };
+}
+
 export interface IClubSchedule {
   id: string;
   clubId: string;
