@@ -55,6 +55,16 @@ export const FeeService = {
     toaster.success({ title: 'Đã xóa cấu hình phí' });
   },
 
+  // Recalculate all payments based on latest fee config
+  recalculateAllPayments: async (
+    sessionId: string
+  ): Promise<{ updated: number; message: string }> => {
+    const response = await api.post<
+      ApiResponse<{ updated: number; message: string }>
+    >(`/sessions/${sessionId}/fee-config/recalculate`);
+    return response.data.data!;
+  },
+
   // Calculate fee for a player based on gender and slots
   calculatePlayerFee: (
     feeConfig: SessionFeeConfig | null | undefined,

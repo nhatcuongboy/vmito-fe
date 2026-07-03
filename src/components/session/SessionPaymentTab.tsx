@@ -27,6 +27,7 @@ import {
   ExternalLink,
   AlertCircle,
   Calculator,
+  RefreshCw,
 } from 'lucide-react';
 import {
   ISession,
@@ -40,6 +41,7 @@ import {
 import { PaymentSettingsService } from '@/lib/api/payment-settings.service';
 import { PaymentService } from '@/lib/api/payment.service';
 import { SessionExpensesService } from '@/lib/api/session-expenses.service';
+import { FeeService } from '@/lib/api/fee.service';
 import {
   PaymentSettingsForm,
   SessionPaymentList,
@@ -78,6 +80,9 @@ export default function SessionPaymentTab({ session }: SessionPaymentTabProps) {
   // Split amount state
   const [splitAmount, setSplitAmount] = useState('');
   const [isSettingSplit, setIsSettingSplit] = useState(false);
+
+  // Recalculate state
+  const [isRecalculating, setIsRecalculating] = useState(false);
 
   // Expenses state
   const [expenses, setExpenses] = useState<ISessionExpense[]>([]);
@@ -424,6 +429,29 @@ export default function SessionPaymentTab({ session }: SessionPaymentTabProps) {
     }
   };
 
+  const handleRecalculatePayments = async () => {
+    setIsRecalculating(true);
+    try {
+      const result = await FeeService.recalculateAllPayments(session.id);
+
+      // Reload payments to show updated amounts
+      await loadPayments(false);
+
+      toaster.success({
+        title: tCommon('success'),
+        description: t('recalculateSuccess', { count: result.updated }),
+      });
+    } catch (error) {
+      console.error('Failed to recalculate payments:', error);
+      toaster.error({
+        title: tCommon('error'),
+        description: t('recalculateFailed'),
+      });
+    } finally {
+      setIsRecalculating(false);
+    }
+  };
+
   if (isLoading) {
     // Skeleton layout — no full-page spinner
     return (
@@ -688,6 +716,37 @@ export default function SessionPaymentTab({ session }: SessionPaymentTabProps) {
                 </Text>
               )}
             </VStack>
+
+            {/* Recalculate Button */}
+            <Box
+              mt={4}
+              pt={4}
+              borderTop="1px solid"
+              borderColor="green.200"
+              _dark={{ borderColor: 'green.800' }}
+            >
+              <Button
+                size="sm"
+                colorPalette="green"
+                variant="outline"
+                onClick={handleRecalculatePayments}
+                loading={isRecalculating}
+                disabled={isRecalculating}
+                width="full"
+              >
+                <RefreshCw size={14} />
+                <Text ml={2}>{t('recalculatePayments')}</Text>
+              </Button>
+              <Text
+                fontSize="xs"
+                color="green.600"
+                _dark={{ color: 'green.400' }}
+                mt={2}
+                textAlign="center"
+              >
+                {t('recalculatePaymentsHint')}
+              </Text>
+            </Box>
           </Box>
         ) : (
           <Box
