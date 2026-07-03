@@ -98,25 +98,38 @@ const ClubFeesPage = () => {
     }
   }, [routeClubId]);
 
+  // Resolve the route param (slug or id) to the actual club id exactly once
+  // per routeClubId change. Kept separate from loadFees so that setting
+  // clubId here doesn't also re-trigger loadFees's own effect a second time.
+  useEffect(() => {
+    if (!routeClubId) return;
+    let cancelled = false;
+
+    resolveClubId()
+      .then((resolvedClubId) => {
+        if (!cancelled) setClubId(resolvedClubId);
+      })
+      .catch((error) => {
+        if (cancelled) return;
+        console.error('Failed to resolve club:', error);
+        toaster.error({ title: t('failedToLoadFees') });
+        setLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [routeClubId, resolveClubId, t]);
+
   const loadFees = useCallback(async () => {
+    if (!clubId) return;
+
     try {
       setLoading(true);
-      const resolvedClubId = clubId || (await resolveClubId());
-      if (!resolvedClubId) return;
-
-      setClubId(resolvedClubId);
       const [feeConfig, membersData, monthlyMembersData] = await Promise.all([
-        ClubsService.getClubFeeForMonth(
-          resolvedClubId,
-          selectedYear,
-          selectedMonth
-        ),
-        ClubsService.getClubMembers(resolvedClubId),
-        ClubsService.getClubMonthlyMembers(
-          resolvedClubId,
-          selectedYear,
-          selectedMonth
-        ),
+        ClubsService.getClubFeeForMonth(clubId, selectedYear, selectedMonth),
+        ClubsService.getClubMembers(clubId),
+        ClubsService.getClubMonthlyMembers(clubId, selectedYear, selectedMonth),
       ]);
 
       setClubMembers(membersData);
@@ -144,13 +157,11 @@ const ClubFeesPage = () => {
     } finally {
       setLoading(false);
     }
-  }, [clubId, resolveClubId, selectedMonth, selectedYear, t]);
+  }, [clubId, selectedMonth, selectedYear, t]);
 
   useEffect(() => {
-    if (routeClubId) {
-      loadFees();
-    }
-  }, [routeClubId, loadFees]);
+    loadFees();
+  }, [loadFees]);
 
   const onSubmit = async (data: FormData) => {
     try {
