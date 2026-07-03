@@ -1286,7 +1286,20 @@ const BaseSessionCard = ({
                                 </Text>
                               )}
                             {!isCompact && canSeeSessionFee && (
-                              <FeeDetailPopover feeConfig={session.feeConfig} />
+                              <Box
+                                position="relative"
+                                zIndex={3}
+                                onMouseEnter={() =>
+                                  setIsMouseOverActionButton(true)
+                                }
+                                onMouseLeave={() =>
+                                  setIsMouseOverActionButton(false)
+                                }
+                              >
+                                <FeeDetailPopover
+                                  feeConfig={session.feeConfig}
+                                />
+                              </Box>
                             )}
                           </Flex>
                         </Flex>
