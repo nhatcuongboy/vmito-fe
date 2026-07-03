@@ -18,6 +18,24 @@ import { toaster } from '@/components/ui/toaster';
 import { Field } from '@/components/ui/Field';
 import LoadingSpinner from '@/components/ui/loading-spinner';
 import PageLayout from '@/components/layout/PageLayout';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
+
+const feeSchema = z
+  .string()
+  .refine((val) => val === '' || (!isNaN(Number(val)) && Number(val) >= 0), {
+    message: 'invalidFee',
+  });
+
+const schema = z.object({
+  maleFeeMonthly: feeSchema,
+  femaleFeeMonthly: feeSchema,
+  maleFeePerSession: feeSchema,
+  femaleFeePerSession: feeSchema,
+});
+
+type FormData = z.infer<typeof schema>;
 
 const ClubFeesPage = () => {
   const t = useTranslations('clubs');
@@ -26,11 +44,20 @@ const ClubFeesPage = () => {
   const [clubId, setClubId] = useState('');
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [formData, setFormData] = useState({
-    maleFeeMonthly: '',
-    femaleFeeMonthly: '',
-    maleFeePerSession: '',
-    femaleFeePerSession: '',
+
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm<FormData>({
+    resolver: zodResolver(schema),
+    defaultValues: {
+      maleFeeMonthly: '',
+      femaleFeeMonthly: '',
+      maleFeePerSession: '',
+      femaleFeePerSession: '',
+    },
   });
 
   const currentDate = new Date();
@@ -64,14 +91,14 @@ const ClubFeesPage = () => {
         selectedMonth
       );
       if (feeConfig) {
-        setFormData({
+        reset({
           maleFeeMonthly: feeConfig.maleFeeMonthly?.toString() || '',
           femaleFeeMonthly: feeConfig.femaleFeeMonthly?.toString() || '',
           maleFeePerSession: feeConfig.maleFeePerSession?.toString() || '',
           femaleFeePerSession: feeConfig.femaleFeePerSession?.toString() || '',
         });
       } else {
-        setFormData({
+        reset({
           maleFeeMonthly: '',
           femaleFeeMonthly: '',
           maleFeePerSession: '',
@@ -92,7 +119,7 @@ const ClubFeesPage = () => {
     }
   }, [routeClubId, loadFees]);
 
-  const handleSave = async () => {
+  const onSubmit = async (data: FormData) => {
     try {
       setSaving(true);
       const resolvedClubId = clubId || (await resolveClubId());
@@ -102,17 +129,17 @@ const ClubFeesPage = () => {
       await ClubsService.upsertClubFee(resolvedClubId, {
         month: selectedMonth,
         year: selectedYear,
-        maleFeeMonthly: formData.maleFeeMonthly
-          ? Number(formData.maleFeeMonthly)
+        maleFeeMonthly: data.maleFeeMonthly
+          ? Number(data.maleFeeMonthly)
           : undefined,
-        femaleFeeMonthly: formData.femaleFeeMonthly
-          ? Number(formData.femaleFeeMonthly)
+        femaleFeeMonthly: data.femaleFeeMonthly
+          ? Number(data.femaleFeeMonthly)
           : undefined,
-        maleFeePerSession: formData.maleFeePerSession
-          ? Number(formData.maleFeePerSession)
+        maleFeePerSession: data.maleFeePerSession
+          ? Number(data.maleFeePerSession)
           : undefined,
-        femaleFeePerSession: formData.femaleFeePerSession
-          ? Number(formData.femaleFeePerSession)
+        femaleFeePerSession: data.femaleFeePerSession
+          ? Number(data.femaleFeePerSession)
           : undefined,
       });
       toaster.success({ title: t('feesUpdatedSuccess') });
@@ -147,139 +174,141 @@ const ClubFeesPage = () => {
         </Flex>
 
         <Box bg="bg" p={6} borderRadius="lg" shadow="sm" borderWidth="1px">
-          <VStack spacing={6} align="stretch">
-            <Box>
-              <Heading size="md" mb={4}>
-                {t('selectMonth')}
-              </Heading>
-              <HStack spacing={4} mb={6}>
-                <Box width="150px">
-                  <VSelect
-                    value={selectedMonth}
-                    onChange={(e) => setSelectedMonth(Number(e.target.value))}
-                  >
-                    {Array.from({ length: 12 }, (_, i) => i + 1).map((m) => (
-                      <option key={m} value={m}>
-                        {t(`month${m}`)}
-                      </option>
-                    ))}
-                  </VSelect>
-                </Box>
-                <Box width="120px">
-                  <VSelect
-                    value={selectedYear}
-                    onChange={(e) => setSelectedYear(Number(e.target.value))}
-                  >
-                    {[selectedYear - 1, selectedYear, selectedYear + 1].map(
-                      (y) => (
-                        <option key={y} value={y}>
-                          {y}
+          <form onSubmit={handleSubmit(onSubmit)}>
+            <VStack spacing={6} align="stretch">
+              <Box>
+                <Heading size="md" mb={4}>
+                  {t('selectMonth')}
+                </Heading>
+                <HStack spacing={4} mb={6}>
+                  <Box width="150px">
+                    <VSelect
+                      value={selectedMonth}
+                      onChange={(e) => setSelectedMonth(Number(e.target.value))}
+                    >
+                      {Array.from({ length: 12 }, (_, i) => i + 1).map((m) => (
+                        <option key={m} value={m}>
+                          {t(`month${m}`)}
                         </option>
-                      )
-                    )}
-                  </VSelect>
-                </Box>
-              </HStack>
-            </Box>
+                      ))}
+                    </VSelect>
+                  </Box>
+                  <Box width="120px">
+                    <VSelect
+                      value={selectedYear}
+                      onChange={(e) => setSelectedYear(Number(e.target.value))}
+                    >
+                      {[selectedYear - 1, selectedYear, selectedYear + 1].map(
+                        (y) => (
+                          <option key={y} value={y}>
+                            {y}
+                          </option>
+                        )
+                      )}
+                    </VSelect>
+                  </Box>
+                </HStack>
+              </Box>
 
-            <Divider />
+              <Divider />
 
-            <Box>
-              <Heading size="sm" mb={4}>
-                {t('monthlyFeeConfig')}
-              </Heading>
-              <SimpleGrid columns={{ base: 1, md: 2 }} spacing={6}>
-                <Field
-                  label={t('maleMonthlyFee')}
-                  helperText={`${t('currency')} / ${t('month')}`}
-                >
-                  <Input
-                    type="number"
-                    value={formData.maleFeeMonthly}
-                    onChange={(e) =>
-                      setFormData({
-                        ...formData,
-                        maleFeeMonthly: e.target.value,
-                      })
+              <Box>
+                <Heading size="sm" mb={4}>
+                  {t('monthlyFeeConfig')}
+                </Heading>
+                <SimpleGrid columns={{ base: 1, md: 2 }} spacing={6}>
+                  <Field
+                    label={t('maleMonthlyFee')}
+                    helperText={`${t('currency')} / ${t('month')}`}
+                    invalid={!!errors.maleFeeMonthly}
+                    errorText={
+                      errors.maleFeeMonthly?.message
+                        ? t(errors.maleFeeMonthly.message)
+                        : undefined
                     }
-                    placeholder="0"
-                  />
-                </Field>
-                <Field
-                  label={t('femaleMonthlyFee')}
-                  helperText={`${t('currency')} / ${t('month')}`}
-                >
-                  <Input
-                    type="number"
-                    value={formData.femaleFeeMonthly}
-                    onChange={(e) =>
-                      setFormData({
-                        ...formData,
-                        femaleFeeMonthly: e.target.value,
-                      })
+                  >
+                    <Input
+                      type="number"
+                      placeholder="0"
+                      {...register('maleFeeMonthly')}
+                    />
+                  </Field>
+                  <Field
+                    label={t('femaleMonthlyFee')}
+                    helperText={`${t('currency')} / ${t('month')}`}
+                    invalid={!!errors.femaleFeeMonthly}
+                    errorText={
+                      errors.femaleFeeMonthly?.message
+                        ? t(errors.femaleFeeMonthly.message)
+                        : undefined
                     }
-                    placeholder="0"
-                  />
-                </Field>
-              </SimpleGrid>
-            </Box>
+                  >
+                    <Input
+                      type="number"
+                      placeholder="0"
+                      {...register('femaleFeeMonthly')}
+                    />
+                  </Field>
+                </SimpleGrid>
+              </Box>
 
-            <Divider />
+              <Divider />
 
-            <Box>
-              <Heading size="sm" mt={4}>
-                {t('perSessionFeeConfig')}
-              </Heading>
-              <Text fontSize="sm" color="fg.muted" mb={4}>
-                {t('perSessionFeeDescription')}
-              </Text>
-              <SimpleGrid columns={{ base: 1, md: 2 }} spacing={6}>
-                <Field
-                  label={t('malePerSessionFee')}
-                  helperText={`${t('currency')} / ${t('session')}`}
-                >
-                  <Input
-                    type="number"
-                    value={formData.maleFeePerSession}
-                    onChange={(e) =>
-                      setFormData({
-                        ...formData,
-                        maleFeePerSession: e.target.value,
-                      })
+              <Box>
+                <Heading size="sm" mt={4}>
+                  {t('perSessionFeeConfig')}
+                </Heading>
+                <Text fontSize="sm" color="fg.muted" mb={4}>
+                  {t('perSessionFeeDescription')}
+                </Text>
+                <SimpleGrid columns={{ base: 1, md: 2 }} spacing={6}>
+                  <Field
+                    label={t('malePerSessionFee')}
+                    helperText={`${t('currency')} / ${t('session')}`}
+                    invalid={!!errors.maleFeePerSession}
+                    errorText={
+                      errors.maleFeePerSession?.message
+                        ? t(errors.maleFeePerSession.message)
+                        : undefined
                     }
-                    placeholder="0"
-                  />
-                </Field>
-                <Field
-                  label={t('femalePerSessionFee')}
-                  helperText={`${t('currency')} / ${t('session')}`}
-                >
-                  <Input
-                    type="number"
-                    value={formData.femaleFeePerSession}
-                    onChange={(e) =>
-                      setFormData({
-                        ...formData,
-                        femaleFeePerSession: e.target.value,
-                      })
+                  >
+                    <Input
+                      type="number"
+                      placeholder="0"
+                      {...register('maleFeePerSession')}
+                    />
+                  </Field>
+                  <Field
+                    label={t('femalePerSessionFee')}
+                    helperText={`${t('currency')} / ${t('session')}`}
+                    invalid={!!errors.femaleFeePerSession}
+                    errorText={
+                      errors.femaleFeePerSession?.message
+                        ? t(errors.femaleFeePerSession.message)
+                        : undefined
                     }
-                    placeholder="0"
-                  />
-                </Field>
-              </SimpleGrid>
-            </Box>
+                  >
+                    <Input
+                      type="number"
+                      placeholder="0"
+                      {...register('femaleFeePerSession')}
+                    />
+                  </Field>
+                </SimpleGrid>
+              </Box>
 
-            <Flex justify="flex-end" mt={6}>
-              <Button
-                colorPalette="green"
-                size="lg"
-                onClick={handleSave}
-                loading={saving}
-              >
-                {t('saveConfiguration')}
-              </Button>
-            </Flex>
-          </VStack>
+              <Flex justify="flex-end" mt={6}>
+                <Button
+                  type="submit"
+                  colorPalette="green"
+                  size="lg"
+                  loading={saving}
+                >
+                  {t('saveConfiguration')}
+                </Button>
+              </Flex>
+            </VStack>
+          </form>
         </Box>
       </VStack>
     </PageLayout>
