@@ -13,4 +13,5 @@ export interface NewPlayer {
   userId?: string;
   clubId?: string;
   isClubMember?: boolean;
+  customFee?: number | null;
 }

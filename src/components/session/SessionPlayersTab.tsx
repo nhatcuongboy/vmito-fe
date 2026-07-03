@@ -366,6 +366,7 @@ const SessionPlayersTab: React.FC<SessionPlayersTabProps> = ({
         errors={newPlayerErrors}
         availableLevels={availableLevels}
         isSaving={isSaving}
+        session={session}
         onUpdatePlayer={updateNewPlayer}
         onRemovePlayer={removeNewPlayerRow}
         onUserSelect={handleUserSelection}

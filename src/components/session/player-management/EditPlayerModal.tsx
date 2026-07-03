@@ -393,67 +393,6 @@ const EditPlayerModal: React.FC<EditPlayerModalProps> = ({
                 {t('confirmedByPlayer')}
               </label>
             </Flex>
-
-            {/* Club Checkbox */}
-            <Flex align="center" gap={3}>
-              <input
-                type="checkbox"
-                id={`isClubMember-edit-${player.id}`}
-                checked={editingData.isClubMember || false}
-                onChange={(e) => {
-                  onUpdateEditing(player.id, 'isClubMember', e.target.checked);
-                  if (!e.target.checked) {
-                    onUpdateEditing(player.id, 'clubId', undefined);
-                  }
-                }}
-                style={{
-                  width: '16px',
-                  height: '16px',
-                  accentColor: '#179a3b',
-                }}
-              />
-              <label
-                htmlFor={`isClubMember-edit-${player.id}`}
-                style={{
-                  fontSize: '14px',
-                  color: '#4A5568',
-                  lineHeight: '1.4',
-                }}
-              >
-                {t('isClubMember')}
-              </label>
-            </Flex>
-
-            {/* Club Select */}
-            {editingData.isClubMember && (
-              <Box ml={7}>
-                <Text fontSize="sm" mb={1} color="gray.600" fontWeight="medium">
-                  {t('selectClub')}
-                </Text>
-                <select
-                  value={editingData.clubId || ''}
-                  onChange={(e) =>
-                    onUpdateEditing(player.id, 'clubId', e.target.value)
-                  }
-                  style={{
-                    width: '100%',
-                    padding: '8px',
-                    borderRadius: '6px',
-                    border: '1px solid #E2E8F0',
-                    backgroundColor: 'white',
-                    color: 'inherit',
-                    fontSize: '14px',
-                  }}
-                >
-                  <option value="">{t('selectClubPlaceholder')}</option>
-                  {clubs.map((club) => (
-                    <option key={club.id} value={club.id}>
-                      {club.name}
-                    </option>
-                  ))}
-                </select>
-              </Box>
-            )}
           </VStack>
         </Box>
 
@@ -488,6 +427,76 @@ const EditPlayerModal: React.FC<EditPlayerModalProps> = ({
 
           {isFeeConfigExpanded && (
             <VStack align="stretch" gap={3} p={4} bg="gray.50">
+              {/* Club Membership Checkbox */}
+              <Flex align="center" gap={3}>
+                <input
+                  type="checkbox"
+                  id={`isClubMember-edit-${player.id}`}
+                  checked={editingData.isClubMember || false}
+                  onChange={(e) => {
+                    onUpdateEditing(
+                      player.id,
+                      'isClubMember',
+                      e.target.checked
+                    );
+                    if (!e.target.checked) {
+                      onUpdateEditing(player.id, 'clubId', undefined);
+                    }
+                  }}
+                  style={{
+                    width: '16px',
+                    height: '16px',
+                    accentColor: '#179a3b',
+                  }}
+                />
+                <label
+                  htmlFor={`isClubMember-edit-${player.id}`}
+                  style={{
+                    fontSize: '14px',
+                    color: '#4A5568',
+                    lineHeight: '1.4',
+                  }}
+                >
+                  {t('isClubMember')}
+                </label>
+              </Flex>
+
+              {/* Club Select */}
+              {editingData.isClubMember && (
+                <Box>
+                  <Text
+                    fontSize="sm"
+                    mb={1}
+                    color="gray.600"
+                    fontWeight="medium"
+                  >
+                    {t('selectClub')}
+                  </Text>
+                  <select
+                    value={editingData.clubId || ''}
+                    onChange={(e) =>
+                      onUpdateEditing(player.id, 'clubId', e.target.value)
+                    }
+                    style={{
+                      width: '100%',
+                      padding: '8px',
+                      borderRadius: '6px',
+                      border: '1px solid #E2E8F0',
+                      backgroundColor: 'white',
+                      color: 'inherit',
+                      fontSize: '14px',
+                    }}
+                  >
+                    <option value="">{t('selectClubPlaceholder')}</option>
+                    {clubs.map((club) => (
+                      <option key={club.id} value={club.id}>
+                        {club.name}
+                      </option>
+                    ))}
+                  </select>
+                </Box>
+              )}
+
               {/* Club Fee Info */}
               {editingData.isClubMember && editingData.clubId && (
                 <Box
