@@ -159,4 +159,31 @@ export const FeeService = {
 
     return FeeService.getFeeDisplayText(session.feeConfig);
   },
+
+  /**
+   * Get session fee for card display - always shows session fee (maleFee/femaleFee)
+   * Used in session cards, search results, etc.
+   */
+  getSessionFeeForCard: (session: Pick<ISession, 'feeConfig'>): string => {
+    return FeeService.getFeeDisplayText(session.feeConfig);
+  },
+
+  /**
+   * Get session fee for modal/detail - shows "Contact host" for club sessions
+   * Used in registration modals, detailed views where club fee context is important
+   */
+  getSessionFeeForModal: (
+    session: Pick<ISession, 'feeConfig' | 'clubId' | 'hostId'>,
+    viewerUserId?: string,
+    viewerClubIds?: Set<string>,
+    hiddenFeeText = 'Liên hệ host'
+  ): string => {
+    if (
+      !FeeService.canViewerSeeSessionFee(session, viewerUserId, viewerClubIds)
+    ) {
+      return hiddenFeeText;
+    }
+
+    return FeeService.getFeeDisplayText(session.feeConfig);
+  },
 };

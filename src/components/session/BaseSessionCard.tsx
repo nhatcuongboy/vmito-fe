@@ -216,16 +216,12 @@ const BaseSessionCard = ({
   const maxPlayers = session.numberOfCourts * session.maxPlayersPerCourt;
   const totalPlayers = session._count?.players || 0;
   const isFull = totalPlayers >= maxPlayers;
+  // For session cards, always show the session fee (not "Contact host")
+  const feeDisplayText = FeeService.getSessionFeeForCard(session);
   const canSeeSessionFee = FeeService.canViewerSeeSessionFee(
     session,
     user?.id,
     viewerClubIds
-  );
-  const feeDisplayText = FeeService.getSessionFeeDisplayText(
-    session,
-    user?.id,
-    viewerClubIds,
-    t('contactHostForFee')
   );
   // Crawled (vãng lai) Facebook sessions have no managed players — hide the
   // capacity / slot-ratio rows that only apply to internal sessions.

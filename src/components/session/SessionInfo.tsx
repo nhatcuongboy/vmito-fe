@@ -506,7 +506,8 @@ export default function SessionInfo({
     user?.id,
     viewerClubIds
   );
-  const feeDisplayText = FeeService.getSessionFeeDisplayText(
+  // For detail/modal views, show "Contact host" for club sessions
+  const feeDisplayText = FeeService.getSessionFeeForModal(
     session,
     user?.id,
     viewerClubIds,

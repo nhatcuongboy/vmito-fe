@@ -86,16 +86,26 @@ const FeeDetailPopover = ({ feeConfig }: IFeeDetailPopoverProps) => {
               borderRadius="full"
               borderWidth="1px"
               borderColor={isFixed ? 'green.200' : 'blue.200'}
+              _dark={{
+                bg: isFixed ? 'green.900/40' : 'blue.900/40',
+                borderColor: isFixed ? 'green.700' : 'blue.700',
+              }}
             >
               <Icon
                 as={isFixed ? CircleDollarSign : Calculator}
                 color={isFixed ? 'green.600' : 'blue.600'}
+                _dark={{
+                  color: isFixed ? 'green.300' : 'blue.300',
+                }}
                 boxSize={4}
               />
               <Text
                 fontSize="sm"
                 fontWeight="bold"
                 color={isFixed ? 'green.700' : 'blue.700'}
+                _dark={{
+                  color: isFixed ? 'green.200' : 'blue.200',
+                }}
                 textTransform="uppercase"
                 letterSpacing="wider"
               >
@@ -121,9 +131,16 @@ const FeeDetailPopover = ({ feeConfig }: IFeeDetailPopoverProps) => {
                 boxShadow="sm"
                 transition="transform 0.2s"
                 _hover={{ transform: 'translateY(-2px)', boxShadow: 'md' }}
+                _dark={{
+                  bg: 'blue.900/30',
+                  borderColor: 'blue.700',
+                }}
               >
                 <Flex
                   bg="blue.600"
+                  _dark={{
+                    bg: 'blue.500',
+                  }}
                   color="white"
                   p={2}
                   borderRadius="lg"
@@ -136,6 +153,9 @@ const FeeDetailPopover = ({ feeConfig }: IFeeDetailPopoverProps) => {
                   fontSize="xs"
                   fontWeight="bold"
                   color="blue.600"
+                  _dark={{
+                    color: 'blue.300',
+                  }}
                   textTransform="uppercase"
                 >
                   {t('maleFee')}
@@ -144,6 +164,9 @@ const FeeDetailPopover = ({ feeConfig }: IFeeDetailPopoverProps) => {
                   fontSize="lg"
                   fontWeight="extrabold"
                   color="blue.900"
+                  _dark={{
+                    color: 'blue.100',
+                  }}
                   mt={-1}
                 >
                   {formatCurrency(feeConfig.maleFee)}
@@ -162,9 +185,16 @@ const FeeDetailPopover = ({ feeConfig }: IFeeDetailPopoverProps) => {
                 boxShadow="sm"
                 transition="transform 0.2s"
                 _hover={{ transform: 'translateY(-2px)', boxShadow: 'md' }}
+                _dark={{
+                  bg: 'pink.900/30',
+                  borderColor: 'pink.700',
+                }}
               >
                 <Flex
                   bg="pink.500"
+                  _dark={{
+                    bg: 'pink.400',
+                  }}
                   color="white"
                   p={2}
                   borderRadius="lg"
@@ -177,6 +207,9 @@ const FeeDetailPopover = ({ feeConfig }: IFeeDetailPopoverProps) => {
                   fontSize="xs"
                   fontWeight="bold"
                   color="pink.600"
+                  _dark={{
+                    color: 'pink.300',
+                  }}
                   textTransform="uppercase"
                 >
                   {t('femaleFee')}
@@ -185,6 +218,9 @@ const FeeDetailPopover = ({ feeConfig }: IFeeDetailPopoverProps) => {
                   fontSize="lg"
                   fontWeight="extrabold"
                   color="pink.900"
+                  _dark={{
+                    color: 'pink.100',
+                  }}
                   mt={-1}
                 >
                   {formatCurrency(feeConfig.femaleFee)}
@@ -202,6 +238,11 @@ const FeeDetailPopover = ({ feeConfig }: IFeeDetailPopoverProps) => {
               bgGradient="linear(to-br, white, green.50)"
               position="relative"
               overflow="hidden"
+              _dark={{
+                bg: 'green.900/20',
+                borderColor: 'green.700',
+                bgGradient: 'linear(to-br, gray.800, green.900/30)',
+              }}
             >
               <Box
                 position="absolute"
@@ -215,6 +256,9 @@ const FeeDetailPopover = ({ feeConfig }: IFeeDetailPopoverProps) => {
               <HStack gap={4} position="relative" zIndex={1}>
                 <Flex
                   bg="green.500"
+                  _dark={{
+                    bg: 'green.600',
+                  }}
                   color="white"
                   boxSize="40px"
                   borderRadius="full"
@@ -228,6 +272,9 @@ const FeeDetailPopover = ({ feeConfig }: IFeeDetailPopoverProps) => {
                 <Text
                   fontSize="sm"
                   color="green.800"
+                  _dark={{
+                    color: 'green.200',
+                  }}
                   fontWeight="medium"
                   lineHeight="1.6"
                 >
@@ -247,12 +294,27 @@ const FeeDetailPopover = ({ feeConfig }: IFeeDetailPopoverProps) => {
               borderColor="gray.200"
               borderLeftWidth="4px"
               borderLeftColor="green.500"
+              _dark={{
+                bg: 'gray.800/50',
+                borderColor: 'gray.700',
+                borderLeftColor: 'green.400',
+              }}
             >
               <HStack mb={2} gap={2}>
-                <Icon as={NotebookText} boxSize={4} color="gray.500" />
+                <Icon
+                  as={NotebookText}
+                  boxSize={4}
+                  color="gray.500"
+                  _dark={{
+                    color: 'gray.400',
+                  }}
+                />
                 <Text
                   fontSize="xs"
                   color="gray.600"
+                  _dark={{
+                    color: 'gray.400',
+                  }}
                   fontWeight="bold"
                   textTransform="uppercase"
                   letterSpacing="tight"
@@ -263,6 +325,9 @@ const FeeDetailPopover = ({ feeConfig }: IFeeDetailPopoverProps) => {
               <Text
                 fontSize="sm"
                 color="gray.700"
+                _dark={{
+                  color: 'gray.300',
+                }}
                 lineHeight="tall"
                 fontWeight="medium"
               >
