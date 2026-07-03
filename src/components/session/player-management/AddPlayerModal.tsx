@@ -39,6 +39,7 @@ import { SearchableSelect } from '@/components/ui/SearchableSelect';
 import { useDebounce } from '@/hooks/useDebounce';
 import { Controller, useForm } from 'react-hook-form';
 import { z } from 'zod';
+import { ClubsService } from '@/lib/api/clubs.service';
 import { pickClubFee, useClubSessionFees } from './useClubSessionFees';
 
 const GENDER_OPTIONS = ['MALE', 'FEMALE'] as const;
@@ -88,7 +89,7 @@ interface AddPlayerModalProps {
   errors: { [key: string]: string };
   availableLevels: number[];
   isSaving: boolean;
-  session?: { id: string; startTime?: string | Date };
+  session?: { id: string; startTime?: string | Date; clubId?: string | null };
   onUpdatePlayer: (
     index: number,
     field: string,
@@ -146,6 +147,52 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
   const clubsWithFixedFee = clubs.filter(
     (club) => pickClubFee(feesByClubId[club.id]) !== null
   );
+
+  // Monthly fixed members of the session's club for the session month. Used
+  // to auto-assign that club when one of them is picked as a player.
+  const [monthlyMemberUserIds, setMonthlyMemberUserIds] = useState<Set<string>>(
+    new Set()
+  );
+
+  useEffect(() => {
+    if (!isOpen || !session?.clubId || !session?.startTime) return;
+
+    let cancelled = false;
+    const load = async () => {
+      try {
+        const date = new Date(session.startTime!);
+        const members = await ClubsService.getClubMonthlyMembers(
+          session.clubId!,
+          date.getFullYear(),
+          date.getMonth() + 1
+        );
+        if (cancelled) return;
+        setMonthlyMemberUserIds(new Set(members.map((m) => m.userId)));
+      } catch (error) {
+        console.error('Failed to fetch club monthly members:', error);
+      }
+    };
+
+    load();
+    return () => {
+      cancelled = true;
+    };
+  }, [isOpen, session?.clubId, session?.startTime]);
+
+  // When the picked user is a monthly fixed member of the session's club and
+  // that club has a fixed per-session fee, auto-assign the club for them.
+  const autoAssignSessionClub = (index: number, userId: string) => {
+    const sessionClubId = session?.clubId;
+    if (!userId || !sessionClubId) return;
+    if (isUserAlreadyUsed(userId, index)) return;
+    if (!monthlyMemberUserIds.has(userId)) return;
+    if (pickClubFee(feesByClubId[sessionClubId]) === null) return;
+
+    onUpdatePlayer(index, 'clubId', sessionClubId);
+    onUpdatePlayer(index, 'isClubMember', true);
+    setEnabledClubFees((prev) => ({ ...prev, [index]: true }));
+    setExpandedFeeConfigs((prev) => ({ ...prev, [index]: true }));
+  };
 
   const nameInputRefs = useRef<(HTMLInputElement | null)[]>([]);
   const prevPlayersLength = useRef(newPlayers.length);
@@ -221,6 +268,15 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
       reset({ players: newPlayers.map(toFormPlayer) });
     }
   }, [isOpen, newPlayers, reset]);
+
+  // Reset the club fixed-fee section state (per-row toggles) whenever the
+  // modal reopens, so a fresh session doesn't inherit stale on/off states.
+  useEffect(() => {
+    if (isOpen) {
+      setEnabledClubFees({});
+      setExpandedFeeConfigs({});
+    }
+  }, [isOpen]);
 
   // Whether the club fixed-fee section is enabled for a player
   const isClubFeeEnabled = (index: number, player: NewPlayer): boolean => {
@@ -354,6 +410,7 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
                           onChange={(val) => {
                             field.onChange(val);
                             onUserSelect(index, val);
+                            autoAssignSessionClub(index, val);
                           }}
                           options={availableUsers.map((user) => ({
                             value: user.id,
@@ -388,7 +445,7 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
                               field.ref(el);
                             }}
                             placeholder={t('enterPlayerName')}
-                            value={field.value}
+                            value={field.value ?? ''}
                             onChange={(
                               e: React.ChangeEvent<HTMLInputElement>
                             ) => {
@@ -439,7 +496,7 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
                         name={`players.${index}.gender`}
                         render={({ field }) => (
                           <select
-                            value={field.value}
+                            value={field.value ?? 'MALE'}
                             onChange={(
                               e: React.ChangeEvent<HTMLSelectElement>
                             ) => {
@@ -484,7 +541,7 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = ({
                         name={`players.${index}.level`}
                         render={({ field }) => (
                           <select
-                            value={field.value === null ? '' : field.value}
+                            value={field.value ?? ''}
                             onChange={(
                               e: React.ChangeEvent<HTMLSelectElement>
                             ) => {

@@ -27,6 +27,7 @@ interface SessionCardProps {
   variant?: ViewMode;
   showDownloadShareButtons?: boolean;
   forceViewSessionButton?: boolean;
+  onAddGuest?: (session: ISession) => void;
 }
 
 const SessionCard = ({
@@ -38,6 +39,7 @@ const SessionCard = ({
   variant = 'grid',
   showDownloadShareButtons = false,
   forceViewSessionButton = false,
+  onAddGuest,
 }: SessionCardProps) => {
   const t = useTranslations('session');
   const tCommon = useTranslations('common');
@@ -296,6 +298,14 @@ const SessionCard = ({
     // View registration button (for non-owners with registration)
     showViewRegistrationButton: !isOwner && !!session.players?.[0],
     onViewRegistration: onOpenViewRegistrationModal,
+    // Icon-only "Xem vé" button when the view-session button is forced off
+    // (e.g. the joined-sessions list), to match the compact icon style used
+    // alongside the view-session button elsewhere.
+    compactViewRegistrationButton: forceViewSessionButton,
+
+    // Add guest button (for non-owners with an existing registration)
+    showAddGuestButton: !isOwner && !!session.players?.[0] && !!onAddGuest,
+    onAddGuest: onAddGuest ? () => onAddGuest(session) : undefined,
 
     // Manage button (for owners or ADMIN)
     showManageButton: canManage && !forceViewSessionButton,

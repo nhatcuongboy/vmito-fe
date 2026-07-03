@@ -23,6 +23,12 @@ import { SessionSortBy, toApiSort } from '@/stores/useSessionFilterStore';
 import HostSessionsNavPanel from '@/components/session/HostSessionsNavPanel';
 import { StatusTabSwitch } from '@/components/session/StatusTabSwitch';
 import { useViewMode } from '@/hooks/useViewMode';
+import dynamic from 'next/dynamic';
+
+const JoinSessionModal = dynamic(
+  () => import('@/components/session/JoinSessionModal'),
+  { ssr: false }
+);
 
 const PLAYER_SORT_OPTIONS: SortOption[] = [
   { value: 'status', labelKey: 'sort.status' },
@@ -95,6 +101,14 @@ function PlayerSessionsContent() {
   });
 
   const [viewMode, setViewMode] = useViewMode('host-sessions-joined');
+  const [selectedSessionForGuest, setSelectedSessionForGuest] =
+    useState<ISession | null>(null);
+  const [isAddGuestModalOpen, setIsAddGuestModalOpen] = useState(false);
+
+  const handleAddGuestClick = (session: ISession) => {
+    setSelectedSessionForGuest(session);
+    setIsAddGuestModalOpen(true);
+  };
 
   const fetchPlayerSessions = async (isLoadMore = false) => {
     try {
@@ -309,6 +323,7 @@ function PlayerSessionsContent() {
             viewMode={viewMode}
             forceViewSessionButton={true}
             showDownloadShareButtons={true}
+            onAddGuest={handleAddGuestClick}
             emptyStateTitle={
               sessionStatusTab === 'active'
                 ? tSession('noActiveSessions')
@@ -348,6 +363,19 @@ function PlayerSessionsContent() {
           )}
         </Box>
       </Flex>
+
+      {selectedSessionForGuest && (
+        <JoinSessionModal
+          isOpen={isAddGuestModalOpen}
+          onClose={() => setIsAddGuestModalOpen(false)}
+          session={selectedSessionForGuest}
+          onSuccess={() => {
+            setIsAddGuestModalOpen(false);
+            fetchPlayerSessions();
+          }}
+          isAdditionalRegistration={true}
+        />
+      )}
     </PageLayout>
   );
 }

@@ -320,15 +320,11 @@ export function SessionPaymentSummary({
   totalExpenses = 0,
 }: SessionPaymentSummaryProps) {
   const t = useTranslations('payment');
-  const tFixed = useTranslations('clubs');
 
   const paymentsArray = useMemo(
     () => (Array.isArray(payments) ? payments : []),
     [payments]
   );
-  const fixedMemberCount = paymentsArray.filter(
-    (p) => p.player?.clubFeeApplied
-  ).length;
   const totalAmount = paymentsArray.reduce((sum, p) => sum + p.amount, 0);
   const approvedAmount = paymentsArray
     .filter((p) => p.status === PaymentStatus.APPROVED)
@@ -348,14 +344,6 @@ export function SessionPaymentSummary({
       <HStack justify="space-between" mb={3}>
         <Text fontWeight="semibold">{t('paymentSummary')}</Text>
         <HStack gap={2}>
-          {fixedMemberCount > 0 && (
-            <Badge colorPalette="teal">
-              <UserCheck size={12} />
-              <Text ml={1}>
-                {fixedMemberCount} {tFixed('monthlyFixedMember')}
-              </Text>
-            </Badge>
-          )}
           {session.feeConfig?.feeType === FeeType.SPLIT_EVENLY && (
             <Badge colorPalette="purple">{t('splitEvenly')}</Badge>
           )}
@@ -620,14 +608,14 @@ export default function SessionPaymentList({
           </Box>
         }
       >
-        <HStack gap={1} cursor="help" justify="flex-end">
-          <Text fontWeight="semibold" color="teal.600">
-            {FeeService.formatFeeExact(payment.amount)}
-          </Text>
-          <Badge colorPalette="teal" variant="subtle" fontSize="2xs" px={1}>
-            {groupName}
-          </Badge>
-        </HStack>
+        <Text
+          fontWeight="semibold"
+          color="teal.600"
+          cursor="help"
+          textAlign="right"
+        >
+          {FeeService.formatFeeExact(payment.amount)}
+        </Text>
       </VTooltip>
     );
   };

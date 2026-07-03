@@ -487,20 +487,36 @@ const BaseSessionCard = ({
       return (
         <Flex w={isCompact ? 'auto' : 'full'} justify="flex-end">
           <Flex gap={2} align="center">
-            <Button
-              colorPalette="green"
-              variant="subtle"
-              size="sm"
-              shadow="md"
-              loading={actions.isRegistrationLoading}
-              onClick={(e: React.MouseEvent) => {
-                e.stopPropagation();
-                actions.onViewRegistration?.();
-              }}
-            >
-              <Icon as={ClipboardList} boxSize={4} />
-              {t('viewMyRegistration')}
-            </Button>
+            {actions.compactViewRegistrationButton ? (
+              <IconButton
+                size="sm"
+                variant="subtle"
+                colorPalette="green"
+                aria-label={t('viewMyRegistration')}
+                shadow="md"
+                icon={<Icon as={ClipboardList} />}
+                loading={actions.isRegistrationLoading}
+                onClick={(e: React.MouseEvent) => {
+                  e.stopPropagation();
+                  actions.onViewRegistration?.();
+                }}
+              />
+            ) : (
+              <Button
+                colorPalette="green"
+                variant="subtle"
+                size="sm"
+                shadow="md"
+                loading={actions.isRegistrationLoading}
+                onClick={(e: React.MouseEvent) => {
+                  e.stopPropagation();
+                  actions.onViewRegistration?.();
+                }}
+              >
+                <Icon as={ClipboardList} boxSize={4} />
+                {t('viewMyRegistration')}
+              </Button>
+            )}
             {actions.showAddGuestButton && actions.onAddGuest && (
               <IconButton
                 size="sm"
@@ -1220,6 +1236,18 @@ const BaseSessionCard = ({
                                 /slot
                               </Text>
                             )}
+                          <Box
+                            position="relative"
+                            zIndex={3}
+                            onMouseEnter={() =>
+                              setIsMouseOverActionButton(true)
+                            }
+                            onMouseLeave={() =>
+                              setIsMouseOverActionButton(false)
+                            }
+                          >
+                            <FeeDetailPopover feeConfig={session.feeConfig} />
+                          </Box>
                         </Flex>
                       </Flex>
                     )}
@@ -1281,22 +1309,18 @@ const BaseSessionCard = ({
                                   /slot
                                 </Text>
                               )}
-                            {!isCompact && canSeeSessionFee && (
-                              <Box
-                                position="relative"
-                                zIndex={3}
-                                onMouseEnter={() =>
-                                  setIsMouseOverActionButton(true)
-                                }
-                                onMouseLeave={() =>
-                                  setIsMouseOverActionButton(false)
-                                }
-                              >
-                                <FeeDetailPopover
-                                  feeConfig={session.feeConfig}
-                                />
-                              </Box>
-                            )}
+                            <Box
+                              position="relative"
+                              zIndex={3}
+                              onMouseEnter={() =>
+                                setIsMouseOverActionButton(true)
+                              }
+                              onMouseLeave={() =>
+                                setIsMouseOverActionButton(false)
+                              }
+                            >
+                              <FeeDetailPopover feeConfig={session.feeConfig} />
+                            </Box>
                           </Flex>
                         </Flex>
                       )}

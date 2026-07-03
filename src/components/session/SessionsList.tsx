@@ -37,6 +37,8 @@ interface SessionsListProps {
   emptyStateTitle?: string;
   /** Custom empty state description - if not provided, will use default translation */
   emptyStateDescription?: string;
+  /** Show an "Add guest" button on cards where the user already has a registration */
+  onAddGuest?: (session: ISession) => void;
 }
 
 export default function SessionsList({
@@ -51,6 +53,7 @@ export default function SessionsList({
   forceViewSessionButton = false,
   emptyStateTitle,
   emptyStateDescription,
+  onAddGuest,
 }: SessionsListProps) {
   const [internalViewMode] = useViewMode('sessions');
   const viewMode = externalViewMode ?? internalViewMode;
@@ -219,6 +222,7 @@ export default function SessionsList({
                 }}
                 showDownloadShareButtons={showDownloadShareButtons}
                 forceViewSessionButton={forceViewSessionButton}
+                onAddGuest={onAddGuest}
               />
             ))}
           </Grid>

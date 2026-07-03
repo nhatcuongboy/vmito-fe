@@ -120,6 +120,13 @@ export interface SessionActionConfig {
   onViewRegistration?: () => void;
 
   /**
+   * Render the "View Registration" button as an icon-only button instead of
+   * a labeled button (matches the icon-only style used next to the
+   * "View Session" button elsewhere).
+   */
+  compactViewRegistrationButton?: boolean;
+
+  /**
    * Show register button (for non-registered users)
    * Can be disabled if session is full
    */
