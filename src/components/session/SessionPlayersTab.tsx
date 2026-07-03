@@ -441,6 +441,7 @@ const SessionPlayersTab: React.FC<SessionPlayersTabProps> = ({
         }
         availableLevels={availableLevels}
         isSaving={isSaving}
+        session={session}
         onUpdateEditing={updateEditingPlayer}
         onSave={handleSaveEditAndClose}
         clubs={fixedMemberGroups}

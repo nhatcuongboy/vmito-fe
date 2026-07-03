@@ -238,6 +238,7 @@ const PlayerManagement: React.FC<PlayerManagementProps> = ({
         }
         availableLevels={availableLevels}
         isSaving={isSaving}
+        session={session}
         onUpdateEditing={updateEditingPlayer}
         onSave={handleSaveEditAndClose}
         clubs={fixedMemberGroups}

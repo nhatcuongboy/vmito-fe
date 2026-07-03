@@ -1,15 +1,22 @@
 'use client';
 import { Input } from '@/components/ui/Input';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Badge, Box, Flex, Grid, Text, Textarea } from '@chakra-ui/react';
-import { HStack, VStack } from '@/components/ui/chakra-compat';
+import { HStack, VStack, Button } from '@/components/ui/chakra-compat';
 import { VModal } from '@/components/ui/VModal';
 import { useLevelLabel } from '@/hooks/useLevelLabel';
-import { Edit } from 'lucide-react';
+import {
+  Edit,
+  ChevronDown,
+  ChevronUp,
+  AlertCircle,
+  DollarSign,
+} from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Player } from './types';
-import { IClub } from '@/types/club';
+import { IClub, IClubFeeConfig } from '@/types/club';
+import { ClubsService } from '@/lib/api/clubs.service';
 
 interface EditPlayerModalProps {
   isOpen: boolean;
@@ -19,6 +26,7 @@ interface EditPlayerModalProps {
   clubs?: IClub[];
   availableLevels: number[];
   isSaving: boolean;
+  session?: { id: string; startTime?: string | Date }; // Add session prop
   onUpdateEditing: (
     playerId: string,
     field: string,
@@ -35,6 +43,7 @@ const EditPlayerModal: React.FC<EditPlayerModalProps> = ({
   availableLevels,
   clubs = [],
   isSaving,
+  session,
   onUpdateEditing,
   onSave,
 }) => {
@@ -42,7 +51,104 @@ const EditPlayerModal: React.FC<EditPlayerModalProps> = ({
   const tCommon = useTranslations('common');
   const { getLevelLabel } = useLevelLabel();
 
+  // Fee configuration state
+  const [isFeeConfigExpanded, setIsFeeConfigExpanded] = useState(false);
+  const [clubFeeConfig, setClubFeeConfig] = useState<IClubFeeConfig | null>(
+    null
+  );
+  const [isLoadingClubFee, setIsLoadingClubFee] = useState(false);
+  const [customFeeInput, setCustomFeeInput] = useState<string>('');
+
+  // Fetch club fee when club or gender changes
+  useEffect(() => {
+    if (!player || !editingData) return;
+
+    const fetchClubFee = async () => {
+      // Use non-null assertion since we've already checked above
+      if (!editingData!.clubId || !session?.startTime) {
+        setClubFeeConfig(null);
+        return;
+      }
+
+      setIsLoadingClubFee(true);
+      try {
+        const sessionDate = new Date(session.startTime);
+        const config = await ClubsService.getClubFeeForMonth(
+          editingData!.clubId,
+          sessionDate.getFullYear(),
+          sessionDate.getMonth() + 1
+        );
+        setClubFeeConfig(config);
+      } catch (error) {
+        console.error('Failed to fetch club fee:', error);
+        setClubFeeConfig(null);
+      } finally {
+        setIsLoadingClubFee(false);
+      }
+    };
+
+    if (editingData!.isClubMember && editingData!.clubId) {
+      fetchClubFee();
+    } else {
+      setClubFeeConfig(null);
+    }
+  }, [
+    editingData?.clubId,
+    editingData?.isClubMember,
+    editingData?.gender,
+    session?.startTime,
+    player,
+    editingData,
+  ]);
+
+  // Initialize customFeeInput from editingData
+  useEffect(() => {
+    if (!player || !editingData) return;
+    if (editingData.customFee !== null && editingData.customFee !== undefined) {
+      setCustomFeeInput(editingData.customFee.toString());
+    } else {
+      setCustomFeeInput('');
+    }
+  }, [editingData?.customFee, player?.id, player, editingData]);
+
+  // Early return after all hooks
   if (!player || !editingData) return null;
+
+  // Get club fee for current gender
+  const getClubFeeForGender = (): number | null => {
+    if (!clubFeeConfig) return null;
+    const gender = editingData.gender || 'MALE';
+    if (gender === 'FEMALE') {
+      return (
+        clubFeeConfig.femaleFeePerSession ??
+        clubFeeConfig.maleFeePerSession ??
+        null
+      );
+    }
+    return (
+      clubFeeConfig.maleFeePerSession ??
+      clubFeeConfig.femaleFeePerSession ??
+      null
+    );
+  };
+
+  const clubFee = getClubFeeForGender();
+
+  // Handle custom fee input change
+  const handleCustomFeeChange = (value: string) => {
+    setCustomFeeInput(value);
+    const numValue = value === '' ? null : parseInt(value, 10);
+    if (value === '' || !isNaN(numValue!)) {
+      onUpdateEditing(player.id, 'customFee', numValue);
+    }
+  };
+
+  // Copy club fee to custom fee
+  const handleCopyClubFee = () => {
+    if (clubFee !== null) {
+      handleCustomFeeChange(clubFee.toString());
+    }
+  };
 
   const handleSave = async () => {
     await onSave(player.id);
@@ -349,6 +455,121 @@ const EditPlayerModal: React.FC<EditPlayerModalProps> = ({
               </Box>
             )}
           </VStack>
+        </Box>
+
+        {/* Fee Configuration Section (Collapsible) */}
+        <Box
+          borderWidth="1px"
+          borderColor="gray.200"
+          borderRadius="md"
+          overflow="hidden"
+        >
+          <Button
+            onClick={() => setIsFeeConfigExpanded(!isFeeConfigExpanded)}
+            variant="ghost"
+            width="full"
+            justifyContent="space-between"
+            px={4}
+            py={3}
+            _hover={{ bg: 'gray.50' }}
+          >
+            <HStack gap={2}>
+              <DollarSign size={16} color="#179a3b" />
+              <Text fontSize="sm" fontWeight="semibold" color="gray.700">
+                {t('feeConfiguration')}
+              </Text>
+            </HStack>
+            {isFeeConfigExpanded ? (
+              <ChevronUp size={18} />
+            ) : (
+              <ChevronDown size={18} />
+            )}
+          </Button>
+
+          {isFeeConfigExpanded && (
+            <VStack align="stretch" gap={3} p={4} bg="gray.50">
+              {/* Club Fee Info */}
+              {editingData.isClubMember && editingData.clubId && (
+                <Box
+                  p={3}
+                  bg={clubFee ? 'green.50' : 'orange.50'}
+                  borderRadius="md"
+                  borderWidth="1px"
+                  borderColor={clubFee ? 'green.200' : 'orange.200'}
+                >
+                  {isLoadingClubFee ? (
+                    <Text fontSize="sm" color="gray.600">
+                      {t('loadingClubFee')}...
+                    </Text>
+                  ) : clubFee !== null ? (
+                    <VStack align="stretch" gap={2}>
+                      <HStack gap={2}>
+                        <Text
+                          fontSize="sm"
+                          fontWeight="semibold"
+                          color="green.700"
+                        >
+                          {t('clubFeeAvailable')}
+                        </Text>
+                        <Badge colorPalette="green" size="sm">
+                          {editingData.gender === 'FEMALE'
+                            ? t('female')
+                            : t('male')}
+                        </Badge>
+                      </HStack>
+                      <Text fontSize="lg" fontWeight="bold" color="green.700">
+                        {clubFee.toLocaleString('vi-VN')} ₫ / {t('session')}
+                      </Text>
+                      <Button
+                        size="xs"
+                        variant="outline"
+                        colorPalette="green"
+                        onClick={handleCopyClubFee}
+                        width="fit-content"
+                      >
+                        {t('applyClubFee')}
+                      </Button>
+                    </VStack>
+                  ) : (
+                    <HStack gap={2}>
+                      <AlertCircle size={16} color="#F97316" />
+                      <Text fontSize="sm" color="orange.700">
+                        {t('clubFeeNotConfigured')}
+                      </Text>
+                    </HStack>
+                  )}
+                </Box>
+              )}
+
+              {/* Custom Fee Input */}
+              <Box>
+                <Text fontSize="sm" mb={1} color="gray.700" fontWeight="medium">
+                  {t('customFeeForThisSession')}
+                </Text>
+                <HStack>
+                  <Input
+                    type="number"
+                    value={customFeeInput}
+                    onChange={(e) => handleCustomFeeChange(e.target.value)}
+                    placeholder={t('customFeePlaceholder')}
+                    size="md"
+                    bg="white"
+                  />
+                  <Text
+                    fontSize="sm"
+                    color="gray.500"
+                    fontWeight="medium"
+                    minW="fit-content"
+                  >
+                    VNĐ
+                  </Text>
+                </HStack>
+                <Text fontSize="xs" color="gray.500" mt={1}>
+                  💡 {t('customFeeHint')}
+                </Text>
+              </Box>
+            </VStack>
+          )}
         </Box>
       </VStack>
     </VModal>
