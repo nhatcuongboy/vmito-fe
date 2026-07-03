@@ -54,6 +54,7 @@ interface ISessionDetailStickyBarProps {
   isOwner: boolean;
   onRegister: () => void;
   onViewRegistration: () => void;
+  onAddGuest?: () => void;
   displayMode?: 'mobile' | 'sidebar';
   maxPlayers?: number;
   approvedPlayersCount?: number;
@@ -67,6 +68,7 @@ const SessionDetailStickyBar = ({
   isOwner,
   onRegister,
   onViewRegistration,
+  onAddGuest,
   displayMode = 'mobile',
   maxPlayers = 0,
   approvedPlayersCount = 0,
@@ -238,19 +240,34 @@ const SessionDetailStickyBar = ({
     if (userRegistrationStatus === 'APPROVED') {
       const viewHref = `/player/sessions/${session.slug || session.id}`;
       return (
-        <NextLinkButton
-          href={viewHref}
-          colorPalette="green"
-          variant="solid"
-          size={buttonSize}
-          w={buttonW}
-          fontWeight="semibold"
-          borderRadius={buttonRadius}
-          loading={isRegistrationLoading}
-        >
-          <Icon as={LogIn} boxSize={4} />
-          {t('viewSession')}
-        </NextLinkButton>
+        <Flex gap={2} w={buttonW}>
+          <NextLinkButton
+            href={viewHref}
+            colorPalette="green"
+            variant="solid"
+            size={buttonSize}
+            flex={1}
+            fontWeight="semibold"
+            borderRadius={buttonRadius}
+            loading={isRegistrationLoading}
+          >
+            <Icon as={LogIn} boxSize={4} />
+            {t('viewSession')}
+          </NextLinkButton>
+          {onAddGuest && (
+            <IconButton
+              aria-label={t('addGuest')}
+              variant="outline"
+              colorPalette="green"
+              size={buttonSize}
+              borderRadius={buttonRadius}
+              onClick={onAddGuest}
+              disabled={isFull}
+            >
+              <Icon as={UserPlus} boxSize={5} />
+            </IconButton>
+          )}
+        </Flex>
       );
     }
 
@@ -259,19 +276,34 @@ const SessionDetailStickyBar = ({
       userRegistrationStatus === 'REJECTED'
     ) {
       return (
-        <Button
-          colorPalette="green"
-          variant="subtle"
-          size={buttonSize}
-          w={buttonW}
-          fontWeight="semibold"
-          borderRadius={buttonRadius}
-          loading={isRegistrationLoading}
-          onClick={onViewRegistration}
-        >
-          <Icon as={ClipboardList} boxSize={4} />
-          {t('viewMyRegistration')}
-        </Button>
+        <Flex gap={2} w={buttonW}>
+          <Button
+            colorPalette="green"
+            variant="subtle"
+            size={buttonSize}
+            flex={1}
+            fontWeight="semibold"
+            borderRadius={buttonRadius}
+            loading={isRegistrationLoading}
+            onClick={onViewRegistration}
+          >
+            <Icon as={ClipboardList} boxSize={4} />
+            {t('viewMyRegistration')}
+          </Button>
+          {onAddGuest && (
+            <IconButton
+              aria-label={t('addGuest')}
+              variant="outline"
+              colorPalette="green"
+              size={buttonSize}
+              borderRadius={buttonRadius}
+              onClick={onAddGuest}
+              disabled={isFull}
+            >
+              <Icon as={UserPlus} boxSize={5} />
+            </IconButton>
+          )}
+        </Flex>
       );
     }
 

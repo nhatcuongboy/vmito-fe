@@ -11,6 +11,7 @@ interface JoinSessionModalProps {
   onClose: () => void;
   session: ISession;
   onSuccess?: () => void;
+  isAdditionalRegistration?: boolean;
 }
 
 export default function JoinSessionModal({
@@ -18,6 +19,7 @@ export default function JoinSessionModal({
   onClose,
   session,
   onSuccess,
+  isAdditionalRegistration,
 }: JoinSessionModalProps) {
   const t = useTranslations('session');
   const tCommon = useTranslations('common');
@@ -33,17 +35,22 @@ export default function JoinSessionModal({
   } = useJoinSession({
     session,
     isOpen,
+    isAdditionalRegistration,
     onSuccess: () => {
       onSuccess?.();
       onClose();
     },
   });
 
+  const modalTitle = isAdditionalRegistration
+    ? `${t('addGuest')}: ${session.name}`
+    : `${t('joinSession')}: ${session.name}`;
+
   return (
     <VModal
       isOpen={isOpen}
       onClose={onClose}
-      title={`${t('joinSession')}: ${session.name}`}
+      title={modalTitle}
       primaryActionText={`${t('submitRegistration')} (${players.length})`}
       onPrimaryAction={handleSubmit}
       isPrimaryLoading={loading}

@@ -57,6 +57,9 @@ export const PublicSessionDetailContent = ({
   >(null);
   const [isRegistrationLoading, setIsRegistrationLoading] = useState(!!user);
 
+  const [isAdditionalRegistration, setIsAdditionalRegistration] =
+    useState(false);
+
   const {
     isOpen: isLoginModalOpen,
     onOpen: onOpenLoginModal,
@@ -111,6 +114,7 @@ export const PublicSessionDetailContent = ({
 
   useEffect(() => {
     if (defaultOpenRegister && user && session && !loading) {
+      setIsAdditionalRegistration(false);
       onOpenJoinModal();
 
       // Clear search params
@@ -189,6 +193,16 @@ export const PublicSessionDetailContent = ({
       onOpenLoginModal();
       return;
     }
+    setIsAdditionalRegistration(false);
+    onOpenJoinModal();
+  };
+
+  const handleAddGuest = () => {
+    if (!user) {
+      onOpenLoginModal();
+      return;
+    }
+    setIsAdditionalRegistration(true);
     onOpenJoinModal();
   };
 
@@ -308,6 +322,7 @@ export const PublicSessionDetailContent = ({
                 isOwner={isOwner}
                 onRegister={handleRegister}
                 onViewRegistration={onOpenViewRegistrationModal}
+                onAddGuest={handleAddGuest}
                 displayMode="sidebar"
                 maxPlayers={maxPlayers}
                 approvedPlayersCount={approvedPlayersCount}
@@ -344,6 +359,7 @@ export const PublicSessionDetailContent = ({
           isOwner={isOwner}
           onRegister={handleRegister}
           onViewRegistration={onOpenViewRegistrationModal}
+          onAddGuest={handleAddGuest}
         />
       </Portal>
 
@@ -359,6 +375,7 @@ export const PublicSessionDetailContent = ({
         onClose={onCloseJoinModal}
         session={session}
         onSuccess={refreshData}
+        isAdditionalRegistration={isAdditionalRegistration}
       />
 
       <MyRegistrationModal
