@@ -10,6 +10,7 @@ import {
 export interface InputProps extends ChakraInputProps {
   leftElement?: React.ReactNode;
   rightElement?: React.ReactNode;
+  isDisabled?: boolean;
 }
 
 /**
@@ -18,7 +19,15 @@ export interface InputProps extends ChakraInputProps {
  */
 const Input = React.forwardRef<HTMLInputElement, InputProps>(
   (
-    { variant = 'outline', size = 'md', leftElement, rightElement, ...props },
+    {
+      variant = 'outline',
+      size = 'md',
+      leftElement,
+      rightElement,
+      isDisabled,
+      disabled,
+      ...props
+    },
     ref
   ) => {
     const isNumber = props.type === 'number';
@@ -27,6 +36,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
       variant,
       size,
       ref,
+      disabled: disabled ?? isDisabled,
       ...props,
       _focusVisible: {
         borderColor: 'brand.500',

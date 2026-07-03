@@ -286,19 +286,6 @@ export const PlayerGrid = ({
                         <User size={12} />
                       )}
                     </Badge>
-                    {player.isClubMember && (
-                      <Badge
-                        variant="solid"
-                        colorPalette="teal"
-                        fontSize="xs"
-                        borderRadius="sm"
-                        px={1}
-                        title={player.club?.name}
-                        flexShrink={0}
-                      >
-                        <UserCheck size={10} />
-                      </Badge>
-                    )}
                   </Flex>
                   <Text
                     fontSize="xs"

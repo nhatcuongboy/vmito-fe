@@ -1,5 +1,6 @@
 import { toaster } from '@/components/ui/toaster';
 import { PlayerService } from '@/lib/api/player.service';
+import { FeeService } from '@/lib/api/fee.service';
 import { LEVELS } from '@/constants/levels';
 import { UserOption, UserService } from '@/lib/api/user.service';
 import { useTranslations } from 'next-intl';
@@ -335,11 +336,30 @@ export const usePlayerManagement = (
         throw new Error('No player data to update');
       }
 
-      await PlayerService.updatePlayerBySession(
-        session.id,
-        playerId,
-        playerToUpdate as Player
+      const originalPlayer = session.players?.find(
+        (player: Player) => player.id === playerId
       );
+      const shouldRecalculatePayments = originalPlayer
+        ? originalPlayer.clubId !== playerToUpdate.clubId ||
+          Boolean(originalPlayer.isClubMember) !==
+            Boolean(playerToUpdate.isClubMember) ||
+          originalPlayer.gender !== playerToUpdate.gender
+        : Boolean(playerToUpdate.clubId || playerToUpdate.isClubMember);
+
+      const { customFee, ...playerUpdatePayload } = playerToUpdate;
+
+      await PlayerService.updatePlayerBySession(session.id, playerId, {
+        ...playerUpdatePayload,
+        customFee: customFee ?? null,
+      });
+
+      if (shouldRecalculatePayments) {
+        try {
+          await FeeService.recalculateAllPayments(session.id);
+        } catch (recalculateError) {
+          console.error('Failed to recalculate payments:', recalculateError);
+        }
+      }
 
       setEditingPlayers((prev) => {
         const newState = { ...prev };
