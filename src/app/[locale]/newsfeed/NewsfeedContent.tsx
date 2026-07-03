@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { Plus, RefreshCcw } from 'lucide-react';
 import PageLayout from '@/components/layout/PageLayout';
 import { useTranslations } from 'next-intl';
-import { Box, VStack, Text } from '@chakra-ui/react';
+import { Box, VStack, Text, Flex } from '@chakra-ui/react';
 import AppEmptyState from '@/components/ui/AppEmptyState';
 import LoadingSpinner from '@/components/ui/loading-spinner';
 import { Button } from '@/components/ui/chakra-compat';
@@ -89,28 +89,63 @@ export default function NewsfeedContent() {
           bg={{ base: 'white', _dark: 'gray.800' }}
           borderWidth="1px"
           borderColor={{ base: 'gray.200', _dark: 'whiteAlpha.200' }}
-          borderRadius="xl"
+          borderRadius="2xl"
           p={{ base: 3, md: 4 }}
           mb={4}
           boxShadow="sm"
         >
-          <div className="flex items-center gap-3">
+          <Flex align="center" gap={3}>
             <PostAvatar
               name={authorName}
               image={currentUser?.image}
               size={44}
             />
-            <button
-              type="button"
+            <Box
+              role="button"
+              tabIndex={0}
               onClick={() => setIsCreateOpen(true)}
-              className="group flex h-11 min-w-0 flex-1 items-center rounded-full bg-gray-100 pl-6 pr-4 text-left transition hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 dark:bg-gray-700 dark:hover:bg-gray-600"
+              display="flex"
+              h={11}
+              minW={0}
+              flex={1}
+              alignItems="center"
+              borderRadius="full"
+              bg="gray.100"
+              _dark={{ bg: 'gray.700', _hover: { bg: 'gray.600' } }}
+              pl={6}
+              pr={4}
+              textAlign="left"
+              transition="all 0.2s"
+              _hover={{ bg: 'gray.200' }}
+              _focus={{ outline: 'none' }}
+              _focusVisible={{
+                outline: 'none',
+                ring: 2,
+                ringColor: 'green.500',
+                ringOffset: 2,
+              }}
               aria-label={t('createPost')}
+              className="group"
             >
-              <span className="min-w-0 truncate text-base text-gray-500 transition group-hover:text-gray-600 dark:text-gray-300 dark:group-hover:text-white">
+              <Text
+                as="span"
+                minW={0}
+                truncate
+                fontSize="md"
+                color="gray.500"
+                _dark={{
+                  color: 'gray.300',
+                  '.group:hover &': { color: 'white' },
+                }}
+                css={{
+                  '.group:hover &': { color: 'var(--chakra-colors-gray-600)' },
+                }}
+                transition="color 0.2s"
+              >
                 {t('composerPlaceholderWithName', { name: firstName })}
-              </span>
-            </button>
-          </div>
+              </Text>
+            </Box>
+          </Flex>
         </Box>
 
         {isLoading ? (
@@ -142,7 +177,7 @@ export default function NewsfeedContent() {
             }
           />
         ) : (
-          <VStack gap={4} align="stretch">
+          <VStack gap={5} align="stretch">
             {posts.map((post) => (
               <PostCard
                 key={post.id}

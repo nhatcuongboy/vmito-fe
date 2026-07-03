@@ -168,7 +168,7 @@ export function CreatePostModal({
       footer={footer}
     >
       {activePanel === 'composer' ? (
-        <Box display="flex" flexDirection="column" gap={4}>
+        <Box display="flex" flexDirection="column" gap={6}>
           <Flex align="center" gap={3}>
             <PostAvatar
               name={authorName}
@@ -195,10 +195,10 @@ export function CreatePostModal({
             minH={{ base: '150px', md: '190px' }}
             resize="none"
             borderWidth={0}
-            px={0}
-            py={1}
-            bg="transparent"
-            fontSize={{ base: '2xl', md: '3xl' }}
+            p={4}
+            bg={{ base: 'gray.50', _dark: 'whiteAlpha.100' }}
+            borderRadius="xl"
+            fontSize={{ base: 'xl', md: '2xl' }}
             lineHeight="short"
             color={{ base: 'gray.900', _dark: 'gray.50' }}
             _placeholder={{ color: { base: 'gray.500', _dark: 'gray.400' } }}

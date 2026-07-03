@@ -21,6 +21,7 @@ import { postsService } from '@/lib/api/posts.service';
 import { toaster } from '@/components/ui/toaster';
 import VModal from '@/components/ui/VModal';
 import { normalizeImageUrl } from '@/lib/images/normalizeImageUrl';
+import { Box, Flex } from '@chakra-ui/react';
 
 const localeMap: Record<string, Locale> = { vi, en: enUS, cn: zhCN };
 
@@ -195,22 +196,39 @@ export function PostCard({ post, onPostUpdate, currentUserId }: PostCardProps) {
   };
 
   const actionButtonBase =
-    'flex flex-1 items-center justify-center gap-2 rounded-md py-2.5 text-[15px] font-medium transition active:scale-[0.98] hover:bg-gray-100 dark:hover:bg-white/5';
+    'flex flex-1 items-center justify-center gap-2 rounded-lg py-2.5 text-[15px] font-medium transition-colors active:scale-[0.98] hover:bg-gray-100 dark:hover:bg-white/5';
 
   return (
-    <article className="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm dark:border-white/10 dark:bg-gray-800 dark:shadow-none">
+    <Box
+      as="article"
+      bg={{ base: 'white', _dark: 'gray.800' }}
+      borderRadius="2xl"
+      borderWidth="1px"
+      borderColor={{ base: 'gray.200', _dark: 'whiteAlpha.200' }}
+      overflow="hidden"
+      boxShadow="sm"
+    >
       {/* Shared post indicator */}
       {localPost.originalPost && (
-        <div className="flex items-center gap-1.5 px-4 pt-3 text-[13px] font-medium text-gray-500 dark:text-gray-400">
+        <Flex
+          align="center"
+          gap={1.5}
+          px={4}
+          pt={3}
+          fontSize="13px"
+          fontWeight="medium"
+          color="gray.500"
+          _dark={{ color: 'gray.400' }}
+        >
           <Share2 size={14} className="shrink-0 text-green-600" />
-          <span className="truncate">
+          <Box as="span" truncate>
             {t('sharedFrom', { name: localPost.originalPost.author.name })}
-          </span>
-        </div>
+          </Box>
+        </Flex>
       )}
 
       {/* Header */}
-      <header className="flex items-start gap-3 px-4 pt-3">
+      <Flex as="header" align="flex-start" gap={3} px={4} pt={4}>
         <PostAvatar
           name={localPost.author.name}
           image={localPost.author.image}
@@ -261,67 +279,89 @@ export function PostCard({ post, onPostUpdate, currentUserId }: PostCardProps) {
             )}
           </div>
         )}
-      </header>
+      </Flex>
 
       {/* Content */}
       {localPost.content && (
-        <div className="whitespace-pre-wrap px-4 pt-2 text-[15px] leading-6 text-gray-800 dark:text-gray-100">
+        <Box
+          px={4}
+          pt={2.5}
+          whiteSpace="pre-wrap"
+          fontSize="15px"
+          lineHeight="relaxed"
+          color="gray.800"
+          _dark={{ color: 'gray.100' }}
+        >
           {extractHashtags(localPost.content)}
-        </div>
+        </Box>
       )}
 
       {/* Location */}
       {localPost.location && (
-        <div className="px-4 pt-2">
+        <Box px={4} pt={2.5}>
           <span className="inline-flex max-w-full items-center gap-1.5 rounded-full bg-red-50 px-3 py-1 text-[13px] font-medium text-red-700 dark:bg-red-950/30 dark:text-red-200">
             <MapPin size={13} className="shrink-0" />
             <span className="truncate">{localPost.location.name}</span>
           </span>
-        </div>
+        </Box>
       )}
 
       {/* Images — full width */}
       {postImages.length > 0 && (
-        <div
-          className={`mt-3 grid overflow-hidden bg-gray-100 dark:bg-gray-900 ${
-            postImages.length === 1
-              ? 'grid-cols-1'
-              : 'grid-cols-2 gap-0.5 sm:auto-rows-fr'
-          }`}
-        >
-          {postImages.map((img, index) => (
-            <PostMediaImage
-              key={img.id}
-              src={img.url}
-              alt={t('postImage', { index: index + 1 })}
-              className={getImageClassName(index)}
-            />
-          ))}
-        </div>
+        <Box mt={3.5}>
+          <div
+            className={`grid overflow-hidden bg-gray-100 dark:bg-gray-900 ${
+              postImages.length === 1
+                ? 'grid-cols-1'
+                : 'grid-cols-2 gap-0.5 sm:auto-rows-fr'
+            }`}
+          >
+            {postImages.map((img, index) => (
+              <PostMediaImage
+                key={img.id}
+                src={img.url}
+                alt={t('postImage', { index: index + 1 })}
+                className={getImageClassName(index)}
+              />
+            ))}
+          </div>
+        </Box>
       )}
 
       {/* Original post (for shares) */}
       {localPost.originalPost && (
-        <div className="mx-4 mt-3 rounded-lg border border-gray-200 bg-gray-50 p-3 dark:border-white/10 dark:bg-gray-700/50">
-          <div className="mb-2 flex items-center gap-2">
-            <PostAvatar
-              name={localPost.originalPost.author.name}
-              image={localPost.originalPost.author.image}
-              size={32}
-            />
-            <span className="truncate text-sm font-semibold text-gray-900 dark:text-gray-50">
-              {localPost.originalPost.author.name}
-            </span>
+        <Box mx={4} mt={3}>
+          <div className="rounded-lg border border-gray-200 bg-gray-50 p-3 dark:border-white/10 dark:bg-gray-700/50">
+            <div className="mb-2 flex items-center gap-2">
+              <PostAvatar
+                name={localPost.originalPost.author.name}
+                image={localPost.originalPost.author.image}
+                size={32}
+              />
+              <span className="truncate text-sm font-semibold text-gray-900 dark:text-gray-50">
+                {localPost.originalPost.author.name}
+              </span>
+            </div>
+            <div className="whitespace-pre-wrap text-sm leading-6 text-gray-700 dark:text-gray-200">
+              {localPost.originalPost.content}
+            </div>
           </div>
-          <div className="whitespace-pre-wrap text-sm leading-6 text-gray-700 dark:text-gray-200">
-            {localPost.originalPost.content}
-          </div>
-        </div>
+        </Box>
       )}
 
       {/* Engagement counts */}
       {hasEngagement && (
-        <div className="flex items-center justify-between gap-2 px-4 pb-2 pt-3 text-sm text-gray-500 dark:text-gray-400">
+        <Flex
+          align="center"
+          justify="space-between"
+          gap={2}
+          px={4}
+          pb={2.5}
+          pt={3.5}
+          fontSize="sm"
+          color="gray.500"
+          _dark={{ color: 'gray.400' }}
+        >
           <div className="flex min-w-0 items-center gap-1.5">
             {postCounts.likes > 0 && (
               <>
@@ -351,12 +391,17 @@ export function PostCard({ post, onPostUpdate, currentUserId }: PostCardProps) {
               </span>
             )}
           </div>
-        </div>
+        </Flex>
       )}
 
       {/* Action bar */}
-      <div className="mx-4 border-t border-gray-200 dark:border-white/10" />
-      <div className="flex items-center gap-1 px-2 py-1">
+      <Box
+        mx={4}
+        borderTopWidth="1px"
+        borderColor="gray.100"
+        _dark={{ borderColor: 'whiteAlpha.100' }}
+      />
+      <Flex align="center" gap={1} px={2} py={1.5} pb={2}>
         <button
           onClick={handleLike}
           aria-label={localPost.isLiked ? t('unlikePost') : t('likePost')}
@@ -389,7 +434,7 @@ export function PostCard({ post, onPostUpdate, currentUserId }: PostCardProps) {
           <Share2 size={18} />
           {t('share')}
         </button>
-      </div>
+      </Flex>
 
       {/* Comment Section */}
       {showComments && (
@@ -417,6 +462,6 @@ export function PostCard({ post, onPostUpdate, currentUserId }: PostCardProps) {
           {t('deleteConfirmDescription')}
         </p>
       </VModal>
-    </article>
+    </Box>
   );
 }
