@@ -18,9 +18,21 @@ import { toaster } from '@/components/ui/toaster';
 import { Field } from '@/components/ui/Field';
 import LoadingSpinner from '@/components/ui/loading-spinner';
 import PageLayout from '@/components/layout/PageLayout';
-import { useForm } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
+
+const formatAmountDisplay = (raw: string): string => {
+  const stripped = raw.replace(/[^\d]/g, '');
+  if (!stripped) return '';
+  const num = parseInt(stripped, 10);
+  if (isNaN(num)) return raw;
+  return num.toLocaleString('vi-VN');
+};
+
+const parseAmountInput = (input: string): string => {
+  return input.replace(/[^\d]/g, '');
+};
 
 const feeSchema = z
   .string()
@@ -46,7 +58,7 @@ const ClubFeesPage = () => {
   const [saving, setSaving] = useState(false);
 
   const {
-    register,
+    control,
     handleSubmit,
     reset,
     formState: { errors },
@@ -227,10 +239,20 @@ const ClubFeesPage = () => {
                         : undefined
                     }
                   >
-                    <Input
-                      type="number"
-                      placeholder="0"
-                      {...register('maleFeeMonthly')}
+                    <Controller
+                      name="maleFeeMonthly"
+                      control={control}
+                      render={({ field }) => (
+                        <Input
+                          type="text"
+                          inputMode="numeric"
+                          placeholder="0"
+                          value={formatAmountDisplay(field.value)}
+                          onChange={(e) =>
+                            field.onChange(parseAmountInput(e.target.value))
+                          }
+                        />
+                      )}
                     />
                   </Field>
                   <Field
@@ -243,10 +265,20 @@ const ClubFeesPage = () => {
                         : undefined
                     }
                   >
-                    <Input
-                      type="number"
-                      placeholder="0"
-                      {...register('femaleFeeMonthly')}
+                    <Controller
+                      name="femaleFeeMonthly"
+                      control={control}
+                      render={({ field }) => (
+                        <Input
+                          type="text"
+                          inputMode="numeric"
+                          placeholder="0"
+                          value={formatAmountDisplay(field.value)}
+                          onChange={(e) =>
+                            field.onChange(parseAmountInput(e.target.value))
+                          }
+                        />
+                      )}
                     />
                   </Field>
                 </SimpleGrid>
@@ -272,10 +304,20 @@ const ClubFeesPage = () => {
                         : undefined
                     }
                   >
-                    <Input
-                      type="number"
-                      placeholder="0"
-                      {...register('maleFeePerSession')}
+                    <Controller
+                      name="maleFeePerSession"
+                      control={control}
+                      render={({ field }) => (
+                        <Input
+                          type="text"
+                          inputMode="numeric"
+                          placeholder="0"
+                          value={formatAmountDisplay(field.value)}
+                          onChange={(e) =>
+                            field.onChange(parseAmountInput(e.target.value))
+                          }
+                        />
+                      )}
                     />
                   </Field>
                   <Field
@@ -288,10 +330,20 @@ const ClubFeesPage = () => {
                         : undefined
                     }
                   >
-                    <Input
-                      type="number"
-                      placeholder="0"
-                      {...register('femaleFeePerSession')}
+                    <Controller
+                      name="femaleFeePerSession"
+                      control={control}
+                      render={({ field }) => (
+                        <Input
+                          type="text"
+                          inputMode="numeric"
+                          placeholder="0"
+                          value={formatAmountDisplay(field.value)}
+                          onChange={(e) =>
+                            field.onChange(parseAmountInput(e.target.value))
+                          }
+                        />
+                      )}
                     />
                   </Field>
                 </SimpleGrid>
