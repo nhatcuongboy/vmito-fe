@@ -4456,6 +4456,7 @@
       "playerFallback": "Player {number}",
       "matchEndedSuccessfully": "Match ended successfully",
       "preSelectNext": "Pre-select Next",
+      "displayModeLabel": "Display",
       "cancelPreSelect": "Cancel Pre-select",
       "confirmCancelPreSelectTitle": "Confirm Cancel Pre-select",
       "confirmCancelPreSelectMessage": "Are you sure you want to cancel pre-selecting players for the next match?",

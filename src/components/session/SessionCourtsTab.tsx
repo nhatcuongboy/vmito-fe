@@ -6,7 +6,7 @@ import {
   SuggestedPlayersResponse,
 } from '@/lib/api/types';
 import { Court, Match, Player } from '@/types/session';
-import { Box, Text } from '@chakra-ui/react';
+import { Box, Flex, Text } from '@chakra-ui/react';
 import { useTranslations } from 'next-intl';
 import React from 'react';
 import { createCourtElapsedTimeFormatter } from '@/utils/time-helpers';
@@ -19,6 +19,7 @@ import { useCourtsTabModals } from '@/hooks/useCourtsTabModals';
 import { useCourtsTabActions } from '@/hooks/useCourtsTabActions';
 import { SessionCourtsTabSkeleton } from './SessionTabSkeletons';
 import { SessionService } from '@/lib/api/session.service';
+import CourtDisplayModeSwitch from '@/components/court/CourtDisplayModeSwitch';
 
 interface SessionCourtsTabProps {
   session: ISession;
@@ -222,7 +223,11 @@ const SessionCourtsTab: React.FC<SessionCourtsTabProps> = ({
           </Text>
         )}
         <Box>
-          <SimpleGrid columns={{ base: 1, md: 2 }} gap={6} mt={4} p={1}>
+          {/* Display Mode Switch */}
+          <Flex justify="flex-end" mt={2} px={1}>
+            <CourtDisplayModeSwitch />
+          </Flex>
+          <SimpleGrid columns={{ base: 1, md: 2 }} gap={6} mt={2} p={1}>
             {(session.courts ?? []).map((court: Court) => {
               const currentMatch = getCurrentMatch(court.id);
               return (

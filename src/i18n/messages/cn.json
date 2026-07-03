@@ -4416,6 +4416,7 @@
       "playerFallback": "玩家 {number}",
       "matchEndedSuccessfully": "比赛已成功结束",
       "preSelectNext": "预选下一场",
+      "displayModeLabel": "显示",
       "cancelPreSelect": "取消预选",
       "confirmCancelPreSelectTitle": "确认取消预选",
       "confirmCancelPreSelectMessage": "您确定要取消预选下一场比赛的选手吗？",

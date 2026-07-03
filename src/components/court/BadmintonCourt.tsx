@@ -683,7 +683,6 @@ export default function BadmintonCourt({
               />
             )
           )}
-      )
       {isLoading && (
         <Box
           position="absolute"

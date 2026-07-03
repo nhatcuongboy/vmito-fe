@@ -4470,6 +4470,7 @@
       "playerFallback": "Người chơi {number}",
       "matchEndedSuccessfully": "Trận đấu đã kết thúc thành công",
       "preSelectNext": "Chọn trước trận tiếp theo",
+      "displayModeLabel": "Hiển thị",
       "cancelPreSelect": "Hủy chọn trước",
       "confirmCancelPreSelectTitle": "Xác nhận hủy chọn trước",
       "confirmCancelPreSelectMessage": "Bạn có chắc chắn muốn hủy chọn trước các người chơi cho trận tiếp theo không?",
