@@ -66,17 +66,43 @@ export default function CitySelector() {
         ref={buttonRef}
         align="center"
         gap={1}
-        px={1.5}
+        px={{ base: 1.5, md: 2.5 }}
         py={1}
         borderRadius="full"
-        color={isOpen ? 'fg' : 'fg.muted'}
-        bg={isOpen ? 'bg.muted' : 'transparent'}
+        borderWidth={{ base: '0px', md: '1px' }}
+        borderColor={{
+          base: 'transparent',
+          md: isOpen ? 'green.400' : 'green.300',
+        }}
+        bg={{
+          base: isOpen ? 'bg.muted' : 'transparent',
+          md: isOpen ? 'green.100' : 'green.50',
+        }}
+        color={{
+          base: isOpen ? 'fg' : 'fg.muted',
+          md: isOpen ? 'green.800' : 'green.700',
+        }}
         _dark={{
-          color: isOpen ? 'fg' : 'fg.muted',
-          bg: isOpen ? 'bg.muted' : 'transparent',
+          borderColor: isOpen ? 'green.500' : 'green.700',
+          bg: {
+            base: isOpen ? 'bg.muted' : 'transparent',
+            md: isOpen ? 'green.900' : 'green.950',
+          },
+          color: {
+            base: isOpen ? 'fg' : 'fg.muted',
+            md: isOpen ? 'green.200' : 'green.300',
+          },
         }}
         cursor="pointer"
-        _hover={{ bg: 'bg.muted', color: 'fg' }}
+        _hover={{
+          borderColor: { base: 'transparent', md: 'green.400' },
+          bg: { base: 'bg.muted', md: 'green.100' },
+          color: { base: 'fg', md: 'green.700' },
+          _dark: {
+            borderColor: 'green.500',
+            bg: { base: 'bg.muted', md: 'green.900' },
+          },
+        }}
         onClick={handleToggle}
         userSelect="none"
         transition="all 0.15s"
