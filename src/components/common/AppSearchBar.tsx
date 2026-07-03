@@ -32,7 +32,10 @@ export function AppSearchBar({
     else if (hasClear || showFilter) desktopPadding = 48;
 
     let mobilePadding = desktopPadding;
-    if (showCitySelector) mobilePadding += 90;
+    if (showCitySelector) {
+      // City selector + clear button both go to the left of filter
+      mobilePadding = showFilter ? 178 : 146;
+    }
 
     return { base: `${mobilePadding}px`, md: `${desktopPadding}px` };
   };
@@ -92,10 +95,36 @@ export function AppSearchBar({
         transition="background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease"
       />
 
+      {showCitySelector && (
+        <Box
+          position="absolute"
+          right={{
+            base: showFilter ? '56px' : '24px',
+            md: '24px', // Doesn't matter, hidden on md
+          }}
+          top="50%"
+          transform="translateY(-50%)"
+          zIndex={1}
+          display={{ base: 'block', md: 'none' }}
+        >
+          <CitySelector />
+        </Box>
+      )}
+
       {hasClear && (
         <Box
           position="absolute"
-          right={showFilter ? '56px' : '24px'}
+          right={{
+            base:
+              showFilter && showCitySelector
+                ? '146px'
+                : showFilter
+                  ? '56px'
+                  : showCitySelector
+                    ? '114px'
+                    : '24px',
+            md: showFilter ? '56px' : '24px',
+          }}
           top="50%"
           transform="translateY(-50%)"
           zIndex={1}
@@ -169,27 +198,6 @@ export function AppSearchBar({
               </Badge>
             )}
           </Flex>
-        </Box>
-      )}
-
-      {showCitySelector && (
-        <Box
-          position="absolute"
-          right={{
-            base:
-              showFilter && hasClear
-                ? '88px'
-                : showFilter || hasClear
-                  ? '56px'
-                  : '24px',
-            md: '24px', // Doesn't matter, hidden on md
-          }}
-          top="50%"
-          transform="translateY(-50%)"
-          zIndex={1}
-          display={{ base: 'block', md: 'none' }}
-        >
-          <CitySelector />
         </Box>
       )}
     </Box>

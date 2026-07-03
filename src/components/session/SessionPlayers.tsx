@@ -726,7 +726,7 @@ const SessionPlayers: React.FC<SessionPlayersProps> = ({
           _dark={{ bg: 'gray.800' }}
           pt={3}
           px={8}
-          pb={2}
+          pb={5}
         >
           <VStack align="stretch" gap={2}>
             <Box borderBottom="2px solid" borderColor="green.100" pb={2}>
