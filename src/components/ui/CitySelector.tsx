@@ -66,35 +66,22 @@ export default function CitySelector() {
         ref={buttonRef}
         align="center"
         gap={1}
-        /* Mobile: icon-only pill; desktop: wider pill with text */
-        px={{ base: 1.5, md: 2.5 }}
+        px={1.5}
         py={1}
         borderRadius="full"
-        border="1px solid"
-        borderColor={isOpen ? 'green.400' : 'green.300'}
-        bg={isOpen ? 'green.100' : 'green.50'}
+        color={isOpen ? 'fg' : 'fg.muted'}
+        bg={isOpen ? 'bg.muted' : 'transparent'}
         _dark={{
-          borderColor: isOpen ? 'green.500' : 'green.700',
-          bg: isOpen ? 'green.900' : 'green.950',
+          color: isOpen ? 'fg' : 'fg.muted',
+          bg: isOpen ? 'bg.muted' : 'transparent',
         }}
         cursor="pointer"
-        _hover={{
-          borderColor: 'green.400',
-          bg: 'green.100',
-          _dark: { borderColor: 'green.500', bg: 'green.900' },
-        }}
+        _hover={{ bg: 'bg.muted', color: 'fg' }}
         onClick={handleToggle}
         userSelect="none"
         transition="all 0.15s"
       >
-        <MapPin
-          size={15}
-          color={
-            isOpen
-              ? 'var(--chakra-colors-green-700)'
-              : 'var(--chakra-colors-green-600)'
-          }
-        />
+        <MapPin size={15} />
 
         {/* Short text for mobile */}
         <Text
@@ -105,8 +92,6 @@ export default function CitySelector() {
           overflow="hidden"
           whiteSpace="nowrap"
           textOverflow="ellipsis"
-          color={isOpen ? 'green.800' : 'green.700'}
-          _dark={{ color: isOpen ? 'green.200' : 'green.300' }}
         >
           {selectedCity?.shortName ?? selectedCity?.name ?? 'Chọn TP'}
         </Text>
@@ -120,19 +105,12 @@ export default function CitySelector() {
           overflow="hidden"
           whiteSpace="nowrap"
           textOverflow="ellipsis"
-          color={isOpen ? 'green.800' : 'green.700'}
-          _dark={{ color: isOpen ? 'green.200' : 'green.300' }}
         >
           {selectedCity?.name ?? 'Chọn thành phố'}
         </Text>
         <Box display="block">
           <ChevronDown
             size={12}
-            color={
-              isOpen
-                ? 'var(--chakra-colors-green-600)'
-                : 'var(--chakra-colors-green-500)'
-            }
             style={{
               transition: 'transform 0.2s',
               transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)',

@@ -294,10 +294,7 @@ const SessionCard = ({
     isStartEndLoading,
 
     // View registration button (for non-owners with registration)
-    showViewRegistrationButton:
-      !isOwner &&
-      !!session.players?.[0] &&
-      session.players[0].registrationStatus !== 'APPROVED',
+    showViewRegistrationButton: !isOwner && !!session.players?.[0],
     onViewRegistration: onOpenViewRegistrationModal,
 
     // Manage button (for owners or ADMIN)

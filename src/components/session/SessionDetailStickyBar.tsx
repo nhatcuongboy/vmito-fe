@@ -237,6 +237,16 @@ const SessionDetailStickyBar = ({
             <Icon as={LogIn} boxSize={4} />
             {t('viewSession')}
           </NextLinkButton>
+          <IconButton
+            aria-label={t('viewMyRegistration')}
+            variant="outline"
+            colorPalette="green"
+            size={buttonSize}
+            borderRadius={buttonRadius}
+            onClick={onViewRegistration}
+          >
+            <Icon as={ClipboardList} boxSize={4} />
+          </IconButton>
           {onAddGuest && (
             <IconButton
               aria-label={t('addGuest')}

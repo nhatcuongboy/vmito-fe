@@ -543,6 +543,21 @@ const BaseSessionCard = ({
               <Icon as={LogIn} boxSize={4} />
               {t('viewSession')}
             </NextLinkButton>
+            {actions.showViewRegistrationButton &&
+              actions.onViewRegistration && (
+                <IconButton
+                  size="sm"
+                  variant="outline"
+                  colorPalette="green"
+                  aria-label={t('viewMyRegistration')}
+                  shadow="md"
+                  icon={<Icon as={ClipboardList} />}
+                  onClick={(e: React.MouseEvent) => {
+                    e.stopPropagation();
+                    actions.onViewRegistration?.();
+                  }}
+                />
+              )}
             {actions.showAddGuestButton && actions.onAddGuest && (
               <IconButton
                 size="sm"

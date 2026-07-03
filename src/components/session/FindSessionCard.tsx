@@ -321,10 +321,7 @@ const FindSessionCard = ({
         // Priority: APPROVED > PENDING/REJECTED > No registration
         showViewSessionButton:
           !canManage && userRegistrationStatus === 'APPROVED',
-        showViewRegistrationButton:
-          !canManage &&
-          !!userRegistrationStatus &&
-          userRegistrationStatus !== 'APPROVED',
+        showViewRegistrationButton: !canManage && !!userRegistrationStatus,
         onViewRegistration: onOpenViewRegistrationModal,
         showAddGuestButton:
           !canManage &&

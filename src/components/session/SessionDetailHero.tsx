@@ -283,7 +283,6 @@ const SessionDetailHero = ({
         </Badge>
       ) : (
         <Flex position="absolute" bottom={5} left={3} gap={1} zIndex={100}>
-          {approvedBadge}
           <Badge
             colorPalette={isClosed || isFull ? 'gray' : 'teal'}
             variant="solid"
@@ -302,6 +301,7 @@ const SessionDetailHero = ({
                 ? t('slotsFull')
                 : t('slotsAvailable', { count: availableSlots })}
           </Badge>
+          {approvedBadge}
         </Flex>
       )}
 
@@ -311,7 +311,6 @@ const SessionDetailHero = ({
         bottom={5}
         right={3}
         colorPalette={statusColorPalette}
-        variant="solid"
         fontSize="sm"
         px={3}
         py={1}
