@@ -45,6 +45,25 @@ export default function SessionSearchBar({
 
   return (
     <>
+      {hideOnDesktop && topAddon && (
+        <Box
+          display={{ base: 'none', md: 'block' }}
+          position="sticky"
+          top={`calc(${TOP_BAR_HEIGHT_DESKTOP}px + env(safe-area-inset-top))`}
+          left={0}
+          right={0}
+          width="100vw"
+          marginLeft="calc(50% - 50vw)"
+          zIndex={100}
+          bg="transparent"
+          pb={2}
+        >
+          <Box maxW="1280px" mx="auto">
+            {topAddon}
+          </Box>
+        </Box>
+      )}
+
       {/* Sticky Area: Search (Mobile/Desktop) */}
       <Box
         position={{ base: fixedOnMobile ? 'fixed' : 'sticky', md: 'sticky' }}
