@@ -1455,7 +1455,6 @@
         "deleteFailed": "删除锦标赛失败"
       },
       "allTournaments": "所有锦标赛",
-      "createTournament": "创建锦标赛",
       "createSample": "创建示例",
       "creating": "正在创建...",
       "sampleCreatedSuccess": "示例锦标赛创建成功！",
@@ -5400,6 +5399,8 @@
     },
     "clubDetails": "俱乐部详情",
     "clubMembers": "俱乐部成员",
+    "showingMembers": "显示 {visible}/{total} 名成员",
+    "viewMoreMembers": "查看更多成员",
     "recentAnnouncements": "最新公告",
     "noAnnouncements": "暂无公告",
     "noDescription": "暂无描述",

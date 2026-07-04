@@ -152,6 +152,7 @@ export default function ClubDetailClient({
   const [isJoining, setIsJoining] = useState(false);
   const [hasPendingRequest, setHasPendingRequest] = useState(false);
   const [isHostDetailModalOpen, setIsHostDetailModalOpen] = useState(false);
+  const [visibleMembersCount, setVisibleMembersCount] = useState(8);
 
   const loadClubDetails = useCallback(async () => {
     try {
@@ -180,6 +181,10 @@ export default function ClubDetailClient({
       loadClubDetails();
     }
   }, [clubId, loadClubDetails, initialClub]);
+
+  useEffect(() => {
+    setVisibleMembersCount(8);
+  }, [clubId]);
 
   // Hiển thị đầy đủ các trình độ đã chọn
   const getLevelRange = () => {
@@ -258,6 +263,13 @@ export default function ClubDetailClient({
     } finally {
       setIsJoining(false);
     }
+  };
+
+  const visibleMembers = club?.members?.slice(0, visibleMembersCount) ?? [];
+  const hasMoreMembers = (club?.members?.length ?? 0) > visibleMembersCount;
+
+  const handleOpenUserProfile = (userId: string) => {
+    router.push(ROUTES.USER.PROFILE(userId));
   };
 
   if (isLoading) {
@@ -590,76 +602,106 @@ export default function ClubDetailClient({
                   borderColor="gray.100"
                   shadow="sm"
                 >
-                  <Flex justify="space-between" align="center" mb={5}>
+                  <Flex justify="space-between" align="center" mb={2}>
                     <Heading size="md">{t('clubs.clubMembers')}</Heading>
                     <Badge colorPalette="gray" size="sm">
                       {club.memberCount} {t('clubs.members')}
                     </Badge>
                   </Flex>
+                  <Text fontSize="sm" color="gray.500" mb={5}>
+                    {t('clubs.showingMembers', {
+                      visible: visibleMembers.length,
+                      total: club.memberCount,
+                    })}
+                  </Text>
 
-                  {club.members && club.members.length > 0 ? (
-                    <SimpleGrid columns={{ base: 1, md: 2 }} gap={3}>
-                      {club.members.map((member) => (
-                        <Flex
-                          key={member.id}
-                          p={4}
-                          bg="gray.50"
-                          borderRadius="2xl"
-                          borderWidth="1px"
-                          borderColor="gray.100"
-                          _dark={{ bg: 'gray.900', borderColor: 'gray.700' }}
-                          align="center"
-                          gap={3}
-                          transition="all 0.2s"
-                          _hover={{
-                            bg: 'gray.100',
-                            _dark: { bg: 'gray.800' },
-                            shadow: 'sm',
-                          }}
-                        >
-                          <Avatar.Root size="lg">
-                            <Avatar.Image
-                              src={member.user.image}
-                              objectFit="cover"
-                            />
-                            <Avatar.Fallback>
-                              {member.user.name[0]}
-                            </Avatar.Fallback>
-                          </Avatar.Root>
-                          <Box flex="1" minW={0}>
-                            <Text
-                              fontWeight="semibold"
-                              fontSize="sm"
-                              lineClamp={1}
-                            >
-                              {member.user.name}
-                            </Text>
-                            <HStack gap={2} mt={1}>
-                              <Badge
-                                size="xs"
-                                colorPalette={
-                                  member.role === EMemberRole.ADMIN
-                                    ? 'orange'
-                                    : member.role === EMemberRole.MODERATOR
-                                      ? 'blue'
-                                      : 'gray'
-                                }
-                                variant="subtle"
+                  {visibleMembers.length > 0 ? (
+                    <>
+                      <SimpleGrid columns={{ base: 1, md: 2 }} gap={3}>
+                        {visibleMembers.map((member) => (
+                          <Flex
+                            key={member.id}
+                            p={4}
+                            bg="gray.50"
+                            borderRadius="2xl"
+                            borderWidth="1px"
+                            borderColor="gray.100"
+                            _dark={{ bg: 'gray.900', borderColor: 'gray.700' }}
+                            align="center"
+                            gap={3}
+                            transition="all 0.2s"
+                            cursor="pointer"
+                            onClick={() =>
+                              handleOpenUserProfile(member.user.id)
+                            }
+                            _hover={{
+                              bg: 'gray.100',
+                              _dark: { bg: 'gray.800' },
+                              shadow: 'sm',
+                            }}
+                          >
+                            <Avatar.Root size="lg">
+                              <Avatar.Image
+                                src={member.user.image}
+                                objectFit="cover"
+                              />
+                              <Avatar.Fallback>
+                                {member.user.name[0]}
+                              </Avatar.Fallback>
+                            </Avatar.Root>
+                            <Box flex="1" minW={0}>
+                              <Text
+                                fontWeight="semibold"
+                                fontSize="sm"
+                                lineClamp={1}
                               >
-                                {t(
-                                  `clubs.memberRole.${member.role.toLowerCase() as 'admin' | 'moderator' | 'member'}`
+                                {member.user.name}
+                              </Text>
+                              <HStack gap={2} mt={1}>
+                                <Badge
+                                  size="xs"
+                                  colorPalette={
+                                    member.role === EMemberRole.ADMIN
+                                      ? 'orange'
+                                      : member.role === EMemberRole.MODERATOR
+                                        ? 'blue'
+                                        : 'gray'
+                                  }
+                                  variant="subtle"
+                                >
+                                  {t(
+                                    `clubs.memberRole.${member.role.toLowerCase() as 'admin' | 'moderator' | 'member'}`
+                                  )}
+                                </Badge>
+                                {member.user.level && (
+                                  <Text fontSize="xs" color="gray.500">
+                                    {getLevelLabel(member.user.level)}
+                                  </Text>
                                 )}
-                              </Badge>
-                              {member.user.level && (
-                                <Text fontSize="xs" color="gray.500">
-                                  {getLevelLabel(member.user.level)}
-                                </Text>
-                              )}
-                            </HStack>
-                          </Box>
+                              </HStack>
+                            </Box>
+                            <ExternalLink
+                              size={14}
+                              color="var(--chakra-colors-gray-400)"
+                            />
+                          </Flex>
+                        ))}
+                      </SimpleGrid>
+                      {hasMoreMembers && (
+                        <Flex justify="center" mt={4}>
+                          <Button
+                            variant="outline"
+                            colorPalette="green"
+                            size="sm"
+                            onClick={() =>
+                              setVisibleMembersCount((prev) => prev + 8)
+                            }
+                          >
+                            {t('clubs.viewMoreMembers')}
+                          </Button>
                         </Flex>
-                      ))}
-                    </SimpleGrid>
+                      )}
+                    </>
                   ) : (
                     <Flex
                       direction="column"
