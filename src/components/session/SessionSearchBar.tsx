@@ -4,9 +4,8 @@ import { TOP_BAR_HEIGHT_MOBILE, TOP_BAR_HEIGHT_DESKTOP } from '@/constants';
 import { Box, Flex, Icon } from '@chakra-ui/react';
 import { Sparkles } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { useEffect, useRef, useState } from 'react';
 import { SessionSearchBarProps } from './SessionSearchBar.types';
-import { AppSearchBar } from '../common/AppSearchBar';
+import { DebouncedAppSearchBar } from '../common/DebouncedAppSearchBar';
 import { Button } from '../ui/chakra-compat';
 
 export default function SessionSearchBar({
@@ -24,33 +23,6 @@ export default function SessionSearchBar({
   showCitySelector = false,
 }: SessionSearchBarProps) {
   const t = useTranslations('session');
-
-  // Local input value — updates immediately for snappy typing feel
-  const [localValue, setLocalValue] = useState(searchQuery);
-  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  // Tracks the last value we pushed out via the debounced onSearchChange so we
-  // can tell our own URL echo apart from a genuinely external change.
-  const lastEmittedRef = useRef(searchQuery);
-
-  // Sync external value into local state ONLY when it changed from something
-  // other than our own debounced emit (e.g. clear button, filter reset,
-  // back/forward navigation). Syncing on our own URL echo would clobber the
-  // characters typed while the (slow) navigation was still in flight.
-  useEffect(() => {
-    if (searchQuery !== lastEmittedRef.current) {
-      lastEmittedRef.current = searchQuery;
-      setLocalValue(searchQuery);
-    }
-  }, [searchQuery]);
-
-  const handleChange = (val: string) => {
-    setLocalValue(val);
-    if (timerRef.current) clearTimeout(timerRef.current);
-    timerRef.current = setTimeout(() => {
-      lastEmittedRef.current = val;
-      onSearchChange(val);
-    }, 400);
-  };
 
   const createBtn = onCreateClick && (
     <Button
@@ -113,9 +85,9 @@ export default function SessionSearchBar({
           )}
           <Flex align="center" gap={2} w="100%" maxW="650px" mx="auto">
             <Box flex={1} w="100%">
-              <AppSearchBar
-                value={localValue}
-                onChange={handleChange}
+              <DebouncedAppSearchBar
+                value={searchQuery}
+                onChange={onSearchChange}
                 placeholder={t('searchPlaceholder')}
                 onFilterClick={onToggleFilters}
                 activeFilterCount={activeFilterCount}

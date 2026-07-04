@@ -29,7 +29,7 @@ import AiAssistantTopBarButton from './AiAssistantTopBarButton';
 import { useAiAssistantVisibility } from '@/hooks/useAiAssistantVisibility';
 import CitySelector from './CitySelector';
 import { useTopBarSearch } from '@/contexts/TopBarSearchContext';
-import { AppSearchBar } from '@/components/common/AppSearchBar';
+import { DebouncedAppSearchBar } from '@/components/common/DebouncedAppSearchBar';
 
 interface TopBarProps {
   showBackButton?: boolean;
@@ -88,9 +88,11 @@ export default function TopBar({
   const showAiAssistant = useAiAssistantVisibility();
   const { searchConfig, callbacksRef } = useTopBarSearch();
 
-  // Context search config takes priority; construct AppSearchBar. Fall back to prop.
+  // Context search config takes priority; construct the search bar. Fall back to
+  // prop. Uses the debounced variant so typing stays snappy and doesn't lose
+  // characters while the onChange side effect (URL navigation) is in flight.
   const resolvedDesktopSearch = searchConfig ? (
-    <AppSearchBar
+    <DebouncedAppSearchBar
       value={searchConfig.value}
       onChange={(val) => callbacksRef.current?.onChange(val)}
       placeholder={searchConfig.placeholder}

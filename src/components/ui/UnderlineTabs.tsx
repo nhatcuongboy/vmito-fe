@@ -71,7 +71,7 @@ export function UnderlineTabs({
               fontSize="sm"
               mb="-1px"
             >
-              <Text>{tab.label}</Text>
+              <Text as="span">{tab.label}</Text>
               {tab.badge !== undefined && tab.badge !== null && (
                 <Badge
                   ml={1.5}
