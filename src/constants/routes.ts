@@ -150,6 +150,7 @@ export const ROUTES = {
     GENERAL: '/admin/general',
     LEVEL_DESCRIPTIONS: '/admin/level-descriptions',
     VENUES: '/admin/venues',
+    VENUE_REQUESTS: '/admin/venues/requests',
     CLUBS: '/admin/clubs/pending',
   },
 

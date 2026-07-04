@@ -24,6 +24,7 @@ import {
   LuCreditCard,
   LuUserCheck,
   LuUsers,
+  LuMapPin,
 } from 'react-icons/lu';
 import { FaBell } from 'react-icons/fa6';
 import {
@@ -40,8 +41,13 @@ import {
   NotificationType,
   INotification,
   PendingRequest,
+  UserRole,
+  VenueRequest,
+  VenueRequestStatus,
 } from '@/lib/api/types';
 import { PlayerService } from '@/lib/api/player.service';
+import { ClubsService } from '@/lib/api/clubs.service';
+import { VenueRequestService } from '@/lib/api/venue-request.service';
 import { formatDistanceToNow } from 'date-fns';
 import { vi, enUS, zhCN } from 'date-fns/locale';
 import { useParams } from 'next/navigation';
@@ -53,6 +59,12 @@ import { getNotificationDisplayText } from '@/lib/notifications/content';
 import { getNotificationTargetRoute } from '@/lib/notifications/routing';
 import { ROUTES } from '@/constants/routes';
 import { formatTimeByDevicePreference } from '@/utils/time-helpers';
+import {
+  EJoinRequestStatus,
+  EMemberRole,
+  IClubJoinRequest,
+  IMyClub,
+} from '@/types/club';
 
 interface NotificationBellProps {
   color?: string;
@@ -62,13 +74,22 @@ interface NotificationBellProps {
 type TUnifiedItem =
   | { kind: 'notification'; data: INotification; timestamp: number }
   | {
-      kind: 'approval';
+      kind: 'sessionApproval';
       data: PendingRequest;
       allSlots: PendingRequest[];
       timestamp: number;
-    };
+    }
+  | { kind: 'clubJoinRequest'; data: IClubJoinRequest; timestamp: number }
+  | { kind: 'venueRequest'; data: VenueRequest; timestamp: number };
 
 const PANEL_CACHE_TTL_MS = 30_000;
+
+const formatBadgeCount = (count: number) => (count > 99 ? '99+' : count);
+
+const isManagedClub = (club: IMyClub, userId?: string) =>
+  club.role === EMemberRole.ADMIN ||
+  club.role === EMemberRole.MODERATOR ||
+  club.host?.id === userId;
 
 const getNotificationIcon = (type: NotificationType) => {
   switch (type) {
@@ -99,13 +120,24 @@ export default function NotificationBell({
 
   const [isOpen, setIsOpen] = useState(false);
   const [pendingRequests, setPendingRequests] = useState<PendingRequest[]>([]);
+  const [clubJoinRequests, setClubJoinRequests] = useState<IClubJoinRequest[]>(
+    []
+  );
+  const [venueRequests, setVenueRequests] = useState<VenueRequest[]>([]);
   const [isPendingLoading, setIsPendingLoading] = useState(false);
+  const [isClubRequestsLoading, setIsClubRequestsLoading] = useState(false);
+  const [isVenueRequestsLoading, setIsVenueRequestsLoading] = useState(false);
   const [pendingActionLoading, setPendingActionLoading] = useState<
     string | null
   >(null);
+  const [clubActionLoading, setClubActionLoading] = useState<string | null>(
+    null
+  );
   const [pendingCount, setPendingCount] = useState(0);
   const [isMarkingAll, setIsMarkingAll] = useState(false);
   const pendingRequestsFetchedAtRef = useRef<number | null>(null);
+  const clubJoinRequestsFetchedAtRef = useRef<number | null>(null);
+  const venueRequestsFetchedAtRef = useRef<number | null>(null);
 
   const {
     notifications,
@@ -145,14 +177,98 @@ export default function NotificationBell({
     [pendingRequests.length]
   );
 
+  const fetchClubJoinRequests = useCallback(
+    async ({ force = false }: { force?: boolean } = {}) => {
+      const hasCachedRequests = clubJoinRequests.length > 0;
+      const lastFetchedAt = clubJoinRequestsFetchedAtRef.current;
+      const isCacheFresh =
+        !!lastFetchedAt && Date.now() - lastFetchedAt < PANEL_CACHE_TTL_MS;
+
+      if (!force && isCacheFresh) {
+        return;
+      }
+
+      setIsClubRequestsLoading(!lastFetchedAt && !hasCachedRequests);
+
+      try {
+        const requests =
+          user?.role === UserRole.ADMIN
+            ? await ClubsService.getAdminJoinRequests()
+            : await (async () => {
+                const clubs = await ClubsService.getMyClubs();
+                const managedClubs = clubs.filter((club) =>
+                  isManagedClub(club, user?.id)
+                );
+
+                if (managedClubs.length === 0) return [];
+
+                const results = await Promise.all(
+                  managedClubs.map((club) =>
+                    ClubsService.getJoinRequests(club.id)
+                  )
+                );
+
+                return results.flat();
+              })();
+
+        setClubJoinRequests(
+          requests.filter(
+            (request) => request.status === EJoinRequestStatus.PENDING
+          )
+        );
+        clubJoinRequestsFetchedAtRef.current = Date.now();
+      } catch (error) {
+        console.error('Failed to fetch club join requests:', error);
+      } finally {
+        setIsClubRequestsLoading(false);
+      }
+    },
+    [clubJoinRequests.length, user?.id, user?.role]
+  );
+
+  const fetchVenueRequests = useCallback(
+    async ({ force = false }: { force?: boolean } = {}) => {
+      if (user?.role !== UserRole.ADMIN) {
+        setVenueRequests([]);
+        return;
+      }
+
+      const hasCachedRequests = venueRequests.length > 0;
+      const lastFetchedAt = venueRequestsFetchedAtRef.current;
+      const isCacheFresh =
+        !!lastFetchedAt && Date.now() - lastFetchedAt < PANEL_CACHE_TTL_MS;
+
+      if (!force && isCacheFresh) {
+        return;
+      }
+
+      setIsVenueRequestsLoading(!lastFetchedAt && !hasCachedRequests);
+
+      try {
+        const requests = await VenueRequestService.getAdmin({
+          status: VenueRequestStatus.PENDING,
+        });
+        setVenueRequests(requests);
+        venueRequestsFetchedAtRef.current = Date.now();
+      } catch (error) {
+        console.error('Failed to fetch venue requests:', error);
+      } finally {
+        setIsVenueRequestsLoading(false);
+      }
+    },
+    [user?.role, venueRequests.length]
+  );
+
   useEffect(() => {
     if (user) {
       fetchUnreadCount();
       PlayerService.getPendingRequestsCount()
         .then((count) => setPendingCount(count))
         .catch(() => {});
+      fetchClubJoinRequests();
+      fetchVenueRequests();
     }
-  }, [user, fetchUnreadCount]);
+  }, [fetchClubJoinRequests, fetchUnreadCount, fetchVenueRequests, user]);
 
   const handleOpenChange = (open: boolean) => {
     setIsOpen(open);
@@ -160,6 +276,8 @@ export default function NotificationBell({
       fetchNotifications(true);
       fetchUnreadCount();
       fetchPendingRequests();
+      fetchClubJoinRequests();
+      fetchVenueRequests();
     }
   };
 
@@ -189,17 +307,33 @@ export default function NotificationBell({
     }
     for (const group of groups.values()) {
       items.push({
-        kind: 'approval',
+        kind: 'sessionApproval',
         data: group[0],
         allSlots: group,
         timestamp: new Date(group[0].session.startTime).getTime(),
       });
     }
 
+    for (const request of clubJoinRequests) {
+      items.push({
+        kind: 'clubJoinRequest',
+        data: request,
+        timestamp: new Date(request.createdAt).getTime(),
+      });
+    }
+
+    for (const request of venueRequests) {
+      items.push({
+        kind: 'venueRequest',
+        data: request,
+        timestamp: new Date(request.createdAt).getTime(),
+      });
+    }
+
     // Sort by timestamp descending (newest first)
     items.sort((a, b) => b.timestamp - a.timestamp);
     return items;
-  }, [notifications, pendingRequests]);
+  }, [clubJoinRequests, notifications, pendingRequests, venueRequests]);
 
   const handleNotificationClick = (notification: INotification) => {
     if (!notification.isRead) {
@@ -269,6 +403,46 @@ export default function NotificationBell({
     }
   };
 
+  const handleClubJoinRequestClick = (request: IClubJoinRequest) => {
+    setIsOpen(false);
+    router.push(ROUTES.HOST.CLUBS.MEMBERS(request.clubId));
+  };
+
+  const handleClubJoinRequestAction = async (
+    e: React.MouseEvent,
+    request: IClubJoinRequest,
+    status: 'APPROVED' | 'REJECTED'
+  ) => {
+    e.stopPropagation();
+
+    try {
+      setClubActionLoading(request.id);
+      if (status === 'APPROVED') {
+        await ClubsService.approveJoinRequest(request.clubId, request.id);
+      } else {
+        await ClubsService.rejectJoinRequest(request.clubId, request.id);
+      }
+
+      setClubJoinRequests((prev) =>
+        prev.filter((item) => item.id !== request.id)
+      );
+      clubJoinRequestsFetchedAtRef.current = Date.now();
+      toaster.success({
+        title: status === 'APPROVED' ? t('approveSuccess') : t('rejectSuccess'),
+      });
+    } catch (error) {
+      console.error('Failed to update club join request:', error);
+      toaster.error({ title: t('approvalActionFailed') });
+    } finally {
+      setClubActionLoading(null);
+    }
+  };
+
+  const handleVenueRequestClick = () => {
+    setIsOpen(false);
+    router.push(ROUTES.ADMIN.VENUE_REQUESTS);
+  };
+
   const formatTimeAgo = (dateString: string) => {
     try {
       return formatDistanceToNow(new Date(dateString), {
@@ -288,12 +462,19 @@ export default function NotificationBell({
 
   if (!user) return null;
 
-  const totalBadgeCount = unreadCount + pendingCount;
+  const totalBadgeCount =
+    unreadCount + pendingCount + clubJoinRequests.length + venueRequests.length;
+  const isPanelLoading =
+    isLoading ||
+    isPendingLoading ||
+    isClubRequestsLoading ||
+    isVenueRequestsLoading;
   const isEmpty =
     notifications.length === 0 &&
     pendingRequests.length === 0 &&
-    !isPendingLoading &&
-    !isLoading;
+    clubJoinRequests.length === 0 &&
+    venueRequests.length === 0 &&
+    !isPanelLoading;
 
   return (
     <PopoverRoot
@@ -358,7 +539,7 @@ export default function NotificationBell({
               px={1}
               pointerEvents="none"
             >
-              {totalBadgeCount > 9 ? '9+' : totalBadgeCount}
+              {formatBadgeCount(totalBadgeCount)}
             </Box>
           )}
         </Box>
@@ -387,7 +568,7 @@ export default function NotificationBell({
               <Heading size="xs" fontSize="md" fontWeight="bold">
                 {t('notifications')}
               </Heading>
-              {unreadCount > 0 && (
+              {totalBadgeCount > 0 && (
                 <Badge
                   bg="red.500"
                   color="white"
@@ -396,23 +577,9 @@ export default function NotificationBell({
                   px="7px"
                   py="1px"
                   lineHeight="normal"
-                  title={t('unreadNotifications')}
+                  title={t('allNotificationCount')}
                 >
-                  {unreadCount}
-                </Badge>
-              )}
-              {pendingCount > 0 && (
-                <Badge
-                  bg="orange.400"
-                  color="white"
-                  borderRadius="full"
-                  fontSize="10px"
-                  px="7px"
-                  py="1px"
-                  lineHeight="normal"
-                  title={t('approvalRequestsTab')}
-                >
-                  {pendingCount}
+                  {formatBadgeCount(totalBadgeCount)}
                 </Badge>
               )}
             </HStack>
@@ -435,7 +602,7 @@ export default function NotificationBell({
 
         <PopoverBody p={0}>
           <Box maxH="500px" overflowY="auto">
-            {(isLoading || isPendingLoading) && unifiedItems.length === 0 ? (
+            {isPanelLoading && unifiedItems.length === 0 ? (
               <VStack gap={0} align="stretch" p={1}>
                 {[...Array(5)].map((_, i) => (
                   <NotificationSkeleton key={i} />
@@ -451,7 +618,7 @@ export default function NotificationBell({
             ) : (
               <Stack gap={0}>
                 {unifiedItems.map((item) => {
-                  if (item.kind === 'approval') {
+                  if (item.kind === 'sessionApproval') {
                     const request = item.data;
                     const allSlots = item.allSlots;
                     const slotCount = allSlots.length;
@@ -589,6 +756,258 @@ export default function NotificationBell({
                                 {t('approve')}
                               </Button>
                             </HStack>
+                          </VStack>
+                        </HStack>
+                      </Box>
+                    );
+                  }
+
+                  if (item.kind === 'clubJoinRequest') {
+                    const request = item.data;
+                    return (
+                      <Box
+                        key={`club-join-${request.id}`}
+                        onClick={() => handleClubJoinRequestClick(request)}
+                        w="100%"
+                        px={4}
+                        py={3}
+                        bg="blue.50/40"
+                        borderBottom="1px solid"
+                        borderColor="blue.100"
+                        _dark={{
+                          bg: 'rgba(59,130,246,0.07)',
+                          borderColor: 'rgba(59,130,246,0.15)',
+                        }}
+                        transition="background-color 0.15s ease, border-color 0.15s ease"
+                        _hover={{
+                          bg: 'blue.50',
+                          _dark: { bg: 'rgba(59,130,246,0.12)' },
+                          cursor: 'pointer',
+                        }}
+                        position="relative"
+                      >
+                        <Box
+                          position="absolute"
+                          left={0}
+                          top={0}
+                          bottom={0}
+                          width="3px"
+                          bg="blue.400"
+                          borderRadius="0 2px 2px 0"
+                        />
+
+                        <HStack gap={3} align="start">
+                          <Box
+                            w="36px"
+                            h="36px"
+                            borderRadius="xl"
+                            bg="blue.100"
+                            _dark={{ bg: 'rgba(59,130,246,0.25)' }}
+                            display="flex"
+                            alignItems="center"
+                            justifyContent="center"
+                            color="blue.500"
+                            flexShrink={0}
+                            mt="1px"
+                          >
+                            <LuUsers size={17} />
+                          </Box>
+
+                          <VStack align="start" gap={0.5} flex={1} minW={0}>
+                            <HStack gap={1.5} w="100%" align="center">
+                              <Text
+                                fontSize="sm"
+                                fontWeight="semibold"
+                                color="gray.900"
+                                _dark={{ color: 'white' }}
+                                lineHeight="short"
+                                flex={1}
+                                truncate
+                              >
+                                {request.user.name}
+                              </Text>
+                              <Badge
+                                bg="blue.400"
+                                color="white"
+                                size="xs"
+                                borderRadius="md"
+                                px={1.5}
+                                fontSize="9px"
+                                flexShrink={0}
+                                lineHeight="normal"
+                                py="1px"
+                              >
+                                {t('clubJoinRequestBadge')}
+                              </Badge>
+                            </HStack>
+
+                            <Text
+                              fontSize="xs"
+                              color="gray.500"
+                              _dark={{ color: 'fg.subtle' }}
+                              lineHeight="normal"
+                              lineClamp={2}
+                              w="100%"
+                            >
+                              {t('clubJoinRequestMessage', {
+                                clubName:
+                                  request.club?.name || t('unknownClub'),
+                              })}
+                            </Text>
+
+                            <HStack
+                              gap={1.5}
+                              mt={0.5}
+                              w="100%"
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              <Button
+                                size="xs"
+                                colorPalette="red"
+                                variant="outline"
+                                onClick={(e) =>
+                                  handleClubJoinRequestAction(
+                                    e,
+                                    request,
+                                    'REJECTED'
+                                  )
+                                }
+                                disabled={clubActionLoading === request.id}
+                                h="24px"
+                                fontSize="xs"
+                                px={3}
+                              >
+                                {t('reject')}
+                              </Button>
+                              <Button
+                                size="xs"
+                                colorPalette="green"
+                                onClick={(e) =>
+                                  handleClubJoinRequestAction(
+                                    e,
+                                    request,
+                                    'APPROVED'
+                                  )
+                                }
+                                loading={clubActionLoading === request.id}
+                                h="24px"
+                                fontSize="xs"
+                                px={3}
+                              >
+                                {t('approve')}
+                              </Button>
+                            </HStack>
+                          </VStack>
+                        </HStack>
+                      </Box>
+                    );
+                  }
+
+                  if (item.kind === 'venueRequest') {
+                    const request = item.data;
+                    return (
+                      <Box
+                        key={`venue-request-${request.id}`}
+                        onClick={handleVenueRequestClick}
+                        w="100%"
+                        px={4}
+                        py={3}
+                        bg="purple.50/40"
+                        borderBottom="1px solid"
+                        borderColor="purple.100"
+                        _dark={{
+                          bg: 'rgba(168,85,247,0.07)',
+                          borderColor: 'rgba(168,85,247,0.15)',
+                        }}
+                        transition="background-color 0.15s ease, border-color 0.15s ease"
+                        _hover={{
+                          bg: 'purple.50',
+                          _dark: { bg: 'rgba(168,85,247,0.12)' },
+                          cursor: 'pointer',
+                        }}
+                        position="relative"
+                      >
+                        <Box
+                          position="absolute"
+                          left={0}
+                          top={0}
+                          bottom={0}
+                          width="3px"
+                          bg="purple.400"
+                          borderRadius="0 2px 2px 0"
+                        />
+
+                        <HStack gap={3} align="start">
+                          <Box
+                            w="36px"
+                            h="36px"
+                            borderRadius="xl"
+                            bg="purple.100"
+                            _dark={{ bg: 'rgba(168,85,247,0.25)' }}
+                            display="flex"
+                            alignItems="center"
+                            justifyContent="center"
+                            color="purple.500"
+                            flexShrink={0}
+                            mt="1px"
+                          >
+                            <LuMapPin size={17} />
+                          </Box>
+
+                          <VStack align="start" gap={0.5} flex={1} minW={0}>
+                            <HStack gap={1.5} w="100%" align="center">
+                              <Text
+                                fontSize="sm"
+                                fontWeight="semibold"
+                                color="gray.900"
+                                _dark={{ color: 'white' }}
+                                lineHeight="short"
+                                flex={1}
+                                truncate
+                              >
+                                {request.payload.name ||
+                                  request.venue?.name ||
+                                  t('venueRequestUntitled')}
+                              </Text>
+                              <Badge
+                                bg="purple.400"
+                                color="white"
+                                size="xs"
+                                borderRadius="md"
+                                px={1.5}
+                                fontSize="9px"
+                                flexShrink={0}
+                                lineHeight="normal"
+                                py="1px"
+                              >
+                                {request.type === 'CREATE'
+                                  ? t('venueRequestCreateBadge')
+                                  : t('venueRequestUpdateBadge')}
+                              </Badge>
+                            </HStack>
+
+                            <Text
+                              fontSize="xs"
+                              color="gray.500"
+                              _dark={{ color: 'fg.subtle' }}
+                              lineHeight="normal"
+                              lineClamp={2}
+                              w="100%"
+                            >
+                              {t('venueRequestMessage', {
+                                name: request.submittedBy?.name || '-',
+                              })}
+                            </Text>
+
+                            <Text
+                              fontSize="10px"
+                              fontWeight="medium"
+                              color="purple.600"
+                              _dark={{ color: 'purple.300' }}
+                              mt={0.5}
+                            >
+                              {formatTimeAgo(request.createdAt)}
+                            </Text>
                           </VStack>
                         </HStack>
                       </Box>
@@ -749,7 +1168,7 @@ export default function NotificationBell({
                   );
                 })}
 
-                {(isLoading || isPendingLoading) && unifiedItems.length > 0 && (
+                {isPanelLoading && unifiedItems.length > 0 && (
                   <VStack gap={0} align="stretch" p={1}>
                     <NotificationSkeleton />
                     <NotificationSkeleton />
