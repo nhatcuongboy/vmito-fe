@@ -209,6 +209,19 @@ export const ClubsService = {
   },
 
   /**
+   * Get a single join request detail
+   */
+  getJoinRequestById: async (
+    clubId: string,
+    requestId: string
+  ): Promise<IClubJoinRequest> => {
+    const response = await api.get<ApiResponse<IClubJoinRequest>>(
+      `/clubs/${clubId}/join-requests/${requestId}`
+    );
+    return response.data.data!;
+  },
+
+  /**
    * Approve a join request
    */
   approveJoinRequest: async (

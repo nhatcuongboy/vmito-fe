@@ -45,6 +45,12 @@ export const ROUTES = {
       FEES: (id: string) => `/host/clubs/${id}/fees`,
     },
     PENDING_JOIN_REQUESTS: '/host/sessions/pending',
+    APPROVAL: {
+      SESSION_REQUEST: (sessionId: string, playerId: string) =>
+        `/host/approval/${sessionId}/${playerId}`,
+      CLUB_REQUEST: (clubId: string, requestId: string) =>
+        `/host/club-requests/${clubId}/${requestId}`,
+    },
     TOURNAMENTS: {
       LIST: '/host/tournaments',
       NEW: '/host/tournaments/new',
@@ -151,6 +157,8 @@ export const ROUTES = {
     LEVEL_DESCRIPTIONS: '/admin/level-descriptions',
     VENUES: '/admin/venues',
     VENUE_REQUESTS: '/admin/venues/requests',
+    VENUE_REQUEST_DETAIL: (requestId: string) =>
+      `/admin/venues/requests/${requestId}`,
     CLUBS: '/admin/clubs/pending',
   },
 

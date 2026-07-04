@@ -27,42 +27,19 @@ import {
   UserRole,
   Venue,
   VenueRequest,
-  VenueRequestPayload,
   VenueRequestStatus,
   VenueRequestType,
 } from '@/lib/api/types';
 import { useAuthStore } from '@/stores/useAuthStore';
-
-const REQUEST_FIELDS: Array<{
-  key: keyof VenueRequestPayload;
-  venueKey?: keyof Venue;
-}> = [
-  { key: 'name' },
-  { key: 'address' },
-  { key: 'city' },
-  { key: 'district' },
-  { key: 'numberOfCourts' },
-  { key: 'openingHours' },
-  { key: 'hourlyRateFixed' },
-  { key: 'hourlyRateWalkIn' },
-  { key: 'phone' },
-  { key: 'website' },
-  { key: 'locatedWithin' },
-  { key: 'bookingPolicy' },
-  { key: 'note' },
-];
+import {
+  VENUE_REQUEST_FIELDS,
+  formatVenueRequestValue,
+} from '@/constants/venue-request-fields';
 
 const statusColors: Record<VenueRequestStatus, string> = {
   [VenueRequestStatus.PENDING]: 'yellow',
   [VenueRequestStatus.APPROVED]: 'green',
   [VenueRequestStatus.REJECTED]: 'red',
-};
-
-const formatValue = (value: unknown) => {
-  if (value === undefined || value === null || value === '') return '-';
-  if (typeof value === 'number')
-    return new Intl.NumberFormat('vi-VN').format(value);
-  return String(value);
 };
 
 export default function AdminVenueRequestsPage() {
@@ -241,7 +218,7 @@ export default function AdminVenueRequestsPage() {
         </Flex>
 
         <SimpleGrid columns={{ base: 1, lg: 2 }} gap={3}>
-          {REQUEST_FIELDS.map(({ key, venueKey }) => {
+          {VENUE_REQUEST_FIELDS.map(({ key, venueKey }) => {
             const requested = request.payload[key];
             const current =
               key === 'note'
@@ -268,13 +245,13 @@ export default function AdminVenueRequestsPage() {
                 </Text>
                 {request.type === VenueRequestType.UPDATE && key !== 'note' && (
                   <Text fontSize="sm" color="gray.500" lineClamp={2}>
-                    {t('currentValue')}: {formatValue(current)}
+                    {t('currentValue')}: {formatVenueRequestValue(current)}
                   </Text>
                 )}
                 <Text fontSize="sm" fontWeight="semibold" whiteSpace="pre-wrap">
                   {request.type === VenueRequestType.UPDATE && key !== 'note'
-                    ? `${t('requestedValue')}: ${formatValue(requested)}`
-                    : formatValue(requested)}
+                    ? `${t('requestedValue')}: ${formatVenueRequestValue(requested)}`
+                    : formatVenueRequestValue(requested)}
                 </Text>
               </Box>
             );

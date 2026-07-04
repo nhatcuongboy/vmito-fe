@@ -371,7 +371,9 @@ export default function NotificationBell({
     setPendingRequests((prev) => prev.filter((r) => !ids.includes(r.id)));
     setPendingCount((prev) => Math.max(0, prev - ids.length));
     setIsOpen(false);
-    router.push(`/host/approval/${request.sessionId}/${request.id}`);
+    router.push(
+      ROUTES.HOST.APPROVAL.SESSION_REQUEST(request.sessionId, request.id)
+    );
   };
 
   const handleApprovalAction = async (
@@ -405,7 +407,7 @@ export default function NotificationBell({
 
   const handleClubJoinRequestClick = (request: IClubJoinRequest) => {
     setIsOpen(false);
-    router.push(ROUTES.HOST.CLUBS.MEMBERS(request.clubId));
+    router.push(ROUTES.HOST.APPROVAL.CLUB_REQUEST(request.clubId, request.id));
   };
 
   const handleClubJoinRequestAction = async (
@@ -438,9 +440,9 @@ export default function NotificationBell({
     }
   };
 
-  const handleVenueRequestClick = () => {
+  const handleVenueRequestClick = (request: VenueRequest) => {
     setIsOpen(false);
-    router.push(ROUTES.ADMIN.VENUE_REQUESTS);
+    router.push(ROUTES.ADMIN.VENUE_REQUEST_DETAIL(request.id));
   };
 
   const formatTimeAgo = (dateString: string) => {
@@ -908,7 +910,7 @@ export default function NotificationBell({
                     return (
                       <Box
                         key={`venue-request-${request.id}`}
-                        onClick={handleVenueRequestClick}
+                        onClick={() => handleVenueRequestClick(request)}
                         w="100%"
                         px={4}
                         py={3}

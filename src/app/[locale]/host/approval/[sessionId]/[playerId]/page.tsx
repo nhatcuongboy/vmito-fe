@@ -1,18 +1,8 @@
 'use client';
 
 import { Suspense, useCallback, useEffect, useState } from 'react';
-import {
-  Box,
-  Badge,
-  Flex,
-  Text,
-  Spinner,
-  Center,
-  VStack,
-  HStack,
-  EmptyState,
-} from '@chakra-ui/react';
-import { Button, Card, CardBody } from '@/components/ui/chakra-compat';
+import { Badge, Box, Text } from '@chakra-ui/react';
+import { isAxiosError } from 'axios';
 import { useTranslations } from 'next-intl';
 import { formatVenueName } from '@/utils';
 import {
@@ -23,12 +13,20 @@ import {
   LuGauge,
   LuPhone,
   LuMessageSquare,
-  LuArrowLeft,
   LuActivity,
   LuUser,
 } from 'react-icons/lu';
 import ProtectedRouteGuard from '@/components/guards/ProtectedRouteGuard';
 import PageLayout from '@/components/layout/PageLayout';
+import {
+  RequestActionBar,
+  RequestCompletedState,
+  RequestDetailCard,
+  RequestInfoList,
+  RequestInfoRow,
+  RequestLoadingState,
+  RequestNotFoundState,
+} from '@/components/request-detail';
 import { PlayerService } from '@/lib/api/player.service';
 import { PendingRequest } from '@/lib/api/types';
 import { toaster } from '@/components/ui/toaster';
@@ -58,28 +56,24 @@ const ApprovalDetailContent = () => {
   const fetchRequest = useCallback(async () => {
     try {
       setIsLoading(true);
-      const result = await PlayerService.getPendingRequests({ limit: 100 });
-      const found = result.data.find(
-        (r) => r.id === playerId && r.sessionId === sessionId
-      );
-      setRequest(found || null);
-      // Collect all slots of the same user in the same session
-      // Prefer createdByUserId (who registered), fallback to userId
-      const groupId = found?.createdByUserId ?? found?.userId;
-      if (found && groupId) {
-        const ids = result.data
-          .filter(
-            (r) =>
-              (r.createdByUserId ?? r.userId) === groupId &&
-              r.sessionId === found.sessionId
-          )
-          .map((r) => r.id);
-        setSameUserPlayerIds(ids);
-      } else {
-        setSameUserPlayerIds(found ? [found.id] : []);
+      const found = await PlayerService.getPendingRequestById(playerId);
+      if (found.sessionId !== sessionId) {
+        setRequest(null);
+        setSameUserPlayerIds([]);
+        return;
       }
-    } catch {
-      toaster.error({ title: tCommon('error') });
+      setRequest(found);
+      // All pending slots registered by the same user in this session,
+      // approved/rejected together as one group
+      setSameUserPlayerIds(
+        found.relatedPlayerIds?.length ? found.relatedPlayerIds : [found.id]
+      );
+    } catch (error) {
+      if (isAxiosError(error) && error.response?.status === 404) {
+        setRequest(null);
+      } else {
+        toaster.error({ title: tCommon('error') });
+      }
     } finally {
       setIsLoading(false);
     }
@@ -110,274 +104,141 @@ const ApprovalDetailContent = () => {
   };
 
   if (isLoading) {
-    return (
-      <Center py={20}>
-        <Spinner size="lg" />
-      </Center>
-    );
+    return <RequestLoadingState />;
   }
 
   if (!request) {
     return (
-      <Center py={20}>
-        <EmptyState.Root>
-          <EmptyState.Content>
-            <EmptyState.Indicator>
-              <LuUserCheck size={32} />
-            </EmptyState.Indicator>
-            <EmptyState.Title>{t('approvalNotFound')}</EmptyState.Title>
-            <EmptyState.Description>
-              {t('approvalNotFoundDescription')}
-            </EmptyState.Description>
-          </EmptyState.Content>
-        </EmptyState.Root>
-      </Center>
+      <RequestNotFoundState
+        icon={<LuUserCheck size={32} />}
+        title={t('approvalNotFound')}
+        description={t('approvalNotFoundDescription')}
+      />
     );
   }
 
   if (isActioned) {
     return (
-      <Center py={20}>
-        <VStack gap={4}>
-          <Box
-            w="64px"
-            h="64px"
-            borderRadius="full"
-            bg="green.100"
-            display="flex"
-            alignItems="center"
-            justifyContent="center"
-            color="green.600"
-          >
-            <LuUserCheck size={32} />
-          </Box>
-          <Text fontSize="lg" fontWeight="semibold" textAlign="center">
-            {t('approvalActionCompleted')}
-          </Text>
-          <Button
-            variant="outline"
-            onClick={() => router.push(ROUTES.HOST.PENDING_JOIN_REQUESTS)}
-          >
-            <LuArrowLeft size={16} style={{ marginRight: '6px' }} />
-            {tCommon('back')}
-          </Button>
-        </VStack>
-      </Center>
+      <RequestCompletedState
+        title={t('approvalActionCompleted')}
+        backLabel={tCommon('back')}
+        onBack={() => router.push(ROUTES.HOST.PENDING_JOIN_REQUESTS)}
+      />
     );
   }
 
   return (
     <Box px={{ base: 4, md: 6 }} py={6} maxW="container.sm" mx="auto">
-      {/* Player Info Card */}
-      <Card mb={4}>
-        <CardBody>
-          <VStack gap={4} align="stretch">
-            {/* Header */}
-            <HStack gap={4} align="center">
-              <Box
-                w="56px"
-                h="56px"
-                borderRadius="full"
-                bg="orange.100"
-                _dark={{ bg: 'rgba(251,146,60,0.2)' }}
-                display="flex"
-                alignItems="center"
-                justifyContent="center"
-                color="orange.600"
-                flexShrink={0}
-              >
-                <LuUserCheck size={28} />
-              </Box>
-              <VStack align="start" gap={0.5}>
-                <Text fontSize="xl" fontWeight="bold">
-                  {request.name}
-                </Text>
-                <Badge colorPalette="orange" size="sm">
-                  {t('approvalPending')}
-                </Badge>
-              </VStack>
-            </HStack>
+      <RequestDetailCard
+        accent="orange"
+        icon={<LuUserCheck size={28} />}
+        title={request.name || `#${request.playerNumber}`}
+        badges={
+          <Badge colorPalette="orange" size="sm">
+            {t('approvalPending')}
+          </Badge>
+        }
+      >
+        <RequestInfoList>
+          {/* Session */}
+          <RequestInfoRow
+            icon={<LuActivity size={16} />}
+            label={t('approvalSession')}
+            value={request.session.name}
+          />
 
-            {/* Details */}
-            <VStack
-              gap={3}
-              align="stretch"
-              bg="gray.50"
-              _dark={{ bg: 'whiteAlpha.50' }}
-              borderRadius="lg"
-              p={4}
+          {/* Time */}
+          <RequestInfoRow
+            icon={<LuCalendarClock size={16} />}
+            label={t('approvalTime')}
+            value={`${dayjs(request.session.startTime).format('dddd, DD/MM/YYYY')} · ${formatTimeByDevicePreference(request.session.startTime)}`}
+          />
+
+          {/* Venue */}
+          {request.session.venue?.name && (
+            <RequestInfoRow
+              icon={<LuMapPin size={16} />}
+              label={t('approvalVenue')}
+              value={formatVenueName(
+                request.session.venue.name,
+                tVenue('nameFormat', { name: '{name}' })
+              )}
+            />
+          )}
+
+          {/* Level */}
+          {request.level != null && (
+            <RequestInfoRow
+              icon={<LuGauge size={16} />}
+              label={t('approvalLevel')}
             >
-              {/* Session */}
-              <HStack gap={3}>
-                <LuActivity size={16} color="gray" />
-                <VStack align="start" gap={0}>
-                  <Text fontSize="xs" color="gray.500">
-                    {t('approvalSession')}
-                  </Text>
-                  <Text fontSize="sm" fontWeight="medium">
-                    {request.session.name}
-                  </Text>
-                </VStack>
-              </HStack>
+              <Badge colorPalette="purple" size="sm">
+                {tCommon(`levels.${request.level}`)} (Lvl {request.level})
+              </Badge>
+            </RequestInfoRow>
+          )}
 
-              {/* Time */}
-              <HStack gap={3}>
-                <LuCalendarClock size={16} color="gray" />
-                <VStack align="start" gap={0}>
-                  <Text fontSize="xs" color="gray.500">
-                    {t('approvalTime')}
-                  </Text>
-                  <Text fontSize="sm" fontWeight="medium">
-                    {dayjs(request.session.startTime).format(
-                      'dddd, DD/MM/YYYY'
-                    )}{' '}
-                    · {formatTimeByDevicePreference(request.session.startTime)}
-                  </Text>
-                </VStack>
-              </HStack>
+          {/* Slot count — shown when user registered multiple slots */}
+          {sameUserPlayerIds.length > 1 && (
+            <RequestInfoRow
+              icon={<LuHash size={16} />}
+              label={t('approvalSlotCount')}
+              value={`${sameUserPlayerIds.length} slot`}
+            />
+          )}
 
-              {/* Venue */}
-              {request.session.venue?.name && (
-                <HStack gap={3}>
-                  <LuMapPin size={16} color="gray" />
-                  <VStack align="start" gap={0}>
-                    <Text fontSize="xs" color="gray.500">
-                      {t('approvalVenue')}
-                    </Text>
-                    <Text fontSize="sm" fontWeight="medium">
-                      {formatVenueName(
-                        request.session.venue.name,
-                        tVenue('nameFormat', { name: '{name}' })
-                      )}
-                    </Text>
-                  </VStack>
-                </HStack>
-              )}
-
-              {/* Level */}
-              {request.level != null && (
-                <HStack gap={3}>
-                  <LuGauge size={16} color="gray" />
-                  <VStack align="start" gap={0}>
-                    <Text fontSize="xs" color="gray.500">
-                      {t('approvalLevel')}
-                    </Text>
-                    <Badge colorPalette="purple" size="sm">
-                      {tCommon(`levels.${request.level}`)} (Lvl {request.level})
-                    </Badge>
-                  </VStack>
-                </HStack>
-              )}
-
-              {/* Slot count — shown when user registered multiple slots */}
+          {/* Player Number */}
+          <RequestInfoRow
+            icon={<LuHash size={16} />}
+            label={t('approvalPlayer')}
+          >
+            <Text fontSize="sm" fontWeight="medium">
+              #{request.playerNumber}
               {sameUserPlayerIds.length > 1 && (
-                <HStack gap={3}>
-                  <LuHash size={16} color="gray" />
-                  <VStack align="start" gap={0}>
-                    <Text fontSize="xs" color="gray.500">
-                      {t('approvalSlotCount')}
-                    </Text>
-                    <Text fontSize="sm" fontWeight="medium">
-                      {sameUserPlayerIds.length} slot
-                    </Text>
-                  </VStack>
-                </HStack>
+                <Text as="span" fontSize="xs" color="gray.400" ml={1}>
+                  ({sameUserPlayerIds.indexOf(request.id) + 1}/
+                  {sameUserPlayerIds.length})
+                </Text>
               )}
+            </Text>
+          </RequestInfoRow>
 
-              {/* Player Number */}
-              <HStack gap={3}>
-                <LuHash size={16} color="gray" />
-                <VStack align="start" gap={0}>
-                  <Text fontSize="xs" color="gray.500">
-                    {t('approvalPlayer')}
-                  </Text>
-                  <Text fontSize="sm" fontWeight="medium">
-                    #{request.playerNumber}
-                    {sameUserPlayerIds.length > 1 && (
-                      <Text as="span" fontSize="xs" color="gray.400" ml={1}>
-                        ({sameUserPlayerIds.indexOf(request.id) + 1}/
-                        {sameUserPlayerIds.length})
-                      </Text>
-                    )}
-                  </Text>
-                </VStack>
-              </HStack>
+          {/* Phone */}
+          {request.phone && (
+            <RequestInfoRow
+              icon={<LuPhone size={16} />}
+              label={t('approvalPhone')}
+              value={request.phone}
+            />
+          )}
 
-              {/* Phone */}
-              {request.phone && (
-                <HStack gap={3}>
-                  <LuPhone size={16} color="gray" />
-                  <VStack align="start" gap={0}>
-                    <Text fontSize="xs" color="gray.500">
-                      {t('approvalPhone')}
-                    </Text>
-                    <Text fontSize="sm" fontWeight="medium">
-                      {request.phone}
-                    </Text>
-                  </VStack>
-                </HStack>
-              )}
+          {/* Desire / Note */}
+          {request.desire && (
+            <RequestInfoRow
+              icon={<LuMessageSquare size={16} />}
+              label={t('approvalNote')}
+              value={request.desire}
+            />
+          )}
 
-              {/* Desire / Note */}
-              {request.desire && (
-                <HStack gap={3} align="start">
-                  <Box mt={0.5}>
-                    <LuMessageSquare size={16} color="gray" />
-                  </Box>
-                  <VStack align="start" gap={0}>
-                    <Text fontSize="xs" color="gray.500">
-                      {t('approvalNote')}
-                    </Text>
-                    <Text fontSize="sm" fontWeight="medium">
-                      {request.desire}
-                    </Text>
-                  </VStack>
-                </HStack>
-              )}
+          {/* Gender */}
+          {request.gender && (
+            <RequestInfoRow
+              icon={<LuUser size={16} />}
+              label={t('approvalGender')}
+              value={tCommon(request.gender.toLowerCase())}
+            />
+          )}
+        </RequestInfoList>
+      </RequestDetailCard>
 
-              {/* Gender */}
-              {request.gender && (
-                <HStack gap={3}>
-                  <LuUser size={16} color="gray" />
-                  <VStack align="start" gap={0}>
-                    <Text fontSize="xs" color="gray.500">
-                      {t('approvalGender')}
-                    </Text>
-                    <Text fontSize="sm" fontWeight="medium">
-                      {tCommon(request.gender.toLowerCase())}
-                    </Text>
-                  </VStack>
-                </HStack>
-              )}
-            </VStack>
-          </VStack>
-        </CardBody>
-      </Card>
-
-      {/* Action Buttons */}
-      <Flex gap={3}>
-        <Button
-          flex={1}
-          size="lg"
-          colorPalette="red"
-          variant="outline"
-          onClick={() => handleAction('REJECTED')}
-          loading={actionLoading === 'REJECTED'}
-          disabled={actionLoading !== null}
-        >
-          {t('reject')}
-        </Button>
-        <Button
-          flex={1}
-          size="lg"
-          colorPalette="green"
-          onClick={() => handleAction('APPROVED')}
-          loading={actionLoading === 'APPROVED'}
-          disabled={actionLoading !== null}
-        >
-          {t('approve')}
-        </Button>
-      </Flex>
+      <RequestActionBar
+        rejectLabel={t('reject')}
+        approveLabel={t('approve')}
+        onReject={() => handleAction('REJECTED')}
+        onApprove={() => handleAction('APPROVED')}
+        loadingAction={actionLoading}
+      />
     </Box>
   );
 };
@@ -389,7 +250,7 @@ export default function ApprovalDetailPage() {
     <ProtectedRouteGuard>
       <Suspense>
         <PageLayout
-          title={t('approvalDetailTitle')}
+          title={t('sessionRequestDetailTitle')}
           showBackButton
           backHref={ROUTES.HOST.PENDING_JOIN_REQUESTS}
         >
