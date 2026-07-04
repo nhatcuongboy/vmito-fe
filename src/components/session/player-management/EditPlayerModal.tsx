@@ -13,6 +13,10 @@ import { Player } from './types';
 import { IClub } from '@/types/club';
 import { pickClubFee, useClubSessionFees } from './useClubSessionFees';
 
+const CONTROL_BG = { base: 'white', _dark: 'gray.900' } as const;
+const CONTROL_BORDER = { base: 'gray.200', _dark: 'gray.600' } as const;
+const MUTED_PANEL_BG = { base: 'gray.50', _dark: 'whiteAlpha.50' } as const;
+
 interface EditPlayerModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -147,7 +151,8 @@ const EditPlayerModal: React.FC<EditPlayerModalProps> = ({
                 onUpdateEditing(player.id, 'name', e.target.value)
               }
               size="md"
-              bg="white"
+              bg={CONTROL_BG}
+              borderColor={CONTROL_BORDER}
               placeholder={t('enterPlayerName')}
             />
           </Box>
@@ -162,7 +167,8 @@ const EditPlayerModal: React.FC<EditPlayerModalProps> = ({
                 onUpdateEditing(player.id, 'phone', e.target.value);
               }}
               size="md"
-              bg="white"
+              bg={CONTROL_BG}
+              borderColor={CONTROL_BORDER}
             />
           </Box>
         </Grid>
@@ -266,7 +272,8 @@ const EditPlayerModal: React.FC<EditPlayerModalProps> = ({
           <Textarea
             placeholder={t('levelDescriptionPlaceholder')}
             size="md"
-            bg="white"
+            bg={CONTROL_BG}
+            borderColor={CONTROL_BORDER}
             value={editingData.levelDescription || ''}
             onChange={(e) =>
               onUpdateEditing(player.id, 'levelDescription', e.target.value)
@@ -278,14 +285,19 @@ const EditPlayerModal: React.FC<EditPlayerModalProps> = ({
         {/* Club Fixed Fee Section (Collapsible) */}
         <Box
           borderWidth="1px"
-          borderColor="gray.200"
+          borderColor={{ base: 'gray.200', _dark: 'gray.600' }}
           borderRadius="md"
           overflow="hidden"
+          bg={{ base: 'white', _dark: 'gray.800' }}
         >
           <Flex align="center" justify="space-between" gap={3} px={4} py={1.5}>
             <HStack gap={2} minW={0}>
               <DollarSign size={16} color="#179a3b" />
-              <Text fontSize="sm" fontWeight="semibold" color="gray.700">
+              <Text
+                fontSize="sm"
+                fontWeight="semibold"
+                color={{ base: 'gray.700', _dark: 'gray.200' }}
+              >
                 {t('clubFixedFeeSection')}
               </Text>
             </HStack>
@@ -316,7 +328,11 @@ const EditPlayerModal: React.FC<EditPlayerModalProps> = ({
                 p={0}
                 disabled={!isClubFeeEnabled}
                 opacity={isClubFeeEnabled ? 1 : 0.45}
-                _hover={isClubFeeEnabled ? { bg: 'gray.50' } : undefined}
+                _hover={
+                  isClubFeeEnabled
+                    ? { bg: { base: 'gray.50', _dark: 'whiteAlpha.100' } }
+                    : undefined
+                }
               >
                 {isClubFeeEnabled && isFeeConfigExpanded ? (
                   <ChevronUp size={18} />
@@ -328,13 +344,19 @@ const EditPlayerModal: React.FC<EditPlayerModalProps> = ({
           </Flex>
 
           {isClubFeeEnabled && isFeeConfigExpanded && (
-            <VStack align="stretch" gap={3} p={4} pt={0} bg="gray.50">
+            <VStack align="stretch" gap={3} p={4} pt={0} bg={MUTED_PANEL_BG}>
               {isLoadingClubFees ? (
-                <Text fontSize="sm" color="gray.500">
+                <Text
+                  fontSize="sm"
+                  color={{ base: 'gray.500', _dark: 'gray.400' }}
+                >
                   {t('loadingClubFee')}...
                 </Text>
               ) : clubsWithFixedFee.length === 0 ? (
-                <Text fontSize="sm" color="gray.500">
+                <Text
+                  fontSize="sm"
+                  color={{ base: 'gray.500', _dark: 'gray.400' }}
+                >
                   {t('noClubWithFixedFee')}
                 </Text>
               ) : (
@@ -343,7 +365,7 @@ const EditPlayerModal: React.FC<EditPlayerModalProps> = ({
                   <Flex align="center" gap={3}>
                     <Text
                       fontSize="sm"
-                      color="gray.600"
+                      color={{ base: 'gray.600', _dark: 'gray.300' }}
                       fontWeight="medium"
                       w="90px"
                       flexShrink={0}
@@ -362,8 +384,8 @@ const EditPlayerModal: React.FC<EditPlayerModalProps> = ({
                           width: '100%',
                           padding: '8px',
                           borderRadius: '6px',
-                          border: '1px solid #E2E8F0',
-                          backgroundColor: 'white',
+                          border: '1px solid var(--chakra-colors-border)',
+                          backgroundColor: 'var(--chakra-colors-bg)',
                           color: 'inherit',
                           fontSize: '14px',
                         }}
@@ -383,7 +405,7 @@ const EditPlayerModal: React.FC<EditPlayerModalProps> = ({
                     <Flex align="center" gap={3}>
                       <Text
                         fontSize="sm"
-                        color="gray.600"
+                        color={{ base: 'gray.600', _dark: 'gray.300' }}
                         fontWeight="medium"
                         w="90px"
                         flexShrink={0}
@@ -400,7 +422,10 @@ const EditPlayerModal: React.FC<EditPlayerModalProps> = ({
                     </Flex>
                   )}
 
-                  <Text fontSize="xs" color="gray.500">
+                  <Text
+                    fontSize="xs"
+                    color={{ base: 'gray.500', _dark: 'gray.400' }}
+                  >
                     💡 {t('clubFixedFeeHint')}
                   </Text>
                 </>

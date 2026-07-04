@@ -1,6 +1,43 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { IClub, IClubFeeConfig } from '@/types/club';
 import { ClubsService } from '@/lib/api/clubs.service';
+
+const feeConfigCache = new Map<string, IClubFeeConfig | null>();
+const pendingFeeConfigRequests = new Map<
+  string,
+  Promise<IClubFeeConfig | null>
+>();
+
+const getFeeCacheKey = (clubId: string, year: number, month: number) =>
+  `${clubId}:${year}:${month}`;
+
+const getClubFeeForMonth = (clubId: string, year: number, month: number) => {
+  const cacheKey = getFeeCacheKey(clubId, year, month);
+
+  if (feeConfigCache.has(cacheKey)) {
+    return Promise.resolve(feeConfigCache.get(cacheKey) ?? null);
+  }
+
+  const pendingRequest = pendingFeeConfigRequests.get(cacheKey);
+  if (pendingRequest) return pendingRequest;
+
+  const request = ClubsService.getClubFeeForMonth(clubId, year, month)
+    .then((config) => {
+      feeConfigCache.set(cacheKey, config);
+      return config;
+    })
+    .catch((error) => {
+      console.error('Failed to fetch club fee:', error);
+      feeConfigCache.set(cacheKey, null);
+      return null;
+    })
+    .finally(() => {
+      pendingFeeConfigRequests.delete(cacheKey);
+    });
+
+  pendingFeeConfigRequests.set(cacheKey, request);
+  return request;
+};
 
 // Per-session fee of a club for a given gender (falls back to the other
 // gender's fee when only one is configured). Null = no fixed fee configured.
@@ -29,34 +66,40 @@ export const useClubSessionFees = (
   }>({});
   const [isLoading, setIsLoading] = useState(false);
 
-  const clubIdsKey = clubs
-    .map((c) => c.id)
-    .sort()
-    .join(',');
+  const clubIdsKey = useMemo(
+    () =>
+      clubs
+        .map((c) => c.id)
+        .sort()
+        .join(','),
+    [clubs]
+  );
+
+  const sessionMonthKey = useMemo(() => {
+    if (!sessionStartTime) return null;
+
+    const date = new Date(sessionStartTime);
+    if (Number.isNaN(date.getTime())) return null;
+
+    return `${date.getFullYear()}-${date.getMonth() + 1}`;
+  }, [sessionStartTime]);
 
   useEffect(() => {
-    if (!enabled || !sessionStartTime || clubs.length === 0) return;
+    if (!enabled || !sessionMonthKey || !clubIdsKey) {
+      setIsLoading(false);
+      return;
+    }
 
     let cancelled = false;
     const load = async () => {
       setIsLoading(true);
-      const date = new Date(sessionStartTime);
-      const year = date.getFullYear();
-      const month = date.getMonth() + 1;
+      const clubIds = clubIdsKey.split(',');
+      const [year, month] = sessionMonthKey.split('-').map(Number);
       const entries = await Promise.all(
-        clubs.map(async (club) => {
-          try {
-            const config = await ClubsService.getClubFeeForMonth(
-              club.id,
-              year,
-              month
-            );
-            return [club.id, config] as const;
-          } catch (error) {
-            console.error('Failed to fetch club fee:', error);
-            return [club.id, null] as const;
-          }
-        })
+        clubIds.map(async (clubId) => [
+          clubId,
+          await getClubFeeForMonth(clubId, year, month),
+        ])
       );
       if (cancelled) return;
       setFeesByClubId(Object.fromEntries(entries));
@@ -68,8 +111,7 @@ export const useClubSessionFees = (
       cancelled = true;
     };
     // Refetch when the club list or session date changes
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [enabled, sessionStartTime, clubIdsKey]);
+  }, [enabled, sessionMonthKey, clubIdsKey]);
 
   return { feesByClubId, isLoading };
 };
