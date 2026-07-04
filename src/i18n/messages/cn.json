@@ -4767,7 +4767,10 @@
       "requiredRole": "所需角色：",
       "yourRole": "您的角色：",
       "unknown": "未知",
-      "goHome": "返回首页"
+      "goHome": "返回首页",
+      "checkingAuthentication": "正在检查身份验证...",
+      "redirecting": "正在重定向...",
+      "loading": "正在加载..."
     },
     "tooManyRequests": "请求过多。请稍后重试。"
   },

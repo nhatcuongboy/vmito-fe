@@ -4807,7 +4807,10 @@
       "requiredRole": "Required role:",
       "yourRole": "Your role:",
       "unknown": "Unknown",
-      "goHome": "Go Home"
+      "goHome": "Go Home",
+      "checkingAuthentication": "Checking authentication...",
+      "redirecting": "Redirecting...",
+      "loading": "Loading..."
     },
     "tooManyRequests": "Too many requests. Please try again later."
   },

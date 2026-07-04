@@ -4822,7 +4822,10 @@
       "requiredRole": "Vai trò yêu cầu:",
       "yourRole": "Vai trò của bạn:",
       "unknown": "Không xác định",
-      "goHome": "Về trang chủ"
+      "goHome": "Về trang chủ",
+      "checkingAuthentication": "Đang kiểm tra xác thực...",
+      "redirecting": "Đang chuyển hướng...",
+      "loading": "Đang tải..."
     },
     "tooManyRequests": "Quá nhiều yêu cầu. Vui lòng thử lại sau."
   },
