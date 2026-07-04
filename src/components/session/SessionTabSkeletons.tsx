@@ -3,6 +3,7 @@
 import {
   Box,
   Flex,
+  Grid,
   HStack,
   SimpleGrid,
   Skeleton,
@@ -15,6 +16,39 @@ import { Card, CardBody, CardHeader } from '@/components/ui/chakra-compat';
 const PLAYER_CARD_COUNT = 12;
 const COURT_CARD_COUNT = 4;
 const WAITING_PLAYER_COUNT = 4;
+const OVERVIEW_STAT_COUNT = 4;
+
+function OverviewPanelSkeleton({ minH = '240px' }: { minH?: string }) {
+  return (
+    <Box
+      p={6}
+      bg={{ base: 'white', _dark: 'gray.800' }}
+      _dark={{ borderColor: 'gray.700' }}
+      borderRadius="xl"
+      shadow="sm"
+      border="1px solid"
+      borderColor="gray.100"
+      minH={minH}
+    >
+      <Flex align="center" justify="space-between" mb={5} gap={3}>
+        <Skeleton height="18px" width="140px" borderRadius="md" />
+        <Skeleton height="28px" width="68px" borderRadius="md" />
+      </Flex>
+
+      <VStack gap={4} align="stretch">
+        {Array.from({ length: 5 }).map((_, index) => (
+          <Flex key={index} align="center" gap={3}>
+            <SkeletonCircle size="8" />
+            <Box flex={1}>
+              <Skeleton height="16px" width="42%" mb={2} borderRadius="md" />
+              <Skeleton height="14px" width="70%" borderRadius="md" />
+            </Box>
+          </Flex>
+        ))}
+      </VStack>
+    </Box>
+  );
+}
 
 function PlayerCardSkeleton() {
   return (
@@ -79,6 +113,62 @@ function CourtCardSkeleton() {
         </VStack>
       </CardBody>
     </Card>
+  );
+}
+
+export function SessionOverviewTabSkeleton() {
+  return (
+    <Box>
+      <Grid
+        templateColumns={{ base: '1fr', md: '3fr 2fr' }}
+        gap={{ base: 4, md: 8 }}
+        mb={{ base: 4, md: 8 }}
+      >
+        <OverviewPanelSkeleton minH="360px" />
+
+        <Box
+          p={6}
+          bg={{ base: 'white', _dark: 'gray.800' }}
+          _dark={{ borderColor: 'gray.700' }}
+          borderRadius="xl"
+          shadow="sm"
+          border="1px solid"
+          borderColor="gray.100"
+          minH="360px"
+        >
+          <Skeleton height="18px" width="150px" mb={5} borderRadius="md" />
+          <Flex justify="center" align="center" py={4}>
+            <Skeleton height="140px" width="140px" borderRadius="lg" />
+          </Flex>
+          <VStack gap={4} align="stretch" mt={5}>
+            <Skeleton height="62px" width="100%" borderRadius="xl" />
+            <Skeleton height="38px" width="100%" borderRadius="lg" />
+            <Skeleton height="84px" width="100%" borderRadius="xl" />
+          </VStack>
+        </Box>
+      </Grid>
+
+      <SimpleGrid columns={{ base: 2, md: 4 }} gap={4}>
+        {Array.from({ length: OVERVIEW_STAT_COUNT }).map((_, index) => (
+          <Box
+            key={index}
+            p={4}
+            bg={{ base: 'white', _dark: 'gray.800' }}
+            borderRadius="xl"
+            shadow="sm"
+            border="1px solid"
+            borderColor={{ base: 'gray.100', _dark: 'gray.700' }}
+          >
+            <Flex align="center" mb={3} gap={3}>
+              <SkeletonCircle size="9" />
+              <Skeleton height="16px" width="76px" borderRadius="md" />
+            </Flex>
+            <Skeleton height="30px" width="54px" mb={3} borderRadius="md" />
+            <Skeleton height="4px" width="100%" borderRadius="full" />
+          </Box>
+        ))}
+      </SimpleGrid>
+    </Box>
   );
 }
 

@@ -26,6 +26,11 @@ import SessionOverviewTab from '@/components/session/SessionOverviewTab';
 import SessionPaymentTab from '@/components/session/SessionPaymentTab';
 import WaitTimeUpdater from '@/components/session/WaitTimeUpdater';
 import QRCodeGenerator from '@/components/QRCodeGenerator';
+import {
+  SessionCourtsTabSkeleton,
+  SessionOverviewTabSkeleton,
+  SessionPlayersTabSkeleton,
+} from '@/components/session/SessionTabSkeletons';
 import BottomNavigationBar, {
   NavigationTab,
 } from '@/components/ui/BottomNavigationBar';
@@ -176,6 +181,17 @@ function HostSessionContent({ params }: { params: { id: string } }) {
     setIsQrModalOpen(true);
   };
 
+  const renderLoadingTabContent = () => {
+    switch (contentTabId[activeTab]) {
+      case 1:
+        return <SessionPlayersTabSkeleton />;
+      case 2:
+        return <SessionCourtsTabSkeleton />;
+      default:
+        return <SessionOverviewTabSkeleton />;
+    }
+  };
+
   // Render session detail content
   return (
     <MainLayout
@@ -186,9 +202,33 @@ function HostSessionContent({ params }: { params: { id: string } }) {
       centerTitle
     >
       {loading && !session ? (
-        <Center minH="50vh">
-          <Spinner size="xl" color="green.500" />
-        </Center>
+        <Flex
+          direction="column"
+          align="center"
+          py={2}
+          w="full"
+          px={{ base: 4, md: 8 }}
+        >
+          <Box minH="60vh" pb="160px" w="full" maxW="7xl">
+            {renderLoadingTabContent()}
+          </Box>
+
+          <BottomNavigationBar
+            tabs={navigationTabs}
+            activeTab={activeTab}
+            loadingTabId={activeTab}
+            onTabChange={handleTabChange}
+            alwaysVisible
+            bottomOffset={
+              isGlobalBottomNavVisible
+                ? {
+                    base: 'calc(64px + env(safe-area-inset-bottom))',
+                    md: '0',
+                  }
+                : undefined
+            }
+          />
+        </Flex>
       ) : error ? (
         <Box
           p={6}
