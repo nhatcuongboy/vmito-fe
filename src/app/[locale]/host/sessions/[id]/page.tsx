@@ -55,6 +55,7 @@ import {
  */
 function HostSessionContent({ params }: { params: { id: string } }) {
   const t = useTranslations('SessionDetail');
+  const tGuard = useTranslations('auth.guard');
   const { user } = useAuthStore();
   const { canAccessHostFeatures } = useCanAccessHostFeatures();
   const sessionId = params.id;
@@ -71,6 +72,12 @@ function HostSessionContent({ params }: { params: { id: string } }) {
       setSession(initialSession);
     }
   }, [initialSession]);
+
+  // Only the session host (or an admin) may open the management page
+  const isSessionOwner =
+    !!session &&
+    !!user &&
+    (session.hostId === user.id || user.role === UserRole.ADMIN);
 
   // State for match creation and player selection
   const [selectedPlayers] = useState<string[]>([]);
@@ -261,6 +268,20 @@ function HostSessionContent({ params }: { params: { id: string } }) {
             The session you're looking for might have been deleted or doesn't
             exist.
           </Text>
+        </Box>
+      ) : !isSessionOwner ? (
+        <Box
+          p={6}
+          bg="red.50"
+          color="red.600"
+          borderRadius="md"
+          m={8}
+          textAlign="center"
+        >
+          <Text fontSize="lg" fontWeight="medium">
+            {tGuard('accessDenied')}
+          </Text>
+          <Text mt={2}>{tGuard('permissionDenied')}</Text>
         </Box>
       ) : (
         <>
