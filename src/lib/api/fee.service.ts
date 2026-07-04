@@ -80,9 +80,16 @@ export const FeeService = {
     return (baseFee || 0) * slots;
   },
 
-  // Format fee for display (e.g., "80k - 100k" or "80,000đ")
+  // Format fee for display (e.g., "80k - 100k", "16,2 triệu" or "80,000đ")
   formatFee: (amount: number): string => {
     if (amount === 0) return 'Miễn phí';
+    if (amount >= 1_000_000) {
+      const millions = amount / 1_000_000;
+      const formatted = Number.isInteger(millions)
+        ? String(millions)
+        : millions.toFixed(1).replace('.', ',');
+      return `${formatted} triệu`;
+    }
     if (amount >= 1000) {
       const k = amount / 1000;
       if (Number.isInteger(k)) {

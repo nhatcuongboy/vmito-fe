@@ -25,6 +25,7 @@ import {
 import { Button } from '@/components/ui/chakra-compat';
 import { VModal } from '@/components/ui/VModal';
 import { VSelect } from '@/components/ui/VSelect';
+import dayjs from '@/lib/dayjs';
 import { FeeService } from '@/lib/api/fee.service';
 import { PaymentService } from '@/lib/api/payment.service';
 import {
@@ -37,6 +38,25 @@ import {
   UserRole,
 } from '@/lib/api/types';
 import { toaster } from '@/components/ui/toaster';
+
+type DateFilter = 'all' | 'today' | 'week' | 'month' | 'year';
+type SortBy = 'totalAmount' | 'pendingAmount' | 'latest' | 'name' | 'sessions';
+
+function paymentDate(payment: PaymentRecord): Date {
+  return new Date(payment.session?.startTime ?? payment.createdAt);
+}
+
+function isWithinDateFilter(payment: PaymentRecord, filter: DateFilter) {
+  if (filter === 'all') return true;
+  const date = dayjs(paymentDate(payment));
+  const start = dayjs().startOf(filter === 'today' ? 'day' : filter);
+  return !date.isBefore(start);
+}
+
+function latestPaymentAt(payments: PaymentRecord[] | undefined): number {
+  if (!payments || payments.length === 0) return 0;
+  return Math.max(...payments.map((p) => paymentDate(p).getTime()));
+}
 
 function isBillablePaymentRecord(payment: PaymentRecord) {
   if (payment.session?.status === SessionStatus.CANCELLED) return false;
@@ -102,9 +122,31 @@ function HostTransactionsContent() {
   const [statusFilter, setStatusFilter] = useState<'all' | 'pending' | 'paid'>(
     'all'
   );
+  const [dateFilter, setDateFilter] = useState<DateFilter>('all');
+  const [sortBy, setSortBy] = useState<SortBy>('totalAmount');
+
+  // Recompute each summary's totals from the already-loaded per-user payments,
+  // scoped to the selected date range. Users without a cached detail list
+  // (only the synthetic "guest" bucket, see canLoadHostTransactionDetails)
+  // are dropped once a specific range is selected — we have no breakdown to
+  // filter them correctly, so hiding is safer than showing stale totals.
+  const dateFilteredSummaries = useMemo(() => {
+    if (dateFilter === 'all') return summaries;
+
+    return summaries
+      .map((summary) => {
+        const payments = paymentDetailsByUser[summary.userId];
+        if (!payments) return null;
+        const inRange = payments.filter((p) =>
+          isWithinDateFilter(p, dateFilter)
+        );
+        return summarizeUserPayments(summary, inRange);
+      })
+      .filter((summary): summary is HostTransactionSummary => Boolean(summary));
+  }, [summaries, paymentDetailsByUser, dateFilter]);
 
   const filteredSummaries = useMemo(() => {
-    return summaries.filter((s) => {
+    const filtered = dateFilteredSummaries.filter((s) => {
       const matchesSearch = s.userName
         .toLowerCase()
         .includes(searchQuery.toLowerCase().trim());
@@ -114,7 +156,37 @@ function HostTransactionsContent() {
         (statusFilter === 'paid' && s.pendingAmount === 0);
       return matchesSearch && matchesStatus;
     });
-  }, [summaries, searchQuery, statusFilter]);
+
+    const sorted = [...filtered];
+    switch (sortBy) {
+      case 'totalAmount':
+        sorted.sort((a, b) => b.totalAmount - a.totalAmount);
+        break;
+      case 'pendingAmount':
+        sorted.sort((a, b) => b.pendingAmount - a.pendingAmount);
+        break;
+      case 'latest':
+        sorted.sort(
+          (a, b) =>
+            latestPaymentAt(paymentDetailsByUser[b.userId]) -
+            latestPaymentAt(paymentDetailsByUser[a.userId])
+        );
+        break;
+      case 'name':
+        sorted.sort((a, b) => a.userName.localeCompare(b.userName, 'vi'));
+        break;
+      case 'sessions':
+        sorted.sort((a, b) => b.totalSessions - a.totalSessions);
+        break;
+    }
+    return sorted;
+  }, [
+    dateFilteredSummaries,
+    searchQuery,
+    statusFilter,
+    sortBy,
+    paymentDetailsByUser,
+  ]);
 
   const loadTransactions = useCallback(async () => {
     setIsLoading(true);
@@ -289,17 +361,6 @@ function HostTransactionsContent() {
     }
   };
 
-  if (isLoading) {
-    return (
-      <Box textAlign="center" py={10}>
-        <Spinner size="lg" />
-        <Text mt={4} color="fg.muted">
-          {tCommon('loading')}
-        </Text>
-      </Box>
-    );
-  }
-
   return (
     <Container maxW="container.md">
       <HStack mb={6}>
@@ -331,6 +392,8 @@ function HostTransactionsContent() {
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder={t('searchByPlayer')}
             size="sm"
+            bg="white"
+            _dark={{ bg: 'gray.800' }}
           />
         </Box>
         <Box minW="150px">
@@ -344,6 +407,32 @@ function HostTransactionsContent() {
             <option value="all">{t('filterAll')}</option>
             <option value="pending">{t('filterHasPending')}</option>
             <option value="paid">{t('filterAllPaid')}</option>
+          </VSelect>
+        </Box>
+        <Box minW="150px">
+          <VSelect
+            value={dateFilter}
+            onChange={(e) => setDateFilter(e.target.value as DateFilter)}
+            size="sm"
+          >
+            <option value="all">{t('dateFilterAll')}</option>
+            <option value="today">{t('dateFilterToday')}</option>
+            <option value="week">{t('dateFilterWeek')}</option>
+            <option value="month">{t('dateFilterMonth')}</option>
+            <option value="year">{t('dateFilterYear')}</option>
+          </VSelect>
+        </Box>
+        <Box minW="160px">
+          <VSelect
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value as SortBy)}
+            size="sm"
+          >
+            <option value="totalAmount">{t('sortTotalAmount')}</option>
+            <option value="pendingAmount">{t('sortPendingAmount')}</option>
+            <option value="latest">{t('sortLatest')}</option>
+            <option value="name">{t('sortNameAZ')}</option>
+            <option value="sessions">{t('sortMostSessions')}</option>
           </VSelect>
         </Box>
       </HStack>
