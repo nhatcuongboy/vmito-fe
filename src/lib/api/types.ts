@@ -281,6 +281,115 @@ export enum ClosureStatus {
   TEMPORARILY_CLOSED = 'TEMPORARILY_CLOSED',
 }
 
+export enum VenueDayType {
+  EVERYDAY = 'EVERYDAY',
+  WEEKDAY = 'WEEKDAY',
+  WEEKEND = 'WEEKEND',
+  HOLIDAY = 'HOLIDAY',
+  SPECIFIC_DATE = 'SPECIFIC_DATE',
+}
+
+export enum VenueCustomerType {
+  FIXED = 'FIXED',
+  WALK_IN = 'WALK_IN',
+  STUDENT = 'STUDENT',
+  MEMBER = 'MEMBER',
+  CUSTOM = 'CUSTOM',
+}
+
+export interface VenuePriceRule {
+  id: string;
+  priceBookId: string;
+  dayType: VenueDayType;
+  daysOfWeek: number[];
+  specificDate?: string | null;
+  startMinute: number;
+  endMinute: number;
+  customerType: VenueCustomerType;
+  pricePerHour: number;
+  minimumMinutes?: number | null;
+  billingStepMinutes?: number | null;
+  priority: number;
+  notes?: string | null;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface VenuePriceBook {
+  id: string;
+  venueId: string;
+  name: string;
+  currency: string;
+  effectiveFrom: string;
+  effectiveTo?: string | null;
+  isActive: boolean;
+  priority: number;
+  notes?: string | null;
+  priceImageUrl?: string | null;
+  priceImagePublicId?: string | null;
+  rules?: VenuePriceRule[];
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface CreateVenuePriceBookRequest {
+  name: string;
+  currency?: string;
+  effectiveFrom: string;
+  effectiveTo?: string | null;
+  isActive?: boolean;
+  priority?: number;
+  notes?: string | null;
+  priceImageUrl?: string | null;
+  priceImagePublicId?: string | null;
+}
+
+export type UpdateVenuePriceBookRequest = Partial<CreateVenuePriceBookRequest>;
+
+export interface CreateVenuePriceRuleRequest {
+  dayType: VenueDayType;
+  daysOfWeek?: number[];
+  specificDate?: string | null;
+  startMinute: number;
+  endMinute: number;
+  customerType: VenueCustomerType;
+  pricePerHour: number;
+  minimumMinutes?: number | null;
+  billingStepMinutes?: number | null;
+  priority?: number;
+  notes?: string | null;
+}
+
+export type UpdateVenuePriceRuleRequest = Partial<CreateVenuePriceRuleRequest>;
+
+export interface CalculateVenueRentalPriceRequest {
+  startTime: string;
+  endTime: string;
+  numberOfCourts: number;
+  customerType: VenueCustomerType;
+}
+
+export interface VenueRentalPriceBreakdown {
+  fromMinute: number;
+  toMinute: number;
+  from: string;
+  to: string;
+  minutes: number;
+  billableMinutes: number;
+  numberOfCourts: number;
+  pricePerHour: number;
+  amount: number;
+  ruleId: string | null;
+  source: 'PRICE_BOOK' | 'LEGACY';
+}
+
+export interface VenueRentalPriceCalculation {
+  totalAmount: number;
+  priceBookId: string | null;
+  currency: string;
+  breakdown: VenueRentalPriceBreakdown[];
+}
+
 export interface Venue {
   id: string;
   slug?: string;

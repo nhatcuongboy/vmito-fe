@@ -1,5 +1,16 @@
 import { api, ApiResponse } from './base';
-import { SearchVenueResponse, Venue } from './types';
+import {
+  CalculateVenueRentalPriceRequest,
+  CreateVenuePriceBookRequest,
+  CreateVenuePriceRuleRequest,
+  SearchVenueResponse,
+  UpdateVenuePriceBookRequest,
+  UpdateVenuePriceRuleRequest,
+  Venue,
+  VenuePriceBook,
+  VenuePriceRule,
+  VenueRentalPriceCalculation,
+} from './types';
 
 export const VenueService = {
   // Search venues (public - no auth required)
@@ -86,6 +97,89 @@ export const VenueService = {
   // Delete venue
   deleteVenue: async (id: string): Promise<void> => {
     await api.delete<ApiResponse<void>>(`/venues/${id}`);
+  },
+
+  getPriceBooks: async (venueId: string): Promise<VenuePriceBook[]> => {
+    const response = await api.get<ApiResponse<VenuePriceBook[]>>(
+      `/venues/${venueId}/price-books`
+    );
+    return response.data.data || [];
+  },
+
+  createPriceBook: async (
+    venueId: string,
+    data: CreateVenuePriceBookRequest
+  ): Promise<VenuePriceBook> => {
+    const response = await api.post<ApiResponse<VenuePriceBook>>(
+      `/venues/${venueId}/price-books`,
+      data
+    );
+    return response.data.data!;
+  },
+
+  updatePriceBook: async (
+    venueId: string,
+    priceBookId: string,
+    data: UpdateVenuePriceBookRequest
+  ): Promise<VenuePriceBook> => {
+    const response = await api.patch<ApiResponse<VenuePriceBook>>(
+      `/venues/${venueId}/price-books/${priceBookId}`,
+      data
+    );
+    return response.data.data!;
+  },
+
+  deletePriceBook: async (
+    venueId: string,
+    priceBookId: string
+  ): Promise<void> => {
+    await api.delete(`/venues/${venueId}/price-books/${priceBookId}`);
+  },
+
+  createPriceRule: async (
+    venueId: string,
+    priceBookId: string,
+    data: CreateVenuePriceRuleRequest
+  ): Promise<VenuePriceRule> => {
+    const response = await api.post<ApiResponse<VenuePriceRule>>(
+      `/venues/${venueId}/price-books/${priceBookId}/rules`,
+      data
+    );
+    return response.data.data!;
+  },
+
+  updatePriceRule: async (
+    venueId: string,
+    priceBookId: string,
+    ruleId: string,
+    data: UpdateVenuePriceRuleRequest
+  ): Promise<VenuePriceRule> => {
+    const response = await api.patch<ApiResponse<VenuePriceRule>>(
+      `/venues/${venueId}/price-books/${priceBookId}/rules/${ruleId}`,
+      data
+    );
+    return response.data.data!;
+  },
+
+  deletePriceRule: async (
+    venueId: string,
+    priceBookId: string,
+    ruleId: string
+  ): Promise<void> => {
+    await api.delete(
+      `/venues/${venueId}/price-books/${priceBookId}/rules/${ruleId}`
+    );
+  },
+
+  calculateRentalPrice: async (
+    venueId: string,
+    data: CalculateVenueRentalPriceRequest
+  ): Promise<VenueRentalPriceCalculation> => {
+    const response = await api.post<ApiResponse<VenueRentalPriceCalculation>>(
+      `/venues/${venueId}/calculate-rental-price`,
+      data
+    );
+    return response.data.data!;
   },
 
   migrateAddresses: async (): Promise<{

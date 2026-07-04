@@ -23,6 +23,7 @@ import AppMultiImageUpload, {
   ISessionImage,
 } from '@/components/session/AppMultiImageUpload';
 import AppSingleImageUpload from '@/components/session/AppSingleImageUpload';
+import VenuePricingManager from '@/components/venue/VenuePricingManager';
 import PageLayout from '@/components/layout/PageLayout';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -550,48 +551,11 @@ export default function EditVenuePage({
               <Box flex={1} />
             </HStack>
 
-            <HStack width="full" gap={4}>
-              <Controller
-                control={form.control}
-                name="hourlyRateFixed"
-                render={({ field }) => (
-                  <Field flex={1} label="Giá thuê cố định (VND)">
-                    <Input
-                      {...field}
-                      type="number"
-                      onChange={(e) =>
-                        field.onChange(
-                          e.target.value
-                            ? parseInt(e.target.value, 10)
-                            : undefined
-                        )
-                      }
-                      value={field.value ?? ''}
-                    />
-                  </Field>
-                )}
-              />
-              <Controller
-                control={form.control}
-                name="hourlyRateWalkIn"
-                render={({ field }) => (
-                  <Field flex={1} label="Giá thuê vãng lai (VND)">
-                    <Input
-                      {...field}
-                      type="number"
-                      onChange={(e) =>
-                        field.onChange(
-                          e.target.value
-                            ? parseInt(e.target.value, 10)
-                            : undefined
-                        )
-                      }
-                      value={field.value ?? ''}
-                    />
-                  </Field>
-                )}
-              />
-            </HStack>
+            <VenuePricingManager
+              venueId={id}
+              legacyFixed={form.watch('hourlyRateFixed')}
+              legacyWalkIn={form.watch('hourlyRateWalkIn')}
+            />
           </VStack>
 
           <Divider />
