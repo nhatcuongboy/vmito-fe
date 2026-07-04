@@ -211,8 +211,13 @@ export default function NotificationBell({
                 return results.flat();
               })();
 
+        // Dedupe by id — the same club (and its requests) can be returned
+        // twice when the user is both host and member of that club
+        const uniqueRequests = Array.from(
+          new Map(requests.map((request) => [request.id, request])).values()
+        );
         setClubJoinRequests(
-          requests.filter(
+          uniqueRequests.filter(
             (request) => request.status === EJoinRequestStatus.PENDING
           )
         );

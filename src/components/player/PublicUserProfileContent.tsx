@@ -10,6 +10,7 @@ import {
   HStack,
   Icon,
   Image,
+  Portal,
   SimpleGrid,
   Skeleton,
   Text,
@@ -23,6 +24,7 @@ import {
   Phone,
   Settings,
   User,
+  X,
 } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
 import { usePathname, useRouter } from '@/i18n/config';
@@ -33,6 +35,7 @@ import UserProfileModal from '@/components/ui/UserProfileModal';
 import { RatingService } from '@/lib/api/rating.service';
 import { SessionService } from '@/lib/api/session.service';
 import { UserService, IPublicProfileMeta } from '@/lib/api/user.service';
+import { getFullSizeAvatarUrl } from '@/lib/utils/image';
 import { ClubsService } from '@/lib/api/clubs.service';
 import { useAuthStore } from '@/stores/useAuthStore';
 import {
@@ -272,6 +275,7 @@ export default function PublicUserProfileContent({
 
   const isOwner = currentUser?.id === userId;
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isAvatarPreviewOpen, setIsAvatarPreviewOpen] = useState(false);
 
   const joinedAt = profile?.createdAt;
   const phone = profile?.phone;
@@ -399,6 +403,12 @@ export default function PublicUserProfileContent({
                   borderWidth="4px"
                   borderColor="white"
                   mb="-32px"
+                  cursor={avatarUrl ? 'pointer' : 'default'}
+                  onClick={() => {
+                    if (avatarUrl) setIsAvatarPreviewOpen(true);
+                  }}
+                  _hover={avatarUrl ? { opacity: 0.9 } : undefined}
+                  transition="opacity 0.2s"
                 >
                   <Avatar.Fallback name={displayName}>
                     <User size={24} />
@@ -948,6 +958,68 @@ export default function PublicUserProfileContent({
       >
         <RatingList ratings={ratings} emptyMessage={t('noReviews')} />
       </VModal>
+
+      {/* Avatar full-size preview */}
+      {isAvatarPreviewOpen && avatarUrl && (
+        <Portal>
+          <Flex
+            position="fixed"
+            top={0}
+            left={0}
+            right={0}
+            bottom={0}
+            bg="blackAlpha.800"
+            zIndex={2000}
+            align="center"
+            justify="center"
+            p={4}
+            onClick={() => setIsAvatarPreviewOpen(false)}
+            animation="fadeIn 0.15s ease-out"
+            css={{
+              '@keyframes fadeIn': {
+                from: { opacity: 0 },
+                to: { opacity: 1 },
+              },
+            }}
+          >
+            <Box
+              as="button"
+              {...({ type: 'button' } as Record<string, unknown>)}
+              position="absolute"
+              top={4}
+              right={4}
+              w={10}
+              h={10}
+              display="inline-flex"
+              alignItems="center"
+              justifyContent="center"
+              borderRadius="full"
+              bg="whiteAlpha.200"
+              color="white"
+              _hover={{ bg: 'whiteAlpha.300' }}
+              transition="background 0.2s"
+              aria-label="Close image preview"
+              onClick={(e: React.MouseEvent) => {
+                e.stopPropagation();
+                setIsAvatarPreviewOpen(false);
+              }}
+            >
+              <Icon as={X} boxSize={5} />
+            </Box>
+            <Image
+              src={getFullSizeAvatarUrl(avatarUrl)}
+              alt={displayName}
+              w={{ base: '92vw', md: '560px' }}
+              maxW="92vw"
+              maxH="90vh"
+              borderRadius="16px"
+              objectFit="contain"
+              boxShadow="0 4px 16px rgba(0,0,0,.08)"
+              onClick={(e: React.MouseEvent) => e.stopPropagation()}
+            />
+          </Flex>
+        </Portal>
+      )}
     </>
   );
 }

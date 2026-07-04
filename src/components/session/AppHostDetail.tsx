@@ -5,16 +5,26 @@ import { Button, HStack, VStack, Image } from '@/components/ui/chakra-compat';
 import { RatingService } from '@/lib/api/rating.service';
 import { SessionService } from '@/lib/api/session.service';
 import { UserRatingStats } from '@/lib/api/types';
+import { getFullSizeAvatarUrl } from '@/lib/utils/image';
 import {
   Avatar,
   Box,
   Flex,
   Grid,
   Icon,
+  Portal,
   Separator,
   Text,
 } from '@chakra-ui/react';
-import { Check, Copy, Phone, ChevronRight } from 'lucide-react';
+import {
+  Check,
+  Copy,
+  Phone,
+  ChevronRight,
+  Star,
+  MessageCircle,
+  X,
+} from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useEffect, useState } from 'react';
 import { useRouter } from '@/i18n/config';
@@ -46,6 +56,7 @@ export const AppHostDetail = ({
   const [totalSessions, setTotalSessions] = useState<number>(0);
   const [availableSessions, setAvailableSessions] = useState<number>(0);
   const [copied, setCopied] = useState(false);
+  const [isAvatarPreviewOpen, setIsAvatarPreviewOpen] = useState(false);
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -95,140 +106,237 @@ export const AppHostDetail = ({
     }
   };
 
+  const displayRating = stats ? Math.round(stats.averageRating * 10) / 10 : 0;
+  const hasRating = !loading && !!stats && stats.totalRatings > 0;
+
   return (
-    <Box w="full">
-      <VStack gap={0} align="stretch">
-        {/* Profile Header — gradient banner */}
-        <Box
-          mx={-4}
-          mt={-4}
-          mb={0}
-          px={4}
-          pt={6}
-          pb={5}
-          style={{
-            background:
-              'linear-gradient(135deg, #16a34a 0%, #15803d 60%, #14532d 100%)',
-          }}
-        >
-          <Flex direction="column" align="center" gap={3}>
-            <Avatar.Root
-              size="xl"
-              borderWidth="3px"
-              borderColor="white"
-              boxShadow="0 4px 16px rgba(0,0,0,0.2)"
+    <Box
+      as="section"
+      mx={-4}
+      mt={-4}
+      mb={-4}
+      bg="#F6F7F9"
+      _dark={{ bg: 'gray.900' }}
+    >
+      {/* ===== Hero Header ===== */}
+      <Box
+        as="header"
+        minH="190px"
+        px={6}
+        pt={7}
+        pb={12}
+        style={{
+          background:
+            'linear-gradient(135deg, #16a34a 0%, #15803d 60%, #14532d 100%)',
+        }}
+      >
+        <Flex direction="column" align="center" gap={3}>
+          <Avatar.Root
+            w="90px"
+            h="90px"
+            borderWidth="3px"
+            borderColor="white"
+            boxShadow="0 4px 16px rgba(0,0,0,.08)"
+            cursor={image ? 'pointer' : 'default'}
+            onClick={(e) => {
+              e.stopPropagation();
+              if (image) setIsAvatarPreviewOpen(true);
+            }}
+            _hover={image ? { opacity: 0.9 } : undefined}
+            transition="opacity 0.2s"
+          >
+            <Avatar.Fallback
+              name={name || 'Host'}
+              bg="green.300"
+              color="white"
+              fontSize="3xl"
+              fontWeight="bold"
             >
-              <Avatar.Fallback
-                name={name || 'Host'}
-                bg="green.300"
-                color="white"
-                fontSize="2xl"
-                fontWeight="bold"
-              >
-                {(name || 'H').charAt(0).toUpperCase()}
-              </Avatar.Fallback>
-              {image && <Avatar.Image src={image} />}
-            </Avatar.Root>
+              {(name || 'H').charAt(0).toUpperCase()}
+            </Avatar.Fallback>
+            {image && <Avatar.Image src={image} borderRadius="full" />}
+          </Avatar.Root>
 
-            <Box textAlign="center">
-              <Text
-                fontSize="xl"
-                fontWeight="extrabold"
-                color="white"
-                letterSpacing="tight"
-                lineHeight="1.2"
-              >
-                {name || 'Unknown Host'}
-              </Text>
-              {phone && (
-                <Flex
-                  align="center"
-                  justify="center"
-                  gap={1.5}
-                  mt={1}
-                  onClick={handleCopyPhone}
-                  cursor="pointer"
-                  role="button"
-                  _hover={{ opacity: 0.8 }}
-                  transition="opacity 0.2s"
-                >
-                  <Icon as={Phone} boxSize={3.5} color="green.200" />
-                  <Text fontSize="sm" fontWeight="semibold" color="green.100">
-                    {phone}
-                  </Text>
-                  <Icon
-                    as={copied ? Check : Copy}
-                    boxSize={3.5}
-                    color={copied ? 'yellow.300' : 'green.200'}
-                    transition="color 0.2s"
-                  />
-                </Flex>
-              )}
-            </Box>
-          </Flex>
-        </Box>
-
-        {/* Stats */}
-        {!loading && (
-          <Grid templateColumns="1fr 1fr" gap={0} mt={0}>
-            <Box
-              py={4}
-              px={3}
+          <Flex direction="column" align="center" gap={1.5}>
+            <Text
+              as="h2"
+              fontSize="24px"
+              fontWeight="bold"
+              color="white"
+              letterSpacing="tight"
+              lineHeight="1.2"
               textAlign="center"
-              borderBottomWidth="1px"
-              borderRightWidth="1px"
-              borderColor="gray.100"
-              _dark={{ borderColor: 'gray.700' }}
+              cursor="pointer"
+              role="button"
+              _hover={{ textDecoration: 'underline', opacity: 0.9 }}
+              transition="opacity 0.2s"
+              onClick={(e) => {
+                e.stopPropagation();
+                if (onClose) onClose();
+                router.push(`/user/${userId}`);
+              }}
             >
+              {name || 'Unknown Host'}
+            </Text>
+
+            {phone && (
+              <Flex
+                align="center"
+                gap={1.5}
+                px={3}
+                py={1}
+                borderRadius="full"
+                bg="whiteAlpha.200"
+                onClick={handleCopyPhone}
+                cursor="pointer"
+                role="button"
+                _hover={{ bg: 'whiteAlpha.300' }}
+                transition="background 0.2s"
+              >
+                <Icon as={Phone} boxSize={3.5} color="whiteAlpha.900" />
+                <Text fontSize="14px" fontWeight="semibold" color="white">
+                  {phone}
+                </Text>
+                <Icon
+                  as={copied ? Check : Copy}
+                  boxSize={3.5}
+                  color={copied ? 'yellow.300' : 'whiteAlpha.800'}
+                  transition="color 0.2s"
+                />
+              </Flex>
+            )}
+
+            {hasRating && stats && (
+              <Flex align="center" gap={1.5} mt={0.5}>
+                <HStack gap={0.5}>
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <Icon
+                      key={star}
+                      as={Star}
+                      boxSize={3.5}
+                      fill={
+                        star <= Math.round(stats.averageRating)
+                          ? '#FBBF24'
+                          : 'rgba(255,255,255,0.35)'
+                      }
+                      color={
+                        star <= Math.round(stats.averageRating)
+                          ? '#FBBF24'
+                          : 'rgba(255,255,255,0.35)'
+                      }
+                    />
+                  ))}
+                </HStack>
+                <Text fontSize="14px" fontWeight="bold" color="white">
+                  {displayRating.toFixed(1)}
+                </Text>
+                <Text fontSize="14px" color="whiteAlpha.800">
+                  ({stats.totalRatings} {t('rating').toLowerCase()})
+                </Text>
+              </Flex>
+            )}
+          </Flex>
+        </Flex>
+      </Box>
+
+      {/* ===== Body ===== */}
+      <VStack gap={4} align="stretch" px={4} pb={6} mt={-6}>
+        {/* Statistics Card */}
+        {!loading && (
+          <Grid
+            templateColumns="1fr auto 1fr"
+            alignItems="center"
+            bg="white"
+            _dark={{ bg: 'gray.800' }}
+            borderRadius="16px"
+            boxShadow="0 4px 16px rgba(0,0,0,.08)"
+            p={5}
+          >
+            <VStack gap={1} textAlign="center">
               <Text
-                fontSize="2xl"
-                fontWeight="extrabold"
-                color="gray.700"
+                fontSize="32px"
+                fontWeight="bold"
+                color="gray.800"
                 _dark={{ color: 'gray.100' }}
-                lineHeight="1"
+                lineHeight="1.1"
               >
                 {totalSessions}
               </Text>
-              <Text fontSize="xs" color="gray.500" mt={1} fontWeight="medium">
+              <Text
+                fontSize="14px"
+                color="gray.500"
+                _dark={{ color: 'gray.400' }}
+                fontWeight="medium"
+              >
                 {t('totalHosted')}
               </Text>
-            </Box>
-            <Box
-              py={4}
-              px={3}
-              textAlign="center"
-              borderBottomWidth="1px"
+            </VStack>
+
+            <Separator
+              orientation="vertical"
+              h="56px"
               borderColor="gray.100"
               _dark={{ borderColor: 'gray.700' }}
-            >
+            />
+
+            <VStack gap={1} textAlign="center">
               <Text
-                fontSize="2xl"
-                fontWeight="extrabold"
+                fontSize="32px"
+                fontWeight="bold"
                 color="green.600"
                 _dark={{ color: 'green.400' }}
-                lineHeight="1"
+                lineHeight="1.1"
               >
                 {availableSessions}
               </Text>
-              <Text fontSize="xs" color="gray.500" mt={1} fontWeight="medium">
+              <Text
+                fontSize="14px"
+                color="gray.500"
+                _dark={{ color: 'gray.400' }}
+                fontWeight="medium"
+              >
                 {t('availableSessions')}
               </Text>
-            </Box>
+            </VStack>
           </Grid>
         )}
 
-        {/* Rating Section */}
-        <Box pt={4} pb={2}>
-          <Text
-            fontSize="xs"
-            fontWeight="bold"
-            color="gray.400"
-            textTransform="uppercase"
-            letterSpacing="widest"
-            mb={3}
-          >
-            {t('rating')}
-          </Text>
+        {/* Rating Card */}
+        <Box
+          bg="white"
+          _dark={{ bg: 'gray.800' }}
+          borderRadius="16px"
+          boxShadow="0 4px 16px rgba(0,0,0,.08)"
+          p={5}
+        >
+          <Flex align="center" justify="space-between" mb={4}>
+            <Text
+              fontSize="14px"
+              fontWeight="bold"
+              color="gray.800"
+              _dark={{ color: 'gray.100' }}
+            >
+              ⭐ {t('rating')}
+            </Text>
+            {hasRating && stats && stats.averageRating >= 4.5 && (
+              <Box
+                px={2.5}
+                py={0.5}
+                borderRadius="full"
+                bg="green.50"
+                _dark={{ bg: 'green.900' }}
+              >
+                <Text
+                  fontSize="12px"
+                  fontWeight="semibold"
+                  color="green.600"
+                  _dark={{ color: 'green.300' }}
+                >
+                  Host uy tín
+                </Text>
+              </Box>
+            )}
+          </Flex>
           <UserRatingSummaryCard
             stats={stats}
             isLoading={loading}
@@ -236,21 +344,19 @@ export const AppHostDetail = ({
           />
         </Box>
 
-        <Separator />
-
-        {/* Contact Actions */}
+        {/* Action Buttons */}
         {phone && (
-          <HStack gap={3} pt={4}>
+          <VStack gap="12px" align="stretch">
             <Button
               colorPalette="green"
               variant="solid"
-              flex={1}
-              height="48px"
-              borderRadius="xl"
+              width="full"
+              height="52px"
+              borderRadius="16px"
               onClick={handleCall}
-              fontSize="sm"
+              fontSize="15px"
               fontWeight="bold"
-              boxShadow="0 2px 10px rgba(22, 163, 74, 0.25)"
+              boxShadow="0 4px 16px rgba(22, 163, 74, 0.25)"
             >
               <Icon as={Phone} mr={2} boxSize={4} strokeWidth={2.5} />
               {t('call')}
@@ -258,44 +364,111 @@ export const AppHostDetail = ({
             {allowZaloContact && (
               <Button
                 colorPalette="green"
-                variant="subtle"
-                flex={1}
-                height="48px"
-                borderRadius="xl"
+                variant="outline"
+                width="full"
+                height="52px"
+                borderRadius="16px"
                 onClick={handleZalo}
-                fontSize="sm"
+                fontSize="15px"
                 fontWeight="bold"
+                bg="white"
+                _dark={{ bg: 'gray.800', borderColor: 'green.700' }}
                 borderWidth="1.5px"
                 borderColor="green.200"
-                _dark={{ borderColor: 'green.800' }}
               >
+                <Icon as={MessageCircle} mr={2} boxSize={4} strokeWidth={2.5} />
                 {t('zalo')}
               </Button>
             )}
-          </HStack>
+          </VStack>
         )}
 
+        {/* Footer */}
         <Button
-          mt={4}
           width="full"
-          height="46px"
-          variant="subtle"
+          height="44px"
+          variant="ghost"
           colorPalette="green"
-          borderRadius="xl"
-          fontSize="sm"
+          borderRadius="16px"
+          fontSize="14px"
           fontWeight="bold"
-          borderWidth="1px"
-          borderColor="green.100"
-          _dark={{ borderColor: 'green.900' }}
+          color="green.600"
+          _dark={{ color: 'green.400' }}
+          _hover={{ bg: 'transparent', opacity: 0.75 }}
           onClick={() => {
             if (onClose) onClose();
             router.push(`/user/${userId}`);
           }}
         >
           {tSession('viewDetails') || 'Xem chi tiết'}
-          <Icon as={ChevronRight} ml={1} boxSize={4} opacity={0.8} />
+          <Icon as={ChevronRight} ml={1} boxSize={4} />
         </Button>
       </VStack>
+
+      {/* Avatar full-size preview */}
+      {isAvatarPreviewOpen && image && (
+        <Portal>
+          <Flex
+            position="fixed"
+            top={0}
+            left={0}
+            right={0}
+            bottom={0}
+            bg="blackAlpha.800"
+            zIndex={2000}
+            align="center"
+            justify="center"
+            p={4}
+            onClick={(e) => {
+              e.stopPropagation();
+              setIsAvatarPreviewOpen(false);
+            }}
+            animation="fadeIn 0.15s ease-out"
+            css={{
+              '@keyframes fadeIn': {
+                from: { opacity: 0 },
+                to: { opacity: 1 },
+              },
+            }}
+          >
+            <Box
+              as="button"
+              {...({ type: 'button' } as Record<string, unknown>)}
+              position="absolute"
+              top={4}
+              right={4}
+              w={10}
+              h={10}
+              display="inline-flex"
+              alignItems="center"
+              justifyContent="center"
+              borderRadius="full"
+              bg="whiteAlpha.200"
+              color="white"
+              _hover={{ bg: 'whiteAlpha.300' }}
+              transition="background 0.2s"
+              aria-label="Close image preview"
+              onClick={(e: React.MouseEvent) => {
+                e.stopPropagation();
+                setIsAvatarPreviewOpen(false);
+              }}
+            >
+              <Icon as={X} boxSize={5} />
+            </Box>
+            <Image
+              src={getFullSizeAvatarUrl(image)}
+              alt={name || 'Host'}
+              w={{ base: '92vw', md: '560px' }}
+              maxW="92vw"
+              maxH="90vh"
+              borderRadius="16px"
+              objectFit="contain"
+              boxShadow="0 4px 16px rgba(0,0,0,.08)"
+              onClick={(e: React.MouseEvent) => e.stopPropagation()}
+            />
+          </Flex>
+        </Portal>
+      )}
     </Box>
   );
 };
