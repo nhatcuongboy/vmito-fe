@@ -36,8 +36,8 @@ import {
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { ISession, UserRole } from '@/lib/api/types';
-import { useParams } from 'next/navigation';
-import { useRouter } from '@/i18n/config';
+import { useParams, useSearchParams } from 'next/navigation';
+import { usePathname, useRouter } from '@/i18n/config';
 import { ClubsService } from '@/lib/api/clubs.service';
 import { IClub, EMemberRole, EJoinRequestStatus } from '@/types/club';
 import { toaster } from '@/components/ui/toaster';
@@ -136,11 +136,26 @@ const getVenueAddressLine = (venue: IClub['defaultVenue']): string | null => {
   return [venue.name, venue.address].filter(Boolean).join(' | ') || null;
 };
 
+const CLUB_DETAIL_TABS = [
+  'about',
+  'members',
+  'schedule',
+  'announcements',
+  'photos',
+] as const;
+type ClubDetailTab = (typeof CLUB_DETAIL_TABS)[number];
+const DEFAULT_CLUB_TAB: ClubDetailTab = 'about';
+
+const isClubDetailTab = (value: string | null): value is ClubDetailTab =>
+  !!value && (CLUB_DETAIL_TABS as readonly string[]).includes(value);
+
 export default function ClubDetailClient({
   initialClub,
 }: ClubDetailClientProps) {
   const t = useTranslations();
   const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
   const params = useParams();
   const clubId = params.id as string;
   const { user: currentUser } = useAuthStore();
@@ -148,7 +163,29 @@ export default function ClubDetailClient({
 
   const [club, setClub] = useState<IClub | null>(initialClub);
   const [isLoading, setIsLoading] = useState(!initialClub);
-  const [activeTab, setActiveTab] = useState('about');
+  const tabParam = searchParams.get('tab');
+  const [activeTab, setActiveTab] = useState<ClubDetailTab>(
+    isClubDetailTab(tabParam) ? tabParam : DEFAULT_CLUB_TAB
+  );
+
+  const handleTabChange = useCallback(
+    (tab: string) => {
+      const nextTab = isClubDetailTab(tab) ? tab : DEFAULT_CLUB_TAB;
+      setActiveTab(nextTab);
+
+      const query = new URLSearchParams(searchParams.toString());
+      if (nextTab === DEFAULT_CLUB_TAB) {
+        query.delete('tab');
+      } else {
+        query.set('tab', nextTab);
+      }
+      const queryString = query.toString();
+      router.replace(`${pathname}${queryString ? `?${queryString}` : ''}`, {
+        scroll: false,
+      });
+    },
+    [pathname, router, searchParams]
+  );
   const [isJoining, setIsJoining] = useState(false);
   const [hasPendingRequest, setHasPendingRequest] = useState(false);
   const [isHostDetailModalOpen, setIsHostDetailModalOpen] = useState(false);
@@ -432,7 +469,7 @@ export default function ClubDetailClient({
       <Container maxW="container.xl" pb={8} px={0}>
         <Tabs.Root
           value={activeTab}
-          onValueChange={(e) => setActiveTab(e.value)}
+          onValueChange={(e) => handleTabChange(e.value)}
           variant="plain"
         >
           <Tabs.List
@@ -1470,7 +1507,7 @@ export default function ClubDetailClient({
                       <Button
                         variant="ghost"
                         size="xs"
-                        onClick={() => setActiveTab('announcements')}
+                        onClick={() => handleTabChange('announcements')}
                       >
                         {t('clubs.viewAll')}
                       </Button>
