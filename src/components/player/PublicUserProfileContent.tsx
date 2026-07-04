@@ -983,40 +983,52 @@ export default function PublicUserProfileContent({
             }}
           >
             <Box
-              as="button"
-              {...({ type: 'button' } as Record<string, unknown>)}
-              position="absolute"
-              top={4}
-              right={4}
-              w={10}
-              h={10}
+              position="relative"
               display="inline-flex"
               alignItems="center"
               justifyContent="center"
-              borderRadius="full"
-              bg="whiteAlpha.200"
-              color="white"
-              _hover={{ bg: 'whiteAlpha.300' }}
-              transition="background 0.2s"
-              aria-label="Close image preview"
-              onClick={(e: React.MouseEvent) => {
-                e.stopPropagation();
-                setIsAvatarPreviewOpen(false);
-              }}
             >
-              <Icon as={X} boxSize={5} />
+              <Box
+                as="button"
+                {...({ type: 'button' } as Record<string, unknown>)}
+                position="absolute"
+                top="-12px"
+                right="-12px"
+                w={12}
+                h={12}
+                display="inline-flex"
+                alignItems="center"
+                justifyContent="center"
+                borderRadius="full"
+                bg="blackAlpha.800"
+                color="white"
+                borderWidth="2px"
+                borderColor="whiteAlpha.800"
+                boxShadow="0 8px 24px rgba(0,0,0,.24)"
+                _hover={{ bg: 'blackAlpha.900' }}
+                _active={{ bg: 'blackAlpha.950' }}
+                transition="background 0.2s"
+                aria-label="Close image preview"
+                zIndex={1}
+                onClick={(e: React.MouseEvent) => {
+                  e.stopPropagation();
+                  setIsAvatarPreviewOpen(false);
+                }}
+              >
+                <Icon as={X} boxSize={5} />
+              </Box>
+              <Image
+                src={getFullSizeAvatarUrl(avatarUrl)}
+                alt={displayName}
+                w={{ base: '92vw', md: '560px' }}
+                maxW="92vw"
+                maxH="90vh"
+                borderRadius="16px"
+                objectFit="contain"
+                boxShadow="0 4px 16px rgba(0,0,0,.08)"
+                onClick={(e: React.MouseEvent) => e.stopPropagation()}
+              />
             </Box>
-            <Image
-              src={getFullSizeAvatarUrl(avatarUrl)}
-              alt={displayName}
-              w={{ base: '92vw', md: '560px' }}
-              maxW="92vw"
-              maxH="90vh"
-              borderRadius="16px"
-              objectFit="contain"
-              boxShadow="0 4px 16px rgba(0,0,0,.08)"
-              onClick={(e: React.MouseEvent) => e.stopPropagation()}
-            />
           </Flex>
         </Portal>
       )}

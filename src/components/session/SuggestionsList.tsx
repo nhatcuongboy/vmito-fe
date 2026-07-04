@@ -655,6 +655,10 @@ export default function SuggestionsList({
         title={tSession('hostInfo')}
         size="md"
         hideSecondaryAction={true}
+        maxBodyHeight={{
+          base: 'calc(100vh - 120px)',
+          md: 'calc(100vh - 112px)',
+        }}
       >
         {selectedSessionForDetail && (
           <AppHostDetail

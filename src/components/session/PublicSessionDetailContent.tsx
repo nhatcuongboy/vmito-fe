@@ -395,7 +395,10 @@ export const PublicSessionDetailContent = ({
         title={t('hostInfo') || 'Thông tin Host'}
         size="md"
         hideSecondaryAction={true}
-        maxBodyHeight="80vh"
+        maxBodyHeight={{
+          base: 'calc(100vh - 120px)',
+          md: 'calc(100vh - 112px)',
+        }}
       >
         <Box>
           <AppHostDetail

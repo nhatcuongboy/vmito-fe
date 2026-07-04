@@ -1,6 +1,5 @@
 'use client';
 
-import { UserRatingSummaryCard } from '@/components/rating/UserRatingSummaryCard';
 import { Button, HStack, VStack, Image } from '@/components/ui/chakra-compat';
 import { RatingService } from '@/lib/api/rating.service';
 import { SessionService } from '@/lib/api/session.service';
@@ -14,17 +13,10 @@ import {
   Icon,
   Portal,
   Separator,
+  Skeleton,
   Text,
 } from '@chakra-ui/react';
-import {
-  Check,
-  Copy,
-  Phone,
-  ChevronRight,
-  Star,
-  MessageCircle,
-  X,
-} from 'lucide-react';
+import { Phone, ChevronRight, Star, MessageCircle, X } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useEffect, useState } from 'react';
 import { useRouter } from '@/i18n/config';
@@ -55,7 +47,6 @@ export const AppHostDetail = ({
   const [loading, setLoading] = useState(true);
   const [totalSessions, setTotalSessions] = useState<number>(0);
   const [availableSessions, setAvailableSessions] = useState<number>(0);
-  const [copied, setCopied] = useState(false);
   const [isAvatarPreviewOpen, setIsAvatarPreviewOpen] = useState(false);
 
   useEffect(() => {
@@ -94,15 +85,6 @@ export const AppHostDetail = ({
     if (phone) {
       const normalized = phone.replace(/^0/, '84');
       window.open(`https://zalo.me/${normalized}`, '_blank');
-    }
-  };
-
-  const handleCopyPhone = async (e: React.MouseEvent) => {
-    e.stopPropagation();
-    if (phone) {
-      await navigator.clipboard.writeText(phone);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
     }
   };
 
@@ -178,63 +160,6 @@ export const AppHostDetail = ({
             >
               {name || 'Unknown Host'}
             </Text>
-
-            {phone && (
-              <Flex
-                align="center"
-                gap={1.5}
-                px={3}
-                py={1}
-                borderRadius="full"
-                bg="whiteAlpha.200"
-                onClick={handleCopyPhone}
-                cursor="pointer"
-                role="button"
-                _hover={{ bg: 'whiteAlpha.300' }}
-                transition="background 0.2s"
-              >
-                <Icon as={Phone} boxSize={3.5} color="whiteAlpha.900" />
-                <Text fontSize="14px" fontWeight="semibold" color="white">
-                  {phone}
-                </Text>
-                <Icon
-                  as={copied ? Check : Copy}
-                  boxSize={3.5}
-                  color={copied ? 'yellow.300' : 'whiteAlpha.800'}
-                  transition="color 0.2s"
-                />
-              </Flex>
-            )}
-
-            {hasRating && stats && (
-              <Flex align="center" gap={1.5} mt={0.5}>
-                <HStack gap={0.5}>
-                  {[1, 2, 3, 4, 5].map((star) => (
-                    <Icon
-                      key={star}
-                      as={Star}
-                      boxSize={3.5}
-                      fill={
-                        star <= Math.round(stats.averageRating)
-                          ? '#FBBF24'
-                          : 'rgba(255,255,255,0.35)'
-                      }
-                      color={
-                        star <= Math.round(stats.averageRating)
-                          ? '#FBBF24'
-                          : 'rgba(255,255,255,0.35)'
-                      }
-                    />
-                  ))}
-                </HStack>
-                <Text fontSize="14px" fontWeight="bold" color="white">
-                  {displayRating.toFixed(1)}
-                </Text>
-                <Text fontSize="14px" color="whiteAlpha.800">
-                  ({stats.totalRatings} {t('rating').toLowerCase()})
-                </Text>
-              </Flex>
-            )}
           </Flex>
         </Flex>
       </Box>
@@ -307,46 +232,133 @@ export const AppHostDetail = ({
           _dark={{ bg: 'gray.800' }}
           borderRadius="16px"
           boxShadow="0 4px 16px rgba(0,0,0,.08)"
-          p={5}
+          p={6}
         >
-          <Flex align="center" justify="space-between" mb={4}>
-            <Text
-              fontSize="14px"
-              fontWeight="bold"
-              color="gray.800"
-              _dark={{ color: 'gray.100' }}
-            >
-              ⭐ {t('rating')}
-            </Text>
+          <Flex align="center" justify="space-between" gap={4} mb={5}>
+            <HStack gap={2}>
+              <Icon as={Star} boxSize={5} color="#FBBF24" fill="#FBBF24" />
+              <Text
+                fontSize="20px"
+                fontWeight="bold"
+                color="gray.800"
+                _dark={{ color: 'gray.100' }}
+                lineHeight="1.2"
+              >
+                {t('rating')}
+              </Text>
+            </HStack>
+
             {hasRating && stats && stats.averageRating >= 4.5 && (
               <Box
-                px={2.5}
-                py={0.5}
-                borderRadius="full"
+                px={4}
+                py={1.5}
+                borderRadius="999px"
                 bg="green.50"
                 _dark={{ bg: 'green.900' }}
               >
                 <Text
-                  fontSize="12px"
-                  fontWeight="semibold"
+                  fontSize="13px"
+                  fontWeight="bold"
                   color="green.600"
                   _dark={{ color: 'green.300' }}
+                  whiteSpace="nowrap"
                 >
                   Host uy tín
                 </Text>
               </Box>
             )}
           </Flex>
-          <UserRatingSummaryCard
-            stats={stats}
-            isLoading={loading}
-            showBreakdown
-          />
+
+          {loading ? (
+            <VStack gap={4} align="center" py={3}>
+              <Skeleton height="40px" width="88px" borderRadius="md" />
+              <Skeleton height="20px" width="140px" borderRadius="md" />
+              <Skeleton height="16px" width="180px" borderRadius="md" />
+            </VStack>
+          ) : hasRating && stats ? (
+            <VStack gap={3} align="center">
+              <Text
+                fontSize={{ base: '40px', md: '38px' }}
+                fontWeight="bold"
+                color="gray.900"
+                _dark={{ color: 'gray.50' }}
+                lineHeight="1"
+                textAlign="center"
+              >
+                {displayRating.toFixed(1)}
+              </Text>
+
+              <HStack gap={1} justify="center" aria-label={t('rating')}>
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <Icon
+                    key={star}
+                    as={Star}
+                    boxSize={5}
+                    fill={
+                      star <= Math.round(stats.averageRating)
+                        ? '#FBBF24'
+                        : '#E5E7EB'
+                    }
+                    color={
+                      star <= Math.round(stats.averageRating)
+                        ? '#FBBF24'
+                        : '#E5E7EB'
+                    }
+                  />
+                ))}
+              </HStack>
+
+              <Text
+                fontSize="14px"
+                color="gray.500"
+                _dark={{ color: 'gray.400' }}
+                textAlign="center"
+              >
+                Dựa trên {stats.totalRatings} đánh giá
+              </Text>
+            </VStack>
+          ) : (
+            <VStack gap={3} align="center" py={2}>
+              <Flex
+                w={12}
+                h={12}
+                align="center"
+                justify="center"
+                borderRadius="full"
+                bg="gray.50"
+                color="gray.300"
+                _dark={{ bg: 'gray.700', color: 'gray.500' }}
+              >
+                <Icon as={Star} boxSize={6} />
+              </Flex>
+
+              <Text
+                fontSize="18px"
+                fontWeight="bold"
+                color="gray.800"
+                _dark={{ color: 'gray.100' }}
+                textAlign="center"
+                lineHeight="1.3"
+              >
+                Chưa có đánh giá
+              </Text>
+
+              <Text
+                fontSize="14px"
+                color="gray.500"
+                _dark={{ color: 'gray.400' }}
+                textAlign="center"
+                lineHeight="1.5"
+              >
+                Host này chưa nhận đánh giá nào.
+              </Text>
+            </VStack>
+          )}
         </Box>
 
         {/* Action Buttons */}
         {phone && (
-          <VStack gap="12px" align="stretch">
+          <Flex direction="row" gap="12px" align="stretch">
             <Button
               colorPalette="green"
               variant="solid"
@@ -357,30 +369,33 @@ export const AppHostDetail = ({
               fontSize="15px"
               fontWeight="bold"
               boxShadow="0 4px 16px rgba(22, 163, 74, 0.25)"
+              flex={1}
+              minW={0}
             >
               <Icon as={Phone} mr={2} boxSize={4} strokeWidth={2.5} />
               {t('call')}
             </Button>
             {allowZaloContact && (
               <Button
-                colorPalette="green"
-                variant="outline"
+                variant="solid"
                 width="full"
                 height="52px"
                 borderRadius="16px"
                 onClick={handleZalo}
                 fontSize="15px"
                 fontWeight="bold"
-                bg="white"
-                _dark={{ bg: 'gray.800', borderColor: 'green.700' }}
-                borderWidth="1.5px"
-                borderColor="green.200"
+                bg="#0068FF"
+                color="white"
+                _hover={{ bg: '#0057D1' }}
+                _active={{ bg: '#0050C0' }}
+                flex={1}
+                minW={0}
               >
                 <Icon as={MessageCircle} mr={2} boxSize={4} strokeWidth={2.5} />
                 {t('zalo')}
               </Button>
             )}
-          </VStack>
+          </Flex>
         )}
 
         {/* Footer */}
@@ -432,40 +447,52 @@ export const AppHostDetail = ({
             }}
           >
             <Box
-              as="button"
-              {...({ type: 'button' } as Record<string, unknown>)}
-              position="absolute"
-              top={4}
-              right={4}
-              w={10}
-              h={10}
+              position="relative"
               display="inline-flex"
               alignItems="center"
               justifyContent="center"
-              borderRadius="full"
-              bg="whiteAlpha.200"
-              color="white"
-              _hover={{ bg: 'whiteAlpha.300' }}
-              transition="background 0.2s"
-              aria-label="Close image preview"
-              onClick={(e: React.MouseEvent) => {
-                e.stopPropagation();
-                setIsAvatarPreviewOpen(false);
-              }}
             >
-              <Icon as={X} boxSize={5} />
+              <Box
+                as="button"
+                {...({ type: 'button' } as Record<string, unknown>)}
+                position="absolute"
+                top="-12px"
+                right="-12px"
+                w={12}
+                h={12}
+                display="inline-flex"
+                alignItems="center"
+                justifyContent="center"
+                borderRadius="full"
+                bg="blackAlpha.800"
+                color="white"
+                borderWidth="2px"
+                borderColor="whiteAlpha.800"
+                boxShadow="0 8px 24px rgba(0,0,0,.24)"
+                _hover={{ bg: 'blackAlpha.900' }}
+                _active={{ bg: 'blackAlpha.950' }}
+                transition="background 0.2s"
+                aria-label="Close image preview"
+                zIndex={1}
+                onClick={(e: React.MouseEvent) => {
+                  e.stopPropagation();
+                  setIsAvatarPreviewOpen(false);
+                }}
+              >
+                <Icon as={X} boxSize={5} />
+              </Box>
+              <Image
+                src={getFullSizeAvatarUrl(image)}
+                alt={name || 'Host'}
+                w={{ base: '92vw', md: '560px' }}
+                maxW="92vw"
+                maxH="90vh"
+                borderRadius="16px"
+                objectFit="contain"
+                boxShadow="0 4px 16px rgba(0,0,0,.08)"
+                onClick={(e: React.MouseEvent) => e.stopPropagation()}
+              />
             </Box>
-            <Image
-              src={getFullSizeAvatarUrl(image)}
-              alt={name || 'Host'}
-              w={{ base: '92vw', md: '560px' }}
-              maxW="92vw"
-              maxH="90vh"
-              borderRadius="16px"
-              objectFit="contain"
-              boxShadow="0 4px 16px rgba(0,0,0,.08)"
-              onClick={(e: React.MouseEvent) => e.stopPropagation()}
-            />
           </Flex>
         </Portal>
       )}
