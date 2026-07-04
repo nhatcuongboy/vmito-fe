@@ -25,6 +25,8 @@ import {
   LuUserCheck,
   LuUsers,
   LuMapPin,
+  LuHeart,
+  LuMessageCircle,
 } from 'react-icons/lu';
 import { FaBell } from 'react-icons/fa6';
 import {
@@ -91,7 +93,7 @@ const isManagedClub = (club: IMyClub, userId?: string) =>
   club.role === EMemberRole.MODERATOR ||
   club.host?.id === userId;
 
-const getNotificationIcon = (type: NotificationType) => {
+const getNotificationIcon = (type: NotificationType, action?: string) => {
   switch (type) {
     case NotificationType.SYSTEM:
       return LuShield;
@@ -103,6 +105,8 @@ const getNotificationIcon = (type: NotificationType) => {
       return LuCreditCard;
     case NotificationType.CLUB:
       return LuUsers;
+    case NotificationType.POST:
+      return action === 'post_commented' ? LuMessageCircle : LuHeart;
     default:
       return LuBell;
   }
@@ -1023,7 +1027,12 @@ export default function NotificationBell({
 
                   // Regular notification
                   const notification = item.data;
-                  const Icon = getNotificationIcon(notification.type);
+                  const Icon = getNotificationIcon(
+                    notification.type,
+                    typeof notification.data?.action === 'string'
+                      ? notification.data.action
+                      : undefined
+                  );
                   const isUnread = !notification.isRead;
                   const { displayTitle, displayMessage } =
                     getNotificationDisplay(notification);

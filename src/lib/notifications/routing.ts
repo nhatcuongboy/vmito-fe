@@ -25,6 +25,11 @@ export const getNotificationTargetRoute = (
   const sessionId = getStringData(data, ['sessionId']);
   const sessionSlug = getStringData(data, ['slug', 'sessionSlug']);
   const clubId = getStringData(data, ['clubSlug', 'clubId']);
+  const postId = getStringData(data, ['postId']);
+
+  if (type === 'POST' && postId) {
+    return ROUTES.NEWSFEED_POST(postId);
+  }
 
   if ((type === 'SESSION' || type === 'REGISTRATION') && sessionId) {
     return userRole === UserRole.HOST

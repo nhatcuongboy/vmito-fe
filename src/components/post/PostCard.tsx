@@ -13,6 +13,7 @@ import {
   MoreHorizontal,
   Trash2,
   Globe,
+  ExternalLink,
 } from 'lucide-react';
 import type { Post } from '@/types/post';
 import { CommentSection } from './CommentSection';
@@ -22,6 +23,10 @@ import { toaster } from '@/components/ui/toaster';
 import VModal from '@/components/ui/VModal';
 import { normalizeImageUrl } from '@/lib/images/normalizeImageUrl';
 import { Box, Flex } from '@chakra-ui/react';
+import { Link } from '@/i18n/config';
+import { ROUTES } from '@/constants/routes';
+import { getGoogleMapsUrl } from '@/utils/venue-helpers';
+import AppLightbox from '@/components/ui/AppLightbox';
 
 const localeMap: Record<string, Locale> = { vi, en: enUS, cn: zhCN };
 
@@ -29,15 +34,17 @@ interface PostCardProps {
   post: Post;
   onPostUpdate?: () => void;
   currentUserId?: string;
+  defaultShowComments?: boolean;
 }
 
 interface PostMediaImageProps {
   src: string;
   alt: string;
   className: string;
+  onClick?: () => void;
 }
 
-function PostMediaImage({ src, alt, className }: PostMediaImageProps) {
+function PostMediaImage({ src, alt, className, onClick }: PostMediaImageProps) {
   const [hasError, setHasError] = useState(false);
   const imageSrc = normalizeImageUrl(src);
 
@@ -56,19 +63,26 @@ function PostMediaImage({ src, alt, className }: PostMediaImageProps) {
       alt={alt}
       loading="lazy"
       onError={() => setHasError(true)}
+      onClick={onClick}
       className={`${className} cursor-pointer transition duration-200 hover:opacity-95`}
     />
   );
 }
 
-export function PostCard({ post, onPostUpdate, currentUserId }: PostCardProps) {
+export function PostCard({
+  post,
+  onPostUpdate,
+  currentUserId,
+  defaultShowComments = false,
+}: PostCardProps) {
   const t = useTranslations('posts');
   const locale = useLocale();
   const dateLocale = localeMap[locale] || enUS;
   const [showMenu, setShowMenu] = useState(false);
-  const [showComments, setShowComments] = useState(false);
+  const [showComments, setShowComments] = useState(defaultShowComments);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
   const [localPost, setLocalPost] = useState(post);
   const menuRef = useRef<HTMLDivElement>(null);
 
@@ -196,7 +210,7 @@ export function PostCard({ post, onPostUpdate, currentUserId }: PostCardProps) {
   };
 
   const actionButtonBase =
-    'flex flex-1 items-center justify-center gap-2 rounded-lg py-2.5 text-[15px] font-medium transition-colors active:scale-[0.98] hover:bg-gray-100 dark:hover:bg-white/5';
+    'flex flex-1 items-center justify-center gap-2.5 rounded-lg py-2.5 text-[15px] font-medium transition-colors active:scale-[0.98]';
 
   return (
     <Box
@@ -229,14 +243,25 @@ export function PostCard({ post, onPostUpdate, currentUserId }: PostCardProps) {
 
       {/* Header */}
       <Flex as="header" align="flex-start" gap={3} px={4} pt={4}>
-        <PostAvatar
-          name={localPost.author.name}
-          image={localPost.author.image}
-          size={40}
-        />
+        <Link
+          href={ROUTES.USER.PROFILE(localPost.authorId)}
+          className="shrink-0 transition hover:opacity-90"
+          aria-label={localPost.author.name}
+        >
+          <PostAvatar
+            name={localPost.author.name}
+            image={localPost.author.image}
+            size={40}
+          />
+        </Link>
         <div className="min-w-0 flex-1">
           <div className="truncate text-[15px] font-semibold leading-5 text-gray-900 dark:text-gray-50">
-            {localPost.author.name}
+            <Link
+              href={ROUTES.USER.PROFILE(localPost.authorId)}
+              className="hover:underline"
+            >
+              {localPost.author.name}
+            </Link>
           </div>
           <div className="mt-0.5 flex items-center gap-1 text-[13px] leading-4 text-gray-500 dark:text-gray-400">
             <time
@@ -299,10 +324,22 @@ export function PostCard({ post, onPostUpdate, currentUserId }: PostCardProps) {
       {/* Location */}
       {localPost.location && (
         <Box px={4} pt={2.5}>
-          <span className="inline-flex max-w-full items-center gap-1.5 rounded-full bg-red-50 px-3 py-1 text-[13px] font-medium text-red-700 dark:bg-red-950/30 dark:text-red-200">
+          <a
+            href={getGoogleMapsUrl({
+              name: localPost.location.name,
+              address: localPost.location.address,
+              lat: localPost.location.lat,
+              lng: localPost.location.lng,
+            })}
+            target="_blank"
+            rel="noopener noreferrer"
+            title={t('viewOnMap')}
+            className="inline-flex max-w-full items-center gap-1.5 rounded-full border border-red-100 bg-red-50 px-3 py-1 text-[13px] font-medium text-red-700 transition hover:bg-red-100 hover:underline dark:border-red-900/40 dark:bg-red-950/30 dark:text-red-200 dark:hover:bg-red-950/50"
+          >
             <MapPin size={13} className="shrink-0" />
             <span className="truncate">{localPost.location.name}</span>
-          </span>
+            <ExternalLink size={11} className="shrink-0 opacity-70" />
+          </a>
         </Box>
       )}
 
@@ -322,6 +359,7 @@ export function PostCard({ post, onPostUpdate, currentUserId }: PostCardProps) {
                 src={img.url}
                 alt={t('postImage', { index: index + 1 })}
                 className={getImageClassName(index)}
+                onClick={() => setLightboxIndex(index)}
               />
             ))}
           </div>
@@ -333,13 +371,24 @@ export function PostCard({ post, onPostUpdate, currentUserId }: PostCardProps) {
         <Box mx={4} mt={3}>
           <div className="rounded-lg border border-gray-200 bg-gray-50 p-3 dark:border-white/10 dark:bg-gray-700/50">
             <div className="mb-2 flex items-center gap-2">
-              <PostAvatar
-                name={localPost.originalPost.author.name}
-                image={localPost.originalPost.author.image}
-                size={32}
-              />
+              <Link
+                href={ROUTES.USER.PROFILE(localPost.originalPost.authorId)}
+                className="shrink-0 transition hover:opacity-90"
+                aria-label={localPost.originalPost.author.name}
+              >
+                <PostAvatar
+                  name={localPost.originalPost.author.name}
+                  image={localPost.originalPost.author.image}
+                  size={32}
+                />
+              </Link>
               <span className="truncate text-sm font-semibold text-gray-900 dark:text-gray-50">
-                {localPost.originalPost.author.name}
+                <Link
+                  href={ROUTES.USER.PROFILE(localPost.originalPost.authorId)}
+                  className="hover:underline"
+                >
+                  {localPost.originalPost.author.name}
+                </Link>
               </span>
             </div>
             <div className="whitespace-pre-wrap text-sm leading-6 text-gray-700 dark:text-gray-200">
@@ -405,7 +454,7 @@ export function PostCard({ post, onPostUpdate, currentUserId }: PostCardProps) {
         <button
           onClick={handleLike}
           aria-label={localPost.isLiked ? t('unlikePost') : t('likePost')}
-          className={`${actionButtonBase} ${
+          className={`${actionButtonBase} hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-950/30 dark:hover:text-red-400 ${
             localPost.isLiked
               ? 'text-red-600 dark:text-red-400'
               : 'text-gray-600 dark:text-gray-300'
@@ -417,7 +466,7 @@ export function PostCard({ post, onPostUpdate, currentUserId }: PostCardProps) {
         <button
           onClick={() => setShowComments(!showComments)}
           aria-label={t('toggleComments')}
-          className={`${actionButtonBase} ${
+          className={`${actionButtonBase} hover:bg-green-50 hover:text-green-600 dark:hover:bg-green-950/30 dark:hover:text-green-400 ${
             showComments
               ? 'text-green-600 dark:text-green-400'
               : 'text-gray-600 dark:text-gray-300'
@@ -429,7 +478,7 @@ export function PostCard({ post, onPostUpdate, currentUserId }: PostCardProps) {
         <button
           onClick={handleShare}
           aria-label={t('sharePost')}
-          className={`${actionButtonBase} text-gray-600 dark:text-gray-300`}
+          className={`${actionButtonBase} text-gray-600 hover:bg-blue-50 hover:text-blue-600 dark:text-gray-300 dark:hover:bg-blue-950/30 dark:hover:text-blue-400`}
         >
           <Share2 size={18} />
           {t('share')}
@@ -443,6 +492,15 @@ export function PostCard({ post, onPostUpdate, currentUserId }: PostCardProps) {
           currentUserId={currentUserId}
           initialCommentCount={postCounts.comments}
           onCommentCountChange={handleCommentCountChange}
+        />
+      )}
+
+      {lightboxIndex !== null && postImages.length > 0 && (
+        <AppLightbox
+          images={postImages.map((img) => normalizeImageUrl(img.url) || '')}
+          initialIndex={lightboxIndex}
+          onClose={() => setLightboxIndex(null)}
+          alt={t('postImage', { index: lightboxIndex + 1 })}
         />
       )}
 

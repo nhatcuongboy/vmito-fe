@@ -80,6 +80,14 @@ export const NOTIFICATION_ACTION_TO_KEYS: Record<
     titleKey: 'messages.playerRemovedTitle',
     messageKey: 'messages.playerRemovedMessage',
   },
+  post_liked: {
+    titleKey: 'messages.postLikedTitle',
+    messageKey: 'messages.postLikedMessage',
+  },
+  post_commented: {
+    titleKey: 'messages.postCommentedTitle',
+    messageKey: 'messages.postCommentedMessage',
+  },
 };
 
 export const getNotificationTranslationParams = (
@@ -87,6 +95,7 @@ export const getNotificationTranslationParams = (
 ): NotificationTranslationParams => {
   const sessionName = notification.data?.sessionName;
   const clubName = notification.data?.clubName;
+  const actorName = notification.data?.actorName;
   const rejectionReason = notification.data?.rejectionReason;
   const courtName =
     notification.data?.courtName ??
@@ -98,6 +107,7 @@ export const getNotificationTranslationParams = (
       ? { sessionName }
       : { sessionName: '' }),
     ...(typeof clubName === 'string' ? { clubName } : {}),
+    ...(typeof actorName === 'string' ? { actorName } : {}),
     ...(typeof rejectionReason === 'string' ? { rejectionReason } : {}),
     ...(typeof courtName === 'string' ? { courtName, court: courtName } : {}),
   };

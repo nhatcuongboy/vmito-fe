@@ -9,6 +9,7 @@ export const ROUTES = {
   HOME: '/',
   DASHBOARD: '/dashboard',
   NEWSFEED: '/newsfeed',
+  NEWSFEED_POST: (postId: string) => `/newsfeed/${postId}`,
 
   // Authentication
   AUTH: {

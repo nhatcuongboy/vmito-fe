@@ -5334,7 +5334,11 @@
       "playerAddedTitle": "Bạn đã được thêm vào kèo",
       "playerAddedMessage": "Bạn đã được thêm vào kèo “{sessionName}”.",
       "playerRemovedTitle": "Bạn đã bị xóa khỏi kèo",
-      "playerRemovedMessage": "Bạn đã bị xóa khỏi kèo “{sessionName}”."
+      "playerRemovedMessage": "Bạn đã bị xóa khỏi kèo “{sessionName}”.",
+      "postLikedTitle": "Có người thích bài viết của bạn",
+      "postLikedMessage": "{actorName} đã thích bài viết của bạn.",
+      "postCommentedTitle": "Bình luận mới về bài viết của bạn",
+      "postCommentedMessage": "{actorName} đã bình luận về bài viết của bạn."
     }
   },
   "posts": {
@@ -5377,6 +5381,10 @@
     "sharedFrom": "Chia sẻ từ {name}",
     "postMenu": "Menu bài viết",
     "postImage": "Ảnh bài viết {index}",
+    "viewOnMap": "Xem trên Google Maps",
+    "postNotFound": "Bài viết không còn tồn tại",
+    "postNotFoundDescription": "Bài viết có thể đã bị xóa hoặc đường dẫn không đúng.",
+    "backToFeed": "Quay lại bảng tin",
     "like": "Thích",
     "comment": "Bình luận",
     "share": "Chia sẻ",

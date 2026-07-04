@@ -1525,6 +1525,7 @@ export enum NotificationType {
   REGISTRATION = 'REGISTRATION', // Registration status updates
   PAYMENT = 'PAYMENT', // Payment-related notifications
   CLUB = 'CLUB', // Club-related notifications
+  POST = 'POST', // Post interactions (like, comment)
 }
 
 export interface INotification {

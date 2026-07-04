@@ -5276,7 +5276,11 @@
       "playerRemovedTitle": "您已被从场次移除",
       "playerRemovedMessage": "您已被从场次“{sessionName}”移除。",
       "yourTurnTitle": "轮到您了！",
-      "yourTurnMessage": "请前往 {courtName}。您的比赛即将开始。"
+      "yourTurnMessage": "请前往 {courtName}。您的比赛即将开始。",
+      "postLikedTitle": "你的动态获得点赞",
+      "postLikedMessage": "{actorName} 赞了你的动态。",
+      "postCommentedTitle": "你的动态有新评论",
+      "postCommentedMessage": "{actorName} 评论了你的动态。"
     }
   },
   "posts": {
@@ -5319,6 +5323,10 @@
     "sharedFrom": "分享自 {name}",
     "postMenu": "动态菜单",
     "postImage": "动态图片 {index}",
+    "viewOnMap": "在谷歌地图中查看",
+    "postNotFound": "该动态已不存在",
+    "postNotFoundDescription": "动态可能已被删除，或链接不正确。",
+    "backToFeed": "返回动态",
     "like": "点赞",
     "comment": "评论",
     "share": "分享",

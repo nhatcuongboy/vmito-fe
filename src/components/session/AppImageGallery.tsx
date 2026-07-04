@@ -3,7 +3,7 @@
 import { useState, useRef, useCallback } from 'react';
 import { Box, Flex, Text } from '@chakra-ui/react';
 import { Image } from '@/components/ui/chakra-compat';
-import { X, ChevronLeft, ChevronRight } from 'lucide-react';
+import AppLightbox from '@/components/ui/AppLightbox';
 
 interface IAppImageGalleryProps {
   images: string[];
@@ -37,24 +37,6 @@ const AppImageGallery = ({
     setCurrentSlide(index);
   }, []);
 
-  const handleLightboxPrev = () => {
-    if (lightboxIndex !== null && lightboxIndex > 0) {
-      setLightboxIndex(lightboxIndex - 1);
-    }
-  };
-
-  const handleLightboxNext = () => {
-    if (lightboxIndex !== null && lightboxIndex < allImages.length - 1) {
-      setLightboxIndex(lightboxIndex + 1);
-    }
-  };
-
-  const handleLightboxKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'ArrowLeft') handleLightboxPrev();
-    else if (e.key === 'ArrowRight') handleLightboxNext();
-    else if (e.key === 'Escape') setLightboxIndex(null);
-  };
-
   if (allImages.length === 0) return null;
 
   // Single image — simple display
@@ -76,13 +58,11 @@ const AppImageGallery = ({
           onClick={() => setLightboxIndex(0)}
         />
         {lightboxIndex !== null && (
-          <Lightbox
+          <AppLightbox
             images={allImages}
-            currentIndex={lightboxIndex}
+            initialIndex={lightboxIndex}
             onClose={() => setLightboxIndex(null)}
-            onPrev={handleLightboxPrev}
-            onNext={handleLightboxNext}
-            onKeyDown={handleLightboxKeyDown}
+            alt={alt}
           />
         )}
       </Box>
@@ -225,127 +205,15 @@ const AppImageGallery = ({
 
       {/* Lightbox */}
       {lightboxIndex !== null && (
-        <Lightbox
+        <AppLightbox
           images={allImages}
-          currentIndex={lightboxIndex}
+          initialIndex={lightboxIndex}
           onClose={() => setLightboxIndex(null)}
-          onPrev={handleLightboxPrev}
-          onNext={handleLightboxNext}
-          onKeyDown={handleLightboxKeyDown}
+          alt={alt}
         />
       )}
     </Box>
   );
 };
-
-// Lightbox component
-interface ILightboxProps {
-  images: string[];
-  currentIndex: number;
-  onClose: () => void;
-  onPrev: () => void;
-  onNext: () => void;
-  onKeyDown: (e: React.KeyboardEvent) => void;
-}
-
-const Lightbox = ({
-  images,
-  currentIndex,
-  onClose,
-  onPrev,
-  onNext,
-  onKeyDown,
-}: ILightboxProps) => (
-  <Flex
-    position="fixed"
-    inset="0"
-    zIndex="modal"
-    bg="blackAlpha.900"
-    alignItems="center"
-    justifyContent="center"
-    onClick={onClose}
-    onKeyDown={onKeyDown}
-    tabIndex={0}
-    ref={(el) => el?.focus()}
-  >
-    {/* Close button */}
-    <Box
-      position="absolute"
-      top={4}
-      right={4}
-      cursor="pointer"
-      color="white"
-      onClick={onClose}
-      zIndex={1}
-      p={2}
-      borderRadius="full"
-      _hover={{ bg: 'whiteAlpha.200' }}
-    >
-      <X size={24} />
-    </Box>
-
-    {/* Counter */}
-    <Text
-      position="absolute"
-      top={4}
-      left="50%"
-      transform="translateX(-50%)"
-      color="white"
-      fontSize="sm"
-      fontWeight="medium"
-    >
-      {currentIndex + 1} / {images.length}
-    </Text>
-
-    {/* Prev button */}
-    {currentIndex > 0 && (
-      <Box
-        position="absolute"
-        left={4}
-        cursor="pointer"
-        color="white"
-        p={2}
-        borderRadius="full"
-        _hover={{ bg: 'whiteAlpha.200' }}
-        onClick={(e) => {
-          e.stopPropagation();
-          onPrev();
-        }}
-      >
-        <ChevronLeft size={32} />
-      </Box>
-    )}
-
-    {/* Next button */}
-    {currentIndex < images.length - 1 && (
-      <Box
-        position="absolute"
-        right={4}
-        cursor="pointer"
-        color="white"
-        p={2}
-        borderRadius="full"
-        _hover={{ bg: 'whiteAlpha.200' }}
-        onClick={(e) => {
-          e.stopPropagation();
-          onNext();
-        }}
-      >
-        <ChevronRight size={32} />
-      </Box>
-    )}
-
-    {/* Image */}
-    <Image
-      src={images[currentIndex]}
-      alt={`Image ${currentIndex + 1}`}
-      maxW="90vw"
-      maxH="90vh"
-      objectFit="contain"
-      onClick={(e) => e.stopPropagation()}
-      borderRadius="md"
-    />
-  </Flex>
-);
 
 export default AppImageGallery;

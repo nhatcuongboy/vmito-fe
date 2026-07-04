@@ -5317,7 +5317,11 @@
       "playerAddedTitle": "You have been added to a session",
       "playerAddedMessage": "You have been added to “{sessionName}”.",
       "playerRemovedTitle": "You have been removed from a session",
-      "playerRemovedMessage": "You have been removed from “{sessionName}”."
+      "playerRemovedMessage": "You have been removed from “{sessionName}”.",
+      "postLikedTitle": "New like on your post",
+      "postLikedMessage": "{actorName} liked your post.",
+      "postCommentedTitle": "New comment on your post",
+      "postCommentedMessage": "{actorName} commented on your post."
     }
   },
   "posts": {
@@ -5360,6 +5364,10 @@
     "sharedFrom": "Shared from {name}",
     "postMenu": "Post menu",
     "postImage": "Post image {index}",
+    "viewOnMap": "View on Google Maps",
+    "postNotFound": "This post is no longer available",
+    "postNotFoundDescription": "It may have been deleted or the link is incorrect.",
+    "backToFeed": "Back to newsfeed",
     "like": "Like",
     "comment": "Comment",
     "share": "Share",
