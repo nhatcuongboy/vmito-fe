@@ -4480,10 +4480,10 @@
       "matchRepeatWarning": {
         "openDetails": "View repeated match warning",
         "title": "Match warning",
-        "description": "Some player relationships in this match have appeared in more than 1 match.",
+        "description": "Some player relationships in this match have appeared in more than 2 matches.",
         "hostNote": "This warning is only for the host to consider choosing another matchup. It does not block confirmation.",
-        "teammatesTitle": "Pairs that have teamed up more than 1 match",
-        "opponentsTitle": "Pairs that have faced each other more than 1 match",
+        "teammatesTitle": "Pairs that have teamed up more than 2 matches",
+        "opponentsTitle": "Pairs that have faced each other more than 2 matches",
         "noTeammates": "No repeated teammate pairs.",
         "noOpponents": "No repeated opponent pairs.",
         "matchCount": "{count} matches",
