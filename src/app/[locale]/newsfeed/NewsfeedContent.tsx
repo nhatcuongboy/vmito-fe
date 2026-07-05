@@ -6,11 +6,11 @@ import PageLayout from '@/components/layout/PageLayout';
 import { useTranslations } from 'next-intl';
 import { Box, VStack, Text, Flex } from '@chakra-ui/react';
 import AppEmptyState from '@/components/ui/AppEmptyState';
-import LoadingSpinner from '@/components/ui/loading-spinner';
 import { Button } from '@/components/ui/chakra-compat';
 import { CreatePostModal } from '@/components/post/CreatePostModal';
 import { PostCard } from '@/components/post/PostCard';
 import { PostAvatar } from '@/components/post/PostAvatar';
+import { NewsfeedSkeleton } from '@/components/post/PostCardSkeleton';
 import { postsService } from '@/lib/api/posts.service';
 import type { Post } from '@/types/post';
 import { useAuthStore } from '@/stores/useAuthStore';
@@ -149,7 +149,7 @@ export default function NewsfeedContent() {
         </Box>
 
         {isLoading ? (
-          <LoadingSpinner minH="40vh" />
+          <NewsfeedSkeleton />
         ) : hasError && posts.length === 0 ? (
           <AppEmptyState
             title={t('loadPostsError')}

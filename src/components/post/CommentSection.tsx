@@ -12,6 +12,8 @@ import type { PostComment } from '@/types/post';
 import LoadingSpinner from '@/components/ui/loading-spinner';
 import { PostAvatar } from './PostAvatar';
 import { useAuthStore } from '@/stores/useAuthStore';
+import { Link } from '@/i18n/config';
+import { ROUTES } from '@/constants/routes';
 
 const localeMap: Record<string, Locale> = { vi, en: enUS, cn: zhCN };
 
@@ -132,9 +134,9 @@ export function CommentSection({
   };
 
   return (
-    <div className="border-t border-gray-200 bg-gray-50/60 px-4 py-4 dark:border-white/10 dark:bg-white/[0.02] sm:px-5">
-      <form onSubmit={handleSubmit} className="mb-5">
-        <div className="flex items-center gap-2.5">
+    <div className="border-t border-gray-200 bg-white px-4 py-5 dark:border-white/10 dark:bg-gray-800 sm:px-5 sm:py-6">
+      <form onSubmit={handleSubmit} className="mb-8">
+        <div className="flex items-center gap-3 px-3">
           {currentUser && (
             <PostAvatar
               name={currentUser.name || currentUser.email || 'User'}
@@ -143,21 +145,21 @@ export function CommentSection({
               className="shrink-0"
             />
           )}
-          <div className="flex min-w-0 flex-1 items-center gap-2 rounded-full bg-white pl-4 pr-2 shadow-sm ring-1 ring-gray-200 transition focus-within:ring-2 focus-within:ring-green-500/60 dark:bg-gray-700 dark:ring-white/10">
+          <div className="flex min-w-0 flex-1 items-center gap-2 rounded-full border border-gray-200 bg-white pl-5 pr-2 transition focus-within:border-green-500/60 focus-within:ring-1 focus-within:ring-green-500/60 dark:border-white/10 dark:bg-gray-700">
             <input
               type="text"
               value={newComment}
               onChange={(e) => setNewComment(e.target.value)}
               placeholder={t('writeComment')}
               aria-label={t('writeComment')}
-              className="h-11 min-w-0 flex-1 bg-transparent text-sm text-gray-800 placeholder:text-gray-500 focus:outline-none dark:text-gray-100 dark:placeholder:text-gray-400"
+              className="h-10 min-w-0 flex-1 bg-transparent text-sm text-gray-800 placeholder:text-gray-500 focus:outline-none dark:text-gray-100 dark:placeholder:text-gray-400"
               disabled={isSubmitting}
             />
             <button
               type="submit"
               disabled={isSubmitting || !newComment.trim()}
               aria-label={t('sendComment')}
-              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-green-600 transition hover:bg-green-100 disabled:text-gray-400 disabled:hover:bg-transparent dark:text-green-400 dark:hover:bg-green-950/40 dark:disabled:text-gray-500"
+              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-gray-700 transition hover:bg-gray-100 disabled:text-gray-400 disabled:hover:bg-transparent dark:text-gray-200 dark:hover:bg-white/10 dark:disabled:text-gray-500"
             >
               <Send size={18} />
             </button>
@@ -168,29 +170,43 @@ export function CommentSection({
       {isLoading && comments.length === 0 ? (
         <LoadingSpinner py={4} spinnerProps={{ size: 'md' }} />
       ) : comments.length === 0 ? (
-        <div className="py-3 text-center text-[13px] text-gray-500 dark:text-gray-400">
+        <div className="py-6 text-center text-[13px] text-gray-500 dark:text-gray-400">
           {t('noComments')}
         </div>
       ) : (
         <div className="space-y-4">
           {comments.map((comment) => (
-            <div key={comment.id} className="group flex gap-2.5">
-              <PostAvatar
-                name={comment.user.name}
-                image={comment.user.image}
-                size={32}
-                className="ring-2 ring-white dark:ring-gray-800"
-              />
+            <div
+              key={comment.id}
+              className="group flex gap-3 rounded-xl px-3 py-2"
+            >
+              <Link
+                href={ROUTES.USER.PROFILE(comment.userId)}
+                className="shrink-0 transition hover:opacity-90"
+                aria-label={comment.user.name}
+              >
+                <PostAvatar
+                  name={comment.user.name}
+                  image={comment.user.image}
+                  size={32}
+                  className="ring-2 ring-white dark:ring-gray-800"
+                />
+              </Link>
               <div className="min-w-0 flex-1">
-                <div className="inline-block max-w-full rounded-2xl bg-white px-4 py-2.5 shadow-sm ring-1 ring-gray-100 dark:bg-gray-700 dark:ring-white/5">
-                  <div className="text-[13px] font-semibold text-gray-900 dark:text-gray-50">
-                    {comment.user.name}
+                <div className="w-full rounded-2xl bg-gray-100 px-4 py-3 dark:bg-gray-700">
+                  <div className="mb-0.5 text-[13px] font-bold text-gray-900 dark:text-gray-50">
+                    <Link
+                      href={ROUTES.USER.PROFILE(comment.userId)}
+                      className="hover:underline"
+                    >
+                      {comment.user.name}
+                    </Link>
                   </div>
                   <div className="whitespace-pre-wrap break-words text-sm leading-snug text-gray-800 dark:text-gray-100">
                     {comment.content}
                   </div>
                 </div>
-                <div className="mt-1.5 flex items-center gap-3 pl-2 text-xs text-gray-500 dark:text-gray-400">
+                <div className="mt-2 flex items-center gap-3 pl-4 text-xs text-gray-500 dark:text-gray-400">
                   <span>
                     {formatDistanceToNow(new Date(comment.createdAt), {
                       addSuffix: true,

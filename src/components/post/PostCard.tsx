@@ -255,7 +255,7 @@ export function PostCard({
           />
         </Link>
         <div className="min-w-0 flex-1">
-          <div className="truncate text-[15px] font-semibold leading-5 text-gray-900 dark:text-gray-50">
+          <div className="truncate text-[15px] font-bold leading-5 text-gray-900 dark:text-gray-50">
             <Link
               href={ROUTES.USER.PROFILE(localPost.authorId)}
               className="hover:underline"
@@ -460,7 +460,13 @@ export function PostCard({
               : 'text-gray-600 dark:text-gray-300'
           }`}
         >
-          <Heart size={18} fill={localPost.isLiked ? 'currentColor' : 'none'} />
+          {localPost.isLiked ? (
+            <span className="flex h-[22px] w-[22px] shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-rose-500 to-red-500 text-white">
+              <Heart size={12} fill="currentColor" />
+            </span>
+          ) : (
+            <Heart size={18} />
+          )}
           {t('like')}
         </button>
         <button

@@ -194,7 +194,8 @@ export function CreatePostModal({
             aria-label={t('contentLabel')}
             minH={{ base: '150px', md: '190px' }}
             resize="none"
-            borderWidth={0}
+            borderWidth="1px"
+            borderColor={{ base: 'gray.200', _dark: 'gray.700' }}
             p={4}
             bg={{ base: 'gray.50', _dark: 'whiteAlpha.100' }}
             borderRadius="xl"
@@ -202,7 +203,10 @@ export function CreatePostModal({
             lineHeight="short"
             color={{ base: 'gray.900', _dark: 'gray.50' }}
             _placeholder={{ color: { base: 'gray.500', _dark: 'gray.400' } }}
-            _focusVisible={{ boxShadow: 'none', borderColor: 'transparent' }}
+            _focusVisible={{
+              boxShadow: 'none',
+              borderColor: { base: 'green.400', _dark: 'green.500' },
+            }}
           />
 
           <Flex
