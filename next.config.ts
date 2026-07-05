@@ -1,4 +1,10 @@
 import withPWA from 'next-pwa';
+import withBundleAnalyzer from '@next/bundle-analyzer';
+
+// Run `ANALYZE=true pnpm build` to inspect bundle composition
+const bundleAnalyzer = withBundleAnalyzer({
+  enabled: process.env.ANALYZE === 'true',
+});
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
@@ -35,21 +41,24 @@ const nextConfig = {
   },
 };
 
-export default withPWA({
-  dest: 'public',
-  register: true,
-  skipWaiting: true,
-  disable: process.env.NODE_ENV === 'development',
-  runtimeCaching: [
-    {
-      urlPattern: /^https?.*$/,
-      handler: 'NetworkFirst',
-      options: {
-        cacheName: 'offlineCache',
-        expiration: {
-          maxEntries: 200,
+export default bundleAnalyzer(
+  withPWA({
+    dest: 'public',
+    register: true,
+    skipWaiting: true,
+    disable: process.env.NODE_ENV === 'development',
+    runtimeCaching: [
+      {
+        urlPattern: /^https?.*$/,
+        handler: 'NetworkFirst',
+        options: {
+          cacheName: 'offlineCache',
+          expiration: {
+            maxEntries: 200,
+          },
         },
       },
-    },
-  ],
-})(nextConfig);
+    ],
+    // next-pwa is typed against an older Next.js; the runtime shape is compatible
+  })(nextConfig) as Parameters<typeof bundleAnalyzer>[0]
+);

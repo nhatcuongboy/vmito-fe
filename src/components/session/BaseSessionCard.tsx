@@ -53,7 +53,6 @@ import {
   Info,
   Facebook,
 } from 'lucide-react';
-import { motion } from 'framer-motion';
 import { FeeService } from '@/lib/api/fee.service';
 import { FeeType } from '@/lib/api/types';
 import { useLocale, useTranslations } from 'next-intl';
@@ -706,18 +705,19 @@ const BaseSessionCard = ({
   };
 
   const cardContent = (
-    <motion.div
-      whileTap={
+    // CSS-only tap feedback (used to be framer-motion's whileTap, which cost
+    // ~112KB of JS on every page rendering session cards)
+    <Box
+      h="100%"
+      w="100%"
+      display="flex"
+      flexDirection="column"
+      transition="transform 0.15s ease, opacity 0.15s ease"
+      _active={
         disableCardLink || isMouseOverActionButton
           ? undefined
-          : { scale: 0.98, opacity: 0.95 }
+          : { transform: 'scale(0.98)', opacity: 0.95 }
       }
-      style={{
-        height: '100%',
-        width: '100%',
-        display: 'flex',
-        flexDirection: 'column',
-      }}
     >
       <Box
         position="relative"
@@ -1421,7 +1421,7 @@ const BaseSessionCard = ({
           </Flex>
         )}
       </Box>
-    </motion.div>
+    </Box>
   );
 
   return (

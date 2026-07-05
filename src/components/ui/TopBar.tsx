@@ -21,10 +21,22 @@ import { Button, Image } from '@/components/ui/chakra-compat';
 import { LogIn, Menu, ChevronLeft } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useState } from 'react';
-import NotificationBell from './NotificationBell';
-import SlideOutMenu from './SlideOutMenu';
-import UserMenu from './UserMenu';
+import dynamic from 'next/dynamic';
 import SubNavigation, { NavItem } from './SubNavigation';
+
+// Interaction-only chrome: none of these are needed for first paint (the
+// bell/user menu only render after auth hydration, the slide-out menu only
+// matters once opened), so keep them out of the initial bundle. Fixed-size
+// placeholders prevent layout shift while their chunks load.
+const NotificationBell = dynamic(() => import('./NotificationBell'), {
+  ssr: false,
+  loading: () => <Box w="40px" h="40px" />,
+});
+const UserMenu = dynamic(() => import('./UserMenu'), {
+  ssr: false,
+  loading: () => <Box w="40px" h="40px" />,
+});
+const SlideOutMenu = dynamic(() => import('./SlideOutMenu'), { ssr: false });
 import AiAssistantTopBarButton from './AiAssistantTopBarButton';
 import { useAiAssistantVisibility } from '@/hooks/useAiAssistantVisibility';
 import CitySelector from './CitySelector';

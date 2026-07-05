@@ -35,7 +35,16 @@ import {
   booleanField,
 } from '@/hooks/useUrlFilters';
 import { useViewMode } from '@/hooks/useViewMode';
-import { Badge, Box, Flex, Grid, HStack, Icon, Text } from '@chakra-ui/react';
+import {
+  Badge,
+  Box,
+  Flex,
+  Grid,
+  HStack,
+  Icon,
+  Spinner,
+  Text,
+} from '@chakra-ui/react';
 import { Search, X } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import {
@@ -68,8 +77,18 @@ import FindSessionCard from './FindSessionCard';
 import { SessionCardSkeleton } from './SessionCardSkeleton';
 import SessionSearchBar from './SessionSearchBar';
 import ResultsHeader from './ResultsHeader';
-import SessionMap from './SessionMap';
 import { useRegisterTopBarSearch } from '@/contexts/TopBarSearchContext';
+
+// Map view pulls in @react-google-maps/api (~150KB) — load it only when the
+// user switches to map mode instead of shipping it with the initial page
+const SessionMap = dynamic(() => import('./SessionMap'), {
+  ssr: false,
+  loading: () => (
+    <Flex justify="center" align="center" minH="40vh">
+      <Spinner size="xl" color="green.500" />
+    </Flex>
+  ),
+});
 
 const PAGE_SIZE = 12;
 const MAP_PAGE_SIZE = 500; // fetch all for map view
@@ -111,6 +130,10 @@ export default function FindSessionList({
   const [sessions, setSessions] = useState<ISession[]>(initialSessions);
   const [totalCount, setTotalCount] = useState(0);
   const [loading, setLoading] = useState(initialSessions.length === 0);
+  // When the server already rendered the first page of sessions, run the
+  // first client fetch as a silent revalidation instead of swapping the
+  // (LCP) cards out for skeletons
+  const silentRevalidateRef = useRef(initialSessions.length > 0);
   const [loadingMore, setLoadingMore] = useState(false);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
@@ -234,7 +257,9 @@ export default function FindSessionList({
         loadingMoreRef.current = true;
         setLoadingMore(true);
       } else {
-        setLoading(true);
+        if (!silentRevalidateRef.current) {
+          setLoading(true);
+        }
         setPage(1); // Reset to first page on filter change
       }
       setError(null);
@@ -403,6 +428,7 @@ export default function FindSessionList({
         loadingMoreRef.current = false;
         setLoadingMore(false);
       } else {
+        silentRevalidateRef.current = false;
         setLoading(false);
       }
     }

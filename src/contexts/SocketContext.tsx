@@ -8,7 +8,7 @@ import React, {
   useState,
 } from 'react';
 import { useTranslations } from 'next-intl';
-import { io, Socket } from 'socket.io-client';
+import type { Socket } from 'socket.io-client';
 
 import { toaster } from '@/components/ui/toaster';
 import { useAuthStore } from '@/stores/useAuthStore';
@@ -88,36 +88,46 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
     // When no token is available (unauthenticated / guest users), an empty string is
     // passed so the socket can still connect for public session features; the server
     // should handle the missing JWT gracefully for those endpoints.
-    const socketInstance = io(`${socketBaseUrl}/sessions`, {
-      transports: ['websocket', 'polling'],
-      autoConnect: true,
-      auth: (cb) => {
-        const token = useAuthStore.getState().accessToken;
-        cb({ token: token ? `Bearer ${token}` : '' });
-      },
-    });
+    // Lazy-load socket.io-client so it doesn't block initial hydration —
+    // the connection is established right after, off the critical path.
+    let cancelled = false;
+    let socketInstance: Socket | undefined;
 
-    socketInstance.on('connect', () => {
-      console.log('Socket connected:', socketInstance.id);
-      setIsConnected(true);
-      setConnectionError(null);
-    });
+    import('socket.io-client').then(({ io }) => {
+      if (cancelled) return;
 
-    socketInstance.on('disconnect', () => {
-      console.log('Socket disconnected');
-      setIsConnected(false);
-    });
+      socketInstance = io(`${socketBaseUrl}/sessions`, {
+        transports: ['websocket', 'polling'],
+        autoConnect: true,
+        auth: (cb) => {
+          const token = useAuthStore.getState().accessToken;
+          cb({ token: token ? `Bearer ${token}` : '' });
+        },
+      });
 
-    socketInstance.on('connect_error', (err) => {
-      console.error('Socket connection error:', err);
-      setConnectionError(err);
-    });
+      socketInstance.on('connect', () => {
+        console.log('Socket connected:', socketInstance?.id);
+        setIsConnected(true);
+        setConnectionError(null);
+      });
 
-    setSocket(socketInstance);
+      socketInstance.on('disconnect', () => {
+        console.log('Socket disconnected');
+        setIsConnected(false);
+      });
+
+      socketInstance.on('connect_error', (err) => {
+        console.error('Socket connection error:', err);
+        setConnectionError(err);
+      });
+
+      setSocket(socketInstance);
+    });
 
     return () => {
-      socketInstance.removeAllListeners();
-      socketInstance.disconnect();
+      cancelled = true;
+      socketInstance?.removeAllListeners();
+      socketInstance?.disconnect();
     };
     // Recreate socket when the user's identity changes (login / logout).
     // Using user?.id (not accessToken) prevents unnecessary reconnects on token refresh.

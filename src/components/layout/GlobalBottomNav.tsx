@@ -8,8 +8,17 @@ import { Home, ClipboardList, Newspaper, User } from 'lucide-react';
 import { useMemo, useState, useTransition, useEffect } from 'react';
 import { useBottomNavVisibility } from '@/hooks/useBottomNavVisibility';
 import { ROUTES } from '@/constants';
-import { AISessionModal } from '@/components/session/AISessionModal';
+import dynamic from 'next/dynamic';
 import type { ExtractedSessionData } from '@/lib/api/ai.service';
+
+// Only opened via the center "Tạo kèo" button — no need to ship it upfront
+const AISessionModal = dynamic(
+  () =>
+    import('@/components/session/AISessionModal').then(
+      (mod) => mod.AISessionModal
+    ),
+  { ssr: false }
+);
 import { usePreferenceStore } from '@/stores/usePreferenceStore';
 
 export default function GlobalBottomNav() {

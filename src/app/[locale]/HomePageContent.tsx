@@ -23,10 +23,15 @@ import { Image } from '@chakra-ui/react';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { useTranslations } from 'next-intl';
 import { useSearchParams, useRouter, usePathname } from 'next/navigation';
+import type { ISession } from '@/lib/api/types';
 
 type HomeMode = 'browse' | 'auto';
 
-function HomeContent() {
+interface HomeContentProps {
+  initialSessions?: ISession[];
+}
+
+function HomeContent({ initialSessions }: HomeContentProps) {
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
@@ -70,7 +75,11 @@ function HomeContent() {
       minH="100vh"
     >
       {mode === 'browse' || !user ? (
-        <FindSessionList mode={mode} onModeChange={handleModeChange} />
+        <FindSessionList
+          initialSessions={initialSessions}
+          mode={mode}
+          onModeChange={handleModeChange}
+        />
       ) : (
         <SuggestionsList mode={mode} onModeChange={handleModeChange} />
       )}
@@ -78,7 +87,7 @@ function HomeContent() {
   );
 }
 
-export default function HomePageContent() {
+export default function HomePageContent({ initialSessions }: HomeContentProps) {
   return (
     <Suspense
       fallback={
@@ -87,7 +96,7 @@ export default function HomePageContent() {
         </Flex>
       }
     >
-      <HomeContent />
+      <HomeContent initialSessions={initialSessions} />
     </Suspense>
   );
 }

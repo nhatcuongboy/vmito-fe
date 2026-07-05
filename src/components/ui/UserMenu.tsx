@@ -1,8 +1,18 @@
 'use client';
 
-import BugReportModal from '@/components/feedback/BugReportModal';
-import ContactModal from '@/components/feedback/ContactModal';
+import dynamic from 'next/dynamic';
 import { VModal } from '@/components/ui/VModal';
+
+// These feedback modals pull in react-hook-form + zod (~92KB) — load them
+// only when the user opens them from the menu
+const BugReportModal = dynamic(
+  () => import('@/components/feedback/BugReportModal'),
+  { ssr: false }
+);
+const ContactModal = dynamic(
+  () => import('@/components/feedback/ContactModal'),
+  { ssr: false }
+);
 import { ROUTES } from '@/constants/routes';
 import { usePathname, useRouter } from '@/i18n/config';
 import { Locale } from '@/i18n/locales';
