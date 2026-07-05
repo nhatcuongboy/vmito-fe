@@ -5261,8 +5261,12 @@
     "reject": "Từ chối",
     "approvalSession": "Kèo",
     "approvalLevel": "Trình độ",
-    "approvalPlayer": "Số người chơi",
+    "approvalPlayer": "Vị trí đăng ký",
     "approvalSlotCount": "Số slot đăng ký",
+    "approvalPageTitle": "Phê duyệt yêu cầu tham gia",
+    "approvalSessionsPlayedCount": "Đã tham gia {count} buổi",
+    "approvalSubmittedPrefix": "Gửi yêu cầu",
+    "approvalViewProfile": "Xem hồ sơ",
     "approveSuccess": "Đã duyệt yêu cầu",
     "club": {
       "creationPending": "Yêu cầu tạo nhóm của bạn đang được xem xét",

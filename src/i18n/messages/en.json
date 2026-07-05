@@ -5244,8 +5244,12 @@
     "reject": "Reject",
     "approvalSession": "Badminton Session",
     "approvalLevel": "Skill Level",
-    "approvalPlayer": "Player Slot",
+    "approvalPlayer": "Registered slot",
     "approvalSlotCount": "Slots registered",
+    "approvalPageTitle": "Approve join request",
+    "approvalSessionsPlayedCount": "Played {count} sessions",
+    "approvalSubmittedPrefix": "Requested",
+    "approvalViewProfile": "View profile",
     "approveSuccess": "Request approved",
     "club": {
       "creationPending": "Your club creation request is under review",

@@ -280,9 +280,16 @@ export const PlayerService = {
   // Get a single pending request detail (with ids of all slots of the same user)
   getPendingRequestById: async (
     playerId: string
-  ): Promise<PendingRequest & { relatedPlayerIds: string[] }> => {
+  ): Promise<
+    PendingRequest & { relatedPlayerIds: string[]; sessionsPlayedCount: number }
+  > => {
     const response = await api.get<
-      ApiResponse<PendingRequest & { relatedPlayerIds: string[] }>
+      ApiResponse<
+        PendingRequest & {
+          relatedPlayerIds: string[];
+          sessionsPlayedCount: number;
+        }
+      >
     >(`/players/pending-requests/${playerId}`);
     return response.data.data!;
   },

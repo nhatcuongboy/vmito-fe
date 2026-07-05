@@ -132,8 +132,8 @@ export const RequestInfoRow = ({
 );
 
 interface RequestActionBarProps {
-  rejectLabel: string;
-  approveLabel: string;
+  rejectLabel: ReactNode;
+  approveLabel: ReactNode;
   onReject: () => void;
   onApprove: () => void;
   loadingAction: 'APPROVED' | 'REJECTED' | null;
