@@ -47,6 +47,7 @@ import {
 } from '@/components/ui/popover';
 import { Columns3, Download } from 'lucide-react';
 import { ISession } from '@/lib/api/types';
+import { getLevelRank } from '@/constants/levels';
 import QRCode from 'qrcode';
 
 interface SessionPlayersProps {
@@ -231,6 +232,21 @@ const StatsTable = ({
     if (!sortConfig) return [...displayedData].sort(comparePlayerRanking);
 
     return [...displayedData].sort((a, b) => {
+      // Level IDs are stable identifiers, not skill order (e.g. Yếu- = 9 but
+      // ranks below TB- = 3), so sort by their canonical rank instead.
+      if (sortConfig.key === 'level') {
+        const aVal = a.level;
+        const bVal = b.level;
+
+        if (aVal == null && bVal == null) return 0;
+        if (aVal == null) return 1;
+        if (bVal == null) return -1;
+
+        const aRank = getLevelRank(Number(aVal)) ?? Number.MAX_SAFE_INTEGER;
+        const bRank = getLevelRank(Number(bVal)) ?? Number.MAX_SAFE_INTEGER;
+        return sortConfig.direction === 'asc' ? aRank - bRank : bRank - aRank;
+      }
+
       const aVal = a[sortConfig.key];
       const bVal = b[sortConfig.key];
 
