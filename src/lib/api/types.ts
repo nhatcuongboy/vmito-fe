@@ -395,6 +395,7 @@ export interface Venue {
   slug?: string;
   placeId?: string;
   name: string;
+  sportType?: SportType;
   acronym?: string;
   description?: string;
   address: string;

@@ -51,7 +51,7 @@ import {
   normalizePhoneForZalo,
 } from '@/utils/phone-utils';
 import { useAuthStore } from '@/stores/useAuthStore';
-import { formatVenueName, getGoogleMapsUrl } from '@/utils';
+import { formatVenueFullName, getGoogleMapsUrl } from '@/utils';
 import { useTranslations } from 'next-intl';
 import VenueMapPin from '@/components/venue/VenueMapPin';
 import VenueRequestModal from '@/components/venue/VenueRequestModal';
@@ -181,9 +181,9 @@ export default function VenueDetailClient({
     );
   }
 
-  const venueName = formatVenueName(
+  const venueName = formatVenueFullName(
     venue.name,
-    t('nameFormat', { name: '{name}' })
+    t(`fullNameFormat.${venue.sportType ?? 'BADMINTON'}`, { name: '{name}' })
   );
 
   const googleMapsUrl = getGoogleMapsUrl({

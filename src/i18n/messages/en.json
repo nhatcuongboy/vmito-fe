@@ -5749,6 +5749,16 @@
     "findSessions": "Find Sessions",
     "findSessionsAtVenue": "Find Sessions",
     "nameFormat": "Badminton Court {name}",
+    "fullNameFormat": {
+      "BADMINTON": "{name} Badminton Court",
+      "PICKLEBALL": "{name} Pickleball Court"
+    },
+    "seo": {
+      "courtsCount": "{count} courts",
+      "openingHours": "Open: {hours}",
+      "fallbackTitle": "Badminton Court",
+      "fallbackDescription": "View badminton court details on Vmito - the badminton session management platform."
+    },
     "searchPlaceholder": "Search by venue name, address..."
   },
   "venueRequests": {

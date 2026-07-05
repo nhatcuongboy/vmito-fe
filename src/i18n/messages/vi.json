@@ -5770,6 +5770,16 @@
     "requestUpdate": "Đề xuất chỉnh sửa",
     "findSessionsAtVenue": "Tìm kèo tại sân",
     "nameFormat": "Sân {name}",
+    "fullNameFormat": {
+      "BADMINTON": "Sân cầu lông {name}",
+      "PICKLEBALL": "Sân pickleball {name}"
+    },
+    "seo": {
+      "courtsCount": "{count} sân",
+      "openingHours": "Mở cửa: {hours}",
+      "fallbackTitle": "Sân cầu lông",
+      "fallbackDescription": "Xem thông tin chi tiết sân cầu lông trên Vmito - nền tảng quản lý kèo cầu lông."
+    },
     "searchPlaceholder": "Tìm kiếm sân..."
   },
   "venueRequests": {

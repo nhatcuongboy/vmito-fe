@@ -5708,6 +5708,16 @@
     "findSessions": "查找场次",
     "findSessionsAtVenue": "查找场次",
     "nameFormat": "羽毛球馆 {name}",
+    "fullNameFormat": {
+      "BADMINTON": "{name} 羽毛球馆",
+      "PICKLEBALL": "{name} 匹克球馆"
+    },
+    "seo": {
+      "courtsCount": "{count} 个场地",
+      "openingHours": "营业时间：{hours}",
+      "fallbackTitle": "羽毛球馆",
+      "fallbackDescription": "在 Vmito 查看羽毛球场馆详情 - 羽毛球场次管理平台。"
+    },
     "searchPlaceholder": "按场地名称、地址搜索..."
   },
   "venueRequests": {
