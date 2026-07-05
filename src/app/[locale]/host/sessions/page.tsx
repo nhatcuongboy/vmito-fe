@@ -32,6 +32,16 @@ import {
 
 import { StatusTabSwitch } from '@/components/session/StatusTabSwitch';
 import { useViewMode } from '@/hooks/useViewMode';
+import { useSocketListRefresh } from '@/hooks/useSocketListRefresh';
+import { SessionEventType } from '@/contexts/SocketContext';
+
+// Realtime events (emitted to the host's user room) that should refresh the
+// hosted sessions list: new join requests and generic notifications
+// (player added/removed, session changes).
+const HOST_LIST_REFRESH_EVENTS = [
+  SessionEventType.REGISTRATION_REQUEST,
+  SessionEventType.NOTIFICATION_RECEIVED,
+];
 
 const HOST_SORT_OPTIONS: SortOption[] = [
   { value: 'date_asc', labelKey: 'sort.dateNearest' },
@@ -78,14 +88,18 @@ function HostSessionsContent() {
     rootMargin: '100px',
   });
 
-  const fetchHostedSessions = async (isLoadMore = false) => {
+  // `silent` refreshes the data without toggling the loading skeleton —
+  // used for background refetches triggered by realtime events.
+  const fetchHostedSessions = async (isLoadMore = false, silent = false) => {
     try {
       if (isLoadMore) {
         if (loadingMoreRef.current) return;
         loadingMoreRef.current = true;
         setLoadingMore(true);
       } else {
-        setLoading(true);
+        if (!silent) {
+          setLoading(true);
+        }
         setPage(1);
       }
 
@@ -155,6 +169,14 @@ function HostSessionsContent() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?.id, filters.searchQuery, sortBy, filters.status, sessionStatusTab]);
+
+  // Refetch the list when realtime events for this host arrive so player
+  // counts and pending requests don't go stale while the page is open.
+  useSocketListRefresh(HOST_LIST_REFRESH_EVENTS, () => {
+    if (user?.id && !loadingMoreRef.current) {
+      fetchHostedSessions(false, true);
+    }
+  });
 
   // Fetch expired sessions count once on mount
   useEffect(() => {

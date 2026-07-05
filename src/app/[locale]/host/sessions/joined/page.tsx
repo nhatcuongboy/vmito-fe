@@ -23,12 +23,22 @@ import { SessionSortBy, toApiSort } from '@/stores/useSessionFilterStore';
 import HostSessionsNavPanel from '@/components/session/HostSessionsNavPanel';
 import { StatusTabSwitch } from '@/components/session/StatusTabSwitch';
 import { useViewMode } from '@/hooks/useViewMode';
+import { useSocketListRefresh } from '@/hooks/useSocketListRefresh';
+import { SessionEventType } from '@/contexts/SocketContext';
 import dynamic from 'next/dynamic';
 
 const JoinSessionModal = dynamic(
   () => import('@/components/session/JoinSessionModal'),
   { ssr: false }
 );
+
+// Realtime events (emitted to the player's user room) that should refresh
+// the joined sessions list: approval/rejection of join requests and generic
+// notifications (removed from session, session changes).
+const JOINED_LIST_REFRESH_EVENTS = [
+  SessionEventType.REGISTRATION_STATUS_UPDATED,
+  SessionEventType.NOTIFICATION_RECEIVED,
+];
 
 const PLAYER_SORT_OPTIONS: SortOption[] = [
   { value: 'status', labelKey: 'sort.status' },
@@ -110,14 +120,18 @@ function PlayerSessionsContent() {
     setIsAddGuestModalOpen(true);
   };
 
-  const fetchPlayerSessions = async (isLoadMore = false) => {
+  // `silent` refreshes the data without toggling the loading skeleton —
+  // used for background refetches triggered by realtime events.
+  const fetchPlayerSessions = async (isLoadMore = false, silent = false) => {
     try {
       if (isLoadMore) {
         if (loadingMoreRef.current) return;
         loadingMoreRef.current = true;
         setLoadingMore(true);
       } else {
-        setLoading(true);
+        if (!silent) {
+          setLoading(true);
+        }
         setPage(1);
       }
 
@@ -182,6 +196,14 @@ function PlayerSessionsContent() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?.id, filters.searchQuery, sortBy, filters.status, sessionStatusTab]);
+
+  // Refetch the list when realtime events for this player arrive so
+  // registration statuses don't go stale while waiting for host approval.
+  useSocketListRefresh(JOINED_LIST_REFRESH_EVENTS, () => {
+    if (user?.id && !loadingMoreRef.current) {
+      fetchPlayerSessions(false, true);
+    }
+  });
 
   // Trigger load more when in view
   useEffect(() => {
