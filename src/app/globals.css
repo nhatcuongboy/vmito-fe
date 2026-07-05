@@ -48,10 +48,6 @@
     }
   }
 
-  html[data-pwa-display-mode='standalone'] {
-    --bottom-nav-safe-area: min(env(safe-area-inset-bottom), 16px);
-  }
-
   .dark {
     color-scheme: dark;
 
@@ -160,35 +156,6 @@
 }
 
 @layer utilities {
-  @keyframes fadeIn {
-    from {
-      opacity: 0;
-      transform: translateY(10px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-
-  @keyframes pulse {
-    0%,
-    100% {
-      opacity: 1;
-    }
-    50% {
-      opacity: 0.85;
-    }
-  }
-
-  .animate-fade-in {
-    animation: fadeIn 0.5s ease-out;
-  }
-
-  .animate-pulse-slow {
-    animation: pulse 3s ease-in-out infinite;
-  }
-
   @keyframes splashEnter {
     from {
       opacity: 0;
