@@ -1,29 +1,23 @@
 'use client';
 
 import { Suspense, useCallback, useEffect, useState } from 'react';
-import { Badge, Box } from '@chakra-ui/react';
+import { Badge, Box, Flex, Text, VStack } from '@chakra-ui/react';
+import { Card, CardBody } from '@/components/ui/chakra-compat';
 import { isAxiosError } from 'axios';
 import { useTranslations } from 'next-intl';
-import {
-  LuCalendarClock,
-  LuGauge,
-  LuMail,
-  LuMessageSquare,
-  LuUser,
-  LuUsers,
-} from 'react-icons/lu';
+import { LuUsers } from 'react-icons/lu';
 import ProtectedRouteGuard from '@/components/guards/ProtectedRouteGuard';
 import PageLayout from '@/components/layout/PageLayout';
+import PostAvatar from '@/components/post/PostAvatar';
 import {
   RequestActionBar,
   RequestCompletedState,
-  RequestDetailCard,
-  RequestInfoList,
-  RequestInfoRow,
   RequestLoadingState,
   RequestNotFoundState,
 } from '@/components/request-detail';
 import { ClubsService } from '@/lib/api/clubs.service';
+import { RatingService } from '@/lib/api/rating.service';
+import { UserRatingStats } from '@/lib/api/types';
 import { EJoinRequestStatus, IClubJoinRequest } from '@/types/club';
 import { toaster } from '@/components/ui/toaster';
 import { useRouter } from '@/i18n/config';
@@ -59,6 +53,7 @@ const ClubRequestDetailContent = () => {
   const requestId = params.requestId as string;
 
   const [request, setRequest] = useState<IClubJoinRequest | null>(null);
+  const [ratingStats, setRatingStats] = useState<UserRatingStats | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState<
     'APPROVED' | 'REJECTED' | null
@@ -84,6 +79,18 @@ const ClubRequestDetailContent = () => {
   useEffect(() => {
     fetchRequest();
   }, [fetchRequest]);
+
+  // Best-effort: only shown if the requester has a rated history as a player
+  useEffect(() => {
+    const userId = request?.user?.id;
+    if (!userId) {
+      setRatingStats(null);
+      return;
+    }
+    RatingService.getUserRatingStats(userId)
+      .then(setRatingStats)
+      .catch(() => setRatingStats(null));
+  }, [request?.user?.id]);
 
   const handleAction = async (status: 'APPROVED' | 'REJECTED') => {
     try {
@@ -135,83 +142,192 @@ const ClubRequestDetailContent = () => {
   const isPending = request.status === EJoinRequestStatus.PENDING;
   const statusBadge = STATUS_BADGES[request.status];
 
+  const goToProfile = request.user?.id
+    ? () => router.push(ROUTES.USER.PROFILE(request.user.id))
+    : undefined;
+
+  const genderLabel = request.user.gender
+    ? tCommon(request.user.gender.toLowerCase())
+    : null;
+  const ratingCount =
+    ratingStats?.asPlayerCount ?? ratingStats?.totalRatings ?? 0;
+  const ratingAvg = ratingStats?.asPlayerAverage ?? ratingStats?.averageRating;
+  const ratingLabel =
+    ratingCount > 0 && ratingAvg != null ? `★ ${ratingAvg.toFixed(1)}` : null;
+  const sessionsPlayedLabel =
+    request.sessionsPlayedCount && request.sessionsPlayedCount > 0
+      ? t('approvalSessionsPlayedCount', { count: request.sessionsPlayedCount })
+      : null;
+  const memberSinceLabel = request.user.createdAt
+    ? t('approvalMemberSince', {
+        year: dayjs(request.user.createdAt).format('YYYY'),
+      })
+    : null;
+  const summaryLine = [
+    genderLabel,
+    ratingLabel,
+    sessionsPlayedLabel,
+    memberSinceLabel,
+  ]
+    .filter(Boolean)
+    .join(' • ');
+
+  const submittedFull = `${dayjs(request.createdAt).format('dddd, DD/MM/YYYY')} · ${formatTimeByDevicePreference(request.createdAt)}`;
+  const submittedText = `${t('approvalSubmittedPrefix')} ${dayjs(request.createdAt).fromNow()}`;
+
+  const emailVerified = request.user.emailVerified
+    ? true
+    : request.user.emailVerified === null
+      ? false
+      : undefined;
+
   return (
     <Box px={{ base: 4, md: 6 }} py={6} maxW="container.sm" mx="auto">
-      <RequestDetailCard
-        accent="blue"
-        icon={<LuUsers size={28} />}
-        title={request.user.name}
-        badges={
-          <Badge colorPalette={statusBadge.palette} size="sm">
-            {t(statusBadge.labelKey as Parameters<typeof t>[0])}
-          </Badge>
-        }
-      >
-        <RequestInfoList>
-          {/* Club */}
-          <RequestInfoRow
-            icon={<LuUsers size={16} />}
-            label={t('approvalClub')}
-            value={request.club?.name || t('unknownClub')}
-          />
+      <Card mb={3}>
+        <CardBody px={4} py={4}>
+          <VStack align="stretch" gap={3}>
+            {/* Requester info */}
+            <Flex align="flex-start" gap={3}>
+              <Box
+                onClick={goToProfile}
+                cursor={goToProfile ? 'pointer' : 'default'}
+              >
+                <PostAvatar
+                  name={request.user.name}
+                  image={request.user.image}
+                  size={48}
+                />
+              </Box>
+              <Box flex={1} minW={0}>
+                <Flex justify="space-between" align="center" gap={2}>
+                  <Text
+                    fontWeight="bold"
+                    fontSize="md"
+                    lineClamp={1}
+                    onClick={goToProfile}
+                    cursor={goToProfile ? 'pointer' : 'default'}
+                    _hover={
+                      goToProfile ? { textDecoration: 'underline' } : undefined
+                    }
+                  >
+                    {request.user.name}
+                  </Text>
+                  <Badge
+                    colorPalette={statusBadge.palette}
+                    size="sm"
+                    flexShrink={0}
+                  >
+                    {t(statusBadge.labelKey as Parameters<typeof t>[0])}
+                  </Badge>
+                </Flex>
+                {summaryLine && (
+                  <Text
+                    fontSize="sm"
+                    color="gray.600"
+                    _dark={{ color: 'gray.400' }}
+                    mt={0.5}
+                  >
+                    {summaryLine}
+                  </Text>
+                )}
+                <Text fontSize="xs" color="gray.400" title={submittedFull}>
+                  {submittedText}
+                </Text>
+              </Box>
+            </Flex>
 
-          {/* Requested at */}
-          <RequestInfoRow
-            icon={<LuCalendarClock size={16} />}
-            label={t('approvalRequestedAt')}
-            value={`${dayjs(request.createdAt).format('dddd, DD/MM/YYYY')} · ${formatTimeByDevicePreference(request.createdAt)}`}
-          />
+            {/* Email + verification, reason for joining, host response */}
+            {(request.user.email ||
+              request.message ||
+              (!isPending && request.response)) && (
+              <VStack
+                align="stretch"
+                gap={3}
+                pt={3}
+                borderTopWidth="1px"
+                borderColor="gray.100"
+                _dark={{ borderColor: 'whiteAlpha.100' }}
+              >
+                {request.user.email && (
+                  <Box>
+                    <Text fontSize="xs" color="gray.500">
+                      {t('approvalEmail')}
+                    </Text>
+                    <Text
+                      fontSize="sm"
+                      color="gray.700"
+                      _dark={{ color: 'gray.300' }}
+                    >
+                      {request.user.email}
+                    </Text>
+                    {emailVerified !== undefined && (
+                      <Text
+                        fontSize="xs"
+                        mt={0.5}
+                        color={emailVerified ? 'green.600' : 'orange.600'}
+                        _dark={{
+                          color: emailVerified ? 'green.300' : 'orange.300',
+                        }}
+                      >
+                        {emailVerified
+                          ? `✓ ${t('approvalEmailVerified')}`
+                          : `⚠ ${t('approvalEmailNotVerified')}`}
+                      </Text>
+                    )}
+                  </Box>
+                )}
 
-          {/* Level */}
-          {request.user.level != null && (
-            <RequestInfoRow
-              icon={<LuGauge size={16} />}
-              label={t('approvalLevel')}
-            >
-              <Badge colorPalette="purple" size="sm">
-                {tCommon(`levels.${request.user.level}`)} (Lvl{' '}
-                {request.user.level})
-              </Badge>
-            </RequestInfoRow>
-          )}
+                {request.message && (
+                  <Box>
+                    <Text fontSize="xs" color="gray.500">
+                      {t('approvalMessage')}
+                    </Text>
+                    <Text
+                      fontSize="sm"
+                      fontStyle="italic"
+                      color="gray.700"
+                      _dark={{ color: 'gray.300' }}
+                    >
+                      &ldquo;{request.message}&rdquo;
+                    </Text>
+                  </Box>
+                )}
 
-          {/* Gender */}
-          {request.user.gender && (
-            <RequestInfoRow
-              icon={<LuUser size={16} />}
-              label={t('approvalGender')}
-              value={tCommon(request.user.gender.toLowerCase())}
-            />
-          )}
+                {!isPending && request.response && (
+                  <Box>
+                    <Text fontSize="xs" color="gray.500">
+                      {t('approvalResponse')}
+                    </Text>
+                    <Text
+                      fontSize="sm"
+                      color="gray.700"
+                      _dark={{ color: 'gray.300' }}
+                    >
+                      {request.response}
+                    </Text>
+                  </Box>
+                )}
+              </VStack>
+            )}
+          </VStack>
+        </CardBody>
+      </Card>
 
-          {/* Email */}
-          {request.user.email && (
-            <RequestInfoRow
-              icon={<LuMail size={16} />}
-              label={t('approvalEmail')}
-              value={request.user.email}
-            />
-          )}
-
-          {/* Message from requester */}
-          {request.message && (
-            <RequestInfoRow
-              icon={<LuMessageSquare size={16} />}
-              label={t('approvalMessage')}
-              value={request.message}
-            />
-          )}
-
-          {/* Response given when the request was processed */}
-          {!isPending && request.response && (
-            <RequestInfoRow
-              icon={<LuMessageSquare size={16} />}
-              label={t('approvalResponse')}
-              value={request.response}
-            />
-          )}
-        </RequestInfoList>
-      </RequestDetailCard>
+      {goToProfile && (
+        <Flex justify="center" mb={3}>
+          <Text
+            as="span"
+            cursor="pointer"
+            fontSize="sm"
+            fontWeight="medium"
+            color="teal.600"
+            _dark={{ color: 'teal.300' }}
+            onClick={goToProfile}
+          >
+            {t('approvalViewProfile')}
+          </Text>
+        </Flex>
+      )}
 
       {isPending && (
         <RequestActionBar

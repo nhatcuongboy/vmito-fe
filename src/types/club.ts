@@ -212,6 +212,7 @@ export interface IClubJoinRequest {
   response?: string;
   createdAt: string;
   updatedAt: string;
+  sessionsPlayedCount?: number;
   club?: {
     id: string;
     slug?: string;
@@ -229,6 +230,9 @@ export interface IClubJoinRequest {
     image?: string;
     gender?: string;
     level?: number;
+    phone?: string;
+    emailVerified?: string | null;
+    createdAt?: string;
   };
 }
 
