@@ -71,8 +71,14 @@ import { NextLinkButton } from '@/components/ui/NextLinkButton';
 import { toaster } from '@/components/ui/toaster';
 import { SessionActionConfig } from './BaseSessionCard.types';
 import { Link } from '@/i18n/config';
-import SessionShareImageModal from './SessionShareImageModal';
+import dynamic from 'next/dynamic';
 import LevelDescriptionsModal from './LevelDescriptionsModal';
+
+// Loaded on demand: pulls in html-to-image, which is only needed when sharing
+const SessionShareImageModal = dynamic(
+  () => import('./SessionShareImageModal'),
+  { ssr: false }
+);
 import LevelBadgeWithDescription from './LevelBadgeWithDescription';
 
 // Helper functions for formatting with locale support
@@ -176,6 +182,9 @@ interface BaseSessionCardProps {
 
   // Always show full day name instead of "Hôm nay"/"Ngày mai" (e.g., "Thứ năm, 09/04/26")
   alwaysShowDayName?: boolean;
+
+  // Eagerly load the cover photo with high fetch priority (set for above-the-fold cards — the page LCP)
+  imagePriority?: boolean;
 }
 
 const BaseSessionCard = ({
@@ -197,6 +206,7 @@ const BaseSessionCard = ({
   disableCardLink = false,
   showYearInDate = false,
   alwaysShowDayName = false,
+  imagePriority = false,
 }: BaseSessionCardProps & { hostActions?: React.ReactNode }) => {
   const isCompact = variant === 'list';
   const t = useTranslations('session');
@@ -772,11 +782,18 @@ const BaseSessionCard = ({
         {!isCompact && (
           <Box position="relative" h="180px" overflow="hidden">
             <Image
-              src={normalizeImageUrl(session.coverPhoto) || DEFAULT_COVER_PHOTO}
+              src={
+                normalizeImageUrl(session.coverPhoto, {
+                  cloudinaryWidth: 800,
+                }) || DEFAULT_COVER_PHOTO
+              }
               alt={session.name}
               w="100%"
               h="100%"
               objectFit="cover"
+              loading={imagePriority ? 'eager' : 'lazy'}
+              fetchPriority={imagePriority ? 'high' : 'auto'}
+              decoding="async"
               onError={(e) => {
                 // Hotlinked Facebook images can expire — fall back to default
                 const img = e.currentTarget as HTMLImageElement;
@@ -1410,11 +1427,13 @@ const BaseSessionCard = ({
   return (
     <>
       {cardContent}
-      <SessionShareImageModal
-        isOpen={isShareImageModalOpen}
-        onClose={() => setIsShareImageModalOpen(false)}
-        session={session}
-      />
+      {isShareImageModalOpen && (
+        <SessionShareImageModal
+          isOpen={isShareImageModalOpen}
+          onClose={() => setIsShareImageModalOpen(false)}
+          session={session}
+        />
+      )}
       <LevelDescriptionsModal
         isOpen={isLevelDescriptionsOpen}
         onClose={() => setIsLevelDescriptionsOpen(false)}

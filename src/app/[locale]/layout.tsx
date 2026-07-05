@@ -69,7 +69,12 @@ export default async function LocaleLayout({
   return (
     <html lang={locale} suppressHydrationWarning>
       <head>
-        <link rel="preload" as="image" href="/icons/logo-show.png" />
+        <link
+          rel="preload"
+          as="image"
+          href="/icons/app-logo-96.png"
+          fetchPriority="high"
+        />
         <StructuredData data={[websiteSchema, organizationSchema]} />
       </head>
       <body className="antialiased">

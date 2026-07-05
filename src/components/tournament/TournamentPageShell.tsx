@@ -519,7 +519,15 @@ export default function TournamentPageShell({
   const bottomNavTabs = tabs;
 
   const appRootHref = '/';
-  const topBarIcon = <Image src="/icons/app-logo.png" h="28px" alt="Vmito" />;
+  const topBarIcon = (
+    <Image
+      src="/icons/app-logo-96.png"
+      h="28px"
+      w="28px"
+      alt="Vmito"
+      loading="eager"
+    />
+  );
 
   const getCategoryTypeLabel = useCallback(
     (type: CategoryType) => {

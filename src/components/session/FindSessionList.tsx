@@ -1045,11 +1045,12 @@ export default function FindSessionList({
             }
             gap={viewMode === 'list' ? 4 : 6}
           >
-            {sortedSessions.map((session) => (
+            {sortedSessions.map((session, index) => (
               <FindSessionCard
                 key={session.id}
                 session={session}
                 variant={viewMode}
+                imagePriority={index < 3}
                 onJoin={handleJoinClick}
                 onAddGuest={handleAddGuestClick}
                 isJoined={joinedSessionIds.has(session.id)}

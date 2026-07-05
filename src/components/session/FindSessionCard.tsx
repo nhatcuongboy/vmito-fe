@@ -38,6 +38,7 @@ interface FindSessionCardProps {
   coverPhotoOverlay?: React.ReactNode;
   compactTopContent?: React.ReactNode;
   showSlotBadge?: boolean;
+  imagePriority?: boolean;
 }
 
 const FindSessionCard = ({
@@ -54,6 +55,7 @@ const FindSessionCard = ({
   coverPhotoOverlay,
   compactTopContent,
   showSlotBadge = true,
+  imagePriority = false,
 }: FindSessionCardProps) => {
   const isCompact = variant === 'list';
   const t = useTranslations('session');
@@ -344,6 +346,7 @@ const FindSessionCard = ({
         coverPhotoOverlay={coverPhotoOverlay}
         compactTopContent={compactTopContent}
         actions={actions}
+        imagePriority={imagePriority}
         onHostClick={
           isCrawled
             ? session.externalAuthorUrl

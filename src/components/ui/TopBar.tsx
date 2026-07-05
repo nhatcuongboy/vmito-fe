@@ -240,20 +240,24 @@ export default function TopBar({
                     <Box display={{ base: 'flex', md: 'none' }}>
                       {mobileIcon || icon || (
                         <Image
-                          src="/icons/app-logo.png"
+                          src="/icons/app-logo-96.png"
                           h="32px"
-                          w="auto"
+                          w="32px"
                           alt={appName}
+                          loading="eager"
+                          fetchPriority="high"
                         />
                       )}
                     </Box>
                     <Box display={{ base: 'none', md: 'flex' }}>
                       {icon || (
                         <Image
-                          src="/icons/app-logo.png"
+                          src="/icons/app-logo-96.png"
                           h="32px"
-                          w="auto"
+                          w="32px"
                           alt={appName}
+                          loading="eager"
+                          fetchPriority="high"
                         />
                       )}
                     </Box>
