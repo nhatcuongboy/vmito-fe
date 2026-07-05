@@ -1061,50 +1061,35 @@ export default function FindSessionList({
                 onHostClick={handleHostClick}
               />
             ))}
+
+            {/* Load-more skeletons: same grid so they fill the remaining
+                slots of a partial last row instead of starting a new one */}
+            {hasMore &&
+              Array.from({ length: 3 }).map((_, index) => (
+                <SessionCardSkeleton
+                  key={`load-more-${index}`}
+                  variant={viewMode}
+                  display={
+                    viewMode === 'list'
+                      ? {
+                          base: index < 1 ? 'flex' : 'none',
+                          sm: index < 2 ? 'flex' : 'none',
+                          md: 'flex',
+                        }
+                      : {
+                          base: index < 1 ? 'flex' : 'none',
+                          md: index < 2 ? 'flex' : 'none',
+                          lg: 'flex',
+                        }
+                  }
+                />
+              ))}
           </Grid>
 
           {/* Infinite Scroll Trigger */}
           {hasMore && (
-            <Box ref={ref} mt={8} mb={10} width="full">
-              <Grid
-                templateColumns={
-                  viewMode === 'list'
-                    ? {
-                        base: '1fr',
-                        sm: 'repeat(2, 1fr)',
-                        md: 'repeat(3, 1fr)',
-                        lg: 'repeat(4, 1fr)',
-                      }
-                    : {
-                        base: '1fr',
-                        md: 'repeat(2, 1fr)',
-                        lg: 'repeat(3, 1fr)',
-                      }
-                }
-                gap={viewMode === 'list' ? 4 : 6}
-              >
-                {/* Mobile: 1 skeleton, Tablet: 2 skeletons, Desktop: 3 skeletons */}
-                {Array.from({ length: 3 }).map((_, index) => (
-                  <SessionCardSkeleton
-                    key={index}
-                    variant={viewMode}
-                    display={
-                      viewMode === 'list'
-                        ? {
-                            base: index < 1 ? 'flex' : 'none',
-                            sm: index < 2 ? 'flex' : 'none',
-                            md: 'flex',
-                          }
-                        : {
-                            base: index < 1 ? 'flex' : 'none',
-                            md: index < 2 ? 'flex' : 'none',
-                            lg: 'flex',
-                          }
-                    }
-                  />
-                ))}
-              </Grid>
-              <Flex justify="center" mt={4}>
+            <Box ref={ref} mt={4} mb={10} width="full">
+              <Flex justify="center">
                 <Text color="gray.500" fontSize="sm">
                   {t('loadingMore') || 'Đang tải thêm...'}
                 </Text>

@@ -697,7 +697,11 @@ const BaseSessionCard = ({
 
   const cardContent = (
     <motion.div
-      whileTap={disableCardLink ? undefined : { scale: 0.98, opacity: 0.95 }}
+      whileTap={
+        disableCardLink || isMouseOverActionButton
+          ? undefined
+          : { scale: 0.98, opacity: 0.95 }
+      }
       style={{
         height: '100%',
         width: '100%',
