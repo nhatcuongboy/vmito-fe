@@ -23,11 +23,15 @@ import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 import dynamic from 'next/dynamic';
 import SubNavigation, { NavItem } from './SubNavigation';
+// SlideOutMenu doubles as the persistent desktop sidebar (translateX(0) at
+// the md breakpoint, see SlideOutMenu.tsx) — PageWrapper reserves margin for
+// it on first paint, so it must render immediately. Lazy-loading it left a
+// blank gap where the sidebar should be until the chunk loaded.
+import SlideOutMenu from './SlideOutMenu';
 
-// Interaction-only chrome: none of these are needed for first paint (the
-// bell/user menu only render after auth hydration, the slide-out menu only
-// matters once opened), so keep them out of the initial bundle. Fixed-size
-// placeholders prevent layout shift while their chunks load.
+// These are genuinely interaction/auth-gated (only matter post-hydration),
+// so keep them out of the initial bundle. Fixed-size placeholders prevent
+// layout shift while their chunks load.
 const NotificationBell = dynamic(() => import('./NotificationBell'), {
   ssr: false,
   loading: () => <Box w="40px" h="40px" />,
@@ -36,7 +40,6 @@ const UserMenu = dynamic(() => import('./UserMenu'), {
   ssr: false,
   loading: () => <Box w="40px" h="40px" />,
 });
-const SlideOutMenu = dynamic(() => import('./SlideOutMenu'), { ssr: false });
 import AiAssistantTopBarButton from './AiAssistantTopBarButton';
 import { useAiAssistantVisibility } from '@/hooks/useAiAssistantVisibility';
 import CitySelector from './CitySelector';
