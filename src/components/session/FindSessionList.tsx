@@ -1076,7 +1076,9 @@ export default function FindSessionList({
                 key={session.id}
                 session={session}
                 variant={viewMode}
-                imagePriority={index < 3}
+                // Only the first card is the LCP candidate on mobile —
+                // more high-priority images just compete for bandwidth
+                imagePriority={index === 0}
                 onJoin={handleJoinClick}
                 onAddGuest={handleAddGuestClick}
                 isJoined={joinedSessionIds.has(session.id)}

@@ -195,6 +195,7 @@ export default function SessionFilterDrawer({
                     <Box position="relative" flex="1">
                       <VDateTimeInput
                         type="date"
+                        aria-label={t('filters.date')}
                         size="md"
                         width="auto"
                         minW="160px"
@@ -613,6 +614,7 @@ export default function SessionFilterDrawer({
                   <Input
                     size="md"
                     type="number"
+                    aria-label={`${t('filters.cost')} — ${t('filters.feeMin')}`}
                     width="110px"
                     value={filters.minFee}
                     onChange={(e) =>
@@ -642,6 +644,7 @@ export default function SessionFilterDrawer({
                   <Input
                     size="md"
                     type="number"
+                    aria-label={`${t('filters.cost')} — ${t('filters.feeMax')}`}
                     width="110px"
                     value={filters.maxFee}
                     onChange={(e) =>

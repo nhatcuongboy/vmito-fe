@@ -526,6 +526,8 @@
       "nearMe": "Gần tôi",
       "sortByDistance": "Sắp xếp theo khoảng cách",
       "cost": "Chi phí",
+      "feeMin": "Tối thiểu",
+      "feeMax": "Tối đa",
       "splitEvenly": "Chia đều",
       "allDays": "Tất cả ngày",
       "locationPermissionDenied": "Quyền truy cập vị trí bị từ chối",

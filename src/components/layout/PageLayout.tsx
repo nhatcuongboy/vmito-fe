@@ -152,6 +152,7 @@ export default function PageLayout({
         </Box>
       )}
       <Container
+        as="main"
         maxW={maxW}
         px={CONTAINER_PX}
         minH={minH ?? '100vh'}

@@ -512,6 +512,8 @@
       "nearMe": "附近",
       "sortByDistance": "按距离排序",
       "cost": "费用",
+      "feeMin": "最低",
+      "feeMax": "最高",
       "splitEvenly": "平均分摊",
       "allDays": "所有日期",
       "locationPermissionDenied": "位置权限被拒绝",

@@ -5,6 +5,17 @@ import {
 } from '@/lib/seo/metadata';
 import HomePageContent from './HomePageContent';
 import type { ISession } from '@/lib/api/types';
+import { normalizeImageUrl } from '@/lib/images/normalizeImageUrl';
+import { DEFAULT_COVER_PHOTO } from '@/constants';
+
+// The home content tree reads useSearchParams (mode switch + URL filters).
+// Under static/ISR rendering Next bails out to the Suspense fallback, so the
+// prerendered HTML contained only a spinner — the session cards (LCP) only
+// appeared after full client hydration, and the spinner→list swap caused a
+// huge layout shift. Rendering dynamically gives the server the real query
+// string, so the cards are in the first HTML byte; the sessions fetch below
+// is still cached for 60s so the backend isn't hit per-request.
+export const dynamic = 'force-dynamic';
 
 // Fetch the default first page of sessions on the server so the
 // above-the-fold session cards (the LCP element) are present in the
@@ -88,5 +99,30 @@ export async function generateMetadata({
 
 export default async function HomePage() {
   const initialSessions = await getInitialSessions();
-  return <HomePageContent initialSessions={initialSessions} />;
+
+  // The first card's cover photo is the LCP element — tell the browser to
+  // start fetching it before it parses down to the <img> in the body.
+  // Must mirror the URL BaseSessionCard builds for the cover photo.
+  const lcpImage = initialSessions.length
+    ? normalizeImageUrl(initialSessions[0].coverPhoto, {
+        cloudinaryWidth: 800,
+        cloudinaryHeight: 380,
+      }) || DEFAULT_COVER_PHOTO
+    : null;
+
+  return (
+    <>
+      {/* React hoists this <link> into <head> */}
+      {lcpImage && (
+        <link
+          rel="preload"
+          as="image"
+          href={lcpImage}
+          // eslint-disable-next-line react/no-unknown-property
+          fetchPriority="high"
+        />
+      )}
+      <HomePageContent initialSessions={initialSessions} />
+    </>
+  );
 }

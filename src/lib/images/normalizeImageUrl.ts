@@ -10,6 +10,13 @@ export function normalizeImageUrl(
      * original upload. Only applied to untransformed Cloudinary URLs.
      */
     cloudinaryWidth?: number;
+    /**
+     * When set together with cloudinaryWidth, crops server-side to the exact
+     * display aspect ratio (c_fill) instead of only limiting the width. The
+     * browser's objectFit:cover crops to the same region anyway, so this
+     * only strips bytes that were never visible.
+     */
+    cloudinaryHeight?: number;
   }
 ): string | undefined {
   if (!url) return undefined;
@@ -36,9 +43,13 @@ export function normalizeImageUrl(
         const hasTransform =
           firstSegment.includes(',') || /^[a-z]{1,3}_[^/]+$/.test(firstSegment);
         if (!hasTransform) {
+          const transform = options.cloudinaryHeight
+            ? `f_auto,q_auto,w_${options.cloudinaryWidth},h_${options.cloudinaryHeight},c_fill`
+            : `f_auto,q_auto,w_${options.cloudinaryWidth},c_limit`;
           parsedUrl.pathname =
             parsedUrl.pathname.slice(0, insertAt) +
-            `f_auto,q_auto,w_${options.cloudinaryWidth},c_limit/` +
+            transform +
+            '/' +
             parsedUrl.pathname.slice(insertAt);
         }
       }

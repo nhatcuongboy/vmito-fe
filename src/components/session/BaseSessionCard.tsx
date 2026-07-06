@@ -783,8 +783,11 @@ const BaseSessionCard = ({
           <Box position="relative" h="180px" overflow="hidden">
             <Image
               src={
+                // 800x380 matches the card's ~2.1:1 cover box at 2x DPR;
+                // c_fill pre-crops what objectFit:cover would discard anyway
                 normalizeImageUrl(session.coverPhoto, {
                   cloudinaryWidth: 800,
+                  cloudinaryHeight: 380,
                 }) || DEFAULT_COVER_PHOTO
               }
               alt={session.name}
@@ -792,7 +795,9 @@ const BaseSessionCard = ({
               h="100%"
               objectFit="cover"
               loading={imagePriority ? 'eager' : 'lazy'}
-              fetchPriority={imagePriority ? 'high' : 'auto'}
+              // "low" keeps near-viewport lazy covers from competing with
+              // the first card's image (the LCP) for bandwidth
+              fetchPriority={imagePriority ? 'high' : 'low'}
               decoding="async"
               onError={(e) => {
                 // Hotlinked Facebook images can expire — fall back to default
@@ -933,6 +938,8 @@ const BaseSessionCard = ({
                             ? session.externalAuthorAvatar
                             : session.host?.image
                         )}
+                        // Decorative — the host name is rendered right next to it
+                        alt=""
                       />
                     )}
                   </Avatar.Root>
@@ -1186,8 +1193,9 @@ const BaseSessionCard = ({
                 }}
                 _active={{ transform: 'scale(0.95)' }}
                 flexShrink={0}
-                minW="20px"
-                h="20px"
+                // 24px is the WCAG minimum touch-target size
+                minW="24px"
+                h="24px"
                 borderRadius="full"
                 transition="all 0.2s"
                 icon={<Icon as={Info} boxSize={3} />}

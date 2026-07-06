@@ -87,7 +87,9 @@ const system = createSystem(defaultConfig, {
           value: { _light: '#1a202c', _dark: '#f7fafc' },
         },
         'fg.muted': {
-          value: { _light: '#718096', _dark: '#a0aec0' },
+          // #718096 was 4.03:1 on white — below WCAG AA (4.5:1) for body text.
+          // #64748b is the closest slate that passes (4.76:1).
+          value: { _light: '#64748b', _dark: '#a0aec0' },
         },
         'fg.subtle': {
           value: { _light: '#4a5568', _dark: '#cbd5e0' },

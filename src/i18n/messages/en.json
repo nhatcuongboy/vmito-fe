@@ -524,6 +524,8 @@
       "nearMe": "Near Me",
       "sortByDistance": "Sort by Distance",
       "cost": "Cost",
+      "feeMin": "Minimum",
+      "feeMax": "Maximum",
       "splitEvenly": "Split Evenly",
       "allDays": "All Days",
       "locationPermissionDenied": "Location permission denied",
