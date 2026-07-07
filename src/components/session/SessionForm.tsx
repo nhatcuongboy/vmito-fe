@@ -1039,10 +1039,10 @@ export default function SessionForm({
           allowNewPlayers: data.allowNewPlayers,
           allowZaloContact: data.allowZaloContact,
           requiredLevels: data.allLevelsSelected
-            ? undefined
+            ? []
             : data.requiredLevels && data.requiredLevels.length > 0
               ? data.requiredLevels
-              : undefined,
+              : [],
           courtColor: data.courtColor,
           defaultMatchType: data.defaultMatchType,
           shuttlecock: data.shuttlecock?.trim() || '',
@@ -1088,10 +1088,10 @@ export default function SessionForm({
           allowNewPlayers: data.allowNewPlayers,
           allowZaloContact: data.allowZaloContact,
           requiredLevels: data.allLevelsSelected
-            ? undefined
+            ? []
             : data.requiredLevels && data.requiredLevels.length > 0
               ? data.requiredLevels
-              : undefined,
+              : [],
           startTime: new Date(data.startTime),
           endTime: new Date(data.endTime),
           courtColor: data.courtColor,
