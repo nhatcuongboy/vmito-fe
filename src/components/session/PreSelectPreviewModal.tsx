@@ -9,6 +9,7 @@ import { CourtService } from '@/lib/api/court.service';
 import { CourtDirection } from '@/lib/api/types';
 import { Court, Player } from '@/types/session';
 import MatchCourtPreview from './MatchCourtPreview';
+import { getLevelRank } from '@/constants/levels';
 
 interface PreSelectedPlayerInfo {
   playerId: string;
@@ -121,12 +122,14 @@ const PreSelectPreviewModal: React.FC<PreSelectPreviewModalProps> = ({
       .filter((entry) => entry.pairNumber === 2)
       .sort((a, b) => a.visualIndex - b.visualIndex);
 
+    const getLevelScore = (player?: Player) =>
+      player?.level ? (getLevelRank(player.level) ?? 0) : 0;
     const pair1Total = pair1.reduce(
-      (sum, entry) => sum + (entry.player?.level ?? 0),
+      (sum, entry) => sum + getLevelScore(entry.player),
       0
     );
     const pair2Total = pair2.reduce(
-      (sum, entry) => sum + (entry.player?.level ?? 0),
+      (sum, entry) => sum + getLevelScore(entry.player),
       0
     );
 

@@ -23,7 +23,7 @@ import {
   getMatchRepeatWarning,
   MatchRepeatWarningResult,
 } from '@/utils/match-repeat-warning';
-import { LEVEL_DEFINITIONS } from '@/constants/levels';
+import { LEVEL_DEFINITIONS, LEVELS, getLevelRank } from '@/constants/levels';
 
 type SelectionMode = 'auto' | 'manual';
 
@@ -845,7 +845,10 @@ const ManualSelectContent: React.FC<IManualSelectContentProps> = ({
   // Doubles: Positions 0,1 = pair 1; positions 2,3 = pair 2
   // Singles: Position 0 = player 1; position 1 = player 2
   const manualPairStats = useMemo(() => {
-    const getLevelScore = (player?: Player) => player?.level ?? 3;
+    const intermediateRank = getLevelRank(LEVELS.INTERMEDIATE) ?? 3;
+    const getLevelScore = (player?: Player) =>
+      (player?.level ? getLevelRank(player.level) : undefined) ??
+      intermediateRank;
 
     if (matchType === 'singles') {
       const p1 = selectedPositions[0];
