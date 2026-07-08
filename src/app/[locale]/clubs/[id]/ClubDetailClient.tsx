@@ -45,6 +45,7 @@ import { usePathname, useRouter } from '@/i18n/config';
 import { ClubsService } from '@/lib/api/clubs.service';
 import {
   IClub,
+  IClubMember,
   EMemberRole,
   EJoinRequestStatus,
   IClubUserSearchResult,
@@ -209,6 +210,12 @@ export default function ClubDetailClient({
   const [addingMemberId, setAddingMemberId] = useState<string | null>(null);
   const [removingMemberId, setRemovingMemberId] = useState<string | null>(null);
   const [visibleMembersCount, setVisibleMembersCount] = useState(8);
+  const [selectedMember, setSelectedMember] = useState<IClubMember | null>(
+    null
+  );
+  const [memberToRemove, setMemberToRemove] = useState<IClubMember | null>(
+    null
+  );
 
   const loadClubDetails = useCallback(async () => {
     try {
@@ -303,21 +310,12 @@ export default function ClubDetailClient({
           m.role === EMemberRole.ADMIN
       ));
 
-  const linkedHostMember = club?.members?.find((member) => {
-    if (member.role !== EMemberRole.ADMIN) return false;
-
-    if (club.hostName) {
-      return member.user.name === club.hostName;
-    }
-
-    return (
-      String(member.user.id) === String(club.hostId || club.host?.id) ||
-      member.user.id === club.host?.id
-    );
-  });
-  const linkedHostUser = linkedHostMember?.user;
-  const hostRealName =
-    club?.hostName || linkedHostUser?.name || club?.host?.name;
+  // The host's real user account is always available via club.host (linked
+  // through hostId). hostName is only a display override (e.g. provisional
+  // name set by admin) and must not be used to look up the linked user —
+  // it can legitimately differ from the real user's name.
+  const linkedHostUser = club?.host?.id ? club.host : undefined;
+  const hostRealName = club?.hostName || club?.host?.name;
   const canShowHostDetail = Boolean(linkedHostUser?.id);
 
   const handleJoinClub = async () => {
@@ -374,14 +372,20 @@ export default function ClubDetailClient({
     }
   };
 
-  const handleRemoveMember = async (userId: string) => {
-    if (!club) return;
-    if (!window.confirm(t('clubs.confirmRemoveClubMember'))) return;
+  const requestRemoveMember = (member: IClubMember) => {
+    setMemberToRemove(member);
+  };
+
+  const handleConfirmRemoveMember = async () => {
+    if (!club || !memberToRemove) return;
+    const userId = memberToRemove.user.id;
 
     try {
       setRemovingMemberId(userId);
       await ClubsService.removeMemberFromClub(club.id, userId);
       toaster.success({ title: t('clubs.clubMemberRemovedSuccess') });
+      setMemberToRemove(null);
+      setSelectedMember(null);
       await loadClubDetails();
     } catch (error) {
       console.error('Failed to remove club member:', error);
@@ -775,9 +779,7 @@ export default function ClubDetailClient({
                             gap={3}
                             transition="all 0.2s"
                             cursor="pointer"
-                            onClick={() =>
-                              handleOpenUserProfile(member.user.id)
-                            }
+                            onClick={() => setSelectedMember(member)}
                             _hover={{
                               bg: 'gray.100',
                               _dark: { bg: 'gray.800' },
@@ -831,10 +833,10 @@ export default function ClubDetailClient({
                                 size="sm"
                                 colorPalette="red"
                                 variant="ghost"
-                                loading={removingMemberId === member.userId}
+                                loading={removingMemberId === member.user.id}
                                 onClick={(event) => {
                                   event.stopPropagation();
-                                  handleRemoveMember(member.userId);
+                                  requestRemoveMember(member);
                                 }}
                               />
                             ) : (
@@ -1718,7 +1720,7 @@ export default function ClubDetailClient({
           <VStack align="stretch" gap={2} maxH="360px" overflowY="auto">
             {memberSearchResults.map((user) => {
               const isMember = club.members?.some(
-                (member) => member.userId === user.id
+                (member) => member.user.id === user.id
               );
 
               return (
@@ -1801,6 +1803,91 @@ export default function ClubDetailClient({
             onClose={() => setIsHostDetailModalOpen(false)}
           />
         )}
+      </VModal>
+
+      {/* Member Detail Modal */}
+      <VModal
+        isOpen={!!selectedMember}
+        onClose={() => setSelectedMember(null)}
+        title={t('clubs.memberDetails')}
+        size="sm"
+        footer={
+          selectedMember && (
+            <HStack gap={2} justify="flex-end" w="full">
+              {isUserAdmin && (
+                <Button
+                  variant="outline"
+                  colorPalette="red"
+                  onClick={() => {
+                    requestRemoveMember(selectedMember);
+                    setSelectedMember(null);
+                  }}
+                >
+                  <Trash2 size={16} />
+                  {t('clubs.removeFromClub')}
+                </Button>
+              )}
+              <Button
+                colorPalette="green"
+                onClick={() => {
+                  handleOpenUserProfile(selectedMember.user.id);
+                  setSelectedMember(null);
+                }}
+              >
+                {t('clubs.viewProfile')}
+              </Button>
+            </HStack>
+          )
+        }
+      >
+        {selectedMember && (
+          <VStack gap={4} align="center" py={2}>
+            <Avatar.Root size="2xl">
+              <Avatar.Image src={selectedMember.user.image} objectFit="cover" />
+              <Avatar.Fallback>{selectedMember.user.name[0]}</Avatar.Fallback>
+            </Avatar.Root>
+            <VStack gap={1}>
+              <Text fontWeight="bold" fontSize="lg" textAlign="center">
+                {selectedMember.user.name}
+              </Text>
+              <Badge
+                colorPalette={
+                  selectedMember.role === EMemberRole.ADMIN
+                    ? 'orange'
+                    : selectedMember.role === EMemberRole.MODERATOR
+                      ? 'blue'
+                      : 'gray'
+                }
+                variant="subtle"
+              >
+                {t(
+                  `clubs.memberRole.${selectedMember.role.toLowerCase() as 'admin' | 'moderator' | 'member'}`
+                )}
+              </Badge>
+            </VStack>
+            {selectedMember.user.level != null && (
+              <Text fontSize="sm" color="gray.500">
+                {getLevelLabel(selectedMember.user.level)}
+              </Text>
+            )}
+          </VStack>
+        )}
+      </VModal>
+
+      {/* Confirm Remove Member Modal */}
+      <VModal
+        isOpen={!!memberToRemove}
+        onClose={() => setMemberToRemove(null)}
+        title={t('clubs.confirmRemoveMemberTitle')}
+        size="sm"
+        primaryActionText={t('common.remove')}
+        onPrimaryAction={handleConfirmRemoveMember}
+        isPrimaryLoading={removingMemberId === memberToRemove?.user.id}
+        primaryColorScheme="red"
+        secondaryActionText={t('common.cancel')}
+        isSecondaryDisabled={removingMemberId === memberToRemove?.user.id}
+      >
+        <Text color="fg.muted">{t('clubs.confirmRemoveClubMember')}</Text>
       </VModal>
     </PageLayout>
   );
