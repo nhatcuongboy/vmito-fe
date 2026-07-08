@@ -16,8 +16,10 @@ import {
   Image,
   Grid,
   Tabs,
+  InputGroup,
 } from '@chakra-ui/react';
-import { Button } from '@/components/ui/chakra-compat';
+import { Button, IconButton } from '@/components/ui/chakra-compat';
+import { Input } from '@/components/ui/Input';
 import { RichTextDisplay } from '@/components/ui/RichTextDisplay';
 import AppHostDetail from '@/components/session/AppHostDetail';
 import { VModal } from '@/components/ui/VModal';
@@ -33,13 +35,20 @@ import {
   TrendingUp,
   UserPlus,
   ExternalLink,
+  Search,
+  Trash2,
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { ISession, UserRole } from '@/lib/api/types';
 import { useParams, useSearchParams } from 'next/navigation';
 import { usePathname, useRouter } from '@/i18n/config';
 import { ClubsService } from '@/lib/api/clubs.service';
-import { IClub, EMemberRole, EJoinRequestStatus } from '@/types/club';
+import {
+  IClub,
+  EMemberRole,
+  EJoinRequestStatus,
+  IClubUserSearchResult,
+} from '@/types/club';
 import { toaster } from '@/components/ui/toaster';
 import { useAuthStore } from '@/stores/useAuthStore';
 import PageLayout from '@/components/layout/PageLayout';
@@ -48,6 +57,7 @@ import { sortLevelsByRank } from '@/constants/levels';
 import { DEFAULT_COVER_PHOTO, ROUTES } from '@/constants';
 import { getGoogleMapsUrl } from '@/utils';
 import { useLevelLabel } from '@/hooks/useLevelLabel';
+import { useDebounce } from '@/hooks/useDebounce';
 import SessionMap from '@/components/session/SessionMap';
 
 interface ClubDetailClientProps {
@@ -189,6 +199,15 @@ export default function ClubDetailClient({
   const [isJoining, setIsJoining] = useState(false);
   const [hasPendingRequest, setHasPendingRequest] = useState(false);
   const [isHostDetailModalOpen, setIsHostDetailModalOpen] = useState(false);
+  const [isAddMemberModalOpen, setIsAddMemberModalOpen] = useState(false);
+  const [memberSearchQuery, setMemberSearchQuery] = useState('');
+  const debouncedMemberSearchQuery = useDebounce(memberSearchQuery, 400);
+  const [memberSearchResults, setMemberSearchResults] = useState<
+    IClubUserSearchResult[]
+  >([]);
+  const [isSearchingMembers, setIsSearchingMembers] = useState(false);
+  const [addingMemberId, setAddingMemberId] = useState<string | null>(null);
+  const [removingMemberId, setRemovingMemberId] = useState<string | null>(null);
   const [visibleMembersCount, setVisibleMembersCount] = useState(8);
 
   const loadClubDetails = useCallback(async () => {
@@ -222,6 +241,33 @@ export default function ClubDetailClient({
   useEffect(() => {
     setVisibleMembersCount(8);
   }, [clubId]);
+
+  const searchClubMembers = useCallback(
+    async (query: string) => {
+      const trimmedQuery = query.trim();
+      if (!trimmedQuery) {
+        setMemberSearchResults([]);
+        return;
+      }
+
+      try {
+        setIsSearchingMembers(true);
+        const results = await ClubsService.searchUsers(trimmedQuery, clubId);
+        setMemberSearchResults(results);
+      } catch (error) {
+        console.error('Failed to search users:', error);
+        toaster.error({ title: t('common.error') });
+      } finally {
+        setIsSearchingMembers(false);
+      }
+    },
+    [clubId, t]
+  );
+
+  useEffect(() => {
+    if (!isAddMemberModalOpen) return;
+    searchClubMembers(debouncedMemberSearchQuery);
+  }, [debouncedMemberSearchQuery, isAddMemberModalOpen, searchClubMembers]);
 
   // Hiển thị đầy đủ các trình độ đã chọn
   const getLevelRange = () => {
@@ -299,6 +345,49 @@ export default function ClubDetailClient({
       toaster.error({ title: t('common.error') });
     } finally {
       setIsJoining(false);
+    }
+  };
+
+  const closeAddMemberModal = () => {
+    setIsAddMemberModalOpen(false);
+    setMemberSearchQuery('');
+    setMemberSearchResults([]);
+    setAddingMemberId(null);
+  };
+
+  const handleAddMember = async (userId: string) => {
+    if (!club) return;
+
+    try {
+      setAddingMemberId(userId);
+      await ClubsService.addMemberToClub(club.id, userId);
+      toaster.success({ title: t('clubs.clubMemberAddedSuccess') });
+      setMemberSearchResults((prev) =>
+        prev.filter((user) => user.id !== userId)
+      );
+      await loadClubDetails();
+    } catch (error) {
+      console.error('Failed to add club member:', error);
+      toaster.error({ title: t('clubs.failedToAddClubMember') });
+    } finally {
+      setAddingMemberId(null);
+    }
+  };
+
+  const handleRemoveMember = async (userId: string) => {
+    if (!club) return;
+    if (!window.confirm(t('clubs.confirmRemoveClubMember'))) return;
+
+    try {
+      setRemovingMemberId(userId);
+      await ClubsService.removeMemberFromClub(club.id, userId);
+      toaster.success({ title: t('clubs.clubMemberRemovedSuccess') });
+      await loadClubDetails();
+    } catch (error) {
+      console.error('Failed to remove club member:', error);
+      toaster.error({ title: t('clubs.failedToRemoveClubMember') });
+    } finally {
+      setRemovingMemberId(null);
     }
   };
 
@@ -639,11 +728,29 @@ export default function ClubDetailClient({
                   borderColor="gray.100"
                   shadow="sm"
                 >
-                  <Flex justify="space-between" align="center" mb={2}>
-                    <Heading size="md">{t('clubs.clubMembers')}</Heading>
-                    <Badge colorPalette="gray" size="sm">
-                      {club.memberCount} {t('clubs.members')}
-                    </Badge>
+                  <Flex
+                    justify="space-between"
+                    align={{ base: 'flex-start', sm: 'center' }}
+                    direction={{ base: 'column', sm: 'row' }}
+                    gap={3}
+                    mb={2}
+                  >
+                    <Box>
+                      <Heading size="md">{t('clubs.clubMembers')}</Heading>
+                      <Badge colorPalette="gray" size="sm" mt={2}>
+                        {club.memberCount} {t('clubs.members')}
+                      </Badge>
+                    </Box>
+                    {isUserAdmin && (
+                      <Button
+                        size="sm"
+                        colorPalette="green"
+                        onClick={() => setIsAddMemberModalOpen(true)}
+                      >
+                        <UserPlus size={16} />
+                        {t('clubs.addClubMember')}
+                      </Button>
+                    )}
                   </Flex>
                   <Text fontSize="sm" color="gray.500" mb={5}>
                     {t('clubs.showingMembers', {
@@ -717,10 +824,25 @@ export default function ClubDetailClient({
                                 )}
                               </HStack>
                             </Box>
-                            <ExternalLink
-                              size={14}
-                              color="var(--chakra-colors-gray-400)"
-                            />
+                            {isUserAdmin ? (
+                              <IconButton
+                                aria-label={t('common.remove')}
+                                icon={<Trash2 size={16} />}
+                                size="sm"
+                                colorPalette="red"
+                                variant="ghost"
+                                loading={removingMemberId === member.userId}
+                                onClick={(event) => {
+                                  event.stopPropagation();
+                                  handleRemoveMember(member.userId);
+                                }}
+                              />
+                            ) : (
+                              <ExternalLink
+                                size={14}
+                                color="var(--chakra-colors-gray-400)"
+                              />
+                            )}
                           </Flex>
                         ))}
                       </SimpleGrid>
@@ -752,6 +874,17 @@ export default function ClubDetailClient({
                       <Text fontSize="sm" fontStyle="italic">
                         {t('clubs.adminApproval.noMembersYet')}
                       </Text>
+                      {isUserAdmin && (
+                        <Button
+                          mt={3}
+                          size="sm"
+                          colorPalette="green"
+                          onClick={() => setIsAddMemberModalOpen(true)}
+                        >
+                          <UserPlus size={16} />
+                          {t('clubs.addFirstMember')}
+                        </Button>
+                      )}
                     </Flex>
                   )}
                 </Box>
@@ -1547,6 +1680,106 @@ export default function ClubDetailClient({
           </Grid>
         </Tabs.Root>
       </Container>
+
+      <VModal
+        isOpen={isAddMemberModalOpen}
+        onClose={closeAddMemberModal}
+        title={t('clubs.addClubMember')}
+        size="lg"
+        hideSecondaryAction={true}
+        maxBodyHeight={{
+          base: 'calc(100vh - 120px)',
+          md: 'calc(100vh - 112px)',
+        }}
+      >
+        <VStack align="stretch" gap={4}>
+          <HStack gap={3} align="center">
+            <InputGroup startElement={<Search size={16} color="#A0AEC0" />}>
+              <Input
+                placeholder={t('clubs.searchUserPlaceholder')}
+                value={memberSearchQuery}
+                onChange={(event) => setMemberSearchQuery(event.target.value)}
+                onKeyDown={(event) => {
+                  if (event.key === 'Enter') {
+                    searchClubMembers(memberSearchQuery);
+                  }
+                }}
+              />
+            </InputGroup>
+            <Button
+              onClick={() => searchClubMembers(memberSearchQuery)}
+              loading={isSearchingMembers}
+              flexShrink={0}
+            >
+              {t('common.search')}
+            </Button>
+          </HStack>
+
+          <VStack align="stretch" gap={2} maxH="360px" overflowY="auto">
+            {memberSearchResults.map((user) => {
+              const isMember = club.members?.some(
+                (member) => member.userId === user.id
+              );
+
+              return (
+                <Flex
+                  key={user.id}
+                  p={3}
+                  borderRadius="lg"
+                  borderWidth="1px"
+                  borderColor="gray.100"
+                  bg="gray.50"
+                  _dark={{ bg: 'gray.900', borderColor: 'gray.700' }}
+                  align="center"
+                  justify="space-between"
+                  gap={3}
+                >
+                  <HStack gap={3} minW={0}>
+                    <Avatar.Root size="sm" flexShrink={0}>
+                      <Avatar.Image src={user.image} />
+                      <Avatar.Fallback>
+                        {user.name?.slice(0, 2).toUpperCase()}
+                      </Avatar.Fallback>
+                    </Avatar.Root>
+                    <Box minW={0}>
+                      <Text fontWeight="semibold" fontSize="sm" truncate>
+                        {user.name}
+                      </Text>
+                      <Text fontSize="xs" color="gray.500" truncate>
+                        {user.email}
+                      </Text>
+                    </Box>
+                  </HStack>
+
+                  {isMember ? (
+                    <Badge colorPalette="green" variant="subtle" flexShrink={0}>
+                      {t('clubs.alreadyMember')}
+                    </Badge>
+                  ) : (
+                    <Button
+                      size="xs"
+                      colorPalette="green"
+                      loading={addingMemberId === user.id}
+                      onClick={() => handleAddMember(user.id)}
+                      flexShrink={0}
+                    >
+                      {t('common.add')}
+                    </Button>
+                  )}
+                </Flex>
+              );
+            })}
+
+            {memberSearchQuery.trim() &&
+              memberSearchResults.length === 0 &&
+              !isSearchingMembers && (
+                <Text textAlign="center" color="gray.500" py={6}>
+                  {t('clubs.noUsersFound')}
+                </Text>
+              )}
+          </VStack>
+        </VStack>
+      </VModal>
 
       <VModal
         isOpen={isHostDetailModalOpen}

@@ -184,11 +184,14 @@ export const ClubsService = {
   /**
    * Search users for club membership
    */
-  searchUsers: async (query: string): Promise<IClubUserSearchResult[]> => {
+  searchUsers: async (
+    query: string,
+    clubId?: string
+  ): Promise<IClubUserSearchResult[]> => {
     const response = await api.get<ApiResponse<IClubUserSearchResult[]>>(
       '/clubs/search-users',
       {
-        params: { q: query },
+        params: { q: query, clubId },
       }
     );
     return response.data.data || [];
