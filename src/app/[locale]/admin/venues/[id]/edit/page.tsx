@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { Box, Flex, HStack, Text, VStack } from '@chakra-ui/react';
 import { Input } from '@/components/ui/Input';
+import { MoneyInput } from '@/components/ui/MoneyInput';
 import { Field } from '@/components/ui/Field';
 import { RichTextEditor } from '@/components/ui/RichTextEditor';
 import { SearchableSelect } from '@/components/ui/SearchableSelect';
@@ -23,7 +24,6 @@ import AppMultiImageUpload, {
   ISessionImage,
 } from '@/components/session/AppMultiImageUpload';
 import AppSingleImageUpload from '@/components/session/AppSingleImageUpload';
-import VenuePricingManager from '@/components/venue/VenuePricingManager';
 import PageLayout from '@/components/layout/PageLayout';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -203,7 +203,7 @@ export default function EditVenuePage({
     };
 
     fetchVenue();
-  }, [id, router, form]);
+  }, [id, router, form, t]);
 
   const handleSubmit = async (data: VenueFormValues) => {
     try {
@@ -551,11 +551,32 @@ export default function EditVenuePage({
               <Box flex={1} />
             </HStack>
 
-            <VenuePricingManager
-              venueId={id}
-              legacyFixed={form.watch('hourlyRateFixed')}
-              legacyWalkIn={form.watch('hourlyRateWalkIn')}
-            />
+            <HStack width="full" gap={4}>
+              <Controller
+                control={form.control}
+                name="hourlyRateFixed"
+                render={({ field }) => (
+                  <Field flex={1} label="Giá thuê cố định (VND)">
+                    <MoneyInput
+                      value={field.value}
+                      onValueChange={field.onChange}
+                    />
+                  </Field>
+                )}
+              />
+              <Controller
+                control={form.control}
+                name="hourlyRateWalkIn"
+                render={({ field }) => (
+                  <Field flex={1} label="Giá thuê vãng lai (VND)">
+                    <MoneyInput
+                      value={field.value}
+                      onValueChange={field.onChange}
+                    />
+                  </Field>
+                )}
+              />
+            </HStack>
           </VStack>
 
           <Divider />

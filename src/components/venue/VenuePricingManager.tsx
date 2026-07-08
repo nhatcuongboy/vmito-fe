@@ -16,6 +16,7 @@ import { Calculator, Plus, RefreshCw, Save, Trash2 } from 'lucide-react';
 import AppSingleImageUpload from '@/components/session/AppSingleImageUpload';
 import { Field } from '@/components/ui/Field';
 import { Input } from '@/components/ui/Input';
+import { MoneyInput } from '@/components/ui/MoneyInput';
 import { SearchableSelect } from '@/components/ui/SearchableSelect';
 import { VButton } from '@/components/ui/VButton';
 import { VSwitch } from '@/components/ui/VSwitch';
@@ -91,7 +92,12 @@ function dateInputToIso(value?: string | null) {
   return value ? `${value}T00:00:00.000Z` : null;
 }
 
+const startTimePattern = /^([01]\d|2[0-3]):[0-5]\d$/;
+const endTimePattern = /^(([01]\d|2[0-3]):[0-5]\d|24:00)$/;
+
 function minuteToTime(value: number) {
+  if (value === 1440) return '24:00';
+
   const hours = Math.floor(value / 60)
     .toString()
     .padStart(2, '0');
@@ -102,6 +108,25 @@ function minuteToTime(value: number) {
 function timeToMinute(value: string) {
   const [hours = '0', minutes = '0'] = value.split(':');
   return parseInt(hours, 10) * 60 + parseInt(minutes, 10);
+}
+
+function isValidStartTime(value: string) {
+  return startTimePattern.test(value);
+}
+
+function isValidEndTime(value: string) {
+  return endTimePattern.test(value);
+}
+
+function getEndDateTime(date: string, endTime: string) {
+  if (endTime !== '24:00') {
+    return `${date}T${endTime}:00+07:00`;
+  }
+
+  const [year, month, day] = date.split('-').map(Number);
+  const nextDate = new Date(Date.UTC(year, month - 1, day + 1));
+  const nextDateInput = nextDate.toISOString().slice(0, 10);
+  return `${nextDateInput}T00:00:00+07:00`;
 }
 
 function formatCurrency(value: number, currency = 'VND') {
@@ -239,6 +264,14 @@ export default function VenuePricingManager({
 
   const saveRule = async () => {
     if (!selectedBook) return;
+    if (
+      !isValidStartTime(ruleForm.startTime) ||
+      !isValidEndTime(ruleForm.endTime)
+    ) {
+      toaster.error({ title: 'Vui lòng nhập giờ theo định dạng HH:mm' });
+      return;
+    }
+
     const startMinute = timeToMinute(ruleForm.startTime);
     const endMinute = timeToMinute(ruleForm.endTime);
     if (endMinute <= startMinute) {
@@ -315,10 +348,25 @@ export default function VenuePricingManager({
   };
 
   const calculatePrice = async () => {
+    if (
+      !isValidStartTime(calcForm.startTime) ||
+      !isValidEndTime(calcForm.endTime)
+    ) {
+      toaster.error({ title: 'Vui lòng nhập giờ theo định dạng HH:mm' });
+      return;
+    }
+
+    const startMinute = timeToMinute(calcForm.startTime);
+    const endMinute = timeToMinute(calcForm.endTime);
+    if (endMinute <= startMinute) {
+      toaster.error({ title: 'Giờ kết thúc phải sau giờ bắt đầu' });
+      return;
+    }
+
     try {
       const result = await VenueService.calculateRentalPrice(venueId, {
         startTime: `${calcForm.date}T${calcForm.startTime}:00+07:00`,
-        endTime: `${calcForm.date}T${calcForm.endTime}:00+07:00`,
+        endTime: getEndDateTime(calcForm.date, calcForm.endTime),
         numberOfCourts: calcForm.numberOfCourts,
         customerType: calcForm.customerType,
       });
@@ -631,7 +679,10 @@ export default function VenuePricingManager({
             </Field>
             <Field label="Đến giờ">
               <Input
-                type="time"
+                type="text"
+                inputMode="numeric"
+                placeholder="24:00"
+                pattern="([01][0-9]|2[0-3]):[0-5][0-9]|24:00"
                 value={ruleForm.endTime}
                 onChange={(event) =>
                   setRuleForm({ ...ruleForm, endTime: event.target.value })
@@ -639,13 +690,12 @@ export default function VenuePricingManager({
               />
             </Field>
             <Field label="Giá/giờ">
-              <Input
-                type="number"
+              <MoneyInput
                 value={ruleForm.pricePerHour}
-                onChange={(event) =>
+                onValueChange={(value) =>
                   setRuleForm({
                     ...ruleForm,
-                    pricePerHour: Number(event.target.value || 0),
+                    pricePerHour: value ?? 0,
                   })
                 }
               />
@@ -807,7 +857,10 @@ export default function VenuePricingManager({
           </Field>
           <Field label="Kết thúc">
             <Input
-              type="time"
+              type="text"
+              inputMode="numeric"
+              placeholder="24:00"
+              pattern="([01][0-9]|2[0-3]):[0-5][0-9]|24:00"
               value={calcForm.endTime}
               onChange={(event) =>
                 setCalcForm({ ...calcForm, endTime: event.target.value })

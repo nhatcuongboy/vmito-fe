@@ -17,6 +17,7 @@ import { AlertTriangle, ExternalLink, MapPin } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Field } from '@/components/ui/Field';
 import { Input } from '@/components/ui/Input';
+import { MoneyInput } from '@/components/ui/MoneyInput';
 import { SearchableSelect } from '@/components/ui/SearchableSelect';
 import VModal from '@/components/ui/VModal';
 import { Button } from '@/components/ui/chakra-compat';
@@ -381,13 +382,9 @@ export default function VenueRequestModal({
             name="hourlyRateFixed"
             render={({ field }) => (
               <Field label={t('fields.hourlyRateFixed')}>
-                <Input
-                  type="number"
-                  min={0}
-                  value={field.value ?? ''}
-                  onChange={(event) =>
-                    field.onChange(toOptionalNumber(event.target.value))
-                  }
+                <MoneyInput
+                  value={field.value}
+                  onValueChange={field.onChange}
                 />
               </Field>
             )}
@@ -398,13 +395,9 @@ export default function VenueRequestModal({
             name="hourlyRateWalkIn"
             render={({ field }) => (
               <Field label={t('fields.hourlyRateWalkIn')}>
-                <Input
-                  type="number"
-                  min={0}
-                  value={field.value ?? ''}
-                  onChange={(event) =>
-                    field.onChange(toOptionalNumber(event.target.value))
-                  }
+                <MoneyInput
+                  value={field.value}
+                  onValueChange={field.onChange}
                 />
               </Field>
             )}

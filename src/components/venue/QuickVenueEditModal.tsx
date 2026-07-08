@@ -25,6 +25,7 @@ import AppImageGalleryPicker from '@/components/AppImageGalleryPicker';
 import { ClosureStatus, Venue } from '@/lib/api/types';
 import { VenueService } from '@/lib/api/venue.service';
 import { Input } from '@/components/ui/Input';
+import { MoneyInput } from '@/components/ui/MoneyInput';
 import VModal from '@/components/ui/VModal';
 import { toaster } from '@/components/ui/toaster';
 import { SearchableSelect } from '@/components/ui/SearchableSelect';
@@ -435,17 +436,9 @@ export function QuickVenueEditModal({
             render={({ field }) => (
               <Field.Root flex={1}>
                 <Field.Label>Giá cố định (đ/h)</Field.Label>
-                <Input
-                  {...field}
-                  type="number"
-                  min={0}
-                  placeholder="150000"
-                  onChange={(e) =>
-                    field.onChange(
-                      e.target.value ? parseInt(e.target.value) : undefined
-                    )
-                  }
-                  value={field.value ?? ''}
+                <MoneyInput
+                  value={field.value}
+                  onValueChange={field.onChange}
                 />
               </Field.Root>
             )}
@@ -456,17 +449,9 @@ export function QuickVenueEditModal({
             render={({ field }) => (
               <Field.Root flex={1}>
                 <Field.Label>Giá vãng lai (đ/h)</Field.Label>
-                <Input
-                  {...field}
-                  type="number"
-                  min={0}
-                  placeholder="200000"
-                  onChange={(e) =>
-                    field.onChange(
-                      e.target.value ? parseInt(e.target.value) : undefined
-                    )
-                  }
-                  value={field.value ?? ''}
+                <MoneyInput
+                  value={field.value}
+                  onValueChange={field.onChange}
                 />
               </Field.Root>
             )}

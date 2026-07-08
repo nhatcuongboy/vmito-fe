@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { Box, Flex, HStack, Text, VStack } from '@chakra-ui/react';
 import { Input } from '@/components/ui/Input';
+import { MoneyInput } from '@/components/ui/MoneyInput';
 import { Field } from '@/components/ui/Field';
 import { RichTextEditor } from '@/components/ui/RichTextEditor';
 import { SearchableSelect } from '@/components/ui/SearchableSelect';
@@ -450,17 +451,9 @@ export default function CreateVenuePage() {
                 name="hourlyRateFixed"
                 render={({ field }) => (
                   <Field flex={1} label="Giá thuê cố định (VND)">
-                    <Input
-                      {...field}
-                      type="number"
-                      onChange={(e) =>
-                        field.onChange(
-                          e.target.value
-                            ? parseInt(e.target.value, 10)
-                            : undefined
-                        )
-                      }
-                      value={field.value ?? ''}
+                    <MoneyInput
+                      value={field.value}
+                      onValueChange={field.onChange}
                     />
                   </Field>
                 )}
@@ -470,17 +463,9 @@ export default function CreateVenuePage() {
                 name="hourlyRateWalkIn"
                 render={({ field }) => (
                   <Field flex={1} label="Giá thuê vãng lai (VND)">
-                    <Input
-                      {...field}
-                      type="number"
-                      onChange={(e) =>
-                        field.onChange(
-                          e.target.value
-                            ? parseInt(e.target.value, 10)
-                            : undefined
-                        )
-                      }
-                      value={field.value ?? ''}
+                    <MoneyInput
+                      value={field.value}
+                      onValueChange={field.onChange}
                     />
                   </Field>
                 )}
