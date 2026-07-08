@@ -76,6 +76,10 @@ export default function SessionOverviewTab({
   const joinCode = session.id.slice(-8).toUpperCase();
 
   const totalPlayers = session.players?.length || 0;
+  const maleCount =
+    session.players?.filter((p: Player) => p.gender === 'MALE').length || 0;
+  const femaleCount =
+    session.players?.filter((p: Player) => p.gender === 'FEMALE').length || 0;
   const waitingPlayers =
     session.players?.filter((p: Player) => p.status === 'WAITING').length || 0;
   const playingPlayers =
@@ -562,6 +566,12 @@ export default function SessionOverviewTab({
               / {maxPlayers}
             </Text>
           </Flex>
+          {(maleCount > 0 || femaleCount > 0) && (
+            <Text fontSize="xs" color="gray.500">
+              👨 {maleCount} {tSession('male')} • 👩 {femaleCount}{' '}
+              {tSession('female')}
+            </Text>
+          )}
           <Box
             mt={2}
             h="4px"
