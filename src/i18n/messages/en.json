@@ -326,6 +326,7 @@
     },
     "courtsAvailable": "courts",
     "players": "players",
+    "registeredLabel": "registered",
     "manageSession": "Host",
     "host": "Host",
     "deleteSession": "Delete",

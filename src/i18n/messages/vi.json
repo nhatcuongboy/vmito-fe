@@ -328,6 +328,7 @@
     },
     "courtsAvailable": "sân",
     "players": "người chơi",
+    "registeredLabel": "người đã đăng ký",
     "manageSession": "Host",
     "host": "Host",
     "deleteSession": "Xóa",

@@ -7,9 +7,11 @@ import {
   Box,
   Flex,
   Grid,
+  HStack,
   Icon,
   Separator,
   Text,
+  VStack,
   Wrap,
 } from '@chakra-ui/react';
 import { IconButton } from '@/components/ui/chakra-compat';
@@ -20,7 +22,7 @@ import {
   Info,
   Phone,
   Navigation,
-  UserCheck,
+  ClipboardCheck,
   Feather,
 } from 'lucide-react';
 import { useState } from 'react';
@@ -56,6 +58,7 @@ const SessionDetailBody = ({
   onHostClick,
 }: ISessionDetailBodyProps) => {
   const t = useTranslations('session');
+  const tCommon = useTranslations('common');
   const tLevelDescriptions = useTranslations('common.levelDescriptions');
   const tVenue = useTranslations('venue');
   const locale = useLocale();
@@ -65,6 +68,13 @@ const SessionDetailBody = ({
   const displayHostName = session.hostName || session.host?.name || '';
   const skillLevelColor = getSkillLevelColor(session.requiredLevels);
   const isCrawled = session.isCrawled === true;
+
+  const approvedPlayers =
+    session.players?.filter((p) => p.registrationStatus === 'APPROVED') || [];
+  const maleCount = approvedPlayers.filter((p) => p.gender === 'MALE').length;
+  const femaleCount = approvedPlayers.filter(
+    (p) => p.gender === 'FEMALE'
+  ).length;
 
   // For crawled sessions, tapping the author opens their Facebook profile
   const handleHostClick = isCrawled
@@ -408,12 +418,25 @@ const SessionDetailBody = ({
           )}
 
           {!isCrawled && (
-            <Flex align="center" gap={2}>
-              <Icon as={UserCheck} boxSize={5} color="green.500" />
-              <Text fontSize="sm">
-                {approvedPlayersCount}/{maxPlayers} {t('players')}
-              </Text>
-            </Flex>
+            <HStack align="flex-start" gap={2}>
+              <Icon
+                as={ClipboardCheck}
+                boxSize={5}
+                color="green.500"
+                mt="1px"
+              />
+              <VStack align="start" gap={0}>
+                <Text fontSize="sm">
+                  {approvedPlayersCount} {t('registeredLabel')}
+                </Text>
+                {(maleCount > 0 || femaleCount > 0) && (
+                  <Text fontSize="xs" color="gray.500">
+                    👨 {maleCount} {tCommon('male')} • 👩 {femaleCount}{' '}
+                    {tCommon('female')}
+                  </Text>
+                )}
+              </VStack>
+            </HStack>
           )}
 
           {/* Shuttlecock */}

@@ -315,6 +315,7 @@
     },
     "courtsAvailable": "场地",
     "players": "玩家",
+    "registeredLabel": "已报名",
     "manageSession": "Host",
     "host": "主办方",
     "deleteSession": "删除",
