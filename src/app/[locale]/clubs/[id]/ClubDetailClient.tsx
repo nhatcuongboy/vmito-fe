@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, type ReactNode } from 'react';
 import {
   Box,
   Container,
@@ -37,6 +37,10 @@ import {
   ExternalLink,
   Search,
   Trash2,
+  Trophy,
+  Mars,
+  Venus,
+  User,
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { ISession, UserRole } from '@/lib/api/types';
@@ -159,6 +163,37 @@ const DEFAULT_CLUB_TAB: ClubDetailTab = 'about';
 
 const isClubDetailTab = (value: string | null): value is ClubDetailTab =>
   !!value && (CLUB_DETAIL_TABS as readonly string[]).includes(value);
+
+const MemberInfoRow = ({
+  icon,
+  label,
+  value,
+  isLast = false,
+}: {
+  icon: ReactNode;
+  label: string;
+  value: ReactNode;
+  isLast?: boolean;
+}) => (
+  <Flex
+    align="center"
+    justify="space-between"
+    gap={3}
+    px={4}
+    py={3}
+    borderBottomWidth={isLast ? 0 : '1px'}
+    borderColor="gray.100"
+    _dark={{ borderColor: 'gray.700' }}
+  >
+    <HStack gap={2} color="gray.500">
+      {icon}
+      <Text fontSize="sm">{label}</Text>
+    </HStack>
+    <Text fontSize="sm" fontWeight="medium" textAlign="right">
+      {value}
+    </Text>
+  </Flex>
+);
 
 export default function ClubDetailClient({
   initialClub,
@@ -1841,35 +1876,82 @@ export default function ClubDetailClient({
         }
       >
         {selectedMember && (
-          <VStack gap={4} align="center" py={2}>
-            <Avatar.Root size="2xl">
-              <Avatar.Image src={selectedMember.user.image} objectFit="cover" />
-              <Avatar.Fallback>{selectedMember.user.name[0]}</Avatar.Fallback>
-            </Avatar.Root>
-            <VStack gap={1}>
-              <Text fontWeight="bold" fontSize="lg" textAlign="center">
-                {selectedMember.user.name}
-              </Text>
-              <Badge
-                colorPalette={
-                  selectedMember.role === EMemberRole.ADMIN
-                    ? 'orange'
-                    : selectedMember.role === EMemberRole.MODERATOR
-                      ? 'blue'
-                      : 'gray'
-                }
-                variant="subtle"
-              >
-                {t(
-                  `clubs.memberRole.${selectedMember.role.toLowerCase() as 'admin' | 'moderator' | 'member'}`
-                )}
-              </Badge>
+          <VStack gap={5} align="stretch" py={2}>
+            <VStack gap={3} align="center">
+              <Avatar.Root size="2xl">
+                <Avatar.Image
+                  src={selectedMember.user.image}
+                  objectFit="cover"
+                />
+                <Avatar.Fallback>{selectedMember.user.name[0]}</Avatar.Fallback>
+              </Avatar.Root>
+              <VStack gap={1}>
+                <Text fontWeight="bold" fontSize="lg" textAlign="center">
+                  {selectedMember.user.name}
+                </Text>
+                <Badge
+                  colorPalette={
+                    selectedMember.role === EMemberRole.ADMIN
+                      ? 'orange'
+                      : selectedMember.role === EMemberRole.MODERATOR
+                        ? 'blue'
+                        : 'gray'
+                  }
+                  variant="subtle"
+                >
+                  {t(
+                    `clubs.memberRole.${selectedMember.role.toLowerCase() as 'admin' | 'moderator' | 'member'}`
+                  )}
+                </Badge>
+              </VStack>
             </VStack>
-            {selectedMember.user.level != null && (
-              <Text fontSize="sm" color="gray.500">
-                {getLevelLabel(selectedMember.user.level)}
-              </Text>
-            )}
+
+            <VStack
+              gap={0}
+              align="stretch"
+              borderWidth="1px"
+              borderColor="gray.100"
+              _dark={{ borderColor: 'gray.700' }}
+              borderRadius="xl"
+              overflow="hidden"
+            >
+              <MemberInfoRow
+                icon={
+                  selectedMember.user.gender === 'MALE' ? (
+                    <Mars size={16} />
+                  ) : selectedMember.user.gender === 'FEMALE' ? (
+                    <Venus size={16} />
+                  ) : (
+                    <User size={16} />
+                  )
+                }
+                label={t('clubs.memberGender')}
+                value={
+                  selectedMember.user.gender === 'MALE'
+                    ? t('clubs.memberGenderMale')
+                    : selectedMember.user.gender === 'FEMALE'
+                      ? t('clubs.memberGenderFemale')
+                      : selectedMember.user.gender
+                        ? t('clubs.memberGenderOther')
+                        : t('clubs.memberInfoNotUpdated')
+                }
+              />
+              <MemberInfoRow
+                icon={<Trophy size={16} />}
+                label={t('clubs.memberLevel')}
+                value={
+                  selectedMember.user.level != null
+                    ? getLevelLabel(selectedMember.user.level)
+                    : t('clubs.memberInfoNotUpdated')
+                }
+              />
+              <MemberInfoRow
+                icon={<Calendar size={16} />}
+                label={t('clubs.memberJoinedDate')}
+                value={new Date(selectedMember.createdAt).toLocaleDateString()}
+                isLast
+              />
+            </VStack>
           </VStack>
         )}
       </VModal>
