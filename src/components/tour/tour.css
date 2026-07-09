@@ -1,0 +1,89 @@
+/* Product tour popover theme (driver.js) */
+.vmito-tour.driver-popover {
+  border-radius: 12px;
+  max-width: min(320px, calc(100vw - 24px));
+  font-family: var(--font-geist-sans, inherit);
+  padding: 16px;
+}
+
+.vmito-tour .driver-popover-title {
+  color: #179a3b;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.vmito-tour .driver-popover-description {
+  font-size: 14px;
+  line-height: 1.5;
+  margin-top: 6px;
+}
+
+.vmito-tour .driver-popover-progress-text {
+  color: #179a3b;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.vmito-tour .vmito-tour-progress-line {
+  margin-top: 10px;
+  color: #179a3b;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.dark .vmito-tour .vmito-tour-progress-line {
+  color: #4ade80;
+}
+
+.vmito-tour .driver-popover-close-btn {
+  width: 28px;
+  height: 28px;
+  font-size: 18px;
+}
+
+.vmito-tour .driver-popover-next-btn,
+.vmito-tour .driver-popover-done-btn {
+  background-color: #179a3b;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 6px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  text-shadow: none;
+}
+
+.vmito-tour .driver-popover-next-btn:hover,
+.vmito-tour .driver-popover-done-btn:hover {
+  background-color: #128031;
+}
+
+.dark .vmito-tour.driver-popover {
+  background-color: #1f2733;
+  color: #e2e8f0;
+}
+
+.dark .vmito-tour .driver-popover-title {
+  color: #4ade80;
+}
+
+.dark .vmito-tour .driver-popover-progress-text {
+  color: #4ade80;
+}
+
+.dark .vmito-tour .driver-popover-arrow-side-top.driver-popover-arrow {
+  border-top-color: #1f2733;
+}
+
+.dark .vmito-tour .driver-popover-arrow-side-bottom.driver-popover-arrow {
+  border-bottom-color: #1f2733;
+}
+
+.dark .vmito-tour .driver-popover-arrow-side-left.driver-popover-arrow {
+  border-left-color: #1f2733;
+}
+
+.dark .vmito-tour .driver-popover-arrow-side-right.driver-popover-arrow {
+  border-right-color: #1f2733;
+}

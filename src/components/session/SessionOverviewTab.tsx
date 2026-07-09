@@ -253,6 +253,11 @@ export default function SessionOverviewTab({
               session.status !== 'CANCELLED' && (
                 <Flex mt={3} justify="center" gap={3} wrap="wrap">
                   <Button
+                    data-tour={
+                      session.status === 'PREPARING'
+                        ? 'start-session'
+                        : undefined
+                    }
                     colorPalette={
                       session.status === 'PREPARING'
                         ? 'green'

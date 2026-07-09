@@ -142,28 +142,28 @@
     "bugReport": "Báo cáo lỗi",
     "developedBy": "Phát triển bởi Nhật Cường.",
     "levels": {
-      "9": "Yếu-",
       "1": "Yếu",
-      "10": "Yếu+",
       "2": "Trung bình yếu",
       "3": "Trung bình-",
       "4": "Trung bình",
       "5": "Trung bình+",
       "6": "Khá",
       "7": "Bán chuyên",
-      "8": "Chuyên nghiệp"
+      "8": "Chuyên nghiệp",
+      "9": "Yếu-",
+      "10": "Yếu+"
     },
     "levelShorts": {
-      "9": "Yếu-",
       "1": "Yếu",
-      "10": "Yếu+",
       "2": "TBY",
       "3": "TB-",
       "4": "TB",
       "5": "TB+",
       "6": "Khá",
       "7": "BC",
-      "8": "CN"
+      "8": "CN",
+      "9": "Yếu-",
+      "10": "Yếu+"
     },
     "gender": "Giới tính",
     "selectGender": "Chọn giới tính",
@@ -487,16 +487,16 @@
     "allLevels": "Tất cả trình độ",
     "levelsLabel": "Trình độ",
     "levels": {
-      "9": "Yếu-",
       "1": "Yếu",
-      "10": "Yếu+",
       "2": "Trung bình yếu",
       "3": "Trung bình-",
       "4": "Trung bình",
       "5": "Trung bình+",
       "6": "Khá",
       "7": "Bán chuyên",
-      "8": "Chuyên nghiệp"
+      "8": "Chuyên nghiệp",
+      "9": "Yếu-",
+      "10": "Yếu+"
     },
     "search": "Tìm kiếm",
     "searchPlaceholder": "Tìm kiếm kèo...",
@@ -4506,7 +4506,8 @@
         "noOpponents": "Không có cặp đối đầu bị lặp.",
         "matchCount": "{count} trận",
         "close": "Đã hiểu"
-      }
+      },
+      "needMorePlayers": "Cần thêm {count} người đang chờ để ghép đôi"
     },
     "matchResult": {
       "title": "Kết quả trận đấu",
@@ -5926,5 +5927,76 @@
       "noFeedback": "Không tìm thấy phản hồi nào",
       "accessDenied": "Bạn không có quyền truy cập trang này"
     }
+  },
+  "productTour": {
+    "tours": {
+      "createSession": {
+        "steps": {
+          "createSession": {
+            "title": "Tạo kèo đầu tiên của bạn",
+            "description": "Nhấn vào nút này để tạo kèo cầu lông đầu tiên. Bạn có thể nhập thông tin bằng AI hoặc điền form thủ công."
+          },
+          "submitSession": {
+            "title": "Hoàn tất thông tin kèo",
+            "description": "Điền tên kèo, sân, thời gian và số sân đấu, sau đó nhấn nút này để tạo kèo."
+          },
+          "manageSession": {
+            "title": "Vào trang quản lý kèo",
+            "description": "Kèo đã được tạo! Nhấn vào đây để mở trang quản lý — nơi bạn thêm người chơi và điều hành các trận đấu."
+          },
+          "openPlayersTab": {
+            "title": "Mở tab Người chơi",
+            "description": "Nhấn vào tab này để quản lý danh sách người chơi của kèo."
+          },
+          "addPlayer": {
+            "title": "Thêm người chơi",
+            "description": "Nhấn nút này để thêm người chơi. Bạn có thể thêm dần; cần ít nhất 4 người để ghép đôi thi đấu khi đến giờ đánh."
+          },
+          "doneCreate": {
+            "title": "Đã xong bước tạo kèo! 🎉",
+            "description": "Bạn đã biết cách tạo kèo và thêm người chơi. Khi đủ người và đến giờ đánh, hãy mở lại kèo của bạn — chúng tôi sẽ hướng dẫn tiếp cách điều hành trận đấu."
+          }
+        }
+      },
+      "runMatches": {
+        "steps": {
+          "openOverviewTab": {
+            "title": "Mở tab Tổng quan",
+            "description": "Đến giờ đánh rồi! Vào tab Tổng quan để bắt đầu kèo."
+          },
+          "startSession": {
+            "title": "Bắt đầu kèo",
+            "description": "Nhấn nút này để bắt đầu kèo. Sau khi bắt đầu, bạn có thể xếp người chơi vào sân."
+          },
+          "openCourtsTab": {
+            "title": "Mở tab Sân đấu",
+            "description": "Nhấn vào tab này để xem các sân và ghép đôi người chơi."
+          },
+          "assignPlayers": {
+            "title": "Ghép đôi người chơi",
+            "description": "Nhấn nút này để xếp người chơi vào sân — có thể ghép tự động cân bằng trình độ hoặc chọn thủ công.",
+            "disabledTitle": "Cần thêm người chơi",
+            "disabledDescription": "Cần đủ 4 người đang chờ để ghép đôi một trận. Hãy vào tab Người chơi thêm người, rồi quay lại đây để ghép đôi."
+          },
+          "startMatch": {
+            "title": "Bắt đầu trận đấu",
+            "description": "Sân đã sẵn sàng! Nhấn nút này để bắt đầu trận đấu."
+          },
+          "endMatch": {
+            "title": "Kết thúc trận đấu",
+            "description": "Khi trận đấu kết thúc, nhấn nút này để ghi lại tỉ số và giải phóng sân cho lượt tiếp theo."
+          },
+          "doneRun": {
+            "title": "Chúc mừng! 🎉",
+            "description": "Bạn đã nắm được toàn bộ quy trình điều hành một kèo cầu lông: bắt đầu kèo, ghép đôi và quản lý trận đấu. Chúc bạn có những kèo thật vui!"
+          }
+        }
+      }
+    },
+    "progress": "Bước {current}/{total}",
+    "skip": "Bỏ qua hướng dẫn",
+    "resume": "Tiếp tục hướng dẫn",
+    "finish": "Hoàn tất",
+    "restartCta": "Xem hướng dẫn tương tác"
   }
 }

@@ -451,10 +451,10 @@ export default function TopBar({
                   variant="outline"
                   size="xs"
                   h={{ base: '40px', md: '38px' }}
-                  w={{ base: '40px', md: 'auto' }}
-                  minW={{ base: '40px', md: 'auto' }}
-                  px={{ base: 0, md: 4 }}
-                  gap={{ base: 0, md: 1.5 }}
+                  w="auto"
+                  minW={{ base: 'auto', md: 'auto' }}
+                  px={{ base: 3, md: 4 }}
+                  gap={{ base: 1.5, md: 1.5 }}
                   fontSize={{ base: 'sm', md: 'sm' }}
                   fontWeight="700"
                   borderRadius="md"
@@ -480,7 +480,7 @@ export default function TopBar({
                   transition="background-color 0.2s, border-color 0.2s, color 0.2s, box-shadow 0.2s"
                 >
                   <LogIn size={17} />
-                  <Box as="span" display={{ base: 'none', md: 'inline' }}>
+                  <Box as="span" display="inline">
                     {common('login')}
                   </Box>
                 </Button>

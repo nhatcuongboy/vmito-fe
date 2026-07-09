@@ -1200,8 +1200,6 @@ export default function SessionForm({
 
   const scrollToFirstError = useCallback(
     (formErrors: Partial<Record<keyof SessionFormData, unknown>>) => {
-      console.log('Scrolling to first error:', formErrors);
-
       const fieldOrder: (keyof SessionFormData)[] = [
         'name',
         'selectedVenueId',
@@ -1226,20 +1224,18 @@ export default function SessionForm({
         const id = fieldToId[fieldName];
         if (!id) continue;
 
-        console.log(`Trying to scroll to field: ${fieldName} with ID: ${id}`);
         const el = document.getElementById(id);
 
         if (el) {
-          console.log(`Found element for ${fieldName}, scrolling...`);
-
-          // Scroll with offset to account for fixed headers
-          const yOffset = -100; // Adjust this value based on your header height
+          // Scroll to element with offset for headers
+          const topBarHeight = 80;
+          const yOffset = -topBarHeight;
           const y =
             el.getBoundingClientRect().top + window.pageYOffset + yOffset;
 
-          window.scrollTo({ top: y, behavior: 'smooth' });
+          window.scrollTo({ top: Math.max(0, y), behavior: 'auto' });
 
-          // Focus on the input element
+          // Focus on the input element after a short delay
           setTimeout(() => {
             // For venue field (SearchableSelect), find the button or input inside
             if (fieldName === 'selectedVenueId') {
@@ -1257,13 +1253,9 @@ export default function SessionForm({
                 input.focus();
               }
             }
-          }, 500); // Wait for smooth scroll to complete
+          }, 50);
 
           break;
-        } else {
-          console.warn(
-            `Element not found for field: ${fieldName} with ID: ${id}`
-          );
         }
       }
     },
@@ -1384,42 +1376,43 @@ export default function SessionForm({
                 </Field.Root>
 
                 {/* Location */}
-                <Field.Root
-                  id="field-venue"
-                  invalid={!!errors.selectedVenueId}
-                  disabled={!canEditVenue}
-                >
-                  <Field.Label>
-                    {t('location')}{' '}
-                    <Text as="span" color="red.500">
-                      *
-                    </Text>
-                  </Field.Label>
-                  <Controller
-                    control={control}
-                    name="selectedVenueId"
-                    render={({ field }) => (
-                      <SearchableSelect
-                        isInvalid={!!errors.selectedVenueId}
-                        value={field.value}
-                        onChange={(value) => {
-                          field.onChange(value);
-                          const venue = venues.find((v) => v.id === value);
-                          setSelectedVenueObj(venue ?? null);
-                        }}
-                        options={venueOptions}
-                        placeholder={t('generalSettings.selectVenue')}
-                        searchPlaceholder={t('generalSettings.searchVenue')}
-                        onSearchChange={handleVenueSearch}
-                        isLoading={isVenueLoading}
-                        isDisabled={!canEditVenue}
-                      />
-                    )}
-                  />
-                  <Field.ErrorText color="fg.error">
-                    {errors.selectedVenueId?.message}
-                  </Field.ErrorText>
-                </Field.Root>
+                <Box id="field-venue">
+                  <Field.Root
+                    invalid={!!errors.selectedVenueId}
+                    disabled={!canEditVenue}
+                  >
+                    <Field.Label>
+                      {t('location')}{' '}
+                      <Text as="span" color="red.500">
+                        *
+                      </Text>
+                    </Field.Label>
+                    <Controller
+                      control={control}
+                      name="selectedVenueId"
+                      render={({ field }) => (
+                        <SearchableSelect
+                          isInvalid={!!errors.selectedVenueId}
+                          value={field.value}
+                          onChange={(value) => {
+                            field.onChange(value);
+                            const venue = venues.find((v) => v.id === value);
+                            setSelectedVenueObj(venue ?? null);
+                          }}
+                          options={venueOptions}
+                          placeholder={t('generalSettings.selectVenue')}
+                          searchPlaceholder={t('generalSettings.searchVenue')}
+                          onSearchChange={handleVenueSearch}
+                          isLoading={isVenueLoading}
+                          isDisabled={!canEditVenue}
+                        />
+                      )}
+                    />
+                    <Field.ErrorText color="fg.error">
+                      {errors.selectedVenueId?.message}
+                    </Field.ErrorText>
+                  </Field.Root>
+                </Box>
               </Stack>
             </Box>
 
@@ -2274,9 +2267,9 @@ export default function SessionForm({
               )}
               <Button
                 type="submit"
+                data-tour="submit-session"
                 colorPalette="green"
                 loading={isSubmitting || isNavigating}
-                disabled={sessionDuration === 0}
                 loadingText={
                   isNavigating
                     ? tc('loading')

@@ -20,6 +20,7 @@ import { useCourtsTabActions } from '@/hooks/useCourtsTabActions';
 import { SessionCourtsTabSkeleton } from './SessionTabSkeletons';
 import { SessionService } from '@/lib/api/session.service';
 import CourtDisplayModeSwitch from '@/components/court/CourtDisplayModeSwitch';
+import { useTourCompleteWhen } from '@/components/tour/useTourCompleteWhen';
 
 interface SessionCourtsTabProps {
   session: ISession;
@@ -90,6 +91,19 @@ const SessionCourtsTab: React.FC<SessionCourtsTabProps> = ({
       isMounted = false;
     };
   }, [session.id, session.updatedAt]);
+
+  // Product tour: advance the matchmaking / match steps as courts progress
+  useTourCompleteWhen(
+    'assign-players',
+    (session.courts ?? []).some(
+      (court: Court) => court.status === 'READY' || !!court.currentMatchId
+    )
+  );
+  useTourCompleteWhen(
+    'start-match',
+    (session.courts ?? []).some((court: Court) => !!court.currentMatchId)
+  );
+  useTourCompleteWhen('end-match', matchHistory.length > 0);
 
   const hasPreSelectedPlayers = (court: Court): boolean => {
     return !!(

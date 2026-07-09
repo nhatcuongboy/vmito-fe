@@ -286,6 +286,7 @@ const CourtCard: React.FC<CourtCardProps> = ({
                 court.status === 'READY' &&
                 !court.currentMatchId && (
                   <CompatButton
+                    data-tour="start-match"
                     size="sm"
                     colorPalette="green"
                     loading={loadingStartMatchCourtId === court.id}
@@ -357,6 +358,7 @@ const CourtCard: React.FC<CourtCardProps> = ({
                 court.currentMatchId &&
                 court.status !== 'READY' && (
                   <CompatButton
+                    data-tour="end-match"
                     size="sm"
                     colorPalette="red"
                     onClick={handleEndMatchClick}
@@ -386,6 +388,7 @@ const CourtCard: React.FC<CourtCardProps> = ({
             {session.status === 'IN_PROGRESS' && mode === 'manage' ? (
               <VStack gap={2}>
                 <CompatButton
+                  data-tour="assign-players"
                   colorPalette="green"
                   onClick={() => onAssignPlayersClick(court)}
                   size="sm"
@@ -395,6 +398,13 @@ const CourtCard: React.FC<CourtCardProps> = ({
                   <Box as={Shuffle} boxSize={4} mr={1} />
                   {t('courtsTab.assignPlayers')}
                 </CompatButton>
+                {waitingPlayers.length < 4 && (
+                  <Text fontSize="xs" color="fg.muted" textAlign="center">
+                    {t('courtsTab.needMorePlayers', {
+                      count: 4 - waitingPlayers.length,
+                    })}
+                  </Text>
+                )}
               </VStack>
             ) : session.status === 'IN_PROGRESS' ? (
               <Text fontSize="sm" color="fg.muted" textAlign="center" mt={2}>

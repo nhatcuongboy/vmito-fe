@@ -141,28 +141,28 @@
     "bugReport": "Bug Report",
     "developedBy": "Developed by Nhat Cuong.",
     "levels": {
-      "9": "Weak-",
       "1": "Weak",
-      "10": "Weak+",
       "2": "Advanced Beginner",
       "3": "Low Intermediate",
       "4": "Intermediate",
       "5": "High Intermediate",
       "6": "Advanced",
       "7": "Semi-Pro",
-      "8": "Pro"
+      "8": "Pro",
+      "9": "Weak-",
+      "10": "Weak+"
     },
     "levelShorts": {
-      "9": "Yếu-",
       "1": "Yếu",
-      "10": "Yếu+",
       "2": "TBY",
       "3": "TB-",
       "4": "TB",
       "5": "TB+",
       "6": "Khá",
       "7": "BC",
-      "8": "CN"
+      "8": "CN",
+      "9": "Yếu-",
+      "10": "Yếu+"
     },
     "gender": "Gender",
     "selectGender": "Select Gender",
@@ -485,16 +485,16 @@
     "allLevels": "All Levels",
     "levelsLabel": "Levels",
     "levels": {
-      "9": "Weak-",
       "1": "Beginner",
-      "10": "Weak+",
       "2": "Advanced Beginner",
       "3": "Low Intermediate",
       "4": "Intermediate",
       "5": "High Intermediate",
       "6": "Advanced",
       "7": "Semi-Pro",
-      "8": "Pro"
+      "8": "Pro",
+      "9": "Weak-",
+      "10": "Weak+"
     },
     "search": "Search",
     "searchPlaceholder": "Search by session, venue...",
@@ -4491,7 +4491,8 @@
         "noOpponents": "No repeated opponent pairs.",
         "matchCount": "{count} matches",
         "close": "Got it"
-      }
+      },
+      "needMorePlayers": "Need {count} more waiting player(s) to pair up"
     },
     "matchResult": {
       "title": "Match Result",
@@ -5905,5 +5906,76 @@
       "noFeedback": "No feedback found",
       "accessDenied": "You do not have permission to access this page"
     }
+  },
+  "productTour": {
+    "tours": {
+      "createSession": {
+        "steps": {
+          "createSession": {
+            "title": "Create your first session",
+            "description": "Tap this button to create your first badminton session. You can enter details with AI or fill in the form manually."
+          },
+          "submitSession": {
+            "title": "Complete the session details",
+            "description": "Fill in the session name, venue, time and number of courts, then press this button to create the session."
+          },
+          "manageSession": {
+            "title": "Open the management page",
+            "description": "Your session is created! Tap here to open the management page — where you add players and run matches."
+          },
+          "openPlayersTab": {
+            "title": "Open the Players tab",
+            "description": "Tap this tab to manage your session's player list."
+          },
+          "addPlayer": {
+            "title": "Add players",
+            "description": "Tap this button to add players. You can add them over time; you need at least 4 to pair up matches when game time comes."
+          },
+          "doneCreate": {
+            "title": "Session setup done! 🎉",
+            "description": "You now know how to create a session and add players. When you have enough people and it is game time, reopen your session — we will walk you through running the matches."
+          }
+        }
+      },
+      "runMatches": {
+        "steps": {
+          "openOverviewTab": {
+            "title": "Open the Overview tab",
+            "description": "It is game time! Go to the Overview tab to start the session."
+          },
+          "startSession": {
+            "title": "Start the session",
+            "description": "Press this button to start the session. Once started, you can assign players to courts."
+          },
+          "openCourtsTab": {
+            "title": "Open the Courts tab",
+            "description": "Tap this tab to view the courts and pair up players."
+          },
+          "assignPlayers": {
+            "title": "Pair up players",
+            "description": "Press this button to assign players to the court — auto-match balanced pairs or pick them manually.",
+            "disabledTitle": "Add more players",
+            "disabledDescription": "You need 4 waiting players to pair up a match. Go to the Players tab to add more, then come back here to pair them up."
+          },
+          "startMatch": {
+            "title": "Start the match",
+            "description": "The court is ready! Press this button to start the match."
+          },
+          "endMatch": {
+            "title": "End the match",
+            "description": "When the match is over, press this button to record the score and free the court for the next round."
+          },
+          "doneRun": {
+            "title": "Congratulations! 🎉",
+            "description": "You now know the full flow of running a badminton session: starting it, pairing players up and managing matches. Have fun!"
+          }
+        }
+      }
+    },
+    "progress": "Step {current}/{total}",
+    "skip": "Skip the tour",
+    "resume": "Resume the tour",
+    "finish": "Finish",
+    "restartCta": "View interactive tour"
   }
 }

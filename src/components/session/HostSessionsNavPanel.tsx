@@ -101,6 +101,7 @@ export default function HostSessionsNavPanel() {
         centerAction={{
           label: t('createSession'),
           onClick: handleCreateSession,
+          dataTour: 'create-session',
         }}
       />
 

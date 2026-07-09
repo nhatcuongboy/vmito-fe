@@ -11,12 +11,14 @@ export interface NavigationTab {
   label: string;
   icon: LucideIcon;
   href?: string;
+  dataTour?: string;
 }
 
 export interface CenterAction {
   label: string;
   onClick: () => void;
   loading?: boolean;
+  dataTour?: string;
 }
 
 interface BottomNavigationBarProps {
@@ -65,6 +67,7 @@ export default function BottomNavigationBar({
           />
         )}
         <Button
+          data-tour={tab.dataTour}
           onClick={() => !isLoading && onTabChange(tab.id)}
           variant="ghost"
           width="100%"
@@ -168,6 +171,7 @@ export default function BottomNavigationBar({
           >
             <Box
               as="button"
+              data-tour={centerAction.dataTour}
               display="flex"
               flexDirection="column"
               alignItems="center"

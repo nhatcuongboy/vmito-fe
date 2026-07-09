@@ -34,6 +34,9 @@ import { StatusTabSwitch } from '@/components/session/StatusTabSwitch';
 import { useViewMode } from '@/hooks/useViewMode';
 import { useSocketListRefresh } from '@/hooks/useSocketListRefresh';
 import { SessionEventType } from '@/contexts/SocketContext';
+import { Button } from '@/components/ui/chakra-compat';
+import { PlayCircle } from 'lucide-react';
+import { useTourStore } from '@/stores/useTourStore';
 
 // Realtime events (emitted to the host's user room) that should refresh the
 // hosted sessions list: new join requests and generic notifications
@@ -56,6 +59,10 @@ const HOST_SORT_OPTIONS: SortOption[] = [
 function HostSessionsContent() {
   const tNav = useTranslations('navigation');
   const tSession = useTranslations('session');
+  const tTour = useTranslations('productTour');
+  const anyTourActive = useTourStore((s) =>
+    Object.values(s.tours).some((tr) => tr.status === 'active')
+  );
   const router = useRouter();
   const searchParams = useSearchParams();
   const { user } = useAuthStore();
@@ -417,6 +424,23 @@ function HostSessionsContent() {
                     : undefined
             }
           />
+
+          {/* Offer the interactive product tour when there is nothing yet */}
+          {!loading &&
+            filteredSessions.length === 0 &&
+            sessionStatusTab === 'active' &&
+            !anyTourActive && (
+              <Flex justify="center" mt={4}>
+                <Button
+                  colorPalette="green"
+                  variant="outline"
+                  onClick={() => useTourStore.getState().restartJourney()}
+                  leftIcon={<PlayCircle size={18} />}
+                >
+                  {tTour('restartCta')}
+                </Button>
+              </Flex>
+            )}
 
           {/* Infinite Scroll Trigger */}
           {hasMore && sessions.length >= PAGE_SIZE && !loading && (

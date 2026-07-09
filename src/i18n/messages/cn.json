@@ -133,28 +133,28 @@
     "bugReport": "报告错误",
     "developedBy": "由 Nhat Cuong 开发。",
     "levels": {
-      "9": "弱-",
       "1": "新手",
-      "10": "弱+",
       "2": "高级新手",
       "3": "初级中等",
       "4": "中等",
       "5": "高级中等",
       "6": "高级",
       "7": "半职业",
-      "8": "职业"
+      "8": "职业",
+      "9": "弱-",
+      "10": "弱+"
     },
     "levelShorts": {
-      "9": "弱-",
       "1": "弱",
-      "10": "弱+",
       "2": "高新",
       "3": "初中",
       "4": "中等",
       "5": "高中",
       "6": "高级",
       "7": "半职",
-      "8": "职业"
+      "8": "职业",
+      "9": "弱-",
+      "10": "弱+"
     },
     "gender": "性别",
     "selectGender": "选择性别",
@@ -473,16 +473,16 @@
     "allLevels": "所有等级",
     "levelsLabel": "等级",
     "levels": {
-      "9": "弱-",
       "1": "新手",
-      "10": "弱+",
       "2": "高级新手",
       "3": "初级中等",
       "4": "中等",
       "5": "高级中等",
       "6": "高级",
       "7": "半职业",
-      "8": "职业"
+      "8": "职业",
+      "9": "弱-",
+      "10": "弱+"
     },
     "search": "搜索",
     "searchPlaceholder": "按场地、地址或场地搜索...",
@@ -4451,7 +4451,8 @@
         "noOpponents": "没有重复对阵组合。",
         "matchCount": "{count} 场",
         "close": "知道了"
-      }
+      },
+      "needMorePlayers": "还需要 {count} 名等待的球员才能配对"
     },
     "matchResult": {
       "title": "比赛结果",
@@ -5864,5 +5865,76 @@
       "noFeedback": "未找到反馈",
       "accessDenied": "您没有权限访问此页面"
     }
+  },
+  "productTour": {
+    "tours": {
+      "createSession": {
+        "steps": {
+          "createSession": {
+            "title": "创建您的第一场球局",
+            "description": "点击此按钮创建您的第一场羽毛球局。您可以使用 AI 输入信息，或手动填写表单。"
+          },
+          "submitSession": {
+            "title": "完善球局信息",
+            "description": "填写球局名称、场馆、时间和场地数量，然后按此按钮创建球局。"
+          },
+          "manageSession": {
+            "title": "进入球局管理页面",
+            "description": "球局已创建！点击此处打开管理页面——在这里添加球员并管理比赛。"
+          },
+          "openPlayersTab": {
+            "title": "打开球员标签页",
+            "description": "点击此标签页管理球局的球员名单。"
+          },
+          "addPlayer": {
+            "title": "添加球员",
+            "description": "点击此按钮添加球员。可以陆续添加；到打球时至少需要 4 名球员才能配对。"
+          },
+          "doneCreate": {
+            "title": "球局创建完成！🎉",
+            "description": "您已学会创建球局和添加球员。人数够了、到打球时间时，请重新打开您的球局——我们会继续指导您如何管理比赛。"
+          }
+        }
+      },
+      "runMatches": {
+        "steps": {
+          "openOverviewTab": {
+            "title": "打开概览标签页",
+            "description": "到打球时间啦！进入概览标签页开始球局。"
+          },
+          "startSession": {
+            "title": "开始球局",
+            "description": "按此按钮开始球局。开始后即可将球员安排上场。"
+          },
+          "openCourtsTab": {
+            "title": "打开场地标签页",
+            "description": "点击此标签页查看场地并为球员配对。"
+          },
+          "assignPlayers": {
+            "title": "球员配对",
+            "description": "按此按钮将球员安排到场地——可自动均衡配对或手动选择。",
+            "disabledTitle": "需要更多球员",
+            "disabledDescription": "配对一场比赛需要 4 名正在等待的球员。请到球员标签页添加，然后回到这里进行配对。"
+          },
+          "startMatch": {
+            "title": "开始比赛",
+            "description": "场地已就绪！按此按钮开始比赛。"
+          },
+          "endMatch": {
+            "title": "结束比赛",
+            "description": "比赛结束后，按此按钮记录比分并释放场地进行下一轮。"
+          },
+          "doneRun": {
+            "title": "恭喜！🎉",
+            "description": "您已掌握运营羽毛球局的完整流程：开始球局、球员配对并管理比赛。祝您打球愉快！"
+          }
+        }
+      }
+    },
+    "progress": "第 {current}/{total} 步",
+    "skip": "跳过引导",
+    "resume": "继续引导",
+    "finish": "完成",
+    "restartCta": "查看互动引导"
   }
 }

@@ -191,6 +191,7 @@ const SessionDetailStickyBar = ({
       return (
         <NextLinkButton
           href={manageHref}
+          data-tour="manage-session"
           colorPalette="green"
           variant="solid"
           size={buttonSize}

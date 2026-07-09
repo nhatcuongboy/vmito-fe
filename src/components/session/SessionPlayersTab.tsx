@@ -18,6 +18,7 @@ import PlayerEmptyState from './player-management/PlayerEmptyState';
 import EditPlayerModal from './player-management/EditPlayerModal';
 import { PlayerDetailModal } from '../player/PlayerDetailModal';
 import { SessionPlayersTabSkeleton } from './SessionTabSkeletons';
+import { useTourCompleteWhen } from '@/components/tour/useTourCompleteWhen';
 
 // Updated PlayerFilter type to be an array of statuses
 export type PlayerFilter = PlayerStatus[];
@@ -183,6 +184,13 @@ const SessionPlayersTab: React.FC<SessionPlayersTabProps> = ({
   const subTab = externalSubTab ?? internalSubTab;
   const setSubTab = onSubTabChange ?? setInternalSubTab;
 
+  // Product tour: the create-session tour completes the "add player" step as
+  // soon as one player exists (copy explains ≥4 are needed to pair up later).
+  useTourCompleteWhen(
+    'add-player',
+    sessionPlayers.filter((p) => p.registrationStatus !== 'PENDING').length >= 1
+  );
+
   if (isLoading) {
     return <SessionPlayersTabSkeleton />;
   }
@@ -215,6 +223,7 @@ const SessionPlayersTab: React.FC<SessionPlayersTabProps> = ({
 
         {mode === 'manage' && (
           <Button
+            data-tour="add-player"
             size="sm"
             variant="solid"
             colorPalette="green"

@@ -117,6 +117,7 @@ export default function GlobalBottomNav() {
         }
       },
       loading: isPendingCreate,
+      dataTour: 'create-session',
     };
   }, [pathname, t, isPendingCreate, router, useAiForCreation]);
 

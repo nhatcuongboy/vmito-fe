@@ -47,6 +47,9 @@ export function useSessionRefresh({
   }, [sessionId]);
 
   useEffect(() => {
+    // Re-arm on every mount: StrictMode mounts, cleans up, then mounts again,
+    // so a ref flipped to false in cleanup must be reset here.
+    isMountedRef.current = true;
     return () => {
       isMountedRef.current = false;
     };

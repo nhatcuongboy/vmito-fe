@@ -26,6 +26,7 @@ export default function SessionSearchBar({
 
   const createBtn = onCreateClick && (
     <Button
+      data-tour="create-session"
       colorPalette="green"
       onClick={onCreateClick}
       size={{ base: 'sm', md: 'md' }}

@@ -46,6 +46,7 @@
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
     "dayjs": "^1.11.13",
+    "driver.js": "^1.6.0",
     "framer-motion": "^12.23.0",
     "html-to-image": "^1.11.13",
     "jsonwebtoken": "^9.0.2",
