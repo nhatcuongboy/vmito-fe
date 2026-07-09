@@ -52,8 +52,6 @@ import { AppAddressDisplay } from '@/components/common/AppAddressDisplay';
 import LevelBadgeWithDescription from './LevelBadgeWithDescription';
 import LevelDescriptionsModal from './LevelDescriptionsModal';
 import { useDownloadSessionImage } from '@/hooks/useDownloadSessionImage';
-import { useAuthStore } from '@/stores/useAuthStore';
-import { useMyClubIds } from '@/hooks/useMyClubIds';
 
 interface InfoRowProps extends FlexProps {
   icon: React.ElementType;
@@ -490,8 +488,6 @@ export default function SessionInfo({
   const tLevelDescriptions = useTranslations('common.levelDescriptions');
   const locale = useLocale();
   const { getLevelShortLabel } = useLevelLabel();
-  const { user } = useAuthStore();
-  const { clubIds: viewerClubIds } = useMyClubIds();
   const [playerStats, setPlayerStats] = useState<PlayerStatistics | null>(null);
   const [playerDoublesStats, setPlayerDoublesStats] =
     useState<PlayerDoublesMatchStats>(EMPTY_DOUBLES_MATCH_STATS);
@@ -501,19 +497,10 @@ export default function SessionInfo({
   const { downloadSessionImage, isDownloading } = useDownloadSessionImage();
 
   const showExtendedInfo = !compactUntilMaxPlayers || isExpanded;
-  // const canSeeSessionFee = FeeService.canViewerSeeSessionFee(
-  //   session,
-  //   user?.id,
-  //   viewerClubIds
-  // );
   const canSeeSessionFee = true;
-  // For detail/modal views, show "Contact host" for club sessions
-  const feeDisplayText = FeeService.getSessionFeeForModal(
-    session,
-    user?.id,
-    viewerClubIds,
-    tSession('contactHostForFee')
-  );
+  // Always show the session's actual walk-in (vãng lai) fee — never hide it
+  // behind a "Contact host" placeholder.
+  const feeDisplayText = FeeService.getSessionFeeForCard(session);
 
   const playerAchievementExportId =
     player && playerStats
