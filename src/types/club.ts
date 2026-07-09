@@ -162,6 +162,7 @@ export interface IClub {
   scheduleVenues?: IClubVenue[];
   requiredLevels?: number[];
   viewCount?: number;
+  isFavorite?: boolean;
 }
 
 export interface IClubListItem {
@@ -185,6 +186,7 @@ export interface IClubListItem {
   defaultVenue?: IClubVenue;
   distance?: number | null;
   requiredLevels?: number[];
+  isFavorite?: boolean;
 }
 
 export interface IMyClub {
@@ -293,6 +295,7 @@ export interface IBrowseClubsParams {
   sortOrder?: string;
   page?: number;
   limit?: number;
+  favoriteOnly?: boolean;
 }
 
 export interface IPaginatedClubList {

@@ -93,3 +93,7 @@ All user-facing text must use next-intl translations — never hardcode UI strin
 ### Documents
 
 - Generate any new documentation files in `/docs/` in English
+
+### Debug
+
+- The app is already running at http://localhost:3000, don't run the start command anymore, just open it and check/debug.

@@ -209,6 +209,7 @@ export const SessionService = {
     sortBy?: string;
     sortOrder?: 'asc' | 'desc';
     sessionType?: 'all' | 'regular' | 'facebook';
+    favoriteOnly?: boolean;
   }): Promise<{
     data: ISession[];
     pagination: {
@@ -248,6 +249,7 @@ export const SessionService = {
     if (filters?.sortOrder) params.append('sortOrder', filters.sortOrder);
     if (filters?.sessionType && filters.sessionType !== 'all')
       params.append('sessionType', filters.sessionType);
+    if (filters?.favoriteOnly === true) params.append('favoriteOnly', 'true');
 
     const url = params.toString()
       ? `/sessions/available?${params.toString()}`

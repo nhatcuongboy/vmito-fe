@@ -141,6 +141,15 @@
     "contact": "Liên hệ",
     "bugReport": "Báo cáo lỗi",
     "developedBy": "Phát triển bởi Nhật Cường.",
+    "favorites": {
+      "add": "Thêm vào yêu thích",
+      "remove": "Bỏ yêu thích",
+      "filter": "Yêu thích",
+      "shortLabel": "Yêu thích",
+      "featureName": "yêu thích",
+      "addFailed": "Không thể thêm vào yêu thích",
+      "removeFailed": "Không thể bỏ yêu thích"
+    },
     "levels": {
       "1": "Yếu",
       "2": "Trung bình yếu",
@@ -524,6 +533,7 @@
       "allSessions": "Tất cả",
       "regularSessions": "Kèo thường",
       "facebookSessions": "Bài đăng Facebook",
+      "favoritesOnly": "Yêu thích",
       "nearMe": "Gần tôi",
       "sortByDistance": "Sắp xếp theo khoảng cách",
       "cost": "Chi phí",

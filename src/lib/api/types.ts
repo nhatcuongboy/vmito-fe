@@ -431,6 +431,7 @@ export interface Venue {
   images?: string[];
   imagePublicIds?: string[];
   viewCount?: number;
+  isFavorite?: boolean;
 }
 
 export enum VenueRequestType {
@@ -568,6 +569,7 @@ export interface ISession {
   // Crawled (vãng lai) sessions imported from public Facebook posts — view-only
   isCrawled?: boolean;
   externalUrl?: string; // link bài Facebook gốc
+  isFavorite?: boolean;
   externalSource?: string; // tên group Facebook nguồn
   externalAuthorUrl?: string; // link trang cá nhân FB của chủ bài
   externalAuthorAvatar?: string; // ảnh đại diện FB của chủ bài (hotlink)
@@ -922,6 +924,7 @@ export interface Tournament {
     pairs: number;
     categories: number;
   };
+  isFavorite?: boolean;
 }
 
 export interface Sponsor {

@@ -140,6 +140,15 @@
     "contact": "Contact Us",
     "bugReport": "Bug Report",
     "developedBy": "Developed by Nhat Cuong.",
+    "favorites": {
+      "add": "Add to favorites",
+      "remove": "Remove from favorites",
+      "filter": "Favorites",
+      "shortLabel": "Favorites",
+      "featureName": "favorites",
+      "addFailed": "Could not add to favorites",
+      "removeFailed": "Could not remove from favorites"
+    },
     "levels": {
       "1": "Weak",
       "2": "Advanced Beginner",
@@ -522,6 +531,7 @@
       "allSessions": "All",
       "regularSessions": "Regular sessions",
       "facebookSessions": "Facebook posts",
+      "favoritesOnly": "Favorites",
       "nearMe": "Near Me",
       "sortByDistance": "Sort by Distance",
       "cost": "Cost",

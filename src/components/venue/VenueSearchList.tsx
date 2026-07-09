@@ -61,6 +61,7 @@ import { useAuthStore } from '@/stores/useAuthStore';
 import { usePreferenceStore } from '@/stores/usePreferenceStore';
 import { usePathname, useRouter } from '@/i18n/config';
 import { useRegisterTopBarSearch } from '@/contexts/TopBarSearchContext';
+import { FavoriteFilterButton } from '@/components/favorites/FavoriteFilterButton';
 
 const LoginPromptModal = dynamic(
   () => import('@/components/auth/LoginPromptModal'),
@@ -144,6 +145,7 @@ const VENUE_FILTERS_SCHEMA = {
   district: stringArrayField(),
   near: booleanField(false),
   sort: stringField('distance'),
+  favorite: booleanField(false),
 };
 
 export default function VenueSearchList() {
@@ -281,6 +283,7 @@ export default function VenueSearchList() {
               ? filters.district.join(',')
               : undefined,
           closureStatus: 'OPERATING',
+          favoriteOnly: filters.favorite ? true : undefined,
           page: currentPage,
           limit: effectiveLimit,
         };
@@ -501,7 +504,10 @@ export default function VenueSearchList() {
   };
 
   const activeFilterCount =
-    filters.city.length + filters.district.length + (filters.near ? 1 : 0);
+    filters.city.length +
+    filters.district.length +
+    (filters.near ? 1 : 0) +
+    (filters.favorite ? 1 : 0);
   const hasVenueSearch = filters.q.trim().length > 0;
 
   // Register desktop search bar in the top bar
@@ -641,6 +647,10 @@ export default function VenueSearchList() {
           )}
 
           <Flex align="center" gap={2}>
+            <FavoriteFilterButton
+              isActive={filters.favorite}
+              onToggle={() => setFilters({ favorite: !filters.favorite })}
+            />
             {/* Sort dropdown */}
             <Box position="relative" ref={sortDropdownRef}>
               <Button
@@ -748,8 +758,35 @@ export default function VenueSearchList() {
       {!loading &&
         (filters.city.length > 0 ||
           filters.district.length > 0 ||
-          filters.near) && (
+          filters.near ||
+          filters.favorite) && (
           <Flex align="center" flexWrap="wrap" gap={2} mb={4} minH="28px">
+            {filters.favorite && (
+              <Badge
+                colorPalette="red"
+                variant="subtle"
+                borderRadius="full"
+                px={3}
+                py={1}
+                fontSize="xs"
+                fontWeight="semibold"
+                display="flex"
+                alignItems="center"
+                gap={1.5}
+              >
+                {t('common.favorites.filter')}
+                <Box
+                  as="span"
+                  cursor="pointer"
+                  display="inline-flex"
+                  alignItems="center"
+                  onClick={() => setFilters({ favorite: false })}
+                  _hover={{ color: 'red.700' }}
+                >
+                  <X size={12} />
+                </Box>
+              </Badge>
+            )}
             {filters.near && (
               <Badge
                 colorPalette="blue"
@@ -1182,6 +1219,15 @@ export default function VenueSearchList() {
                 key={venue.id}
                 venue={venue}
                 variant={viewMode === 'list' ? 'list' : 'grid'}
+                onFavoriteChange={(venueId, isFavorite) => {
+                  setVenues((prev) =>
+                    prev
+                      .map((item) =>
+                        item.id === venueId ? { ...item, isFavorite } : item
+                      )
+                      .filter((item) => !filters.favorite || item.isFavorite)
+                  );
+                }}
               />
             ))}
           </Grid>

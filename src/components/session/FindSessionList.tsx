@@ -78,6 +78,7 @@ import { SessionCardSkeleton } from './SessionCardSkeleton';
 import SessionSearchBar from './SessionSearchBar';
 import ResultsHeader from './ResultsHeader';
 import { useRegisterTopBarSearch } from '@/contexts/TopBarSearchContext';
+import { FavoriteFilterButton } from '@/components/favorites/FavoriteFilterButton';
 
 // Map view pulls in @react-google-maps/api (~150KB) — load it only when the
 // user switches to map mode instead of shipping it with the initial page
@@ -110,6 +111,7 @@ const SESSION_FILTERS_SCHEMA = {
   sessionType: stringField('all'),
   near: booleanField(false),
   sort: stringField('date_asc'),
+  favorite: booleanField(false),
 };
 
 export type SessionUrlFilters = ReturnType<
@@ -305,6 +307,7 @@ export default function FindSessionList({
         minAvailableSlots:
           filters.minAvailableSlots > 0 ? filters.minAvailableSlots : undefined,
         sessionType: filters.sessionType as 'all' | 'regular' | 'facebook',
+        favoriteOnly: urlFilters.favorite ? true : undefined,
         page: currentPage,
         limit: effectiveLimit,
       };
@@ -544,7 +547,8 @@ export default function FindSessionList({
     (filters.minFee > 0 || filters.maxFee < 200000 ? 1 : 0) +
     (filters.splitEvenly ? 1 : 0) +
     (filters.sessionType !== 'all' ? 1 : 0) +
-    (sortByDistance ? 1 : 0);
+    (sortByDistance ? 1 : 0) +
+    (urlFilters.favorite ? 1 : 0);
 
   // Count of non-search filters for showing the clear-all button
   const nonSearchFilterCount = activeFilterCount;
@@ -686,9 +690,39 @@ export default function FindSessionList({
         onSortChange={(value) => setUrlFilters({ sort: value })}
         viewMode={viewMode}
         setViewMode={setViewMode}
+        favoriteButton={
+          <FavoriteFilterButton
+            isActive={urlFilters.favorite}
+            onToggle={() => setUrlFilters({ favorite: !urlFilters.favorite })}
+          />
+        }
       >
         {(filters.venueId || nonSearchFilterCount > 0) && (
           <HStack gap={2} wrap="wrap">
+            {urlFilters.favorite && (
+              <Badge
+                colorPalette="red"
+                variant="subtle"
+                px={3}
+                py={1.5}
+                borderRadius="full"
+                display="flex"
+                alignItems="center"
+                gap={2}
+                boxShadow="sm"
+              >
+                <Text fontSize="xs" fontWeight="semibold">
+                  {t('filters.favoritesOnly')}
+                </Text>
+                <Icon
+                  as={X}
+                  boxSize={3}
+                  cursor="pointer"
+                  onClick={() => setUrlFilters({ favorite: false })}
+                  _hover={{ color: 'red.500' }}
+                />
+              </Badge>
+            )}
             {/* Venue */}
             {filters.venueId && (
               <Badge

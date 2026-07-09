@@ -17,14 +17,7 @@ import PageLayout from '@/components/layout/PageLayout';
 import { TournamentService } from '@/lib/api/tournament.service';
 import { Tournament, TournamentStatus } from '@/lib/api/types';
 import { Suspense, useEffect, useState } from 'react';
-import {
-  Calendar,
-  Heart,
-  Share2,
-  ChevronDown,
-  Plus,
-  Swords,
-} from 'lucide-react';
+import { Calendar, Share2, ChevronDown, Plus, Swords } from 'lucide-react';
 import { TOP_BAR_HEIGHT_MOBILE } from '@/constants';
 import { TournamentCardsGridSkeleton } from '@/components/tournament/skeletons';
 
@@ -33,6 +26,8 @@ const BADMINTON_PLACEHOLDER = '/icons/app-logo.png';
 import { AppSearchBar } from '@/components/common/AppSearchBar';
 import { useRegisterTopBarSearch } from '@/contexts/TopBarSearchContext';
 import AppEmptyState from '@/components/ui/AppEmptyState';
+import { FavoriteButton } from '@/components/favorites/FavoriteButton';
+import { FavoriteFilterButton } from '@/components/favorites/FavoriteFilterButton';
 
 function isSameCalendarDay(first: Date, second: Date) {
   return (
@@ -50,6 +45,7 @@ function TournamentsContent() {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('ALL');
+  const [favoriteOnly, setFavoriteOnly] = useState(false);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
 
   // Register desktop search bar in the top bar
@@ -62,12 +58,13 @@ function TournamentsContent() {
 
   useEffect(() => {
     loadTournaments();
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [favoriteOnly]);
 
   const loadTournaments = async () => {
     try {
       setLoading(true);
-      const data = await TournamentService.getAllTournaments();
+      const data = await TournamentService.getAllTournaments({ favoriteOnly });
       setTournaments(data);
     } catch (error) {
       console.error('Error loading tournaments:', error);
@@ -236,7 +233,11 @@ function TournamentsContent() {
         </Flex>
 
         {/* Filter row */}
-        <Flex justify="flex-end" alignItems="center" pt={1}>
+        <Flex justify="flex-end" alignItems="center" gap={2} pt={1}>
+          <FavoriteFilterButton
+            isActive={favoriteOnly}
+            onToggle={() => setFavoriteOnly((value) => !value)}
+          />
           {/* Status Filter Dropdown */}
           <Box position="relative">
             <Button
@@ -378,6 +379,23 @@ function TournamentsContent() {
                             {badgeLabel}
                           </Badge>
                         )}
+                        <Box position="absolute" top={3} left={3} zIndex={3}>
+                          <FavoriteButton
+                            type="TOURNAMENT"
+                            targetId={tournament.id}
+                            isFavorite={tournament.isFavorite}
+                            returnUrl={`/tournament/${tournament.slug ?? tournament.id}`}
+                            onChange={(nextValue) => {
+                              setTournaments((prev) =>
+                                prev.map((item) =>
+                                  item.id === tournament.id
+                                    ? { ...item, isFavorite: nextValue }
+                                    : item
+                                )
+                              );
+                            }}
+                          />
+                        </Box>
                       </Box>
 
                       {/* Card Content */}
@@ -425,14 +443,29 @@ function TournamentsContent() {
                               flex={1}
                               justify="center"
                               py={1}
-                              cursor="pointer"
                               borderRadius="md"
                               _hover={{ bg: 'gray.50' }}
                               onClick={(e) => {
                                 e.stopPropagation();
                               }}
                             >
-                              <Heart size={14} color="#6B7280" />
+                              <FavoriteButton
+                                type="TOURNAMENT"
+                                targetId={tournament.id}
+                                isFavorite={tournament.isFavorite}
+                                size="xs"
+                                variant="ghost"
+                                returnUrl={`/tournament/${tournament.slug ?? tournament.id}`}
+                                onChange={(nextValue) => {
+                                  setTournaments((prev) =>
+                                    prev.map((item) =>
+                                      item.id === tournament.id
+                                        ? { ...item, isFavorite: nextValue }
+                                        : item
+                                    )
+                                  );
+                                }}
+                              />
                               <Text
                                 fontSize="xs"
                                 color="fg.muted"

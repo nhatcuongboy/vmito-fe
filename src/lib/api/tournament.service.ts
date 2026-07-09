@@ -18,8 +18,12 @@ import {
 
 export const TournamentService = {
   // Get all tournaments (public)
-  getAllTournaments: async (): Promise<Tournament[]> => {
-    const response = await api.get<ApiResponse<Tournament[]>>('/tournaments');
+  getAllTournaments: async (filters?: {
+    favoriteOnly?: boolean;
+  }): Promise<Tournament[]> => {
+    const response = await api.get<ApiResponse<Tournament[]>>('/tournaments', {
+      params: filters?.favoriteOnly ? { favoriteOnly: true } : undefined,
+    });
     return (response.data.data || []).filter(
       (tournament) => tournament.isPublished
     );

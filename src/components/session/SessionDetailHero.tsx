@@ -10,6 +10,7 @@ import { DEFAULT_COVER_PHOTO } from '@/constants';
 import { statusColors, getStatusLabel } from './BaseSessionCard';
 import { toaster } from '@/components/ui/toaster';
 import { motion, AnimatePresence } from 'framer-motion';
+import { FavoriteButton } from '@/components/favorites/FavoriteButton';
 
 interface ISessionDetailHeroProps {
   session: ISession;
@@ -210,24 +211,36 @@ const SessionDetailHero = ({
         </IconButton>
       )}
 
-      {/* Share Button */}
-      <IconButton
-        aria-label="Share"
-        variant="ghost"
-        size="sm"
+      {/* Share + Favorite Buttons */}
+      <Flex
         position="absolute"
         top="calc(env(safe-area-inset-top) + 12px)"
         right={3}
-        color="white"
-        bg="blackAlpha.500"
-        backdropFilter="blur(6px)"
-        borderRadius="full"
-        boxShadow="0 2px 8px rgba(0,0,0,0.45)"
-        _hover={{ bg: 'blackAlpha.700' }}
+        gap={2}
+        align="center"
         zIndex={100}
-        onClick={handleShare}
-        icon={<Icon as={Share2} boxSize={5} />}
-      />
+      >
+        <IconButton
+          aria-label="Share"
+          variant="ghost"
+          size="sm"
+          color="white"
+          bg="blackAlpha.500"
+          backdropFilter="blur(6px)"
+          borderRadius="full"
+          boxShadow="0 2px 8px rgba(0,0,0,0.45)"
+          _hover={{ bg: 'blackAlpha.700' }}
+          onClick={handleShare}
+          icon={<Icon as={Share2} boxSize={5} />}
+        />
+        <FavoriteButton
+          type="SESSION"
+          targetId={session.id}
+          isFavorite={session.isFavorite}
+          variant="overlay-dark"
+          returnUrl={`/sessions/${session.slug || session.id}`}
+        />
+      </Flex>
 
       {/* Dot indicators */}
       {allImages.length > 1 && (

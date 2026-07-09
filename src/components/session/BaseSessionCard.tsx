@@ -831,12 +831,15 @@ const BaseSessionCard = ({
                 </Badge>
               )}
             </Box>
-            <Box
-              position="absolute"
-              top={3}
-              left={registrationBadgeContent ? 14 : 3}
-              zIndex={3}
-            >
+            {/* Registration Status Overlay */}
+            {registrationBadgeContent && (
+              <Box position="absolute" top={3} left={3}>
+                {registrationBadgeContent}
+              </Box>
+            )}
+            {/* Favorite toggle — bottom-right of the cover photo, clear of
+                the top badges regardless of their text length */}
+            <Box position="absolute" bottom={3} right={3} zIndex={3}>
               <FavoriteButton
                 type="SESSION"
                 targetId={session.id}
@@ -844,12 +847,6 @@ const BaseSessionCard = ({
                 returnUrl={cardHref}
               />
             </Box>
-            {/* Registration Status Overlay */}
-            {registrationBadgeContent && (
-              <Box position="absolute" top={3} left={3}>
-                {registrationBadgeContent}
-              </Box>
-            )}
             {/* Custom Cover Photo Overlay */}
             {coverPhotoOverlay}
           </Box>

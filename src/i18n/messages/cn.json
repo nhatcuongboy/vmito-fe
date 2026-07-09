@@ -132,6 +132,15 @@
     "contact": "联系我们",
     "bugReport": "报告错误",
     "developedBy": "由 Nhat Cuong 开发。",
+    "favorites": {
+      "add": "添加到收藏",
+      "remove": "取消收藏",
+      "filter": "收藏",
+      "shortLabel": "收藏",
+      "featureName": "收藏",
+      "addFailed": "无法添加到收藏",
+      "removeFailed": "无法取消收藏"
+    },
     "levels": {
       "1": "新手",
       "2": "高级新手",
@@ -510,6 +519,7 @@
       "allSessions": "全部",
       "regularSessions": "普通场次",
       "facebookSessions": "Facebook 帖子",
+      "favoritesOnly": "收藏",
       "nearMe": "附近",
       "sortByDistance": "按距离排序",
       "cost": "费用",
