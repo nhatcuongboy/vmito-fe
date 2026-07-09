@@ -104,9 +104,13 @@ export default function TournamentDashboard({ tournament }: Props) {
   };
 
   return (
-    <VStack gap={4} align="stretch">
+    <VStack gap={4} align="stretch" pt={{ base: 4, md: 0 }}>
       {/* Page heading */}
-      <Flex justify="space-between" align="center">
+      <Flex
+        justify="space-between"
+        align="center"
+        display={{ base: 'none', md: 'flex' }}
+      >
         <Heading size="xl">{t('title')}</Heading>
       </Flex>
 
