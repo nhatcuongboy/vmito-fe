@@ -65,20 +65,13 @@ export const is24HourFormat = (): boolean => {
   }
 
   try {
-    // Use Intl API to detect device's time format preference
-    const formatter = new Intl.DateTimeFormat(undefined, {
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: false,
-    });
-
-    // Format a test time (13:00) with hour12: false
+    // Most reliable method: format a known 13:00 (1 PM) test time and check if "13" appears.
+    // resolvedOptions().hour12 is not trustworthy on macOS — browsers resolve it from the
+    // locale default (e.g. en-US → 12h) and may ignore the OS-level 24-hour preference.
     const testDate = new Date(2000, 0, 1, 13, 0, 0);
-    const formatted24 = formatter.format(testDate);
-
-    // If 24-hour format is used, it will show "13:00"
-    // If 12-hour format is used, formatted12 will be different
-    return formatted24.includes('13');
+    const formatter = new Intl.DateTimeFormat(undefined, { hour: 'numeric' });
+    const formatted = formatter.format(testDate);
+    return formatted.includes('13');
   } catch (error) {
     console.warn('Error detecting time format:', error);
     // Default to 24-hour format if detection fails
@@ -87,29 +80,31 @@ export const is24HourFormat = (): boolean => {
 };
 
 /**
- * Format time string based on device's time format preference
+ * Format time string in 24h format (HH:mm), always — regardless of OS/locale setting.
  * @param dateString - Time string or Date object
- * @returns Formatted time string (HH:MM or h:MM AM/PM)
+ * @returns Formatted time string, e.g. "20:00"
  */
 export const formatTimeByDevicePreference = (
   dateString: string | Date
 ): string => {
   const date = new Date(dateString);
-  const use24Hour = is24HourFormat();
+  const h = date.getHours().toString().padStart(2, '0');
+  const m = date.getMinutes().toString().padStart(2, '0');
+  return `${h}:${m}`;
+};
 
-  try {
-    return date.toLocaleTimeString(undefined, {
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: !use24Hour,
-    });
-  } catch (error) {
-    console.warn('Error formatting time:', error);
-    // Fallback to 24-hour format
-    return date.toLocaleTimeString('en-US', {
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: false,
-    });
+/**
+ * Format a time range in 24h format (HH:mm - HH:mm), always.
+ * Example: "20:00 - 22:00".
+ */
+export const formatTimeRangeByDevicePreference = (
+  startTime: string | Date,
+  endTime?: string | Date | null,
+  endFallback?: string
+): string => {
+  const start = formatTimeByDevicePreference(startTime);
+  if (!endTime) {
+    return endFallback ? `${start} - ${endFallback}` : start;
   }
+  return `${start} - ${formatTimeByDevicePreference(endTime)}`;
 };

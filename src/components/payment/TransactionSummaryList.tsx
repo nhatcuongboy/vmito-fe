@@ -12,8 +12,11 @@ import {
 import { useTranslations } from 'next-intl';
 import { TransactionSummary, HostTransactionSummary } from '@/lib/api/types';
 import { FeeService } from '@/lib/api/fee.service';
-import { User, ChevronRight, Calendar, TrendingUp } from 'lucide-react';
+import { ChevronRight, Calendar, TrendingUp } from 'lucide-react';
 import { StarRatingDisplay } from '@/components/rating';
+import { getAvatarBgColor } from '@/lib/utils/avatarColor';
+import { normalizeImageUrl } from '@/lib/images/normalizeImageUrl';
+import TransactionSummarySkeleton from './TransactionSummarySkeleton';
 
 interface TransactionSummaryListProps {
   summaries: (TransactionSummary | HostTransactionSummary)[];
@@ -38,11 +41,7 @@ export default function TransactionSummaryList({
   const pendingAmount = summaries.reduce((sum, s) => sum + s.pendingAmount, 0);
 
   if (isLoading) {
-    return (
-      <Box textAlign="center" py={8}>
-        <Text color="gray.500">{t('loading')}</Text>
-      </Box>
-    );
+    return <TransactionSummarySkeleton />;
   }
 
   if (summaries.length === 0) {
@@ -126,13 +125,11 @@ export default function TransactionSummaryList({
             >
               <HStack justify="space-between">
                 <HStack gap={3}>
-                  <Avatar.Root size="md">
+                  <Avatar.Root size="md" bg={getAvatarBgColor(name)}>
                     {image ? (
-                      <Avatar.Image src={image} />
+                      <Avatar.Image src={normalizeImageUrl(image)} />
                     ) : (
-                      <Avatar.Fallback>
-                        <User size={20} />
-                      </Avatar.Fallback>
+                      <Avatar.Fallback name={name} color="white" />
                     )}
                   </Avatar.Root>
                   <Box>

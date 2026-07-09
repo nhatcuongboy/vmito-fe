@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { Box, Flex, HStack, Text, VStack } from '@chakra-ui/react';
 import { Input } from '@/components/ui/Input';
+import { MoneyInput } from '@/components/ui/MoneyInput';
 import { Field } from '@/components/ui/Field';
 import { RichTextEditor } from '@/components/ui/RichTextEditor';
 import { SearchableSelect } from '@/components/ui/SearchableSelect';
@@ -27,6 +28,7 @@ import PageLayout from '@/components/layout/PageLayout';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
+import { useTranslations } from 'next-intl';
 
 const venueSchema = z.object({
   name: z.string().min(2, 'Tên phải có ít nhất 2 ký tự'),
@@ -74,6 +76,7 @@ const SectionLabel = ({ title }: { title: string }) => (
 
 export default function CreateVenuePage() {
   const router = useRouter();
+  const t = useTranslations('admin');
   const [venueImages, setVenueImages] = useState<ISessionImage[]>([]);
   const [venueBannerIndex, setVenueBannerIndex] = useState(0);
 
@@ -132,11 +135,11 @@ export default function CreateVenuePage() {
       const result = await VenueService.createVenue(
         payload as Omit<Venue, 'id'>
       );
-      toaster.success({ title: 'Tạo sân thành công' });
+      toaster.success({ title: t('venues.createSuccess') });
       router.push(`/venues/${result.slug || result.id}`);
     } catch (_error) {
       console.error('Failed to create venue:', _error);
-      toaster.error({ title: 'Không thể tạo sân' });
+      toaster.error({ title: t('venues.createError') });
     }
   };
 
@@ -448,17 +451,9 @@ export default function CreateVenuePage() {
                 name="hourlyRateFixed"
                 render={({ field }) => (
                   <Field flex={1} label="Giá thuê cố định (VND)">
-                    <Input
-                      {...field}
-                      type="number"
-                      onChange={(e) =>
-                        field.onChange(
-                          e.target.value
-                            ? parseInt(e.target.value, 10)
-                            : undefined
-                        )
-                      }
-                      value={field.value ?? ''}
+                    <MoneyInput
+                      value={field.value}
+                      onValueChange={field.onChange}
                     />
                   </Field>
                 )}
@@ -468,17 +463,9 @@ export default function CreateVenuePage() {
                 name="hourlyRateWalkIn"
                 render={({ field }) => (
                   <Field flex={1} label="Giá thuê vãng lai (VND)">
-                    <Input
-                      {...field}
-                      type="number"
-                      onChange={(e) =>
-                        field.onChange(
-                          e.target.value
-                            ? parseInt(e.target.value, 10)
-                            : undefined
-                        )
-                      }
-                      value={field.value ?? ''}
+                    <MoneyInput
+                      value={field.value}
+                      onValueChange={field.onChange}
                     />
                   </Field>
                 )}

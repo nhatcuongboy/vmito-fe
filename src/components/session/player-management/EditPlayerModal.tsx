@@ -1,15 +1,21 @@
 'use client';
 import { Input } from '@/components/ui/Input';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Badge, Box, Flex, Grid, Text, Textarea } from '@chakra-ui/react';
-import { HStack, VStack } from '@/components/ui/chakra-compat';
+import { HStack, VStack, Button } from '@/components/ui/chakra-compat';
 import { VModal } from '@/components/ui/VModal';
+import { VSwitch } from '@/components/ui/VSwitch';
 import { useLevelLabel } from '@/hooks/useLevelLabel';
-import { Edit } from 'lucide-react';
+import { Edit, ChevronDown, ChevronUp, DollarSign } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Player } from './types';
 import { IClub } from '@/types/club';
+import { pickClubFee, useClubSessionFees } from './useClubSessionFees';
+
+const CONTROL_BG = { base: 'white', _dark: 'gray.900' } as const;
+const CONTROL_BORDER = { base: 'gray.200', _dark: 'gray.600' } as const;
+const MUTED_PANEL_BG = { base: 'gray.50', _dark: 'whiteAlpha.50' } as const;
 
 interface EditPlayerModalProps {
   isOpen: boolean;
@@ -19,6 +25,7 @@ interface EditPlayerModalProps {
   clubs?: IClub[];
   availableLevels: number[];
   isSaving: boolean;
+  session?: { id: string; startTime?: string | Date }; // Add session prop
   onUpdateEditing: (
     playerId: string,
     field: string,
@@ -35,6 +42,7 @@ const EditPlayerModal: React.FC<EditPlayerModalProps> = ({
   availableLevels,
   clubs = [],
   isSaving,
+  session,
   onUpdateEditing,
   onSave,
 }) => {
@@ -42,7 +50,52 @@ const EditPlayerModal: React.FC<EditPlayerModalProps> = ({
   const tCommon = useTranslations('common');
   const { getLevelLabel } = useLevelLabel();
 
+  // Club fixed-fee section state
+  const [isFeeConfigExpanded, setIsFeeConfigExpanded] = useState(false);
+  const [isClubFeeEnabled, setIsClubFeeEnabled] = useState(false);
+
+  // Fixed per-session fees of all clubs for the session's month. Only clubs
+  // with a configured fee can be selected; the fee is shown read-only.
+  const { feesByClubId, isLoading: isLoadingClubFees } = useClubSessionFees(
+    clubs,
+    session?.startTime,
+    isOpen
+  );
+  const clubsWithFixedFee = clubs.filter(
+    (club) => pickClubFee(feesByClubId[club.id]) !== null
+  );
+
+  // Initialize enabled + expanded state whenever the modal opens
+  useEffect(() => {
+    if (!isOpen) return;
+    const enabled = !!editingData?.clubId;
+    setIsClubFeeEnabled(enabled);
+    setIsFeeConfigExpanded(enabled);
+    // Only re-run when the modal opens or switches to a different player
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen, player?.id]);
+
+  // Toggle the club fixed-fee feature on/off for this player
+  const handleToggleClubFee = (enabled: boolean) => {
+    if (!player) return;
+    setIsClubFeeEnabled(enabled);
+    setIsFeeConfigExpanded(enabled);
+
+    if (!enabled) {
+      // Turning off: clear the club selection so the player falls back to
+      // the default session fee.
+      onUpdateEditing(player.id, 'clubId', undefined);
+      onUpdateEditing(player.id, 'isClubMember', false);
+    }
+  };
+
+  // Early return after all hooks
   if (!player || !editingData) return null;
+
+  // Fixed per-session fee of the selected club (per player gender)
+  const clubFee = editingData.clubId
+    ? pickClubFee(feesByClubId[editingData.clubId], editingData.gender)
+    : null;
 
   const handleSave = async () => {
     await onSave(player.id);
@@ -93,12 +146,13 @@ const EditPlayerModal: React.FC<EditPlayerModalProps> = ({
               {t('playerName')}
             </Text>
             <Input
-              value={editingData.name}
+              value={editingData.name || ''}
               onChange={(e) =>
                 onUpdateEditing(player.id, 'name', e.target.value)
               }
               size="md"
-              bg="white"
+              bg={CONTROL_BG}
+              borderColor={CONTROL_BORDER}
               placeholder={t('enterPlayerName')}
             />
           </Box>
@@ -113,7 +167,8 @@ const EditPlayerModal: React.FC<EditPlayerModalProps> = ({
                 onUpdateEditing(player.id, 'phone', e.target.value);
               }}
               size="md"
-              bg="white"
+              bg={CONTROL_BG}
+              borderColor={CONTROL_BORDER}
             />
           </Box>
         </Grid>
@@ -125,7 +180,7 @@ const EditPlayerModal: React.FC<EditPlayerModalProps> = ({
               {t('gender')}
             </Text>
             <select
-              value={editingData.gender}
+              value={editingData.gender || 'MALE'}
               onChange={(e) =>
                 onUpdateEditing(player.id, 'gender', e.target.value)
               }
@@ -171,7 +226,7 @@ const EditPlayerModal: React.FC<EditPlayerModalProps> = ({
               {t('level')}
             </Text>
             <select
-              value={editingData.level === null ? '' : editingData.level}
+              value={editingData.level ?? ''}
               onChange={(e) =>
                 onUpdateEditing(
                   player.id,
@@ -217,7 +272,8 @@ const EditPlayerModal: React.FC<EditPlayerModalProps> = ({
           <Textarea
             placeholder={t('levelDescriptionPlaceholder')}
             size="md"
-            bg="white"
+            bg={CONTROL_BG}
+            borderColor={CONTROL_BORDER}
             value={editingData.levelDescription || ''}
             onChange={(e) =>
               onUpdateEditing(player.id, 'levelDescription', e.target.value)
@@ -226,129 +282,156 @@ const EditPlayerModal: React.FC<EditPlayerModalProps> = ({
           />
         </Box>
 
-        {/* Confirmation checkboxes */}
-        <Box>
-          <VStack align="stretch" spacing={2}>
-            <Flex align="center" gap={3}>
-              <input
-                type="checkbox"
-                id={`requireConfirm-edit-${player.id}`}
-                checked={editingData.requireConfirmInfo || false}
-                onChange={(e) =>
-                  onUpdateEditing(
-                    player.id,
-                    'requireConfirmInfo',
-                    e.target.checked
-                  )
-                }
-                style={{
-                  width: '16px',
-                  height: '16px',
-                  accentColor: '#179a3b',
-                }}
-              />
-              <label
-                htmlFor={`requireConfirm-edit-${player.id}`}
-                style={{
-                  fontSize: '14px',
-                  color: '#4A5568',
-                  lineHeight: '1.4',
-                }}
+        {/* Club Fixed Fee Section (Collapsible) */}
+        <Box
+          borderWidth="1px"
+          borderColor={{ base: 'gray.200', _dark: 'gray.600' }}
+          borderRadius="md"
+          overflow="hidden"
+          bg={{ base: 'white', _dark: 'gray.800' }}
+        >
+          <Flex align="center" justify="space-between" gap={3} px={4} py={1.5}>
+            <HStack gap={2} minW={0}>
+              <DollarSign size={16} color="#179a3b" />
+              <Text
+                fontSize="sm"
+                fontWeight="semibold"
+                color={{ base: 'gray.700', _dark: 'gray.200' }}
               >
-                {t('requirePlayerConfirmInfo')}
-              </label>
-            </Flex>
-            <Flex align="center" gap={3}>
-              <input
-                type="checkbox"
-                id={`confirmedByPlayer-edit-${player.id}`}
-                checked={editingData.confirmedByPlayer || false}
-                onChange={(e) =>
-                  onUpdateEditing(
-                    player.id,
-                    'confirmedByPlayer',
-                    e.target.checked
-                  )
-                }
-                style={{
-                  width: '16px',
-                  height: '16px',
-                  accentColor: '#38a169',
-                }}
-              />
-              <label
-                htmlFor={`confirmedByPlayer-edit-${player.id}`}
-                style={{
-                  fontSize: '14px',
-                  color: '#22543d',
-                  lineHeight: '1.4',
-                }}
-              >
-                {t('confirmedByPlayer')}
-              </label>
-            </Flex>
+                {t('clubFixedFeeSection')}
+              </Text>
+            </HStack>
 
-            {/* Club Checkbox */}
-            <Flex align="center" gap={3}>
-              <input
-                type="checkbox"
-                id={`isClubMember-edit-${player.id}`}
-                checked={editingData.isClubMember || false}
-                onChange={(e) => {
-                  onUpdateEditing(player.id, 'isClubMember', e.target.checked);
-                  if (!e.target.checked) {
-                    onUpdateEditing(player.id, 'clubId', undefined);
-                  }
-                }}
-                style={{
-                  width: '16px',
-                  height: '16px',
-                  accentColor: '#179a3b',
-                }}
+            <HStack gap={2} flexShrink={0}>
+              <VSwitch
+                checked={isClubFeeEnabled}
+                onCheckedChange={(details) =>
+                  handleToggleClubFee(!!details.checked)
+                }
+                colorPalette="green"
+                size="sm"
+                aria-label={
+                  isClubFeeEnabled
+                    ? t('disableClubFixedFee')
+                    : t('enableClubFixedFee')
+                }
               />
-              <label
-                htmlFor={`isClubMember-edit-${player.id}`}
-                style={{
-                  fontSize: '14px',
-                  color: '#4A5568',
-                  lineHeight: '1.4',
-                }}
+              <Button
+                type="button"
+                onClick={() =>
+                  isClubFeeEnabled &&
+                  setIsFeeConfigExpanded(!isFeeConfigExpanded)
+                }
+                variant="ghost"
+                boxSize={7}
+                minW={7}
+                p={0}
+                disabled={!isClubFeeEnabled}
+                opacity={isClubFeeEnabled ? 1 : 0.45}
+                _hover={
+                  isClubFeeEnabled
+                    ? { bg: { base: 'gray.50', _dark: 'whiteAlpha.100' } }
+                    : undefined
+                }
               >
-                {t('isClubMember')}
-              </label>
-            </Flex>
+                {isClubFeeEnabled && isFeeConfigExpanded ? (
+                  <ChevronUp size={18} />
+                ) : (
+                  <ChevronDown size={18} />
+                )}
+              </Button>
+            </HStack>
+          </Flex>
 
-            {/* Club Select */}
-            {editingData.isClubMember && (
-              <Box ml={7}>
-                <Text fontSize="sm" mb={1} color="gray.600" fontWeight="medium">
-                  {t('selectClub')}
-                </Text>
-                <select
-                  value={editingData.clubId || ''}
-                  onChange={(e) =>
-                    onUpdateEditing(player.id, 'clubId', e.target.value)
-                  }
-                  style={{
-                    width: '100%',
-                    padding: '8px',
-                    borderRadius: '6px',
-                    border: '1px solid #E2E8F0',
-                    backgroundColor: 'white',
-                    color: 'inherit',
-                    fontSize: '14px',
-                  }}
+          {isClubFeeEnabled && isFeeConfigExpanded && (
+            <VStack align="stretch" gap={3} p={4} pt={0} bg={MUTED_PANEL_BG}>
+              {isLoadingClubFees ? (
+                <Text
+                  fontSize="sm"
+                  color={{ base: 'gray.500', _dark: 'gray.400' }}
                 >
-                  <option value="">{t('selectClubPlaceholder')}</option>
-                  {clubs.map((club) => (
-                    <option key={club.id} value={club.id}>
-                      {club.name}
-                    </option>
-                  ))}
-                </select>
-              </Box>
-            )}
-          </VStack>
+                  {t('loadingClubFee')}...
+                </Text>
+              ) : clubsWithFixedFee.length === 0 ? (
+                <Text
+                  fontSize="sm"
+                  color={{ base: 'gray.500', _dark: 'gray.400' }}
+                >
+                  {t('noClubWithFixedFee')}
+                </Text>
+              ) : (
+                <>
+                  {/* Club Select - inline with label */}
+                  <Flex align="center" gap={3}>
+                    <Text
+                      fontSize="sm"
+                      color={{ base: 'gray.600', _dark: 'gray.300' }}
+                      fontWeight="medium"
+                      w="90px"
+                      flexShrink={0}
+                    >
+                      {t('clubMember')}
+                    </Text>
+                    <Box flex={1}>
+                      <select
+                        value={editingData.clubId || ''}
+                        onChange={(e) => {
+                          const val = e.target.value || undefined;
+                          onUpdateEditing(player.id, 'clubId', val);
+                          onUpdateEditing(player.id, 'isClubMember', !!val);
+                        }}
+                        style={{
+                          width: '100%',
+                          padding: '8px',
+                          borderRadius: '6px',
+                          border: '1px solid var(--chakra-colors-border)',
+                          backgroundColor: 'var(--chakra-colors-bg)',
+                          color: 'inherit',
+                          fontSize: '14px',
+                        }}
+                      >
+                        <option value="">{t('selectClubPlaceholder')}</option>
+                        {clubsWithFixedFee.map((club) => (
+                          <option key={club.id} value={club.id}>
+                            {club.name}
+                          </option>
+                        ))}
+                      </select>
+                    </Box>
+                  </Flex>
+
+                  {/* Club fee shown read-only for host awareness */}
+                  {editingData.clubId && clubFee !== null && (
+                    <Flex align="center" gap={3}>
+                      <Text
+                        fontSize="sm"
+                        color={{ base: 'gray.600', _dark: 'gray.300' }}
+                        fontWeight="medium"
+                        w="90px"
+                        flexShrink={0}
+                      >
+                        {t('clubFeePerSession')}
+                      </Text>
+                      <Text
+                        fontSize="sm"
+                        fontWeight="semibold"
+                        color="green.600"
+                      >
+                        {clubFee.toLocaleString('vi-VN')} VNĐ / {t('session')}
+                      </Text>
+                    </Flex>
+                  )}
+
+                  <Text
+                    fontSize="xs"
+                    color={{ base: 'gray.500', _dark: 'gray.400' }}
+                  >
+                    💡 {t('clubFixedFeeHint')}
+                  </Text>
+                </>
+              )}
+            </VStack>
+          )}
         </Box>
       </VStack>
     </VModal>

@@ -30,6 +30,9 @@ import BottomNavigationBar, {
 } from '@/components/ui/BottomNavigationBar';
 import { VModal } from '@/components/ui/VModal';
 import PlayerSessionView from '@/components/session/PlayerSessionView';
+import { useTourCompleteWhen } from '@/components/tour/useTourCompleteWhen';
+import { useTourAutoStart } from '@/components/tour/useTourAutoStart';
+import { useTourStore } from '@/stores/useTourStore';
 
 // Types and Utils
 import { UserRole, SessionStatus } from '@/lib/api/types';
@@ -101,11 +104,40 @@ function PlayerSessionManageContent({ params }: { params: { id: string } }) {
     toaster,
   });
 
+  // Product tour: the "start session" step completes once it's running
+  useTourCompleteWhen(
+    'start-session',
+    session?.status === SessionStatus.IN_PROGRESS
+  );
+
+  // Product tour: kick off the "run matches" tour when an owner who finished
+  // the create-session tour opens a session ready to start / in progress.
+  const createTourDone = useTourStore(
+    (s) => s.tours['create-session-tour'].status === 'completed'
+  );
+  useTourAutoStart(
+    'run-matches-tour',
+    session?.hostId === user?.id &&
+      createTourDone &&
+      (session?.status === SessionStatus.PREPARING ||
+        session?.status === SessionStatus.IN_PROGRESS)
+  );
+
   // Define navigation tabs
   const navigationTabs: NavigationTab[] = [
-    { id: 0, label: t('overview'), icon: Info },
-    { id: 1, label: t('playersTab.players'), icon: Users },
-    { id: 2, label: t('courts'), icon: Square },
+    {
+      id: 0,
+      label: t('overview'),
+      icon: Info,
+      dataTour: 'session-tab-overview',
+    },
+    {
+      id: 1,
+      label: t('playersTab.players'),
+      icon: Users,
+      dataTour: 'session-tab-players',
+    },
+    { id: 2, label: t('courts'), icon: Square, dataTour: 'session-tab-courts' },
     { id: 3, label: t('matchs.tabTitle'), icon: Trophy },
     { id: 4, label: t('settings'), icon: RefreshCw },
   ];

@@ -2,13 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import {
-  Box,
-  Flex,
-  Heading,
-  Spinner,
-  useBreakpointValue,
-} from '@chakra-ui/react';
+import { Box, useBreakpointValue } from '@chakra-ui/react';
 import { useTranslations } from 'next-intl';
 import {
   Tournament,
@@ -16,8 +10,10 @@ import {
   CategoryFormat,
   MatchFormat,
   UpdateCategoryRequest,
+  Sponsor,
 } from '@/lib/api/types';
 import { CategoryService } from '@/lib/api/category.service';
+import { SponsorService } from '@/lib/api/sponsor.service';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { VDrawer, useDrawer } from '@/components/ui/VDrawer';
 import { useModal } from '@/components/ui/VModal';
@@ -27,26 +23,54 @@ import {
   FormatConfig,
   SingleEliminationConfig,
   RoundRobinToSEConfig,
+  DoubleEliminationConfig,
 } from '@/components/tournament/format-wizard/types';
 import OrganizeTab from './OrganizeTab';
 import SettingsTab from './SettingsTab';
 import TeamsPanel from './panels/TeamsPanel';
+import PlayersPanel from './panels/PlayersPanel';
 import CategoriesPanel from './panels/CategoriesPanel';
 import FormatPanel from './panels/FormatPanel';
 import StandingsPanel from './panels/StandingsPanel';
-import RegistrationPanel from './panels/RegistrationPanel';
 import RoundsPanel from './panels/RoundsPanel';
 import VenuePanel from './panels/VenuePanel';
 import SchedulePanel from './panels/SchedulePanel';
+import UmpiresPanel from './panels/UmpiresPanel';
+import ManagersPanel from './panels/ManagersPanel';
+import ResultsPanel from './panels/ResultsPanel';
 import SponsorsPanel from './panels/SponsorsPanel';
 import NamePanel from './panels/NamePanel';
 import DatesPanel from './panels/DatesPanel';
+import VisibilityPanel from './panels/VisibilityPanel';
 import LocationPanel from './panels/LocationPanel';
+import BannerPanel from './panels/BannerPanel';
+import VideosPanel from './panels/VideosPanel';
+import ContactPanel from './panels/ContactPanel';
+import { TournamentManageSkeleton } from '@/components/tournament/skeletons';
+import DuplicateTournamentModal from './DuplicateTournamentModal';
 
 interface TournamentManageProps {
   tournament: Tournament;
   onTournamentUpdate?: (updated: Tournament) => void;
 }
+
+const SETTINGS_ITEMS = new Set([
+  'managers',
+  'name',
+  'dates',
+  'visibility',
+  'location',
+  'banner',
+  'videos',
+  'contact',
+  'sponsors',
+  'duplicate',
+  'delete',
+  'publish',
+]);
+
+const getManageTabForItem = (item: string | null) =>
+  item && SETTINGS_ITEMS.has(item) ? 'settings' : 'organize';
 
 const buildFormatUpdatePayload = (
   format: TournamentFormatType,
@@ -56,7 +80,9 @@ const buildFormatUpdatePayload = (
   const basePayload: UpdateCategoryRequest = {
     format: format as unknown as CategoryFormat,
     formatConfig: config as unknown as Record<string, unknown>,
-    hasGroupStage: format !== TournamentFormatType.SINGLE_ELIMINATION,
+    hasGroupStage:
+      format !== TournamentFormatType.SINGLE_ELIMINATION &&
+      format !== TournamentFormatType.DOUBLE_ELIMINATION,
   };
 
   if (format === TournamentFormatType.SINGLE_ELIMINATION) {
@@ -70,6 +96,22 @@ const buildFormatUpdatePayload = (
     };
   }
 
+  if (format === TournamentFormatType.DOUBLE_ELIMINATION) {
+    const deConfig = config as DoubleEliminationConfig;
+
+    return {
+      ...basePayload,
+      formatConfig: {
+        ...(config as unknown as Record<string, unknown>),
+        doubleElimination: {
+          isTrueDoubleElimination: deConfig.isTrueDoubleElimination,
+        },
+      },
+      matchFormat: deConfig.matchFormat as MatchFormat,
+      eliminationMatchFormat: deConfig.matchFormat as MatchFormat,
+    };
+  }
+
   if (format === TournamentFormatType.ROUND_ROBIN_TO_SE) {
     const rrToSeConfig = config as RoundRobinToSEConfig;
 
@@ -78,8 +120,7 @@ const buildFormatUpdatePayload = (
       matchFormat: currentCategory.matchFormat ?? MatchFormat.BEST_OF_3,
       eliminationMatchFormat:
         rrToSeConfig.eliminationMatchFormat as MatchFormat,
-      winnersPerGroup:
-        currentCategory.winnersPerGroup ?? rrToSeConfig.qualifiersPerGroup,
+      winnersPerGroup: rrToSeConfig.qualifiersPerGroup,
     };
   }
 
@@ -98,23 +139,29 @@ export default function TournamentManage({
   const router = useRouter();
   const [categories, setCategories] = useState<Category[]>([]);
   const [loadingCategories, setLoadingCategories] = useState(true);
-  const [selectedItem, setSelectedItem] = useState<string | null>(() =>
-    searchParams.get('option')
+  const [sponsors, setSponsors] = useState<Sponsor[]>([]);
+  const [selectedItem, setSelectedItem] = useState<string | null>(() => {
+    const option = searchParams.get('option');
+    if (option === 'registration') return null;
+    return option ?? 'teams';
+  });
+  const [activeManageTab, setActiveManageTab] = useState(() =>
+    getManageTabForItem(searchParams.get('option') ?? 'teams')
   );
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(
     null
   );
   const drawer = useDrawer();
   const formatModal = useModal();
+  const duplicateModal = useModal();
 
-  const isMobile = useBreakpointValue({ base: true, md: false });
+  const isMobile = useBreakpointValue({ base: true, md: false }) ?? true;
 
   const loadCategories = useCallback(async () => {
     try {
       setLoadingCategories(true);
       const data = await CategoryService.getCategories(tournament.id);
       setCategories(data);
-      setSelectedCategory((previousCategory) => previousCategory ?? data[0]);
     } catch (error) {
       console.error('Error loading categories:', error);
     } finally {
@@ -126,13 +173,60 @@ export default function TournamentManage({
     loadCategories();
   }, [loadCategories]);
 
+  const loadSponsors = useCallback(async () => {
+    try {
+      const data = await SponsorService.getSponsors(tournament.id);
+      setSponsors(data);
+    } catch (error) {
+      console.error('Error loading sponsors:', error);
+    }
+  }, [tournament.id]);
+
+  useEffect(() => {
+    loadSponsors();
+  }, [loadSponsors]);
+
+  // Resolve the selected category from URL or fall back to the first one.
+  // Re-runs when categories load or when the URL categoryId changes
+  // (e.g. browser back/forward navigation).
+  useEffect(() => {
+    if (categories.length === 0) return;
+    const urlCategoryId = searchParams.get('categoryId');
+    setSelectedCategory((previousCategory) => {
+      if (urlCategoryId) {
+        const fromUrl = categories.find((c) => c.id === urlCategoryId);
+        if (fromUrl) return fromUrl;
+      }
+      if (previousCategory) {
+        return (
+          categories.find((c) => c.id === previousCategory.id) ?? categories[0]
+        );
+      }
+      return categories[0];
+    });
+  }, [categories, searchParams]);
+
   // Sync selectedItem when URL option param changes (e.g. back/forward navigation)
   useEffect(() => {
-    setSelectedItem(searchParams.get('option'));
+    const option = searchParams.get('option');
+    if (option === 'registration') {
+      setSelectedItem(null);
+      return;
+    }
+    setSelectedItem(option ?? 'teams');
   }, [searchParams]);
+
+  useEffect(() => {
+    setActiveManageTab(getManageTabForItem(selectedItem));
+  }, [selectedItem]);
 
   const handleItemClick = useCallback(
     (item: string) => {
+      if (item === 'duplicate') {
+        duplicateModal.onOpen();
+        return;
+      }
+
       setSelectedItem(item);
       // Update URL with option param (excludes publish action)
       if (item !== 'publish') {
@@ -145,7 +239,7 @@ export default function TournamentManage({
         drawer.onOpen();
       }
     },
-    [drawer, isMobile, router, searchParams]
+    [drawer, duplicateModal, isMobile, router, searchParams]
   );
 
   const handleClosePanel = useCallback(() => {
@@ -153,9 +247,31 @@ export default function TournamentManage({
     // Don't clear selectedItem on desktop so panel stays visible
   }, [drawer]);
 
-  const handleSelectCategory = useCallback((category: Category) => {
-    setSelectedCategory(category);
-  }, []);
+  const handleSelectCategory = useCallback(
+    (category: Category) => {
+      setSelectedCategory(category);
+      const params = new URLSearchParams(searchParams.toString());
+      params.set('categoryId', category.id);
+      router.replace(`?${params.toString()}`, { scroll: false });
+    },
+    [router, searchParams]
+  );
+
+  const handleOpenRoundsPanel = useCallback(
+    (categoryId: string) => {
+      const category = categories.find((item) => item.id === categoryId);
+      if (category) {
+        setSelectedCategory(category);
+      }
+
+      setSelectedItem('rounds');
+      const params = new URLSearchParams(searchParams.toString());
+      params.set('option', 'rounds');
+      params.set('categoryId', categoryId);
+      router.replace(`?${params.toString()}`, { scroll: false });
+    },
+    [categories, router, searchParams]
+  );
 
   const renderPanel = () => {
     if (!selectedItem) return null;
@@ -169,10 +285,13 @@ export default function TournamentManage({
             onSelectCategory={handleSelectCategory}
           />
         );
+      case 'players':
+        return <PlayersPanel tournament={tournament} />;
       case 'categories':
         return (
           <CategoriesPanel
             tournamentId={tournament.id}
+            sportType={tournament.sportType}
             categories={categories}
             onCategoriesChange={loadCategories}
           />
@@ -182,8 +301,12 @@ export default function TournamentManage({
           <FormatPanel
             categories={categories}
             selectedCategory={selectedCategory}
+            sportType={tournament.sportType}
             onSelectCategory={handleSelectCategory}
             onSwitchFormat={formatModal.onOpen}
+            onCategoryUpdated={() => {
+              void loadCategories();
+            }}
           />
         );
       case 'standings':
@@ -195,8 +318,6 @@ export default function TournamentManage({
             onCategoryUpdated={loadCategories}
           />
         );
-      case 'registration':
-        return <RegistrationPanel />;
       case 'rounds':
         return (
           <RoundsPanel
@@ -209,10 +330,32 @@ export default function TournamentManage({
         return <VenuePanel tournament={tournament} />;
       case 'schedule':
         return (
-          <SchedulePanel categories={categories} tournament={tournament} />
+          <SchedulePanel
+            categories={categories}
+            tournament={tournament}
+            onOpenRoundsPanel={handleOpenRoundsPanel}
+          />
+        );
+      case 'umpires':
+        return <UmpiresPanel tournament={tournament} />;
+      case 'managers':
+        return <ManagersPanel tournament={tournament} />;
+      case 'results':
+        return (
+          <ResultsPanel
+            tournament={tournament}
+            categories={categories}
+            onOpenRoundsPanel={handleOpenRoundsPanel}
+          />
         );
       case 'sponsors':
-        return <SponsorsPanel />;
+        return (
+          <SponsorsPanel
+            tournamentId={tournament.id}
+            sponsors={sponsors}
+            onSponsorsChange={loadSponsors}
+          />
+        );
       case 'name':
         return (
           <NamePanel
@@ -227,9 +370,37 @@ export default function TournamentManage({
             onTournamentUpdate={onTournamentUpdate}
           />
         );
+      case 'visibility':
+        return (
+          <VisibilityPanel
+            tournament={tournament}
+            onTournamentUpdate={onTournamentUpdate}
+          />
+        );
       case 'location':
         return (
           <LocationPanel
+            tournament={tournament}
+            onTournamentUpdate={onTournamentUpdate}
+          />
+        );
+      case 'banner':
+        return (
+          <BannerPanel
+            tournament={tournament}
+            onTournamentUpdate={onTournamentUpdate}
+          />
+        );
+      case 'videos':
+        return (
+          <VideosPanel
+            tournament={tournament}
+            onTournamentUpdate={onTournamentUpdate}
+          />
+        );
+      case 'contact':
+        return (
+          <ContactPanel
             tournament={tournament}
             onTournamentUpdate={onTournamentUpdate}
           />
@@ -240,101 +411,158 @@ export default function TournamentManage({
   };
 
   if (loadingCategories) {
-    return (
-      <Flex justify="center" align="center" minH="200px">
-        <Spinner />
-      </Flex>
-    );
+    return <TournamentManageSkeleton />;
   }
 
+  const handleManageTabChange = (tab: string) => {
+    setActiveManageTab(tab);
+
+    if (isMobile) {
+      return;
+    }
+
+    if (
+      tab === 'organize' &&
+      selectedItem &&
+      SETTINGS_ITEMS.has(selectedItem)
+    ) {
+      handleItemClick('teams');
+    } else if (
+      tab === 'settings' &&
+      (!selectedItem || !SETTINGS_ITEMS.has(selectedItem))
+    ) {
+      handleItemClick('managers');
+    }
+  };
+
   return (
-    <>
-      {/* Page heading */}
-      <Flex justify="space-between" align="center" mb={4}>
-        <Heading size="xl">{t('title')}</Heading>
-      </Flex>
-
-      {/* Sub-tabs: Organize / Settings */}
-      <Tabs defaultValue="organize">
-        <TabsList
-          bg="gray.100"
-          borderRadius="full"
-          p={1}
-          mb={4}
-          w="fit-content"
+    <Box h={{ md: '100%' }} minH={0}>
+      <Tabs
+        value={activeManageTab}
+        onValueChange={handleManageTabChange}
+        display="flex"
+        h={{ md: '100%' }}
+        minH={0}
+      >
+        {/* Left column: heading, tabs, and menu items */}
+        <Box
+          flex={{ md: '0 0 42%', xl: '0 0 38%' }}
+          minW={0}
+          h={{ md: '100%' }}
+          px={{ md: 6, xl: 8 }}
+          py={{ md: 6, xl: 8 }}
+          overflowY={{ md: 'auto' }}
+          css={{
+            '&::-webkit-scrollbar': { width: '4px' },
+            '&::-webkit-scrollbar-thumb': {
+              background: 'rgba(148, 163, 184, 0.42)',
+              borderRadius: '999px',
+            },
+          }}
         >
-          <TabsTrigger
-            value="organize"
-            borderRadius="full"
-            px={5}
-            py={1.5}
-            fontSize="sm"
-          >
-            {t('tabs.organize')}
-          </TabsTrigger>
-          <TabsTrigger
-            value="settings"
-            borderRadius="full"
-            px={5}
-            py={1.5}
-            fontSize="sm"
-          >
-            {t('tabs.settings')}
-          </TabsTrigger>
-        </TabsList>
-
-        {/* 2-column layout */}
-        <Flex gap={6} align="flex-start">
-          {/* Left column: menu items */}
-          <Box flex={{ md: '0 1 42%', xl: '0 1 38%' }} minW={0}>
-            <TabsContent value="organize">
-              <OrganizeTab
-                tournament={tournament}
-                categories={categories}
-                selectedItem={selectedItem}
-                onItemClick={handleItemClick}
-                onTournamentUpdate={(updated) => onTournamentUpdate?.(updated)}
-              />
-            </TabsContent>
-            <TabsContent value="settings">
-              <SettingsTab
-                tournament={tournament}
-                selectedItem={selectedItem}
-                onItemClick={handleItemClick}
-              />
-            </TabsContent>
-          </Box>
-
-          {/* Right column: detail panel (desktop only) */}
-          <Box
-            display={{ base: 'none', md: 'block' }}
-            flex={{ md: '0 0 58%', xl: '0 0 62%' }}
-            minW={0}
-            position="sticky"
-            top="80px"
-            maxH="calc(100vh - 120px)"
-            overflowY="auto"
+          <TabsList
+            bg="green.50"
+            borderRadius="xl"
+            p={1}
+            mb={3}
+            w="100%"
+            flexShrink={0}
+            borderWidth="1px"
+            borderColor="green.100"
+            boxShadow="0 8px 22px rgba(22, 163, 74, 0.12)"
+            _dark={{
+              bg: 'var(--tournament-surface, var(--chakra-colors-gray-800))',
+              borderColor:
+                'var(--tournament-border, var(--chakra-colors-gray-700))',
+              boxShadow: 'var(--tournament-shadow-soft, none)',
+            }}
             css={{
-              '&::-webkit-scrollbar': { width: '4px' },
-              '&::-webkit-scrollbar-thumb': {
-                background: '#CBD5E0',
-                borderRadius: '2px',
+              '& [data-state="active"]': {
+                background: 'var(--chakra-colors-green-600)',
+                color: 'white',
+                boxShadow: '0 8px 18px rgba(22, 163, 74, 0.26)',
+              },
+              '& [data-state="active"]:hover': {
+                background: 'var(--chakra-colors-green-700)',
+              },
+              '& [data-state="inactive"]': {
+                color: 'var(--chakra-colors-green-900)',
+              },
+              '& [data-state="inactive"]:hover': {
+                background: 'rgba(187, 247, 208, 0.6)',
               },
             }}
           >
-            {selectedItem && selectedItem !== 'publish' && (
-              <Box
-                borderWidth="1px"
-                borderColor="gray.200"
-                borderRadius="xl"
-                p={5}
-                bg="white"
-              >
-                {renderPanel()}
-              </Box>
-            )}
-          </Box>
-        </Flex>
+            <TabsTrigger
+              value="organize"
+              variant="ghost"
+              borderRadius="lg"
+              px={5}
+              py={2}
+              fontSize="sm"
+              fontWeight="semibold"
+              flex="1"
+              _active={{ transform: 'none' }}
+            >
+              {t('tabs.organize')}
+            </TabsTrigger>
+            <TabsTrigger
+              value="settings"
+              variant="ghost"
+              borderRadius="lg"
+              px={5}
+              py={2}
+              fontSize="sm"
+              fontWeight="semibold"
+              flex="1"
+              _active={{ transform: 'none' }}
+            >
+              {t('tabs.settings')}
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="organize">
+            <OrganizeTab
+              tournament={tournament}
+              categories={categories}
+              selectedItem={selectedItem}
+              onItemClick={handleItemClick}
+              onTournamentUpdate={(updated) => onTournamentUpdate?.(updated)}
+            />
+          </TabsContent>
+          <TabsContent value="settings">
+            <SettingsTab
+              tournament={tournament}
+              selectedItem={selectedItem}
+              onItemClick={handleItemClick}
+              onTournamentUpdate={(updated) => onTournamentUpdate?.(updated)}
+            />
+          </TabsContent>
+        </Box>
+
+        {/* Right column: detail panel (desktop only) */}
+        <Box
+          display={{ base: 'none', md: 'block' }}
+          flex={{ md: '0 0 58%', xl: '0 0 62%' }}
+          minW={0}
+          h={{ md: '100%' }}
+          px={{ md: 6, xl: 8 }}
+          py={{ md: 6, xl: 8 }}
+          borderLeftWidth="1px"
+          borderColor="gray.200"
+          bg="white"
+          overflowY="auto"
+          _dark={{ borderColor: 'var(--tournament-border)', bg: 'gray.800' }}
+          css={{
+            '&::-webkit-scrollbar': { width: '4px' },
+            '&::-webkit-scrollbar-thumb': {
+              background: 'rgba(148, 163, 184, 0.45)',
+              borderRadius: '999px',
+            },
+          }}
+        >
+          {selectedItem && selectedItem !== 'publish' && renderPanel()}
+        </Box>
       </Tabs>
 
       {/* Mobile drawer */}
@@ -386,6 +614,12 @@ export default function TournamentManage({
           }
         }}
       />
-    </>
+
+      <DuplicateTournamentModal
+        isOpen={duplicateModal.isOpen}
+        onClose={duplicateModal.onClose}
+        tournament={tournament}
+      />
+    </Box>
   );
 }

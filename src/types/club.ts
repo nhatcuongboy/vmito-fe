@@ -72,6 +72,25 @@ export interface IClubMember {
   };
 }
 
+export interface IClubMonthlyMember {
+  id: string;
+  clubId: string;
+  userId: string;
+  month: number;
+  year: number;
+  createdAt: string;
+  updatedAt: string;
+  user: {
+    id: string;
+    name: string;
+    email: string;
+    gender?: string;
+    image?: string;
+    phone?: string;
+    level?: number;
+  };
+}
+
 export interface IClubSchedule {
   id: string;
   clubId: string;
@@ -193,6 +212,7 @@ export interface IClubJoinRequest {
   response?: string;
   createdAt: string;
   updatedAt: string;
+  sessionsPlayedCount?: number;
   club?: {
     id: string;
     slug?: string;
@@ -210,6 +230,9 @@ export interface IClubJoinRequest {
     image?: string;
     gender?: string;
     level?: number;
+    phone?: string;
+    emailVerified?: string | null;
+    createdAt?: string;
   };
 }
 

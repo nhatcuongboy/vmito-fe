@@ -1,14 +1,21 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import Image from 'next/image';
 import { formatDistanceToNow } from 'date-fns';
-import { useTranslations } from 'next-intl';
+import { vi, enUS, zhCN } from 'date-fns/locale';
+import type { Locale } from 'date-fns';
+import { useLocale, useTranslations } from 'next-intl';
 import { Send, Trash2 } from 'lucide-react';
 import { postsService } from '@/lib/api/posts.service';
 import { toaster } from '@/components/ui/toaster';
 import type { PostComment } from '@/types/post';
 import LoadingSpinner from '@/components/ui/loading-spinner';
+import { PostAvatar } from './PostAvatar';
+import { useAuthStore } from '@/stores/useAuthStore';
+import { Link } from '@/i18n/config';
+import { ROUTES } from '@/constants/routes';
+
+const localeMap: Record<string, Locale> = { vi, en: enUS, cn: zhCN };
 
 interface CommentSectionProps {
   postId: string;
@@ -24,6 +31,9 @@ export function CommentSection({
   onCommentCountChange,
 }: CommentSectionProps) {
   const t = useTranslations('posts');
+  const locale = useLocale();
+  const dateLocale = localeMap[locale] || enUS;
+  const currentUser = useAuthStore((state) => state.user);
   const [comments, setComments] = useState<PostComment[]>([]);
   const [commentCount, setCommentCount] = useState(initialCommentCount);
   const [newComment, setNewComment] = useState('');
@@ -124,62 +134,90 @@ export function CommentSection({
   };
 
   return (
-    <div className="border-t pt-4 mt-4">
-      <form onSubmit={handleSubmit} className="flex gap-2 mb-4">
-        <input
-          type="text"
-          value={newComment}
-          onChange={(e) => setNewComment(e.target.value)}
-          placeholder={t('writeComment')}
-          aria-label={t('writeComment')}
-          className="flex-1 p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-600 dark:bg-gray-800 dark:border-white/10"
-          disabled={isSubmitting}
-        />
-        <button
-          type="submit"
-          disabled={isSubmitting || !newComment.trim()}
-          aria-label={t('sendComment')}
-          className="p-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50"
-        >
-          <Send size={20} />
-        </button>
+    <div className="border-t border-gray-200 bg-white px-4 py-5 dark:border-white/10 dark:bg-gray-800 sm:px-5 sm:py-6">
+      <form onSubmit={handleSubmit} className="mb-8">
+        <div className="flex items-center gap-3 px-3">
+          {currentUser && (
+            <PostAvatar
+              name={currentUser.name || currentUser.email || 'User'}
+              image={currentUser.image}
+              size={32}
+              className="shrink-0"
+            />
+          )}
+          <div className="flex min-w-0 flex-1 items-center gap-2 rounded-full border border-gray-200 bg-white pl-5 pr-2 transition focus-within:border-green-500/60 focus-within:ring-1 focus-within:ring-green-500/60 dark:border-white/10 dark:bg-gray-700">
+            <input
+              type="text"
+              value={newComment}
+              onChange={(e) => setNewComment(e.target.value)}
+              placeholder={t('writeComment')}
+              aria-label={t('writeComment')}
+              className="h-10 min-w-0 flex-1 bg-transparent text-sm text-gray-800 placeholder:text-gray-500 focus:outline-none dark:text-gray-100 dark:placeholder:text-gray-400"
+              disabled={isSubmitting}
+            />
+            <button
+              type="submit"
+              disabled={isSubmitting || !newComment.trim()}
+              aria-label={t('sendComment')}
+              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-gray-700 transition hover:bg-gray-100 disabled:text-gray-400 disabled:hover:bg-transparent dark:text-gray-200 dark:hover:bg-white/10 dark:disabled:text-gray-500"
+            >
+              <Send size={18} />
+            </button>
+          </div>
+        </div>
       </form>
 
       {isLoading && comments.length === 0 ? (
         <LoadingSpinner py={4} spinnerProps={{ size: 'md' }} />
       ) : comments.length === 0 ? (
-        <div className="text-sm text-gray-500 text-center py-3">
+        <div className="py-6 text-center text-[13px] text-gray-500 dark:text-gray-400">
           {t('noComments')}
         </div>
       ) : (
-        <div className="space-y-3">
+        <div className="space-y-4">
           {comments.map((comment) => (
-            <div key={comment.id} className="flex gap-3">
-              <Image
-                src={comment.user.image || '/default-avatar.png'}
-                alt={comment.user.name}
-                width={32}
-                height={32}
-                className="w-8 h-8 rounded-full"
-              />
-              <div className="flex-1">
-                <div className="bg-gray-100 dark:bg-gray-700 rounded-lg p-3">
-                  <div className="font-semibold text-sm">
-                    {comment.user.name}
+            <div
+              key={comment.id}
+              className="group flex gap-3 rounded-xl px-3 py-2"
+            >
+              <Link
+                href={ROUTES.USER.PROFILE(comment.userId)}
+                className="shrink-0 transition hover:opacity-90"
+                aria-label={comment.user.name}
+              >
+                <PostAvatar
+                  name={comment.user.name}
+                  image={comment.user.image}
+                  size={32}
+                  className="ring-2 ring-white dark:ring-gray-800"
+                />
+              </Link>
+              <div className="min-w-0 flex-1">
+                <div className="w-full rounded-2xl bg-gray-100 px-4 py-3 dark:bg-gray-700">
+                  <div className="mb-0.5 text-[13px] font-bold text-gray-900 dark:text-gray-50">
+                    <Link
+                      href={ROUTES.USER.PROFILE(comment.userId)}
+                      className="hover:underline"
+                    >
+                      {comment.user.name}
+                    </Link>
                   </div>
-                  <div className="text-sm">{comment.content}</div>
+                  <div className="whitespace-pre-wrap break-words text-sm leading-snug text-gray-800 dark:text-gray-100">
+                    {comment.content}
+                  </div>
                 </div>
-                <div className="flex items-center gap-3 mt-1 text-xs text-gray-500">
+                <div className="mt-2 flex items-center gap-3 pl-4 text-xs text-gray-500 dark:text-gray-400">
                   <span>
                     {formatDistanceToNow(new Date(comment.createdAt), {
                       addSuffix: true,
+                      locale: dateLocale,
                     })}
                   </span>
                   {currentUserId === comment.userId && (
                     <button
                       onClick={() => handleDelete(comment.id)}
                       aria-label={t('deleteComment')}
-                      className="text-red-500 hover:text-red-700 flex items-center gap-1"
+                      className="flex items-center gap-1 font-medium text-red-500 transition hover:text-red-700 sm:opacity-0 sm:group-hover:opacity-100"
                     >
                       <Trash2 size={12} />
                       {t('delete')}
@@ -196,7 +234,7 @@ export function CommentSection({
         <button
           onClick={() => loadComments(page + 1)}
           disabled={isLoading}
-          className="w-full mt-4 py-2 text-sm text-green-600 hover:bg-green-50 dark:hover:bg-green-950/30 rounded"
+          className="mt-4 w-full rounded-lg py-2 text-sm font-semibold text-green-600 transition hover:bg-green-50 disabled:opacity-50 dark:text-green-400 dark:hover:bg-green-950/30"
         >
           {isLoading ? t('loading') : t('loadMoreComments')}
         </button>

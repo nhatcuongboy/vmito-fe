@@ -28,6 +28,7 @@ import {
   ChevronRight,
   Check,
   ClipboardList,
+  DollarSign,
   MapPin,
   Plus,
   Shield,
@@ -139,6 +140,20 @@ export default function ManagingPage() {
                 variant="ghost"
                 colorPalette="gray"
                 p={{ base: 1, md: 2 }}
+                aria-label={t('clubs.feeConfiguration')}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  router.push(ROUTES.HOST.CLUBS.FEES(club.id));
+                }}
+              >
+                <DollarSign size={16} />
+              </Button>
+              <Button
+                size="sm"
+                variant="ghost"
+                colorPalette="gray"
+                p={{ base: 1, md: 2 }}
+                aria-label={t('common.edit')}
                 onClick={(e) => {
                   e.stopPropagation();
                   router.push(`/host/clubs/${club.id}/edit`);
@@ -252,7 +267,9 @@ export default function ManagingPage() {
             <HStack gap={2} flex={{ base: '1 1 100%', md: 'initial' }}>
               <Shield size={20} />
               <Heading size={{ base: 'md', md: 'lg' }}>
-                {t('clubs.managingGroups')}
+                {isAdmin
+                  ? t('clubs.adminManagingGroups')
+                  : t('clubs.managingGroups')}
               </Heading>
               <Badge
                 colorPalette="green"
@@ -288,7 +305,9 @@ export default function ManagingPage() {
               borderStyle="dashed"
             >
               <Shield size={48} color="#A0AEC0" />
-              <Text color="fg.muted">{t('clubs.noManagedClubs')}</Text>
+              <Text color="fg.muted">
+                {isAdmin ? t('clubs.noSystemClubs') : t('clubs.noManagedClubs')}
+              </Text>
               {canAccessHostFeatures && (
                 <Button
                   colorPalette="green"

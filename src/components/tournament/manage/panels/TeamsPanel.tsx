@@ -2,21 +2,20 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { toaster } from '@/components/ui/toaster';
-import {
-  Box,
-  Flex,
-  Heading,
-  Text,
-  Spinner,
-  Input,
-  Textarea,
-} from '@chakra-ui/react';
+import { Box, Flex, Heading, Text, Input, Textarea } from '@chakra-ui/react';
 import { Button, VStack } from '@/components/ui/chakra-compat';
 import { Plus, Pencil, Trash2, Users, ChevronDown } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { Category, CategoryRegistration } from '@/lib/api/types';
+import {
+  Category,
+  CategoryRegistration,
+  CategoryRegistrationMode,
+  TournamentPlayer,
+} from '@/lib/api/types';
 import { CategoryService } from '@/lib/api/category.service';
 import { TournamentPlayerService } from '@/lib/api/tournament-player.service';
+import { TournamentPairService } from '@/lib/api/tournament-pair.service';
+import { TournamentMatchListSkeleton } from '@/components/tournament/skeletons';
 import { VModal, useModal } from '@/components/ui/VModal';
 
 interface TeamsPanelProps {
@@ -25,7 +24,22 @@ interface TeamsPanelProps {
   onSelectCategory: (category: Category) => void;
 }
 
-type TAddMode = 'single' | 'multiple';
+type TAddMode = 'single' | 'select' | 'multiple';
+type BulkProgress = {
+  current: number;
+  total: number;
+  currentName: string;
+};
+
+type ApiErrorLike = {
+  message?: string;
+  response?: {
+    data?: {
+      message?: string | string[];
+      error?: string;
+    };
+  };
+};
 
 const CATEGORY_COLORS = [
   'yellow.400',
@@ -38,6 +52,35 @@ const CATEGORY_COLORS = [
   'red.400',
 ];
 
+const parseBulkTeamNames = (value: string): string[] =>
+  value
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter(Boolean);
+
+const getErrorMessage = (error: unknown, fallback: string): string => {
+  const apiError = error as ApiErrorLike;
+  const responseMessage = apiError?.response?.data?.message;
+
+  if (Array.isArray(responseMessage)) {
+    return responseMessage.join(', ');
+  }
+
+  if (responseMessage) {
+    return responseMessage;
+  }
+
+  if (apiError?.response?.data?.error) {
+    return apiError.response.data.error;
+  }
+
+  if (error instanceof Error) {
+    return error.message;
+  }
+
+  return fallback;
+};
+
 export default function TeamsPanel({
   categories,
   selectedCategory,
@@ -48,6 +91,7 @@ export default function TeamsPanel({
     []
   );
   const [loading, setLoading] = useState(false);
+  const [players, setPlayers] = useState<TournamentPlayer[]>([]);
 
   // Category dropdown
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -57,7 +101,10 @@ export default function TeamsPanel({
   const [addMode, setAddMode] = useState<TAddMode>('single');
   const [addName, setAddName] = useState('');
   const [addMultiText, setAddMultiText] = useState('');
+  const [selectedPlayerIds, setSelectedPlayerIds] = useState<string[]>([]);
+  const [playerSearch, setPlayerSearch] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [bulkProgress, setBulkProgress] = useState<BulkProgress | null>(null);
 
   // Edit modal
   const editModal = useModal();
@@ -65,6 +112,8 @@ export default function TeamsPanel({
     null
   );
   const [editName, setEditName] = useState('');
+  const [memberIds, setMemberIds] = useState<string[]>([]);
+  const [newPlayerName, setNewPlayerName] = useState('');
 
   // Delete modal
   const deleteModal = useModal();
@@ -78,6 +127,39 @@ export default function TeamsPanel({
   );
   const activeCategoryColor =
     CATEGORY_COLORS[activeCategoryIndex % CATEGORY_COLORS.length];
+  const isTeamCategory =
+    activeCategory?.registrationMode === CategoryRegistrationMode.TEAM;
+  const participantCopyScope = isTeamCategory ? 'team' : 'player';
+  const tc = (key: string, values?: Record<string, string | number>) =>
+    t(`panels.teams.${participantCopyScope}.${key}`, values);
+  const legacyPlaceholderIds = new Set(
+    registrations
+      .filter((registration) => !registration.pair)
+      .map((registration) => registration.tournamentPlayerId)
+      .filter((playerId): playerId is string => Boolean(playerId))
+  );
+  const availablePlayers = players.filter(
+    (player) =>
+      !legacyPlaceholderIds.has(player.id) || memberIds.includes(player.id)
+  );
+
+  // Players that exist in the tournament but are NOT yet registered in this
+  // (individual) category — used by the "select from list" add mode.
+  const registeredPlayerIds = new Set(
+    registrations
+      .map(
+        (registration) =>
+          registration.player?.id ?? registration.tournamentPlayerId
+      )
+      .filter((playerId): playerId is string => Boolean(playerId))
+  );
+  const normalizedPlayerSearch = playerSearch.trim().toLowerCase();
+  const registrablePlayers = players.filter(
+    (player) =>
+      !registeredPlayerIds.has(player.id) &&
+      (normalizedPlayerSearch.length === 0 ||
+        player.name.toLowerCase().includes(normalizedPlayerSearch))
+  );
 
   const loadRegistrations = useCallback(async (categoryId: string) => {
     try {
@@ -94,6 +176,9 @@ export default function TeamsPanel({
   useEffect(() => {
     if (activeCategory) {
       loadRegistrations(activeCategory.id);
+      TournamentPlayerService.getPlayers(activeCategory.tournamentId).then(
+        setPlayers
+      );
     }
   }, [activeCategory, loadRegistrations]);
 
@@ -108,64 +193,94 @@ export default function TeamsPanel({
     setAddMode('single');
     setAddName('');
     setAddMultiText('');
+    setSelectedPlayerIds([]);
+    setPlayerSearch('');
+    setBulkProgress(null);
     addModal.onOpen();
   };
 
   const handleAdd = async () => {
-    if (!activeCategory) return;
+    if (!activeCategory) {
+      toaster.error({ title: tc('noCategorySelected') });
+      return;
+    }
     const tournamentId = activeCategory.tournamentId;
     try {
       setIsSubmitting(true);
+      setBulkProgress(null);
       if (addMode === 'single') {
         if (!addName.trim()) return;
-        const player = await TournamentPlayerService.createPlayer(
-          tournamentId,
-          {
+        if (isTeamCategory) {
+          const pair = await TournamentPairService.createPair(tournamentId, {
             name: addName.trim(),
-          }
-        );
-        await CategoryService.createRegistration(activeCategory.id, {
-          tournamentPlayerId: player.id,
-        });
+            playerIds: [],
+            type: activeCategory.type,
+          });
+          await CategoryService.createRegistration(activeCategory.id, {
+            tournamentPairId: pair.id,
+          });
+        } else {
+          const player = await TournamentPlayerService.createPlayer(
+            tournamentId,
+            {
+              name: addName.trim(),
+            }
+          );
+          await CategoryService.createRegistration(activeCategory.id, {
+            tournamentPlayerId: player.id,
+          });
+        }
         toaster.success({
-          title: 'Team added successfully',
+          title: tc('addSuccess'),
         });
-      } else {
-        const lines = addMultiText
-          .split('\n')
-          .map((l) => l.trim())
-          .filter(Boolean);
-        if (lines.length === 0) {
+      } else if (addMode === 'select') {
+        if (selectedPlayerIds.length === 0) {
           toaster.error({
-            title: 'Please enter at least one team',
+            title: tc('enterAtLeastOne'),
           });
           return;
         }
-        for (const line of lines) {
-          const player = await TournamentPlayerService.createPlayer(
-            tournamentId,
-            { name: line },
-            { showToast: false }
-          );
-          await CategoryService.createRegistration(
-            activeCategory.id,
-            { tournamentPlayerId: player.id },
-            { showToast: false }
-          );
-        }
+        // Single request: register every selected existing player in one
+        // transaction instead of firing N parallel API calls.
+        const created = await CategoryService.bulkCreateRegistrations(
+          activeCategory.id,
+          { tournamentPlayerIds: selectedPlayerIds }
+        );
         toaster.success({
-          title: `Added ${lines.length} teams successfully`,
+          title: tc('bulkAddSuccess', { count: created.length }),
+        });
+      } else {
+        const lines = parseBulkTeamNames(addMultiText);
+        if (lines.length === 0) {
+          toaster.error({
+            title: tc('enterAtLeastOne'),
+          });
+          return;
+        }
+        // Single request: the backend creates every pair/player + registration
+        // in one transaction, so we no longer fire N parallel API calls.
+        const created = await CategoryService.bulkCreateRegistrations(
+          activeCategory.id,
+          { names: lines }
+        );
+        toaster.success({
+          title: tc('bulkAddSuccess', { count: created.length }),
         });
       }
       await loadRegistrations(activeCategory.id);
+      setAddName('');
+      setAddMultiText('');
+      setSelectedPlayerIds([]);
+      setPlayerSearch('');
       addModal.onClose();
     } catch (error) {
       console.error('Error adding team(s):', error);
       toaster.error({
-        title: 'Failed to add teams',
-        description: error instanceof Error ? error.message : 'Unknown error',
+        title: tc('addFailed'),
+        description: getErrorMessage(error, t('panels.teams.unknownError')),
       });
     } finally {
+      setBulkProgress(null);
       setIsSubmitting(false);
     }
   };
@@ -174,18 +289,40 @@ export default function TeamsPanel({
   const handleOpenEdit = (reg: CategoryRegistration) => {
     setEditingReg(reg);
     setEditName(getRegName(reg));
+    setMemberIds(reg.pair?.members?.map((member) => member.playerId) ?? []);
+    setNewPlayerName('');
     editModal.onOpen();
   };
 
   const handleEdit = async () => {
     if (!editingReg || !editName.trim()) return;
-    const playerId = editingReg.player?.id ?? editingReg.tournamentPlayerId;
-    if (!playerId) return;
     try {
       setIsSubmitting(true);
-      await TournamentPlayerService.updatePlayer(playerId, {
-        name: editName.trim(),
-      });
+      if (isTeamCategory) {
+        if (editingReg.pair) {
+          await TournamentPairService.updatePair(editingReg.pair.id, {
+            name: editName.trim(),
+            playerIds: memberIds,
+            type: activeCategory?.type,
+          });
+        } else if (activeCategory) {
+          await CategoryService.convertLegacyRegistrationToPair(
+            activeCategory.id,
+            editingReg.id,
+            {
+              name: editName.trim(),
+              playerIds: memberIds,
+              type: activeCategory.type,
+            }
+          );
+        }
+      } else {
+        const playerId = editingReg.player?.id ?? editingReg.tournamentPlayerId;
+        if (!playerId) return;
+        await TournamentPlayerService.updatePlayer(playerId, {
+          name: editName.trim(),
+        });
+      }
       if (activeCategory) {
         await loadRegistrations(activeCategory.id);
       }
@@ -193,11 +330,33 @@ export default function TeamsPanel({
     } catch (error) {
       console.error('Error editing team:', error);
       toaster.error({
-        title: 'Failed to update team',
-        description: error instanceof Error ? error.message : 'Unknown error',
+        title: tc('updateFailed'),
+        description:
+          error instanceof Error
+            ? error.message
+            : t('panels.teams.unknownError'),
       });
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const handleCreateMember = async () => {
+    if (!activeCategory || !newPlayerName.trim()) return;
+    try {
+      const player = await TournamentPlayerService.createPlayer(
+        activeCategory.tournamentId,
+        { name: newPlayerName.trim() },
+        { showToast: false }
+      );
+      setPlayers((current) => [player, ...current]);
+      setMemberIds((current) => [...current, player.id]);
+      setNewPlayerName('');
+    } catch (error) {
+      toaster.error({
+        title: t('panels.teams.memberAddFailed'),
+        description: getErrorMessage(error, t('panels.teams.unknownError')),
+      });
     }
   };
 
@@ -220,8 +379,11 @@ export default function TeamsPanel({
     } catch (error) {
       console.error('Error deleting team:', error);
       toaster.error({
-        title: 'Failed to delete team',
-        description: error instanceof Error ? error.message : 'Unknown error',
+        title: tc('deleteFailed'),
+        description:
+          error instanceof Error
+            ? error.message
+            : t('panels.teams.unknownError'),
       });
     } finally {
       setIsSubmitting(false);
@@ -234,7 +396,7 @@ export default function TeamsPanel({
         {/* Header */}
         <Flex justify="space-between" align="center" gap={3}>
           <Flex align="center" gap={2} flexShrink={0}>
-            <Heading size="md">{t('panels.teams.title')}</Heading>
+            <Heading size="md">{tc('title')}</Heading>
           </Flex>
 
           {/* Category dropdown */}
@@ -249,6 +411,10 @@ export default function TeamsPanel({
                 borderRadius="full"
                 bg="gray.100"
                 _hover={{ bg: 'gray.200' }}
+                _dark={{
+                  bg: 'gray.700',
+                  _hover: { bg: 'gray.600' },
+                }}
                 cursor="pointer"
                 fontSize="sm"
                 fontWeight="medium"
@@ -289,6 +455,10 @@ export default function TeamsPanel({
                     py={1}
                     border="1px solid"
                     borderColor="gray.100"
+                    _dark={{
+                      bg: 'gray.800',
+                      borderColor: 'gray.700',
+                    }}
                   >
                     {categories.map((cat, idx) => (
                       <Flex
@@ -301,6 +471,7 @@ export default function TeamsPanel({
                         w="full"
                         fontSize="sm"
                         _hover={{ bg: 'gray.50' }}
+                        _dark={{ _hover: { bg: 'gray.700' } }}
                         onClick={() => {
                           onSelectCategory(cat);
                           setIsDropdownOpen(false);
@@ -328,15 +499,13 @@ export default function TeamsPanel({
             leftIcon={<Plus size={14} />}
             onClick={handleOpenAdd}
           >
-            {t('panels.teams.addTeams')}
+            {tc('add')}
           </Button>
         </Flex>
 
         {/* Registrations list */}
         {loading ? (
-          <Flex justify="center" py={8}>
-            <Spinner />
-          </Flex>
+          <TournamentMatchListSkeleton count={4} />
         ) : registrations.length === 0 ? (
           <Flex
             direction="column"
@@ -346,12 +515,13 @@ export default function TeamsPanel({
             color="gray.400"
           >
             <Users size={32} />
-            <Text fontSize="sm">{t('panels.teams.noTeams')}</Text>
+            <Text fontSize="sm">{tc('empty')}</Text>
           </Flex>
         ) : (
           <VStack gap={0} align="stretch">
             {registrations.map((reg) => {
               const name = getRegName(reg);
+              const memberCount = reg.pair?.members?.length ?? 0;
               return (
                 <Flex
                   key={reg.id}
@@ -362,6 +532,10 @@ export default function TeamsPanel({
                   borderBottomWidth="1px"
                   borderColor="gray.100"
                   _hover={{ bg: 'gray.50' }}
+                  _dark={{
+                    borderColor: 'gray.700',
+                    _hover: { bg: 'gray.700' },
+                  }}
                 >
                   <Flex
                     w="32px"
@@ -371,12 +545,34 @@ export default function TeamsPanel({
                     align="center"
                     justify="center"
                     flexShrink={0}
+                    _dark={{ bg: 'gray.700' }}
                   >
                     <Users size={16} color="#A0AEC0" />
                   </Flex>
                   <Text flex="1" fontSize="sm" fontWeight="medium">
                     {name}
                   </Text>
+                  {isTeamCategory && (
+                    <Text
+                      fontSize="xs"
+                      color={
+                        memberCount < (activeCategory?.teamSize ?? 2)
+                          ? 'orange.600'
+                          : 'green.600'
+                      }
+                      _dark={{
+                        color:
+                          memberCount < (activeCategory?.teamSize ?? 2)
+                            ? 'orange.300'
+                            : 'green.300',
+                      }}
+                    >
+                      {t('panels.teams.memberCount', {
+                        current: memberCount,
+                        total: activeCategory?.teamSize ?? 2,
+                      })}
+                    </Text>
+                  )}
                   <Flex gap={1}>
                     <Box
                       as="button"
@@ -384,6 +580,10 @@ export default function TeamsPanel({
                       borderRadius="md"
                       color="gray.400"
                       _hover={{ bg: 'gray.100', color: 'gray.600' }}
+                      _dark={{
+                        color: 'gray.400',
+                        _hover: { bg: 'gray.700', color: 'gray.200' },
+                      }}
                       onClick={() => handleOpenEdit(reg)}
                     >
                       <Pencil size={16} />
@@ -394,6 +594,10 @@ export default function TeamsPanel({
                       borderRadius="md"
                       color="gray.400"
                       _hover={{ bg: 'red.50', color: 'red.500' }}
+                      _dark={{
+                        color: 'gray.400',
+                        _hover: { bg: 'red.900', color: 'red.200' },
+                      }}
                       onClick={() => handleOpenDelete(reg)}
                     >
                       <Trash2 size={16} />
@@ -402,8 +606,14 @@ export default function TeamsPanel({
                 </Flex>
               );
             })}
-            <Text fontSize="xs" color="gray.400" textAlign="center" pt={3}>
-              {t('panels.teams.teamsCount', { count: registrations.length })}
+            <Text
+              fontSize="xs"
+              color="gray.400"
+              textAlign="center"
+              pt={3}
+              _dark={{ color: 'gray.500' }}
+            >
+              {tc('count', { count: registrations.length })}
             </Text>
           </VStack>
         )}
@@ -413,19 +623,62 @@ export default function TeamsPanel({
       <VModal
         isOpen={addModal.isOpen}
         onClose={addModal.onClose}
-        title={t('panels.teams.addTeamsTitle')}
+        title={tc('addTitle')}
+        headerRightContent={
+          activeCategory ? (
+            <Flex
+              align="center"
+              gap={1.5}
+              px={2.5}
+              py={1}
+              borderRadius="full"
+              bg="gray.100"
+              maxW="180px"
+              _dark={{ bg: 'gray.700' }}
+            >
+              <Box
+                w={2}
+                h={2}
+                borderRadius="full"
+                bg={activeCategoryColor}
+                flexShrink={0}
+              />
+              <Text
+                fontSize="xs"
+                fontWeight="medium"
+                color="gray.700"
+                _dark={{ color: 'gray.200' }}
+                truncate
+              >
+                {activeCategory.name}
+              </Text>
+            </Flex>
+          ) : undefined
+        }
         primaryActionText={t('panels.teams.save')}
         onPrimaryAction={handleAdd}
         isPrimaryLoading={isSubmitting}
         isPrimaryDisabled={
-          addMode === 'single' ? !addName.trim() : !addMultiText.trim()
+          addMode === 'single'
+            ? !addName.trim()
+            : addMode === 'select'
+              ? selectedPlayerIds.length === 0
+              : !addMultiText.trim()
         }
         secondaryActionText={t('panels.teams.cancel')}
       >
         <VStack gap={4} align="stretch">
-          {/* Single / Multiple toggle */}
-          <Flex bg="gray.100" borderRadius="full" p={1}>
-            {(['single', 'multiple'] as TAddMode[]).map((mode) => (
+          {/* Add mode toggle */}
+          <Flex
+            bg="gray.100"
+            borderRadius="full"
+            p={1}
+            _dark={{ bg: 'gray.700' }}
+          >
+            {(isTeamCategory
+              ? (['single', 'multiple'] as TAddMode[])
+              : (['single', 'select', 'multiple'] as TAddMode[])
+            ).map((mode) => (
               <Box
                 key={mode}
                 as="button"
@@ -437,34 +690,133 @@ export default function TeamsPanel({
                 textAlign="center"
                 bg={addMode === mode ? 'white' : 'transparent'}
                 color={addMode === mode ? 'gray.900' : 'gray.500'}
+                _dark={{
+                  bg: addMode === mode ? 'gray.900' : 'transparent',
+                  color: addMode === mode ? 'gray.50' : 'gray.300',
+                }}
                 boxShadow={addMode === mode ? 'sm' : 'none'}
                 transition="all 0.2s"
-                onClick={() => setAddMode(mode)}
+                opacity={isSubmitting ? 0.6 : 1}
+                onClick={() => {
+                  if (isSubmitting) return;
+                  setAddMode(mode);
+                }}
               >
                 {mode === 'single'
                   ? t('panels.teams.single')
-                  : t('panels.teams.multiple')}
+                  : mode === 'select'
+                    ? t('panels.teams.selectFromList')
+                    : t('panels.teams.multiple')}
               </Box>
             ))}
           </Flex>
 
-          {addMode === 'single' ? (
+          {addMode === 'single' && (
             <Input
-              placeholder={t('panels.teams.namePlaceholder')}
+              placeholder={tc('namePlaceholder')}
               value={addName}
               onChange={(e) => setAddName(e.target.value)}
+              disabled={isSubmitting}
               onKeyDown={(e) => {
                 if (e.key === 'Enter') handleAdd();
               }}
             />
-          ) : (
-            <Textarea
-              placeholder={t('panels.teams.multiPlaceholder')}
-              value={addMultiText}
-              onChange={(e) => setAddMultiText(e.target.value)}
-              rows={6}
-              resize="vertical"
-            />
+          )}
+
+          {addMode === 'select' && (
+            <VStack gap={2} align="stretch">
+              <Input
+                placeholder={t('panels.teams.searchPlayerPlaceholder')}
+                value={playerSearch}
+                onChange={(e) => setPlayerSearch(e.target.value)}
+                disabled={isSubmitting}
+              />
+              {selectedPlayerIds.length > 0 && (
+                <Text
+                  fontSize="sm"
+                  color="gray.500"
+                  _dark={{ color: 'gray.400' }}
+                >
+                  {t('panels.teams.selectedCount', {
+                    count: selectedPlayerIds.length,
+                  })}
+                </Text>
+              )}
+              {registrablePlayers.length === 0 ? (
+                <Box
+                  py={6}
+                  textAlign="center"
+                  fontSize="sm"
+                  color="gray.500"
+                  _dark={{ color: 'gray.400' }}
+                >
+                  {t('panels.teams.noAvailablePlayers')}
+                </Box>
+              ) : (
+                <VStack gap={2} align="stretch" maxH="280px" overflowY="auto">
+                  {registrablePlayers.map((player) => {
+                    const checked = selectedPlayerIds.includes(player.id);
+                    return (
+                      <Flex
+                        key={player.id}
+                        align="center"
+                        gap={3}
+                        borderWidth="1px"
+                        borderRadius="md"
+                        px={3}
+                        py={2}
+                        cursor="pointer"
+                        bg={checked ? 'green.50' : 'transparent'}
+                        borderColor={checked ? 'green.300' : 'border'}
+                        _dark={{
+                          bg: checked ? 'green.900' : 'transparent',
+                          borderColor: checked ? 'green.600' : 'gray.600',
+                        }}
+                        onClick={() => {
+                          if (isSubmitting) return;
+                          setSelectedPlayerIds((current) =>
+                            checked
+                              ? current.filter((id) => id !== player.id)
+                              : [...current, player.id]
+                          );
+                        }}
+                      >
+                        <input type="checkbox" checked={checked} readOnly />
+                        <Text fontSize="sm" color="fg">
+                          {player.name}
+                        </Text>
+                      </Flex>
+                    );
+                  })}
+                </VStack>
+              )}
+            </VStack>
+          )}
+
+          {addMode === 'multiple' && (
+            <VStack gap={2} align="stretch">
+              <Textarea
+                placeholder={tc('multiPlaceholder')}
+                value={addMultiText}
+                onChange={(e) => setAddMultiText(e.target.value)}
+                rows={6}
+                resize="vertical"
+                disabled={isSubmitting}
+              />
+              {bulkProgress && (
+                <Text
+                  fontSize="sm"
+                  color="gray.500"
+                  _dark={{ color: 'gray.400' }}
+                >
+                  {t('panels.teams.bulkProgress', {
+                    current: bulkProgress.current,
+                    total: bulkProgress.total,
+                    name: bulkProgress.currentName,
+                  })}
+                </Text>
+              )}
+            </VStack>
           )}
         </VStack>
       </VModal>
@@ -473,28 +825,99 @@ export default function TeamsPanel({
       <VModal
         isOpen={editModal.isOpen}
         onClose={editModal.onClose}
-        title={t('panels.teams.editTeam')}
+        title={isTeamCategory ? t('panels.teams.teamDetails') : tc('editTitle')}
         primaryActionText={t('panels.teams.save')}
         onPrimaryAction={handleEdit}
         isPrimaryLoading={isSubmitting}
         isPrimaryDisabled={!editName.trim()}
         secondaryActionText={t('panels.teams.cancel')}
       >
-        <Input
-          placeholder={t('panels.teams.namePlaceholder')}
-          value={editName}
-          onChange={(e) => setEditName(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter') handleEdit();
-          }}
-        />
+        <VStack gap={4} align="stretch">
+          <Input
+            placeholder={tc('namePlaceholder')}
+            value={editName}
+            onChange={(e) => setEditName(e.target.value)}
+          />
+          {isTeamCategory && (
+            <>
+              <Text
+                fontSize="sm"
+                color="gray.600"
+                _dark={{ color: 'gray.300' }}
+              >
+                {t('panels.teams.members', {
+                  current: memberIds.length,
+                  total: activeCategory?.teamSize ?? 2,
+                })}
+              </Text>
+              <VStack gap={2} align="stretch" maxH="220px" overflowY="auto">
+                {availablePlayers.map((player) => {
+                  const checked = memberIds.includes(player.id);
+                  return (
+                    <Flex
+                      key={player.id}
+                      align="center"
+                      gap={3}
+                      borderWidth="1px"
+                      borderRadius="md"
+                      px={3}
+                      py={2}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={checked}
+                        disabled={
+                          !checked &&
+                          memberIds.length >= (activeCategory?.teamSize ?? 2)
+                        }
+                        onChange={() =>
+                          setMemberIds((current) =>
+                            checked
+                              ? current.filter((id) => id !== player.id)
+                              : [...current, player.id]
+                          )
+                        }
+                      />
+                      <Text flex="1" fontSize="sm">
+                        {player.name}
+                      </Text>
+                    </Flex>
+                  );
+                })}
+              </VStack>
+              <Flex gap={2}>
+                <Input
+                  placeholder={t('panels.teams.quickCreatePlayer')}
+                  value={newPlayerName}
+                  onChange={(event) => setNewPlayerName(event.target.value)}
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={handleCreateMember}
+                  disabled={
+                    !newPlayerName.trim() ||
+                    memberIds.length >= (activeCategory?.teamSize ?? 2)
+                  }
+                >
+                  <Plus size={16} />
+                </Button>
+              </Flex>
+              {memberIds.length < (activeCategory?.teamSize ?? 2) && (
+                <Text fontSize="xs" color="orange.600">
+                  {t('panels.teams.draftTeamWarning')}
+                </Text>
+              )}
+            </>
+          )}
+        </VStack>
       </VModal>
 
       {/* Delete Team Confirmation Modal */}
       <VModal
         isOpen={deleteModal.isOpen}
         onClose={deleteModal.onClose}
-        title={t('panels.teams.deleteTeam')}
+        title={tc('deleteTitle')}
         primaryActionText={t('panels.teams.delete')}
         onPrimaryAction={handleDelete}
         isPrimaryLoading={isSubmitting}
@@ -502,7 +925,7 @@ export default function TeamsPanel({
         secondaryActionText={t('panels.teams.cancel')}
       >
         <Text fontSize="sm" color="gray.600">
-          {t('panels.teams.deleteConfirm')}
+          {tc('deleteConfirm')}
         </Text>
         {deletingReg && (
           <Text fontSize="sm" fontWeight="semibold" mt={2}>

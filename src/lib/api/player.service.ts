@@ -277,6 +277,23 @@ export const PlayerService = {
     return response.data.data || { data: [], total: 0, page: 1, totalPages: 0 };
   },
 
+  // Get a single pending request detail (with ids of all slots of the same user)
+  getPendingRequestById: async (
+    playerId: string
+  ): Promise<
+    PendingRequest & { relatedPlayerIds: string[]; sessionsPlayedCount: number }
+  > => {
+    const response = await api.get<
+      ApiResponse<
+        PendingRequest & {
+          relatedPlayerIds: string[];
+          sessionsPlayedCount: number;
+        }
+      >
+    >(`/players/pending-requests/${playerId}`);
+    return response.data.data!;
+  },
+
   // Get count of pending requests for host
   getPendingRequestsCount: async (): Promise<number> => {
     const response = await api.get<ApiResponse<{ count: number }>>(

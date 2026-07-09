@@ -7,9 +7,11 @@ import {
   Box,
   Flex,
   Grid,
+  HStack,
   Icon,
   Separator,
   Text,
+  VStack,
   Wrap,
 } from '@chakra-ui/react';
 import { IconButton } from '@/components/ui/chakra-compat';
@@ -20,14 +22,16 @@ import {
   Info,
   Phone,
   Navigation,
-  UserCheck,
+  ClipboardCheck,
   Feather,
 } from 'lucide-react';
 import { useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
+import { Link } from '@/i18n/config';
 import { Locale } from '@/i18n/locales';
 import { useLevelLabel } from '@/hooks/useLevelLabel';
 import { getSkillLevelColor } from '@/lib/utils/skillLevel.utils';
+import { sortLevelsByRank } from '@/constants/levels';
 import { AppPlayerRating } from '@/components/rating';
 import { AppAddressDisplay } from '@/components/common/AppAddressDisplay';
 import dayjs from '@/lib/dayjs';
@@ -36,6 +40,9 @@ import { normalizePhoneForZalo } from '@/utils/phone-utils';
 import Image from 'next/image';
 import LevelBadgeWithDescription from './LevelBadgeWithDescription';
 import LevelDescriptionsModal from './LevelDescriptionsModal';
+import SessionReferenceVideo from './SessionReferenceVideo';
+import { ROUTES } from '@/constants';
+import { formatTimeRangeByDevicePreference } from '@/utils/time-helpers';
 
 interface ISessionDetailBodyProps {
   session: ISession;
@@ -51,6 +58,7 @@ const SessionDetailBody = ({
   onHostClick,
 }: ISessionDetailBodyProps) => {
   const t = useTranslations('session');
+  const tCommon = useTranslations('common');
   const tLevelDescriptions = useTranslations('common.levelDescriptions');
   const tVenue = useTranslations('venue');
   const locale = useLocale();
@@ -59,6 +67,26 @@ const SessionDetailBody = ({
 
   const displayHostName = session.hostName || session.host?.name || '';
   const skillLevelColor = getSkillLevelColor(session.requiredLevels);
+  const isCrawled = session.isCrawled === true;
+
+  const approvedPlayers =
+    session.players?.filter((p) => p.registrationStatus === 'APPROVED') || [];
+  const maleCount = approvedPlayers.filter((p) => p.gender === 'MALE').length;
+  const femaleCount = approvedPlayers.filter(
+    (p) => p.gender === 'FEMALE'
+  ).length;
+
+  // For crawled sessions, tapping the author opens their Facebook profile
+  const handleHostClick = isCrawled
+    ? session.externalAuthorUrl
+      ? () =>
+          window.open(
+            session.externalAuthorUrl,
+            '_blank',
+            'noopener,noreferrer'
+          )
+      : undefined
+    : onHostClick;
 
   const formatDetailDate = (dateString: string | Date): string => {
     const date = dayjs
@@ -83,12 +111,12 @@ const SessionDetailBody = ({
     return `${prefix}, ${date.format(dateFormat)}`;
   };
 
-  const formatTime = (dateString: string | Date): string => {
-    return dayjs.utc(dateString).tz('Asia/Ho_Chi_Minh').format('HH:mm');
-  };
-
   const timeDisplay = session.startTime
-    ? `${formatTime(session.startTime)} - ${session.endTime ? formatTime(session.endTime) : t('inProgress')}`
+    ? formatTimeRangeByDevicePreference(
+        session.startTime,
+        session.endTime,
+        t('inProgress')
+      )
     : t('notStartedYet');
 
   const dateDisplay = session.startTime
@@ -98,6 +126,9 @@ const SessionDetailBody = ({
   const venueDisplayName = session.venue?.name
     ? tVenue('nameFormat', { name: session.venue.name })
     : session.location || '';
+  const venueDetailHref = session.venue?.id
+    ? ROUTES.VENUES.DETAIL(session.venue.id, session.venue.slug)
+    : null;
 
   const handleOpenMap = () => {
     const address = session.venue?.address || venueDisplayName;
@@ -148,22 +179,29 @@ const SessionDetailBody = ({
 
       {/* Location */}
       {venueDisplayName && (
-        <Flex
-          align="center"
-          gap={1}
-          mt={2}
-          cursor="pointer"
-          onClick={handleOpenMap}
-          _hover={{ textDecoration: 'underline' }}
-        >
-          <Text fontSize="sm" fontWeight="medium" color="green.600">
-            {venueDisplayName}
-          </Text>
+        <Flex align="center" gap={1} mt={2}>
+          {venueDetailHref ? (
+            <Link href={venueDetailHref} style={{ textDecoration: 'none' }}>
+              <Text
+                fontSize="sm"
+                fontWeight="medium"
+                color="green.600"
+                _hover={{ textDecoration: 'underline' }}
+              >
+                {venueDisplayName}
+              </Text>
+            </Link>
+          ) : (
+            <Text fontSize="sm" fontWeight="medium" color="green.600">
+              {venueDisplayName}
+            </Text>
+          )}
           <IconButton
             aria-label="Open map"
             variant="ghost"
             size="xs"
             colorPalette="green"
+            onClick={handleOpenMap}
             icon={<Icon as={Navigation} boxSize={3.5} />}
           />
         </Flex>
@@ -187,9 +225,11 @@ const SessionDetailBody = ({
       <Flex
         align="center"
         gap={4}
-        cursor={onHostClick ? 'pointer' : 'default'}
-        onClick={onHostClick}
-        _hover={onHostClick ? { bg: 'gray.50', _dark: { bg: 'gray.700' } } : {}}
+        cursor={handleHostClick ? 'pointer' : 'default'}
+        onClick={handleHostClick}
+        _hover={
+          handleHostClick ? { bg: 'gray.50', _dark: { bg: 'gray.700' } } : {}
+        }
         borderRadius="xl"
         py={1.5}
         px={2.5}
@@ -207,21 +247,57 @@ const SessionDetailBody = ({
           <Avatar.Fallback name={displayHostName}>
             {displayHostName ? displayHostName.charAt(0).toUpperCase() : ''}
           </Avatar.Fallback>
-          {session.host?.image && <Avatar.Image src={session.host.image} />}
+          {(isCrawled ? session.externalAuthorAvatar : session.host?.image) && (
+            <Avatar.Image
+              src={
+                (isCrawled
+                  ? session.externalAuthorAvatar
+                  : session.host?.image) || undefined
+              }
+            />
+          )}
         </Avatar.Root>
         <Box flex={1}>
           <Flex align="center" gap={2}>
-            <Text fontWeight="semibold" fontSize="md">
+            <Text fontWeight="bold" fontSize="lg">
               {displayHostName}
             </Text>
-            <AppPlayerRating userId={session.hostId} showBullet />
+            {!isCrawled && (
+              <AppPlayerRating userId={session.hostId} showBullet />
+            )}
           </Flex>
-          <Text fontSize="xs" color="gray.500">
-            {t('host')}
-          </Text>
+          {isCrawled ? (
+            <Text fontSize="xs" color="gray.500" fontStyle="italic" mt={0.5}>
+              {session.externalGroupUrl ? (
+                <Box
+                  as="span"
+                  cursor="pointer"
+                  _hover={{ textDecoration: 'underline' }}
+                  onClick={(e: React.MouseEvent) => {
+                    e.stopPropagation();
+                    window.open(
+                      session.externalGroupUrl,
+                      '_blank',
+                      'noopener,noreferrer'
+                    );
+                  }}
+                >
+                  {session.externalSource || t('crawledSourcePrefix')}
+                </Box>
+              ) : (
+                <Box as="span">
+                  {session.externalSource || t('crawledSourcePrefix')}
+                </Box>
+              )}
+            </Text>
+          ) : (
+            <Text fontSize="xs" color="gray.500">
+              {t('host')}
+            </Text>
+          )}
         </Box>
         <Flex gap={2}>
-          {session.hostPhone && session.allowZaloContact && (
+          {!isCrawled && session.hostPhone && session.allowZaloContact && (
             <IconButton
               aria-label="Zalo host"
               size="sm"
@@ -248,7 +324,7 @@ const SessionDetailBody = ({
               }
             />
           )}
-          {session.hostPhone && (
+          {!isCrawled && session.hostPhone && (
             <IconButton
               aria-label="Call host"
               size="sm"
@@ -270,19 +346,22 @@ const SessionDetailBody = ({
 
       {/* Description / Note */}
       {session.description && (
-        <Box>
-          <Separator my={4} />
+        <Box mt={4} mb={3}>
           <Box
-            bg="gray.50"
-            _dark={{ bg: 'gray.700' }}
+            bg="green.50"
+            _dark={{ bg: 'whiteAlpha.100' }}
             borderRadius="xl"
+            borderLeftWidth="4px"
+            borderLeftColor="green.500"
             p={{ base: 4, md: 5 }}
+            boxShadow="sm"
           >
             <Text
               fontSize={{ base: 'sm', md: 'md' }}
-              color="gray.700"
-              _dark={{ color: 'gray.300' }}
+              color="gray.800"
+              _dark={{ color: 'gray.100' }}
               whiteSpace="pre-wrap"
+              lineHeight="relaxed"
             >
               {session.description}
             </Text>
@@ -290,52 +369,75 @@ const SessionDetailBody = ({
         </Box>
       )}
 
-      {/* Participants Section */}
-      <Separator my={4} />
-      <SessionParticipantList
-        players={session.players}
-        approvedPlayersCount={approvedPlayersCount}
-        maxPlayers={maxPlayers}
-        session={session}
-      />
+      {/* Participants Section — crawled sessions have no managed players */}
+      {!isCrawled && (
+        <>
+          <Separator my={4} />
+          <SessionParticipantList
+            players={session.players}
+            approvedPlayersCount={approvedPlayersCount}
+            maxPlayers={maxPlayers}
+            session={session}
+          />
+        </>
+      )}
 
       {/* Session Details Grid, Skill Levels, Fee — hidden on desktop (shown in sidebar) */}
       <Box display={{ base: 'block', md: 'none' }}>
         {/* Session Details Grid */}
         <Separator my={4} />
         <Grid templateColumns="1fr 1fr" gap={3}>
-          {/* Courts */}
-          <Flex align="center" gap={2}>
-            <Icon as={LayoutGrid} boxSize={5} color="green.500" />
-            <Text fontSize="sm">
-              {session.numberOfCourts} {t('courtsAvailable')}
-              {session.courts && session.courts.length > 0 && (
-                <Text as="span" ml={1}>
-                  (
-                  {session.courts
-                    .slice()
-                    .sort((a, b) => a.courtNumber - b.courtNumber)
-                    .map((c) => c.courtName || c.courtNumber)
-                    .join(', ')}
-                  )
+          {/* Courts / Max Players / Current Players — hidden for crawled */}
+          {!isCrawled && (
+            <Flex align="center" gap={2}>
+              <Icon as={LayoutGrid} boxSize={5} color="green.500" />
+              <Text fontSize="sm">
+                {session.numberOfCourts} {t('courtsAvailable')}
+                {session.courts && session.courts.length > 0 && (
+                  <Text as="span" color="gray.500" ml={1}>
+                    (
+                    {session.courts
+                      .slice()
+                      .sort((a, b) => a.courtNumber - b.courtNumber)
+                      .map((court) => court.courtNumber)
+                      .join(', ')}
+                    )
+                  </Text>
+                )}
+              </Text>
+            </Flex>
+          )}
+
+          {!isCrawled && (
+            <Flex align="center" gap={2}>
+              <Icon as={Users} boxSize={5} color="green.500" />
+              <Text fontSize="sm">
+                {t('maxPlayers', { count: maxPlayers })}
+              </Text>
+            </Flex>
+          )}
+
+          {!isCrawled && (
+            <HStack align="flex-start" gap={2}>
+              <Icon
+                as={ClipboardCheck}
+                boxSize={5}
+                color="green.500"
+                mt="1px"
+              />
+              <VStack align="start" gap={0}>
+                <Text fontSize="sm">
+                  {approvedPlayersCount} {t('registeredLabel')}
                 </Text>
-              )}
-            </Text>
-          </Flex>
-
-          {/* Max Players */}
-          <Flex align="center" gap={2}>
-            <Icon as={Users} boxSize={5} color="green.500" />
-            <Text fontSize="sm">{t('maxPlayers', { count: maxPlayers })}</Text>
-          </Flex>
-
-          {/* Current Players */}
-          <Flex align="center" gap={2}>
-            <Icon as={UserCheck} boxSize={5} color="green.500" />
-            <Text fontSize="sm">
-              {approvedPlayersCount}/{maxPlayers} {t('players')}
-            </Text>
-          </Flex>
+                {(maleCount > 0 || femaleCount > 0) && (
+                  <Text fontSize="xs" color="gray.500">
+                    👨 {maleCount} {tCommon('male')} • 👩 {femaleCount}{' '}
+                    {tCommon('female')}
+                  </Text>
+                )}
+              </VStack>
+            </HStack>
+          )}
 
           {/* Shuttlecock */}
           {session.shuttlecock && (
@@ -353,9 +455,8 @@ const SessionDetailBody = ({
           <Icon as={Shield} boxSize={5} color={skillLevelColor.color} />
           <Wrap gap={1}>
             {session.requiredLevels && session.requiredLevels.length > 0 ? (
-              Array.from(new Set(session.requiredLevels))
-                .sort((a, b) => a - b)
-                .map((level) => {
+              sortLevelsByRank(Array.from(new Set(session.requiredLevels))).map(
+                (level) => {
                   const levelColor = getSkillLevelColor([level]);
                   return (
                     <LevelBadgeWithDescription
@@ -375,7 +476,8 @@ const SessionDetailBody = ({
                       {getLevelShortLabel(level)}
                     </LevelBadgeWithDescription>
                   );
-                })
+                }
+              )
             ) : (
               <Badge
                 colorPalette="gray"
@@ -421,6 +523,13 @@ const SessionDetailBody = ({
           />
         </Flex>
       </Box>
+
+      {session.referenceVideoUrl && (
+        <Box>
+          <Separator my={4} />
+          <SessionReferenceVideo url={session.referenceVideoUrl} />
+        </Box>
+      )}
 
       <LevelDescriptionsModal
         isOpen={isLevelDescriptionsOpen}

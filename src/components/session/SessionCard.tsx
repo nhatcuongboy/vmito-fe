@@ -27,6 +27,7 @@ interface SessionCardProps {
   variant?: ViewMode;
   showDownloadShareButtons?: boolean;
   forceViewSessionButton?: boolean;
+  onAddGuest?: (session: ISession) => void;
 }
 
 const SessionCard = ({
@@ -38,6 +39,7 @@ const SessionCard = ({
   variant = 'grid',
   showDownloadShareButtons = false,
   forceViewSessionButton = false,
+  onAddGuest,
 }: SessionCardProps) => {
   const t = useTranslations('session');
   const tCommon = useTranslations('common');
@@ -178,10 +180,17 @@ const SessionCard = ({
   const locationRow =
     session.venue?.name || session.location ? (
       <Flex align="flex-start">
-        <Icon as={MapPin} boxSize={5} mr={2} color="green.500" mt={1} />
-        <Box flex="1" overflow="hidden">
+        <Icon
+          as={MapPin}
+          boxSize={5}
+          mr={2}
+          color="green.500"
+          mt={1}
+          flexShrink={0}
+        />
+        <Box flex="1" overflow="hidden" minW={0}>
           <Flex align="center" gap={1}>
-            <Text fontWeight="medium" lineClamp={1}>
+            <Text fontWeight="medium" lineClamp={1} flex="1" minW={0}>
               {session.venue?.name
                 ? formatVenueName(
                     session.venue.name,
@@ -195,6 +204,7 @@ const SessionCard = ({
               variant="ghost"
               aria-label="Google Maps"
               icon={<Icon as={Navigation} />}
+              flexShrink={0}
               onClick={(e: React.MouseEvent) => {
                 e.stopPropagation();
                 const url = getGoogleMapsUrl({
@@ -286,11 +296,16 @@ const SessionCard = ({
     isStartEndLoading,
 
     // View registration button (for non-owners with registration)
-    showViewRegistrationButton:
-      !isOwner &&
-      !!session.players?.[0] &&
-      session.players[0].registrationStatus !== 'APPROVED',
+    showViewRegistrationButton: !isOwner && !!session.players?.[0],
     onViewRegistration: onOpenViewRegistrationModal,
+    // Icon-only "Xem vé" button when the view-session button is forced off
+    // (e.g. the joined-sessions list), to match the compact icon style used
+    // alongside the view-session button elsewhere.
+    compactViewRegistrationButton: forceViewSessionButton,
+
+    // Add guest button (for non-owners with an existing registration)
+    showAddGuestButton: !isOwner && !!session.players?.[0] && !!onAddGuest,
+    onAddGuest: onAddGuest ? () => onAddGuest(session) : undefined,
 
     // Manage button (for owners or ADMIN)
     showManageButton: canManage && !forceViewSessionButton,

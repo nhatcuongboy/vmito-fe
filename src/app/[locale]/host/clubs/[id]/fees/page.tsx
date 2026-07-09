@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState, useCallback } from 'react';
 import { useTranslations } from 'next-intl';
-import { Box, Flex, Heading, Text } from '@chakra-ui/react';
+import { Badge, Box, Flex, Heading, Text } from '@chakra-ui/react';
 import {
   Button,
   VStack,
@@ -14,22 +14,70 @@ import {
 } from '@/components/ui/chakra-compat';
 import { useParams } from 'next/navigation';
 import { ClubsService } from '@/lib/api/clubs.service';
+import { EMemberStatus, IClubMember, IClubMonthlyMember } from '@/types/club';
 import { toaster } from '@/components/ui/toaster';
 import { Field } from '@/components/ui/Field';
 import LoadingSpinner from '@/components/ui/loading-spinner';
 import PageLayout from '@/components/layout/PageLayout';
+import { useForm, Controller } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
+
+const formatAmountDisplay = (raw: string): string => {
+  const stripped = raw.replace(/[^\d]/g, '');
+  if (!stripped) return '';
+  const num = parseInt(stripped, 10);
+  if (isNaN(num)) return raw;
+  return num.toLocaleString('vi-VN');
+};
+
+const parseAmountInput = (input: string): string => {
+  return input.replace(/[^\d]/g, '');
+};
+
+const feeSchema = z
+  .string()
+  .refine((val) => val === '' || (!isNaN(Number(val)) && Number(val) >= 0), {
+    message: 'invalidFee',
+  });
+
+const schema = z.object({
+  maleFeeMonthly: feeSchema,
+  femaleFeeMonthly: feeSchema,
+  maleFeePerSession: feeSchema,
+  femaleFeePerSession: feeSchema,
+});
+
+type FormData = z.infer<typeof schema>;
 
 const ClubFeesPage = () => {
   const t = useTranslations('clubs');
+  const tCommon = useTranslations('common');
   const params = useParams();
-  const groupId = params.id as string;
+  const routeClubId = params.id as string;
+  const [clubId, setClubId] = useState('');
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [formData, setFormData] = useState({
-    maleFeeMonthly: '',
-    femaleFeeMonthly: '',
-    maleFeePerSession: '',
-    femaleFeePerSession: '',
+  const [clubMembers, setClubMembers] = useState<IClubMember[]>([]);
+  const [monthlyMembers, setMonthlyMembers] = useState<IClubMonthlyMember[]>(
+    []
+  );
+  const [selectedMonthlyUserId, setSelectedMonthlyUserId] = useState('');
+  const [monthlyMemberSaving, setMonthlyMemberSaving] = useState(false);
+
+  const {
+    control,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm<FormData>({
+    resolver: zodResolver(schema),
+    defaultValues: {
+      maleFeeMonthly: '',
+      femaleFeeMonthly: '',
+      maleFeePerSession: '',
+      femaleFeePerSession: '',
+    },
   });
 
   const currentDate = new Date();
@@ -38,23 +86,65 @@ const ClubFeesPage = () => {
   );
   const [selectedYear, setSelectedYear] = useState(currentDate.getFullYear());
 
+  const resolveClubId = useCallback(async () => {
+    if (!routeClubId) return '';
+
+    try {
+      const club = await ClubsService.getClub(routeClubId);
+      return club.id;
+    } catch {
+      const club = await ClubsService.getClubDetails(routeClubId);
+      return club.id;
+    }
+  }, [routeClubId]);
+
+  // Resolve the route param (slug or id) to the actual club id exactly once
+  // per routeClubId change. Kept separate from loadFees so that setting
+  // clubId here doesn't also re-trigger loadFees's own effect a second time.
+  useEffect(() => {
+    if (!routeClubId) return;
+    let cancelled = false;
+
+    resolveClubId()
+      .then((resolvedClubId) => {
+        if (!cancelled) setClubId(resolvedClubId);
+      })
+      .catch((error) => {
+        if (cancelled) return;
+        console.error('Failed to resolve club:', error);
+        toaster.error({ title: t('failedToLoadFees') });
+        setLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [routeClubId, resolveClubId, t]);
+
   const loadFees = useCallback(async () => {
+    if (!clubId) return;
+
     try {
       setLoading(true);
-      const feeConfig = await ClubsService.getClubFeeForMonth(
-        groupId,
-        selectedYear,
-        selectedMonth
-      );
+      const [feeConfig, membersData, monthlyMembersData] = await Promise.all([
+        ClubsService.getClubFeeForMonth(clubId, selectedYear, selectedMonth),
+        ClubsService.getClubMembers(clubId),
+        ClubsService.getClubMonthlyMembers(clubId, selectedYear, selectedMonth),
+      ]);
+
+      setClubMembers(membersData);
+      setMonthlyMembers(monthlyMembersData);
+      setSelectedMonthlyUserId('');
+
       if (feeConfig) {
-        setFormData({
+        reset({
           maleFeeMonthly: feeConfig.maleFeeMonthly?.toString() || '',
           femaleFeeMonthly: feeConfig.femaleFeeMonthly?.toString() || '',
           maleFeePerSession: feeConfig.maleFeePerSession?.toString() || '',
           femaleFeePerSession: feeConfig.femaleFeePerSession?.toString() || '',
         });
       } else {
-        setFormData({
+        reset({
           maleFeeMonthly: '',
           femaleFeeMonthly: '',
           maleFeePerSession: '',
@@ -67,31 +157,33 @@ const ClubFeesPage = () => {
     } finally {
       setLoading(false);
     }
-  }, [groupId, selectedMonth, selectedYear, t]);
+  }, [clubId, selectedMonth, selectedYear, t]);
 
   useEffect(() => {
-    if (groupId) {
-      loadFees();
-    }
-  }, [groupId, loadFees]);
+    loadFees();
+  }, [loadFees]);
 
-  const handleSave = async () => {
+  const onSubmit = async (data: FormData) => {
     try {
       setSaving(true);
-      await ClubsService.upsertClubFee(groupId, {
+      const resolvedClubId = clubId || (await resolveClubId());
+      if (!resolvedClubId) return;
+
+      setClubId(resolvedClubId);
+      await ClubsService.upsertClubFee(resolvedClubId, {
         month: selectedMonth,
         year: selectedYear,
-        maleFeeMonthly: formData.maleFeeMonthly
-          ? Number(formData.maleFeeMonthly)
+        maleFeeMonthly: data.maleFeeMonthly
+          ? Number(data.maleFeeMonthly)
           : undefined,
-        femaleFeeMonthly: formData.femaleFeeMonthly
-          ? Number(formData.femaleFeeMonthly)
+        femaleFeeMonthly: data.femaleFeeMonthly
+          ? Number(data.femaleFeeMonthly)
           : undefined,
-        maleFeePerSession: formData.maleFeePerSession
-          ? Number(formData.maleFeePerSession)
+        maleFeePerSession: data.maleFeePerSession
+          ? Number(data.maleFeePerSession)
           : undefined,
-        femaleFeePerSession: formData.femaleFeePerSession
-          ? Number(formData.femaleFeePerSession)
+        femaleFeePerSession: data.femaleFeePerSession
+          ? Number(data.femaleFeePerSession)
           : undefined,
       });
       toaster.success({ title: t('feesUpdatedSuccess') });
@@ -101,6 +193,74 @@ const ClubFeesPage = () => {
       toaster.error({ title: t('failedToUpdateFees') });
     } finally {
       setSaving(false);
+    }
+  };
+
+  const monthlyMemberUserIds = new Set(
+    monthlyMembers.map((member) => member.userId)
+  );
+  const availableMonthlyMembers = clubMembers.filter(
+    (member) =>
+      member.status === EMemberStatus.ACTIVE &&
+      !monthlyMemberUserIds.has(member.userId)
+  );
+
+  const getGenderLabel = (gender?: string) => {
+    switch (gender) {
+      case 'MALE':
+        return tCommon('male');
+      case 'FEMALE':
+        return tCommon('female');
+      case 'OTHER':
+        return tCommon('other');
+      case 'PREFER_NOT_TO_SAY':
+        return tCommon('preferNotToSay');
+      default:
+        return '';
+    }
+  };
+
+  const handleAddMonthlyMember = async () => {
+    if (!selectedMonthlyUserId || !clubId) return;
+
+    try {
+      setMonthlyMemberSaving(true);
+      const added = await ClubsService.upsertClubMonthlyMember(clubId, {
+        userId: selectedMonthlyUserId,
+        year: selectedYear,
+        month: selectedMonth,
+      });
+      setMonthlyMembers((prev) => [...prev, added]);
+      setSelectedMonthlyUserId('');
+      toaster.success({ title: t('monthlyMemberAddedSuccess') });
+    } catch (error) {
+      console.error('Failed to add monthly member:', error);
+      toaster.error({ title: t('failedToUpdateMonthlyMembers') });
+    } finally {
+      setMonthlyMemberSaving(false);
+    }
+  };
+
+  const handleRemoveMonthlyMember = async (userId: string) => {
+    if (!clubId) return;
+
+    try {
+      setMonthlyMemberSaving(true);
+      await ClubsService.deleteClubMonthlyMember(
+        clubId,
+        userId,
+        selectedYear,
+        selectedMonth
+      );
+      setMonthlyMembers((prev) =>
+        prev.filter((member) => member.userId !== userId)
+      );
+      toaster.success({ title: t('monthlyMemberRemovedSuccess') });
+    } catch (error) {
+      console.error('Failed to remove monthly member:', error);
+      toaster.error({ title: t('failedToUpdateMonthlyMembers') });
+    } finally {
+      setMonthlyMemberSaving(false);
     }
   };
 
@@ -126,138 +286,279 @@ const ClubFeesPage = () => {
         </Flex>
 
         <Box bg="bg" p={6} borderRadius="lg" shadow="sm" borderWidth="1px">
-          <VStack spacing={6} align="stretch">
-            <Box>
-              <Heading size="md" mb={4}>
-                {t('selectMonth')}
-              </Heading>
-              <HStack spacing={4} mb={6}>
-                <Box width="150px">
-                  <VSelect
-                    value={selectedMonth}
-                    onChange={(e) => setSelectedMonth(Number(e.target.value))}
+          <form onSubmit={handleSubmit(onSubmit)}>
+            <VStack spacing={6} align="stretch">
+              <Box>
+                <Heading size="md" mb={4}>
+                  {t('selectMonth')}
+                </Heading>
+                <HStack spacing={4} mb={6}>
+                  <Box width="150px">
+                    <VSelect
+                      value={selectedMonth}
+                      onChange={(e) => setSelectedMonth(Number(e.target.value))}
+                    >
+                      {Array.from({ length: 12 }, (_, i) => i + 1).map((m) => (
+                        <option key={m} value={m}>
+                          {t(`month${m}`)}
+                        </option>
+                      ))}
+                    </VSelect>
+                  </Box>
+                  <Box width="120px">
+                    <VSelect
+                      value={selectedYear}
+                      onChange={(e) => setSelectedYear(Number(e.target.value))}
+                    >
+                      {[selectedYear - 1, selectedYear, selectedYear + 1].map(
+                        (y) => (
+                          <option key={y} value={y}>
+                            {y}
+                          </option>
+                        )
+                      )}
+                    </VSelect>
+                  </Box>
+                </HStack>
+              </Box>
+
+              <Divider />
+
+              <Box>
+                <Heading size="sm" mb={4}>
+                  {t('monthlyFeeConfig')}
+                </Heading>
+                <SimpleGrid columns={{ base: 1, md: 2 }} spacing={6}>
+                  <Field
+                    label={t('maleMonthlyFee')}
+                    helperText={`${t('currency')} / ${t('month')}`}
+                    invalid={!!errors.maleFeeMonthly}
+                    errorText={
+                      errors.maleFeeMonthly?.message
+                        ? t(errors.maleFeeMonthly.message)
+                        : undefined
+                    }
                   >
-                    {Array.from({ length: 12 }, (_, i) => i + 1).map((m) => (
-                      <option key={m} value={m}>
-                        {t(`month${m}`)}
+                    <Controller
+                      name="maleFeeMonthly"
+                      control={control}
+                      render={({ field }) => (
+                        <Input
+                          type="text"
+                          inputMode="numeric"
+                          placeholder="0"
+                          value={formatAmountDisplay(field.value)}
+                          onChange={(e) =>
+                            field.onChange(parseAmountInput(e.target.value))
+                          }
+                        />
+                      )}
+                    />
+                  </Field>
+                  <Field
+                    label={t('femaleMonthlyFee')}
+                    helperText={`${t('currency')} / ${t('month')}`}
+                    invalid={!!errors.femaleFeeMonthly}
+                    errorText={
+                      errors.femaleFeeMonthly?.message
+                        ? t(errors.femaleFeeMonthly.message)
+                        : undefined
+                    }
+                  >
+                    <Controller
+                      name="femaleFeeMonthly"
+                      control={control}
+                      render={({ field }) => (
+                        <Input
+                          type="text"
+                          inputMode="numeric"
+                          placeholder="0"
+                          value={formatAmountDisplay(field.value)}
+                          onChange={(e) =>
+                            field.onChange(parseAmountInput(e.target.value))
+                          }
+                        />
+                      )}
+                    />
+                  </Field>
+                </SimpleGrid>
+              </Box>
+
+              <Divider />
+
+              <Box>
+                <Heading size="sm" mt={4}>
+                  {t('perSessionFeeConfig')}
+                </Heading>
+                <Text fontSize="sm" color="fg.muted" mb={4}>
+                  {t('perSessionFeeDescription')}
+                </Text>
+                <SimpleGrid columns={{ base: 1, md: 2 }} spacing={6}>
+                  <Field
+                    label={t('malePerSessionFee')}
+                    helperText={`${t('currency')} / ${t('session')}`}
+                    invalid={!!errors.maleFeePerSession}
+                    errorText={
+                      errors.maleFeePerSession?.message
+                        ? t(errors.maleFeePerSession.message)
+                        : undefined
+                    }
+                  >
+                    <Controller
+                      name="maleFeePerSession"
+                      control={control}
+                      render={({ field }) => (
+                        <Input
+                          type="text"
+                          inputMode="numeric"
+                          placeholder="0"
+                          value={formatAmountDisplay(field.value)}
+                          onChange={(e) =>
+                            field.onChange(parseAmountInput(e.target.value))
+                          }
+                        />
+                      )}
+                    />
+                  </Field>
+                  <Field
+                    label={t('femalePerSessionFee')}
+                    helperText={`${t('currency')} / ${t('session')}`}
+                    invalid={!!errors.femaleFeePerSession}
+                    errorText={
+                      errors.femaleFeePerSession?.message
+                        ? t(errors.femaleFeePerSession.message)
+                        : undefined
+                    }
+                  >
+                    <Controller
+                      name="femaleFeePerSession"
+                      control={control}
+                      render={({ field }) => (
+                        <Input
+                          type="text"
+                          inputMode="numeric"
+                          placeholder="0"
+                          value={formatAmountDisplay(field.value)}
+                          onChange={(e) =>
+                            field.onChange(parseAmountInput(e.target.value))
+                          }
+                        />
+                      )}
+                    />
+                  </Field>
+                </SimpleGrid>
+              </Box>
+
+              <Flex justify="flex-end" mt={6}>
+                <Button
+                  type="submit"
+                  colorPalette="green"
+                  size="lg"
+                  loading={saving}
+                >
+                  {t('saveConfiguration')}
+                </Button>
+              </Flex>
+            </VStack>
+          </form>
+        </Box>
+
+        <Box bg="bg" p={6} borderRadius="lg" shadow="sm" borderWidth="1px">
+          <VStack spacing={5} align="stretch">
+            <Box>
+              <Flex justify="space-between" align="center" gap={3} wrap="wrap">
+                <Box>
+                  <Heading size="sm">{t('monthlyMembers')}</Heading>
+                  <Text fontSize="sm" color="fg.muted" mt={1}>
+                    {t('monthlyMembersDescription')}
+                  </Text>
+                </Box>
+                <Badge colorPalette="green" variant="subtle">
+                  {t(`month${selectedMonth}`)} {selectedYear}
+                </Badge>
+              </Flex>
+            </Box>
+
+            <HStack spacing={3} align="flex-end">
+              <Box flex="1" minW={0}>
+                <Field label={t('selectMember')}>
+                  <VSelect
+                    value={selectedMonthlyUserId}
+                    onChange={(e) => setSelectedMonthlyUserId(e.target.value)}
+                    disabled={monthlyMemberSaving}
+                  >
+                    <option value="">{t('selectMember')}</option>
+                    {availableMonthlyMembers.map((member) => (
+                      <option key={member.userId} value={member.userId}>
+                        {member.user.name}
                       </option>
                     ))}
                   </VSelect>
-                </Box>
-                <Box width="120px">
-                  <VSelect
-                    value={selectedYear}
-                    onChange={(e) => setSelectedYear(Number(e.target.value))}
-                  >
-                    {[selectedYear - 1, selectedYear, selectedYear + 1].map(
-                      (y) => (
-                        <option key={y} value={y}>
-                          {y}
-                        </option>
-                      )
-                    )}
-                  </VSelect>
-                </Box>
-              </HStack>
-            </Box>
-
-            <Divider />
-
-            <Box>
-              <Heading size="sm" mb={4}>
-                {t('monthlyFeeConfig')}
-              </Heading>
-              <SimpleGrid columns={{ base: 1, md: 2 }} spacing={6}>
-                <Field
-                  label={t('maleMonthlyFee')}
-                  helperText={`${t('currency')} / ${t('month')}`}
-                >
-                  <Input
-                    type="number"
-                    value={formData.maleFeeMonthly}
-                    onChange={(e) =>
-                      setFormData({
-                        ...formData,
-                        maleFeeMonthly: e.target.value,
-                      })
-                    }
-                    placeholder="0"
-                  />
                 </Field>
-                <Field
-                  label={t('femaleMonthlyFee')}
-                  helperText={`${t('currency')} / ${t('month')}`}
-                >
-                  <Input
-                    type="number"
-                    value={formData.femaleFeeMonthly}
-                    onChange={(e) =>
-                      setFormData({
-                        ...formData,
-                        femaleFeeMonthly: e.target.value,
-                      })
-                    }
-                    placeholder="0"
-                  />
-                </Field>
-              </SimpleGrid>
-            </Box>
-
-            <Divider />
-
-            <Box>
-              <Heading size="sm" mt={4}>
-                {t('perSessionFeeConfig')}
-              </Heading>
-              <Text fontSize="sm" color="fg.muted" mb={4}>
-                {t('perSessionFeeDescription')}
-              </Text>
-              <SimpleGrid columns={{ base: 1, md: 2 }} spacing={6}>
-                <Field
-                  label={t('malePerSessionFee')}
-                  helperText={`${t('currency')} / ${t('session')}`}
-                >
-                  <Input
-                    type="number"
-                    value={formData.maleFeePerSession}
-                    onChange={(e) =>
-                      setFormData({
-                        ...formData,
-                        maleFeePerSession: e.target.value,
-                      })
-                    }
-                    placeholder="0"
-                  />
-                </Field>
-                <Field
-                  label={t('femalePerSessionFee')}
-                  helperText={`${t('currency')} / ${t('session')}`}
-                >
-                  <Input
-                    type="number"
-                    value={formData.femaleFeePerSession}
-                    onChange={(e) =>
-                      setFormData({
-                        ...formData,
-                        femaleFeePerSession: e.target.value,
-                      })
-                    }
-                    placeholder="0"
-                  />
-                </Field>
-              </SimpleGrid>
-            </Box>
-
-            <Flex justify="flex-end" mt={6}>
+              </Box>
               <Button
                 colorPalette="green"
-                size="lg"
-                onClick={handleSave}
-                loading={saving}
+                onClick={handleAddMonthlyMember}
+                disabled={!selectedMonthlyUserId}
+                loading={monthlyMemberSaving}
               >
-                {t('saveConfiguration')}
+                {t('addMonthlyMember')}
               </Button>
-            </Flex>
+            </HStack>
+
+            <Divider />
+
+            {monthlyMembers.length === 0 ? (
+              <Text color="fg.muted" fontSize="sm">
+                {t('noMonthlyMembers')}
+              </Text>
+            ) : (
+              <VStack spacing={2} align="stretch">
+                {monthlyMembers.map((member) => (
+                  <Flex
+                    key={member.id}
+                    justify="space-between"
+                    align="center"
+                    gap={3}
+                    p={3}
+                    borderWidth="1px"
+                    borderColor="border"
+                    borderRadius="md"
+                  >
+                    <Box minW={0}>
+                      <Flex align="center" gap={2}>
+                        <Text fontWeight="semibold" lineClamp={1}>
+                          {member.user.name}
+                        </Text>
+                        {member.user.gender && (
+                          <Badge
+                            colorPalette={
+                              member.user.gender === 'FEMALE' ? 'pink' : 'blue'
+                            }
+                            variant="subtle"
+                            flexShrink={0}
+                          >
+                            {getGenderLabel(member.user.gender)}
+                          </Badge>
+                        )}
+                      </Flex>
+                      <Text fontSize="sm" color="fg.muted" lineClamp={1}>
+                        {member.user.email}
+                      </Text>
+                    </Box>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      colorPalette="red"
+                      loading={monthlyMemberSaving}
+                      onClick={() => handleRemoveMonthlyMember(member.userId)}
+                    >
+                      {t('remove')}
+                    </Button>
+                  </Flex>
+                ))}
+              </VStack>
+            )}
           </VStack>
         </Box>
       </VStack>

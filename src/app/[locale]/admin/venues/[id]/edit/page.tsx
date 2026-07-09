@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { Box, Flex, HStack, Text, VStack } from '@chakra-ui/react';
 import { Input } from '@/components/ui/Input';
+import { MoneyInput } from '@/components/ui/MoneyInput';
 import { Field } from '@/components/ui/Field';
 import { RichTextEditor } from '@/components/ui/RichTextEditor';
 import { SearchableSelect } from '@/components/ui/SearchableSelect';
@@ -28,6 +29,7 @@ import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { use } from 'react';
+import { useTranslations } from 'next-intl';
 
 const venueSchema = z.object({
   name: z.string().min(2, 'Tên phải có ít nhất 2 ký tự'),
@@ -80,6 +82,7 @@ export default function EditVenuePage({
 }) {
   const { id } = use(params);
   const router = useRouter();
+  const t = useTranslations('admin');
   const [venueImages, setVenueImages] = useState<ISessionImage[]>([]);
   const [venueBannerIndex, setVenueBannerIndex] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
@@ -189,9 +192,9 @@ export default function EditVenuePage({
           (error as { response?: { status?: number } })?.response?.status ===
           404
         ) {
-          toaster.error({ title: 'Không tìm thấy sân' });
+          toaster.error({ title: t('venues.notFound') });
         } else {
-          toaster.error({ title: 'Không thể tải thông tin sân' });
+          toaster.error({ title: t('venues.loadError') });
         }
         router.push('/admin/venues');
       } finally {
@@ -200,7 +203,7 @@ export default function EditVenuePage({
     };
 
     fetchVenue();
-  }, [id, router, form]);
+  }, [id, router, form, t]);
 
   const handleSubmit = async (data: VenueFormValues) => {
     try {
@@ -224,11 +227,11 @@ export default function EditVenuePage({
         id,
         payload as Partial<Venue>
       );
-      toaster.success({ title: 'Cập nhật sân thành công' });
+      toaster.success({ title: t('venues.updateSuccess') });
       router.push(`/venues/${result.slug || result.id}`);
     } catch (_error) {
       console.error('Failed to update venue:', _error);
-      toaster.error({ title: 'Không thể cập nhật sân' });
+      toaster.error({ title: t('venues.updateError') });
     }
   };
 
@@ -554,17 +557,9 @@ export default function EditVenuePage({
                 name="hourlyRateFixed"
                 render={({ field }) => (
                   <Field flex={1} label="Giá thuê cố định (VND)">
-                    <Input
-                      {...field}
-                      type="number"
-                      onChange={(e) =>
-                        field.onChange(
-                          e.target.value
-                            ? parseInt(e.target.value, 10)
-                            : undefined
-                        )
-                      }
-                      value={field.value ?? ''}
+                    <MoneyInput
+                      value={field.value}
+                      onValueChange={field.onChange}
                     />
                   </Field>
                 )}
@@ -574,17 +569,9 @@ export default function EditVenuePage({
                 name="hourlyRateWalkIn"
                 render={({ field }) => (
                   <Field flex={1} label="Giá thuê vãng lai (VND)">
-                    <Input
-                      {...field}
-                      type="number"
-                      onChange={(e) =>
-                        field.onChange(
-                          e.target.value
-                            ? parseInt(e.target.value, 10)
-                            : undefined
-                        )
-                      }
-                      value={field.value ?? ''}
+                    <MoneyInput
+                      value={field.value}
+                      onValueChange={field.onChange}
                     />
                   </Field>
                 )}

@@ -32,6 +32,7 @@ import {
   Bell,
   Award,
   MessageCircle,
+  Newspaper,
   type LucideIcon,
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
@@ -485,10 +486,56 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
                     </Flex>
                   </NextLinkButton>
                 </VTooltip>
-                {(user?.role === UserRole.ADMIN ||
-                  user?.role === UserRole.HOST) && (
+                <VTooltip
+                  content="Tìm giải"
+                  positioning={{
+                    placement: 'right',
+                    offset: { mainAxis: 12 },
+                  }}
+                  disabled={!isCollapsed}
+                  showArrow
+                  openDelay={200}
+                >
+                  <NextLinkButton
+                    href={ROUTES.BROWSE.TOURNAMENTS.LIST}
+                    variant="ghost"
+                    justifyContent={{
+                      base: 'flex-start',
+                      md: isCollapsed ? 'center' : 'flex-start',
+                    }}
+                    onClick={onClose}
+                    w="full"
+                    px={{ base: 4, md: isCollapsed ? 0 : 4 }}
+                    {...getActiveProps(ROUTES.BROWSE.TOURNAMENTS.LIST)}
+                  >
+                    <Flex
+                      align="center"
+                      gap={3}
+                      w="full"
+                      justifyContent={{
+                        base: 'flex-start',
+                        md: isCollapsed ? 'center' : 'flex-start',
+                      }}
+                    >
+                      <Trophy
+                        size={18}
+                        color={
+                          pathname.startsWith(ROUTES.BROWSE.TOURNAMENTS.LIST)
+                            ? 'var(--chakra-colors-green-500)'
+                            : 'currentColor'
+                        }
+                      />
+                      {!isCollapsed && (
+                        <Text display={{ base: 'block', md: 'block' }}>
+                          Tìm giải
+                        </Text>
+                      )}
+                    </Flex>
+                  </NextLinkButton>
+                </VTooltip>
+                {isAuthenticated && (
                   <VTooltip
-                    content={nav('browseTournaments')}
+                    content={nav('newsfeed')}
                     positioning={{
                       placement: 'right',
                       offset: { mainAxis: 12 },
@@ -498,7 +545,7 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
                     openDelay={200}
                   >
                     <NextLinkButton
-                      href={ROUTES.BROWSE.TOURNAMENTS.LIST}
+                      href={ROUTES.NEWSFEED}
                       variant="ghost"
                       justifyContent={{
                         base: 'flex-start',
@@ -507,7 +554,7 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
                       onClick={onClose}
                       w="full"
                       px={{ base: 4, md: isCollapsed ? 0 : 4 }}
-                      {...getActiveProps(ROUTES.BROWSE.TOURNAMENTS.LIST)}
+                      {...getActiveProps(ROUTES.NEWSFEED)}
                     >
                       <Flex
                         align="center"
@@ -518,17 +565,17 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
                           md: isCollapsed ? 'center' : 'flex-start',
                         }}
                       >
-                        <Trophy
+                        <Newspaper
                           size={18}
                           color={
-                            pathname.startsWith(ROUTES.BROWSE.TOURNAMENTS.LIST)
+                            pathname.startsWith(ROUTES.NEWSFEED)
                               ? 'var(--chakra-colors-green-500)'
                               : 'currentColor'
                           }
                         />
                         {!isCollapsed && (
                           <Text display={{ base: 'block', md: 'block' }}>
-                            {nav('browseTournaments')}
+                            {nav('newsfeed')}
                           </Text>
                         )}
                       </Flex>
@@ -706,9 +753,58 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
                       </Collapsible.Root>
                     </Box>
 
-                    {canAccessHostFeatures &&
+                    <VTooltip
+                      content={nav('myClubs')}
+                      positioning={{
+                        placement: 'right',
+                        offset: { mainAxis: 12 },
+                      }}
+                      disabled={!isCollapsed}
+                      showArrow
+                      openDelay={200}
+                    >
+                      <NextLinkButton
+                        href={ROUTES.CLUBS.MY_CLUBS}
+                        variant="ghost"
+                        justifyContent={{
+                          base: 'flex-start',
+                          md: isCollapsed ? 'center' : 'flex-start',
+                        }}
+                        onClick={onClose}
+                        w="full"
+                        px={{ base: 4, md: isCollapsed ? 0 : 4 }}
+                        {...getActiveProps(ROUTES.CLUBS.MY_CLUBS)}
+                      >
+                        <Flex
+                          align="center"
+                          gap={3}
+                          w="full"
+                          justifyContent={{
+                            base: 'flex-start',
+                            md: isCollapsed ? 'center' : 'flex-start',
+                          }}
+                        >
+                          <Users
+                            size={18}
+                            color={
+                              pathname.startsWith(ROUTES.CLUBS.MY_CLUBS)
+                                ? 'var(--chakra-colors-green-500)'
+                                : 'currentColor'
+                            }
+                          />
+                          {!isCollapsed && (
+                            <Text display={{ base: 'block', md: 'block' }}>
+                              {nav('myClubs')}
+                            </Text>
+                          )}
+                        </Flex>
+                      </NextLinkButton>
+                    </VTooltip>
+                    {(canAccessHostFeatures ||
+                      user?.role === UserRole.REFEREE) &&
                       (user?.role === UserRole.ADMIN ||
-                        user?.role === UserRole.HOST) && (
+                        user?.role === UserRole.HOST ||
+                        user?.role === UserRole.REFEREE) && (
                         <VTooltip
                           content={nav('tournaments')}
                           positioning={{
@@ -759,53 +855,6 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
                           </NextLinkButton>
                         </VTooltip>
                       )}
-                    <VTooltip
-                      content={nav('myClubs')}
-                      positioning={{
-                        placement: 'right',
-                        offset: { mainAxis: 12 },
-                      }}
-                      disabled={!isCollapsed}
-                      showArrow
-                      openDelay={200}
-                    >
-                      <NextLinkButton
-                        href={ROUTES.CLUBS.MY_CLUBS}
-                        variant="ghost"
-                        justifyContent={{
-                          base: 'flex-start',
-                          md: isCollapsed ? 'center' : 'flex-start',
-                        }}
-                        onClick={onClose}
-                        w="full"
-                        px={{ base: 4, md: isCollapsed ? 0 : 4 }}
-                        {...getActiveProps(ROUTES.CLUBS.MY_CLUBS)}
-                      >
-                        <Flex
-                          align="center"
-                          gap={3}
-                          w="full"
-                          justifyContent={{
-                            base: 'flex-start',
-                            md: isCollapsed ? 'center' : 'flex-start',
-                          }}
-                        >
-                          <Users
-                            size={18}
-                            color={
-                              pathname.startsWith(ROUTES.CLUBS.MY_CLUBS)
-                                ? 'var(--chakra-colors-green-500)'
-                                : 'currentColor'
-                            }
-                          />
-                          {!isCollapsed && (
-                            <Text display={{ base: 'block', md: 'block' }}>
-                              {nav('myClubs')}
-                            </Text>
-                          )}
-                        </Flex>
-                      </NextLinkButton>
-                    </VTooltip>
                     <VTooltip
                       content={nav('transactions')}
                       positioning={{
@@ -1491,6 +1540,15 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
                     display={{ base: 'block', md: 'block' }}
                   >
                     {`© ${new Date().getFullYear()} ${common('appName')}. All Rights Reserved!`}
+                  </Text>
+                  <Text
+                    fontSize="xs"
+                    color="gray.400"
+                    textAlign="center"
+                    display={{ base: 'block', md: 'block' }}
+                    mt={1}
+                  >
+                    {common('developedBy')}
                   </Text>
                 </>
               )}

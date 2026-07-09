@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import QRCodeGenerator from '@/components/QRCodeGenerator';
-import { Button, SimpleGrid } from '@/components/ui/chakra-compat';
+import { Button, IconButton, SimpleGrid } from '@/components/ui/chakra-compat';
 import { VDrawer } from '@/components/ui/VDrawer';
 import { VModal } from '@/components/ui/VModal';
 import { ISession, Player, SessionStatus } from '@/lib/api/types';
@@ -14,6 +14,7 @@ import {
   Heading,
   Text,
   Icon,
+  VStack,
   useBreakpointValue,
 } from '@chakra-ui/react';
 import {
@@ -27,6 +28,7 @@ import {
   XCircle,
   AlertTriangle,
   Download,
+  Info,
 } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
 import SessionInfo from './SessionInfo';
@@ -63,6 +65,7 @@ export default function SessionOverviewTab({
   const [selectedQrUrl, setSelectedQrUrl] = useState('');
   const [selectedQrLabel, setSelectedQrLabel] = useState('');
   const [isShareImageModalOpen, setIsShareImageModalOpen] = useState(false);
+  const [isRankingInfoOpen, setIsRankingInfoOpen] = useState(false);
 
   const handleQrClick = (url: string, label: string) => {
     setSelectedQrUrl(url);
@@ -73,6 +76,10 @@ export default function SessionOverviewTab({
   const joinCode = session.id.slice(-8).toUpperCase();
 
   const totalPlayers = session.players?.length || 0;
+  const maleCount =
+    session.players?.filter((p: Player) => p.gender === 'MALE').length || 0;
+  const femaleCount =
+    session.players?.filter((p: Player) => p.gender === 'FEMALE').length || 0;
   const waitingPlayers =
     session.players?.filter((p: Player) => p.status === 'WAITING').length || 0;
   const playingPlayers =
@@ -246,6 +253,11 @@ export default function SessionOverviewTab({
               session.status !== 'CANCELLED' && (
                 <Flex mt={3} justify="center" gap={3} wrap="wrap">
                   <Button
+                    data-tour={
+                      session.status === 'PREPARING'
+                        ? 'start-session'
+                        : undefined
+                    }
                     colorPalette={
                       session.status === 'PREPARING'
                         ? 'green'
@@ -559,6 +571,12 @@ export default function SessionOverviewTab({
               / {maxPlayers}
             </Text>
           </Flex>
+          {(maleCount > 0 || femaleCount > 0) && (
+            <Text fontSize="xs" color="gray.500">
+              👨 {maleCount} {tSession('male')} • 👩 {femaleCount}{' '}
+              {tSession('female')}
+            </Text>
+          )}
           <Box
             mt={2}
             h="4px"
@@ -687,11 +705,62 @@ export default function SessionOverviewTab({
       )}
 
       <Box mt={8}>
-        <Heading size="md" mb={4}>
-          {t('playersTab.playerStatistics')}
-        </Heading>
+        <Flex align="center" gap={2} mb={4}>
+          <Heading size="md">{t('playersTab.playerStatistics')}</Heading>
+          <IconButton
+            aria-label={t('playersTab.rankingInfoAriaLabel')}
+            size="xs"
+            variant="ghost"
+            colorPalette="green"
+            minW="28px"
+            h="28px"
+            borderRadius="full"
+            icon={<Info size={15} />}
+            onClick={() => setIsRankingInfoOpen(true)}
+          />
+        </Flex>
         <SessionPlayers sessionId={session.id} session={session} />
       </Box>
+
+      <VModal
+        isOpen={isRankingInfoOpen}
+        onClose={() => setIsRankingInfoOpen(false)}
+        title={t('playersTab.rankingInfoTitle')}
+        size="md"
+        hideSecondaryAction
+        primaryActionText={t('playersTab.rankingInfoClose')}
+        onPrimaryAction={() => setIsRankingInfoOpen(false)}
+      >
+        <VStack align="stretch" gap={4}>
+          <Box>
+            <Text fontWeight="semibold" mb={2}>
+              {t('playersTab.rankingInfoEligibilityTitle')}
+            </Text>
+            <Text color="fg.muted" fontSize="sm">
+              {t('playersTab.rankingInfoEligibility')}
+            </Text>
+          </Box>
+          <Box>
+            <Text fontWeight="semibold" mb={2}>
+              {t('playersTab.rankingInfoOrderTitle')}
+            </Text>
+            <VStack align="stretch" gap={1.5} color="fg.muted" fontSize="sm">
+              <Text>{t('playersTab.rankingInfoOrderWinRate')}</Text>
+              <Text>{t('playersTab.rankingInfoOrderWins')}</Text>
+              <Text>{t('playersTab.rankingInfoOrderMatches')}</Text>
+              <Text>{t('playersTab.rankingInfoOrderTie')}</Text>
+            </VStack>
+          </Box>
+          <Box>
+            <Text fontWeight="semibold" mb={2}>
+              {t('playersTab.rankingInfoMvpTitle')}
+            </Text>
+            <Text color="fg.muted" fontSize="sm">
+              {t('playersTab.rankingInfoMvp')}
+            </Text>
+          </Box>
+        </VStack>
+      </VModal>
 
       <SessionShareImageModal
         isOpen={isShareImageModalOpen}

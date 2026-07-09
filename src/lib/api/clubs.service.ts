@@ -7,6 +7,7 @@ import {
   IClubJoinRequest,
   IJoinClubResponse,
   IClubMember,
+  IClubMonthlyMember,
   ICreateClubDto,
   IUpdateClubDto,
   IClubFeeConfig,
@@ -87,7 +88,7 @@ export const ClubsService = {
   // ===========================================
 
   /**
-   * Get all clubs for management (host view)
+   * Get clubs for management. Admin receives the system-wide list.
    */
   getClubsToManage: async (): Promise<IClub[]> => {
     const response = await api.get<ApiResponse<IClub[]>>('/clubs/manage');
@@ -183,11 +184,14 @@ export const ClubsService = {
   /**
    * Search users for club membership
    */
-  searchUsers: async (query: string): Promise<IClubUserSearchResult[]> => {
+  searchUsers: async (
+    query: string,
+    clubId?: string
+  ): Promise<IClubUserSearchResult[]> => {
     const response = await api.get<ApiResponse<IClubUserSearchResult[]>>(
       '/clubs/search-users',
       {
-        params: { q: query },
+        params: { q: query, clubId },
       }
     );
     return response.data.data || [];
@@ -205,6 +209,19 @@ export const ClubsService = {
       `/clubs/${clubId}/join-requests`
     );
     return response.data.data || [];
+  },
+
+  /**
+   * Get a single join request detail
+   */
+  getJoinRequestById: async (
+    clubId: string,
+    requestId: string
+  ): Promise<IClubJoinRequest> => {
+    const response = await api.get<ApiResponse<IClubJoinRequest>>(
+      `/clubs/${clubId}/join-requests/${requestId}`
+    );
+    return response.data.data!;
   },
 
   /**
@@ -278,6 +295,48 @@ export const ClubsService = {
   },
 
   /**
+   * Get monthly fixed members for a club month
+   */
+  getClubMonthlyMembers: async (
+    clubId: string,
+    year: number,
+    month: number
+  ): Promise<IClubMonthlyMember[]> => {
+    const response = await api.get<ApiResponse<IClubMonthlyMember[]>>(
+      `/clubs/${clubId}/monthly-members/${year}/${month}`
+    );
+    return response.data.data || [];
+  },
+
+  /**
+   * Mark a club member as fixed for a month
+   */
+  upsertClubMonthlyMember: async (
+    clubId: string,
+    data: { userId: string; year: number; month: number }
+  ): Promise<IClubMonthlyMember> => {
+    const response = await api.post<ApiResponse<IClubMonthlyMember>>(
+      `/clubs/${clubId}/monthly-members`,
+      data
+    );
+    return response.data.data!;
+  },
+
+  /**
+   * Remove a member from the fixed monthly list
+   */
+  deleteClubMonthlyMember: async (
+    clubId: string,
+    userId: string,
+    year: number,
+    month: number
+  ): Promise<void> => {
+    await api.delete(
+      `/clubs/${clubId}/monthly-members/${userId}/${year}/${month}`
+    );
+  },
+
+  /**
    * Delete a fee configuration
    */
   deleteClubFee: async (feeId: string): Promise<void> => {
@@ -317,6 +376,16 @@ export const ClubsService = {
       },
     });
     return response.data.data!;
+  },
+
+  /**
+   * Get all pending join requests across all clubs (Admin only)
+   */
+  getAdminJoinRequests: async (): Promise<IClubJoinRequest[]> => {
+    const response = await api.get<ApiResponse<IClubJoinRequest[]>>(
+      '/clubs/admin/join-requests'
+    );
+    return response.data.data || [];
   },
 
   /**

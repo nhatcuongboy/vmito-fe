@@ -1,14 +1,7 @@
 'use client';
 
 import { Suspense, useCallback, useEffect, useState } from 'react';
-import {
-  Box,
-  Container,
-  Heading,
-  Text,
-  Spinner,
-  HStack,
-} from '@chakra-ui/react';
+import { Container, Heading, Text, HStack } from '@chakra-ui/react';
 import { useTranslations } from 'next-intl';
 import { Receipt } from 'lucide-react';
 import ProtectedRouteGuard from '@/components/guards/ProtectedRouteGuard';
@@ -54,17 +47,6 @@ function PlayerTransactionsContent() {
     // TODO: Navigate to detailed view or open modal
     console.log('Selected summary:', summary);
   };
-
-  if (isLoading) {
-    return (
-      <Box textAlign="center" py={10}>
-        <Spinner size="lg" />
-        <Text mt={4} color="gray.500">
-          {tCommon('loading')}
-        </Text>
-      </Box>
-    );
-  }
 
   return (
     <Container maxW="container.md" py={6} pt={20}>

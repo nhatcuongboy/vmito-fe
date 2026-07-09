@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { Box, Flex, Text, Heading } from '@chakra-ui/react';
 import { VStack, Button } from '@/components/ui/chakra-compat';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { VDrawer } from '@/components/ui/VDrawer';
 import { X } from 'lucide-react';
 import { Category, CategoryMatch, TournamentCourt } from '@/lib/api/types';
@@ -85,6 +85,7 @@ export default function GenerateScheduleDrawer({
   const t = useTranslations(
     'pages.tournaments.detail.manage.organize.schedule.generate'
   );
+  const locale = useLocale();
 
   const [orderedCategories] = useState(categories);
   const [matchLength, setMatchLength] = useState(60);
@@ -170,7 +171,7 @@ export default function GenerateScheduleDrawer({
       );
       if (unscheduledMatches.length === 0) {
         toaster.error({
-          title: 'All matches already scheduled',
+          title: t('allScheduled'),
         });
         return;
       }
@@ -186,7 +187,7 @@ export default function GenerateScheduleDrawer({
         }));
 
       if (slotConfigs.length === 0) {
-        toaster.error({ title: 'No courts selected' });
+        toaster.error({ title: t('noCourts') });
         return;
       }
 
@@ -204,8 +205,8 @@ export default function GenerateScheduleDrawer({
 
       if (result.scheduled.length === 0) {
         toaster.error({
-          title: 'Could not generate schedule',
-          description: 'Insufficient time slots or courts',
+          title: t('generationFailed'),
+          description: t('generationFailedDesc'),
         });
         return;
       }
@@ -213,7 +214,7 @@ export default function GenerateScheduleDrawer({
       onGenerated(result);
     } catch (error) {
       console.error('Generate error:', error);
-      toaster.error({ title: 'Generation failed' });
+      toaster.error({ title: t('error') });
     } finally {
       setIsLoadingGenerate(false);
     }
@@ -299,13 +300,15 @@ export default function GenerateScheduleDrawer({
                     <Box flex={1}>
                       <Text fontSize="sm" fontWeight="semibold">
                         {new Date(slot.date + 'T00:00:00').toLocaleDateString(
-                          'en-US',
+                          locale,
                           { month: 'short', day: 'numeric' }
                         )}{' '}
                         @ {slot.startTime} - {slot.endTime}
                       </Text>
                       <Text fontSize="xs" color="gray.500" mt={1}>
-                        {slot.selectedCourts.length} court(s)
+                        {t('courtsCount', {
+                          count: slot.selectedCourts.length,
+                        })}
                       </Text>
                     </Box>
                     <Flex gap={1}>
@@ -314,7 +317,7 @@ export default function GenerateScheduleDrawer({
                         size="xs"
                         onClick={() => handleEditTimeSlot(slot.id)}
                       >
-                        Edit
+                        {t('edit')}
                       </Button>
                       <Button
                         variant="ghost"

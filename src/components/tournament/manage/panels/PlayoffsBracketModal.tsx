@@ -64,6 +64,10 @@ function Checkbox({
         align="center"
         justify="center"
         bg={checked ? 'blue.500' : 'white'}
+        _dark={{
+          borderColor: checked ? 'blue.500' : 'gray.600',
+          bg: checked ? 'blue.500' : 'gray.700',
+        }}
         flexShrink={0}
         transition="all 0.15s"
       >
@@ -136,7 +140,7 @@ export default function PlayoffsBracketModal({
 
   // Team label resolution logic
   const resolveTeamLabel = (registrationId: string): string => {
-    if (!registrationId) return 'TBD';
+    if (!registrationId) return t('panels.rounds.tbd');
 
     // Check if it's a winner reference
     if (registrationId.startsWith('win_')) {
@@ -150,7 +154,7 @@ export default function PlayoffsBracketModal({
       return t('panels.rounds.loserOf', { match: matchNum });
     }
 
-    return 'TBD';
+    return t('panels.rounds.tbd');
   };
 
   // Event handlers for consolation matches
@@ -219,16 +223,31 @@ export default function PlayoffsBracketModal({
       setIsSaving(true);
       const existingConfig =
         (category.formatConfig as Record<string, unknown>) ?? {};
+      const existingPlayoffs =
+        (existingConfig.playoffs as Record<string, unknown>) ?? {};
+      const nextPlayoffs: Record<string, unknown> = {
+        ...existingPlayoffs,
+        fifthPlaceMatch,
+        seventhPlaceMatch,
+      };
+
+      if (customSlots.length > 0) {
+        nextPlayoffs.seedOrder = customSlots;
+      } else {
+        delete nextPlayoffs.seedOrder;
+      }
+
+      if (consolationMatches.length > 0) {
+        nextPlayoffs.consolationMatches = consolationMatches;
+      } else {
+        delete nextPlayoffs.consolationMatches;
+      }
+
       await CategoryService.updateCategory(category.id, {
         thirdPlaceMatch,
         formatConfig: {
           ...existingConfig,
-          playoffs: {
-            fifthPlaceMatch,
-            seventhPlaceMatch,
-            ...(customSlots.length > 0 ? { seedOrder: customSlots } : {}),
-            ...(consolationMatches.length > 0 ? { consolationMatches } : {}),
-          },
+          playoffs: nextPlayoffs,
         },
       });
       toaster.success({ title: t('panels.rounds.bracketSaved') });
@@ -236,7 +255,9 @@ export default function PlayoffsBracketModal({
       onClose();
     } catch (error: unknown) {
       const msg =
-        error instanceof Error ? error.message : 'Failed to save bracket';
+        error instanceof Error
+          ? error.message
+          : t('panels.rounds.bracketSaveFailed');
       toaster.error({ title: msg });
     } finally {
       setIsSaving(false);
@@ -282,7 +303,14 @@ export default function PlayoffsBracketModal({
             {t('panels.rounds.cancel')}
           </Button>
           <Button
-            style={{ background: '#1a202c', color: 'white' }}
+            bg="gray.900"
+            color="white"
+            _hover={{ bg: 'gray.700' }}
+            _dark={{
+              bg: 'white',
+              color: 'gray.900',
+              _hover: { bg: 'gray.200' },
+            }}
             onClick={handleSave}
             disabled={isSaving}
           >
@@ -321,6 +349,11 @@ export default function PlayoffsBracketModal({
                 onChange={setThirdPlaceMatch}
                 label={t('panels.rounds.playFor3rdPlace')}
               />
+              {!thirdPlaceMatch && (
+                <Text fontSize="xs" color="gray.500" pl="30px">
+                  {t('panels.rounds.coThirdPlaceHint')}
+                </Text>
+              )}
               <Checkbox
                 checked={fifthPlaceMatch}
                 onChange={(v) => {
@@ -453,6 +486,7 @@ export default function PlayoffsBracketModal({
             fifthPlaceMatch={fifthPlaceMatch}
             seventhPlaceMatch={seventhPlaceMatch}
             customSlots={customSlots.length > 0 ? customSlots : undefined}
+            validateAdvancingSlots
             onSlotsChange={setCustomSlots}
             consolationMatches={consolationMatches.map((m) => ({
               matchNumber: m.afterMatchNumber,
@@ -509,7 +543,7 @@ function ConsolationMatchDialog({
   // Generate team options for dropdowns
   const teamOptions = useMemo(() => {
     const opts: { value: string; label: string }[] = [
-      { value: '', label: 'TBD' },
+      { value: '', label: t('panels.rounds.tbd') },
     ];
 
     const GROUP_MATCH_OFFSET = 12;

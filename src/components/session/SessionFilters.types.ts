@@ -25,4 +25,6 @@ export interface ISessionFiltersProps {
   onCreateClick?: () => void;
   topAddon?: React.ReactNode;
   hideCreateOnMobile?: boolean;
+  /** When true, hide the sticky search bar on desktop (shown in top bar instead) */
+  hideSearchOnDesktop?: boolean;
 }

@@ -4,33 +4,32 @@ import { useState, useEffect } from 'react';
 import { Box, Flex, Text, Portal } from '@chakra-ui/react';
 import { Button } from '@/components/ui/chakra-compat';
 import { useTranslations } from 'next-intl';
-import { CategoryMatch, TournamentCourt } from '@/lib/api/types';
+import {
+  CategoryMatch,
+  TournamentCourt,
+  TournamentUmpire,
+} from '@/lib/api/types';
 
 const MATCH_LENGTHS = [
   5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 75, 90, 105, 120,
 ];
-
-// 15-min time slots from 05:00 to 23:45
-const TIME_SLOTS: string[] = [];
-for (let h = 5; h <= 23; h++) {
-  for (let m = 0; m < 60; m += 15) {
-    TIME_SLOTS.push(
-      `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`
-    );
-  }
-}
 
 interface EditMatchTimeSheetProps {
   isOpen: boolean;
   onClose: () => void;
   match: CategoryMatch | null;
   courts: TournamentCourt[];
+  tournamentStartDate?: Date | string;
+  /** Tournament officials selectable as the match referee. Omit to hide the field. */
+  umpires?: TournamentUmpire[];
   onUpdate: (
     matchId: string,
     courtId: string | null,
     startTime: string | null,
-    endTime: string | null
-  ) => void;
+    endTime: string | null,
+    matchCode: string,
+    refereeId: string | null
+  ) => void | Promise<void>;
 }
 
 export default function EditMatchTimeSheet({
@@ -38,6 +37,8 @@ export default function EditMatchTimeSheet({
   onClose,
   match,
   courts,
+  tournamentStartDate,
+  umpires = [],
   onUpdate,
 }: EditMatchTimeSheetProps) {
   const t = useTranslations(
@@ -45,21 +46,28 @@ export default function EditMatchTimeSheet({
   );
 
   const [date, setDate] = useState('');
+  const [matchCode, setMatchCode] = useState('');
   const [startTime, setStartTime] = useState('');
   const [matchLength, setMatchLength] = useState(60);
   const [courtId, setCourtId] = useState('');
+  const [refereeId, setRefereeId] = useState('');
 
   useEffect(() => {
     if (!match) return;
 
+    setMatchCode(match.matchCode ?? '');
+    setRefereeId(match.refereeId ?? '');
+
     if (match.startTime) {
       const st = new Date(match.startTime);
-      setDate(st.toISOString().split('T')[0]);
+      setDate(formatDateForInput(st));
       setStartTime(
         `${String(st.getHours()).padStart(2, '0')}:${String(st.getMinutes()).padStart(2, '0')}`
       );
     } else {
-      setDate('');
+      setDate(
+        tournamentStartDate ? formatDateForInput(tournamentStartDate) : ''
+      );
       setStartTime('');
     }
 
@@ -73,13 +81,24 @@ export default function EditMatchTimeSheet({
     }
 
     setCourtId(match.courtId ?? '');
-  }, [match]);
+  }, [match, tournamentStartDate]);
 
   if (!isOpen || !match) return null;
 
+  const availableCourts = getAvailableCourts(courts, match.courtId);
+
   const handleUpdate = () => {
+    const nextMatchCode = matchCode.trim();
+    const nextRefereeId = refereeId || null;
     if (!date || !startTime) {
-      onUpdate(match.id, courtId || null, null, null);
+      onUpdate(
+        match.id,
+        courtId || null,
+        null,
+        null,
+        nextMatchCode,
+        nextRefereeId
+      );
     } else {
       const startDt = new Date(`${date}T${startTime}:00`);
       const endDt = new Date(startDt.getTime() + matchLength * 60000);
@@ -87,14 +106,16 @@ export default function EditMatchTimeSheet({
         match.id,
         courtId || null,
         startDt.toISOString(),
-        endDt.toISOString()
+        endDt.toISOString(),
+        nextMatchCode,
+        nextRefereeId
       );
     }
     onClose();
   };
 
   const handleClearTimes = () => {
-    onUpdate(match.id, null, null, null);
+    onUpdate(match.id, null, null, null, matchCode.trim(), refereeId || null);
     setDate('');
     setStartTime('');
     setCourtId('');
@@ -163,6 +184,19 @@ export default function EditMatchTimeSheet({
             </Button>
           </Flex>
 
+          {/* Match code */}
+          <Box mb={3}>
+            <Text fontSize="xs" color="gray.500" mb={1}>
+              {t('matchCode')}
+            </Text>
+            <input
+              value={matchCode}
+              onChange={(e) => setMatchCode(e.target.value)}
+              style={selectStyle}
+              placeholder={t('matchCodePlaceholder')}
+            />
+          </Box>
+
           {/* Date */}
           <Box mb={3}>
             <input
@@ -177,18 +211,14 @@ export default function EditMatchTimeSheet({
           {/* Start Time + Match Length */}
           <Flex gap={2} mb={3}>
             <Box flex={1}>
-              <select
+              <input
+                type="time"
                 style={selectStyle}
                 value={startTime}
+                step={60}
                 onChange={(e) => setStartTime(e.target.value)}
-              >
-                <option value="">{t('startTime')}</option>
-                {TIME_SLOTS.map((slot) => (
-                  <option key={slot} value={slot}>
-                    {slot}
-                  </option>
-                ))}
-              </select>
+                placeholder={t('startTime')}
+              />
             </Box>
             <Box flex={1}>
               <select
@@ -206,20 +236,38 @@ export default function EditMatchTimeSheet({
           </Flex>
 
           {/* Court */}
-          <Box mb={5}>
+          <Box mb={umpires.length > 0 ? 3 : 5}>
             <select
               style={selectStyle}
               value={courtId}
               onChange={(e) => setCourtId(e.target.value)}
             >
               <option value="">{t('court')}</option>
-              {courts.map((c) => (
+              {availableCourts.map((c) => (
                 <option key={c.id} value={c.id}>
                   {c.courtName || `${t('courtPrefix')} ${c.courtNumber}`}
                 </option>
               ))}
             </select>
           </Box>
+
+          {/* Referee */}
+          {umpires.length > 0 && (
+            <Box mb={5}>
+              <select
+                style={selectStyle}
+                value={refereeId}
+                onChange={(e) => setRefereeId(e.target.value)}
+              >
+                <option value="">{t('referee')}</option>
+                {umpires.map((u) => (
+                  <option key={u.id} value={u.id}>
+                    {u.name}
+                  </option>
+                ))}
+              </select>
+            </Box>
+          )}
 
           {/* Update button */}
           <Button
@@ -242,4 +290,39 @@ export default function EditMatchTimeSheet({
       </Box>
     </Portal>
   );
+}
+
+function formatDateForInput(value: Date | string): string {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return '';
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
+function getAvailableCourts(
+  courts: TournamentCourt[],
+  selectedCourtId?: string
+): TournamentCourt[] {
+  const linkedCourts = courts.filter((court) => court.tournamentVenueId);
+  const source = linkedCourts.length > 0 ? linkedCourts : courts;
+  const selectedCourt = selectedCourtId
+    ? courts.find((court) => court.id === selectedCourtId)
+    : undefined;
+  const byDisplayKey = new Map<string, TournamentCourt>();
+
+  [...source, ...(selectedCourt ? [selectedCourt] : [])]
+    .sort((a, b) => {
+      if (a.courtNumber !== b.courtNumber) return a.courtNumber - b.courtNumber;
+      return (a.courtName ?? '').localeCompare(b.courtName ?? '');
+    })
+    .forEach((court) => {
+      const key = `${court.courtNumber}:${court.courtName ?? ''}`.toLowerCase();
+      if (!byDisplayKey.has(key) || court.id === selectedCourtId) {
+        byDisplayKey.set(key, court);
+      }
+    });
+
+  return Array.from(byDisplayKey.values());
 }

@@ -2,7 +2,7 @@
 
 import { Box, Flex, Text, VStack } from '@chakra-ui/react';
 import { LucideIcon } from 'lucide-react';
-import { ReactNode } from 'react';
+import { ReactNode, useMemo } from 'react';
 import { Link } from '@/i18n/config';
 
 export interface SidebarNavItem {
@@ -31,10 +31,14 @@ interface SidebarNavProps {
   onItemClick: (id: number | string) => void;
   /** Width of the sidebar. Defaults to "250px". */
   width?: string;
+  /** Compact rail mode: shows icons only while keeping the sidebar available. */
+  isCollapsed?: boolean;
   /** Top offset for sticky positioning. Defaults to "80px". */
   topOffset?: string;
   /** Custom class or style. Passed to the outermost Box. */
   className?: string;
+  /** Visual treatment for standalone cards vs. embedded sidebars. */
+  variant?: 'card' | 'embedded';
 }
 
 /**
@@ -56,11 +60,17 @@ export default function SidebarNav({
   activeId,
   onItemClick,
   width = '250px',
+  isCollapsed = false,
   topOffset = '80px',
+  variant = 'card',
 }: SidebarNavProps) {
+  const isEmbedded = variant === 'embedded';
+
   // Normalise to sections so the renderer is uniform
-  const resolvedSections: SidebarNavSection[] =
-    sections ?? (items ? [{ items }] : []);
+  const resolvedSections: SidebarNavSection[] = useMemo(
+    () => sections ?? (items ? [{ items }] : []),
+    [items, sections]
+  );
 
   const renderItem = (item: SidebarNavItem) => {
     const Icon = item.icon;
@@ -69,32 +79,47 @@ export default function SidebarNav({
     const Content = (
       <Flex
         align="center"
-        gap={3}
-        px={3}
+        justify={isCollapsed ? 'center' : 'flex-start'}
+        gap={isCollapsed ? 0 : 3}
+        px={isCollapsed ? 0 : 3}
         py={2.5}
         borderRadius="lg"
         cursor="pointer"
         fontWeight={isActive ? 'semibold' : 'medium'}
         color={isActive ? 'gray.900' : 'gray.600'}
         _dark={{
-          color: isActive ? 'white' : 'gray.400',
-          bg: isActive ? 'green.950/20' : 'transparent',
-          _hover: { bg: isActive ? 'green.950/20' : 'gray.700' },
+          color: isActive
+            ? 'green.100'
+            : 'var(--tournament-text-muted, var(--chakra-colors-gray-400))',
+          bg: isActive
+            ? 'var(--tournament-accent-soft, rgba(34, 197, 94, 0.14))'
+            : 'transparent',
+          borderColor: isActive
+            ? 'var(--tournament-accent-border, rgba(34, 197, 94, 0.24))'
+            : 'transparent',
+          _hover: {
+            bg: isActive
+              ? 'var(--tournament-accent-soft, rgba(34, 197, 94, 0.14))'
+              : 'rgba(148, 163, 184, 0.1)',
+          },
         }}
+        borderWidth="1px"
+        borderColor={isActive ? 'gray.200' : 'transparent'}
         bg={isActive ? 'gray.100' : 'transparent'}
         _hover={{ bg: isActive ? 'gray.100' : 'gray.50' }}
         transition="all 0.15s"
         w="full"
         textAlign="left"
+        title={isCollapsed ? item.label : undefined}
       >
         <Icon
-          size={18}
+          size={19}
           color={isActive ? 'var(--chakra-colors-green-500)' : 'currentColor'}
         />
-        <Text fontSize="sm" flex={1}>
+        <Text fontSize="sm" flex={1} display={isCollapsed ? 'none' : 'block'}>
           {item.label}
         </Text>
-        {item.badge != null && (
+        {item.badge != null && !isCollapsed && (
           <Box
             as="span"
             fontSize="xs"
@@ -128,41 +153,58 @@ export default function SidebarNav({
     }
 
     return (
-      <Box
-        key={item.id}
-        as="button"
-        w="full"
-        onClick={() => onItemClick(item.id)}
-      >
-        {Content}
+      <Box key={item.id}>
+        <Box
+          role="button"
+          tabIndex={0}
+          w="full"
+          onClick={() => onItemClick(item.id)}
+          onKeyDown={(event) => {
+            if (event.key === 'Enter' || event.key === ' ') {
+              event.preventDefault();
+              onItemClick(item.id);
+            }
+          }}
+        >
+          {Content}
+        </Box>
       </Box>
     );
   };
 
   return (
     <Box
-      w={width}
+      w={isCollapsed ? '76px' : width}
       flexShrink={0}
-      position="sticky"
-      top={topOffset}
-      alignSelf="flex-start"
-      height={`calc(100vh - ${topOffset})`}
+      position={isEmbedded ? 'relative' : 'sticky'}
+      top={isEmbedded ? undefined : topOffset}
+      alignSelf={isEmbedded ? 'stretch' : 'flex-start'}
+      height={isEmbedded ? '100%' : `calc(100vh - ${topOffset})`}
       bg="white"
-      _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
-      borderRadius="2xl"
-      borderWidth="1px"
+      _dark={{
+        bg: 'var(--tournament-surface, var(--chakra-colors-gray-800))',
+        borderColor: 'var(--tournament-border, var(--chakra-colors-gray-700))',
+        boxShadow: isEmbedded
+          ? 'none'
+          : 'var(--tournament-shadow, 0 18px 46px rgba(0, 0, 0, 0.26))',
+      }}
+      borderRadius={isEmbedded ? 0 : '2xl'}
+      borderWidth={isEmbedded ? 0 : '1px'}
+      borderRightWidth={isEmbedded ? '1px' : undefined}
       borderColor="gray.200"
-      boxShadow="sm"
+      boxShadow={isEmbedded ? 'none' : 'sm'}
+      backdropFilter="blur(18px)"
       overflow="hidden"
       display="flex"
       flexDirection="column"
+      transition="width 0.2s ease"
     >
       {/* Optional header slot (image, entity meta, etc.) */}
       {header && <Box flexShrink={0}>{header}</Box>}
 
       {/* Navigation sections */}
       <Box
-        px={2}
+        px={isCollapsed ? 1.5 : 2}
         pb={4}
         pt={header ? 4 : 3}
         display="flex"
@@ -175,6 +217,7 @@ export default function SidebarNav({
           <Box key={sIdx} mb={sIdx < resolvedSections.length - 1 ? 4 : 0}>
             {section.title && (
               <Text
+                display={isCollapsed ? 'none' : 'block'}
                 fontSize="xs"
                 fontWeight="bold"
                 color="fg.muted"

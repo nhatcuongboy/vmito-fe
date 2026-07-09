@@ -122,7 +122,8 @@ export default function LanguageSwitcher({
             <Flex align="center" gap={2}>
               <Image
                 src={`https://flagcdn.com/${currentLocale.countryCode}.svg`}
-                alt={currentLocale.label}
+                // Decorative — the locale label is rendered right after it
+                alt=""
                 w="18px"
                 h="13px"
                 objectFit="cover"
@@ -164,7 +165,8 @@ export default function LanguageSwitcher({
               <Flex align="center" gap={2}>
                 <Image
                   src={`https://flagcdn.com/${loc.countryCode}.svg`}
-                  alt={loc.label}
+                  // Decorative — the locale label is rendered right after it
+                  alt=""
                   w="18px"
                   h="13px"
                   objectFit="cover"

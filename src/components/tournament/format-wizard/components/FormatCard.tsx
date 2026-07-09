@@ -1,7 +1,7 @@
 'use client';
 
 import { Box, Flex, Text } from '@chakra-ui/react';
-import { RefreshCw, GitBranch } from 'lucide-react';
+import { RefreshCw, GitBranch, GitFork } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { TournamentFormatType } from '../types';
 
@@ -13,19 +13,23 @@ interface FormatCardProps {
 
 const FORMAT_ICONS: Record<
   TournamentFormatType,
-  { icons: React.ElementType[]; labels: string[] }
+  { icons: React.ElementType[]; labelKeys: string[] }
 > = {
   [TournamentFormatType.ROUND_ROBIN]: {
     icons: [RefreshCw],
-    labels: ['Pool Play'],
+    labelKeys: ['poolPlay'],
   },
   [TournamentFormatType.SINGLE_ELIMINATION]: {
     icons: [GitBranch],
-    labels: ['Bracket'],
+    labelKeys: ['bracket'],
+  },
+  [TournamentFormatType.DOUBLE_ELIMINATION]: {
+    icons: [GitFork],
+    labelKeys: ['bracket'],
   },
   [TournamentFormatType.ROUND_ROBIN_TO_SE]: {
     icons: [RefreshCw, GitBranch],
-    labels: ['Pool Play', 'Playoffs'],
+    labelKeys: ['poolPlay', 'playoffs'],
   },
 };
 
@@ -35,7 +39,7 @@ export default function FormatCard({
   onSelect,
 }: FormatCardProps) {
   const t = useTranslations('pages.tournaments.detail.formatWizard');
-  const { icons, labels } = FORMAT_ICONS[formatId];
+  const { icons, labelKeys } = FORMAT_ICONS[formatId];
 
   return (
     <Box
@@ -85,7 +89,7 @@ export default function FormatCard({
               </Flex>
               <Box>
                 <Text fontSize="xs" fontWeight="semibold" lineHeight="1.2">
-                  {labels[idx]}
+                  {t(`cardLabels.${labelKeys[idx]}`)}
                 </Text>
                 <Text fontSize="xs" color="gray.500" lineHeight="1.2">
                   {t(`formats.${formatId}.subtitle`)}

@@ -25,12 +25,14 @@ export interface ValidationErrors {
 interface UseJoinSessionProps {
   session: ISession | null; // Allow null to handle loading states in parent gracefully
   isOpen?: boolean; // Optional, to trigger initialization effects
+  isAdditionalRegistration?: boolean; // If true, do not prefill 'Me'
   onSuccess?: () => void;
 }
 
 export function useJoinSession({
   session,
   isOpen = true,
+  isAdditionalRegistration = false,
   onSuccess,
 }: UseJoinSessionProps) {
   const { user } = useAuthStore();
@@ -47,23 +49,36 @@ export function useJoinSession({
     return 0; // 0 means not selected
   }, [session?.requiredLevels]);
 
-  // Initialize with "Me" when session/user/isOpen changes
+  // Initialize with "Me" or empty guest when session/user/isOpen changes
   useEffect(() => {
     if (isOpen && session) {
-      setPlayers([
-        {
-          name: user?.name || '',
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          phone: (user as any)?.phone || '',
-          gender: 'MALE',
-          level: getDefaultLevel(),
-          levelDescription: '',
-          isMe: true,
-        },
-      ]);
+      if (isAdditionalRegistration) {
+        setPlayers([
+          {
+            name: '',
+            phone: '',
+            gender: 'MALE',
+            level: getDefaultLevel(),
+            levelDescription: '',
+            isMe: false,
+          },
+        ]);
+      } else {
+        setPlayers([
+          {
+            name: user?.name || '',
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            phone: (user as any)?.phone || '',
+            gender: 'MALE',
+            level: getDefaultLevel(),
+            levelDescription: '',
+            isMe: true,
+          },
+        ]);
+      }
       setErrors({});
     }
-  }, [isOpen, user, session, getDefaultLevel]);
+  }, [isOpen, user, session, getDefaultLevel, isAdditionalRegistration]);
 
   const handleAddPlayer = () => {
     setPlayers((prev) => [

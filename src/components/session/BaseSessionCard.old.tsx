@@ -30,10 +30,15 @@ import { useLocale, useTranslations } from 'next-intl';
 import { Locale } from '@/i18n/locales';
 import FeeDetailPopover from '@/components/fee/FeeDetailPopover';
 import { getSkillLevelColor } from '@/lib/utils/skillLevel.utils';
+import { sortLevelsByRank } from '@/constants/levels';
 import { StarRatingDisplay } from '@/components/rating';
 import { RatingService } from '@/lib/api/rating.service';
 import { useState, useEffect } from 'react';
 import { useAuthStore } from '@/stores/useAuthStore';
+import {
+  formatTimeByDevicePreference,
+  formatTimeRangeByDevicePreference,
+} from '@/utils/time-helpers';
 
 // Helper functions for formatting with locale support
 export const formatDate = (
@@ -57,12 +62,9 @@ export const formatDate = (
 
 export const formatTime = (
   dateString: string | Date,
-  locale: string
+  _locale: string
 ): string => {
-  const date = dayjs(dateString).locale(
-    locale === Locale.VI ? Locale.VI : Locale.EN
-  );
-  return date.format('HH:mm');
+  return formatTimeByDevicePreference(dateString);
 };
 
 export const statusColors: Record<string, string> = {
@@ -144,11 +146,11 @@ const BaseSessionCard = ({
       ? formatDate(session.startTime, locale)
       : formatDate(session.createdAt, locale) + ` (${t('notStarted')})`,
     time: session.startTime
-      ? `${formatTime(session.startTime, locale)} - ${
-          session.endTime
-            ? formatTime(session.endTime, locale)
-            : t('inProgress')
-        }`
+      ? formatTimeRangeByDevicePreference(
+          session.startTime,
+          session.endTime,
+          t('inProgress')
+        )
       : t('notStartedYet'),
     numberOfCourts: session.numberOfCourts,
     totalPlayers: session._count?.players || 0,
@@ -246,24 +248,24 @@ const BaseSessionCard = ({
             />
             <Wrap gap={1}>
               {session.requiredLevels && session.requiredLevels.length > 0 ? (
-                Array.from(new Set(session.requiredLevels))
-                  .sort((a, b) => a - b)
-                  .map((level) => {
-                    const levelColor = getSkillLevelColor([level]);
-                    return (
-                      <Badge
-                        key={level}
-                        colorPalette={levelColor.colorPalette}
-                        fontSize="sm"
-                        variant="solid"
-                        px={2}
-                        py={0.5}
-                        borderRadius="md"
-                      >
-                        {getLevelShortLabel(level)}
-                      </Badge>
-                    );
-                  })
+                sortLevelsByRank(
+                  Array.from(new Set(session.requiredLevels))
+                ).map((level) => {
+                  const levelColor = getSkillLevelColor([level]);
+                  return (
+                    <Badge
+                      key={level}
+                      colorPalette={levelColor.colorPalette}
+                      fontSize="sm"
+                      variant="solid"
+                      px={2}
+                      py={0.5}
+                      borderRadius="md"
+                    >
+                      {getLevelShortLabel(level)}
+                    </Badge>
+                  );
+                })
               ) : (
                 <Badge
                   colorPalette={skillLevelColor.colorPalette}

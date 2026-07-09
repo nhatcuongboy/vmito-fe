@@ -103,7 +103,7 @@ const GroupMembersPage = () => {
     if (!searchQuery.trim()) return;
     try {
       setIsSearching(true);
-      const results = await ClubsService.searchUsers(searchQuery);
+      const results = await ClubsService.searchUsers(searchQuery, groupId);
       setSearchResults(results);
     } catch (error) {
       console.error('Search failed:', error);

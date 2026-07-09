@@ -21,25 +21,33 @@ export default function AiAssistantTopBarButton() {
       onClick={() =>
         open(t(`pageContexts.${getAiAssistantPageContextKey(pathname)}`))
       }
+      display={{ base: 'none', md: 'inline-flex' }}
       size={{ base: 'sm', md: 'md' }}
       minW={{ base: '36px', md: '40px' }}
       h={{ base: '36px', md: '40px' }}
       borderRadius="full"
-      color={isOpen ? 'white' : 'purple.600'}
-      bg={isOpen ? 'purple.600' : 'purple.50'}
+      color="purple.600"
+      bg={isOpen ? 'purple.50' : 'gray.100'}
       border="1px solid"
-      borderColor={isOpen ? 'purple.600' : 'purple.100'}
-      boxShadow={isOpen ? '0 4px 12px rgba(128,90,213,0.28)' : 'none'}
+      borderColor={isOpen ? 'purple.200' : 'gray.200'}
+      boxShadow="sm"
       _dark={{
-        color: isOpen ? 'white' : 'purple.200',
-        bg: isOpen ? 'purple.500' : 'purple.950',
-        borderColor: isOpen ? 'purple.500' : 'purple.800',
+        color: 'purple.200',
+        bg: isOpen ? 'purple.950' : 'gray.800',
+        borderColor: isOpen ? 'purple.800' : 'gray.700',
       }}
       _hover={{
-        bg: isOpen ? 'purple.700' : 'purple.100',
-        borderColor: 'purple.300',
+        bg: isOpen ? 'purple.100' : 'gray.200',
+        borderColor: isOpen ? 'purple.300' : 'gray.300',
         transform: 'translateY(-1px)',
-        boxShadow: '0 6px 16px rgba(128,90,213,0.26)',
+        boxShadow: isOpen
+          ? '0 4px 12px rgba(128,90,213,0.15)'
+          : '0 4px 12px rgba(0,0,0,0.08)',
+        _dark: {
+          bg: isOpen ? 'purple.900' : 'gray.700',
+          borderColor: isOpen ? 'purple.700' : 'gray.600',
+          boxShadow: 'none',
+        },
         '& .ai-topbar-sparkle': {
           animation: 'aiTopbarSparkle 0.65s ease both',
         },

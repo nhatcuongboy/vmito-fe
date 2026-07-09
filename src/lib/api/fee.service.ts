@@ -5,6 +5,7 @@ import {
   CreateSessionFeeConfigRequest,
   UpdateSessionFeeConfigRequest,
   FeeType,
+  ISession,
 } from './types';
 
 export const FeeService = {
@@ -54,6 +55,16 @@ export const FeeService = {
     toaster.success({ title: 'Đã xóa cấu hình phí' });
   },
 
+  // Recalculate all payments based on latest fee config
+  recalculateAllPayments: async (
+    sessionId: string
+  ): Promise<{ updated: number; message: string }> => {
+    const response = await api.post<
+      ApiResponse<{ updated: number; message: string }>
+    >(`/sessions/${sessionId}/fee-config/recalculate`);
+    return response.data.data!;
+  },
+
   // Calculate fee for a player based on gender and slots
   calculatePlayerFee: (
     feeConfig: SessionFeeConfig | null | undefined,
@@ -69,9 +80,16 @@ export const FeeService = {
     return (baseFee || 0) * slots;
   },
 
-  // Format fee for display (e.g., "80k - 100k" or "80,000đ")
+  // Format fee for display (e.g., "80k - 100k", "16,2 triệu" or "80,000đ")
   formatFee: (amount: number): string => {
     if (amount === 0) return 'Miễn phí';
+    if (amount >= 1_000_000) {
+      const millions = amount / 1_000_000;
+      const formatted = Number.isInteger(millions)
+        ? String(millions)
+        : millions.toFixed(1).replace('.', ',');
+      return `${formatted} triệu`;
+    }
     if (amount >= 1000) {
       const k = amount / 1000;
       if (Number.isInteger(k)) {
@@ -122,5 +140,57 @@ export const FeeService = {
     const maxFee = Math.max(maleFee, femaleFee);
 
     return `${FeeService.formatFee(minFee)}-${FeeService.formatFee(maxFee)}`;
+  },
+
+  canViewerSeeSessionFee: (
+    session: Pick<ISession, 'clubId' | 'hostId'>,
+    viewerUserId?: string,
+    viewerClubIds?: Set<string>
+  ): boolean => {
+    if (!session.clubId) return true;
+    if (viewerUserId && viewerUserId === session.hostId) return true;
+    return Boolean(viewerClubIds?.has(session.clubId));
+  },
+
+  getSessionFeeDisplayText: (
+    session: Pick<ISession, 'feeConfig' | 'clubId' | 'hostId'>,
+    viewerUserId?: string,
+    viewerClubIds?: Set<string>,
+    hiddenFeeText = 'Liên hệ host'
+  ): string => {
+    if (
+      !FeeService.canViewerSeeSessionFee(session, viewerUserId, viewerClubIds)
+    ) {
+      return hiddenFeeText;
+    }
+
+    return FeeService.getFeeDisplayText(session.feeConfig);
+  },
+
+  /**
+   * Get session fee for card display - always shows session fee (maleFee/femaleFee)
+   * Used in session cards, search results, etc.
+   */
+  getSessionFeeForCard: (session: Pick<ISession, 'feeConfig'>): string => {
+    return FeeService.getFeeDisplayText(session.feeConfig);
+  },
+
+  /**
+   * Get session fee for modal/detail - shows "Contact host" for club sessions
+   * Used in registration modals, detailed views where club fee context is important
+   */
+  getSessionFeeForModal: (
+    session: Pick<ISession, 'feeConfig' | 'clubId' | 'hostId'>,
+    viewerUserId?: string,
+    viewerClubIds?: Set<string>,
+    hiddenFeeText = 'Liên hệ host'
+  ): string => {
+    if (
+      !FeeService.canViewerSeeSessionFee(session, viewerUserId, viewerClubIds)
+    ) {
+      return hiddenFeeText;
+    }
+
+    return FeeService.getFeeDisplayText(session.feeConfig);
   },
 };

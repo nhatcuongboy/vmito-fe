@@ -27,6 +27,7 @@ import {
   TOP_BAR_HEIGHT_MOBILE,
   TOP_BAR_HEIGHT_DESKTOP,
 } from '@/constants';
+import { formatTimeByDevicePreference } from '@/utils/time-helpers';
 
 function PendingJoinRequestsContent({
   total,
@@ -178,9 +179,13 @@ function PendingJoinRequestsContent({
                         {tSession('session')}:{' '}
                         {request.session?.venue?.name || request.session?.name}{' '}
                         -{' '}
-                        {dayjs(request.session?.startTime).format(
-                          'MMM D, HH:mm'
-                        )}
+                        {request.session?.startTime
+                          ? `${dayjs(request.session.startTime).format(
+                              'MMM D'
+                            )}, ${formatTimeByDevicePreference(
+                              request.session.startTime
+                            )}`
+                          : '--'}
                       </Text>
                       <Flex gap={2} mt={1}>
                         {request.level && (

@@ -1,12 +1,23 @@
 'use client';
 
 import { Box, Container, Heading, Text, VStack } from '@chakra-ui/react';
+import { Button } from '@/components/ui/chakra-compat';
 import { useTranslations } from 'next-intl';
-import { BookOpen } from 'lucide-react';
+import { BookOpen, PlayCircle } from 'lucide-react';
 import * as React from 'react';
+import { useRouter } from '@/i18n/config';
+import { ROUTES } from '@/constants/routes';
+import { useTourStore } from '@/stores/useTourStore';
 
 const GuideHeroSection = () => {
   const t = useTranslations('pages.guide.hero');
+  const tTour = useTranslations('productTour');
+  const router = useRouter();
+
+  const handleStartTour = () => {
+    useTourStore.getState().restartJourney();
+    router.push(ROUTES.HOST.SESSIONS.LIST);
+  };
 
   return (
     <Box
@@ -40,6 +51,14 @@ const GuideHeroSection = () => {
           >
             {t('subtitle')}
           </Text>
+          <Button
+            colorPalette="green"
+            size="lg"
+            onClick={handleStartTour}
+            leftIcon={<PlayCircle size={20} />}
+          >
+            {tTour('restartCta')}
+          </Button>
         </VStack>
       </Container>
     </Box>

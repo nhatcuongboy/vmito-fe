@@ -33,6 +33,9 @@ export default function GenerationResultModal({
   const t = useTranslations(
     'pages.tournaments.detail.manage.organize.schedule.result'
   );
+  const tRounds = useTranslations(
+    'pages.tournaments.detail.manage.panels.rounds'
+  );
 
   const totalScheduled = result.scheduled.length;
   const totalMatches = totalScheduled + result.unscheduled.length;
@@ -118,7 +121,14 @@ export default function GenerationResultModal({
                     color="gray.600"
                   >
                     <Flex align="center" gap={1.5}>
-                      <Text>{group.name}</Text>
+                      <Text>
+                        {/* Replace "Pool X" with translated version */}
+                        {group.name.replace(
+                          /^Pool (\d+)$/,
+                          (_, num) =>
+                            `${tRounds('poolLabel')} ${String.fromCharCode(64 + parseInt(num))}`
+                        )}
+                      </Text>
                     </Flex>
                     <Text
                       color={

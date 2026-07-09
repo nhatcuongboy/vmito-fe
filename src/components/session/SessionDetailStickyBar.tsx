@@ -16,6 +16,7 @@ import {
   Calendar,
   Clock,
   ClipboardList,
+  Facebook,
   Feather,
   Info,
   LayoutGrid,
@@ -38,9 +39,12 @@ import { NextLinkButton } from '@/components/ui/NextLinkButton';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { useLevelLabel } from '@/hooks/useLevelLabel';
 import { getSkillLevelColor } from '@/lib/utils/skillLevel.utils';
+import { sortLevelsByRank } from '@/constants/levels';
 import dayjs from '@/lib/dayjs';
 import LevelBadgeWithDescription from './LevelBadgeWithDescription';
 import LevelDescriptionsModal from './LevelDescriptionsModal';
+import { formatTimeRangeByDevicePreference } from '@/utils/time-helpers';
+import { useMyClubIds } from '@/hooks/useMyClubIds';
 
 interface ISessionDetailStickyBarProps {
   session: ISession;
@@ -50,6 +54,7 @@ interface ISessionDetailStickyBarProps {
   isOwner: boolean;
   onRegister: () => void;
   onViewRegistration: () => void;
+  onAddGuest?: () => void;
   displayMode?: 'mobile' | 'sidebar';
   maxPlayers?: number;
   approvedPlayersCount?: number;
@@ -63,6 +68,7 @@ const SessionDetailStickyBar = ({
   isOwner,
   onRegister,
   onViewRegistration,
+  onAddGuest,
   displayMode = 'mobile',
   maxPlayers = 0,
   approvedPlayersCount = 0,
@@ -74,9 +80,11 @@ const SessionDetailStickyBar = ({
   const { getLevelShortLabel } = useLevelLabel();
   const { isCollapsed } = useSidebar();
   const { user } = useAuthStore();
+  const { clubIds: viewerClubIds } = useMyClubIds();
   const isAdmin = user?.role === UserRole.ADMIN;
   const canManage = isOwner || isAdmin;
   const skillLevelColor = getSkillLevelColor(session.requiredLevels);
+  const isCrawled = session.isCrawled === true;
   const [isLevelDescriptionsOpen, setIsLevelDescriptionsOpen] = useState(false);
   const isPastEndTime = session.endTime
     ? new Date(session.endTime) < new Date()
@@ -85,6 +93,18 @@ const SessionDetailStickyBar = ({
     session.status === SessionStatus.FINISHED ||
     session.status === SessionStatus.CANCELLED ||
     isPastEndTime;
+  const canSeeSessionFee = FeeService.canViewerSeeSessionFee(
+    session,
+    user?.id,
+    viewerClubIds
+  );
+  // For detail/modal views, show "Contact host" for club sessions
+  const feeDisplayText = FeeService.getSessionFeeForModal(
+    session,
+    user?.id,
+    viewerClubIds,
+    t('contactHostForFee')
+  );
 
   const formatDetailDate = (dateString: string | Date): string => {
     const date = dayjs
@@ -107,13 +127,12 @@ const SessionDetailStickyBar = ({
     return `${prefix}, ${date.format(dateFormat)}`;
   };
 
-  const formatTime = (dateString: string | Date): string =>
-    dayjs.utc(dateString).tz('Asia/Ho_Chi_Minh').format('HH:mm');
-
   const timeDisplay = session.startTime
-    ? `${formatTime(session.startTime)} - ${
-        session.endTime ? formatTime(session.endTime) : t('inProgress')
-      }`
+    ? formatTimeRangeByDevicePreference(
+        session.startTime,
+        session.endTime,
+        t('inProgress')
+      )
     : t('notStartedYet');
 
   const dateDisplay = session.startTime
@@ -139,32 +158,40 @@ const SessionDetailStickyBar = ({
     const buttonRadius = displayMode === 'sidebar' ? 'xl' : 'lg';
     const buttonW = displayMode === 'sidebar' ? 'full' : undefined;
 
-    const manageHref =
-      user?.role === UserRole.PLAYER
-        ? `/player/sessions/${session.slug || session.id}`
-        : `/host/sessions/${session.slug || session.id}`;
-
-    if (canManage && isClosed) {
+    // Crawled (vãng lai) sessions are view-only → link out to the FB post
+    if (isCrawled) {
       return (
-        <NextLinkButton
-          href={manageHref}
-          colorPalette="gray"
-          variant="subtle"
+        <Button
+          variant="solid"
           size={buttonSize}
           w={buttonW}
           fontWeight="semibold"
           borderRadius={buttonRadius}
+          bg="#1877F2"
+          color="white"
+          _hover={{ bg: '#166FE5' }}
+          _active={{ bg: '#1558B0' }}
+          disabled={!session.externalUrl}
+          onClick={() =>
+            window.open(session.externalUrl, '_blank', 'noopener,noreferrer')
+          }
         >
-          <Icon as={ClipboardList} boxSize={4} />
-          {t('viewEndedSession')}
-        </NextLinkButton>
+          <Icon as={Facebook} boxSize={4} />
+          {t('viewOriginalPost')}
+        </Button>
       );
     }
+
+    const manageHref =
+      user?.role === UserRole.PLAYER || user?.role === UserRole.REFEREE
+        ? `/player/sessions/${session.slug || session.id}`
+        : `/host/sessions/${session.slug || session.id}`;
 
     if (canManage) {
       return (
         <NextLinkButton
           href={manageHref}
+          data-tour="manage-session"
           colorPalette="green"
           variant="solid"
           size={buttonSize}
@@ -198,19 +225,44 @@ const SessionDetailStickyBar = ({
     if (userRegistrationStatus === 'APPROVED') {
       const viewHref = `/player/sessions/${session.slug || session.id}`;
       return (
-        <NextLinkButton
-          href={viewHref}
-          colorPalette="green"
-          variant="solid"
-          size={buttonSize}
-          w={buttonW}
-          fontWeight="semibold"
-          borderRadius={buttonRadius}
-          loading={isRegistrationLoading}
-        >
-          <Icon as={LogIn} boxSize={4} />
-          {t('viewSession')}
-        </NextLinkButton>
+        <Flex gap={2} w={buttonW}>
+          <NextLinkButton
+            href={viewHref}
+            colorPalette="green"
+            variant="solid"
+            size={buttonSize}
+            flex={1}
+            fontWeight="semibold"
+            borderRadius={buttonRadius}
+            loading={isRegistrationLoading}
+          >
+            <Icon as={LogIn} boxSize={4} />
+            {t('viewSession')}
+          </NextLinkButton>
+          <IconButton
+            aria-label={t('viewMyRegistration')}
+            variant="outline"
+            colorPalette="green"
+            size={buttonSize}
+            borderRadius={buttonRadius}
+            onClick={onViewRegistration}
+          >
+            <Icon as={ClipboardList} boxSize={4} />
+          </IconButton>
+          {onAddGuest && (
+            <IconButton
+              aria-label={t('addGuest')}
+              variant="outline"
+              colorPalette="green"
+              size={buttonSize}
+              borderRadius={buttonRadius}
+              onClick={onAddGuest}
+              disabled={isFull}
+            >
+              <Icon as={UserPlus} boxSize={5} />
+            </IconButton>
+          )}
+        </Flex>
       );
     }
 
@@ -219,19 +271,34 @@ const SessionDetailStickyBar = ({
       userRegistrationStatus === 'REJECTED'
     ) {
       return (
-        <Button
-          colorPalette="green"
-          variant="subtle"
-          size={buttonSize}
-          w={buttonW}
-          fontWeight="semibold"
-          borderRadius={buttonRadius}
-          loading={isRegistrationLoading}
-          onClick={onViewRegistration}
-        >
-          <Icon as={ClipboardList} boxSize={4} />
-          {t('viewMyRegistration')}
-        </Button>
+        <Flex gap={2} w={buttonW}>
+          <Button
+            colorPalette="green"
+            variant="subtle"
+            size={buttonSize}
+            flex={1}
+            fontWeight="semibold"
+            borderRadius={buttonRadius}
+            loading={isRegistrationLoading}
+            onClick={onViewRegistration}
+          >
+            <Icon as={ClipboardList} boxSize={4} />
+            {t('viewMyRegistration')}
+          </Button>
+          {onAddGuest && (
+            <IconButton
+              aria-label={t('addGuest')}
+              variant="outline"
+              colorPalette="green"
+              size={buttonSize}
+              borderRadius={buttonRadius}
+              onClick={onAddGuest}
+              disabled={isFull}
+            >
+              <Icon as={UserPlus} boxSize={5} />
+            </IconButton>
+          )}
+        </Flex>
       );
     }
 
@@ -279,14 +346,17 @@ const SessionDetailStickyBar = ({
               <Flex align="center" gap={2}>
                 <Icon as={Banknote} boxSize={5} color="red.600" />
                 <Text fontSize="2xl" fontWeight="bold" color="red.600">
-                  {FeeService.getFeeDisplayText(session.feeConfig)}
+                  {feeDisplayText}
                 </Text>
-                {session.feeConfig.feeType === FeeType.FIXED && (
-                  <Text fontSize="sm" color="gray.500" fontWeight="normal">
-                    /slot
-                  </Text>
+                {canSeeSessionFee &&
+                  session.feeConfig.feeType === FeeType.FIXED && (
+                    <Text fontSize="sm" color="gray.500" fontWeight="normal">
+                      /slot
+                    </Text>
+                  )}
+                {canSeeSessionFee && (
+                  <FeeDetailPopover feeConfig={session.feeConfig} />
                 )}
-                <FeeDetailPopover feeConfig={session.feeConfig} />
               </Flex>
             </Box>
           )}
@@ -354,42 +424,45 @@ const SessionDetailStickyBar = ({
 
               <Separator />
 
-              {/* Courts */}
-              <Flex align="center" gap={3}>
-                <Icon
-                  as={LayoutGrid}
-                  boxSize={4}
-                  color="green.500"
-                  flexShrink={0}
-                />
-                <Text fontSize="sm">
-                  {session.numberOfCourts} {t('courtsAvailable')}
-                  {session.courts && session.courts.length > 0 && (
-                    <Text as="span" color="gray.500" ml={1}>
-                      (
-                      {session.courts
-                        .slice()
-                        .sort((a, b) => a.courtNumber - b.courtNumber)
-                        .map((c) => c.courtName || c.courtNumber)
-                        .join(', ')}
-                      )
-                    </Text>
-                  )}
-                </Text>
-              </Flex>
+              {/* Courts / Players — hidden for crawled (no managed players) */}
+              {!isCrawled && (
+                <Flex align="center" gap={3}>
+                  <Icon
+                    as={LayoutGrid}
+                    boxSize={4}
+                    color="green.500"
+                    flexShrink={0}
+                  />
+                  <Text fontSize="sm">
+                    {session.numberOfCourts} {t('courtsAvailable')}
+                    {session.courts && session.courts.length > 0 && (
+                      <Text as="span" color="gray.500" ml={1}>
+                        (
+                        {session.courts
+                          .slice()
+                          .sort((a, b) => a.courtNumber - b.courtNumber)
+                          .map((court) => court.courtNumber)
+                          .join(', ')}
+                        )
+                      </Text>
+                    )}
+                  </Text>
+                </Flex>
+              )}
 
-              {/* Players */}
-              <Flex align="center" gap={3}>
-                <Icon
-                  as={UserCheck}
-                  boxSize={4}
-                  color="green.500"
-                  flexShrink={0}
-                />
-                <Text fontSize="sm">
-                  {approvedPlayersCount}/{maxPlayers} {t('players')}
-                </Text>
-              </Flex>
+              {!isCrawled && (
+                <Flex align="center" gap={3}>
+                  <Icon
+                    as={UserCheck}
+                    boxSize={4}
+                    color="green.500"
+                    flexShrink={0}
+                  />
+                  <Text fontSize="sm">
+                    {approvedPlayersCount}/{maxPlayers} {t('players')}
+                  </Text>
+                </Flex>
+              )}
 
               {/* Shuttlecock */}
               {session.shuttlecock && (
@@ -418,29 +491,29 @@ const SessionDetailStickyBar = ({
                 <Wrap gap={1}>
                   {session.requiredLevels &&
                   session.requiredLevels.length > 0 ? (
-                    Array.from(new Set(session.requiredLevels))
-                      .sort((a, b) => a - b)
-                      .map((level) => {
-                        const levelColor = getSkillLevelColor([level]);
-                        return (
-                          <LevelBadgeWithDescription
-                            key={level}
-                            level={level}
-                            colorPalette={levelColor.colorPalette}
-                            variant="solid"
-                            size="sm"
-                            fontSize="xs"
-                            fontWeight="bold"
-                            px={2}
-                            py={0.5}
-                            borderRadius="full"
-                            borderWidth="1px"
-                            borderColor={levelColor.borderColor}
-                          >
-                            {getLevelShortLabel(level)}
-                          </LevelBadgeWithDescription>
-                        );
-                      })
+                    sortLevelsByRank(
+                      Array.from(new Set(session.requiredLevels))
+                    ).map((level) => {
+                      const levelColor = getSkillLevelColor([level]);
+                      return (
+                        <LevelBadgeWithDescription
+                          key={level}
+                          level={level}
+                          colorPalette={levelColor.colorPalette}
+                          variant="solid"
+                          size="sm"
+                          fontSize="xs"
+                          fontWeight="bold"
+                          px={2}
+                          py={0.5}
+                          borderRadius="full"
+                          borderWidth="1px"
+                          borderColor={levelColor.borderColor}
+                        >
+                          {getLevelShortLabel(level)}
+                        </LevelBadgeWithDescription>
+                      );
+                    })
                   ) : (
                     <Badge
                       colorPalette="gray"
@@ -536,19 +609,22 @@ const SessionDetailStickyBar = ({
                   color="red.600"
                   whiteSpace="nowrap"
                 >
-                  {FeeService.getFeeDisplayText(session.feeConfig)}
+                  {feeDisplayText}
                 </Text>
-                {session.feeConfig.feeType === FeeType.FIXED && (
-                  <Text
-                    fontSize="sm"
-                    color="gray.500"
-                    fontWeight="normal"
-                    whiteSpace="nowrap"
-                  >
-                    /slot
-                  </Text>
+                {canSeeSessionFee &&
+                  session.feeConfig.feeType === FeeType.FIXED && (
+                    <Text
+                      fontSize="sm"
+                      color="gray.500"
+                      fontWeight="normal"
+                      whiteSpace="nowrap"
+                    >
+                      /slot
+                    </Text>
+                  )}
+                {canSeeSessionFee && (
+                  <FeeDetailPopover feeConfig={session.feeConfig} />
                 )}
-                <FeeDetailPopover feeConfig={session.feeConfig} />
               </Flex>
             </Box>
           )}

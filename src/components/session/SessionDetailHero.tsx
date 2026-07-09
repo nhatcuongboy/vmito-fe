@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { ISession, SessionStatus } from '@/lib/api/types';
 import { Box, Badge, Flex, Icon, Image } from '@chakra-ui/react';
 import { IconButton } from '@/components/ui/chakra-compat';
-import { ChevronLeft, Share2 } from 'lucide-react';
+import { ChevronLeft, Share2, Facebook } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { DEFAULT_COVER_PHOTO } from '@/constants';
 import { statusColors, getStatusLabel } from './BaseSessionCard';
@@ -15,6 +15,7 @@ interface ISessionDetailHeroProps {
   session: ISession;
   availableSlots: number;
   isFull: boolean;
+  userRegistrationStatus?: 'PENDING' | 'APPROVED' | 'REJECTED' | null;
   onBack?: () => void;
   showBackButton?: boolean;
 }
@@ -29,6 +30,7 @@ const SessionDetailHero = ({
   session,
   availableSlots,
   isFull,
+  userRegistrationStatus,
   onBack,
   showBackButton = true,
 }: ISessionDetailHeroProps) => {
@@ -93,6 +95,26 @@ const SessionDetailHero = ({
       ? 'gray'
       : statusColors[session.status] || 'gray';
 
+  const approvedBadge =
+    userRegistrationStatus === 'APPROVED' ? (
+      <Badge
+        colorPalette="yellow"
+        variant="subtle"
+        fontSize="sm"
+        px={3}
+        py={1}
+        borderRadius="full"
+        fontWeight="600"
+        gap={1}
+        boxShadow="0 2px 8px rgba(0, 0, 0, 0.2)"
+        backdropFilter="blur(8px)"
+        borderWidth="1px"
+        borderColor="yellow.200"
+      >
+        {t('registrationApproved')}
+      </Badge>
+    ) : null;
+
   return (
     <Box
       position="relative"
@@ -130,6 +152,13 @@ const SessionDetailHero = ({
             objectFit="cover"
             draggable={false}
             pointerEvents="none"
+            onError={(e) => {
+              // Hotlinked Facebook images can expire — fall back to default
+              const img = e.currentTarget as HTMLImageElement;
+              if (img.src !== DEFAULT_COVER_PHOTO) {
+                img.src = DEFAULT_COVER_PHOTO;
+              }
+            }}
           />
         </motion.div>
       </AnimatePresence>
@@ -230,27 +259,51 @@ const SessionDetailHero = ({
         </Flex>
       )}
 
-      {/* Slot Availability Badge - bottom left */}
-      <Badge
-        position="absolute"
-        bottom={5}
-        left={3}
-        colorPalette={isClosed || isFull ? 'gray' : 'teal'}
-        variant="solid"
-        fontSize="sm"
-        px={3}
-        py={1}
-        borderRadius="full"
-        fontWeight="600"
-        boxShadow="0 2px 8px rgba(0, 0, 0, 0.2)"
-        backdropFilter="blur(8px)"
-      >
-        {isClosed
-          ? t('registrationClosed')
-          : isFull
-            ? t('slotsFull')
-            : t('slotsAvailable', { count: availableSlots })}
-      </Badge>
+      {/* Bottom-left badge: crawled → "Facebook post"; else slot availability */}
+      {session.isCrawled ? (
+        <Badge
+          position="absolute"
+          bottom={5}
+          left={3}
+          bg="blackAlpha.600"
+          _dark={{ bg: 'whiteAlpha.200' }}
+          color="white"
+          borderWidth="1px"
+          borderColor="whiteAlpha.200"
+          backdropFilter="blur(4px)"
+          fontSize="sm"
+          px={3}
+          py={1}
+          borderRadius="full"
+          fontWeight="medium"
+          gap={1}
+        >
+          <Icon as={Facebook} boxSize={3.5} />
+          {t('crawledBadge')}
+        </Badge>
+      ) : (
+        <Flex position="absolute" bottom={5} left={3} gap={1} zIndex={100}>
+          <Badge
+            colorPalette={isClosed || isFull ? 'gray' : 'teal'}
+            variant="solid"
+            fontSize="sm"
+            px={3}
+            py={1}
+            borderRadius="full"
+            fontWeight="600"
+            gap={1}
+            boxShadow="0 2px 8px rgba(0, 0, 0, 0.2)"
+            backdropFilter="blur(8px)"
+          >
+            {isClosed
+              ? t('registrationClosed')
+              : isFull
+                ? t('slotsFull')
+                : t('slotsAvailable', { count: availableSlots })}
+          </Badge>
+          {approvedBadge}
+        </Flex>
+      )}
 
       {/* Status Badge - bottom right */}
       <Badge
@@ -258,7 +311,6 @@ const SessionDetailHero = ({
         bottom={5}
         right={3}
         colorPalette={statusColorPalette}
-        variant="solid"
         fontSize="sm"
         px={3}
         py={1}

@@ -2,6 +2,7 @@
 
 import { CldImage } from 'next-cloudinary';
 import Image from 'next/image';
+import { normalizeImageUrl } from '@/lib/images/normalizeImageUrl';
 
 interface CloudinaryImageProps {
   src: string;
@@ -24,12 +25,13 @@ export default function CloudinaryImage({
   gravity = 'auto',
   className,
 }: CloudinaryImageProps) {
-  const isCloudinaryUrl = src?.includes('cloudinary.com');
+  const normalizedSrc = normalizeImageUrl(src) ?? src;
+  const isCloudinaryUrl = normalizedSrc?.includes('cloudinary.com');
 
   if (!isCloudinaryUrl) {
     return (
       <Image
-        src={src}
+        src={normalizedSrc}
         alt={alt}
         width={width}
         height={height}
@@ -38,7 +40,7 @@ export default function CloudinaryImage({
     );
   }
 
-  const publicId = extractPublicId(src);
+  const publicId = extractPublicId(normalizedSrc);
 
   return (
     <CldImage

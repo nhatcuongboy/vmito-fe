@@ -26,11 +26,19 @@ import SessionOverviewTab from '@/components/session/SessionOverviewTab';
 import SessionPaymentTab from '@/components/session/SessionPaymentTab';
 import WaitTimeUpdater from '@/components/session/WaitTimeUpdater';
 import QRCodeGenerator from '@/components/QRCodeGenerator';
+import {
+  SessionCourtsTabSkeleton,
+  SessionOverviewTabSkeleton,
+  SessionPlayersTabSkeleton,
+} from '@/components/session/SessionTabSkeletons';
 import BottomNavigationBar, {
   NavigationTab,
 } from '@/components/ui/BottomNavigationBar';
 import { VModal } from '@/components/ui/VModal';
 import { SessionService } from '@/lib/api/session.service';
+import { useTourCompleteWhen } from '@/components/tour/useTourCompleteWhen';
+import { useTourAutoStart } from '@/components/tour/useTourAutoStart';
+import { useTourStore } from '@/stores/useTourStore';
 
 // Types and Utils
 import { UserRole, SessionStatus } from '@/lib/api/types';
@@ -50,6 +58,7 @@ import {
  */
 function HostSessionContent({ params }: { params: { id: string } }) {
   const t = useTranslations('SessionDetail');
+  const tGuard = useTranslations('auth.guard');
   const { user } = useAuthStore();
   const { canAccessHostFeatures } = useCanAccessHostFeatures();
   const sessionId = params.id;
@@ -67,6 +76,12 @@ function HostSessionContent({ params }: { params: { id: string } }) {
     }
   }, [initialSession]);
 
+  // Only the session host (or an admin) may open the management page
+  const isSessionOwner =
+    !!session &&
+    !!user &&
+    (session.hostId === user.id || user.role === UserRole.ADMIN);
+
   // State for match creation and player selection
   const [selectedPlayers] = useState<string[]>([]);
   // Store filter as array of statuses. Empty array means 'ALL'
@@ -80,6 +95,25 @@ function HostSessionContent({ params }: { params: { id: string } }) {
 
   // Custom hooks
   const { activeTab, handleTabChange } = useTabNavigation();
+
+  // Product tour: the "start session" step completes once it's running
+  useTourCompleteWhen(
+    'start-session',
+    session?.status === SessionStatus.IN_PROGRESS
+  );
+
+  // Product tour: kick off the "run matches" tour when a host who finished the
+  // create-session tour opens a session ready to be started or in progress.
+  const createTourDone = useTourStore(
+    (s) => s.tours['create-session-tour'].status === 'completed'
+  );
+  useTourAutoStart(
+    'run-matches-tour',
+    isSessionOwner &&
+      createTourDone &&
+      (session?.status === SessionStatus.PREPARING ||
+        session?.status === SessionStatus.IN_PROGRESS)
+  );
 
   // Scroll to top when tab changes
   useEffect(() => {
@@ -112,16 +146,29 @@ function HostSessionContent({ params }: { params: { id: string } }) {
 
   // Define navigation tabs
   const allNavigationTabs: NavigationTab[] = [
-    { id: 0, label: t('overview'), icon: Info },
-    { id: 1, label: t('playersTab.players'), icon: Users },
-    { id: 2, label: t('courts'), icon: Square },
+    {
+      id: 0,
+      label: t('overview'),
+      icon: Info,
+      dataTour: 'session-tab-overview',
+    },
+    {
+      id: 1,
+      label: t('playersTab.players'),
+      icon: Users,
+      dataTour: 'session-tab-players',
+    },
+    { id: 2, label: t('courts'), icon: Square, dataTour: 'session-tab-courts' },
     { id: 3, label: t('matchs.tabTitle'), icon: Trophy },
     { id: 4, label: t('payment'), icon: DollarSign },
   ];
 
   const filteredOriginalTabs = allNavigationTabs.filter((tab) => {
-    if (user?.role === UserRole.PLAYER && !canAccessHostFeatures) {
-      // Disable Courts (2), Matches (3), and Payment (4) for non-VIP PLAYER
+    if (
+      (user?.role === UserRole.PLAYER || user?.role === UserRole.REFEREE) &&
+      !canAccessHostFeatures
+    ) {
+      // Disable Courts (2), Matches (3), and Payment (4) for non-VIP PLAYER/REFEREE
       return tab.id !== 2 && tab.id !== 3 && tab.id !== 4;
     }
     return true;
@@ -173,6 +220,17 @@ function HostSessionContent({ params }: { params: { id: string } }) {
     setIsQrModalOpen(true);
   };
 
+  const renderLoadingTabContent = () => {
+    switch (contentTabId[activeTab]) {
+      case 1:
+        return <SessionPlayersTabSkeleton />;
+      case 2:
+        return <SessionCourtsTabSkeleton />;
+      default:
+        return <SessionOverviewTabSkeleton />;
+    }
+  };
+
   // Render session detail content
   return (
     <MainLayout
@@ -183,9 +241,33 @@ function HostSessionContent({ params }: { params: { id: string } }) {
       centerTitle
     >
       {loading && !session ? (
-        <Center minH="50vh">
-          <Spinner size="xl" color="green.500" />
-        </Center>
+        <Flex
+          direction="column"
+          align="center"
+          py={2}
+          w="full"
+          px={{ base: 4, md: 8 }}
+        >
+          <Box minH="60vh" pb="160px" w="full" maxW="7xl">
+            {renderLoadingTabContent()}
+          </Box>
+
+          <BottomNavigationBar
+            tabs={navigationTabs}
+            activeTab={activeTab}
+            loadingTabId={activeTab}
+            onTabChange={handleTabChange}
+            alwaysVisible
+            bottomOffset={
+              isGlobalBottomNavVisible
+                ? {
+                    base: 'calc(64px + env(safe-area-inset-bottom))',
+                    md: '0',
+                  }
+                : undefined
+            }
+          />
+        </Flex>
       ) : error ? (
         <Box
           p={6}
@@ -218,6 +300,20 @@ function HostSessionContent({ params }: { params: { id: string } }) {
             The session you're looking for might have been deleted or doesn't
             exist.
           </Text>
+        </Box>
+      ) : !isSessionOwner ? (
+        <Box
+          p={6}
+          bg="red.50"
+          color="red.600"
+          borderRadius="md"
+          m={8}
+          textAlign="center"
+        >
+          <Text fontSize="lg" fontWeight="medium">
+            {tGuard('accessDenied')}
+          </Text>
+          <Text mt={2}>{tGuard('permissionDenied')}</Text>
         </Box>
       ) : (
         <>

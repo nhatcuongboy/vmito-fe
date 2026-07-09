@@ -5,7 +5,7 @@ import { CONTAINER_PX } from '@/constants';
 
 export interface TabItem {
   id: string;
-  label: string;
+  label: React.ReactNode;
   badge?: number | string;
 }
 
@@ -71,7 +71,7 @@ export function UnderlineTabs({
               fontSize="sm"
               mb="-1px"
             >
-              <Text>{tab.label}</Text>
+              <Text as="span">{tab.label}</Text>
               {tab.badge !== undefined && tab.badge !== null && (
                 <Badge
                   ml={1.5}

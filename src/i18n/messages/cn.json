@@ -131,6 +131,7 @@
     "aiAssistant": "AI 助手",
     "contact": "联系我们",
     "bugReport": "报告错误",
+    "developedBy": "由 Nhat Cuong 开发。",
     "levels": {
       "1": "新手",
       "2": "高级新手",
@@ -139,7 +140,9 @@
       "5": "高级中等",
       "6": "高级",
       "7": "半职业",
-      "8": "职业"
+      "8": "职业",
+      "9": "弱-",
+      "10": "弱+"
     },
     "levelShorts": {
       "1": "弱",
@@ -149,7 +152,9 @@
       "5": "高中",
       "6": "高级",
       "7": "半职",
-      "8": "职业"
+      "8": "职业",
+      "9": "弱-",
+      "10": "弱+"
     },
     "gender": "性别",
     "selectGender": "选择性别",
@@ -234,6 +239,11 @@
     "basicInfo": "基本信息",
     "description": "描述",
     "descriptionPlaceholder": "输入场次描述",
+    "referenceVideoUrl": "水平参考视频",
+    "referenceVideoUrlPlaceholder": "粘贴 YouTube 链接或媒体 URL",
+    "referenceVideoUrlHelper": "支持 YouTube 和 .mp4、.webm、.ogg 等直接媒体链接。",
+    "referenceVideoTitle": "水平参考视频",
+    "openReferenceVideo": "打开参考视频",
     "hostInfo": "主办方信息",
     "hostName": "主办方姓名",
     "hostNamePlaceholder": "输入主办方姓名",
@@ -264,6 +274,12 @@
     "createSession": "创建场次",
     "joinSession": "加入场次",
     "fee": "费用",
+    "contactHostForFee": "联系主办方",
+    "defaultClub": "默认俱乐部",
+    "selectDefaultClub": "选择默认俱乐部",
+    "searchDefaultClub": "搜索俱乐部",
+    "noDefaultClub": "不关联俱乐部",
+    "defaultClubDescription": "添加属于该俱乐部的玩家时，系统会自动应用俱乐部固定费用。",
     "register": "注册",
     "sessionName": "场次名称",
     "sessionCode": "场次代码",
@@ -299,6 +315,7 @@
     },
     "courtsAvailable": "场地",
     "players": "玩家",
+    "registeredLabel": "已报名",
     "manageSession": "Host",
     "host": "主办方",
     "deleteSession": "删除",
@@ -308,6 +325,9 @@
     "sessionsDeleted": "已删除过期场次",
     "viewSession": "进入球场",
     "view": "查看",
+    "viewOriginalPost": "查看原帖",
+    "crawledBadge": "Facebook 帖子",
+    "crawledSourcePrefix": "整理自公开帖子",
     "deleteConfirmation": "您确定要删除此场次吗？",
     "notStarted": "未开始",
     "notStartedYet": "尚未开始",
@@ -365,6 +385,7 @@
       "sessionCreatedSuccessfully": "场次创建成功！",
       "sessionUpdatedSuccessfully": "场次更新成功",
       "failedToUpdateSession": "更新场次失败",
+      "referenceVideoUrlInvalid": "参考视频必须是有效的 http 或 https URL",
       "invalidLevels": "无效的等级值：{levels}。请选择有效的等级。",
       "unknownError": "发生未知错误",
       "allCourtsMustHaveValidNumber": "所有场地必须具有有效的场地编号（≥ 1）",
@@ -459,7 +480,9 @@
       "5": "高级中等",
       "6": "高级",
       "7": "半职业",
-      "8": "职业"
+      "8": "职业",
+      "9": "弱-",
+      "10": "弱+"
     },
     "search": "搜索",
     "searchPlaceholder": "按场地、地址或场地搜索...",
@@ -483,9 +506,15 @@
       "availableSlots": "有空位",
       "date": "日期",
       "quickFilters": "快速筛选",
+      "sessionType": "场次类型",
+      "allSessions": "全部",
+      "regularSessions": "普通场次",
+      "facebookSessions": "Facebook 帖子",
       "nearMe": "附近",
       "sortByDistance": "按距离排序",
       "cost": "费用",
+      "feeMin": "最低",
+      "feeMax": "最高",
       "splitEvenly": "平均分摊",
       "allDays": "所有日期",
       "locationPermissionDenied": "位置权限被拒绝",
@@ -656,6 +685,12 @@
     "aiAnalyzeTitle": "场次水平分析",
     "aiAnalyzing": "AI 正在分析...",
     "emptySlot": "空位",
+    "playerDetails": "球员信息",
+    "viewPlayerDetails": "查看 {name} 的信息",
+    "viewPlayerProfile": "查看资料",
+    "member": "成员",
+    "levelDescription": "水平说明",
+    "club": "俱乐部",
     "registerNow": "立即报名",
     "showLess": "收起",
     "viewAll": "查看全部",
@@ -740,7 +775,6 @@
     "mapLoadError": "地图加载错误",
     "mapLoadErrorDescription": "请检查您的网络连接或 API 密钥。",
     "playersCount": "{count} 位玩家",
-    "requiredLevels": "等级要求",
     "error": "错误"
   },
   "court": {
@@ -1131,6 +1165,7 @@
       "keyFeatures": "主要功能",
       "gettingStarted": "入门指南",
       "copyright": "版权所有。",
+      "developedBy": "由 Nhat Cuong 开发。",
       "features": {
         "sessionManagement": {
           "title": "场次管理",
@@ -1242,6 +1277,18 @@
       "isClubMember": "Is Club Member",
       "selectClub": "Select Club",
       "selectClubPlaceholder": "-- Select club --",
+      "feeConfiguration": "费用配置",
+      "loadingClubFee": "正在加载俱乐部费用",
+      "clubFeeAvailable": "俱乐部费用",
+      "session": "场次",
+      "applyClubFee": "应用俱乐部费用",
+      "clubFeeNotConfigured": "俱乐部本月未配置费用",
+      "clubFixedFeeSection": "俱乐部固定费用",
+      "clubFeePerSession": "每场费用",
+      "noClubWithFixedFee": "本月尚无俱乐部配置固定单场费用",
+      "enableClubFixedFee": "启用俱乐部固定费用",
+      "disableClubFixedFee": "关闭俱乐部固定费用",
+      "clubFixedFeeHint": "该玩家的收款将采用俱乐部为该场次所在月份配置的固定单场费用",
       "awaitingPlayerConfirmation": "等待玩家确认",
       "confirmedByPlayer": "玩家已确认",
       "viewPlayer": "查看玩家",
@@ -1275,6 +1322,8 @@
       "recommendedLimitReached": "已达到建议的玩家上限",
       "playerLimitWarning": "您目前有 {current} 名玩家，用于 {courts} 块场地（每块场地 {perCourt} 名玩家）。添加更多玩家可能会增加等待时间。",
       "playerNameRequired": "玩家姓名是必填项",
+      "levelRequired": "请选择等级",
+      "clubRequired": "请选择俱乐部",
       "userAlreadySelected": "此用户已被选择",
       "userAlreadySelectedDescription": "此用户已被选择用于另一个玩家名额",
       "userAlreadyExists": "用户已存在",
@@ -1368,8 +1417,47 @@
     },
     "tournaments": {
       "title": "锦标赛",
+      "hostList": {
+        "pageTitle": "我的锦标赛",
+        "adminPageTitle": "所有锦标赛",
+        "subtitle": "在一个地方管理您的锦标赛、类别和赛程。",
+        "newTournament": "新建锦标赛",
+        "createFirst": "创建您的第一个锦标赛",
+        "searchPlaceholder": "搜索锦标赛...",
+        "emptyTitle": "还没有锦标赛",
+        "adminEmptyTitle": "系统中还没有锦标赛",
+        "emptyDesc": "创建您的第一个锦标赛 — 设置类别、邀请选手并专业地运行赛程。",
+        "adminEmptyDesc": "当主办方创建锦标赛后，系统管理员列表会显示在这里。",
+        "noResultsTitle": "未找到匹配的锦标赛",
+        "noResultsDesc": "请尝试其他关键词或清除筛选条件。",
+        "stats": {
+          "total": "总数",
+          "draft": "草稿",
+          "inProgress": "进行中",
+          "finished": "已结束"
+        },
+        "filters": {
+          "all": "全部",
+          "draft": "草稿",
+          "inProgress": "进行中",
+          "finished": "已结束",
+          "cancelled": "已取消"
+        },
+        "card": {
+          "manage": "管理",
+          "referee": "执法",
+          "openPublic": "打开公开页面",
+          "delete": "删除",
+          "moreActions": "更多操作",
+          "categories": "类别",
+          "draftBadge": "草稿",
+          "publishedBadge": "已发布"
+        },
+        "deleteConfirm": "您确定要删除此锦标赛吗？此操作无法撤销。",
+        "deleted": "锦标赛已删除",
+        "deleteFailed": "删除锦标赛失败"
+      },
       "allTournaments": "所有锦标赛",
-      "createTournament": "创建锦标赛",
       "createSample": "创建示例",
       "creating": "正在创建...",
       "sampleCreatedSuccess": "示例锦标赛创建成功！",
@@ -1388,6 +1476,7 @@
       "share": "分享",
       "upcoming": "即将举行",
       "runYourOwnEvent": "举办您自己的活动",
+      "createTournament": "创建赛事",
       "registrationOpen": "报名开放中",
       "host": "主办方",
       "categories": "类别",
@@ -1429,37 +1518,176 @@
         "locationPlaceholder": "活动将在哪里举行？",
         "selectVenue": "-- 选择场地 --",
         "cancel": "取消",
-        "createTournament": "创建锦标赛"
+        "createTournament": "创建锦标赛",
+        "sport": "比赛项目",
+        "sports": {
+          "BADMINTON": "羽毛球",
+          "PICKLEBALL": "匹克球"
+        }
       },
       "detail": {
         "title": "锦标赛",
         "notFound": "未找到锦标赛",
         "comingSoon": "内容即将推出",
+        "publicationStatus": {
+          "published": "已发布",
+          "draft": "草稿"
+        },
         "tabs": {
           "home": "主页",
           "teams": "队伍",
           "schedule": "赛程",
           "standings": "排名",
           "manage": "管理",
-          "dashboard": "仪表板"
+          "dashboard": "控制面板",
+          "winners": "优胜者"
         },
+        "enterScores": "录入比分",
         "teamsTab": {
-          "manageTeams": "管理队伍",
+          "codeLabel": "编号",
+          "manageTeams": "管理",
           "noCategories": "暂时没有可用类别。",
           "noTeams": "尚未有队伍报名。",
-          "unknownTeam": "未知"
+          "teamsCount": "{count} 支队伍",
+          "totalCategories": "{count} 个组别",
+          "totalTeams": "{count} 支队伍已报名",
+          "unknownTeam": "未知",
+          "viewByCategory": "按组别",
+          "viewAllPlayers": "所有选手",
+          "allPlayersTitle": "所有选手",
+          "totalPlayers": "{count} 名选手",
+          "noPlayers": "暂无选手。",
+          "searchPlayers": "搜索选手..."
+        },
+        "scheduleTab": {
+          "empty": "尚未发布赛程。"
+        },
+        "standingsTab": {
+          "title": "排名",
+          "description": "{tournament} 各类别和小组的队伍排名。",
+          "categoryFilter": "筛选类别",
+          "allCategories": "所有类别",
+          "noCategories": "暂无可显示排名的类别。",
+          "empty": "小组赛数据可用后将显示排名。",
+          "emptyCategory": "此类别暂无排名。",
+          "emptyGroup": "此小组暂无排名数据。",
+          "error": "无法加载排名，请重试。",
+          "retry": "重试",
+          "recalculate": "重新计算",
+          "groupWinner": "小组第一",
+          "poolPlay": "小组赛",
+          "playoffs": "淘汰赛",
+          "pools": "按小组",
+          "overall": "总排名",
+          "showPlayerNames": "运动员姓名",
+          "showPlayerNamesBadge": "显示运动员姓名",
+          "rankingsExplained": "排名说明",
+          "rankingsExplanation": "排名按积分排序，然后依次比较净胜分、得分、胜场和已赛场次。总排名会合并当前显示的小组队伍，并按相同规则重新排序。",
+          "viewGames": "查看比赛",
+          "emptyPlayoffs": "暂无可显示的淘汰赛比赛。",
+          "matchNumber": "比赛 {number}",
+          "versus": "vs",
+          "noScore": "暂无比分",
+          "groupFallback": "小组 {number}",
+          "groupNamed": "{name}组",
+          "teamsCount": "{count} 支队伍",
+          "winnerOf": "{match} 胜者",
+          "loserOf": "{match} 负者",
+          "nthPoolLabel": "{pool}组第{rank}",
+          "bye": "轮空",
+          "ordinals": {
+            "1": "1",
+            "2": "2",
+            "3": "3",
+            "4": "4",
+            "5": "5",
+            "6": "6",
+            "7": "7",
+            "8": "8",
+            "other": "{rank}"
+          },
+          "playoffsRounds": {
+            "quarterFinals": "四分之一决赛",
+            "semiFinals": "半决赛",
+            "final": "决赛",
+            "thirdPlace": "季军赛"
+          },
+          "deBracket": {
+            "upperBracket": "胜者组",
+            "lowerBracket": "败者组",
+            "preQuarterFinals": "预四分之一决赛",
+            "roundOf": "{count}强赛",
+            "lowerRound": "败者组第{number}轮",
+            "lowerFinal": "败者组决赛",
+            "grandFinal": "总决赛",
+            "ifNecessary": "如有需要"
+          },
+          "matchStatus": {
+            "SCHEDULED": "已安排",
+            "IN_PROGRESS": "进行中",
+            "FINISHED": "已结束",
+            "CANCELLED": "已取消"
+          },
+          "columns": {
+            "rank": "排名",
+            "team": "队伍/选手",
+            "teamShort": "队伍",
+            "group": "小组",
+            "played": "场次",
+            "playedShort": "场",
+            "won": "胜",
+            "wonShort": "胜",
+            "lost": "负",
+            "lostShort": "负",
+            "drawn": "平",
+            "drawnShort": "平",
+            "points": "积分",
+            "pointsShort": "分",
+            "pointsFor": "得分",
+            "pointsAgainst": "失分",
+            "difference": "净胜分",
+            "differenceShort": "+/-",
+            "recentFormShort": "近5场",
+            "forfeits": "弃",
+            "forfeitsTooltip": "因弃权而输掉的场次（已计入“负”列）",
+            "cancelled": "消",
+            "cancelledTooltip": "被取消的场次（已计入“负”列）"
+          }
         },
         "homeTab": {
           "overview": {
             "title": "概览",
             "teamsParticipating": "{count} 支队伍参赛",
-            "viewSchedule": "查看赛程",
-            "viewStandings": "查看排名"
+            "athletesParticipating": "{count} 名运动员参赛",
+            "viewSchedule": "比赛",
+            "viewStandings": "查看排名",
+            "viewShowcase": "展示"
           },
           "categories": {
             "title": "类别",
             "manage": "管理类别",
-            "empty": "暂无类别。"
+            "empty": "暂无类别。",
+            "teamsCount": "{count} 队",
+            "playersCount": "{count} 选手"
+          },
+          "competitionInfo": {
+            "title": "竞赛规则",
+            "subtitle": "查看赛制、计分方式和决胜顺序。",
+            "modalDescription": "每个类别的赛制、计分方式和决胜顺序。",
+            "playoffs": "淘汰赛",
+            "qualifiersPerGroup": "每组 {count} 队晋级",
+            "thirdPlace": "季军赛"
+          },
+          "notes": {
+            "title": "备注",
+            "edit": "编辑备注",
+            "empty": "暂无赛事备注。"
+          },
+          "videos": {
+            "title": "视频",
+            "edit": "编辑视频",
+            "empty": "暂无 YouTube 视频。",
+            "iframeTitle": "锦标赛 YouTube 视频"
           },
           "venues": {
             "title": "场地",
@@ -1469,21 +1697,38 @@
           "contact": {
             "title": "联系方式",
             "name": "姓名",
-            "email": "邮箱"
+            "email": "邮箱",
+            "phone": "电话",
+            "empty": "暂无联系信息。"
+          },
+          "sponsors": {
+            "title": "赞助商",
+            "manage": "管理赞助商",
+            "empty": "暂无赞助商。"
+          },
+          "champions": {
+            "title": "冠军",
+            "subtitle": "最终成绩已公布。",
+            "viewAll": "查看全部优胜者"
           }
         },
         "dashboard": {
           "title": "仪表板",
           "share": "分享",
           "continueSetup": {
-            "title": "继续设置",
-            "description": "使用此指南为比赛日做好准备。",
-            "progress": "{completed} / {total} 已完成"
+            "title": "锦标赛设置指南",
+            "description": "完成以下步骤准备您的锦标赛。",
+            "progress": "已完成 {completed} / {total} 步"
           },
           "steps": {
+            "categories": {
+              "title": "创建组别",
+              "description": "先创建比赛组别，再设置赛制。",
+              "action": "管理组别"
+            },
             "format": {
-              "title": "创建赛制",
-              "description": "选择并配置您的赛制。",
+              "title": "设置赛制",
+              "description": "为每个组别选择并配置赛制。",
               "action": "管理赛制"
             },
             "teams": {
@@ -1536,6 +1781,11 @@
           "next": "下一步",
           "confirm": "确认",
           "close": "关闭",
+          "cardLabels": {
+            "poolPlay": "小组赛",
+            "bracket": "淘汰赛",
+            "playoffs": "淘汰赛"
+          },
           "step1": {
             "title": "选择赛制",
             "description": "从提供的模板中选择。",
@@ -1556,6 +1806,13 @@
               "description": "队伍进入淘汰赛，输一场即被淘汰。",
               "cardLabel": "淘汰赛",
               "configDescription": "配置淘汰赛设置。"
+            },
+            "DOUBLE_ELIMINATION": {
+              "name": "双败淘汰赛",
+              "subtitle": "双败淘汰",
+              "description": "队伍进入胜者组和败者组，输两场后才被淘汰。",
+              "cardLabel": "淘汰赛",
+              "configDescription": "配置双败淘汰赛设置。"
             },
             "ROUND_ROBIN_TO_SE": {
               "name": "循环赛转单淘汰",
@@ -1688,7 +1945,15 @@
               "thirdPlaceMatch": "季军赛",
               "yes": "是",
               "no": "否",
-              "bracketPreview": "淘汰赛预览将显示在此处"
+              "bracketPreview": "淘汰赛预览将显示在此处",
+              "bestOf5": "五局三胜",
+              "perRoundTitle": "各轮赛制（可选）",
+              "perRoundHint": "未设置的轮次使用 {format}。",
+              "useDefault": "默认"
+            },
+            "de": {
+              "isTrueDoubleElimination": "真正的双败淘汰",
+              "isTrueDoubleEliminationDesc": "启用后，败者组冠军必须在决赛中两次击败胜者组冠军才能夺冠（重置对阵表）。"
             },
             "rrse": {
               "groupStage": "小组赛阶段",
@@ -1719,6 +1984,13 @@
                 "description": "提供场地并为比赛分配时间和球场。"
               }
             }
+          },
+          "rounds": {
+            "final": "决赛",
+            "semifinal": "半决赛",
+            "quarterfinal": "四分之一决赛",
+            "roundOf16": "16强",
+            "thirdPlace": "季军赛"
           }
         },
         "manage": {
@@ -1744,6 +2016,8 @@
           "panelTitles": {
             "publish": "发布锦标赛",
             "teams": "队伍",
+            "players": "选手",
+            "results": "成绩",
             "categories": "类别",
             "format": "赛制",
             "standings": "排名",
@@ -1754,7 +2028,60 @@
             "sponsors": "赞助商",
             "name": "锦标赛名称",
             "dates": "锦标赛日期",
-            "location": "锦标赛地点"
+            "location": "锦标赛地点",
+            "banner": "锦标赛横幅",
+            "managers": "管理员"
+          },
+          "duplicateModal": {
+            "title": "复制锦标赛",
+            "description": "要复制此锦标赛，请选择名称、日期和地点，然后选择复制时要包含的内容。",
+            "copySuffix": "(副本)",
+            "close": "关闭复制锦标赛弹窗",
+            "cancel": "取消",
+            "confirm": "确认",
+            "success": "锦标赛复制成功",
+            "copyHeading": "选择要复制的内容：",
+            "fields": {
+              "name": "名称",
+              "startDate": "开始日期",
+              "endDate": "结束日期",
+              "location": "地点",
+              "locationPlaceholder": "搜索场馆",
+              "noVenues": "未找到场馆"
+            },
+            "options": {
+              "format": {
+                "label": "赛制",
+                "tooltip": "始终复制组别和赛制设置。"
+              },
+              "schedule": {
+                "label": "赛程",
+                "tooltip": "复制比赛赛程、轮次、时间和场地分配。"
+              },
+              "teams": {
+                "label": "队伍",
+                "tooltip": "复制球员、组合和队伍报名。"
+              },
+              "matchResults": {
+                "label": "比赛结果",
+                "tooltip": "复制已提交的比分和胜者。需要同时复制赛程。"
+              },
+              "venues": {
+                "label": "场馆",
+                "tooltip": "复制关联场馆和锦标赛场地设置。"
+              },
+              "customHomePage": {
+                "label": "自定义主页",
+                "tooltip": "复制封面图片和锦标赛主页展示设置。"
+              }
+            },
+            "errors": {
+              "nameRequired": "锦标赛名称为必填项",
+              "datesRequired": "开始日期和结束日期为必填项",
+              "endBeforeStart": "结束日期不能早于开始日期",
+              "loadVenuesFailed": "加载场馆失败",
+              "duplicateFailed": "复制锦标赛失败"
+            }
           },
           "organize": {
             "publish": {
@@ -1765,8 +2092,17 @@
               "title": "队伍",
               "description": "{count} 支队伍已报名"
             },
+            "players": {
+              "title": "选手",
+              "description": "管理本赛事的选手名单"
+            },
+            "results": {
+              "title": "成绩与比分",
+              "description": "录入和查看比赛比分"
+            },
             "categories": {
-              "title": "类别"
+              "title": "类别",
+              "description": "创建和管理比赛类别，如男子单打、女子双打、混合双打。"
             },
             "registration": {
               "title": "报名",
@@ -1801,8 +2137,44 @@
               "cancelled": "已取消",
               "deleteAllMatches": "删除所有比赛",
               "deleteAllMatchesConfirm": "确定删除该小组的所有比赛吗？此操作无法撤销。",
+              "deleteAllMatchesConfirmTitle": "删除所有比赛？",
+              "deleteAllMatchesConfirmDesc": "这将永久删除赛事中的全部 {count} 场比赛，包括未开始、进行中和已结束的比赛。相关赛程、比分、结果和场地关联也会被删除。此操作无法撤销。",
+              "deleteAllMatchesConfirmAction": "全部删除",
+              "deleteAllMatchesSuccess": "已删除全部 {count} 场比赛",
+              "deleteAllMatchesError": "删除比赛失败",
               "matchesDeleted": "所有比赛已成功删除",
-              "noScore": "暂无比分"
+              "replaceScheduledConfirmTitle": "重新生成比赛？",
+              "replaceScheduledConfirmDesc": "已有 {count} 场比赛被安排了赛程。重新生成会删除当前比赛，并移除其场地/时间安排。",
+              "replaceScheduledConfirmAction": "重新生成",
+              "cannotRegenerateStartedTitle": "无法重新生成比赛",
+              "cannotRegenerateStartedDesc": "已有比赛正在进行或已结束。请先重置或删除结果后再重新生成比赛。",
+              "noScore": "暂无比分",
+              "bracket": "对阵表",
+              "bracketSubtitle": "查看已生成的对阵表。",
+              "seedLabel": "种子 {seed}",
+              "grandFinal": "总决赛",
+              "grandFinalReset": "总决赛（重置）",
+              "quarterFinals": "四分之一决赛",
+              "semiFinals": "半决赛",
+              "finals": "决赛",
+              "winnerOf": "胜者 {match}",
+              "loserOf": "败者 {match}",
+              "nthPoolLabel": "{rank} {pool}组",
+              "roundNumber": "第 {number} 轮",
+              "upperBracketRound": "胜者组 {number}",
+              "lowerBracketRound": "败者组 {number}",
+              "notEnoughTeams": "队伍不足，无法生成对阵",
+              "ordinals": {
+                "1": "第一",
+                "2": "第二",
+                "3": "第三",
+                "4": "第四",
+                "5": "第五",
+                "6": "第六",
+                "7": "第七",
+                "8": "第八",
+                "other": "第{rank}"
+              }
             },
             "venues": {
               "title": "场地",
@@ -1829,24 +2201,97 @@
               "scheduledMatches": "已安排",
               "unscheduledMatches": "未安排",
               "manageSchedule": "管理赛程",
+              "clearAll": "清除所有赛程安排",
+              "clearAllConfirmTitle": "清除所有赛程安排？",
+              "clearAllConfirmDesc": "所有比赛将被取消场地和时间分配。此操作无法撤销。",
+              "clearAllConfirm": "确认清除",
+              "clearAllSuccess": "赛程已清除",
+              "clearAllError": "无法清除赛程",
+              "deleteAllMatches": "删除所有比赛",
+              "deleteAllMatchesConfirmTitle": "删除所有比赛？",
+              "deleteAllMatchesConfirmDesc": "将永久删除比赛的所有 {count} 场比赛，包括其赛程安排。此操作无法撤销。",
+              "deleteAllMatchesConfirm": "确认删除",
+              "deleteAllMatchesSuccess": "已删除所有 {count} 场比赛",
+              "deleteAllMatchesError": "无法删除比赛",
               "manager": {
                 "title": "管理赛程",
                 "listView": "列表视图",
                 "calendarView": "日历视图",
-                "generate": "自动生成",
+                "generate": "自动生成赛程",
                 "close": "关闭",
                 "emptyTitle": "尚未安排任何比赛",
+                "matchesNotGeneratedTitle": "尚未生成比赛",
+                "goToRounds": "前往轮次",
                 "generateSchedule": "自动生成赛程",
                 "enterManually": "或手动输入",
                 "cancel": "取消",
                 "save": "保存更改",
                 "editMatchTitle": "编辑比赛 {number}",
+                "matchCode": "比赛编号",
+                "matchCodePlaceholder": "例如：M01",
                 "clearTimes": "清除时间",
                 "date": "日期",
                 "startTime": "开始时间",
                 "court": "场地",
                 "courtPrefix": "场地",
-                "update": "更新"
+                "update": "更新",
+                "loadFailed": "加载赛程数据失败",
+                "previewLoadFailed": "加载赛程预览失败",
+                "saveFailed": "保存赛程失败",
+                "saveSuccess": "已保存 {count} 场比赛",
+                "addMatch": "添加比赛",
+                "addMatchTitle": "添加一场比赛",
+                "category": "项目",
+                "round": "轮次",
+                "group": "小组",
+                "team1": "队伍 1",
+                "team2": "队伍 2",
+                "teamTBD": "待定 (TBD)",
+                "matchLength": "时长",
+                "createSuccess": "已添加比赛",
+                "createFailed": "添加比赛失败",
+                "deleteConfirmTitle": "删除比赛？",
+                "deleteConfirmText": "确定要删除这场比赛吗？",
+                "deleteWarningResult": "该比赛正在进行或已有成绩。删除将丢失比分数据且无法撤销。",
+                "deleteConfirmBtn": "删除",
+                "deleteFailed": "删除比赛失败",
+                "sameTeamError": "队伍 1 和队伍 2 不能相同",
+                "aiImport": {
+                  "button": "使用 AI 导入",
+                  "drawerTitle": "使用 AI 导入赛程",
+                  "tabText": "粘贴文本",
+                  "tabFile": "上传 CSV/Excel",
+                  "textareaPlaceholder": "在此粘贴赛程（例如：男双，小组赛，13:00 - 13:15 6/6/2026，MD-VB01，MD01 vs MD02，5）…",
+                  "dropzoneLabel": "选择 .csv、.xlsx 或 .xls 文件",
+                  "parsedPreview": "解析后的内容（发送给 AI 之前可编辑）：",
+                  "fileParsing": "正在读取文件…",
+                  "unsupportedFile": "不支持的文件格式。仅接受 .csv、.xlsx、.xls。",
+                  "textRequired": "请输入或上传赛程内容。",
+                  "aiHint": "AI 将根据现有比赛编号（例如 MD-VB01）、场次编号或两支队伍名称（例如 MD01 vs MD02）进行匹配。保存前可预览并取消勾选不需要的行。",
+                  "extractBtn": "使用 AI 提取",
+                  "extracting": "正在提取…",
+                  "aiFailed": "AI 无法提取赛程。请重试或编辑输入内容。",
+                  "backToInput": "返回输入",
+                  "previewSummary": "共 {total} 行 • {included} 将被保存 • {issues} 需要注意",
+                  "previewEmpty": "AI 未能识别任何行。",
+                  "colCategory": "类别",
+                  "colMatch": "场次",
+                  "colCourt": "场地",
+                  "colTime": "时间",
+                  "colStatus": "状态",
+                  "status_ok": "正常",
+                  "status_noMatch": "未找到比赛",
+                  "status_noCourt": "未找到场地",
+                  "status_invalidTime": "缺少日期/时间",
+                  "status_conflict": "时间冲突",
+                  "saveBtn": "保存 {count} 场比赛",
+                  "saving": "正在保存…",
+                  "nothingToSave": "没有可保存的有效行。",
+                  "importSuccess": "已通过 AI 导入 {count} 场比赛",
+                  "importFailed": "保存赛程失败",
+                  "cancel": "取消"
+                },
+                "referee": "裁判"
               },
               "generate": {
                 "title": "生成赛程",
@@ -1867,6 +2312,8 @@
                 "poolPlay": "小组赛",
                 "playoffs": "淘汰赛",
                 "generationFailed": "生成失败",
+                "matchesNotGeneratedTitle": "尚未生成比赛",
+                "matchesNotGeneratedDescription": "请先在轮次页面生成比赛，再创建赛程。",
                 "cancel": "取消",
                 "edit": "编辑",
                 "timeBuffer": "比赛之间的间隔时间",
@@ -1877,7 +2324,8 @@
                 "noBuffer": "无间隔",
                 "anyMatch": "任何比赛",
                 "groupsCount": "{count} 个小组",
-                "min": "{count} 分钟"
+                "min": "{count} 分钟",
+                "courtPrefix": "场地"
               },
               "constraints": {
                 "title": "{court} 的约束",
@@ -1890,6 +2338,21 @@
               },
               "preview": {
                 "title": "赛程预览",
+                "generatedSchedule": "已生成赛程",
+                "viewSchedule": "查看赛程",
+                "generationComplete": "已成功为所有比赛生成赛程。",
+                "generationIncomplete": "有 {count} 场比赛无法安排。请考虑添加更多时间段。",
+                "schedulingConflicts": "{count} 个赛程冲突",
+                "moreConflicts": "另有 {count} 个",
+                "rounds": {
+                  "poolPlay": "小组赛",
+                  "final": "决赛",
+                  "finals": "决赛",
+                  "semiFinals": "半决赛",
+                  "quarterFinals": "四分之一决赛",
+                  "thirdPlace": "季军赛",
+                  "roundOf16": "十六强赛"
+                },
                 "failedLoad": "无法加载预览",
                 "conflictDetected": "检测到冲突",
                 "unableToUpdate": "无法更新",
@@ -1925,7 +2388,8 @@
                 "confirm": "确认",
                 "close": "关闭",
                 "selectAll": "全选",
-                "deselectAll": "取消全选"
+                "deselectAll": "取消全选",
+                "courtPrefix": "场地"
               },
               "result": {
                 "complete": "赛程完整",
@@ -1940,6 +2404,7 @@
               },
               "list": {
                 "team": "队伍",
+                "matchCode": "比赛编号",
                 "team1": "队伍 1",
                 "team2": "队伍 2",
                 "round": "轮次",
@@ -1952,12 +2417,53 @@
                 "roundQF": "四分之一决赛",
                 "roundSF": "半决赛",
                 "roundF": "决赛",
-                "round3rd": "季军赛"
-              }
+                "round3rd": "季军赛",
+                "winnerOf": "比赛 {number} 的胜者",
+                "loserOf": "比赛 {number} 的败者",
+                "tbd": "待定",
+                "unknown": "未知",
+                "delete": "删除"
+              },
+              "liveQueue": {
+                "title": "实时场地分配",
+                "subtitle": "将比赛加入队列，场地空出后自动分配。",
+                "initialize": "初始化队列",
+                "assignNext": "分配下一场",
+                "refresh": "刷新",
+                "courts": "场地",
+                "noCourts": "本赛事尚未配置场地。",
+                "queue": "队列",
+                "emptyQueue": "队列为空",
+                "emptyQueueHint": "使用“初始化队列”添加未排程的比赛。",
+                "matchLabel": "第 {number} 场",
+                "status": {
+                  "AVAILABLE": "空闲",
+                  "OCCUPIED": "使用中",
+                  "MAINTENANCE": "维护中"
+                },
+                "loadFailed": "加载场地分配数据失败。",
+                "actionFailed": "操作失败，请重试。",
+                "initializeSuccess": "已将 {count} 场比赛加入队列。",
+                "assignedSuccess": "已将下一场比赛分配到场地。",
+                "assignNothing": "当前没有可分配的内容。",
+                "addMatch": "添加比赛",
+                "noAddable": "没有可添加的比赛。",
+                "returnToQueue": "退回队列",
+                "availableAt": "约 {time} 空闲",
+                "addedSuccess": "已将比赛加入队列。",
+                "returnedSuccess": "已将比赛退回队列。"
+              },
+              "finishedMatches": "已结束",
+              "onCourtMatches": "场上进行中",
+              "waitingMatches": "队列等待中"
             },
             "sponsors": {
               "title": "赞助商",
               "description": "为锦标赛添加赞助商。"
+            },
+            "managers": {
+              "title": "管理员",
+              "description": "指派协办者并分配权限"
             }
           },
           "settings": {
@@ -1986,6 +2492,14 @@
               "title": "横幅图片",
               "description": "为锦标赛页面上传横幅图片。"
             },
+            "videos": {
+              "title": "YouTube 视频",
+              "description": "在锦标赛主页嵌入视频。"
+            },
+            "contact": {
+              "title": "联系信息",
+              "description": "更新联系人姓名、邮箱和电话。"
+            },
             "rosters": {
               "title": "名单",
               "description": "管理队伍名单和球员限制。"
@@ -2008,18 +2522,299 @@
             }
           },
           "panels": {
+            "visibility": {
+              "title": "可见性",
+              "description": "控制谁可以查看此锦标赛。",
+              "publicLabel": "公开",
+              "publicHelp": "所有人都可以看到锦标赛，并按结果搜索。",
+              "privateLabel": "草稿 / 私人",
+              "privateHelp": "锦标赛已隐藏。 只有管理员或受邀者才能查看。",
+              "save": "保存",
+              "cancel": "取消",
+              "success": "可见性状态已成功更新。",
+              "errors": {
+                "noChanges": "没有要保存的更改。",
+                "updateFailed": "更新失败，请重试。"
+              }
+            },
             "teams": {
               "title": "队伍",
               "addTeams": "添加队伍",
-              "noTeams": "尚未有队伍报名。"
+              "noTeams": "尚未有队伍报名。",
+              "addTeamsTitle": "添加队伍",
+              "editTeam": "编辑队伍",
+              "deleteTeam": "删除队伍",
+              "deleteConfirm": "确定要删除这支队伍吗？",
+              "single": "单个",
+              "multiple": "批量",
+              "namePlaceholder": "名称",
+              "multiPlaceholder": "粘贴队伍列表，或每行输入一支队伍",
+              "save": "保存",
+              "cancel": "取消",
+              "delete": "删除",
+              "bulkProgress": "正在添加 {current}/{total}: {name}",
+              "teamsCount": "{count} 支队伍",
+              "addSuccess": "队伍添加成功",
+              "enterAtLeastOne": "请至少输入一支队伍",
+              "noCategorySelected": "请先选择一个组别再添加队伍",
+              "bulkAddItemFailed": "无法添加 \"{name}\" ({current}/{total}): {error}",
+              "bulkAddSuccess": "成功添加 {count} 支队伍",
+              "addFailed": "添加队伍失败",
+              "updateFailed": "更新队伍失败",
+              "deleteFailed": "删除队伍失败",
+              "unknownError": "未知错误",
+              "memberCount": "{current}/{total} 名运动员",
+              "teamDetails": "队伍详情",
+              "members": "成员：{current}/{total}",
+              "quickCreatePlayer": "快速创建新运动员",
+              "memberAddFailed": "添加运动员失败",
+              "selectFromList": "选择运动员",
+              "searchPlayerPlaceholder": "搜索运动员...",
+              "noAvailablePlayers": "所有运动员均已报名此项目",
+              "selectedCount": "已选择 {count} 名",
+              "draftTeamWarning": "该队伍仍为草稿，暂时无法分组或排赛程。",
+              "team": {
+                "title": "队伍",
+                "add": "添加队伍",
+                "empty": "尚未有队伍报名。",
+                "addTitle": "添加队伍",
+                "editTitle": "编辑队伍",
+                "deleteTitle": "删除队伍",
+                "deleteConfirm": "确定要移除此队伍吗？",
+                "namePlaceholder": "队伍名称",
+                "multiPlaceholder": "粘贴队伍列表，或每行输入一支队伍",
+                "count": "{count} 支队伍",
+                "addSuccess": "队伍添加成功",
+                "enterAtLeastOne": "请至少输入一支队伍",
+                "noCategorySelected": "请先选择一个类别再添加队伍",
+                "bulkAddItemFailed": "无法添加队伍 \"{name}\" ({current}/{total}): {error}",
+                "bulkAddSuccess": "成功添加 {count} 支队伍",
+                "addFailed": "添加队伍失败",
+                "updateFailed": "更新队伍失败",
+                "deleteFailed": "删除队伍失败"
+              },
+              "player": {
+                "title": "运动员",
+                "add": "添加运动员",
+                "empty": "尚未有运动员报名。",
+                "addTitle": "添加运动员",
+                "editTitle": "编辑运动员",
+                "deleteTitle": "移除运动员",
+                "deleteConfirm": "确定要从此类别中移除此运动员吗？",
+                "namePlaceholder": "运动员姓名",
+                "multiPlaceholder": "粘贴运动员列表，或每行输入一名运动员",
+                "count": "{count} 名运动员",
+                "addSuccess": "运动员添加成功",
+                "enterAtLeastOne": "请至少输入一名运动员",
+                "noCategorySelected": "请先选择一个类别再添加运动员",
+                "bulkAddItemFailed": "无法添加运动员 \"{name}\" ({current}/{total}): {error}",
+                "bulkAddSuccess": "成功添加 {count} 名运动员",
+                "addFailed": "添加运动员失败",
+                "updateFailed": "更新运动员失败",
+                "deleteFailed": "移除运动员失败"
+              }
+            },
+            "players": {
+              "title": "选手",
+              "subtitle": "本赛事的所有选手。在此添加的选手可分配到队伍和报名中。",
+              "addPlayer": "添加选手",
+              "searchPlaceholder": "搜索选手...",
+              "noPlayers": "暂无选手",
+              "noResults": "没有匹配的选手",
+              "addPlayerTitle": "添加选手",
+              "editPlayer": "编辑选手",
+              "deletePlayer": "删除选手",
+              "deleteConfirm": "确定要删除这名选手吗？",
+              "deleteWarning": "此操作还将从 {registrations} 个报名和 {teams} 支队伍中移除该选手。",
+              "avatar": "头像",
+              "avatarEmpty": "暂无头像",
+              "avatarSelected": "已选择头像",
+              "avatarUpload": "上传头像",
+              "avatarGallery": "从图库选择",
+              "playerCode": "选手编号",
+              "playerCodePlaceholder": "例如：VDV001",
+              "name": "姓名",
+              "namePlaceholder": "选手姓名",
+              "gender": "性别",
+              "genderPlaceholder": "选择性别",
+              "level": "等级",
+              "levelPlaceholder": "选择等级",
+              "levelDescription": "等级描述",
+              "levelDescriptionPlaceholder": "例如：中级、公开级...",
+              "email": "邮箱",
+              "emailPlaceholder": "name@example.com",
+              "phone": "电话",
+              "phonePlaceholder": "电话号码",
+              "bulkImport": {
+                "button": "批量添加",
+                "title": "批量添加选手",
+                "description": "按列顺序粘贴列表：编号、姓名、性别、电话。",
+                "inputLabel": "选手列表",
+                "placeholder": "编号, 姓名, 性别, 电话\nVDV001, Nguyen Van A, Male, 0901234567\n, Tran Thi B, Female, 0912345678",
+                "help": "支持逗号或制表符分隔。可包含表头。电话后的列会被忽略。",
+                "previewTitle": "预览 {count} 名选手",
+                "errorSummary": "需要修复 {count} 个错误",
+                "readySummary": "可以导入",
+                "confirm": "添加选手",
+                "valid": "有效",
+                "success": "已添加 {count} 名选手",
+                "failed": "批量添加选手失败",
+                "columns": {
+                  "line": "行",
+                  "code": "编号",
+                  "name": "姓名",
+                  "gender": "性别",
+                  "phone": "电话",
+                  "status": "状态"
+                },
+                "errors": {
+                  "nameRequired": "缺少姓名",
+                  "invalidGender": "性别无效",
+                  "duplicateCodeExisting": "编号已存在",
+                  "duplicateCodeBatch": "导入列表中编号重复",
+                  "duplicateNameExisting": "姓名已存在",
+                  "duplicateNameBatch": "导入列表中姓名重复"
+                }
+              },
+              "genderMale": "男",
+              "genderFemale": "女",
+              "genderOther": "其他",
+              "genderPreferNotToSay": "不愿透露",
+              "save": "保存",
+              "cancel": "取消",
+              "close": "关闭",
+              "delete": "删除",
+              "addSuccess": "已添加选手",
+              "updateSuccess": "已更新选手",
+              "deleteSuccess": "已删除选手",
+              "addFailed": "添加选手失败",
+              "updateFailed": "更新选手失败",
+              "deleteFailed": "删除选手失败",
+              "unknownError": "未知错误",
+              "playersCount": "{count} 名选手",
+              "usageBadge": "{count} 个报名",
+              "playerDetails": "选手详情",
+              "usage": "使用情况",
+              "usageDetail": "{registrations} 个报名 · {teams} 支队伍",
+              "linkedAccount": "关联账户"
             },
             "categories": {
               "title": "类别",
-              "addCategory": "添加类别"
+              "addCategory": "添加类别",
+              "createCategory": "创建类别",
+              "editCategory": "编辑类别",
+              "deleteCategory": "删除类别",
+              "deleteConfirm": "确定要删除此类别吗？",
+              "nameLabel": "类别名称",
+              "namePlaceholder": "例如：男子双打 3.0",
+              "typeLabel": "类别类型",
+              "registrationModeLabel": "报名方式",
+              "save": "保存",
+              "cancel": "取消",
+              "delete": "删除",
+              "createFailed": "创建类别失败",
+              "updateFailed": "更新类别失败",
+              "deleteFailed": "删除类别失败",
+              "unknownError": "未知错误",
+              "teamSizeSummary": "每队 {count} 名运动员",
+              "individual": "个人",
+              "team": "队伍",
+              "teamSizeLabel": "每队运动员数",
+              "teamSizePlaceholder": "例如：2",
+              "teamSizeHelp": "用于按队伍报名的类别。匹克球和羽毛球双打通常每队 2 名运动员。",
+              "validation": {
+                "nameRequired": "请输入类别名称。",
+                "nameDuplicate": "此锦标赛中已存在同名类别。",
+                "teamSizeMin": "每队运动员数必须是大于或等于 2 的整数。"
+              },
+              "types": {
+                "mensSingle": "男子单打",
+                "womensSingle": "女子单打",
+                "mensDouble": "男子双打",
+                "womensDouble": "女子双打",
+                "mixedDouble": "混合双打",
+                "custom": "自定义"
+              }
             },
             "format": {
               "title": "赛制",
-              "switchFormat": "切换赛制"
+              "switchFormat": "切换赛制",
+              "defaultFormatHint": "正在使用默认赛制。点击\"切换赛制\"进行自定义。",
+              "labels": {
+                "poolPlay": "小组赛",
+                "playoffs": "淘汰赛",
+                "roundRobin": "循环赛",
+                "singleElimination": "单淘汰赛"
+              },
+              "formats": {
+                "roundRobin": {
+                  "title": "循环赛",
+                  "description": "队伍在小组中比赛，并根据表现进行排名。"
+                },
+                "singleElimination": {
+                  "title": "单淘汰赛",
+                  "description": "队伍根据排名进入淘汰赛，输掉一场比赛后即被淘汰。"
+                },
+                "roundRobinToSingleElimination": {
+                  "title": "循环赛转单淘汰赛",
+                  "description": "队伍先在小组中比赛，并根据表现进行排名。然后根据排名进入淘汰赛，输掉一场比赛后即被淘汰。"
+                }
+              },
+              "scoringRules": {
+                "title": "计分规则",
+                "description": "选择项目预设快速设置，或为锦标赛手动微调。",
+                "presets": {
+                  "BWF_21": "BWF 21 分",
+                  "CLASSIC_15": "经典 15 分",
+                  "RALLY_15": "Rally 15（封顶 21）",
+                  "SHORT_11": "短赛 11（封顶 15）",
+                  "CUSTOM": "自定义",
+                  "PICKLEBALL_11": "匹克球 11 分",
+                  "PICKLEBALL_15": "匹克球 15 分",
+                  "PICKLEBALL_21": "匹克球 21 分"
+                },
+                "matchFormat": "最多局数",
+                "matchFormats": {
+                  "BEST_OF_1": "1 局",
+                  "BEST_OF_3": "3 局",
+                  "BEST_OF_5": "5 局"
+                },
+                "pointsToWin": "每局得分",
+                "winByTwo": "净胜 2 分",
+                "pointCap": "封顶分",
+                "noCap": "不封顶",
+                "disableCap": "取消封顶",
+                "presetTitle": "快速规则模板",
+                "customTitle": "自定义当前阶段",
+                "yes": "是",
+                "no": "否",
+                "save": "保存规则",
+                "saveError": "保存失败，请重试。",
+                "invalid": "数值无效——每局得分 1–99，封顶分必须不小于每局得分。",
+                "stages": {
+                  "GROUP": "小组赛",
+                  "KNOCKOUT": "淘汰赛",
+                  "FINAL": "决赛"
+                },
+                "stageHints": {
+                  "GROUP": "此规则适用于小组赛（循环赛）阶段。",
+                  "KNOCKOUT": "适用于淘汰赛轮次（R16/八强/四强/铜牌战）。继承 = 使用小组赛规则。",
+                  "FINAL": "仅适用于决赛。继承 = 使用淘汰赛规则。"
+                },
+                "inheritTitle": "沿用前一阶段的规则",
+                "inheritHintKnockout": "继承自小组赛规则。关闭以为淘汰赛设置独立规则。",
+                "inheritHintFinal": "继承自淘汰赛规则（或小组赛）。关闭以为决赛设置独立规则。",
+                "inheritOn": "继承",
+                "inheritOff": "自定义",
+                "summary": {
+                  "title": "各阶段当前规则",
+                  "inherited": "继承",
+                  "points": "{points} 分",
+                  "winByTwo": "净胜 2 分",
+                  "cap": "封顶 {cap}",
+                  "noCap": "无封顶"
+                }
+              }
             },
             "standings": {
               "title": "排名",
@@ -2027,6 +2822,11 @@
               "points": "积分",
               "pointsPerWin": "分/胜",
               "pointsPerTie": "分/平",
+              "pointsPerLoss": "分/负",
+              "pointsPerGameWin": "分/局胜",
+              "pointsPerGameLoss": "分/局负",
+              "pointsPerForfeitWin": "分/弃赛胜",
+              "pointsPerForfeitLoss": "分/弃赛负",
               "required": "必填",
               "save": "保存",
               "cancel": "取消"
@@ -2064,8 +2864,20 @@
               "inProgress": "进行中",
               "finished": "已完成",
               "cancelled": "已取消",
+              "deleteAllMatches": "删除所有比赛",
+              "deleteAllMatchesConfirmTitle": "删除所有比赛？",
+              "deleteAllMatchesConfirmDesc": "这将永久删除赛事中的全部 {count} 场比赛，包括未开始、进行中和已结束的比赛。相关赛程、比分、结果和场地关联也会被删除。此操作无法撤销。",
+              "deleteAllMatchesConfirmAction": "全部删除",
+              "deleteAllMatchesSuccess": "已删除全部 {count} 场比赛",
+              "deleteAllMatchesError": "删除比赛失败",
+              "replaceScheduledConfirmTitle": "重新生成比赛？",
+              "replaceScheduledConfirmDesc": "已有 {count} 场比赛被安排了赛程。重新生成会删除当前比赛，并移除其场地/时间安排。",
+              "replaceScheduledConfirmAction": "重新生成",
+              "cannotRegenerateStartedTitle": "无法重新生成比赛",
+              "cannotRegenerateStartedDesc": "已有比赛正在进行或已结束。请先重置或删除结果后再重新生成比赛。",
               "setupPools": "设置分组",
               "setupMatches": "设置比赛",
+              "editPools": "编辑分组",
               "poolPlay": "小组赛",
               "poolPlaySubtitle": "设置分组和比赛。",
               "roundRobin": "循环赛",
@@ -2086,6 +2898,9 @@
               "saving": "保存中...",
               "done": "完成",
               "matchesSaved": "比赛保存成功",
+              "confirmOverwriteTitle": "覆盖当前设置？",
+              "confirmOverwriteMessage": "当前的分组和比赛将被删除并重新创建。已录入的比分将全部丢失。",
+              "confirmOverwriteConfirm": "继续并覆盖",
               "editMatches": "编辑比赛",
               "selectTeam": "选择队伍",
               "teamCannotPlayAgainstItself": "队伍不能与自己对阵",
@@ -2099,6 +2914,7 @@
               "crossoverPoolsTooltip": "交叉分组会在不同分组的队伍之间创建比赛。",
               "advancingTeams": "晋级队伍",
               "advancingTeamsSubtitle": "确定队伍如何晋级。",
+              "configureAndConfirmMatches": "配置并确认比赛。",
               "addAdvancingTeams": "添加晋级队伍",
               "editAdvancingTeams": "编辑晋级队伍",
               "rankingMethod": "队伍将如何排名？",
@@ -2116,9 +2932,15 @@
               "playoffsSubtitle": "设置对阵表和比赛。",
               "addBracket": "添加对阵表",
               "setupBracket": "设置对阵表",
+              "seedLabel": "种子 {seed}",
+              "grandFinal": "总决赛",
+              "grandFinalReset": "总决赛（重置）",
+              "trueDoubleElimination": "真正的双败淘汰",
+              "trueDoubleEliminationDesc": "败者组冠军必须在决赛中获胜两次。",
               "placementMatches": "排名赛",
               "selectPlacements": "选择将确定哪些名次。",
               "playFor3rdPlace": "争夺第三名",
+              "coThirdPlaceHint": "若关闭，两位半决赛负方将并列季军。",
               "playFor5thPlace": "争夺第五名",
               "playFor7thPlace": "争夺第七名",
               "consolationMatches": "安慰赛",
@@ -2140,6 +2962,19 @@
               "whoHomeTeam": "主队是谁？",
               "whoAwayTeam": "客队是谁？",
               "nthPoolLabel": "{rank} {pool}组",
+              "roundNumber": "第 {number} 轮",
+              "notEnoughTeams": "队伍不足，无法生成对阵",
+              "ordinals": {
+                "1": "第一",
+                "2": "第二",
+                "3": "第三",
+                "4": "第四",
+                "5": "第五",
+                "6": "第六",
+                "7": "第七",
+                "8": "第八",
+                "other": "第{rank}"
+              },
               "confirm": "确认",
               "deleteMatch": "删除比赛",
               "nMatches": "{count, plural, =1 {1场比赛} other {#场比赛}}",
@@ -2148,11 +2983,50 @@
               "addCrossover": "添加交叉",
               "crossoverPoolsDescription": "交叉小组允许队伍与其他小组的队伍进行比赛，而不是只在自己的小组内比赛。",
               "editSeeds": "编辑种子排序",
-              "editSeedsButton": "编辑种子"
+              "editSeedsButton": "编辑种子",
+              "createGroupsFailed": "创建小组失败",
+              "assignTeamsFailed": "分配队伍失败",
+              "generateMatchesFailed": "生成比赛失败",
+              "matchesSaveFailed": "保存比赛失败",
+              "bracketSaveFailed": "保存对阵表失败",
+              "advancingTeamsSaveFailed": "保存晋级队伍失败",
+              "groupLabel": "小组 {number}",
+              "poolLabel": "小组",
+              "teamLabel": "队伍",
+              "tbd": "待定",
+              "generatePlayoffs": "生成对阵表",
+              "regenerateBracket": "重新生成对阵表",
+              "confirmGenerateAction": "生成",
+              "confirmGenerateGroupTitle": "生成小组赛？",
+              "confirmGenerateGroupDesc": "将根据当前设置为所有小组生成比赛。",
+              "confirmRegenerateGroupDesc": "当前的小组赛将被替换为新生成的比赛。",
+              "confirmGenerateEliminationTitle": "生成淘汰赛？",
+              "confirmGenerateEliminationDesc": "将根据晋级设置生成淘汰赛对阵表。",
+              "confirmRegenerateEliminationDesc": "当前淘汰赛对阵表将被替换为根据晋级设置新生成的对阵表。",
+              "groupProgress": "小组赛已完成 {finished}/{total} 场",
+              "playoffsProgress": "淘汰赛已完成 {finished}/{total} 场",
+              "generateBracketLocked": "完成所有小组赛后才能生成对阵表",
+              "overwriteWarning": "重新生成将覆盖现有对阵表及其比分。",
+              "bracketReadyGenerateTitle": "可以锁定晋级队伍",
+              "bracketReadyRegenerateTitle": "可以重新生成淘汰赛对阵表",
+              "bracketReadyGenerateDescription": "小组赛已完成。你可以锁定晋级队伍，根据当前排名填充淘汰赛对阵表。",
+              "bracketReadyRegenerateWithoutScoresDescription": "当前淘汰赛对阵表有 {matches} 场比赛，尚无比分。重新生成将替换当前对阵表。",
+              "bracketReadyRegenerateWithScoresDescription": "当前对阵表有 {matches} 场淘汰赛，其中 {scored} 场已有比分。重新生成将删除当前对阵表和淘汰赛比分。",
+              "scheduleBracketReadyTitle": "小组赛已完成",
+              "scheduleBracketReadyDescription": "打开轮次设置以检查配置并生成淘汰赛对阵表。",
+              "goToRounds": "打开轮次",
+              "confirmGenerateTitle": "生成淘汰赛对阵表？",
+              "confirmGenerateMessage": "此操作将根据排名锁定晋级队伍并创建淘汰赛对阵。",
+              "bracketGenerated": "对阵表已生成",
+              "bracketGeneratedIncompleteTitle": "对阵表生成的比赛不完整",
+              "bracketGeneratedIncompleteDescription": "系统只创建了 {actual}/{expected} 场淘汰赛。请检查晋级队伍/季军赛设置，或重新生成对阵表。",
+              "generateBracketFailed": "生成对阵表失败",
+              "p5SemiFinals": "P5：半决赛"
             },
             "venues": {
               "title": "比赛场馆",
               "addVenue": "添加场馆",
+              "createVenue": "创建场馆",
               "selectVenue": "选择场馆",
               "editVenue": "编辑场馆",
               "searchPlaceholder": "按名称或地址搜索...",
@@ -2161,7 +3035,10 @@
               "nameRequired": "请输入场地名称。",
               "venueSaved": "场地保存成功",
               "saveError": "保存场地失败",
+              "createVenueDesc": "如果列表中没有所需场馆，请创建一个新场馆。",
+              "recommendedVenues": "推荐场馆",
               "noVenue": "此锦标赛尚未分配场地。",
+              "address": "输入地址",
               "court": "场",
               "name": "场馆名称",
               "acronym": "简称",
@@ -2174,7 +3051,14 @@
               "confirmRemove": "从赛事中移除此场馆？",
               "noLinkedVenues": "此赛事尚未关联任何场馆。",
               "courtsCount": "个场地",
-              "addAnotherVenue": "添加另一个场馆"
+              "addAnotherVenue": "添加另一个场馆",
+              "loadError": "加载场馆失败",
+              "removeError": "移除场馆失败",
+              "viewOnGoogleMaps": "在 Google 地图中查看",
+              "remove": "移除",
+              "cancel": "取消",
+              "removeConfirmPrefix": "从此赛事中移除",
+              "removeConfirmSuffix": "？"
             },
             "schedule": {
               "title": "赛程",
@@ -2184,20 +3068,38 @@
             "sponsors": {
               "title": "赞助商",
               "description": "添加赞助商以显示在锦标赛页面上。",
-              "addSponsors": "添加赞助商"
+              "addSponsors": "添加赞助商",
+              "createSponsor": "添加赞助商",
+              "editSponsor": "编辑赞助商",
+              "deleteSponsor": "删除赞助商",
+              "deleteConfirm": "您确定要删除此赞助商吗？",
+              "nameLabel": "赞助商名称",
+              "namePlaceholder": "输入赞助商名称",
+              "websiteLabel": "网站",
+              "websitePlaceholder": "https://example.com",
+              "logoLabel": "标志",
+              "save": "保存",
+              "cancel": "取消",
+              "delete": "删除",
+              "createFailed": "无法添加赞助商",
+              "updateFailed": "无法更新赞助商",
+              "deleteFailed": "无法删除赞助商",
+              "unknownError": "未知错误"
             },
             "name": {
               "title": "锦标赛名称",
               "description": "更改锦标赛名称",
               "nameLabel": "锦标赛名称",
               "namePlaceholder": "输入锦标赛名称",
+              "notesLabel": "首页备注",
+              "notesPlaceholder": "输入备注、补充规则或参赛者需要注意的信息...",
               "save": "保存",
               "cancel": "取消",
-              "success": "锦标赛名称更新成功",
+              "success": "锦标赛信息更新成功",
               "errors": {
                 "nameRequired": "锦标赛名称为必填项",
                 "noChanges": "没有更改需要保存",
-                "updateFailed": "更新锦标赛名称失败"
+                "updateFailed": "更新锦标赛信息失败"
               }
             },
             "dates": {
@@ -2230,8 +3132,123 @@
                 "noChanges": "没有更改需要保存",
                 "updateFailed": "更新锦标赛地点失败"
               }
+            },
+            "banner": {
+              "title": "锦标赛封面图片",
+              "description": "上传锦标赛页面的封面图片。推荐尺寸：1200x400px。",
+              "currentBanner": "当前封面图片",
+              "noBanner": "尚未设置封面图片",
+              "save": "保存",
+              "cancel": "取消",
+              "success": "封面图片更新成功",
+              "errors": {
+                "noChanges": "没有更改需要保存",
+                "updateFailed": "更新封面图片失败"
+              }
+            },
+            "videos": {
+              "title": "YouTube 视频",
+              "description": "粘贴一个或多个 YouTube 链接，显示在锦标赛主页。",
+              "placeholder": "https://www.youtube.com/watch?v=...",
+              "add": "添加视频",
+              "remove": "删除视频",
+              "save": "保存",
+              "cancel": "取消",
+              "success": "YouTube 视频更新成功",
+              "invalidHelper": "请输入有效的 YouTube 链接。",
+              "errors": {
+                "invalidUrl": "保存前请修正无效的 YouTube 链接",
+                "noChanges": "没有更改需要保存",
+                "updateFailed": "更新 YouTube 视频失败"
+              }
+            },
+            "contact": {
+              "title": "联系信息",
+              "description": "更新锦标赛页面显示的联系方式。",
+              "nameLabel": "联系人姓名",
+              "namePlaceholder": "请输入联系人姓名",
+              "emailLabel": "邮箱",
+              "emailPlaceholder": "请输入联系邮箱",
+              "phoneLabel": "电话",
+              "phonePlaceholder": "请输入联系电话",
+              "save": "保存",
+              "cancel": "取消",
+              "success": "联系信息更新成功",
+              "errors": {
+                "noChanges": "没有更改需要保存",
+                "invalidEmail": "邮箱格式无效",
+                "updateFailed": "更新联系信息失败"
+              }
             }
+          },
+          "statusBanner": {
+            "statusTitle": {
+              "PREPARING": "锦标赛尚未开始",
+              "IN_PROGRESS": "锦标赛进行中",
+              "FINISHED": "锦标赛已结束",
+              "CANCELLED": "锦标赛已取消"
+            },
+            "statusSubtitle": {
+              "PREPARING": "设置完成后即可开始锦标赛。",
+              "IN_PROGRESS": "比赛正在进行。决出冠军后即可结束。",
+              "FINISHED": "成绩已确定。如需修改可重新开启。",
+              "CANCELLED": "该锦标赛已取消。恢复后可继续组织。"
+            },
+            "actions": {
+              "start": "开始锦标赛",
+              "finish": "结束锦标赛",
+              "cancel": "取消锦标赛",
+              "reopen": "重新开启锦标赛",
+              "restore": "恢复锦标赛"
+            },
+            "confirm": {
+              "start": {
+                "title": "开始锦标赛？",
+                "description": "这会将锦标赛标记为进行中。参赛者将看到比赛已开始。",
+                "button": "确认开始"
+              },
+              "finish": {
+                "title": "结束锦标赛？",
+                "description": "这会将锦标赛标记为已结束并锁定最终成绩。",
+                "button": "确认结束"
+              },
+              "cancel": {
+                "title": "取消锦标赛？",
+                "description": "这会将锦标赛标记为已取消。如有需要可稍后恢复。",
+                "button": "确认取消"
+              },
+              "reopen": {
+                "title": "重新开启锦标赛？",
+                "description": "这会将锦标赛恢复为进行中，以便修改成绩。",
+                "button": "确认开启"
+              },
+              "restore": {
+                "title": "恢复锦标赛？",
+                "description": "这会将锦标赛恢复为准备中，以便继续组织。",
+                "button": "确认恢复"
+              }
+            },
+            "cancelButton": "取消"
           }
+        },
+        "winnersTab": {
+          "title": "优胜者",
+          "description": "{tournament} 的冠军及领奖台名次。",
+          "categoryFilter": "按项目筛选",
+          "allCategories": "全部项目",
+          "noCategories": "暂无项目。",
+          "error": "无法加载优胜者。",
+          "retry": "重试",
+          "champion": "冠军",
+          "runnerUp": "亚军",
+          "thirdPlace": "季军",
+          "coThirdPlace": "并列季军",
+          "showPlayerNames": "切换队伍名称和选手名称",
+          "showPlayerNamesBadge": "显示选手名称",
+          "provisional": "暂定",
+          "final": "最终",
+          "inProgress": "锦标赛进行中——冠军尚未决出。",
+          "empty": "暂无结果。"
         }
       },
       "manage": {
@@ -2327,6 +3344,7 @@
         "noMatchesYet": "尚未有比赛",
         "groupStage": "小组赛",
         "bestOf3": "三局两胜",
+        "bestOf5": "五局三胜",
         "bestOf1": "一局定胜负",
         "groups": "小组",
         "participants": "参与者",
@@ -2457,6 +3475,7 @@
         "numberOfGames": "局数",
         "bestOf1": "一局定胜负",
         "bestOf3": "三局两胜",
+        "bestOf5": "五局三胜",
         "save": "保存",
         "group": "小组",
         "vs": "对",
@@ -2466,6 +3485,496 @@
         "finished": "已结束",
         "cancelled": "已取消",
         "select": "选择"
+      },
+      "scoreEntry": {
+        "title": "裁判 — 录入比分",
+        "noAssignedMatches": "您还没有被分配任何比赛。",
+        "court": "场地",
+        "vs": "对",
+        "statusLabel": "状态",
+        "roundLabel": "轮次",
+        "scheduledAt": "预计时间",
+        "matchPrepTitle": "准备比赛",
+        "matchPrepDescription": "检查场地，确认双方队伍，一切就绪后开始比赛。",
+        "awaitingFeedersTitle": "尚不能开始",
+        "awaitingFeedersDescription": "该比赛需等待上一轮比赛结束以确定两支队伍。",
+        "playerInfo": "球员信息",
+        "players": "名球员",
+        "playerCode": "编号",
+        "email": "邮箱",
+        "phone": "电话",
+        "gender": "性别",
+        "genderValues": {
+          "male": "男",
+          "female": "女",
+          "other": "其他",
+          "preferNotToSay": "不愿透露"
+        },
+        "level": "水平",
+        "levelDescription": "水平说明",
+        "notes": "备注",
+        "refereeName": "裁判姓名",
+        "refereeNamePlaceholder": "输入裁判姓名",
+        "matchNotesPlaceholder": "添加比赛备注",
+        "noPlayerDetails": "暂无球员详情",
+        "rounds": {
+          "group": "小组赛",
+          "qf": "1/4决赛",
+          "sf": "半决赛",
+          "f": "决赛",
+          "thirdPlace": "三四名决赛",
+          "fifthPlace": "五六名决赛",
+          "seventhPlace": "七八名决赛",
+          "r16": "1/8决赛",
+          "r32": "1/16决赛",
+          "r64": "1/32决赛",
+          "r128": "1/64决赛"
+        },
+        "status": {
+          "IN_PROGRESS": "进行中",
+          "UNSCHEDULED": "未排期",
+          "SCHEDULED": "已排期",
+          "FINISHED": "已结束",
+          "CANCELLED": "已取消"
+        },
+        "bestOf1": "一局制",
+        "bestOf3": "三局两胜",
+        "bestOf5": "五局三胜",
+        "ruleSummary": "{points}分制{cap}",
+        "winByTwo": "净胜 2 分",
+        "setWins": "局",
+        "currentSet": "第",
+        "addPointFor": "为 {team} 加一分",
+        "removePointFor": "为 {team} 减一分",
+        "matchPointReached": "已满足结束条件 — 点击\"{action}\"确认",
+        "undo": "撤销",
+        "endMatch": "结束",
+        "startMatch": "开始比赛",
+        "finalResult": "最终结果",
+        "back": "返回",
+        "matchNotFound": "未找到比赛",
+        "confirmEndMatch": "结束这场比赛？",
+        "endMatchSummary": "确认本场比赛的最终结果。",
+        "endMatchIncompleteWarning": "比赛似乎尚未结束。仍要结束吗？",
+        "winner": "胜者",
+        "cancel": "取消",
+        "refereeArea": "裁判区",
+        "enterScores": "录入比分",
+        "rotateLandscape": "横屏显示",
+        "exitLandscape": "退出横屏",
+        "randomDraw": "随机抽签",
+        "randomDrawTitle": "随机抽签",
+        "randomDrawHint": "用于在赛前快速选择拥有优先权的一方。",
+        "randomDrawWinner": "选中一方",
+        "randomDrawServe": "优先发球",
+        "randomDrawSide": "优先选边",
+        "drawing": "抽签中...",
+        "drawAgain": "重新抽签",
+        "startDraw": "开始抽签",
+        "close": "关闭",
+        "swapScoreboardSides": "交换显示位置",
+        "showPlayerNames": "显示球员姓名",
+        "hidePlayerNames": "隐藏球员姓名",
+        "forfeit": "弃权",
+        "forfeitTitle": "记录弃权 / 不战而胜",
+        "forfeitSelectWinner": "选择获胜方",
+        "forfeitHint": "所选一方因对手弃权而获胜；对手将被记为弃权。",
+        "walkover": "弃权",
+        "forfeitConfirm": "确认弃权",
+        "save": "保存",
+        "editSetTitle": "编辑第 {number} 局比分",
+        "editSetTooltip": "点击编辑第 {number} 局比分",
+        "editSetHintLatest": "输入当前局的新比分。",
+        "editSetHintPast": "该局已结束。保存后后续局将被清除，需重新输入。",
+        "editSetWillResetLater": "保存将清除后续局（需重新输入）。",
+        "editSetErrorInvalid": "比分无效。",
+        "editSetErrorCap": "比分不能超过 {cap}。",
+        "editSetErrorIncomplete": "过往的局必须以有效的胜利比分结束。",
+        "editSetSuccess": "比分已更新",
+        "pickleballServer": "发球",
+        "sideLabel": "第 {side} 方",
+        "servingSideTooltip": "{team} 正在发球",
+        "serverNumberTooltip": "第 {number} 发球员",
+        "matchHistory": "比赛记录",
+        "matchHistoryEmpty": "暂无记录",
+        "logServeChanged": "发球轮换",
+        "logUndo": "撤销得分"
+      },
+      "scoreboard": {
+        "court": "场地",
+        "live": "直播",
+        "final": "结束",
+        "rounds": {
+          "group": "小组赛",
+          "qf": "1/4决赛",
+          "sf": "半决赛",
+          "f": "决赛",
+          "thirdPlace": "三四名决赛",
+          "fifthPlace": "五六名决赛",
+          "seventhPlace": "七八名决赛",
+          "r16": "1/8决赛",
+          "r32": "1/16决赛",
+          "r64": "1/32决赛",
+          "r128": "1/64决赛"
+        },
+        "selectCourts": "场地",
+        "allCourts": "全部",
+        "gridSize": "布局",
+        "fullscreen": "全屏",
+        "exitFullscreen": "退出",
+        "fullNames": "完整姓名",
+        "showFinished": "已结束比赛",
+        "share": "分享",
+        "noLiveMatches": "目前没有进行中的比赛",
+        "qrTitle": "分享记分牌",
+        "copyLink": "复制链接",
+        "linkCopied": "已复制链接",
+        "liveScoreboard": "实时记分牌",
+        "overlay": {
+          "title": "直播叠加层链接",
+          "description": "将链接粘贴到 OBS 的浏览器源中。每个球场链接会自动切换到该球场正在进行的比赛。",
+          "court": "球场",
+          "linkCopied": "已复制链接",
+          "noCourts": "该赛事尚未设置任何球场。",
+          "close": "关闭"
+        }
+      },
+      "showcase": {
+        "showcaseTitle": "运动员展示",
+        "tournament": "赛事",
+        "randomPlayers": "随机运动员",
+        "singlePlayer": "单名运动员",
+        "pairs": "单组搭档",
+        "matches": "对阵",
+        "champion": "冠军",
+        "championTitle": "恭喜冠军",
+        "championSubtitle": "精彩征程以实至名归的冠军收官。",
+        "randomOrder": "随机",
+        "scheduleOrder": "按赛程",
+        "pause": "暂停",
+        "play": "继续",
+        "share": "分享",
+        "fullscreen": "全屏",
+        "exitFullscreen": "退出",
+        "hideControls": "隐藏控制",
+        "linkCopied": "已复制链接",
+        "copyFailed": "无法复制链接",
+        "playerCode": "{code}",
+        "athleteSpotlight": "赛事运动员展示",
+        "live": "进行中",
+        "court": "场地 {court}",
+        "noPlayers": "暂无运动员",
+        "addPlayersFirst": "请先为赛事添加运动员，然后开始播放。",
+        "noPairs": "暂无搭档组合",
+        "noMatches": "暂无赛程或对阵",
+        "switchToPlayers": "切换到随机运动员模式，展示当前名单。",
+        "loadFailed": "无法加载展示页",
+        "tryAgain": "请检查连接或重新加载页面。"
+      },
+      "umpires": {
+        "title": "裁判",
+        "description": "添加裁判，关联账号以便实时录入比分，并分配到各场比赛。",
+        "rounds": {
+          "group": "小组赛",
+          "qf": "1/4决赛",
+          "sf": "半决赛",
+          "f": "决赛",
+          "thirdPlace": "三四名决赛",
+          "fifthPlace": "五六名决赛",
+          "seventhPlace": "七八名决赛",
+          "r16": "1/8决赛",
+          "r32": "1/16决赛",
+          "r64": "1/32决赛",
+          "r128": "1/64决赛"
+        },
+        "addReferee": "添加裁判",
+        "name": "姓名",
+        "email": "邮箱",
+        "phone": "电话",
+        "notes": "备注",
+        "save": "保存",
+        "cancel": "取消",
+        "delete": "删除",
+        "edit": "编辑",
+        "linked": "已关联",
+        "court": "场地",
+        "noMatches": "暂无可分配裁判的比赛。",
+        "noReferees": "尚未添加裁判。",
+        "linkAccount": "关联账号",
+        "unlinkAccount": "取消关联",
+        "linkedTo": "已关联 {email}",
+        "notLinked": "未关联账号",
+        "linkByEmail": "通过账号邮箱关联",
+        "emailPlaceholder": "referee@email.com",
+        "assignReferee": "分配裁判",
+        "currentReferee": "裁判：{name}",
+        "noReferee": "未分配裁判",
+        "selectReferee": "选择裁判",
+        "selectAll": "选择所有比赛",
+        "selectMatch": "选择比赛",
+        "selectedMatches": "已选择 {count} 场比赛",
+        "applyToSelected": "应用到已选择",
+        "applyToAll": "应用到全部",
+        "clearSelection": "清除选择",
+        "bulkAssignSuccess": "已为 {count} 场比赛分配裁判",
+        "assignByCourt": "按场地分配",
+        "assignByCourtDesc": "将一名裁判分配给某个场地的所有比赛。",
+        "selectCourt": "选择场地",
+        "applyToCourt": "应用到场地",
+        "courtMatchesCount": "{count} 场比赛",
+        "noCourtMatches": "还没有比赛被安排场地。请先生成赛程。",
+        "unassign": "移除",
+        "assign": "分配"
+      },
+      "playoffSlot": {
+        "winnerOf": "{match} 胜者",
+        "loserOf": "{match} 负者",
+        "nthPoolLabel": "{pool}组第{rank}",
+        "bye": "轮空",
+        "tbd": "待定",
+        "ordinals": {
+          "1": "1",
+          "2": "2",
+          "3": "3",
+          "4": "4",
+          "5": "5",
+          "6": "6",
+          "7": "7",
+          "8": "8",
+          "other": "{rank}"
+        }
+      },
+      "manualScore": {
+        "title": "录入比分",
+        "deleteMatch": "删除比赛",
+        "deleteFailed": "删除比赛失败",
+        "panelTitle": "比赛结果",
+        "panelDescription": "为线下进行的比赛手动录入比分和胜方。",
+        "vs": "对",
+        "set": "局",
+        "addSet": "添加一局",
+        "removeSet": "删除该局",
+        "winner": "胜者",
+        "noWinnerYet": "请录入比分，直到一方赢得比赛。",
+        "setValid": "比分有效，可结束本局",
+        "setIncomplete": "比分尚不能结束本局",
+        "setsProgress": "已赢 {won}/{need} 局（{bestOf} 局制）。",
+        "setsProgressTied": "{side1} - {side2} 局（需 {need} 局获胜）。",
+        "back": "返回",
+        "cancel": "取消",
+        "save": "保存结果",
+        "noMatches": "暂无可录入的比赛。",
+        "court": "场地",
+        "enterResult": "录入结果",
+        "viewList": "列表",
+        "viewCalendar": "日历",
+        "showPlayerNames": "运动员姓名",
+        "showPlayerNamesBadge": "显示运动员姓名",
+        "calendar": {
+          "time": "时间",
+          "empty": "暂无同时设置场地和时间的比赛可在日历中显示。"
+        },
+        "filters": {
+          "title": "筛选",
+          "categories": "项目",
+          "rounds": "轮次",
+          "courts": "场地",
+          "status": "状态",
+          "dates": "日期",
+          "teams": "队伍",
+          "search": "搜索",
+          "searchPlaceholder": "搜索选手或队伍",
+          "referee": "裁判",
+          "refereeOnlyLabel": "我的比赛",
+          "clear": "清除筛选",
+          "apply": "应用",
+          "empty": "没有符合筛选条件的比赛。",
+          "statusUpcoming": "即将/进行中",
+          "statusFinished": "已结束",
+          "statusCancelled": "已取消",
+          "statusForfeited": "弃赛"
+        },
+        "rounds": {
+          "group": "小组赛",
+          "qf": "1/4决赛",
+          "sf": "半决赛",
+          "f": "决赛",
+          "thirdPlace": "三四名决赛",
+          "fifthPlace": "五六名决赛",
+          "seventhPlace": "七八名决赛",
+          "r16": "1/8决赛",
+          "r32": "1/16决赛",
+          "r64": "1/32决赛",
+          "r128": "1/64决赛"
+        },
+        "status": {
+          "IN_PROGRESS": "进行中",
+          "SCHEDULED": "已排期",
+          "UNSCHEDULED": "未排期",
+          "FINISHED": "已结束",
+          "CANCELLED": "已取消"
+        },
+        "matchCardStatus": {
+          "SCHEDULED": "即将开始",
+          "UNSCHEDULED": "未排期"
+        },
+        "modeScore": "比分",
+        "modeForfeit": "弃赛",
+        "modeManual": "手动积分",
+        "selectWinner": "选择获胜方",
+        "forfeitHint": "另一方将被记录为弃赛。",
+        "points": "积分",
+        "walkover": "轮空胜",
+        "draw": "平局",
+        "matchDetail": {
+          "title": "比赛详情",
+          "tabDetails": "详情",
+          "tabStats": "统计",
+          "editResult": "修改成绩",
+          "awaitingFeeders": "该比赛需等待上一轮比赛结束以确定两支队伍。",
+          "referee": "裁判",
+          "matchOptions": "比赛选项",
+          "bySet": "各局",
+          "schedule": "安排赛程",
+          "resetResult": "重置结果",
+          "refereeInfo": "裁判信息",
+          "refereeName": "裁判姓名",
+          "assignedReferee": "已分配裁判",
+          "notes": "备注"
+        },
+        "scheduleUpdated": "赛程已更新",
+        "scheduleUpdateFailed": "更新赛程失败",
+        "resetResultConfirmTitle": "重置比赛结果",
+        "resetResultConfirmText": "确定要将这场比赛恢复为未开始状态吗？",
+        "resetResultConfirmButton": "重置结果",
+        "resetResultWarning": "此操作会清除比分、局分、获胜方、排名积分和弃赛状态。场地和比赛时间会保留。",
+        "resetResultSuccess": "比赛结果已重置",
+        "resetResultFailed": "无法重置比赛结果"
+      },
+      "qrBar": {
+        "download": "下载二维码",
+        "share": "分享",
+        "copy": "复制链接",
+        "copied": "已复制",
+        "downloadSuccess": "二维码已下载",
+        "copySuccess": "链接已复制",
+        "copyError": "无法复制链接"
+      },
+      "teamPage": {
+        "title": "队伍详情",
+        "notFound": "在此赛事中未找到该队伍。",
+        "backToList": "队伍列表",
+        "teamLabel": "参赛队伍",
+        "defaultTeamName": "未命名队伍",
+        "members": "队员",
+        "noMembers": "队伍尚未添加运动员。",
+        "defaultPlayerName": "运动员",
+        "scheduleTitle": "赛程与结果",
+        "noMatches": "暂无比赛。",
+        "noResult": "暂无结果",
+        "matchWon": "胜",
+        "matchLost": "负",
+        "openMatchDetail": "打开第 {number} 场详情",
+        "courtPrefix": "{number} 号场地",
+        "matchInfo": "{round} · 第 {number} 场",
+        "qrTitle": "本页二维码",
+        "copied": "已复制",
+        "copyLink": "复制链接",
+        "copySuccess": "已复制链接",
+        "copyError": "无法复制链接",
+        "tabs": {
+          "overview": "总览",
+          "teams": "队伍",
+          "schedule": "赛程",
+          "standings": "排名"
+        },
+        "rounds": {
+          "group": "小组赛",
+          "qf": "1/4决赛",
+          "sf": "半决赛",
+          "f": "决赛",
+          "thirdPlace": "三四名决赛",
+          "fifthPlace": "五六名决赛",
+          "seventhPlace": "七八名决赛",
+          "r16": "1/8决赛",
+          "r32": "1/16决赛",
+          "r64": "1/32决赛",
+          "r128": "1/64决赛"
+        }
+      },
+      "playerPage": {
+        "title": "运动员信息",
+        "errorTitle": "无法打开运动员页面",
+        "ambiguousCode": "该运动员编码重复。请使用更长的编码或从队伍列表打开。",
+        "playerNotFound": "在此赛事中未找到该运动员。",
+        "backToList": "返回队伍列表",
+        "backToListShort": "队伍列表",
+        "athleteLabel": "运动员",
+        "categoriesTitle": "参加项目",
+        "noCategories": "暂无参赛项目。",
+        "scheduleTitle": "赛程与结果",
+        "noMatches": "暂无比赛。",
+        "opponentLabel": "对手",
+        "scoreLabel": "比分",
+        "noOpponent": "暂无对手",
+        "courtPrefix": "{number} 号场地",
+        "noSchedule": "未安排",
+        "defaultTeamName": "未命名队伍",
+        "defaultCategory": "项目",
+        "qrTitle": "本页二维码",
+        "copied": "已复制",
+        "copyLink": "复制链接",
+        "copySuccess": "已复制链接",
+        "copyError": "无法复制链接",
+        "categoryTypes": {
+          "MENS_SINGLE": "男单",
+          "WOMENS_SINGLE": "女单",
+          "MENS_DOUBLE": "男双",
+          "WOMENS_DOUBLE": "女双",
+          "MIXED_DOUBLE": "混双",
+          "CUSTOM": "项目"
+        },
+        "matchStatuses": {
+          "SCHEDULED": "即将开始",
+          "IN_PROGRESS": "进行中",
+          "FINISHED": "已结束",
+          "CANCELLED": "已取消"
+        },
+        "rounds": {
+          "group": "小组赛",
+          "qf": "1/4决赛",
+          "sf": "半决赛",
+          "f": "决赛",
+          "thirdPlace": "三四名决赛",
+          "fifthPlace": "五六名决赛",
+          "seventhPlace": "七八名决赛",
+          "r16": "1/8决赛",
+          "r32": "1/16决赛",
+          "r64": "1/32决赛",
+          "r128": "1/64决赛"
+        }
+      },
+      "managers": {
+        "title": "赛事管理员",
+        "description": "指派其他用户以特定权限共同管理本赛事。",
+        "searchPlaceholder": "按姓名或邮箱搜索用户",
+        "searching": "搜索中…",
+        "noResults": "未找到用户",
+        "permissionsLabel": "权限",
+        "selectAtLeastOne": "请至少选择一项权限",
+        "add": "添加管理员",
+        "noManagers": "尚未指派管理员。",
+        "edit": "编辑",
+        "save": "保存",
+        "cancel": "取消",
+        "remove": "移除",
+        "accessDenied": "只有主办方可以管理此列表。",
+        "permissions": {
+          "RESULTS": "成绩与计分",
+          "SCHEDULE": "赛程、场地与裁判",
+          "PARTICIPANTS": "选手与报名",
+          "STRUCTURE": "项目与赛制"
+        }
       }
     },
     "join": {
@@ -2726,10 +4235,14 @@
       "losses": "负",
       "winRate": "胜率",
       "totalMatches": "总场次",
+      "menDoubles": "男双",
+      "womenDoubles": "女双",
+      "mixedDoubles": "混双",
       "totalShuttlecocks": "用球数量",
       "downloadAchievement": "下载成就图片",
       "achievementImageTitle": "个人成就",
       "appTagline": "羽毛球活动管理平台",
+      "resultPending": "尚未记录胜负结果",
       "unnamed": "未命名",
       "noData": "无统计数据"
     },
@@ -2787,7 +4300,7 @@
     "shareSection": "分享",
     "shareImage": "分享图片",
     "qrViewSessionDetail": "QR 查看场次详情",
-    "shareTipView": "玩家可以扫描二维码查看场次详情并注册参加。",
+    "shareTipView": "适合先让玩家查看场次信息时使用。",
     "shareImageTipsTitle": "💡 分享图片提示",
     "shareImageTipsDescription": "下载精美的场次图片分享到社交媒体，吸引更多玩家参加！",
     "share": "分享图片",
@@ -2828,7 +4341,6 @@
     "copyJoinCode": "复制加入码",
     "copyJoinCodeFailed": "无法复制加入码",
     "shareTipsTitle": "分享提示",
-    "shareTipView": "适合先让玩家查看场次信息时使用。",
     "shareTipJoin": "适合让玩家在手机上立即加入场次时使用。",
     "headerActions": "操作",
     "openSessionNotes": "打开场次备注",
@@ -2909,6 +4421,7 @@
       "playerFallback": "玩家 {number}",
       "matchEndedSuccessfully": "比赛已成功结束",
       "preSelectNext": "预选下一场",
+      "displayModeLabel": "显示",
       "cancelPreSelect": "取消预选",
       "confirmCancelPreSelectTitle": "确认取消预选",
       "confirmCancelPreSelectMessage": "您确定要取消预选下一场比赛的选手吗？",
@@ -2926,7 +4439,20 @@
       "preSelectCancelledDesc": "下一场比赛的预选已被取消",
       "errorCancellingPreSelect": "取消预选出错",
       "errorAssigningPlayers": "分配玩家出错",
-      "playersDeselected": "场地玩家已撤销"
+      "playersDeselected": "场地玩家已撤销",
+      "matchRepeatWarning": {
+        "openDetails": "查看重复配对警告",
+        "title": "比赛警告",
+        "description": "本场比赛中的部分球员关系已重复超过 2 场。",
+        "hostNote": "此警告仅供 host 考虑是否重新选择对阵，不会阻止确认比赛。",
+        "teammatesTitle": "已搭档超过 2 场的组合",
+        "opponentsTitle": "已对阵超过 2 场的组合",
+        "noTeammates": "没有重复搭档组合。",
+        "noOpponents": "没有重复对阵组合。",
+        "matchCount": "{count} 场",
+        "close": "知道了"
+      },
+      "needMorePlayers": "还需要 {count} 名等待的球员才能配对"
     },
     "matchResult": {
       "title": "比赛结果",
@@ -2956,6 +4482,18 @@
       "ready": "准备就绪",
       "inactive": "未激活",
       "playerStatistics": "玩家统计数据",
+      "rankingInfoAriaLabel": "查看玩家排名计算方式",
+      "rankingInfoTitle": "玩家排名计算方式",
+      "rankingInfoClose": "知道了",
+      "rankingInfoEligibilityTitle": "MVP 资格",
+      "rankingInfoEligibility": "玩家需要至少完成本场最活跃玩家比赛数的 50%，最多要求 3 场。没有胜场的玩家不会参与 MVP 评选。",
+      "rankingInfoOrderTitle": "排名顺序",
+      "rankingInfoOrderWinRate": "1. 胜率更高者优先。",
+      "rankingInfoOrderWins": "2. 胜率相同，胜场更多者优先。",
+      "rankingInfoOrderMatches": "3. 仍相同，总比赛数更多者优先。",
+      "rankingInfoOrderTie": "4. 仍相同，所有并列玩家都会显示为共同 MVP。",
+      "rankingInfoMvpTitle": "总 MVP、男 MVP 和女 MVP",
+      "rankingInfoMvp": "系统默认显示本场总 MVP。开启“按性别拆分 MVP”后，只显示混合场次中的男/女 MVP。",
       "managePlayers": "管理玩家",
       "gridView": "网格视图",
       "grid": "网格",
@@ -3119,6 +4657,16 @@
     "playing": "进行中",
     "resting": "休息中",
     "resetFilters": "重置",
+    "mvp": "MVP",
+    "sharedMvp": "共同 MVP",
+    "maleMvp": "男 MVP",
+    "sharedMaleMvp": "共同男 MVP",
+    "femaleMvp": "女 MVP",
+    "sharedFemaleMvp": "共同女 MVP",
+    "overallMvp": "总 MVP",
+    "showGenderMvp": "按性别拆分 MVP",
+    "exportColumns": "导出列",
+    "exportColumnsDescription": "选择导出图片中显示的列。",
     "playerCount": "{count} 位球员",
     "playerCountSingular": "{count} 位球员",
     "exportImage": "导出图片"
@@ -3222,7 +4770,10 @@
       "requiredRole": "所需角色：",
       "yourRole": "您的角色：",
       "unknown": "未知",
-      "goHome": "返回首页"
+      "goHome": "返回首页",
+      "checkingAuthentication": "正在检查身份验证...",
+      "redirecting": "正在重定向...",
+      "loading": "正在加载..."
     },
     "tooManyRequests": "请求过多。请稍后重试。"
   },
@@ -3327,7 +4878,8 @@
     "genderValues": {
       "male": "男",
       "female": "女",
-      "other": "其他"
+      "other": "其他",
+      "preferNotToSay": "不愿透露"
     }
   },
   "fee": {
@@ -3370,6 +4922,9 @@
     "accountHolderNamePlaceholder": "输入账户持有人姓名",
     "qrCode": "二维码",
     "uploadQrCode": "上传二维码",
+    "downloadQrCode": "下载二维码",
+    "downloadQrCodeSuccess": "二维码已下载",
+    "downloadQrCodeFailed": "无法直接下载，已打开二维码供您手动保存",
     "removeQrCode": "删除二维码",
     "isDefault": "设为默认",
     "setAsDefault": "设为默认",
@@ -3491,6 +5046,21 @@
     "default": "默认",
     "qrCodeUploaded": "已上传二维码",
     "loadTransactionsFailed": "加载交易记录失败",
+    "searchByPlayer": "按玩家姓名搜索...",
+    "filterStatus": "状态",
+    "filterAll": "全部",
+    "filterHasPending": "有未付款",
+    "filterAllPaid": "已全额付清",
+    "dateFilterAll": "全部时间",
+    "dateFilterToday": "今天",
+    "dateFilterWeek": "本周",
+    "dateFilterMonth": "本月",
+    "dateFilterYear": "今年",
+    "sortTotalAmount": "总金额",
+    "sortPendingAmount": "待付金额",
+    "sortLatest": "最新",
+    "sortNameAZ": "A-Z",
+    "sortMostSessions": "场次最多",
     "playerTransactionsDescription": "查看您与每位主持人的支付历史",
     "hostTransactionsDescription": "查看玩家的支付历史",
     "manageSettings": "管理设置",
@@ -3520,6 +5090,10 @@
     "bulkApprovePaymentsFailed": "批量批准失败",
     "invalidAmount": "无效金额",
     "setSplitAmountFailed": "设置均分金额失败",
+    "recalculatePayments": "应用新费用",
+    "recalculatePaymentsHint": "根据最新配置更新会员费用",
+    "recalculateSuccess": "已更新 {count} 笔支付的费用",
+    "recalculateFailed": "重新计算支付费用失败",
     "transfer": "付款",
     "amountRequired": "请输入金额",
     "expenses": "费用支出",
@@ -3621,12 +5195,24 @@
     "notificationsTab": "通知",
     "approvalRequestsTab": "审批请求",
     "approvalRequestsEmpty": "暂无待审批请求",
+    "allNotificationCount": "所有通知",
+    "clubJoinRequestBadge": "俱乐部",
+    "clubJoinRequestMessage": "申请加入“{clubName}”",
+    "unknownClub": "俱乐部",
+    "venueRequestCreateBadge": "新增场地",
+    "venueRequestUpdateBadge": "更新场地",
+    "venueRequestMessage": "{name} 提交了场地请求",
+    "venueRequestUntitled": "场地请求",
     "approve": "批准",
     "reject": "拒绝",
     "approvalSession": "场次",
     "approvalLevel": "等级",
-    "approvalPlayer": "玩家 #",
+    "approvalPlayer": "报名位置",
     "approvalSlotCount": "注册槽数",
+    "approvalPageTitle": "审批参加申请",
+    "approvalSessionsPlayedCount": "已参加 {count} 场",
+    "approvalSubmittedPrefix": "提交申请",
+    "approvalViewProfile": "查看资料",
     "approveSuccess": "请求已批准",
     "rejectSuccess": "请求已拒绝",
     "approvalActionFailed": "操作失败",
@@ -3638,7 +5224,9 @@
       "clubRejected": "俱乐部已被拒绝"
     },
     "approvalPending": "待审批",
-    "approvalDetailTitle": "请求详情",
+    "sessionRequestDetailTitle": "参加球局申请",
+    "clubRequestDetailTitle": "加入俱乐部申请",
+    "venueRequestDetailTitle": "场馆申请",
     "approvalNotFound": "未找到请求",
     "approvalNotFoundDescription": "此请求可能已被处理或不存在。",
     "approvalActionCompleted": "请求处理成功",
@@ -3647,6 +5235,18 @@
     "approvalPhone": "电话",
     "approvalNote": "备注",
     "approvalGender": "性别",
+    "approvalClub": "俱乐部",
+    "approvalEmail": "邮箱",
+    "approvalMessage": "加入理由",
+    "approvalEmailVerified": "邮箱已验证",
+    "approvalEmailNotVerified": "邮箱未验证",
+    "approvalMemberSince": "{year} 年加入的会员",
+    "approvalResponse": "回复",
+    "approvalRequestedAt": "提交时间",
+    "approvalSubmittedBy": "提交人",
+    "approvalStatusApproved": "已通过",
+    "approvalStatusRejected": "已拒绝",
+    "approvalVenueInfo": "场馆信息",
     "types": {
       "SYSTEM": "系统",
       "SESSION": "场次",
@@ -3687,7 +5287,11 @@
       "playerRemovedTitle": "您已被从场次移除",
       "playerRemovedMessage": "您已被从场次“{sessionName}”移除。",
       "yourTurnTitle": "轮到您了！",
-      "yourTurnMessage": "请前往 {courtName}。您的比赛即将开始。"
+      "yourTurnMessage": "请前往 {courtName}。您的比赛即将开始。",
+      "postLikedTitle": "你的动态获得点赞",
+      "postLikedMessage": "{actorName} 赞了你的动态。",
+      "postCommentedTitle": "你的动态有新评论",
+      "postCommentedMessage": "{actorName} 评论了你的动态。"
     }
   },
   "posts": {
@@ -3697,9 +5301,11 @@
     "delete": "删除",
     "success": "成功",
     "error": "错误",
+    "userAvatar": "用户头像",
     "noPosts": "暂无动态",
     "beFirstToShare": "成为第一个分享内容！",
     "composerPlaceholder": "和羽毛球社区分享点什么...",
+    "composerPlaceholderWithName": "{name}，你在想什么？",
     "contentLabel": "动态内容",
     "contentRequired": "请输入内容",
     "createSuccess": "动态发布成功",
@@ -3710,17 +5316,31 @@
     "retryDescription": "请稍后再试。",
     "loading": "加载中...",
     "loadMore": "加载更多动态",
+    "done": "完成",
+    "backToPost": "返回动态",
     "location": "地点",
     "locationPlaceholder": "搜索地点...",
     "removeLocation": "移除",
-    "imagesMax": "图片（最多 10 张）",
+    "addToPost": "添加到动态",
+    "addPhoto": "添加图片",
+    "addLocation": "添加地点",
+    "imagesMax": "图片（最多 5 张）",
     "addImages": "添加图片",
+    "imagesSelected": "已选择 {count} 张图片",
     "imagePreview": "图片预览 {index}",
     "removeImage": "移除图片 {index}",
+    "removeImages": "移除图片",
     "closeModal": "关闭弹窗",
     "sharedFrom": "分享自 {name}",
     "postMenu": "动态菜单",
     "postImage": "动态图片 {index}",
+    "viewOnMap": "在谷歌地图中查看",
+    "postNotFound": "该动态已不存在",
+    "postNotFoundDescription": "动态可能已被删除，或链接不正确。",
+    "backToFeed": "返回动态",
+    "like": "点赞",
+    "comment": "评论",
+    "share": "分享",
     "likePost": "点赞动态",
     "unlikePost": "取消点赞动态",
     "likeError": "点赞失败",
@@ -3747,7 +5367,9 @@
       "subtitle": "功能开发中",
       "description": "我们正在打造一个让您与羽毛球社区分享和交流的空间。敬请期待！🏸",
       "badge": "即将推出"
-    }
+    },
+    "suggestedSessions": "为你推荐的活动",
+    "viewAllSessions": "查看全部活动"
   },
   "clubs": {
     "notification": {
@@ -3762,6 +5384,7 @@
     "noClubsFound": "未找到俱乐部",
     "noClubsFoundDescription": "尝试调整您的搜索或稍后查看新俱乐部",
     "members": "成员",
+    "session": "场",
     "sessions": "场次",
     "active": "活跃",
     "viewDetails": "查看详情",
@@ -3795,6 +5418,8 @@
     },
     "clubDetails": "俱乐部详情",
     "clubMembers": "俱乐部成员",
+    "showingMembers": "显示 {visible}/{total} 名成员",
+    "viewMoreMembers": "查看更多成员",
     "recentAnnouncements": "最新公告",
     "noAnnouncements": "暂无公告",
     "noDescription": "暂无描述",
@@ -3818,7 +5443,9 @@
     "joinRequests": "加入申请",
     "noPendingRequests": "No pending join requests",
     "managingGroups": "管理中的群组",
+    "adminManagingGroups": "系统中的所有群组",
     "noManagedClubs": "尚未管理任何群组",
+    "noSystemClubs": "系统中还没有群组",
     "memberClubsTab": "已加入的群组",
     "noMemberClubsTab": "尚未加入任何群组",
     "awaitingApproval": "等待审批",
@@ -3847,6 +5474,9 @@
     "failedToUpdateClub": "更新俱乐部失败",
     "failedToLoadClub": "加载俱乐部失败",
     "addClubMember": "添加俱乐部成员",
+    "searchUserPlaceholder": "按姓名或邮箱搜索...",
+    "alreadyMember": "已是成员",
+    "noUsersFound": "未找到用户",
     "noClubMembersYet": "暂无成员",
     "addFirstMember": "添加第一位成员",
     "clubMemberAddedSuccess": "成员已成功添加",
@@ -3854,9 +5484,34 @@
     "confirmRemoveClubMember": "您确定要将此成员从俱乐部中移除吗？",
     "clubMemberRemovedSuccess": "成员已成功移除",
     "failedToRemoveClubMember": "移除成员失败",
+    "memberDetails": "成员信息",
+    "viewProfile": "查看个人主页",
+    "removeFromClub": "移出俱乐部",
+    "confirmRemoveMemberTitle": "移除成员",
+    "memberGender": "性别",
+    "memberGenderMale": "男",
+    "memberGenderFemale": "女",
+    "memberGenderOther": "其他",
+    "memberLevel": "水平",
+    "memberJoinedDate": "加入日期",
+    "memberInfoNotUpdated": "未更新",
     "clubNotFound": "未找到俱乐部",
     "feeConfiguration": "费用配置",
     "currency": "VND",
+    "month": "月",
+    "selectMonth": "选择月份",
+    "month1": "1月",
+    "month2": "2月",
+    "month3": "3月",
+    "month4": "4月",
+    "month5": "5月",
+    "month6": "6月",
+    "month7": "7月",
+    "month8": "8月",
+    "month9": "9月",
+    "month10": "10月",
+    "month11": "11月",
+    "month12": "12月",
     "manageFeesTitle": "费用配置",
     "monthlyFeeConfig": "月费（用于跟踪）",
     "maleMonthlyFee": "月费（男）",
@@ -3865,6 +5520,10 @@
     "perSessionFeeDescription": "成员加入场次时将应用此费用",
     "malePerSessionFee": "场次费（男）",
     "femalePerSessionFee": "场次费（女）",
+    "saveConfiguration": "保存配置",
+    "feesUpdatedSuccess": "费用已成功更新",
+    "failedToLoadFees": "加载费用配置失败",
+    "failedToUpdateFees": "更新费用失败",
     "description": "描述",
     "descriptionPlaceholder": "输入俱乐部描述...",
     "colorLabel": "主题颜色",
@@ -3880,6 +5539,16 @@
     "fixedMembersOnly": "仅限俱乐部成员",
     "regularMembersOnly": "仅限普通成员",
     "perSessionFee": "每场费用",
+    "monthlyMembers": "月度固定成员",
+    "monthlyMembersDescription": "为本月指定固定月费成员",
+    "monthlyFixedMember": "月度固定",
+    "selectMember": "选择成员",
+    "addMonthlyMember": "添加成员",
+    "noMonthlyMembers": "本月暂无固定成员",
+    "monthlyMemberAddedSuccess": "已成功添加月度成员",
+    "monthlyMemberRemovedSuccess": "已成功移除月度成员",
+    "failedToUpdateMonthlyMembers": "更新月度成员失败",
+    "remove": "移除",
     "manageMembers": "管理成员",
     "allMembers": "所有成员",
     "addMember": "添加成员",
@@ -4057,6 +5726,16 @@
     "findSessions": "查找场次",
     "findSessionsAtVenue": "查找场次",
     "nameFormat": "羽毛球馆 {name}",
+    "fullNameFormat": {
+      "BADMINTON": "{name} 羽毛球馆",
+      "PICKLEBALL": "{name} 匹克球馆"
+    },
+    "seo": {
+      "courtsCount": "{count} 个场地",
+      "openingHours": "营业时间：{hours}",
+      "fallbackTitle": "羽毛球馆",
+      "fallbackDescription": "在 Vmito 查看羽毛球场馆详情 - 羽毛球场次管理平台。"
+    },
     "searchPlaceholder": "按场地名称、地址搜索..."
   },
   "venueRequests": {
@@ -4186,5 +5865,76 @@
       "noFeedback": "未找到反馈",
       "accessDenied": "您没有权限访问此页面"
     }
+  },
+  "productTour": {
+    "tours": {
+      "createSession": {
+        "steps": {
+          "createSession": {
+            "title": "创建您的第一场球局",
+            "description": "点击此按钮创建您的第一场羽毛球局。您可以使用 AI 输入信息，或手动填写表单。"
+          },
+          "submitSession": {
+            "title": "完善球局信息",
+            "description": "填写球局名称、场馆、时间和场地数量，然后按此按钮创建球局。"
+          },
+          "manageSession": {
+            "title": "进入球局管理页面",
+            "description": "球局已创建！点击此处打开管理页面——在这里添加球员并管理比赛。"
+          },
+          "openPlayersTab": {
+            "title": "打开球员标签页",
+            "description": "点击此标签页管理球局的球员名单。"
+          },
+          "addPlayer": {
+            "title": "添加球员",
+            "description": "点击此按钮添加球员。可以陆续添加；到打球时至少需要 4 名球员才能配对。"
+          },
+          "doneCreate": {
+            "title": "球局创建完成！🎉",
+            "description": "您已学会创建球局和添加球员。人数够了、到打球时间时，请重新打开您的球局——我们会继续指导您如何管理比赛。"
+          }
+        }
+      },
+      "runMatches": {
+        "steps": {
+          "openOverviewTab": {
+            "title": "打开概览标签页",
+            "description": "到打球时间啦！进入概览标签页开始球局。"
+          },
+          "startSession": {
+            "title": "开始球局",
+            "description": "按此按钮开始球局。开始后即可将球员安排上场。"
+          },
+          "openCourtsTab": {
+            "title": "打开场地标签页",
+            "description": "点击此标签页查看场地并为球员配对。"
+          },
+          "assignPlayers": {
+            "title": "球员配对",
+            "description": "按此按钮将球员安排到场地——可自动均衡配对或手动选择。",
+            "disabledTitle": "需要更多球员",
+            "disabledDescription": "配对一场比赛需要 4 名正在等待的球员。请到球员标签页添加，然后回到这里进行配对。"
+          },
+          "startMatch": {
+            "title": "开始比赛",
+            "description": "场地已就绪！按此按钮开始比赛。"
+          },
+          "endMatch": {
+            "title": "结束比赛",
+            "description": "比赛结束后，按此按钮记录比分并释放场地进行下一轮。"
+          },
+          "doneRun": {
+            "title": "恭喜！🎉",
+            "description": "您已掌握运营羽毛球局的完整流程：开始球局、球员配对并管理比赛。祝您打球愉快！"
+          }
+        }
+      }
+    },
+    "progress": "第 {current}/{total} 步",
+    "skip": "跳过引导",
+    "resume": "继续引导",
+    "finish": "完成",
+    "restartCta": "查看互动引导"
   }
 }

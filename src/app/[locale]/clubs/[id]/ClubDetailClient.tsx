@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, type ReactNode } from 'react';
 import {
   Box,
   Container,
@@ -16,8 +16,10 @@ import {
   Image,
   Grid,
   Tabs,
+  InputGroup,
 } from '@chakra-ui/react';
-import { Button } from '@/components/ui/chakra-compat';
+import { Button, IconButton } from '@/components/ui/chakra-compat';
+import { Input } from '@/components/ui/Input';
 import { RichTextDisplay } from '@/components/ui/RichTextDisplay';
 import AppHostDetail from '@/components/session/AppHostDetail';
 import { VModal } from '@/components/ui/VModal';
@@ -27,25 +29,40 @@ import {
   Calendar,
   MessageSquare,
   Settings,
+  DollarSign,
   Info,
   Image as ImageIcon,
   TrendingUp,
   UserPlus,
   ExternalLink,
+  Search,
+  Trash2,
+  Trophy,
+  Mars,
+  Venus,
+  User,
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { ISession, UserRole } from '@/lib/api/types';
-import { useParams } from 'next/navigation';
-import { useRouter } from '@/i18n/config';
+import { useParams, useSearchParams } from 'next/navigation';
+import { usePathname, useRouter } from '@/i18n/config';
 import { ClubsService } from '@/lib/api/clubs.service';
-import { IClub, EMemberRole, EJoinRequestStatus } from '@/types/club';
+import {
+  IClub,
+  IClubMember,
+  EMemberRole,
+  EJoinRequestStatus,
+  IClubUserSearchResult,
+} from '@/types/club';
 import { toaster } from '@/components/ui/toaster';
 import { useAuthStore } from '@/stores/useAuthStore';
 import PageLayout from '@/components/layout/PageLayout';
 import DetailViewCountFooter from '@/components/common/DetailViewCountFooter';
+import { sortLevelsByRank } from '@/constants/levels';
 import { DEFAULT_COVER_PHOTO, ROUTES } from '@/constants';
 import { getGoogleMapsUrl } from '@/utils';
 import { useLevelLabel } from '@/hooks/useLevelLabel';
+import { useDebounce } from '@/hooks/useDebounce';
 import SessionMap from '@/components/session/SessionMap';
 
 interface ClubDetailClientProps {
@@ -107,13 +124,14 @@ const getClubRequiredLevels = (club: IClub | null): number[] => {
     [];
   const rawLevelValues = Array.isArray(rawLevels) ? rawLevels : [rawLevels];
 
-  return Array.from(
+  const uniqueLevels = Array.from(
     new Set(
       rawLevelValues
         .map(extractLevelNumber)
         .filter((l): l is number => l !== null)
     )
-  ).sort((a, b) => a - b);
+  );
+  return sortLevelsByRank(uniqueLevels);
 };
 
 const getVenueNameFromScheduleNote = (note?: string): string | null => {
@@ -133,11 +151,57 @@ const getVenueAddressLine = (venue: IClub['defaultVenue']): string | null => {
   return [venue.name, venue.address].filter(Boolean).join(' | ') || null;
 };
 
+const CLUB_DETAIL_TABS = [
+  'about',
+  'members',
+  'schedule',
+  'announcements',
+  'photos',
+] as const;
+type ClubDetailTab = (typeof CLUB_DETAIL_TABS)[number];
+const DEFAULT_CLUB_TAB: ClubDetailTab = 'about';
+
+const isClubDetailTab = (value: string | null): value is ClubDetailTab =>
+  !!value && (CLUB_DETAIL_TABS as readonly string[]).includes(value);
+
+const MemberInfoRow = ({
+  icon,
+  label,
+  value,
+  isLast = false,
+}: {
+  icon: ReactNode;
+  label: string;
+  value: ReactNode;
+  isLast?: boolean;
+}) => (
+  <Flex
+    align="center"
+    justify="space-between"
+    gap={3}
+    px={4}
+    py={3}
+    borderBottomWidth={isLast ? 0 : '1px'}
+    borderColor="gray.100"
+    _dark={{ borderColor: 'gray.700' }}
+  >
+    <HStack gap={2} color="gray.500">
+      {icon}
+      <Text fontSize="sm">{label}</Text>
+    </HStack>
+    <Text fontSize="sm" fontWeight="medium" textAlign="right">
+      {value}
+    </Text>
+  </Flex>
+);
+
 export default function ClubDetailClient({
   initialClub,
 }: ClubDetailClientProps) {
   const t = useTranslations();
   const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
   const params = useParams();
   const clubId = params.id as string;
   const { user: currentUser } = useAuthStore();
@@ -145,10 +209,48 @@ export default function ClubDetailClient({
 
   const [club, setClub] = useState<IClub | null>(initialClub);
   const [isLoading, setIsLoading] = useState(!initialClub);
-  const [activeTab, setActiveTab] = useState('about');
+  const tabParam = searchParams.get('tab');
+  const [activeTab, setActiveTab] = useState<ClubDetailTab>(
+    isClubDetailTab(tabParam) ? tabParam : DEFAULT_CLUB_TAB
+  );
+
+  const handleTabChange = useCallback(
+    (tab: string) => {
+      const nextTab = isClubDetailTab(tab) ? tab : DEFAULT_CLUB_TAB;
+      setActiveTab(nextTab);
+
+      const query = new URLSearchParams(searchParams.toString());
+      if (nextTab === DEFAULT_CLUB_TAB) {
+        query.delete('tab');
+      } else {
+        query.set('tab', nextTab);
+      }
+      const queryString = query.toString();
+      router.replace(`${pathname}${queryString ? `?${queryString}` : ''}`, {
+        scroll: false,
+      });
+    },
+    [pathname, router, searchParams]
+  );
   const [isJoining, setIsJoining] = useState(false);
   const [hasPendingRequest, setHasPendingRequest] = useState(false);
   const [isHostDetailModalOpen, setIsHostDetailModalOpen] = useState(false);
+  const [isAddMemberModalOpen, setIsAddMemberModalOpen] = useState(false);
+  const [memberSearchQuery, setMemberSearchQuery] = useState('');
+  const debouncedMemberSearchQuery = useDebounce(memberSearchQuery, 400);
+  const [memberSearchResults, setMemberSearchResults] = useState<
+    IClubUserSearchResult[]
+  >([]);
+  const [isSearchingMembers, setIsSearchingMembers] = useState(false);
+  const [addingMemberId, setAddingMemberId] = useState<string | null>(null);
+  const [removingMemberId, setRemovingMemberId] = useState<string | null>(null);
+  const [visibleMembersCount, setVisibleMembersCount] = useState(8);
+  const [selectedMember, setSelectedMember] = useState<IClubMember | null>(
+    null
+  );
+  const [memberToRemove, setMemberToRemove] = useState<IClubMember | null>(
+    null
+  );
 
   const loadClubDetails = useCallback(async () => {
     try {
@@ -178,6 +280,37 @@ export default function ClubDetailClient({
     }
   }, [clubId, loadClubDetails, initialClub]);
 
+  useEffect(() => {
+    setVisibleMembersCount(8);
+  }, [clubId]);
+
+  const searchClubMembers = useCallback(
+    async (query: string) => {
+      const trimmedQuery = query.trim();
+      if (!trimmedQuery) {
+        setMemberSearchResults([]);
+        return;
+      }
+
+      try {
+        setIsSearchingMembers(true);
+        const results = await ClubsService.searchUsers(trimmedQuery, clubId);
+        setMemberSearchResults(results);
+      } catch (error) {
+        console.error('Failed to search users:', error);
+        toaster.error({ title: t('common.error') });
+      } finally {
+        setIsSearchingMembers(false);
+      }
+    },
+    [clubId, t]
+  );
+
+  useEffect(() => {
+    if (!isAddMemberModalOpen) return;
+    searchClubMembers(debouncedMemberSearchQuery);
+  }, [debouncedMemberSearchQuery, isAddMemberModalOpen, searchClubMembers]);
+
   // Hiển thị đầy đủ các trình độ đã chọn
   const getLevelRange = () => {
     const requiredLevels = getClubRequiredLevels(club);
@@ -192,7 +325,7 @@ export default function ClubDetailClient({
       .filter((l): l is number => l !== undefined && l !== null);
 
     if (levels.length === 0) return null;
-    const uniqueLevels = Array.from(new Set(levels)).sort((a, b) => a - b);
+    const uniqueLevels = sortLevelsByRank(Array.from(new Set(levels)));
     return uniqueLevels.map((l) => getLevelShortLabel(l)).join(', ');
   };
 
@@ -212,21 +345,12 @@ export default function ClubDetailClient({
           m.role === EMemberRole.ADMIN
       ));
 
-  const linkedHostMember = club?.members?.find((member) => {
-    if (member.role !== EMemberRole.ADMIN) return false;
-
-    if (club.hostName) {
-      return member.user.name === club.hostName;
-    }
-
-    return (
-      String(member.user.id) === String(club.hostId || club.host?.id) ||
-      member.user.id === club.host?.id
-    );
-  });
-  const linkedHostUser = linkedHostMember?.user;
-  const hostRealName =
-    club?.hostName || linkedHostUser?.name || club?.host?.name;
+  // The host's real user account is always available via club.host (linked
+  // through hostId). hostName is only a display override (e.g. provisional
+  // name set by admin) and must not be used to look up the linked user —
+  // it can legitimately differ from the real user's name.
+  const linkedHostUser = club?.host?.id ? club.host : undefined;
+  const hostRealName = club?.hostName || club?.host?.name;
   const canShowHostDetail = Boolean(linkedHostUser?.id);
 
   const handleJoinClub = async () => {
@@ -255,6 +379,62 @@ export default function ClubDetailClient({
     } finally {
       setIsJoining(false);
     }
+  };
+
+  const closeAddMemberModal = () => {
+    setIsAddMemberModalOpen(false);
+    setMemberSearchQuery('');
+    setMemberSearchResults([]);
+    setAddingMemberId(null);
+  };
+
+  const handleAddMember = async (userId: string) => {
+    if (!club) return;
+
+    try {
+      setAddingMemberId(userId);
+      await ClubsService.addMemberToClub(club.id, userId);
+      toaster.success({ title: t('clubs.clubMemberAddedSuccess') });
+      setMemberSearchResults((prev) =>
+        prev.filter((user) => user.id !== userId)
+      );
+      await loadClubDetails();
+    } catch (error) {
+      console.error('Failed to add club member:', error);
+      toaster.error({ title: t('clubs.failedToAddClubMember') });
+    } finally {
+      setAddingMemberId(null);
+    }
+  };
+
+  const requestRemoveMember = (member: IClubMember) => {
+    setMemberToRemove(member);
+  };
+
+  const handleConfirmRemoveMember = async () => {
+    if (!club || !memberToRemove) return;
+    const userId = memberToRemove.user.id;
+
+    try {
+      setRemovingMemberId(userId);
+      await ClubsService.removeMemberFromClub(club.id, userId);
+      toaster.success({ title: t('clubs.clubMemberRemovedSuccess') });
+      setMemberToRemove(null);
+      setSelectedMember(null);
+      await loadClubDetails();
+    } catch (error) {
+      console.error('Failed to remove club member:', error);
+      toaster.error({ title: t('clubs.failedToRemoveClubMember') });
+    } finally {
+      setRemovingMemberId(null);
+    }
+  };
+
+  const visibleMembers = club?.members?.slice(0, visibleMembersCount) ?? [];
+  const hasMoreMembers = (club?.members?.length ?? 0) > visibleMembersCount;
+
+  const handleOpenUserProfile = (userId: string) => {
+    router.push(ROUTES.USER.PROFILE(userId));
   };
 
   if (isLoading) {
@@ -417,7 +597,7 @@ export default function ClubDetailClient({
       <Container maxW="container.xl" pb={8} px={0}>
         <Tabs.Root
           value={activeTab}
-          onValueChange={(e) => setActiveTab(e.value)}
+          onValueChange={(e) => handleTabChange(e.value)}
           variant="plain"
         >
           <Tabs.List
@@ -587,76 +767,137 @@ export default function ClubDetailClient({
                   borderColor="gray.100"
                   shadow="sm"
                 >
-                  <Flex justify="space-between" align="center" mb={5}>
-                    <Heading size="md">{t('clubs.clubMembers')}</Heading>
-                    <Badge colorPalette="gray" size="sm">
-                      {club.memberCount} {t('clubs.members')}
-                    </Badge>
+                  <Flex
+                    justify="space-between"
+                    align={{ base: 'flex-start', sm: 'center' }}
+                    direction={{ base: 'column', sm: 'row' }}
+                    gap={3}
+                    mb={2}
+                  >
+                    <Box>
+                      <Heading size="md">{t('clubs.clubMembers')}</Heading>
+                      <Badge colorPalette="gray" size="sm" mt={2}>
+                        {club.memberCount} {t('clubs.members')}
+                      </Badge>
+                    </Box>
+                    {isUserAdmin && (
+                      <Button
+                        size="sm"
+                        colorPalette="green"
+                        onClick={() => setIsAddMemberModalOpen(true)}
+                      >
+                        <UserPlus size={16} />
+                        {t('clubs.addClubMember')}
+                      </Button>
+                    )}
                   </Flex>
+                  <Text fontSize="sm" color="gray.500" mb={5}>
+                    {t('clubs.showingMembers', {
+                      visible: visibleMembers.length,
+                      total: club.memberCount,
+                    })}
+                  </Text>
 
-                  {club.members && club.members.length > 0 ? (
-                    <SimpleGrid columns={{ base: 1, md: 2 }} gap={3}>
-                      {club.members.map((member) => (
-                        <Flex
-                          key={member.id}
-                          p={4}
-                          bg="gray.50"
-                          borderRadius="2xl"
-                          borderWidth="1px"
-                          borderColor="gray.100"
-                          _dark={{ bg: 'gray.900', borderColor: 'gray.700' }}
-                          align="center"
-                          gap={3}
-                          transition="all 0.2s"
-                          _hover={{
-                            bg: 'gray.100',
-                            _dark: { bg: 'gray.800' },
-                            shadow: 'sm',
-                          }}
-                        >
-                          <Avatar.Root size="lg">
-                            <Avatar.Image
-                              src={member.user.image}
-                              objectFit="cover"
-                            />
-                            <Avatar.Fallback>
-                              {member.user.name[0]}
-                            </Avatar.Fallback>
-                          </Avatar.Root>
-                          <Box flex="1" minW={0}>
-                            <Text
-                              fontWeight="semibold"
-                              fontSize="sm"
-                              lineClamp={1}
-                            >
-                              {member.user.name}
-                            </Text>
-                            <HStack gap={2} mt={1}>
-                              <Badge
-                                size="xs"
-                                colorPalette={
-                                  member.role === EMemberRole.ADMIN
-                                    ? 'orange'
-                                    : member.role === EMemberRole.MODERATOR
-                                      ? 'blue'
-                                      : 'gray'
-                                }
-                                variant="subtle"
+                  {visibleMembers.length > 0 ? (
+                    <>
+                      <SimpleGrid columns={{ base: 1, md: 2 }} gap={3}>
+                        {visibleMembers.map((member) => (
+                          <Flex
+                            key={member.id}
+                            p={4}
+                            bg="gray.50"
+                            borderRadius="2xl"
+                            borderWidth="1px"
+                            borderColor="gray.100"
+                            _dark={{ bg: 'gray.900', borderColor: 'gray.700' }}
+                            align="center"
+                            gap={3}
+                            transition="all 0.2s"
+                            cursor="pointer"
+                            onClick={() => setSelectedMember(member)}
+                            _hover={{
+                              bg: 'gray.100',
+                              _dark: { bg: 'gray.800' },
+                              shadow: 'sm',
+                            }}
+                          >
+                            <Avatar.Root size="lg">
+                              <Avatar.Image
+                                src={member.user.image}
+                                objectFit="cover"
+                              />
+                              <Avatar.Fallback>
+                                {member.user.name[0]}
+                              </Avatar.Fallback>
+                            </Avatar.Root>
+                            <Box flex="1" minW={0}>
+                              <Text
+                                fontWeight="semibold"
+                                fontSize="sm"
+                                lineClamp={1}
                               >
-                                {t(
-                                  `clubs.memberRole.${member.role.toLowerCase() as 'admin' | 'moderator' | 'member'}`
+                                {member.user.name}
+                              </Text>
+                              <HStack gap={2} mt={1}>
+                                <Badge
+                                  size="xs"
+                                  colorPalette={
+                                    member.role === EMemberRole.ADMIN
+                                      ? 'orange'
+                                      : member.role === EMemberRole.MODERATOR
+                                        ? 'blue'
+                                        : 'gray'
+                                  }
+                                  variant="subtle"
+                                >
+                                  {t(
+                                    `clubs.memberRole.${member.role.toLowerCase() as 'admin' | 'moderator' | 'member'}`
+                                  )}
+                                </Badge>
+                                {member.user.level && (
+                                  <Text fontSize="xs" color="gray.500">
+                                    {getLevelLabel(member.user.level)}
+                                  </Text>
                                 )}
-                              </Badge>
-                              {member.user.level && (
-                                <Text fontSize="xs" color="gray.500">
-                                  {getLevelLabel(member.user.level)}
-                                </Text>
-                              )}
-                            </HStack>
-                          </Box>
+                              </HStack>
+                            </Box>
+                            {isUserAdmin ? (
+                              <IconButton
+                                aria-label={t('common.remove')}
+                                icon={<Trash2 size={16} />}
+                                size="sm"
+                                colorPalette="red"
+                                variant="ghost"
+                                loading={removingMemberId === member.user.id}
+                                onClick={(event) => {
+                                  event.stopPropagation();
+                                  requestRemoveMember(member);
+                                }}
+                              />
+                            ) : (
+                              <ExternalLink
+                                size={14}
+                                color="var(--chakra-colors-gray-400)"
+                              />
+                            )}
+                          </Flex>
+                        ))}
+                      </SimpleGrid>
+                      {hasMoreMembers && (
+                        <Flex justify="center" mt={4}>
+                          <Button
+                            variant="outline"
+                            colorPalette="green"
+                            size="sm"
+                            onClick={() =>
+                              setVisibleMembersCount((prev) => prev + 8)
+                            }
+                          >
+                            {t('clubs.viewMoreMembers')}
+                          </Button>
                         </Flex>
-                      ))}
-                    </SimpleGrid>
+                      )}
+                    </>
                   ) : (
                     <Flex
                       direction="column"
@@ -670,6 +911,17 @@ export default function ClubDetailClient({
                       <Text fontSize="sm" fontStyle="italic">
                         {t('clubs.adminApproval.noMembersYet')}
                       </Text>
+                      {isUserAdmin && (
+                        <Button
+                          mt={3}
+                          size="sm"
+                          colorPalette="green"
+                          onClick={() => setIsAddMemberModalOpen(true)}
+                        >
+                          <UserPlus size={16} />
+                          {t('clubs.addFirstMember')}
+                        </Button>
+                      )}
                     </Flex>
                   )}
                 </Box>
@@ -1334,21 +1586,40 @@ export default function ClubDetailClient({
 
                 {/* CTA Button */}
                 {isUserAdmin && (
-                  <Button
-                    colorPalette="green"
-                    variant="surface"
-                    size="xl"
-                    w="full"
-                    onClick={() => router.push(ROUTES.HOST.CLUBS.EDIT(club.id))}
-                    borderRadius="2xl"
-                    shadow="sm"
-                    _hover={{ shadow: 'md', transform: 'translateY(-2px)' }}
-                    transition="all 0.2s"
-                    mb={4}
-                  >
-                    <Settings size={20} />
-                    {t('common.edit')}
-                  </Button>
+                  <VStack gap={3} mb={4}>
+                    <Button
+                      colorPalette="green"
+                      variant="surface"
+                      size="xl"
+                      w="full"
+                      onClick={() =>
+                        router.push(ROUTES.HOST.CLUBS.FEES(club.id))
+                      }
+                      borderRadius="2xl"
+                      shadow="sm"
+                      _hover={{ shadow: 'md', transform: 'translateY(-2px)' }}
+                      transition="all 0.2s"
+                    >
+                      <DollarSign size={20} />
+                      {t('clubs.feeConfiguration')}
+                    </Button>
+                    <Button
+                      colorPalette="green"
+                      variant="surface"
+                      size="xl"
+                      w="full"
+                      onClick={() =>
+                        router.push(ROUTES.HOST.CLUBS.EDIT(club.id))
+                      }
+                      borderRadius="2xl"
+                      shadow="sm"
+                      _hover={{ shadow: 'md', transform: 'translateY(-2px)' }}
+                      transition="all 0.2s"
+                    >
+                      <Settings size={20} />
+                      {t('common.edit')}
+                    </Button>
+                  </VStack>
                 )}
 
                 {!isUserMember && !isUserAdmin && !hasPendingRequest && (
@@ -1406,7 +1677,7 @@ export default function ClubDetailClient({
                       <Button
                         variant="ghost"
                         size="xs"
-                        onClick={() => setActiveTab('announcements')}
+                        onClick={() => handleTabChange('announcements')}
                       >
                         {t('clubs.viewAll')}
                       </Button>
@@ -1448,12 +1719,115 @@ export default function ClubDetailClient({
       </Container>
 
       <VModal
+        isOpen={isAddMemberModalOpen}
+        onClose={closeAddMemberModal}
+        title={t('clubs.addClubMember')}
+        size="lg"
+        hideSecondaryAction={true}
+        maxBodyHeight={{
+          base: 'calc(100vh - 120px)',
+          md: 'calc(100vh - 112px)',
+        }}
+      >
+        <VStack align="stretch" gap={4}>
+          <HStack gap={3} align="center">
+            <InputGroup startElement={<Search size={16} color="#A0AEC0" />}>
+              <Input
+                placeholder={t('clubs.searchUserPlaceholder')}
+                value={memberSearchQuery}
+                onChange={(event) => setMemberSearchQuery(event.target.value)}
+                onKeyDown={(event) => {
+                  if (event.key === 'Enter') {
+                    searchClubMembers(memberSearchQuery);
+                  }
+                }}
+              />
+            </InputGroup>
+            <Button
+              onClick={() => searchClubMembers(memberSearchQuery)}
+              loading={isSearchingMembers}
+              flexShrink={0}
+            >
+              {t('common.search')}
+            </Button>
+          </HStack>
+
+          <VStack align="stretch" gap={2} maxH="360px" overflowY="auto">
+            {memberSearchResults.map((user) => {
+              const isMember = club.members?.some(
+                (member) => member.user.id === user.id
+              );
+
+              return (
+                <Flex
+                  key={user.id}
+                  p={3}
+                  borderRadius="lg"
+                  borderWidth="1px"
+                  borderColor="gray.100"
+                  bg="gray.50"
+                  _dark={{ bg: 'gray.900', borderColor: 'gray.700' }}
+                  align="center"
+                  justify="space-between"
+                  gap={3}
+                >
+                  <HStack gap={3} minW={0}>
+                    <Avatar.Root size="sm" flexShrink={0}>
+                      <Avatar.Image src={user.image} />
+                      <Avatar.Fallback>
+                        {user.name?.slice(0, 2).toUpperCase()}
+                      </Avatar.Fallback>
+                    </Avatar.Root>
+                    <Box minW={0}>
+                      <Text fontWeight="semibold" fontSize="sm" truncate>
+                        {user.name}
+                      </Text>
+                      <Text fontSize="xs" color="gray.500" truncate>
+                        {user.email}
+                      </Text>
+                    </Box>
+                  </HStack>
+
+                  {isMember ? (
+                    <Badge colorPalette="green" variant="subtle" flexShrink={0}>
+                      {t('clubs.alreadyMember')}
+                    </Badge>
+                  ) : (
+                    <Button
+                      size="xs"
+                      colorPalette="green"
+                      loading={addingMemberId === user.id}
+                      onClick={() => handleAddMember(user.id)}
+                      flexShrink={0}
+                    >
+                      {t('common.add')}
+                    </Button>
+                  )}
+                </Flex>
+              );
+            })}
+
+            {memberSearchQuery.trim() &&
+              memberSearchResults.length === 0 &&
+              !isSearchingMembers && (
+                <Text textAlign="center" color="gray.500" py={6}>
+                  {t('clubs.noUsersFound')}
+                </Text>
+              )}
+          </VStack>
+        </VStack>
+      </VModal>
+
+      <VModal
         isOpen={isHostDetailModalOpen}
         onClose={() => setIsHostDetailModalOpen(false)}
         title={t('session.hostInfo') || 'Thông tin Host'}
         size="md"
         hideSecondaryAction={true}
-        maxBodyHeight={{ base: '60vh', md: '75vh' }}
+        maxBodyHeight={{
+          base: 'calc(100vh - 120px)',
+          md: 'calc(100vh - 112px)',
+        }}
       >
         {linkedHostUser?.id && (
           <AppHostDetail
@@ -1464,6 +1838,138 @@ export default function ClubDetailClient({
             onClose={() => setIsHostDetailModalOpen(false)}
           />
         )}
+      </VModal>
+
+      {/* Member Detail Modal */}
+      <VModal
+        isOpen={!!selectedMember}
+        onClose={() => setSelectedMember(null)}
+        title={t('clubs.memberDetails')}
+        size="sm"
+        footer={
+          selectedMember && (
+            <HStack gap={2} justify="flex-end" w="full">
+              {isUserAdmin && (
+                <Button
+                  variant="outline"
+                  colorPalette="red"
+                  onClick={() => {
+                    requestRemoveMember(selectedMember);
+                    setSelectedMember(null);
+                  }}
+                >
+                  <Trash2 size={16} />
+                  {t('clubs.removeFromClub')}
+                </Button>
+              )}
+              <Button
+                colorPalette="green"
+                onClick={() => {
+                  handleOpenUserProfile(selectedMember.user.id);
+                  setSelectedMember(null);
+                }}
+              >
+                {t('clubs.viewProfile')}
+              </Button>
+            </HStack>
+          )
+        }
+      >
+        {selectedMember && (
+          <VStack gap={5} align="stretch" py={2}>
+            <VStack gap={3} align="center">
+              <Avatar.Root size="2xl">
+                <Avatar.Image
+                  src={selectedMember.user.image}
+                  objectFit="cover"
+                />
+                <Avatar.Fallback>{selectedMember.user.name[0]}</Avatar.Fallback>
+              </Avatar.Root>
+              <VStack gap={1}>
+                <Text fontWeight="bold" fontSize="lg" textAlign="center">
+                  {selectedMember.user.name}
+                </Text>
+                <Badge
+                  colorPalette={
+                    selectedMember.role === EMemberRole.ADMIN
+                      ? 'orange'
+                      : selectedMember.role === EMemberRole.MODERATOR
+                        ? 'blue'
+                        : 'gray'
+                  }
+                  variant="subtle"
+                >
+                  {t(
+                    `clubs.memberRole.${selectedMember.role.toLowerCase() as 'admin' | 'moderator' | 'member'}`
+                  )}
+                </Badge>
+              </VStack>
+            </VStack>
+
+            <VStack
+              gap={0}
+              align="stretch"
+              borderWidth="1px"
+              borderColor="gray.100"
+              _dark={{ borderColor: 'gray.700' }}
+              borderRadius="xl"
+              overflow="hidden"
+            >
+              <MemberInfoRow
+                icon={
+                  selectedMember.user.gender === 'MALE' ? (
+                    <Mars size={16} />
+                  ) : selectedMember.user.gender === 'FEMALE' ? (
+                    <Venus size={16} />
+                  ) : (
+                    <User size={16} />
+                  )
+                }
+                label={t('clubs.memberGender')}
+                value={
+                  selectedMember.user.gender === 'MALE'
+                    ? t('clubs.memberGenderMale')
+                    : selectedMember.user.gender === 'FEMALE'
+                      ? t('clubs.memberGenderFemale')
+                      : selectedMember.user.gender
+                        ? t('clubs.memberGenderOther')
+                        : t('clubs.memberInfoNotUpdated')
+                }
+              />
+              <MemberInfoRow
+                icon={<Trophy size={16} />}
+                label={t('clubs.memberLevel')}
+                value={
+                  selectedMember.user.level != null
+                    ? getLevelLabel(selectedMember.user.level)
+                    : t('clubs.memberInfoNotUpdated')
+                }
+              />
+              <MemberInfoRow
+                icon={<Calendar size={16} />}
+                label={t('clubs.memberJoinedDate')}
+                value={new Date(selectedMember.createdAt).toLocaleDateString()}
+                isLast
+              />
+            </VStack>
+          </VStack>
+        )}
+      </VModal>
+
+      {/* Confirm Remove Member Modal */}
+      <VModal
+        isOpen={!!memberToRemove}
+        onClose={() => setMemberToRemove(null)}
+        title={t('clubs.confirmRemoveMemberTitle')}
+        size="sm"
+        primaryActionText={t('common.remove')}
+        onPrimaryAction={handleConfirmRemoveMember}
+        isPrimaryLoading={removingMemberId === memberToRemove?.user.id}
+        primaryColorScheme="red"
+        secondaryActionText={t('common.cancel')}
+        isSecondaryDisabled={removingMemberId === memberToRemove?.user.id}
+      >
+        <Text color="fg.muted">{t('clubs.confirmRemoveClubMember')}</Text>
       </VModal>
     </PageLayout>
   );

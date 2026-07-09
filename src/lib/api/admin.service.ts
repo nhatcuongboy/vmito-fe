@@ -38,6 +38,20 @@ export interface UpdateUserData {
   role?: UserRole;
 }
 
+export interface PaginatedUsers {
+  data: User[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
+}
+
+type UsersApiResponse = ApiResponse<User[] | PaginatedUsers> & {
+  pagination?: PaginatedUsers['pagination'];
+};
+
 export const AdminService = {
   /**
    * Get all users (Admin only)
@@ -46,15 +60,65 @@ export const AdminService = {
     search?: string;
     role?: string;
   }): Promise<User[]> => {
+    const result = await AdminService.getUsersPaginated(params);
+    return result.data;
+  },
+
+  /**
+   * Get users with pagination (Admin only)
+   */
+  getUsersPaginated: async (params?: {
+    search?: string;
+    role?: string;
+    page?: number;
+    limit?: number;
+  }): Promise<PaginatedUsers> => {
     const searchParams = new URLSearchParams();
     if (params?.search) searchParams.set('search', params.search);
     if (params?.role) searchParams.set('role', params.role);
+    if (params?.page) searchParams.set('page', String(params.page));
+    if (params?.limit) searchParams.set('limit', String(params.limit));
 
     const queryString = searchParams.toString();
     const url = queryString ? `/users?${queryString}` : '/users';
 
-    const response = await api.get<ApiResponse<User[]>>(url);
-    return response.data.data || [];
+    const response = await api.get<UsersApiResponse>(url);
+    const payload = response.data.data;
+    const topLevelPagination = response.data.pagination;
+
+    if (Array.isArray(payload)) {
+      const limit = params?.limit ?? payload.length;
+      const page = params?.page ?? 1;
+      const start = (page - 1) * limit;
+
+      return {
+        data: topLevelPagination
+          ? payload
+          : params?.limit
+            ? payload.slice(start, start + limit)
+            : payload,
+        pagination: {
+          page: topLevelPagination?.page ?? page,
+          limit: topLevelPagination?.limit ?? limit,
+          total: topLevelPagination?.total ?? payload.length,
+          totalPages:
+            topLevelPagination?.totalPages ??
+            (limit ? Math.ceil(payload.length / limit) : 0),
+        },
+      };
+    }
+
+    return (
+      payload || {
+        data: [],
+        pagination: {
+          page: params?.page ?? 1,
+          limit: params?.limit ?? 0,
+          total: 0,
+          totalPages: 0,
+        },
+      }
+    );
   },
 
   /**

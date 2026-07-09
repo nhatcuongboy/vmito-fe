@@ -11,12 +11,14 @@ export interface NavigationTab {
   label: string;
   icon: LucideIcon;
   href?: string;
+  dataTour?: string;
 }
 
 export interface CenterAction {
   label: string;
   onClick: () => void;
   loading?: boolean;
+  dataTour?: string;
 }
 
 interface BottomNavigationBarProps {
@@ -65,6 +67,7 @@ export default function BottomNavigationBar({
           />
         )}
         <Button
+          data-tour={tab.dataTour}
           onClick={() => !isLoading && onTabChange(tab.id)}
           variant="ghost"
           width="100%"
@@ -79,7 +82,7 @@ export default function BottomNavigationBar({
             bg: 'transparent',
           }}
           _hover={{
-            bg: { base: 'gray.50', _dark: 'gray.800' },
+            bg: { base: 'gray.50', _dark: 'rgba(34, 197, 94, 0.1)' },
             color: { base: 'brand.600', _dark: 'brand.400' },
           }}
           display="flex"
@@ -125,10 +128,17 @@ export default function BottomNavigationBar({
       right={0}
       bottom={bottomOffset ?? 0}
       zIndex={1000}
-      bg={{ base: 'white', _dark: 'gray.800' }}
+      bg={{ base: 'white', _dark: 'rgba(10, 23, 37, 0.94)' }}
       borderTopWidth="1px"
-      borderTopColor="border"
-      boxShadow="sm"
+      borderTopColor={{
+        base: 'border',
+        _dark: 'var(--tournament-border, var(--chakra-colors-border))',
+      }}
+      boxShadow={{
+        base: 'sm',
+        _dark: '0 -16px 40px rgba(0, 0, 0, 0.32)',
+      }}
+      backdropFilter="blur(18px)"
       display={alwaysVisible ? 'flex' : { base: 'flex', md: 'none' }}
       justifyContent="center"
       alignItems="center"
@@ -161,6 +171,7 @@ export default function BottomNavigationBar({
           >
             <Box
               as="button"
+              data-tour={centerAction.dataTour}
               display="flex"
               flexDirection="column"
               alignItems="center"

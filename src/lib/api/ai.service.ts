@@ -56,4 +56,37 @@ export const AIService = {
     // Fallback if data is returned directly or differently
     return response.data as unknown as ExtractedSessionData;
   },
+
+  async extractSchedule(params: {
+    tournamentId: string;
+    text: string;
+    language?: Locale;
+  }): Promise<{ entries: IExtractedScheduleEntry[] }> {
+    const response = await api.post<
+      ApiResponse<{ entries: IExtractedScheduleEntry[] }>
+    >('/ai/extract-schedule', params, { skipGlobalError: true });
+
+    if (
+      response.data &&
+      'success' in response.data &&
+      'data' in response.data
+    ) {
+      return response.data.data as { entries: IExtractedScheduleEntry[] };
+    }
+    return response.data as unknown as { entries: IExtractedScheduleEntry[] };
+  },
 };
+
+export interface IExtractedScheduleEntry {
+  categoryName?: string;
+  matchNumber?: number;
+  matchCode?: string;
+  team1Code?: string;
+  team2Code?: string;
+  teamCodes?: string[];
+  courtName?: string;
+  date?: string;
+  startTime?: string;
+  durationMinutes?: number;
+  rawLine?: string;
+}

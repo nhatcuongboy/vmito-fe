@@ -106,8 +106,8 @@ const PlayerManagement: React.FC<PlayerManagementProps> = ({
   };
 
   const handleSaveAndClose = async () => {
-    await savePlayerChanges();
-    setShowAddPlayerModal(false);
+    const didSave = await savePlayerChanges();
+    return didSave;
   };
 
   const handleAddPlayer = () => {
@@ -171,6 +171,7 @@ const PlayerManagement: React.FC<PlayerManagementProps> = ({
         errors={newPlayerErrors}
         availableLevels={availableLevels}
         isSaving={isSaving}
+        session={session}
         onUpdatePlayer={updateNewPlayer}
         onRemovePlayer={removeNewPlayerRow}
         onUserSelect={handleUserSelection}
@@ -238,6 +239,7 @@ const PlayerManagement: React.FC<PlayerManagementProps> = ({
         }
         availableLevels={availableLevels}
         isSaving={isSaving}
+        session={session}
         onUpdateEditing={updateEditingPlayer}
         onSave={handleSaveEditAndClose}
         clubs={fixedMemberGroups}

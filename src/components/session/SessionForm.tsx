@@ -103,6 +103,8 @@ import { VSwitch } from '@/components/ui/VSwitch';
 import { VModal } from '@/components/ui/VModal';
 import { SearchableSelect } from '@/components/ui/SearchableSelect';
 import { VenueService } from '@/lib/api/venue.service';
+import { ClubsService } from '@/lib/api/clubs.service';
+import { IClub } from '@/types/club';
 import AISessionModal from '@/components/session/AISessionModal';
 import { ExtractedSessionData } from '@/lib/api/ai.service';
 import AppMultiImageUpload, {
@@ -234,6 +236,7 @@ function createCourtSchema(
   t: (key: string, values?: Record<string, unknown>) => string
 ) {
   return z.object({
+    courtId: z.string().optional(),
     courtNumber: z.number().min(1, t('validation.courtNumberMin')),
     courtName: z.string().optional(),
     direction: z.nativeEnum(CourtDirection),
@@ -252,6 +255,7 @@ function createSessionFormSchema(
       // Required fields
       name: z.string().min(1, t('validation.sessionNameRequired')),
       selectedVenueId: z.string().min(1, t('validation.locationRequired')),
+      clubId: z.string().optional(),
       hostName: z.string().min(1, t('validation.hostNameRequired')),
       hostPhone: z.string().optional(),
       startTime: z.string().min(1, t('validation.startTimeRequired')),
@@ -279,6 +283,22 @@ function createSessionFormSchema(
 
       // Optional fields
       description: z.string().optional(),
+      referenceVideoUrl: z
+        .string()
+        .trim()
+        .refine(
+          (value) => {
+            if (!value) return true;
+            try {
+              const url = new URL(value);
+              return url.protocol === 'http:' || url.protocol === 'https:';
+            } catch {
+              return false;
+            }
+          },
+          { message: t('validation.referenceVideoUrlInvalid') }
+        )
+        .optional(),
       requirePlayerInfo: z.boolean(),
       allowGuestJoin: z.boolean(),
       allowNewPlayers: z.boolean(),
@@ -355,7 +375,9 @@ export default function SessionForm({
       return {
         name: initialData.name,
         description: initialData.description || '',
+        referenceVideoUrl: initialData.referenceVideoUrl || '',
         selectedVenueId: initialData.venue?.id || '',
+        clubId: initialData.clubId || '',
         hostName: initialData.hostName || initialData.host?.name || '',
         hostPhone: initialData.hostPhone || '',
         startTime: initialData.startTime
@@ -366,6 +388,7 @@ export default function SessionForm({
           : '',
         courts:
           initialData.courts?.map((c) => ({
+            courtId: c.id,
             courtNumber: c.courtNumber,
             courtName: c.courtName || '',
             direction: c.direction,
@@ -388,13 +411,16 @@ export default function SessionForm({
     return {
       name: '',
       description: '',
+      referenceVideoUrl: '',
       selectedVenueId: '',
+      clubId: '',
       hostName: user?.name || '',
       hostPhone: '',
       startTime: '',
       endTime: '',
       courts: [
         {
+          courtId: undefined,
           courtNumber: 1,
           courtName: '',
           direction: CourtDirection.HORIZONTAL,
@@ -445,6 +471,8 @@ export default function SessionForm({
 
   // State for async data and modal
   const [venues, setVenues] = useState<Venue[]>([]);
+  const [clubs, setClubs] = useState<IClub[]>([]);
+  const [isClubsLoading, setIsClubsLoading] = useState(false);
   const [selectedVenueObj, setSelectedVenueObj] = useState<Venue | null>(
     isEditMode && initialData?.venue ? (initialData.venue as Venue) : null
   );
@@ -600,6 +628,18 @@ export default function SessionForm({
     return opts;
   }, [venues, selectedVenueObj, tVenue]);
 
+  const clubOptions = useMemo(
+    () => [
+      { value: '', label: t('noDefaultClub') },
+      ...clubs.map((club) => ({
+        value: club.id,
+        label: club.name,
+        sublabel: club.host?.name || club.hostName || undefined,
+      })),
+    ],
+    [clubs, t]
+  );
+
   // Debounced venue search handler (server-side)
   const handleVenueSearch = useCallback((keyword: string) => {
     if (venueSearchTimerRef.current) clearTimeout(venueSearchTimerRef.current);
@@ -631,7 +671,28 @@ export default function SessionForm({
       }
     };
     fetchVenues();
+  }, []);
 
+  useEffect(() => {
+    if (!canAccessHostFeatures) return;
+
+    const fetchClubs = async () => {
+      try {
+        setIsClubsLoading(true);
+        const result = await ClubsService.getClubsToManage();
+        setClubs(result);
+      } catch (error) {
+        console.error('Error fetching manageable clubs:', error);
+        setClubs([]);
+      } finally {
+        setIsClubsLoading(false);
+      }
+    };
+
+    fetchClubs();
+  }, [canAccessHostFeatures]);
+
+  useEffect(() => {
     const error = searchParams.get('error');
     const details = searchParams.get('details');
     if (error) {
@@ -649,6 +710,7 @@ export default function SessionForm({
   const handleAddCourt = () => {
     shouldFocusNewCourt.current = true;
     append({
+      courtId: undefined,
       courtNumber: 0,
       courtName: '',
       direction: CourtDirection.HORIZONTAL,
@@ -967,18 +1029,20 @@ export default function SessionForm({
         session = await SessionService.updateSession(sessionId, {
           name: data.name,
           description: data.description?.trim() || '',
+          referenceVideoUrl: data.referenceVideoUrl?.trim() || null,
           hostName: data.hostName.trim(),
           hostPhone: data.hostPhone?.trim() || '',
+          clubId: data.clubId || null,
           maxPlayersPerCourt: data.maxPlayersPerCourt,
           requirePlayerInfo: data.requirePlayerInfo,
           allowGuestJoin: data.allowGuestJoin,
           allowNewPlayers: data.allowNewPlayers,
           allowZaloContact: data.allowZaloContact,
           requiredLevels: data.allLevelsSelected
-            ? undefined
+            ? []
             : data.requiredLevels && data.requiredLevels.length > 0
               ? data.requiredLevels
-              : undefined,
+              : [],
           courtColor: data.courtColor,
           defaultMatchType: data.defaultMatchType,
           shuttlecock: data.shuttlecock?.trim() || '',
@@ -993,9 +1057,10 @@ export default function SessionForm({
           ...(canEditCourts && {
             numberOfCourts: data.courts.length,
             courts: data.courts.map((court) => ({
+              id: court.courtId,
               courtNumber: court.courtNumber,
               courtName: court.courtName || undefined,
-              direction: CourtDirection.HORIZONTAL,
+              direction: court.direction,
             })),
           }),
 
@@ -1011,8 +1076,10 @@ export default function SessionForm({
         const baseSessionData = {
           name: data.name,
           description: data.description?.trim() || '',
+          referenceVideoUrl: data.referenceVideoUrl?.trim() || null,
           hostName: data.hostName.trim(),
           hostPhone: data.hostPhone?.trim() || '',
+          clubId: data.clubId || null,
           numberOfCourts: data.courts.length,
           sessionDuration,
           maxPlayersPerCourt: data.maxPlayersPerCourt,
@@ -1021,10 +1088,10 @@ export default function SessionForm({
           allowNewPlayers: data.allowNewPlayers,
           allowZaloContact: data.allowZaloContact,
           requiredLevels: data.allLevelsSelected
-            ? undefined
+            ? []
             : data.requiredLevels && data.requiredLevels.length > 0
               ? data.requiredLevels
-              : undefined,
+              : [],
           startTime: new Date(data.startTime),
           endTime: new Date(data.endTime),
           courtColor: data.courtColor,
@@ -1038,7 +1105,7 @@ export default function SessionForm({
           courts: data.courts.map((court) => ({
             courtNumber: court.courtNumber,
             courtName: court.courtName || undefined,
-            direction: CourtDirection.HORIZONTAL,
+            direction: court.direction,
           })),
           feeConfig: feeConfigData,
         };
@@ -1133,8 +1200,6 @@ export default function SessionForm({
 
   const scrollToFirstError = useCallback(
     (formErrors: Partial<Record<keyof SessionFormData, unknown>>) => {
-      console.log('Scrolling to first error:', formErrors);
-
       const fieldOrder: (keyof SessionFormData)[] = [
         'name',
         'selectedVenueId',
@@ -1159,20 +1224,18 @@ export default function SessionForm({
         const id = fieldToId[fieldName];
         if (!id) continue;
 
-        console.log(`Trying to scroll to field: ${fieldName} with ID: ${id}`);
         const el = document.getElementById(id);
 
         if (el) {
-          console.log(`Found element for ${fieldName}, scrolling...`);
-
-          // Scroll with offset to account for fixed headers
-          const yOffset = -100; // Adjust this value based on your header height
+          // Scroll to element with offset for headers
+          const topBarHeight = 80;
+          const yOffset = -topBarHeight;
           const y =
             el.getBoundingClientRect().top + window.pageYOffset + yOffset;
 
-          window.scrollTo({ top: y, behavior: 'smooth' });
+          window.scrollTo({ top: Math.max(0, y), behavior: 'auto' });
 
-          // Focus on the input element
+          // Focus on the input element after a short delay
           setTimeout(() => {
             // For venue field (SearchableSelect), find the button or input inside
             if (fieldName === 'selectedVenueId') {
@@ -1190,13 +1253,9 @@ export default function SessionForm({
                 input.focus();
               }
             }
-          }, 500); // Wait for smooth scroll to complete
+          }, 50);
 
           break;
-        } else {
-          console.warn(
-            `Element not found for field: ${fieldName} with ID: ${id}`
-          );
         }
       }
     },
@@ -1317,42 +1376,43 @@ export default function SessionForm({
                 </Field.Root>
 
                 {/* Location */}
-                <Field.Root
-                  id="field-venue"
-                  invalid={!!errors.selectedVenueId}
-                  disabled={!canEditVenue}
-                >
-                  <Field.Label>
-                    {t('location')}{' '}
-                    <Text as="span" color="red.500">
-                      *
-                    </Text>
-                  </Field.Label>
-                  <Controller
-                    control={control}
-                    name="selectedVenueId"
-                    render={({ field }) => (
-                      <SearchableSelect
-                        isInvalid={!!errors.selectedVenueId}
-                        value={field.value}
-                        onChange={(value) => {
-                          field.onChange(value);
-                          const venue = venues.find((v) => v.id === value);
-                          setSelectedVenueObj(venue ?? null);
-                        }}
-                        options={venueOptions}
-                        placeholder={t('generalSettings.selectVenue')}
-                        searchPlaceholder={t('generalSettings.searchVenue')}
-                        onSearchChange={handleVenueSearch}
-                        isLoading={isVenueLoading}
-                        isDisabled={!canEditVenue}
-                      />
-                    )}
-                  />
-                  <Field.ErrorText color="fg.error">
-                    {errors.selectedVenueId?.message}
-                  </Field.ErrorText>
-                </Field.Root>
+                <Box id="field-venue">
+                  <Field.Root
+                    invalid={!!errors.selectedVenueId}
+                    disabled={!canEditVenue}
+                  >
+                    <Field.Label>
+                      {t('location')}{' '}
+                      <Text as="span" color="red.500">
+                        *
+                      </Text>
+                    </Field.Label>
+                    <Controller
+                      control={control}
+                      name="selectedVenueId"
+                      render={({ field }) => (
+                        <SearchableSelect
+                          isInvalid={!!errors.selectedVenueId}
+                          value={field.value}
+                          onChange={(value) => {
+                            field.onChange(value);
+                            const venue = venues.find((v) => v.id === value);
+                            setSelectedVenueObj(venue ?? null);
+                          }}
+                          options={venueOptions}
+                          placeholder={t('generalSettings.selectVenue')}
+                          searchPlaceholder={t('generalSettings.searchVenue')}
+                          onSearchChange={handleVenueSearch}
+                          isLoading={isVenueLoading}
+                          isDisabled={!canEditVenue}
+                        />
+                      )}
+                    />
+                    <Field.ErrorText color="fg.error">
+                      {errors.selectedVenueId?.message}
+                    </Field.ErrorText>
+                  </Field.Root>
+                </Box>
               </Stack>
             </Box>
 
@@ -1763,7 +1823,23 @@ export default function SessionForm({
             </Box>
 
             {/* Level Requirements Section */}
-            <LevelRequirementsCard control={control} setValue={setValue} />
+            <LevelRequirementsCard control={control} setValue={setValue}>
+              <Field.Root invalid={!!errors.referenceVideoUrl}>
+                <Field.Label>{t('referenceVideoUrl')}</Field.Label>
+                <Input
+                  {...register('referenceVideoUrl')}
+                  placeholder={t('referenceVideoUrlPlaceholder')}
+                  type="url"
+                  inputMode="url"
+                />
+                <Text fontSize="xs" color="fg.muted" mt={1}>
+                  {t('referenceVideoUrlHelper')}
+                </Text>
+                <Field.ErrorText color="fg.error">
+                  {errors.referenceVideoUrl?.message}
+                </Field.ErrorText>
+              </Field.Root>
+            </LevelRequirementsCard>
 
             {/* Session Settings Section - Temporarily hidden */}
             {false && user?.role !== UserRole.PLAYER && (
@@ -2124,6 +2200,30 @@ export default function SessionForm({
                         </Field.Root>
                       </Box>
                     </Grid>
+
+                    {/* Default Club */}
+                    {canAccessHostFeatures && (
+                      <Field.Root>
+                        <Field.Label>{t('defaultClub')}</Field.Label>
+                        <Controller
+                          control={control}
+                          name="clubId"
+                          render={({ field }) => (
+                            <SearchableSelect
+                              value={field.value || ''}
+                              onChange={(value) => field.onChange(value)}
+                              options={clubOptions}
+                              placeholder={t('selectDefaultClub')}
+                              searchPlaceholder={t('searchDefaultClub')}
+                              isLoading={isClubsLoading}
+                            />
+                          )}
+                        />
+                        <Text fontSize="xs" color="fg.muted" mt={1}>
+                          {t('defaultClubDescription')}
+                        </Text>
+                      </Field.Root>
+                    )}
                   </Stack>
                 </Collapsible.Content>
               </Collapsible.Root>
@@ -2167,9 +2267,9 @@ export default function SessionForm({
               )}
               <Button
                 type="submit"
+                data-tour="submit-session"
                 colorPalette="green"
                 loading={isSubmitting || isNavigating}
-                disabled={sessionDuration === 0}
                 loadingText={
                   isNavigating
                     ? tc('loading')

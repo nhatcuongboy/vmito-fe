@@ -31,8 +31,8 @@ export default function EditVenueDetailsModal({
   const [acronym, setAcronym] = useState('');
   const [courtsCount, setCourtsCount] = useState(2);
   const [courtNames, setCourtNames] = useState<string[]>([
-    'Court 1',
-    'Court 2',
+    `${t('panels.venues.court')} 1`,
+    `${t('panels.venues.court')} 2`,
   ]);
   const [isSaving, setIsSaving] = useState(false);
 
@@ -42,23 +42,28 @@ export default function EditVenueDetailsModal({
       setAcronym(venue.acronym ?? venue.name?.charAt(0).toUpperCase() ?? '');
       const count = venue.numberOfCourts ?? 2;
       setCourtsCount(count);
-      setCourtNames(Array.from({ length: count }, (_, i) => `Court ${i + 1}`));
+      setCourtNames(
+        Array.from(
+          { length: count },
+          (_, i) => `${t('panels.venues.court')} ${i + 1}`
+        )
+      );
     }
-  }, [isOpen, venue]);
+  }, [isOpen, t, venue]);
 
   useEffect(() => {
     setCourtNames((prev) => {
       const next = [...prev];
       if (courtsCount > next.length) {
         for (let i = next.length; i < courtsCount; i++) {
-          next.push(`Court ${i + 1}`);
+          next.push(`${t('panels.venues.court')} ${i + 1}`);
         }
       } else {
         next.splice(courtsCount);
       }
       return next;
     });
-  }, [courtsCount]);
+  }, [courtsCount, t]);
 
   const handleCourtNameChange = (index: number, val: string) => {
     const next = [...courtNames];
@@ -221,7 +226,7 @@ export default function EditVenueDetailsModal({
               key={idx}
               value={cName}
               onChange={(e) => handleCourtNameChange(idx, e.target.value)}
-              placeholder={`Court ${idx + 1}`}
+              placeholder={`${t('panels.venues.court')} ${idx + 1}`}
               borderRadius="lg"
               fontSize="sm"
             />

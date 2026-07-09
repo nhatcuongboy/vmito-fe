@@ -3,7 +3,7 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
 import { Box, Flex, Text, Heading, Badge } from '@chakra-ui/react';
 import { VStack, Button } from '@/components/ui/chakra-compat';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { VDrawer } from '@/components/ui/VDrawer';
 import {
   X,
@@ -16,7 +16,6 @@ import {
 } from 'lucide-react';
 import {
   Category,
-  CategoryMatch,
   TournamentCourt,
   ICourtConstraint,
   IGenerateScheduleResponse,
@@ -25,7 +24,7 @@ import { ScheduleGeneratorService } from '@/lib/api/schedule-generator.service';
 import { toaster } from '@/components/ui/toaster';
 import TimeSlotPicker from './TimeSlotPicker';
 import CourtSelector from './CourtSelector';
-import { useModal } from '@/components/ui/VModal';
+import dayjs from '@/lib/dayjs';
 
 const DURATION_OPTIONS = Array.from({ length: 36 }, (_, i) => (i + 1) * 5);
 const TIME_BUFFER_OPTIONS = [0, 5, 10, 15, 20, 25, 30, 45, 60];
@@ -56,8 +55,9 @@ interface GenerateScheduleDrawerProps {
   isOpen: boolean;
   onClose: () => void;
   tournamentId: string;
+  /** ISO date string (YYYY-MM-DD or full ISO) for the tournament's start date */
+  tournamentStartDate?: string | Date;
   categories: Category[];
-  allMatches: CategoryMatch[];
   courts: TournamentCourt[];
   venueName?: string;
   onGenerated: (response: IGenerateScheduleResponse) => void;
@@ -75,7 +75,7 @@ function DraggableCategoryItem({
   color: string;
   index: number;
   onDragStart: (index: number) => void;
-  onDragOver: (e: React.DragEvent, index: number) => void;
+  onDragOver: (e: React.DragEvent, _index: number) => void;
   onDrop: (index: number) => void;
 }) {
   return (
@@ -93,7 +93,8 @@ function DraggableCategoryItem({
       onDragStart={() => onDragStart(index)}
       onDragOver={(e) => onDragOver(e, index)}
       onDrop={() => onDrop(index)}
-      _hover={{ bg: 'gray.50' }}
+      _hover={{ bg: 'gray.50', _dark: { bg: 'gray.700' } }}
+      _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
     >
       <GripVertical size={14} color="#A0AEC0" />
       <Box w="12px" h="12px" borderRadius="full" bg={color} flexShrink={0} />
@@ -111,26 +112,23 @@ export default function GenerateScheduleDrawer({
   isOpen,
   onClose,
   tournamentId,
+  tournamentStartDate,
   categories,
-  allMatches,
   courts,
   onGenerated,
 }: GenerateScheduleDrawerProps) {
   const t = useTranslations(
     'pages.tournaments.detail.manage.organize.schedule.generate'
   );
-  const tc = useTranslations(
-    'pages.tournaments.detail.manage.organize.schedule.constraints'
-  );
-
+  const locale = useLocale();
   // Category priority
   const [orderedCategories, setOrderedCategories] =
     useState<Category[]>(categories);
   const [dragIndex, setDragIndex] = useState<number | null>(null);
 
   // Match durations per round type
-  const [poolPlayDuration, setPoolPlayDuration] = useState(60);
-  const [playoffsDuration, setPlayoffsDuration] = useState(60);
+  const [poolPlayDuration, setPoolPlayDuration] = useState(20);
+  const [playoffsDuration, setPlayoffsDuration] = useState(20);
 
   // Keep scheduled matches toggle
   const [keepScheduledMatches, setKeepScheduledMatches] = useState(false);
@@ -160,9 +158,14 @@ export default function GenerateScheduleDrawer({
   const prevIsOpenRef = useRef(false);
   useEffect(() => {
     if (isOpen && !prevIsOpenRef.current) {
+      // Use the Vietnam-local calendar date (not the UTC date): tournamentStartDate
+      // is a UTC instant, and toISOString().split('T') could land on the previous
+      // day for late-evening starts. dayjs is configured with default tz
+      // Asia/Ho_Chi_Minh, matching the +07:00 the backend anchors slot times to.
+      const startDateStr = dayjs(tournamentStartDate).tz().format('YYYY-MM-DD');
       const defaultSlot: LocalTimeSlot = {
         id: '1',
-        date: new Date().toISOString().split('T')[0],
+        date: startDateStr,
         startTime: '08:00',
         endTime: '17:00',
         timeBuffer: 0,
@@ -172,7 +175,7 @@ export default function GenerateScheduleDrawer({
       setExpandedSlotId(defaultSlot.id);
     }
     prevIsOpenRef.current = isOpen;
-  }, [isOpen, getVenueCourts]);
+  }, [isOpen, getVenueCourts, tournamentStartDate]);
 
   const [isLoadingGenerate, setIsLoadingGenerate] = useState(false);
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
@@ -194,7 +197,7 @@ export default function GenerateScheduleDrawer({
 
   // Drag and drop for categories
   const handleDragStart = (index: number) => setDragIndex(index);
-  const handleDragOver = (e: React.DragEvent, index: number) => {
+  const handleDragOver = (e: React.DragEvent, _index: number) => {
     e.preventDefault();
   };
   const handleDrop = (dropIndex: number) => {
@@ -316,7 +319,9 @@ export default function GenerateScheduleDrawer({
 
   const getCourtLabel = (courtId: string): string => {
     const court = courts.find((c) => c.id === courtId);
-    return court?.courtName || `Court ${court?.courtNumber || '?'}`;
+    return (
+      court?.courtName || `${t('courtPrefix')} ${court?.courtNumber || '?'}`
+    );
   };
 
   const getConstraintLabel = (constraints?: ICourtConstraint): string => {
@@ -390,7 +395,26 @@ export default function GenerateScheduleDrawer({
       onClose();
     } catch (error) {
       console.error('Generate error:', error);
-      toaster.error({ title: t('generationFailed') });
+      const apiError = error as {
+        response?: {
+          data?: {
+            message?: string;
+            data?: { code?: string; message?: string };
+            error?: { code?: string; message?: string };
+          };
+        };
+      };
+      const code =
+        apiError.response?.data?.data?.code ||
+        apiError.response?.data?.error?.code;
+      if (code === 'MATCHES_NOT_GENERATED') {
+        toaster.error({
+          title: t('matchesNotGeneratedTitle'),
+          description: t('matchesNotGeneratedDescription'),
+        });
+      } else {
+        toaster.error({ title: t('generationFailed') });
+      }
     } finally {
       setIsLoadingGenerate(false);
     }
@@ -403,6 +427,7 @@ export default function GenerateScheduleDrawer({
         onClose={onClose}
         title={t('title')}
         size="lg"
+        zIndex={1600}
         primaryActionText={t('generateBtn')}
         onPrimaryAction={handleGenerate}
         isPrimaryLoading={isLoadingGenerate}
@@ -433,13 +458,18 @@ export default function GenerateScheduleDrawer({
             borderRadius="lg"
             borderWidth="1px"
             borderColor="gray.200"
+            _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
           >
             <Flex align="center" justify="space-between">
               <Box>
                 <Text fontSize="sm" fontWeight="medium">
                   {t('keepScheduled')}
                 </Text>
-                <Text fontSize="xs" color="gray.500">
+                <Text
+                  fontSize="xs"
+                  color="gray.500"
+                  _dark={{ color: 'gray.400' }}
+                >
                   {t('keepScheduledDesc')}
                 </Text>
               </Box>
@@ -457,7 +487,12 @@ export default function GenerateScheduleDrawer({
             <Heading size="sm" mb={1}>
               {t('categoryOrder')}
             </Heading>
-            <Text fontSize="xs" color="gray.500" mb={3}>
+            <Text
+              fontSize="xs"
+              color="gray.500"
+              mb={3}
+              _dark={{ color: 'gray.400' }}
+            >
               {t('categoryOrderDesc')}
             </Text>
             <VStack gap={2} align="stretch">
@@ -480,12 +515,22 @@ export default function GenerateScheduleDrawer({
             <Heading size="sm" mb={1}>
               {t('matchLength')}
             </Heading>
-            <Text fontSize="xs" color="gray.500" mb={3}>
+            <Text
+              fontSize="xs"
+              color="gray.500"
+              mb={3}
+              _dark={{ color: 'gray.400' }}
+            >
               {t('matchLengthDesc')}
             </Text>
             <VStack gap={3} align="stretch">
               <Box>
-                <Text fontSize="xs" color="gray.600" mb={1}>
+                <Text
+                  fontSize="xs"
+                  color="gray.600"
+                  mb={1}
+                  _dark={{ color: 'gray.300' }}
+                >
                   {t('poolPlay')}
                 </Text>
                 <select
@@ -502,13 +547,18 @@ export default function GenerateScheduleDrawer({
                 >
                   {DURATION_OPTIONS.map((m) => (
                     <option key={`pp-${m}`} value={m}>
-                      {m} min
+                      {t('min', { count: m })}
                     </option>
                   ))}
                 </select>
               </Box>
               <Box>
-                <Text fontSize="xs" color="gray.600" mb={1}>
+                <Text
+                  fontSize="xs"
+                  color="gray.600"
+                  mb={1}
+                  _dark={{ color: 'gray.300' }}
+                >
                   {t('playoffs')}
                 </Text>
                 <select
@@ -525,7 +575,7 @@ export default function GenerateScheduleDrawer({
                 >
                   {DURATION_OPTIONS.map((m) => (
                     <option key={`po-${m}`} value={m}>
-                      {m} min
+                      {t('min', { count: m })}
                     </option>
                   ))}
                 </select>
@@ -538,7 +588,12 @@ export default function GenerateScheduleDrawer({
             <Heading size="sm" mb={1}>
               {t('availableTimes')}
             </Heading>
-            <Text fontSize="xs" color="gray.500" mb={3}>
+            <Text
+              fontSize="xs"
+              color="gray.500"
+              mb={3}
+              _dark={{ color: 'gray.400' }}
+            >
               {t('availableTimesDesc')}
             </Text>
 
@@ -553,6 +608,7 @@ export default function GenerateScheduleDrawer({
                     borderRadius="lg"
                     borderWidth="1px"
                     borderColor="gray.200"
+                    _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
                   >
                     {/* Collapsed header */}
                     <Flex justify="space-between" align="center">
@@ -565,7 +621,7 @@ export default function GenerateScheduleDrawer({
                       >
                         <Text fontSize="sm" fontWeight="semibold">
                           {new Date(slot.date + 'T00:00:00').toLocaleDateString(
-                            'en-US',
+                            locale,
                             {
                               month: 'short',
                               day: 'numeric',
@@ -573,7 +629,12 @@ export default function GenerateScheduleDrawer({
                           )}{' '}
                           @ {slot.startTime} - {slot.endTime}
                         </Text>
-                        <Text fontSize="xs" color="gray.500" mt={1}>
+                        <Text
+                          fontSize="xs"
+                          color="gray.500"
+                          mt={1}
+                          _dark={{ color: 'gray.400' }}
+                        >
                           {t('courtsCount', { count: slot.courts.length })} •{' '}
                           {slot.timeBuffer > 0
                             ? t('minBuffer', { count: slot.timeBuffer })
@@ -618,10 +679,16 @@ export default function GenerateScheduleDrawer({
                         pt={3}
                         borderTopWidth="1px"
                         borderColor="gray.200"
+                        _dark={{ borderColor: 'gray.700' }}
                       >
                         {/* Time Buffer */}
                         <Box mb={3}>
-                          <Text fontSize="xs" color="gray.500" mb={1}>
+                          <Text
+                            fontSize="xs"
+                            color="gray.500"
+                            mb={1}
+                            _dark={{ color: 'gray.400' }}
+                          >
                             {t('timeBuffer')}
                           </Text>
                           <select
@@ -643,7 +710,9 @@ export default function GenerateScheduleDrawer({
                           >
                             {TIME_BUFFER_OPTIONS.map((m) => (
                               <option key={`buf-${slot.id}-${m}`} value={m}>
-                                {m} min
+                                {m === 0
+                                  ? t('noBuffer')
+                                  : t('min', { count: m })}
                               </option>
                             ))}
                           </select>
@@ -651,7 +720,11 @@ export default function GenerateScheduleDrawer({
 
                         {/* Courts */}
                         <Flex justify="space-between" align="center" mb={2}>
-                          <Text fontSize="xs" color="gray.500">
+                          <Text
+                            fontSize="xs"
+                            color="gray.500"
+                            _dark={{ color: 'gray.400' }}
+                          >
                             {t('courts')} ({slot.courts.length})
                           </Text>
                           <Button
@@ -674,6 +747,10 @@ export default function GenerateScheduleDrawer({
                               borderRadius="md"
                               borderWidth="1px"
                               borderColor="gray.200"
+                              _dark={{
+                                bg: 'gray.900',
+                                borderColor: 'gray.700',
+                              }}
                             >
                               <Text fontSize="sm" fontWeight="medium" flex={1}>
                                 {getCourtLabel(courtSlot.courtId)}

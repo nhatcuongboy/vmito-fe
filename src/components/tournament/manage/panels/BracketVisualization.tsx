@@ -10,8 +10,10 @@ import React, {
 } from 'react';
 import { Box, Flex, Text } from '@chakra-ui/react';
 import { useTranslations } from 'next-intl';
+import { useColorMode } from '@/components/ui/color-mode-provider';
 import {
   SingleEliminationBracket,
+  createTheme,
   type MatchType,
   type MatchComponentProps,
 } from 'react-tournament-brackets';
@@ -42,7 +44,6 @@ const BracketEl = SingleEliminationBracket as React.ComponentType<any>;
 // ─── Constants ───────────────────────────────────────────────────────────────
 
 const POOL_LABELS = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
-const ORDINAL_LABELS = ['1st', '2nd', '3rd', '4th', '5th', '6th', '7th', '8th'];
 const GROUP_MATCH_OFFSET = 12;
 const MATCH_W = 200; // match card width passed to the bracket engine
 const MATCH_H = 60; // match card height (2 rows × 30px)
@@ -67,6 +68,8 @@ export interface IBracketVisualizationProps {
   compact?: boolean;
   /** Custom slot order persisted externally (restored from formatConfig) */
   customSlots?: string[];
+  /** Validate custom slots against generated advancing slots (RR -> SE only). */
+  validateAdvancingSlots?: boolean;
   /** Fires when the user reorders first-round seeds via drag-and-drop */
   onSlotsChange?: (slots: string[]) => void;
   /** Optional consolation matches to render below the bracket */
@@ -106,18 +109,31 @@ const getRoundName = (
   if (fromFinal === 0) return t('panels.rounds.finals');
   if (fromFinal === 1) return t('panels.rounds.semiFinals');
   if (fromFinal === 2) return t('panels.rounds.quarterFinals');
-  return `Round ${roundIndex + 1}`;
+  return t('panels.rounds.roundNumber', { number: roundIndex + 1 });
+};
+
+const getOrdinalLabel = (
+  rank: number,
+  t: ReturnType<typeof useTranslations>
+): string => {
+  const oneBased = rank + 1;
+  const key = oneBased >= 1 && oneBased <= 8 ? String(oneBased) : 'other';
+  return t(`panels.rounds.ordinals.${key}`, { rank: oneBased });
 };
 
 const generateAdvancingSlots = (
   groupCount: number,
-  winnersPerGroup: number
+  winnersPerGroup: number,
+  t: ReturnType<typeof useTranslations>
 ): string[] => {
   const slots: string[] = [];
   for (let rank = 0; rank < winnersPerGroup; rank++) {
     for (let g = 0; g < groupCount; g++) {
       slots.push(
-        `${ORDINAL_LABELS[rank] ?? `${rank + 1}th`} Pool ${POOL_LABELS[g] ?? String(g + 1)}`
+        t('panels.rounds.nthPoolLabel', {
+          rank: getOrdinalLabel(rank, t),
+          pool: POOL_LABELS[g] ?? String(g + 1),
+        })
       );
     }
   }
@@ -137,19 +153,54 @@ const generateStandardSeeding = (bracketSize: number): number[] => {
 
 const computeDefaultSlots = (
   groupCount: number,
-  winnersPerGroup: number
+  winnersPerGroup: number,
+  t: ReturnType<typeof useTranslations>
 ): string[] => {
-  const advancingSlots = generateAdvancingSlots(groupCount, winnersPerGroup);
+  const advancingSlots = generateAdvancingSlots(groupCount, winnersPerGroup, t);
   const n = advancingSlots.length;
   if (n < 2) return [];
   const bracketSize = nextPowerOf2(n);
   const seedOrder = generateStandardSeeding(bracketSize);
+  // seedOrder[pos] is the seed (1-based) that belongs at bracket position
+  // `pos`. Placing each seed at its standard position spreads the top seeds
+  // across the bracket — e.g. for 2 pools × 2 advancing this yields the
+  // cross-pool matchups (1st A vs 2nd B) and (1st B vs 2nd A) rather than
+  // pairing 1st and 2nd of the same pool together.
   const result: string[] = new Array(bracketSize).fill('');
-  for (let i = 0; i < n; i++) {
-    result[seedOrder[i] - 1] = advancingSlots[i];
+  for (let pos = 0; pos < bracketSize; pos++) {
+    const seed = seedOrder[pos];
+    result[pos] = seed <= n ? advancingSlots[seed - 1] : '';
   }
   return result;
 };
+
+const resolveSlots = (
+  customSlots: string[] | undefined,
+  groupCount: number,
+  winnersPerGroup: number,
+  t: ReturnType<typeof useTranslations>,
+  validateAdvancingSlots: boolean
+): string[] => {
+  const defaultSlots = computeDefaultSlots(groupCount, winnersPerGroup, t);
+  if (!customSlots?.length) return defaultSlots;
+  if (!validateAdvancingSlots) return customSlots;
+
+  const validSlots = new Set(
+    generateAdvancingSlots(groupCount, winnersPerGroup, t)
+  );
+  const hasStaleSlot = customSlots.some(
+    (slot) => slot && !validSlots.has(slot)
+  );
+
+  if (hasStaleSlot || customSlots.length !== defaultSlots.length) {
+    return defaultSlots;
+  }
+
+  return customSlots;
+};
+
+const areSlotsEqual = (a: string[], b: string[]): boolean =>
+  a.length === b.length && a.every((slot, index) => slot === b[index]);
 
 // ─── SortableTeamRow ─────────────────────────────────────────────────────────
 
@@ -170,6 +221,8 @@ function SortableTeamRow({
     transition,
     isDragging,
   } = useSortable({ id: slotId });
+  const { colorMode } = useColorMode();
+  const isDark = colorMode === 'dark';
 
   return (
     <div
@@ -184,14 +237,22 @@ function SortableTeamRow({
         alignItems: 'center',
         padding: '0 10px',
         height: `${MATCH_H / 2}px`,
-        background: 'white',
-        borderBottom: isLast ? 'none' : '1px solid #f0f4f8',
+        background: isDark ? '#2D3748' : 'white',
+        borderBottom: isLast
+          ? 'none'
+          : `1px solid ${isDark ? '#4A5568' : '#f0f4f8'}`,
       }}
     >
       <span
         style={{
           fontSize: '12px',
-          color: name ? '#2d3748' : '#a0aec0',
+          color: name
+            ? isDark
+              ? '#E2E8F0'
+              : '#2d3748'
+            : isDark
+              ? '#718096'
+              : '#a0aec0',
           flex: 1,
           overflow: 'hidden',
           textOverflow: 'ellipsis',
@@ -203,7 +264,7 @@ function SortableTeamRow({
       </span>
       <div
         style={{
-          color: '#a0aec0',
+          color: isDark ? '#718096' : '#a0aec0',
           cursor: 'grab',
           marginLeft: '6px',
           flexShrink: 0,
@@ -232,6 +293,8 @@ function StaticTeamRow({
 }) {
   const { compact } = useContext(BracketCtx);
   const rowH = compact ? 20 : MATCH_H / 2;
+  const { colorMode } = useColorMode();
+  const isDark = colorMode === 'dark';
 
   return (
     <div
@@ -240,14 +303,16 @@ function StaticTeamRow({
         alignItems: 'center',
         padding: compact ? '0 6px' : '0 10px',
         height: `${rowH}px`,
-        background: 'white',
-        borderBottom: isLast ? 'none' : '1px solid #f0f4f8',
+        background: isDark ? '#2D3748' : 'white',
+        borderBottom: isLast
+          ? 'none'
+          : `1px solid ${isDark ? '#4A5568' : '#f0f4f8'}`,
       }}
     >
       <span
         style={{
           fontSize: compact ? '10px' : '12px',
-          color: '#4a5568',
+          color: isDark ? '#CBD5E0' : '#4a5568',
           flex: 1,
           overflow: 'hidden',
           textOverflow: 'ellipsis',
@@ -260,7 +325,7 @@ function StaticTeamRow({
       {showHandle && (
         <div
           style={{
-            color: '#e2e8f0',
+            color: isDark ? '#4A5568' : '#e2e8f0',
             marginLeft: '6px',
             flexShrink: 0,
             display: 'flex',
@@ -280,6 +345,8 @@ function CustomMatch({ match, topParty, bottomParty }: MatchComponentProps) {
   const { compact } = useContext(BracketCtx);
   const rtbMatch = match as IRTBMatch;
   const canSort = rtbMatch.isFirstRound && !compact;
+  const { colorMode } = useColorMode();
+  const isDark = colorMode === 'dark';
 
   return (
     <div
@@ -288,9 +355,9 @@ function CustomMatch({ match, topParty, bottomParty }: MatchComponentProps) {
         height: '100%',
         borderRadius: '8px',
         overflow: 'hidden',
-        border: '1.5px solid #e2e8f0',
+        border: `1.5px solid ${isDark ? '#4A5568' : '#e2e8f0'}`,
         boxShadow: '0 1px 2px rgba(0,0,0,0.06)',
-        background: 'white',
+        background: isDark ? '#2D3748' : 'white',
       }}
     >
       {canSort ? (
@@ -349,11 +416,13 @@ function ThirdPlaceCard({
           borderRadius="full"
           bg="white"
           mb={compact ? 1.5 : 2}
+          _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
         >
           <Text
             fontSize={compact ? '2xs' : 'xs'}
             fontWeight="semibold"
             color="gray.700"
+            _dark={{ color: 'gray.200' }}
           >
             {title}
           </Text>
@@ -367,6 +436,7 @@ function ThirdPlaceCard({
               fontWeight="medium"
               minW="20px"
               textAlign="right"
+              _dark={{ color: 'gray.500' }}
             >
               {match.matchNumber}
             </Text>
@@ -379,6 +449,7 @@ function ThirdPlaceCard({
             w={cardWidth}
             bg="white"
             boxShadow="sm"
+            _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
           >
             {[match.participant1Label, match.participant2Label].map(
               (name, i) => (
@@ -389,6 +460,7 @@ function ThirdPlaceCard({
                   py={compact ? 1 : 1.5}
                   borderBottomWidth={i === 0 ? '1px' : '0'}
                   borderColor="gray.100"
+                  _dark={{ borderColor: 'gray.700' }}
                 >
                   <Text
                     fontSize={compact ? '2xs' : 'xs'}
@@ -397,6 +469,7 @@ function ThirdPlaceCard({
                     lineHeight="1.3"
                     color="gray.600"
                     fontStyle="italic"
+                    _dark={{ color: 'gray.300' }}
                   >
                     {name}
                   </Text>
@@ -421,29 +494,52 @@ export default function BracketVisualization({
   seventhPlaceMatch = false,
   compact = false,
   customSlots: externalCustomSlots,
+  validateAdvancingSlots = false,
   onSlotsChange,
   consolationMatches,
 }: IBracketVisualizationProps) {
   const t = useTranslations('pages.tournaments.detail.manage');
+  const { colorMode } = useColorMode();
+  const isDark = colorMode === 'dark';
 
   // ── Slot state ──────────────────────────────────────────────────────────────
   const [slots, setSlots] = useState<string[]>(() => {
-    if (externalCustomSlots?.length) return externalCustomSlots;
-    return computeDefaultSlots(groupCount, winnersPerGroup);
+    return resolveSlots(
+      externalCustomSlots,
+      groupCount,
+      winnersPerGroup,
+      t,
+      validateAdvancingSlots
+    );
   });
 
   useEffect(() => {
-    if (externalCustomSlots === undefined) return;
-    const next =
-      externalCustomSlots.length > 0
-        ? externalCustomSlots
-        : computeDefaultSlots(groupCount, winnersPerGroup);
+    const next = resolveSlots(
+      externalCustomSlots,
+      groupCount,
+      winnersPerGroup,
+      t,
+      validateAdvancingSlots
+    );
     setSlots((prev) => {
-      if (prev.length === next.length && prev.every((s, i) => s === next[i]))
-        return prev;
+      if (areSlotsEqual(prev, next)) return prev;
       return next;
     });
-  }, [externalCustomSlots, groupCount, winnersPerGroup]);
+
+    if (
+      externalCustomSlots?.length &&
+      !areSlotsEqual(externalCustomSlots, next)
+    ) {
+      onSlotsChange?.(next);
+    }
+  }, [
+    externalCustomSlots,
+    groupCount,
+    winnersPerGroup,
+    onSlotsChange,
+    t,
+    validateAdvancingSlots,
+  ]);
 
   // ── Build bracket data ───────────────────────────────────────────────────────
   const {
@@ -648,44 +744,72 @@ export default function BracketVisualization({
     [onSlotsChange]
   );
 
+  const matchW = compact ? 130 : MATCH_W;
+  const matchH = compact ? 40 : MATCH_H;
+
+  const bracketTheme = useMemo(
+    () =>
+      createTheme({
+        fontFamily: '"Inter", "Arial", "Helvetica", sans-serif',
+        roundHeaders: {
+          background: isDark ? '#2D3748' : compact ? '#F8FAFC' : '#F1F5F9',
+        },
+        textColor: {
+          highlighted: isDark ? '#F7FAFC' : '#111827',
+        },
+        canvasBackground: 'transparent',
+      }),
+    [compact, isDark]
+  );
+
+  const bracketOptions = useMemo(
+    () => ({
+      style: {
+        width: matchW,
+        boxHeight: matchH,
+        canvasPadding: compact ? 8 : 24,
+        spaceBetweenColumns: compact ? 20 : 40,
+        spaceBetweenRows: compact ? 10 : 18,
+        connectorColor: isDark ? '#4A5568' : '#CBD5E0',
+        connectorColorHighlight: '#2563EB',
+        horizontalOffset: 0,
+        roundSeparatorWidth: compact ? 20 : 40,
+        lineInfo: {
+          separation: 0,
+          homeVisitorSpread: matchH / 4,
+        },
+        roundHeader: {
+          isShown: true,
+          height: compact ? 24 : 40,
+          marginBottom: compact ? 10 : 20,
+          fontSize: compact ? 11 : 14,
+          fontColor: isDark ? '#F7FAFC' : '#111827',
+          backgroundColor: isDark ? '#2D3748' : compact ? '#F8FAFC' : '#F1F5F9',
+          fontFamily: '"Inter", "Arial", "Helvetica", sans-serif',
+          roundTextGenerator: (currentRound: number, totalRounds: number) =>
+            getRoundName(currentRound - 1, totalRounds, t),
+        },
+      },
+    }),
+    [compact, matchH, matchW, t, isDark]
+  );
+
   if (flatMatches.length === 0) {
     return (
       <Flex align="center" justify="center" py={8}>
-        <Text fontSize="sm" color="gray.400">
-          Not enough teams for bracket
+        <Text fontSize="sm" color="gray.400" _dark={{ color: 'gray.500' }}>
+          {t('panels.rounds.notEnoughTeams')}
         </Text>
       </Flex>
     );
   }
-
-  const matchW = compact ? 130 : MATCH_W;
-  const matchH = compact ? 40 : MATCH_H;
-
-  const bracketOptions = {
-    style: {
-      width: matchW,
-      boxHeight: matchH,
-      canvasPadding: compact ? 8 : 24,
-      spaceBetweenColumns: compact ? 16 : 32,
-      spaceBetweenRows: compact ? 8 : 16,
-      connectorColor: '#CBD5E0',
-      connectorColorHighlight: '#4299E1',
-      roundHeader: {
-        isShown: true,
-        height: compact ? 24 : 40,
-        fontSize: compact ? 11 : 14,
-        fontColor: '#1f2937',
-        backgroundColor: 'transparent',
-      },
-      roundSeparatorWidth: compact ? 16 : 32,
-    },
-  };
 
   const bracketEl = (
     <BracketEl
       matches={flatMatches}
       matchComponent={CustomMatch}
       options={bracketOptions}
+      theme={bracketTheme}
       svgWrapper={({
         bracketWidth,
         bracketHeight,
@@ -762,6 +886,7 @@ export default function BracketVisualization({
               color="gray.500"
               mb={3}
               pl={8}
+              _dark={{ color: 'gray.400' }}
             >
               {t('panels.rounds.consolationBracket')}
             </Text>
@@ -774,8 +899,9 @@ export default function BracketVisualization({
                     color="gray.400"
                     mb={1}
                     fontWeight="medium"
+                    _dark={{ color: 'gray.500' }}
                   >
-                    P5: {t('panels.rounds.semiFinals')}
+                    {t('panels.rounds.p5SemiFinals')}
                   </Text>
                   <ThirdPlaceCard match={fifthSF1} compact={false} title="" />
                   <Box mt={2}>
@@ -788,6 +914,7 @@ export default function BracketVisualization({
                     color="gray.400"
                     mb={1}
                     fontWeight="medium"
+                    _dark={{ color: 'gray.500' }}
                   >
                     &nbsp;
                   </Text>

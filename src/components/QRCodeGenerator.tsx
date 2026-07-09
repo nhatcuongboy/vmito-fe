@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/chakra-compat';
 import { Copy, Check } from 'lucide-react';
 import { toaster } from '@/components/ui/toaster';
 import { Locale } from '@/i18n/locales';
+import { useTranslations } from 'next-intl';
 
 interface QRCodeGeneratorProps {
   joinCode: string;
@@ -29,6 +30,7 @@ export default function QRCodeGenerator({
   hideCode = false,
   onQrClick,
 }: QRCodeGeneratorProps) {
+  const t = useTranslations('common');
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [copied, setCopied] = useState(false);
   const [shareUrl, setShareUrl] = useState('');
@@ -67,10 +69,10 @@ export default function QRCodeGenerator({
     try {
       await navigator.clipboard.writeText(shareUrl);
       setCopied(true);
-      toaster.success({ title: 'Link copied to clipboard!' });
+      toaster.success({ title: t('linkCopied') });
       setTimeout(() => setCopied(false), 2000);
     } catch {
-      toaster.error({ title: 'Failed to copy link' });
+      toaster.error({ title: t('copyFailed') });
     }
   };
 

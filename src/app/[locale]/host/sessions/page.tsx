@@ -32,6 +32,19 @@ import {
 
 import { StatusTabSwitch } from '@/components/session/StatusTabSwitch';
 import { useViewMode } from '@/hooks/useViewMode';
+import { useSocketListRefresh } from '@/hooks/useSocketListRefresh';
+import { SessionEventType } from '@/contexts/SocketContext';
+import { Button } from '@/components/ui/chakra-compat';
+import { PlayCircle } from 'lucide-react';
+import { useTourStore } from '@/stores/useTourStore';
+
+// Realtime events (emitted to the host's user room) that should refresh the
+// hosted sessions list: new join requests and generic notifications
+// (player added/removed, session changes).
+const HOST_LIST_REFRESH_EVENTS = [
+  SessionEventType.REGISTRATION_REQUEST,
+  SessionEventType.NOTIFICATION_RECEIVED,
+];
 
 const HOST_SORT_OPTIONS: SortOption[] = [
   { value: 'date_asc', labelKey: 'sort.dateNearest' },
@@ -46,6 +59,10 @@ const HOST_SORT_OPTIONS: SortOption[] = [
 function HostSessionsContent() {
   const tNav = useTranslations('navigation');
   const tSession = useTranslations('session');
+  const tTour = useTranslations('productTour');
+  const anyTourActive = useTourStore((s) =>
+    Object.values(s.tours).some((tr) => tr.status === 'active')
+  );
   const router = useRouter();
   const searchParams = useSearchParams();
   const { user } = useAuthStore();
@@ -78,14 +95,18 @@ function HostSessionsContent() {
     rootMargin: '100px',
   });
 
-  const fetchHostedSessions = async (isLoadMore = false) => {
+  // `silent` refreshes the data without toggling the loading skeleton —
+  // used for background refetches triggered by realtime events.
+  const fetchHostedSessions = async (isLoadMore = false, silent = false) => {
     try {
       if (isLoadMore) {
         if (loadingMoreRef.current) return;
         loadingMoreRef.current = true;
         setLoadingMore(true);
       } else {
-        setLoading(true);
+        if (!silent) {
+          setLoading(true);
+        }
         setPage(1);
       }
 
@@ -155,6 +176,14 @@ function HostSessionsContent() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?.id, filters.searchQuery, sortBy, filters.status, sessionStatusTab]);
+
+  // Refetch the list when realtime events for this host arrive so player
+  // counts and pending requests don't go stale while the page is open.
+  useSocketListRefresh(HOST_LIST_REFRESH_EVENTS, () => {
+    if (user?.id && !loadingMoreRef.current) {
+      fetchHostedSessions(false, true);
+    }
+  });
 
   // Fetch expired sessions count once on mount
   useEffect(() => {
@@ -346,6 +375,7 @@ function HostSessionsContent() {
               }
             }}
             hideCreateOnMobile={true}
+            hideSearchOnDesktop={true}
             topAddon={
               <StatusTabSwitch
                 activeTab={sessionStatusTab}
@@ -394,6 +424,23 @@ function HostSessionsContent() {
                     : undefined
             }
           />
+
+          {/* Offer the interactive product tour when there is nothing yet */}
+          {!loading &&
+            filteredSessions.length === 0 &&
+            sessionStatusTab === 'active' &&
+            !anyTourActive && (
+              <Flex justify="center" mt={4}>
+                <Button
+                  colorPalette="green"
+                  variant="outline"
+                  onClick={() => useTourStore.getState().restartJourney()}
+                  leftIcon={<PlayCircle size={18} />}
+                >
+                  {tTour('restartCta')}
+                </Button>
+              </Flex>
+            )}
 
           {/* Infinite Scroll Trigger */}
           {hasMore && sessions.length >= PAGE_SIZE && !loading && (

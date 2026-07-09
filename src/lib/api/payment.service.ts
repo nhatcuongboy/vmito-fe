@@ -7,6 +7,7 @@ import {
   RejectPaymentRequest,
   TransactionSummary,
   HostTransactionSummary,
+  HostTransactionsWithUserResponse,
   SessionPaymentsResponse,
   PaymentStats,
 } from './types';
@@ -152,13 +153,14 @@ export const PaymentService = {
   },
 
   // Get host's transactions with a specific user
+  // API returns { user, payments, summary }; we only need the payments list here.
   getHostTransactionsWithUser: async (
     userId: string
   ): Promise<PaymentRecord[]> => {
-    const response = await api.get<ApiResponse<PaymentRecord[]>>(
-      `/payments/host/user/${userId}`
-    );
-    return response.data.data || [];
+    const response = await api.get<
+      ApiResponse<HostTransactionsWithUserResponse>
+    >(`/payments/host/user/${userId}`);
+    return response.data.data?.payments ?? [];
   },
 
   // Set split amount after session (for SPLIT_EVENLY type)

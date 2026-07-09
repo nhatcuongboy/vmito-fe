@@ -49,10 +49,11 @@ export default function WizardFooter({
       left={0}
       right={0}
       bg="white"
+      _dark={{ bg: 'gray.800' }}
       zIndex={1}
     >
       {/* Progress bar */}
-      <Box bg="blue.100" h="4px">
+      <Box bg="blue.100" _dark={{ bg: 'blue.900' }} h="4px">
         <Box
           bg="blue.500"
           h="full"
@@ -82,6 +83,11 @@ export default function WizardFooter({
           color="white"
           colorPalette="gray"
           _hover={{ bg: 'gray.700' }}
+          _dark={{
+            bg: 'white',
+            color: 'gray.900',
+            _hover: { bg: 'gray.200' },
+          }}
           onClick={handlePrimaryClick}
           disabled={isNextDisabled}
           loading={isConfirmLoading}

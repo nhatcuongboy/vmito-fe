@@ -2,38 +2,44 @@
 
 import { VStack } from '@/components/ui/chakra-compat';
 import {
-  UserCog,
   Pencil,
   Calendar,
   MapPin,
   Globe,
-  Link,
   Image,
-  FileText,
-  ClipboardList,
-  Receipt,
   Copy,
   Trash2,
+  Phone,
+  ShieldCheck,
+  Youtube,
 } from 'lucide-react';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { Tournament } from '@/lib/api/types';
+import { useAuthStore } from '@/stores/useAuthStore';
 import ManageMenuItem from './ManageMenuItem';
+import TournamentStatusBanner from './TournamentStatusBanner';
 
 interface SettingsTabProps {
   tournament: Tournament;
   selectedItem: string | null;
   onItemClick: (item: string) => void;
+  onTournamentUpdate: (updated: Tournament) => void;
 }
 
 export default function SettingsTab({
   tournament,
   selectedItem,
   onItemClick,
+  onTournamentUpdate,
 }: SettingsTabProps) {
   const t = useTranslations('pages.tournaments.detail.manage');
+  const locale = useLocale();
+  const { user } = useAuthStore();
+  const isHostOrAdmin =
+    user?.id === tournament.hostId || user?.role === 'ADMIN';
 
   const formattedDate = new Date(tournament.startDate).toLocaleDateString(
-    'en-US',
+    locale,
     {
       weekday: 'short',
       month: 'short',
@@ -47,15 +53,23 @@ export default function SettingsTab({
     : undefined;
 
   return (
-    <VStack gap={3} align="stretch">
-      {/* Admins */}
-      <ManageMenuItem
-        icon={UserCog}
-        title={t('settings.admins.title')}
-        description={t('settings.admins.description')}
-        isActive={selectedItem === 'admins'}
-        onClick={() => onItemClick('admins')}
+    <VStack gap={2.5} align="stretch">
+      {/* Lifecycle status: start / finish / cancel the tournament */}
+      <TournamentStatusBanner
+        tournament={tournament}
+        onUpdate={onTournamentUpdate}
       />
+
+      {/* Tournament managers (host/admin only) */}
+      {isHostOrAdmin && (
+        <ManageMenuItem
+          icon={ShieldCheck}
+          title={t('organize.managers.title')}
+          description={t('organize.managers.description')}
+          isActive={selectedItem === 'managers'}
+          onClick={() => onItemClick('managers')}
+        />
+      )}
 
       {/* Name */}
       <ManageMenuItem
@@ -93,15 +107,6 @@ export default function SettingsTab({
         onClick={() => onItemClick('visibility')}
       />
 
-      {/* Custom link */}
-      <ManageMenuItem
-        icon={Link}
-        title={t('settings.customLink.title')}
-        description={`tourny.ca/t/${tournament.slug}`}
-        isActive={selectedItem === 'customLink'}
-        onClick={() => onItemClick('customLink')}
-      />
-
       {/* Banner */}
       <ManageMenuItem
         icon={Image}
@@ -111,31 +116,26 @@ export default function SettingsTab({
         onClick={() => onItemClick('banner')}
       />
 
-      {/* Rosters */}
       <ManageMenuItem
-        icon={FileText}
-        title={t('settings.rosters.title')}
-        description={t('settings.rosters.description')}
-        isActive={selectedItem === 'rosters'}
-        onClick={() => onItemClick('rosters')}
+        icon={Youtube}
+        title={t('settings.videos.title')}
+        description={t('settings.videos.description')}
+        isActive={selectedItem === 'videos'}
+        onClick={() => onItemClick('videos')}
       />
 
-      {/* Results */}
+      {/* Contact */}
       <ManageMenuItem
-        icon={ClipboardList}
-        title={t('settings.results.title')}
-        description={t('settings.results.description')}
-        isActive={selectedItem === 'results'}
-        onClick={() => onItemClick('results')}
-      />
-
-      {/* Publishing Fee */}
-      <ManageMenuItem
-        icon={Receipt}
-        title={t('settings.publishingFee.title')}
-        description={t('settings.publishingFee.description')}
-        isActive={selectedItem === 'publishingFee'}
-        onClick={() => onItemClick('publishingFee')}
+        icon={Phone}
+        title={t('settings.contact.title')}
+        description={
+          tournament.contactName ||
+          tournament.contactEmail ||
+          tournament.contactPhone ||
+          t('settings.contact.description')
+        }
+        isActive={selectedItem === 'contact'}
+        onClick={() => onItemClick('contact')}
       />
 
       {/* Duplicate tournament */}

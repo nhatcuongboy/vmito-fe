@@ -40,7 +40,12 @@ export const TournamentPairService = {
   // Update pair
   updatePair: async (
     id: string,
-    data: Partial<TournamentPair>
+    data: {
+      name?: string;
+      playerIds: string[];
+      type?: CategoryType;
+      notes?: string;
+    }
   ): Promise<TournamentPair> => {
     const response = await api.put<ApiResponse<TournamentPair>>(
       `/tournament-pairs/${id}`,
@@ -54,5 +59,10 @@ export const TournamentPairService = {
   deletePair: async (id: string): Promise<void> => {
     await api.delete<ApiResponse<null>>(`/tournament-pairs/${id}`);
     toaster.success({ title: 'Pair deleted successfully' });
+  },
+
+  getPairMatches: async (id: string) => {
+    const response = await api.get(`/tournament-pairs/${id}/matches`);
+    return response.data.data || [];
   },
 };

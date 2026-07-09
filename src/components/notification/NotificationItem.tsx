@@ -11,6 +11,8 @@ import {
   LuCreditCard,
   LuExternalLink,
   LuUsers,
+  LuHeart,
+  LuMessageCircle,
 } from 'react-icons/lu';
 import { INotification, NotificationType } from '@/lib/api/types';
 import { useTranslations } from 'next-intl';
@@ -42,7 +44,7 @@ const VIEW_CLUB_ACTIONS = new Set([
   'club_rejected',
 ]);
 
-const getNotificationIcon = (type: NotificationType) => {
+const getNotificationIcon = (type: NotificationType, action?: string) => {
   switch (type) {
     case NotificationType.SYSTEM:
       return LuShield;
@@ -54,6 +56,8 @@ const getNotificationIcon = (type: NotificationType) => {
       return LuCreditCard;
     case NotificationType.CLUB:
       return LuUsers;
+    case NotificationType.POST:
+      return action === 'post_commented' ? LuMessageCircle : LuHeart;
     default:
       return LuBell;
   }
@@ -70,7 +74,12 @@ export const NotificationItem = ({
   const router = useRouter();
   const locale = (params.locale as string) || 'en';
 
-  const Icon = getNotificationIcon(notification.type);
+  const Icon = getNotificationIcon(
+    notification.type,
+    typeof notification.data?.action === 'string'
+      ? notification.data.action
+      : undefined
+  );
 
   const timeAgo = formatDistanceToNow(new Date(notification.createdAt), {
     addSuffix: true,

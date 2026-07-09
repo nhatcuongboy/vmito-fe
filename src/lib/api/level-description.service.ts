@@ -1,6 +1,6 @@
 import { api } from './base';
-import { ApiResponse, LevelDescription } from './types';
-import { VALID_LEVELS } from '@/constants/levels';
+import { ApiResponse, LevelDefinition, LevelDescription } from './types';
+import { LEVEL_DEFINITIONS, VALID_LEVELS } from '@/constants/levels';
 
 export interface UpdateLevelDescriptionsRequest {
   descriptions: Array<{
@@ -34,6 +34,26 @@ const normalizeLevelDescriptions = (
 };
 
 export const LevelDescriptionService = {
+  getLevelDefinitions: async (): Promise<LevelDefinition[]> => {
+    const response =
+      await api.get<ApiResponse<LevelDefinition[]>>('/level-definitions');
+    const definitions = response.data.data || [];
+
+    if (definitions.length > 0) {
+      return definitions
+        .filter((level) => level.active)
+        .sort((a, b) => a.sortOrder - b.sortOrder);
+    }
+
+    return LEVEL_DEFINITIONS.map((level) => ({
+      id: level.id,
+      code: level.code,
+      shortLabel: level.shortLabel,
+      sortOrder: level.sortOrder,
+      active: true,
+    }));
+  },
+
   getLevelDescriptions: async (): Promise<LevelDescription[]> => {
     const response = await api.get<ApiResponse<LevelDescription[]>>(
       '/level-descriptions'

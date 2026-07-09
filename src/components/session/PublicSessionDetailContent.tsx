@@ -1,7 +1,7 @@
 'use client';
 
 import { ISession } from '@/lib/api/types';
-import { Box, Flex, Grid, Icon, Portal, Spinner } from '@chakra-ui/react';
+import { Box, Flex, Grid, Icon, Portal } from '@chakra-ui/react';
 import { ArrowRight } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { TOP_BAR_HEIGHT_DESKTOP } from '@/constants';
@@ -23,6 +23,7 @@ import SessionDetailBody from './SessionDetailBody';
 import SessionDetailStickyBar from './SessionDetailStickyBar';
 import SessionRecommendations from './SessionRecommendations';
 import DetailViewCountFooter from '@/components/common/DetailViewCountFooter';
+import SessionDetailSkeleton from './SessionDetailSkeleton';
 
 interface PublicSessionDetailContentProps {
   sessionId: string;
@@ -55,6 +56,9 @@ export const PublicSessionDetailContent = ({
     'PENDING' | 'APPROVED' | 'REJECTED' | null
   >(null);
   const [isRegistrationLoading, setIsRegistrationLoading] = useState(!!user);
+
+  const [isAdditionalRegistration, setIsAdditionalRegistration] =
+    useState(false);
 
   const {
     isOpen: isLoginModalOpen,
@@ -110,6 +114,7 @@ export const PublicSessionDetailContent = ({
 
   useEffect(() => {
     if (defaultOpenRegister && user && session && !loading) {
+      setIsAdditionalRegistration(false);
       onOpenJoinModal();
 
       // Clear search params
@@ -132,7 +137,8 @@ export const PublicSessionDetailContent = ({
   ]);
 
   const fetchRegistrationStatus = useCallback(async () => {
-    if (!user || !session) {
+    // Crawled (vãng lai) sessions are view-only — no registration to fetch
+    if (!user || !session || session.isCrawled) {
       setIsRegistrationLoading(false);
       return;
     }
@@ -187,15 +193,21 @@ export const PublicSessionDetailContent = ({
       onOpenLoginModal();
       return;
     }
+    setIsAdditionalRegistration(false);
+    onOpenJoinModal();
+  };
+
+  const handleAddGuest = () => {
+    if (!user) {
+      onOpenLoginModal();
+      return;
+    }
+    setIsAdditionalRegistration(true);
     onOpenJoinModal();
   };
 
   if (loading) {
-    return (
-      <Flex justify="center" align="center" minH="300px">
-        <Spinner size="xl" color="green.500" borderWidth="3px" />
-      </Flex>
-    );
+    return <SessionDetailSkeleton />;
   }
 
   if (error || !session) {
@@ -227,6 +239,7 @@ export const PublicSessionDetailContent = ({
               session={session}
               availableSlots={availableSlots}
               isFull={isFull}
+              userRegistrationStatus={userRegistrationStatus}
               onBack={onBack}
               showBackButton={showBackButton}
             />
@@ -310,6 +323,7 @@ export const PublicSessionDetailContent = ({
                 isOwner={isOwner}
                 onRegister={handleRegister}
                 onViewRegistration={onOpenViewRegistrationModal}
+                onAddGuest={handleAddGuest}
                 displayMode="sidebar"
                 maxPlayers={maxPlayers}
                 approvedPlayersCount={approvedPlayersCount}
@@ -346,6 +360,7 @@ export const PublicSessionDetailContent = ({
           isOwner={isOwner}
           onRegister={handleRegister}
           onViewRegistration={onOpenViewRegistrationModal}
+          onAddGuest={handleAddGuest}
         />
       </Portal>
 
@@ -361,6 +376,7 @@ export const PublicSessionDetailContent = ({
         onClose={onCloseJoinModal}
         session={session}
         onSuccess={refreshData}
+        isAdditionalRegistration={isAdditionalRegistration}
       />
 
       <MyRegistrationModal
@@ -379,7 +395,10 @@ export const PublicSessionDetailContent = ({
         title={t('hostInfo') || 'Thông tin Host'}
         size="md"
         hideSecondaryAction={true}
-        maxBodyHeight="80vh"
+        maxBodyHeight={{
+          base: 'calc(100vh - 120px)',
+          md: 'calc(100vh - 112px)',
+        }}
       >
         <Box>
           <AppHostDetail

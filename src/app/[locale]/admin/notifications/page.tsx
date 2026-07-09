@@ -52,8 +52,6 @@ import { useAuthStore } from '@/stores/useAuthStore';
 import { stringField, useUrlFilters } from '@/hooks/useUrlFilters';
 import { useDisclosure } from '@/components/ui/ChakraHooks';
 
-const PAGE_SIZE = 20;
-
 const NOTIFICATION_FILTERS_SCHEMA = {
   q: stringField(''),
   type: stringField(''),
@@ -94,6 +92,7 @@ function AdminNotificationsContent() {
   const [filters, setFilters] = useUrlFilters(NOTIFICATION_FILTERS_SCHEMA);
   const [keyword, setKeyword] = useState(filters.q);
   const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(20);
   const [notifications, setNotifications] = useState<IAdminNotification[]>([]);
   const [totalCount, setTotalCount] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
@@ -151,7 +150,7 @@ function AdminNotificationsContent() {
         dateFrom: filters.dateFrom || undefined,
         dateTo: filters.dateTo || undefined,
         page,
-        limit: PAGE_SIZE,
+        limit: pageSize,
       });
 
       setNotifications(result.data);
@@ -159,11 +158,11 @@ function AdminNotificationsContent() {
       setTotalPages(Math.max(1, result.pagination.totalPages));
     } catch (error) {
       console.error('Failed to fetch admin notifications:', error);
-      toaster.error({ title: 'Failed to load notifications' });
+      toaster.error({ title: t('notifications.loadError') });
     } finally {
       setIsLoading(false);
     }
-  }, [filters, page]);
+  }, [filters, page, pageSize]);
 
   useEffect(() => {
     if (!isHydrated) return;
@@ -243,12 +242,12 @@ function AdminNotificationsContent() {
       await NotificationService.deleteAdminNotification(
         notificationToDelete.id
       );
-      toaster.success({ title: 'Notification deleted' });
+      toaster.success({ title: t('notifications.deleteSuccess') });
       setNotificationToDelete(null);
       await fetchNotifications();
     } catch (error) {
       console.error('Failed to delete notification:', error);
-      toaster.error({ title: 'Failed to delete notification' });
+      toaster.error({ title: t('notifications.deleteError') });
     } finally {
       setIsDeleting(false);
     }
@@ -656,14 +655,20 @@ function AdminNotificationsContent() {
             )}
           </TableContainer>
 
-          <VTablePagination
-            page={page}
-            totalPages={totalPages}
-            totalCount={totalCount}
-            pageSize={PAGE_SIZE}
-            isLoading={isLoading}
-            onPageChange={setPage}
-          />
+          {totalCount > 0 && (
+            <VTablePagination
+              page={page}
+              totalPages={totalPages}
+              totalCount={totalCount}
+              pageSize={pageSize}
+              isLoading={isLoading}
+              onPageChange={setPage}
+              onPageSizeChange={(newSize) => {
+                setPageSize(newSize);
+                setPage(1);
+              }}
+            />
+          )}
         </VStack>
 
         <VModal

@@ -8,32 +8,57 @@ import {
   VStack,
   HStack,
   Badge,
-  Spinner,
   Image,
 } from '@chakra-ui/react';
 import { SimpleGrid, Button } from '@/components/ui/chakra-compat';
 import { useRouter } from '@/i18n/config';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import PageLayout from '@/components/layout/PageLayout';
 import { TournamentService } from '@/lib/api/tournament.service';
 import { Tournament, TournamentStatus } from '@/lib/api/types';
 import { Suspense, useEffect, useState } from 'react';
-import { Calendar, Heart, Share2, ChevronDown } from 'lucide-react';
-import { format, isSameDay } from 'date-fns';
-import { TOP_BAR_HEIGHT_MOBILE, TOP_BAR_HEIGHT_DESKTOP } from '@/constants';
+import {
+  Calendar,
+  Heart,
+  Share2,
+  ChevronDown,
+  Plus,
+  Swords,
+} from 'lucide-react';
+import { TOP_BAR_HEIGHT_MOBILE } from '@/constants';
+import { TournamentCardsGridSkeleton } from '@/components/tournament/skeletons';
 
 const BADMINTON_PLACEHOLDER = '/icons/app-logo.png';
 
 import { AppSearchBar } from '@/components/common/AppSearchBar';
+import { useRegisterTopBarSearch } from '@/contexts/TopBarSearchContext';
+import AppEmptyState from '@/components/ui/AppEmptyState';
+
+function isSameCalendarDay(first: Date, second: Date) {
+  return (
+    first.getFullYear() === second.getFullYear() &&
+    first.getMonth() === second.getMonth() &&
+    first.getDate() === second.getDate()
+  );
+}
 
 function TournamentsContent() {
   const t = useTranslations('pages.tournaments');
+  const locale = useLocale();
   const router = useRouter();
   const [tournaments, setTournaments] = useState<Tournament[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('ALL');
   const [isFilterOpen, setIsFilterOpen] = useState(false);
+
+  // Register desktop search bar in the top bar
+  useRegisterTopBarSearch({
+    placeholder: t('searchEvents'),
+    value: searchTerm,
+    onChange: setSearchTerm,
+    showFilter: false,
+  });
 
   useEffect(() => {
     loadTournaments();
@@ -54,9 +79,11 @@ function TournamentsContent() {
   const getStatusBadgeLabel = (status: TournamentStatus): string | null => {
     switch (status) {
       case 'PREPARING':
-        return t('registrationOpen');
+        return null;
       case 'IN_PROGRESS':
         return t('status.inProgress');
+      case 'FINISHED':
+        return t('status.finished');
       case 'CANCELLED':
         return t('status.cancelled');
       default:
@@ -70,6 +97,8 @@ function TournamentsContent() {
         return { bg: 'green.500', color: 'white' };
       case 'IN_PROGRESS':
         return { bg: 'blue.500', color: 'white' };
+      case 'FINISHED':
+        return { bg: 'gray.700', color: 'white' };
       case 'CANCELLED':
         return { bg: 'red.500', color: 'white' };
       default:
@@ -80,17 +109,31 @@ function TournamentsContent() {
   const formatDateRange = (startDate: Date, endDate: Date) => {
     const start = new Date(startDate);
     const end = new Date(endDate);
-    if (isSameDay(start, end)) {
-      return format(start, 'EEE, MMM d, yyyy');
+    const sameDayFormatter = new Intl.DateTimeFormat(locale, {
+      weekday: 'short',
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+    });
+    const shortFormatter = new Intl.DateTimeFormat(locale, {
+      weekday: 'short',
+      month: 'short',
+      day: 'numeric',
+    });
+
+    if (isSameCalendarDay(start, end)) {
+      return sameDayFormatter.format(start);
     }
+
     // Same month and year
     if (
       start.getMonth() === end.getMonth() &&
       start.getFullYear() === end.getFullYear()
     ) {
-      return `${format(start, 'EEE, MMM d')} - ${format(end, 'EEE, MMM d, yyyy')}`;
+      return `${shortFormatter.format(start)} - ${sameDayFormatter.format(end)}`;
     }
-    return `${format(start, 'EEE, MMM d, yyyy')} - ${format(end, 'EEE, MMM d, yyyy')}`;
+
+    return `${sameDayFormatter.format(start)} - ${sameDayFormatter.format(end)}`;
   };
 
   const getLocationText = (tournament: Tournament) => {
@@ -105,6 +148,7 @@ function TournamentsContent() {
   };
 
   const getCoverImage = (tournament: Tournament) => {
+    if (tournament.coverPhoto) return tournament.coverPhoto;
     if (tournament.venue?.coverPhoto) return tournament.venue.coverPhoto;
     if (tournament.venue?.images && tournament.venue.images.length > 0)
       return tournament.venue.images[0];
@@ -148,54 +192,51 @@ function TournamentsContent() {
       minH="100vh"
     >
       <VStack gap={6} alignItems="stretch">
-        {/* Search Bar */}
+        {/* Search Bar - mobile only, fixed between TopBar and DiscoveryTabNav tabs */}
         <Box
-          position="sticky"
+          position="fixed"
           top={{
-            base: `calc(${TOP_BAR_HEIGHT_MOBILE + 44}px + env(safe-area-inset-top))`,
-            md: `calc(${TOP_BAR_HEIGHT_DESKTOP}px + env(safe-area-inset-top))`,
+            base: `calc(${TOP_BAR_HEIGHT_MOBILE}px + env(safe-area-inset-top))`,
           }}
           left={0}
           right={0}
           width="100vw"
-          marginLeft="calc(50% - 50vw)"
           zIndex={1100}
-          bg="transparent"
-          py={2}
-          transition="all 0.2s"
+          bg="bg"
+          pt={2}
+          pb={0}
+          display={{ base: 'block', md: 'none' }}
         >
-          <Flex align="center" gap={2} w="100%" maxW="650px" mx="auto">
-            <Box flex={1} w="100%">
-              <AppSearchBar
-                placeholder={t('searchEvents')}
-                value={searchTerm}
-                onChange={setSearchTerm}
-                showFilter={false}
-              />
-            </Box>
-          </Flex>
+          <Box w="100%" maxW="650px" mx="auto">
+            <AppSearchBar
+              placeholder={t('searchEvents')}
+              value={searchTerm}
+              onChange={setSearchTerm}
+              showFilter={false}
+              showCitySelector={true}
+            />
+          </Box>
         </Box>
 
-        {/* Run your own event link */}
-        <Text
-          display={{ base: 'none', md: 'block' }}
-          textAlign="center"
-          fontSize="sm"
-          color="fg.muted"
-          fontWeight="medium"
-          cursor="pointer"
-          _hover={{ textDecoration: 'underline' }}
-          onClick={() => router.push('/host/tournaments/new')}
+        {/* Create Tournament button - desktop only, aligned right like clubs */}
+        <Flex
+          justify="flex-end"
+          mt={2}
+          mb={3}
+          display={{ base: 'none', md: 'flex' }}
         >
-          {t('runYourOwnEvent')}
-        </Text>
+          <Button
+            colorPalette="green"
+            size="sm"
+            onClick={() => router.push('/host/tournaments/new')}
+          >
+            <Plus size={16} />
+            {t('createTournament')}
+          </Button>
+        </Flex>
 
-        {/* Explore Section */}
-        <Flex justify="space-between" alignItems="center" pt={4}>
-          <Heading size="lg" fontWeight="bold" color="fg">
-            {t('explore')}
-          </Heading>
-
+        {/* Filter row */}
+        <Flex justify="flex-end" alignItems="center" pt={1}>
           {/* Status Filter Dropdown */}
           <Box position="relative">
             <Button
@@ -260,18 +301,19 @@ function TournamentsContent() {
 
         {/* Loading State */}
         {loading ? (
-          <Flex justify="center" py={10}>
-            <Spinner size="lg" />
-          </Flex>
+          <TournamentCardsGridSkeleton />
         ) : (
           <>
             {/* Tournament Cards Grid */}
             {filteredTournaments.length === 0 ? (
-              <Box textAlign="center" py={10}>
-                <Text color="fg.muted" fontSize="lg">
-                  {t('noTournamentsFound')}
-                </Text>
-              </Box>
+              <AppEmptyState
+                minH={{ base: '300px', md: '340px' }}
+                icon={
+                  <Swords size={40} color="var(--chakra-colors-gray-400)" />
+                }
+                title={t('noTournamentsFound')}
+                description={searchTerm ? undefined : null}
+              />
             ) : (
               <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={5}>
                 {filteredTournaments.map((tournament) => {
@@ -453,9 +495,9 @@ export default function BrowseTournamentsContent() {
   return (
     <Suspense
       fallback={
-        <Flex justify="center" py={10}>
-          <Spinner size="lg" />
-        </Flex>
+        <Box p={4}>
+          <TournamentCardsGridSkeleton />
+        </Box>
       }
     >
       <TournamentsContent />

@@ -26,9 +26,9 @@ export default function RoundRobinToSEConfig() {
   };
 
   return (
-    <Flex direction={{ base: 'column', lg: 'row' }} gap={6} h="full">
+    <Flex direction={{ base: 'column', lg: 'row' }} gap={6} align="flex-start">
       {/* Left: Configuration form */}
-      <Box flex={1} overflowY="auto" minH={0} pr={{ lg: 4 }}>
+      <Box flex={1} minW={0} pr={{ lg: 4 }}>
         {/* Group Stage section header */}
         <Text fontWeight="bold" fontSize="lg" mb={3}>
           {t('config.rrse.groupStage')}

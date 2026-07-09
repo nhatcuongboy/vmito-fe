@@ -133,13 +133,13 @@
     "register": "Register",
     "userInfo": "User Information",
     "profile": "Profile",
-    "edit": "Edit",
     "editProfile": "Edit Profile",
     "name": "Name",
     "phone": "Phone",
     "aiAssistant": "AI Assistant",
     "contact": "Contact Us",
     "bugReport": "Bug Report",
+    "developedBy": "Developed by Nhat Cuong.",
     "levels": {
       "1": "Weak",
       "2": "Advanced Beginner",
@@ -148,7 +148,9 @@
       "5": "High Intermediate",
       "6": "Advanced",
       "7": "Semi-Pro",
-      "8": "Pro"
+      "8": "Pro",
+      "9": "Weak-",
+      "10": "Weak+"
     },
     "levelShorts": {
       "1": "Yếu",
@@ -158,7 +160,9 @@
       "5": "TB+",
       "6": "Khá",
       "7": "BC",
-      "8": "CN"
+      "8": "CN",
+      "9": "Yếu-",
+      "10": "Yếu+"
     },
     "gender": "Gender",
     "selectGender": "Select Gender",
@@ -244,6 +248,11 @@
     "basicInfo": "Basic Info",
     "description": "Description",
     "descriptionPlaceholder": "Enter session description",
+    "referenceVideoUrl": "Reference skill video",
+    "referenceVideoUrlPlaceholder": "Paste a YouTube link or media URL",
+    "referenceVideoUrlHelper": "Supports YouTube and direct media links such as .mp4, .webm, .ogg.",
+    "referenceVideoTitle": "Reference skill video",
+    "openReferenceVideo": "Open reference video",
     "hostInfo": "Host Info",
     "hostName": "Host Name",
     "hostNamePlaceholder": "Enter host name",
@@ -275,6 +284,12 @@
     "createSession": "Create Session",
     "joinSession": "Join Session",
     "fee": "Fee",
+    "contactHostForFee": "Contact host",
+    "defaultClub": "Default club",
+    "selectDefaultClub": "Select default club",
+    "searchDefaultClub": "Search clubs",
+    "noDefaultClub": "No default club",
+    "defaultClubDescription": "When adding a player who belongs to this club, the club fixed fee will be applied automatically.",
     "register": "Register",
     "sessionName": "Session Name",
     "sessionCode": "Session Code",
@@ -311,6 +326,7 @@
     },
     "courtsAvailable": "courts",
     "players": "players",
+    "registeredLabel": "registered",
     "manageSession": "Host",
     "host": "Host",
     "deleteSession": "Delete",
@@ -320,6 +336,9 @@
     "sessionsDeleted": "Expired sessions deleted",
     "viewSession": "Board",
     "view": "View",
+    "viewOriginalPost": "View original",
+    "crawledBadge": "Facebook post",
+    "crawledSourcePrefix": "Aggregated from a public post",
     "deleteConfirmation": "Are you sure you want to delete this session?",
     "notStarted": "Not started",
     "notStartedYet": "Not started yet",
@@ -378,6 +397,7 @@
       "sessionCreatedSuccessfully": "Session created successfully!",
       "sessionUpdatedSuccessfully": "Session updated successfully",
       "failedToUpdateSession": "Failed to update session",
+      "referenceVideoUrlInvalid": "Reference video must be a valid http or https URL",
       "invalidLevels": "Invalid level values: {levels}. Please select valid levels.",
       "unknownError": "Unknown error occurred",
       "allCourtsMustHaveValidNumber": "All courts must have a valid court number (≥ 1)",
@@ -472,7 +492,9 @@
       "5": "High Intermediate",
       "6": "Advanced",
       "7": "Semi-Pro",
-      "8": "Pro"
+      "8": "Pro",
+      "9": "Weak-",
+      "10": "Weak+"
     },
     "search": "Search",
     "searchPlaceholder": "Search by session, venue...",
@@ -496,9 +518,15 @@
       "availableSlots": "Available",
       "date": "Date",
       "quickFilters": "Quick Filters",
+      "sessionType": "Session type",
+      "allSessions": "All",
+      "regularSessions": "Regular sessions",
+      "facebookSessions": "Facebook posts",
       "nearMe": "Near Me",
       "sortByDistance": "Sort by Distance",
       "cost": "Cost",
+      "feeMin": "Minimum",
+      "feeMax": "Maximum",
       "splitEvenly": "Split Evenly",
       "allDays": "All Days",
       "locationPermissionDenied": "Location permission denied",
@@ -677,6 +705,12 @@
     "aiAnalyzeTitle": "Session Level Analysis",
     "aiAnalyzing": "AI is analyzing...",
     "emptySlot": "Open slot",
+    "playerDetails": "Player details",
+    "viewPlayerDetails": "View {name}'s details",
+    "viewPlayerProfile": "View profile",
+    "member": "Member",
+    "levelDescription": "Level description",
+    "club": "Club",
     "registerNow": "Register now",
     "showLess": "Show less",
     "viewAll": "View all",
@@ -749,7 +783,6 @@
     "expiredSessions": "All",
     "expiredSessionsDescription": "The sessions below have passed their end time but haven't been started or ended. Please update the time or cancel them.",
     "sessionStarted": "Session started",
-    "sessionEnded": "Session ended",
     "errorUpdatingSessionStatus": "Error updating session status",
     "collapse": "Collapse",
     "expand": "Expand",
@@ -762,7 +795,6 @@
     "mapLoadError": "Map loading error",
     "mapLoadErrorDescription": "Please check your network connection or API Key.",
     "playersCount": "{count} player{count, plural, =1 {} other {s}}",
-    "requiredLevels": "Required Levels",
     "error": "Error"
   },
   "court": {
@@ -1153,6 +1185,7 @@
       "keyFeatures": "Key Features",
       "gettingStarted": "Getting Started",
       "copyright": "All rights reserved.",
+      "developedBy": "Developed by Nhat Cuong.",
       "features": {
         "sessionManagement": {
           "title": "Session Management",
@@ -1265,6 +1298,18 @@
       "isClubMember": "Is Club Member",
       "selectClub": "Select Club",
       "selectClubPlaceholder": "-- Select club --",
+      "feeConfiguration": "Fee Configuration",
+      "loadingClubFee": "Loading club fee",
+      "clubFeeAvailable": "Club Fee",
+      "session": "session",
+      "applyClubFee": "Apply Club Fee",
+      "clubFeeNotConfigured": "Club fee not configured for this month",
+      "clubFixedFeeSection": "Club fixed fee",
+      "clubFeePerSession": "Fee per session",
+      "noClubWithFixedFee": "No club has a fixed per-session fee configured for this month",
+      "enableClubFixedFee": "Enable club fixed fee",
+      "disableClubFixedFee": "Disable club fixed fee",
+      "clubFixedFeeHint": "This player's payment will use the fixed per-session fee the club configured for the session's month",
       "awaitingPlayerConfirmation": "Awaiting confirmation from player",
       "confirmedByPlayer": "Confirmed by player",
       "viewPlayer": "View player",
@@ -1298,6 +1343,8 @@
       "recommendedLimitReached": "Recommended player limit reached",
       "playerLimitWarning": "You have {current} players for {courts} courts ({perCourt} players per court). Adding more players may increase waiting times.",
       "playerNameRequired": "Player name is required",
+      "levelRequired": "Please select a level",
+      "clubRequired": "Please select a club",
       "userAlreadySelected": "This user has already been selected",
       "userAlreadySelectedDescription": "This user has already been selected for another player slot",
       "userAlreadyExists": "User already exists",
@@ -1392,6 +1439,46 @@
     },
     "tournaments": {
       "title": "Tournaments",
+      "hostList": {
+        "pageTitle": "My Tournaments",
+        "adminPageTitle": "All Tournaments",
+        "subtitle": "Manage your tournaments, categories, and schedules — all in one place.",
+        "newTournament": "New tournament",
+        "createFirst": "Create your first tournament",
+        "searchPlaceholder": "Search tournaments...",
+        "emptyTitle": "No tournaments yet",
+        "adminEmptyTitle": "No tournaments in the system yet",
+        "emptyDesc": "Spin up your first tournament — set categories, invite players, and run brackets like a pro.",
+        "adminEmptyDesc": "When hosts create tournaments, the system-wide admin list will appear here.",
+        "noResultsTitle": "No tournaments match your search",
+        "noResultsDesc": "Try a different keyword or clear the active filters.",
+        "stats": {
+          "total": "Total",
+          "draft": "Drafts",
+          "inProgress": "In progress",
+          "finished": "Finished"
+        },
+        "filters": {
+          "all": "All",
+          "draft": "Drafts",
+          "inProgress": "In progress",
+          "finished": "Finished",
+          "cancelled": "Cancelled"
+        },
+        "card": {
+          "manage": "Manage",
+          "referee": "Officiate",
+          "openPublic": "Open public page",
+          "delete": "Delete",
+          "moreActions": "More actions",
+          "categories": "Categories",
+          "draftBadge": "Draft",
+          "publishedBadge": "Published"
+        },
+        "deleteConfirm": "Are you sure you want to delete this tournament? This action cannot be undone.",
+        "deleted": "Tournament deleted",
+        "deleteFailed": "Failed to delete tournament"
+      },
       "allTournaments": "All Tournaments",
       "createTournament": "Create Tournament",
       "createSample": "Create Sample",
@@ -1453,37 +1540,176 @@
         "venue": "Location",
         "locationPlaceholder": "Where will the event take place?",
         "cancel": "Cancel",
-        "createTournament": "Create Tournament"
+        "createTournament": "Create Tournament",
+        "sport": "Sport",
+        "sports": {
+          "BADMINTON": "Badminton",
+          "PICKLEBALL": "Pickleball"
+        }
       },
       "detail": {
         "title": "Tournament",
         "notFound": "Tournament not found",
         "comingSoon": "Content coming soon",
+        "publicationStatus": {
+          "published": "Published",
+          "draft": "Draft"
+        },
         "tabs": {
           "home": "Home",
           "teams": "Teams",
           "schedule": "Schedule",
           "standings": "Standings",
           "manage": "Manage",
-          "dashboard": "Dashboard"
+          "dashboard": "Dashboard",
+          "winners": "Winners"
         },
+        "enterScores": "Enter scores",
         "teamsTab": {
-          "manageTeams": "Manage teams",
+          "codeLabel": "Code",
+          "manageTeams": "Manage",
           "noCategories": "No categories available yet.",
           "noTeams": "No teams registered yet.",
-          "unknownTeam": "Unknown"
+          "teamsCount": "{count} teams",
+          "totalCategories": "{count} categories",
+          "totalTeams": "{count} teams registered",
+          "unknownTeam": "Unknown",
+          "viewByCategory": "By category",
+          "viewAllPlayers": "All players",
+          "allPlayersTitle": "All players",
+          "totalPlayers": "{count} players",
+          "noPlayers": "No players yet.",
+          "searchPlayers": "Search players..."
+        },
+        "scheduleTab": {
+          "empty": "No schedule has been published yet."
+        },
+        "standingsTab": {
+          "title": "Standings",
+          "description": "Team rankings for {tournament} by category and group.",
+          "categoryFilter": "Filter category",
+          "allCategories": "All categories",
+          "noCategories": "There are no categories to show standings for yet.",
+          "empty": "Standings will appear after group-stage data is available.",
+          "emptyCategory": "This category does not have standings yet.",
+          "emptyGroup": "This group does not have standings data yet.",
+          "error": "Unable to load standings. Please try again.",
+          "retry": "Retry",
+          "recalculate": "Recalculate",
+          "groupWinner": "Group winner",
+          "poolPlay": "Pool Play",
+          "playoffs": "Playoffs",
+          "pools": "Pools",
+          "overall": "Overall",
+          "showPlayerNames": "Player names",
+          "showPlayerNamesBadge": "Show player names",
+          "rankingsExplained": "Rankings explained",
+          "rankingsExplanation": "Standings are sorted by points, then point difference, points for, wins, and matches played. Overall combines the teams in the visible pools and ranks them again using the same order.",
+          "viewGames": "View Games",
+          "emptyPlayoffs": "There are no playoff matches to show yet.",
+          "matchNumber": "Match {number}",
+          "versus": "vs",
+          "noScore": "No score yet",
+          "groupFallback": "Group {number}",
+          "groupNamed": "Group {name}",
+          "teamsCount": "{count} teams",
+          "winnerOf": "Winner of {match}",
+          "loserOf": "Loser of {match}",
+          "nthPoolLabel": "{rank} Pool {pool}",
+          "bye": "BYE",
+          "ordinals": {
+            "1": "1st",
+            "2": "2nd",
+            "3": "3rd",
+            "4": "4th",
+            "5": "5th",
+            "6": "6th",
+            "7": "7th",
+            "8": "8th",
+            "other": "{rank}th"
+          },
+          "playoffsRounds": {
+            "quarterFinals": "Quarter Finals",
+            "semiFinals": "Semi Finals",
+            "final": "Final",
+            "thirdPlace": "3rd Place"
+          },
+          "deBracket": {
+            "upperBracket": "Upper Bracket",
+            "lowerBracket": "Lower Bracket",
+            "preQuarterFinals": "Pre-Quarter Finals",
+            "roundOf": "Round of {count}",
+            "lowerRound": "Lower Bracket R{number}",
+            "lowerFinal": "Lower Bracket Finals",
+            "grandFinal": "Grand Final",
+            "ifNecessary": "If Necessary"
+          },
+          "matchStatus": {
+            "SCHEDULED": "Scheduled",
+            "IN_PROGRESS": "In progress",
+            "FINISHED": "Finished",
+            "CANCELLED": "Cancelled"
+          },
+          "columns": {
+            "rank": "Rank",
+            "team": "Team/Player",
+            "teamShort": "Team",
+            "group": "Group",
+            "played": "Played",
+            "playedShort": "MP",
+            "won": "Won",
+            "wonShort": "W",
+            "lost": "Lost",
+            "lostShort": "L",
+            "drawn": "Drawn",
+            "drawnShort": "D",
+            "points": "Points",
+            "pointsShort": "PTS",
+            "pointsFor": "For",
+            "pointsAgainst": "Against",
+            "difference": "Diff",
+            "differenceShort": "+/-",
+            "recentFormShort": "Last 5",
+            "forfeits": "F",
+            "forfeitsTooltip": "Matches lost by forfeit (already included in the Lost column)",
+            "cancelled": "C",
+            "cancelledTooltip": "Cancelled matches (already included in the Lost column)"
+          }
         },
         "homeTab": {
           "overview": {
             "title": "Overview",
             "teamsParticipating": "{count} teams participating",
-            "viewSchedule": "View Schedule",
-            "viewStandings": "View Standings"
+            "athletesParticipating": "{count} athletes participating",
+            "viewSchedule": "Matches",
+            "viewStandings": "View Standings",
+            "viewShowcase": "Showcase"
           },
           "categories": {
             "title": "Categories",
             "manage": "Manage categories",
-            "empty": "No categories yet."
+            "empty": "No categories yet.",
+            "teamsCount": "{count} teams",
+            "playersCount": "{count} players"
+          },
+          "competitionInfo": {
+            "title": "Competition rules",
+            "subtitle": "View format, scoring, and tiebreak order.",
+            "modalDescription": "Format, scoring, and tiebreak order for each category.",
+            "playoffs": "Playoffs",
+            "qualifiersPerGroup": "{count} teams advance per group",
+            "thirdPlace": "Third-place match"
+          },
+          "notes": {
+            "title": "Notes",
+            "edit": "Edit notes",
+            "empty": "No tournament notes yet."
+          },
+          "videos": {
+            "title": "Videos",
+            "edit": "Edit videos",
+            "empty": "No YouTube videos yet.",
+            "iframeTitle": "Tournament YouTube video"
           },
           "venues": {
             "title": "Venues",
@@ -1493,21 +1719,38 @@
           "contact": {
             "title": "Contact",
             "name": "Name",
-            "email": "Email"
+            "email": "Email",
+            "phone": "Phone",
+            "empty": "No contact information yet."
+          },
+          "sponsors": {
+            "title": "Sponsors",
+            "manage": "Manage sponsors",
+            "empty": "No sponsors yet."
+          },
+          "champions": {
+            "title": "Champions",
+            "subtitle": "Final results are in.",
+            "viewAll": "View all winners"
           }
         },
         "dashboard": {
           "title": "Dashboard",
           "share": "Share",
           "continueSetup": {
-            "title": "Continue setup",
-            "description": "Use this guide to get ready for game day.",
-            "progress": "{completed} of {total} complete"
+            "title": "Tournament Setup Guide",
+            "description": "Complete the steps below to prepare your tournament.",
+            "progress": "Completed {completed} of {total} steps"
           },
           "steps": {
+            "categories": {
+              "title": "Create categories",
+              "description": "Create the competition categories before setting formats.",
+              "action": "Manage categories"
+            },
             "format": {
-              "title": "Create your format",
-              "description": "Select and configure your format.",
+              "title": "Set up format",
+              "description": "Select and configure the format for each category.",
               "action": "Manage format"
             },
             "teams": {
@@ -1560,6 +1803,11 @@
           "next": "Next",
           "confirm": "Confirm",
           "close": "Close",
+          "cardLabels": {
+            "poolPlay": "Pool Play",
+            "bracket": "Bracket",
+            "playoffs": "Playoffs"
+          },
           "step1": {
             "title": "Select format",
             "description": "Choose from the provided templates.",
@@ -1580,6 +1828,13 @@
               "description": "Teams are placed into a bracket, where they are eliminated after losing one match.",
               "cardLabel": "Bracket",
               "configDescription": "Configure bracket settings."
+            },
+            "DOUBLE_ELIMINATION": {
+              "name": "Double Elimination",
+              "subtitle": "Double Elimination",
+              "description": "Teams are placed into upper and lower brackets, and are only eliminated after losing two matches.",
+              "cardLabel": "Bracket",
+              "configDescription": "Configure double elimination settings."
             },
             "ROUND_ROBIN_TO_SE": {
               "name": "Round Robin to Single Elimination",
@@ -1712,7 +1967,15 @@
               "thirdPlaceMatch": "Third place match",
               "yes": "Yes",
               "no": "No",
-              "bracketPreview": "Bracket preview will appear here"
+              "bracketPreview": "Bracket preview will appear here",
+              "bestOf5": "Best of 5",
+              "perRoundTitle": "Per-round format (optional)",
+              "perRoundHint": "Rounds left as default use {format}.",
+              "useDefault": "Default"
+            },
+            "de": {
+              "isTrueDoubleElimination": "True double elimination",
+              "isTrueDoubleEliminationDesc": "If enabled, the lower bracket champion must beat the upper bracket champion twice to win the grand final (bracket reset)."
             },
             "rrse": {
               "groupStage": "Group Stage",
@@ -1743,6 +2006,13 @@
                 "description": "Provide venues and assign times and courts to your matches."
               }
             }
+          },
+          "rounds": {
+            "final": "Final",
+            "semifinal": "Semifinal",
+            "quarterfinal": "Quarterfinal",
+            "roundOf16": "Round of 16",
+            "thirdPlace": "3rd place"
           }
         },
         "manage": {
@@ -1768,6 +2038,8 @@
           "panelTitles": {
             "publish": "Publish tournament",
             "teams": "Teams",
+            "players": "Players",
+            "results": "Results",
             "categories": "Categories",
             "format": "Format",
             "standings": "Standings",
@@ -1778,7 +2050,60 @@
             "sponsors": "Sponsors",
             "name": "Tournament Name",
             "dates": "Tournament Dates",
-            "location": "Tournament Location"
+            "location": "Tournament Location",
+            "banner": "Tournament Banner",
+            "managers": "Tournament managers"
+          },
+          "duplicateModal": {
+            "title": "Duplicate tournament",
+            "description": "To duplicate this tournament, choose a name, dates and location then select which properties you would like to copy when duplicating.",
+            "copySuffix": "(Copy)",
+            "close": "Close duplicate tournament modal",
+            "cancel": "Cancel",
+            "confirm": "Confirm",
+            "success": "Tournament duplicated successfully",
+            "copyHeading": "Select what you would like to copy:",
+            "fields": {
+              "name": "Name",
+              "startDate": "Start date",
+              "endDate": "End date",
+              "location": "Location",
+              "locationPlaceholder": "Search for a venue",
+              "noVenues": "No venues found"
+            },
+            "options": {
+              "format": {
+                "label": "Format",
+                "tooltip": "Tournament categories and format settings are always copied."
+              },
+              "schedule": {
+                "label": "Schedule",
+                "tooltip": "Copy match schedule, rounds, times and court assignments."
+              },
+              "teams": {
+                "label": "Teams",
+                "tooltip": "Copy tournament players, pairs and team registrations."
+              },
+              "matchResults": {
+                "label": "Match results",
+                "tooltip": "Copy submitted scores and match winners. Requires schedule to be copied."
+              },
+              "venues": {
+                "label": "Venues",
+                "tooltip": "Copy linked venues and tournament court setup."
+              },
+              "customHomePage": {
+                "label": "Customized home page",
+                "tooltip": "Copy cover image and tournament home page presentation settings."
+              }
+            },
+            "errors": {
+              "nameRequired": "Tournament name is required",
+              "datesRequired": "Start date and end date are required",
+              "endBeforeStart": "End date cannot be before start date",
+              "loadVenuesFailed": "Failed to load venues",
+              "duplicateFailed": "Failed to duplicate tournament"
+            }
           },
           "organize": {
             "publish": {
@@ -1789,8 +2114,17 @@
               "title": "Teams",
               "description": "{count} teams registered"
             },
+            "players": {
+              "title": "Players",
+              "description": "Manage the player pool for this tournament"
+            },
+            "results": {
+              "title": "Results & scores",
+              "description": "Enter and review match scores"
+            },
             "categories": {
-              "title": "Categories"
+              "title": "Categories",
+              "description": "Create and manage competition categories like men's singles, women's doubles, mixed doubles."
             },
             "registration": {
               "title": "Registration",
@@ -1825,8 +2159,44 @@
               "cancelled": "Cancelled",
               "deleteAllMatches": "Delete All Matches",
               "deleteAllMatchesConfirm": "Are you sure you want to delete all matches for this group? This action cannot be undone.",
+              "deleteAllMatchesConfirmTitle": "Delete all matches?",
+              "deleteAllMatchesConfirmDesc": "This will permanently delete all {count} match(es) in the tournament, including scheduled, in-progress, and finished matches. Schedules, scores, results, and court links for these matches will also be deleted. This action cannot be undone.",
+              "deleteAllMatchesConfirmAction": "Delete all",
+              "deleteAllMatchesSuccess": "Deleted all {count} match(es)",
+              "deleteAllMatchesError": "Failed to delete matches",
               "matchesDeleted": "All matches deleted successfully",
-              "noScore": "No score yet"
+              "replaceScheduledConfirmTitle": "Regenerate matches?",
+              "replaceScheduledConfirmDesc": "{count} match(es) already have schedule assignments. Regenerating will delete current matches and remove their court/time assignments.",
+              "replaceScheduledConfirmAction": "Regenerate",
+              "cannotRegenerateStartedTitle": "Cannot regenerate matches",
+              "cannotRegenerateStartedDesc": "At least one match is in progress or finished. Reset or delete results before regenerating matches.",
+              "noScore": "No score yet",
+              "bracket": "Bracket",
+              "bracketSubtitle": "Review the generated bracket.",
+              "seedLabel": "Seed {seed}",
+              "grandFinal": "Grand Final",
+              "grandFinalReset": "Grand Final (Reset)",
+              "quarterFinals": "Quarter Finals",
+              "semiFinals": "Semi Finals",
+              "finals": "Finals",
+              "winnerOf": "Winner of {match}",
+              "loserOf": "Loser of {match}",
+              "nthPoolLabel": "{rank} Pool {pool}",
+              "roundNumber": "Round {number}",
+              "upperBracketRound": "Upper bracket {number}",
+              "lowerBracketRound": "Lower bracket {number}",
+              "notEnoughTeams": "Not enough teams for bracket",
+              "ordinals": {
+                "1": "1st",
+                "2": "2nd",
+                "3": "3rd",
+                "4": "4th",
+                "5": "5th",
+                "6": "6th",
+                "7": "7th",
+                "8": "8th",
+                "other": "{rank}th"
+              }
             },
             "venues": {
               "title": "Venue",
@@ -1853,24 +2223,97 @@
               "scheduledMatches": "scheduled",
               "unscheduledMatches": "unscheduled",
               "manageSchedule": "Manage schedule",
+              "clearAll": "Clear all schedules",
+              "clearAllConfirmTitle": "Clear all schedules?",
+              "clearAllConfirmDesc": "All matches will be unassigned from courts and time slots. This action cannot be undone.",
+              "clearAllConfirm": "Confirm clear",
+              "clearAllSuccess": "Schedule cleared",
+              "clearAllError": "Failed to clear schedule",
+              "deleteAllMatches": "Delete all matches",
+              "deleteAllMatchesConfirmTitle": "Delete all matches?",
+              "deleteAllMatchesConfirmDesc": "This will permanently delete all {count} match(es) in the tournament including their schedules. This action cannot be undone.",
+              "deleteAllMatchesConfirm": "Confirm delete",
+              "deleteAllMatchesSuccess": "Deleted all {count} match(es)",
+              "deleteAllMatchesError": "Failed to delete matches",
               "manager": {
                 "title": "Manage Schedule",
                 "listView": "List view",
                 "calendarView": "Calendar view",
-                "generate": "Generate",
+                "generate": "Generate schedule",
                 "close": "Close",
                 "emptyTitle": "No matches scheduled yet",
+                "matchesNotGeneratedTitle": "Matches have not been generated",
+                "goToRounds": "Go to Rounds",
                 "generateSchedule": "Generate schedule",
                 "enterManually": "or enter manually",
                 "cancel": "Cancel",
                 "save": "Save changes",
                 "editMatchTitle": "Edit Match {number}",
+                "matchCode": "Match code",
+                "matchCodePlaceholder": "e.g. M01",
                 "clearTimes": "Clear times",
                 "date": "Date",
                 "startTime": "Start time",
                 "court": "Court",
                 "courtPrefix": "Court",
-                "update": "Update"
+                "update": "Update",
+                "loadFailed": "Failed to load schedule data",
+                "previewLoadFailed": "Failed to load schedule preview",
+                "saveFailed": "Failed to save schedule",
+                "saveSuccess": "Saved {count} match(es)",
+                "addMatch": "Add match",
+                "addMatchTitle": "Add a match",
+                "category": "Category",
+                "round": "Round",
+                "group": "Group",
+                "team1": "Team 1",
+                "team2": "Team 2",
+                "teamTBD": "To be decided (TBD)",
+                "matchLength": "Duration",
+                "createSuccess": "Match added",
+                "createFailed": "Failed to add match",
+                "deleteConfirmTitle": "Delete match?",
+                "deleteConfirmText": "Are you sure you want to delete this match?",
+                "deleteWarningResult": "This match is in progress or already has a result. Deleting it will discard the score data and cannot be undone.",
+                "deleteConfirmBtn": "Delete",
+                "deleteFailed": "Failed to delete match",
+                "sameTeamError": "Team 1 and Team 2 must be different",
+                "aiImport": {
+                  "button": "Import with AI",
+                  "drawerTitle": "Import schedule with AI",
+                  "tabText": "Paste text",
+                  "tabFile": "Upload CSV/Excel",
+                  "textareaPlaceholder": "Paste the schedule here (e.g. Men's Doubles, Group stage, 13:00 - 13:15 6/6/2026, MD-VB01, MD01 vs MD02, 5)…",
+                  "dropzoneLabel": "Choose a .csv, .xlsx or .xls file",
+                  "parsedPreview": "Parsed content (you can edit before sending to AI):",
+                  "fileParsing": "Reading file…",
+                  "unsupportedFile": "Unsupported file format. Only .csv, .xlsx, .xls are accepted.",
+                  "textRequired": "Please enter or upload schedule content.",
+                  "aiHint": "AI will match against your existing match codes (e.g. MD-VB01), match numbers, or the two team names (e.g. MD01 vs MD02). You can preview and uncheck any rows before saving.",
+                  "extractBtn": "Extract with AI",
+                  "extracting": "Extracting…",
+                  "aiFailed": "AI could not extract the schedule. Please retry or edit the input.",
+                  "backToInput": "Back to input",
+                  "previewSummary": "{total} rows total • {included} will be saved • {issues} need attention",
+                  "previewEmpty": "AI could not recognize any rows.",
+                  "colCategory": "Category",
+                  "colMatch": "Match",
+                  "colCourt": "Court",
+                  "colTime": "Time",
+                  "colStatus": "Status",
+                  "status_ok": "OK",
+                  "status_noMatch": "Match not found",
+                  "status_noCourt": "Court not found",
+                  "status_invalidTime": "Missing date/time",
+                  "status_conflict": "Time conflict",
+                  "saveBtn": "Save {count} match(es)",
+                  "saving": "Saving…",
+                  "nothingToSave": "No valid rows to save.",
+                  "importSuccess": "Imported {count} match(es) from AI",
+                  "importFailed": "Failed to save schedule",
+                  "cancel": "Cancel"
+                },
+                "referee": "Referee"
               },
               "generate": {
                 "title": "Generate schedule",
@@ -1891,6 +2334,8 @@
                 "poolPlay": "Pool Play",
                 "playoffs": "Playoffs",
                 "generationFailed": "Generation failed",
+                "matchesNotGeneratedTitle": "Matches have not been generated",
+                "matchesNotGeneratedDescription": "Generate matches in the Rounds tab before creating a schedule.",
                 "cancel": "Cancel",
                 "edit": "Edit",
                 "timeBuffer": "Time buffer between matches",
@@ -1901,7 +2346,8 @@
                 "noBuffer": "No buffer",
                 "anyMatch": "Any match",
                 "groupsCount": "{count} group(s)",
-                "min": "{count} min"
+                "min": "{count} min",
+                "courtPrefix": "Court"
               },
               "constraints": {
                 "title": "Constraints for {court}",
@@ -1914,6 +2360,21 @@
               },
               "preview": {
                 "title": "Schedule Preview",
+                "generatedSchedule": "Generated schedule",
+                "viewSchedule": "View schedule",
+                "generationComplete": "Successfully generated a schedule for all matches.",
+                "generationIncomplete": "{count} match(es) could not be scheduled. Consider adding more time slots.",
+                "schedulingConflicts": "{count} scheduling conflict(s)",
+                "moreConflicts": "+{count} more",
+                "rounds": {
+                  "poolPlay": "Pool Play",
+                  "final": "Final",
+                  "finals": "Finals",
+                  "semiFinals": "Semi Finals",
+                  "quarterFinals": "Quarter Finals",
+                  "thirdPlace": "3rd Place",
+                  "roundOf16": "Round of 16"
+                },
                 "failedLoad": "Failed to load preview",
                 "conflictDetected": "Conflict detected",
                 "unableToUpdate": "Unable to update",
@@ -1949,7 +2410,8 @@
                 "confirm": "Confirm",
                 "close": "Close",
                 "selectAll": "Select all",
-                "deselectAll": "Deselect all"
+                "deselectAll": "Deselect all",
+                "courtPrefix": "Court"
               },
               "result": {
                 "complete": "Schedule complete",
@@ -1964,6 +2426,7 @@
               },
               "list": {
                 "team": "Team",
+                "matchCode": "Match code",
                 "team1": "Team 1",
                 "team2": "Team 2",
                 "round": "Round",
@@ -1976,12 +2439,53 @@
                 "roundQF": "QF",
                 "roundSF": "SF",
                 "roundF": "Final",
-                "round3rd": "3rd Place"
-              }
+                "round3rd": "3rd Place",
+                "winnerOf": "Winner of match {number}",
+                "loserOf": "Loser of match {number}",
+                "tbd": "TBD",
+                "unknown": "Unknown",
+                "delete": "Delete"
+              },
+              "liveQueue": {
+                "title": "Live court assignment",
+                "subtitle": "Queue matches and auto-assign them to courts as they free up.",
+                "initialize": "Initialize queue",
+                "assignNext": "Assign next",
+                "refresh": "Refresh",
+                "courts": "Courts",
+                "noCourts": "No courts configured for this tournament.",
+                "queue": "Queue",
+                "emptyQueue": "No matches in queue",
+                "emptyQueueHint": "Use \"Initialize queue\" to add unscheduled matches.",
+                "matchLabel": "Match {number}",
+                "status": {
+                  "AVAILABLE": "Available",
+                  "OCCUPIED": "In use",
+                  "MAINTENANCE": "Maintenance"
+                },
+                "loadFailed": "Failed to load court assignment data.",
+                "actionFailed": "Action failed. Please try again.",
+                "initializeSuccess": "{count} matches added to the queue.",
+                "assignedSuccess": "Next match assigned to a court.",
+                "assignNothing": "Nothing to assign right now.",
+                "addMatch": "Add match",
+                "noAddable": "No matches available to add.",
+                "returnToQueue": "Return to queue",
+                "availableAt": "free ~{time}",
+                "addedSuccess": "Match added to the queue.",
+                "returnedSuccess": "Match returned to the queue."
+              },
+              "finishedMatches": "finished",
+              "onCourtMatches": "on court",
+              "waitingMatches": "waiting in queue"
             },
             "sponsors": {
               "title": "Sponsors",
               "description": "Add sponsors to your tournament."
+            },
+            "managers": {
+              "title": "Tournament managers",
+              "description": "Assign co-organizers and permissions"
             }
           },
           "settings": {
@@ -2010,6 +2514,14 @@
               "title": "Banner image",
               "description": "Upload a banner image for your tournament page."
             },
+            "videos": {
+              "title": "YouTube videos",
+              "description": "Embed videos on the tournament home page."
+            },
+            "contact": {
+              "title": "Contact info",
+              "description": "Update contact name, email and phone."
+            },
             "rosters": {
               "title": "Rosters",
               "description": "Manage team rosters and player limits."
@@ -2032,6 +2544,21 @@
             }
           },
           "panels": {
+            "visibility": {
+              "title": "Visibility",
+              "description": "Control who can see this tournament.",
+              "publicLabel": "Public",
+              "publicHelp": "Tournament is visible to everyone and appears in search results.",
+              "privateLabel": "Draft / Private",
+              "privateHelp": "Tournament is hidden. Only managers or invited people can view it.",
+              "save": "Save",
+              "cancel": "Cancel",
+              "success": "Visibility status updated successfully.",
+              "errors": {
+                "noChanges": "No changes to save.",
+                "updateFailed": "Update failed, please try again."
+              }
+            },
             "teams": {
               "title": "Teams",
               "addTeams": "Add teams",
@@ -2047,7 +2574,151 @@
               "save": "Save",
               "cancel": "Cancel",
               "delete": "Delete",
-              "teamsCount": "{count} teams"
+              "bulkProgress": "Adding {current}/{total}: {name}",
+              "teamsCount": "{count} teams",
+              "addSuccess": "Team added successfully",
+              "enterAtLeastOne": "Please enter at least one team",
+              "noCategorySelected": "Please select a category before adding teams",
+              "bulkAddItemFailed": "Could not add \"{name}\" ({current}/{total}): {error}",
+              "bulkAddSuccess": "Added {count} teams successfully",
+              "addFailed": "Failed to add teams",
+              "updateFailed": "Failed to update team",
+              "deleteFailed": "Failed to delete team",
+              "unknownError": "Unknown error",
+              "memberCount": "{current}/{total} players",
+              "teamDetails": "Team details",
+              "members": "Members: {current}/{total}",
+              "quickCreatePlayer": "Quickly create a new player",
+              "memberAddFailed": "Failed to add player",
+              "selectFromList": "Select players",
+              "searchPlayerPlaceholder": "Search players...",
+              "noAvailablePlayers": "All players are already registered in this category",
+              "selectedCount": "{count} selected",
+              "draftTeamWarning": "This team is still a draft and cannot be assigned to a pool or scheduled yet.",
+              "team": {
+                "title": "Teams",
+                "add": "Add team",
+                "empty": "No teams registered yet.",
+                "addTitle": "Add team",
+                "editTitle": "Edit team",
+                "deleteTitle": "Delete team",
+                "deleteConfirm": "Are you sure you want to remove this team?",
+                "namePlaceholder": "Team name",
+                "multiPlaceholder": "Paste teams or enter one team name per line",
+                "count": "{count} teams",
+                "addSuccess": "Team added successfully",
+                "enterAtLeastOne": "Please enter at least one team",
+                "noCategorySelected": "Please select a category before adding teams",
+                "bulkAddItemFailed": "Could not add team \"{name}\" ({current}/{total}): {error}",
+                "bulkAddSuccess": "Added {count} teams successfully",
+                "addFailed": "Failed to add team",
+                "updateFailed": "Failed to update team",
+                "deleteFailed": "Failed to delete team"
+              },
+              "player": {
+                "title": "Players",
+                "add": "Add player",
+                "empty": "No players registered yet.",
+                "addTitle": "Add player",
+                "editTitle": "Edit player",
+                "deleteTitle": "Remove player",
+                "deleteConfirm": "Are you sure you want to remove this player from the category?",
+                "namePlaceholder": "Player name",
+                "multiPlaceholder": "Paste players or enter one player name per line",
+                "count": "{count} players",
+                "addSuccess": "Player added successfully",
+                "enterAtLeastOne": "Please enter at least one player",
+                "noCategorySelected": "Please select a category before adding players",
+                "bulkAddItemFailed": "Could not add player \"{name}\" ({current}/{total}): {error}",
+                "bulkAddSuccess": "Added {count} players successfully",
+                "addFailed": "Failed to add player",
+                "updateFailed": "Failed to update player",
+                "deleteFailed": "Failed to remove player"
+              }
+            },
+            "players": {
+              "title": "Players",
+              "subtitle": "All players in this tournament. Players added here can be assigned to teams and registrations.",
+              "addPlayer": "Add player",
+              "searchPlaceholder": "Search players...",
+              "noPlayers": "No players yet",
+              "noResults": "No players match your search",
+              "addPlayerTitle": "Add player",
+              "editPlayer": "Edit player",
+              "deletePlayer": "Delete player",
+              "deleteConfirm": "Are you sure you want to delete this player?",
+              "deleteWarning": "This will also remove the player from {registrations} registration(s) and {teams} team(s).",
+              "avatar": "Avatar",
+              "avatarEmpty": "No avatar yet",
+              "avatarSelected": "Avatar selected",
+              "avatarUpload": "Upload avatar",
+              "avatarGallery": "Choose from gallery",
+              "playerCode": "Player code",
+              "playerCodePlaceholder": "e.g. VDV001",
+              "name": "Name",
+              "namePlaceholder": "Player name",
+              "gender": "Gender",
+              "genderPlaceholder": "Select gender",
+              "level": "Level",
+              "levelPlaceholder": "Select level",
+              "levelDescription": "Level description",
+              "levelDescriptionPlaceholder": "e.g. Intermediate, Open...",
+              "email": "Email",
+              "emailPlaceholder": "name@example.com",
+              "phone": "Phone",
+              "phonePlaceholder": "Phone number",
+              "bulkImport": {
+                "button": "Bulk add",
+                "title": "Bulk add players",
+                "description": "Paste the list in column order: Code, Name, Gender, Phone.",
+                "inputLabel": "Player list",
+                "placeholder": "Code, Name, Gender, Phone\nVDV001, Nguyen Van A, Male, 0901234567\n, Tran Thi B, Female, 0912345678",
+                "help": "Comma or tab separated data is supported. Header rows are skipped. Columns after Phone are ignored.",
+                "previewTitle": "Preview {count} players",
+                "errorSummary": "{count} error(s) to fix",
+                "readySummary": "Ready to import",
+                "confirm": "Add players",
+                "valid": "Valid",
+                "success": "Added {count} players",
+                "failed": "Failed to bulk add players",
+                "columns": {
+                  "line": "Line",
+                  "code": "Code",
+                  "name": "Name",
+                  "gender": "Gender",
+                  "phone": "Phone",
+                  "status": "Status"
+                },
+                "errors": {
+                  "nameRequired": "Missing name",
+                  "invalidGender": "Invalid gender",
+                  "duplicateCodeExisting": "Code already exists",
+                  "duplicateCodeBatch": "Duplicate code in import",
+                  "duplicateNameExisting": "Name already exists",
+                  "duplicateNameBatch": "Duplicate name in import"
+                }
+              },
+              "genderMale": "Male",
+              "genderFemale": "Female",
+              "genderOther": "Other",
+              "genderPreferNotToSay": "Prefer not to say",
+              "save": "Save",
+              "cancel": "Cancel",
+              "close": "Close",
+              "delete": "Delete",
+              "addSuccess": "Player added",
+              "updateSuccess": "Player updated",
+              "deleteSuccess": "Player deleted",
+              "addFailed": "Failed to add player",
+              "updateFailed": "Failed to update player",
+              "deleteFailed": "Failed to delete player",
+              "unknownError": "Unknown error",
+              "playersCount": "{count} players",
+              "usageBadge": "{count} registrations",
+              "playerDetails": "Player details",
+              "usage": "Usage",
+              "usageDetail": "{registrations} registrations · {teams} teams",
+              "linkedAccount": "Linked account"
             },
             "categories": {
               "title": "Categories",
@@ -2056,14 +2727,116 @@
               "editCategory": "Edit category",
               "deleteCategory": "Delete category",
               "deleteConfirm": "Are you sure you want to delete this category?",
-              "namePlaceholder": "Name",
+              "nameLabel": "Category name",
+              "namePlaceholder": "E.g. Men's doubles 3.0",
+              "typeLabel": "Category type",
+              "registrationModeLabel": "Registration mode",
               "save": "Save",
               "cancel": "Cancel",
-              "delete": "Delete"
+              "delete": "Delete",
+              "createFailed": "Failed to create category",
+              "updateFailed": "Failed to update category",
+              "deleteFailed": "Failed to delete category",
+              "unknownError": "Unknown error",
+              "teamSizeSummary": "{count} players/team",
+              "individual": "Individual",
+              "team": "Team",
+              "teamSizeLabel": "Players per team",
+              "teamSizePlaceholder": "E.g. 2",
+              "teamSizeHelp": "Used for team-based categories. Pickleball and badminton doubles usually use 2 players per team.",
+              "validation": {
+                "nameRequired": "Enter a category name.",
+                "nameDuplicate": "A category with this name already exists in this tournament.",
+                "teamSizeMin": "Players per team must be a whole number of 2 or more."
+              },
+              "types": {
+                "mensSingle": "Men's singles",
+                "womensSingle": "Women's singles",
+                "mensDouble": "Men's doubles",
+                "womensDouble": "Women's doubles",
+                "mixedDouble": "Mixed doubles",
+                "custom": "Custom"
+              }
             },
             "format": {
               "title": "Format",
-              "switchFormat": "Switch format"
+              "switchFormat": "Switch format",
+              "defaultFormatHint": "Using the default format. Click \"Switch format\" to customize.",
+              "labels": {
+                "poolPlay": "Pool Play",
+                "playoffs": "Playoffs",
+                "roundRobin": "Round Robin",
+                "singleElimination": "Single Elimination"
+              },
+              "formats": {
+                "roundRobin": {
+                  "title": "Round Robin",
+                  "description": "Teams compete in pools and then are given a rank based on their performance."
+                },
+                "singleElimination": {
+                  "title": "Single Elimination",
+                  "description": "Teams are placed into a bracket based on their rank, where they are eliminated after losing one match."
+                },
+                "roundRobinToSingleElimination": {
+                  "title": "Round Robin to Single Elimination",
+                  "description": "Teams compete in pools and then are given a rank based on their performance. Teams are then placed into a bracket based on their rank, where they are eliminated after losing one match."
+                }
+              },
+              "scoringRules": {
+                "title": "Scoring rules",
+                "description": "Pick a sport preset for a quick setup, or fine-tune manually for your tournament.",
+                "presets": {
+                  "BWF_21": "BWF 21",
+                  "CLASSIC_15": "Classic 15",
+                  "RALLY_15": "Rally 15 (cap 21)",
+                  "SHORT_11": "Short 11 (cap 15)",
+                  "CUSTOM": "Custom",
+                  "PICKLEBALL_11": "Pickleball 11",
+                  "PICKLEBALL_15": "Pickleball 15",
+                  "PICKLEBALL_21": "Pickleball 21"
+                },
+                "matchFormat": "Maximum sets",
+                "matchFormats": {
+                  "BEST_OF_1": "1 set",
+                  "BEST_OF_3": "3 sets",
+                  "BEST_OF_5": "5 sets"
+                },
+                "pointsToWin": "Points to win set",
+                "winByTwo": "Win by 2",
+                "pointCap": "Point cap",
+                "noCap": "No cap",
+                "disableCap": "Remove cap",
+                "presetTitle": "Quick rule presets",
+                "customTitle": "Customize selected stage",
+                "yes": "Yes",
+                "no": "No",
+                "save": "Save rules",
+                "saveError": "Could not save the rules. Please try again.",
+                "invalid": "Invalid values — points 1–99 and the cap must be greater than or equal to the points-to-win.",
+                "stages": {
+                  "GROUP": "Group stage",
+                  "KNOCKOUT": "Knockout",
+                  "FINAL": "Final"
+                },
+                "stageHints": {
+                  "GROUP": "These rules apply to round-robin group-stage matches.",
+                  "KNOCKOUT": "Applied to elimination rounds (R16/QF/SF/3rd place). Inherit = use group-stage rules.",
+                  "FINAL": "Only applied to the final match. Inherit = use knockout rules."
+                },
+                "inheritTitle": "Use previous stage's rules",
+                "inheritHintKnockout": "Inherit from the group stage. Turn off to set custom rules for knockout rounds.",
+                "inheritHintFinal": "Inherit from the knockout stage (or group stage). Turn off to set custom rules for the final.",
+                "inheritOn": "Inherit",
+                "inheritOff": "Customize",
+                "summary": {
+                  "title": "Current rules per stage",
+                  "inherited": "Inherited",
+                  "points": "{points} points",
+                  "winByTwo": "win by 2",
+                  "cap": "cap {cap}",
+                  "noCap": "no cap"
+                }
+              }
             },
             "standings": {
               "title": "Standings",
@@ -2071,6 +2844,11 @@
               "points": "Points",
               "pointsPerWin": "points per match win",
               "pointsPerTie": "points per match tie",
+              "pointsPerLoss": "points per match loss",
+              "pointsPerGameWin": "points per game win",
+              "pointsPerGameLoss": "points per game loss",
+              "pointsPerForfeitWin": "points per forfeit win",
+              "pointsPerForfeitLoss": "points per forfeit loss",
               "required": "Required",
               "save": "Save",
               "cancel": "Cancel"
@@ -2108,8 +2886,20 @@
               "inProgress": "In Progress",
               "finished": "Finished",
               "cancelled": "Cancelled",
+              "deleteAllMatches": "Delete all matches",
+              "deleteAllMatchesConfirmTitle": "Delete all matches?",
+              "deleteAllMatchesConfirmDesc": "This will permanently delete all {count} match(es) in the tournament, including scheduled, in-progress, and finished matches. Schedules, scores, results, and court links for these matches will also be deleted. This action cannot be undone.",
+              "deleteAllMatchesConfirmAction": "Delete all",
+              "deleteAllMatchesSuccess": "Deleted all {count} match(es)",
+              "deleteAllMatchesError": "Failed to delete matches",
+              "replaceScheduledConfirmTitle": "Regenerate matches?",
+              "replaceScheduledConfirmDesc": "{count} match(es) already have schedule assignments. Regenerating will delete current matches and remove their court/time assignments.",
+              "replaceScheduledConfirmAction": "Regenerate",
+              "cannotRegenerateStartedTitle": "Cannot regenerate matches",
+              "cannotRegenerateStartedDesc": "At least one match is in progress or finished. Reset or delete results before regenerating matches.",
               "setupPools": "Setup pools",
               "setupMatches": "Setup matches",
+              "editPools": "Edit pools",
               "poolPlay": "Pool Play",
               "poolPlaySubtitle": "Setup pools and matches.",
               "roundRobin": "Round Robin",
@@ -2130,6 +2920,9 @@
               "saving": "Saving...",
               "done": "Done",
               "matchesSaved": "Matches saved successfully",
+              "confirmOverwriteTitle": "Overwrite current setup?",
+              "confirmOverwriteMessage": "The current pools and matches will be deleted and recreated from scratch. Any scores already entered will be lost.",
+              "confirmOverwriteConfirm": "Continue & overwrite",
               "editMatches": "Edit matches",
               "selectTeam": "Select team",
               "teamCannotPlayAgainstItself": "Team cannot play against itself",
@@ -2143,6 +2936,7 @@
               "crossoverPoolsTooltip": "Crossover pools create matches between teams from different pools.",
               "advancingTeams": "Advancing teams",
               "advancingTeamsSubtitle": "Determine how teams will advance.",
+              "configureAndConfirmMatches": "Configure and confirm matches.",
               "addAdvancingTeams": "Add advancing teams",
               "editAdvancingTeams": "Edit advancing teams",
               "rankingMethod": "How will teams be ranked?",
@@ -2160,9 +2954,15 @@
               "playoffsSubtitle": "Setup bracket and matches.",
               "addBracket": "Add bracket",
               "setupBracket": "Setup bracket",
+              "seedLabel": "Seed {seed}",
+              "grandFinal": "Grand Final",
+              "grandFinalReset": "Grand Final (Reset)",
+              "trueDoubleElimination": "True double elimination",
+              "trueDoubleEliminationDesc": "Lower bracket champion must win twice in the grand final.",
               "placementMatches": "Placement Matches",
               "selectPlacements": "Select which placements will be determined.",
               "playFor3rdPlace": "Play for 3rd place",
+              "coThirdPlaceHint": "If off, both losing semifinalists share 3rd place.",
               "playFor5thPlace": "Play for 5th place",
               "playFor7thPlace": "Play for 7th place",
               "consolationMatches": "Consolation Matches",
@@ -2184,6 +2984,19 @@
               "whoHomeTeam": "Who will be the home team?",
               "whoAwayTeam": "Who will be the away team?",
               "nthPoolLabel": "{rank} Pool {pool}",
+              "roundNumber": "Round {number}",
+              "notEnoughTeams": "Not enough teams for bracket",
+              "ordinals": {
+                "1": "1st",
+                "2": "2nd",
+                "3": "3rd",
+                "4": "4th",
+                "5": "5th",
+                "6": "6th",
+                "7": "7th",
+                "8": "8th",
+                "other": "{rank}th"
+              },
               "confirm": "Confirm",
               "deleteMatch": "Delete match",
               "nMatches": "{count, plural, =1 {1 match} other {# matches}}",
@@ -2192,7 +3005,63 @@
               "addCrossover": "Add crossover",
               "crossoverPoolsDescription": "Crossover pools can be used to allow teams to play against teams from another pool instead of their own pool.",
               "editSeeds": "Edit seeds",
-              "editSeedsButton": "Edit seeds"
+              "editSeedsButton": "Edit seeds",
+              "createGroupsFailed": "Failed to create groups",
+              "assignTeamsFailed": "Failed to assign teams",
+              "generateMatchesFailed": "Failed to generate matches",
+              "matchesSaveFailed": "Failed to save matches",
+              "bracketSaveFailed": "Failed to save bracket",
+              "advancingTeamsSaveFailed": "Failed to save advancing teams",
+              "groupLabel": "Group {number}",
+              "poolLabel": "Pool",
+              "teamLabel": "Team",
+              "tbd": "TBD",
+              "generatePlayoffs": "Generate bracket",
+              "regenerateBracket": "Regenerate bracket",
+              "generateGroupGames": "Generate group matches",
+              "regenerateGroupGames": "Regenerate group matches",
+              "generateEliminationGames": "Generate playoff matches",
+              "regenerateEliminationGames": "Regenerate playoff matches",
+              "finalizeAdvancing": "Lock in advancing teams",
+              "refinalizeAdvancing": "Re-lock advancing teams",
+              "eliminationGamesGenerated": "Playoff matches generated successfully",
+              "eliminationHasScores": "A playoff match has already been played or scored — cannot regenerate",
+              "generateEliminationFailed": "Failed to generate playoff matches",
+              "confirmGenerateAction": "Generate",
+              "confirmGenerateGroupTitle": "Generate group matches?",
+              "confirmGenerateGroupDesc": "Matches will be created for every group from the current setup.",
+              "confirmRegenerateGroupDesc": "The current group matches will be replaced with newly generated ones.",
+              "confirmGenerateEliminationTitle": "Generate playoff matches?",
+              "confirmGenerateEliminationDesc": "The playoff bracket will be created from the advancing-teams setup.",
+              "confirmRegenerateEliminationDesc": "The current playoff bracket will be replaced with a newly generated one from the advancing-teams setup.",
+              "groupMatchesStatus": "{total} matches generated · {finished}/{total} finished",
+              "groupMatchesNotGenerated": "No group matches generated yet",
+              "playoffMatchesStatus": "{total} matches generated · {finished}/{total} finished",
+              "playoffMatchesNotGenerated": "No playoff matches generated yet",
+              "bracketPreviewLabel": "Preview",
+              "savePools": "Save groups",
+              "enterMatches": "Enter matches",
+              "poolsSaved": "Groups saved",
+              "groupProgress": "{finished}/{total} group matches finished",
+              "playoffsProgress": "{finished}/{total} playoff matches finished",
+              "generateBracketLocked": "Finish all group matches to generate the bracket",
+              "regenerateBracketLocked": "There are {scored} playoff match(es) with scores — clear scores before regenerating",
+              "overwriteWarning": "Regenerating will overwrite the existing bracket and its scores.",
+              "bracketReadyGenerateTitle": "Advancing teams can be locked in",
+              "bracketReadyRegenerateTitle": "Playoff bracket can be regenerated",
+              "bracketReadyGenerateDescription": "Group play is complete. You can lock in the advancing teams to fill the playoff bracket from the current standings.",
+              "bracketReadyRegenerateWithoutScoresDescription": "The current playoff bracket has {matches} match(es) and no scores yet. Regenerating will replace the current bracket.",
+              "bracketReadyRegenerateWithScoresDescription": "The current bracket has {matches} playoff match(es), with scores in {scored}. Regenerating will delete the current bracket and playoff scores.",
+              "scheduleBracketReadyTitle": "Group play is complete",
+              "scheduleBracketReadyDescription": "Open Rounds to review setup and generate the playoff bracket.",
+              "goToRounds": "Open Rounds",
+              "confirmGenerateTitle": "Generate playoff bracket?",
+              "confirmGenerateMessage": "This locks in the advancing teams from the standings and creates the elimination matches.",
+              "bracketGenerated": "Bracket generated",
+              "bracketGeneratedIncompleteTitle": "Bracket generated with missing matches",
+              "bracketGeneratedIncompleteDescription": "The system only created {actual}/{expected} playoff matches. Please check advancing teams/third-place settings or regenerate the bracket.",
+              "generateBracketFailed": "Failed to generate bracket",
+              "p5SemiFinals": "P5: Semi Finals"
             },
             "venues": {
               "title": "Venues",
@@ -2222,7 +3091,14 @@
               "confirmRemove": "Remove this venue from the tournament?",
               "noLinkedVenues": "No venues linked to this tournament yet.",
               "courtsCount": "courts",
-              "addAnotherVenue": "Add another venue"
+              "addAnotherVenue": "Add another venue",
+              "loadError": "Failed to load venues",
+              "removeError": "Failed to remove venue",
+              "viewOnGoogleMaps": "View on Google Maps",
+              "remove": "Remove",
+              "cancel": "Cancel",
+              "removeConfirmPrefix": "Remove",
+              "removeConfirmSuffix": "from this tournament?"
             },
             "schedule": {
               "title": "Schedule",
@@ -2232,20 +3108,38 @@
             "sponsors": {
               "title": "Sponsors",
               "description": "Add sponsors to display on your tournament page.",
-              "addSponsors": "Add sponsors"
+              "addSponsors": "Add sponsors",
+              "createSponsor": "Add sponsor",
+              "editSponsor": "Edit sponsor",
+              "deleteSponsor": "Delete sponsor",
+              "deleteConfirm": "Are you sure you want to delete this sponsor?",
+              "nameLabel": "Sponsor name",
+              "namePlaceholder": "Enter sponsor name",
+              "websiteLabel": "Website",
+              "websitePlaceholder": "https://example.com",
+              "logoLabel": "Logo",
+              "save": "Save",
+              "cancel": "Cancel",
+              "delete": "Delete",
+              "createFailed": "Failed to add sponsor",
+              "updateFailed": "Failed to update sponsor",
+              "deleteFailed": "Failed to delete sponsor",
+              "unknownError": "Unknown error"
             },
             "name": {
               "title": "Tournament Name",
               "description": "Change the name of your tournament",
               "nameLabel": "Tournament Name",
               "namePlaceholder": "Enter tournament name",
+              "notesLabel": "Home page notes",
+              "notesPlaceholder": "Enter notes, extra rules, or important information for participants...",
               "save": "Save",
               "cancel": "Cancel",
-              "success": "Tournament name updated successfully",
+              "success": "Tournament information updated successfully",
               "errors": {
                 "nameRequired": "Tournament name is required",
                 "noChanges": "No changes to save",
-                "updateFailed": "Failed to update tournament name"
+                "updateFailed": "Failed to update tournament information"
               }
             },
             "dates": {
@@ -2278,8 +3172,123 @@
                 "noChanges": "No changes to save",
                 "updateFailed": "Failed to update tournament location"
               }
+            },
+            "banner": {
+              "title": "Tournament Cover Photo",
+              "description": "Upload a cover photo for your tournament page. Recommended size: 1200x400px.",
+              "currentBanner": "Current cover photo",
+              "noBanner": "No cover photo set",
+              "save": "Save",
+              "cancel": "Cancel",
+              "success": "Cover photo updated successfully",
+              "errors": {
+                "noChanges": "No changes to save",
+                "updateFailed": "Failed to update cover photo"
+              }
+            },
+            "videos": {
+              "title": "YouTube videos",
+              "description": "Paste one or more YouTube links to show on the tournament home page.",
+              "placeholder": "https://www.youtube.com/watch?v=...",
+              "add": "Add video",
+              "remove": "Remove video",
+              "save": "Save",
+              "cancel": "Cancel",
+              "success": "YouTube videos updated successfully",
+              "invalidHelper": "Enter a valid YouTube link.",
+              "errors": {
+                "invalidUrl": "Please fix invalid YouTube links before saving",
+                "noChanges": "No changes to save",
+                "updateFailed": "Failed to update YouTube videos"
+              }
+            },
+            "contact": {
+              "title": "Contact information",
+              "description": "Update the contact details shown on the tournament page.",
+              "nameLabel": "Contact name",
+              "namePlaceholder": "Enter contact name",
+              "emailLabel": "Email",
+              "emailPlaceholder": "Enter contact email",
+              "phoneLabel": "Phone",
+              "phonePlaceholder": "Enter contact phone",
+              "save": "Save",
+              "cancel": "Cancel",
+              "success": "Contact information updated successfully",
+              "errors": {
+                "noChanges": "No changes to save",
+                "invalidEmail": "Invalid email address",
+                "updateFailed": "Failed to update contact information"
+              }
             }
+          },
+          "statusBanner": {
+            "statusTitle": {
+              "PREPARING": "Tournament not started",
+              "IN_PROGRESS": "Tournament in progress",
+              "FINISHED": "Tournament finished",
+              "CANCELLED": "Tournament cancelled"
+            },
+            "statusSubtitle": {
+              "PREPARING": "Start the tournament once setup is complete.",
+              "IN_PROGRESS": "Matches are underway. Finish once the champions are decided.",
+              "FINISHED": "Results are final. Reopen if you need to make changes.",
+              "CANCELLED": "This tournament was cancelled. Restore it to keep organizing."
+            },
+            "actions": {
+              "start": "Start tournament",
+              "finish": "Finish tournament",
+              "cancel": "Cancel tournament",
+              "reopen": "Reopen tournament",
+              "restore": "Restore tournament"
+            },
+            "confirm": {
+              "start": {
+                "title": "Start tournament?",
+                "description": "This marks the tournament as in progress. Participants will see it as live.",
+                "button": "Yes, start"
+              },
+              "finish": {
+                "title": "Finish tournament?",
+                "description": "This marks the tournament as finished and locks in the final results.",
+                "button": "Yes, finish"
+              },
+              "cancel": {
+                "title": "Cancel tournament?",
+                "description": "This marks the tournament as cancelled. You can restore it later if needed.",
+                "button": "Yes, cancel"
+              },
+              "reopen": {
+                "title": "Reopen tournament?",
+                "description": "This sets the tournament back to in progress so you can edit results.",
+                "button": "Yes, reopen"
+              },
+              "restore": {
+                "title": "Restore tournament?",
+                "description": "This sets the tournament back to preparing so you can keep organizing.",
+                "button": "Yes, restore"
+              }
+            },
+            "cancelButton": "Cancel"
           }
+        },
+        "winnersTab": {
+          "title": "Winners",
+          "description": "Champions and podium finishers for {tournament}.",
+          "categoryFilter": "Filter by category",
+          "allCategories": "All categories",
+          "noCategories": "No categories yet.",
+          "error": "Could not load winners.",
+          "retry": "Retry",
+          "champion": "Champion",
+          "runnerUp": "Runner-up",
+          "thirdPlace": "Third place",
+          "coThirdPlace": "Co-third place",
+          "showPlayerNames": "Switch between team names and player names",
+          "showPlayerNamesBadge": "Show player names",
+          "provisional": "Provisional",
+          "final": "Final",
+          "inProgress": "Tournament in progress — the champion has not been decided yet.",
+          "empty": "No results yet."
         }
       },
       "manage": {
@@ -2375,6 +3384,7 @@
         "noMatchesYet": "No matches yet",
         "groupStage": "Group Stage",
         "bestOf3": "Best of 3",
+        "bestOf5": "Best of 5",
         "bestOf1": "Best of 1",
         "groups": "Groups",
         "participants": "Participants",
@@ -2505,6 +3515,7 @@
         "numberOfGames": "Number of Games",
         "bestOf1": "Best of 1",
         "bestOf3": "Best of 3",
+        "bestOf5": "Best of 5",
         "save": "Save",
         "group": "Group",
         "vs": "vs",
@@ -2514,6 +3525,496 @@
         "finished": "Finished",
         "cancelled": "Cancelled",
         "select": "Select"
+      },
+      "scoreEntry": {
+        "title": "Referee — Score Entry",
+        "noAssignedMatches": "You have no matches assigned to you yet.",
+        "court": "Court",
+        "vs": "vs",
+        "statusLabel": "Status",
+        "roundLabel": "Round",
+        "scheduledAt": "Scheduled time",
+        "matchPrepTitle": "Prepare the match",
+        "matchPrepDescription": "Check the court, confirm both teams, and start once everything is ready.",
+        "awaitingFeedersTitle": "Not ready yet",
+        "awaitingFeedersDescription": "This match is waiting for the previous round to finish before both teams are known.",
+        "playerInfo": "Player information",
+        "players": "players",
+        "playerCode": "Code",
+        "email": "Email",
+        "phone": "Phone",
+        "gender": "Gender",
+        "genderValues": {
+          "male": "Male",
+          "female": "Female",
+          "other": "Other",
+          "preferNotToSay": "Prefer not to say"
+        },
+        "level": "Level",
+        "levelDescription": "Level description",
+        "notes": "Notes",
+        "refereeName": "Referee name",
+        "refereeNamePlaceholder": "Enter the referee name",
+        "matchNotesPlaceholder": "Add match notes",
+        "noPlayerDetails": "No player details available",
+        "rounds": {
+          "group": "Group stage",
+          "qf": "Quarter Finals",
+          "sf": "Semi Finals",
+          "f": "Final",
+          "thirdPlace": "3rd Place",
+          "fifthPlace": "5th Place",
+          "seventhPlace": "7th Place",
+          "r16": "Round of 16",
+          "r32": "Round of 32",
+          "r64": "Round of 64",
+          "r128": "Round of 128"
+        },
+        "status": {
+          "IN_PROGRESS": "In progress",
+          "UNSCHEDULED": "Unscheduled",
+          "SCHEDULED": "Scheduled",
+          "FINISHED": "Finished",
+          "CANCELLED": "Cancelled"
+        },
+        "bestOf1": "Best of 1",
+        "bestOf3": "Best of 3",
+        "bestOf5": "Best of 5",
+        "ruleSummary": "To {points}{cap}",
+        "winByTwo": "Win by 2",
+        "setWins": "Sets",
+        "currentSet": "Set",
+        "addPointFor": "Add a point for {team}",
+        "removePointFor": "Remove a point for {team}",
+        "matchPointReached": "Ready to finish — tap \"{action}\" to confirm",
+        "undo": "Undo",
+        "endMatch": "End",
+        "startMatch": "Start match",
+        "finalResult": "Final result",
+        "back": "Back",
+        "matchNotFound": "Match not found",
+        "confirmEndMatch": "End this match?",
+        "endMatchSummary": "Confirm the final result for this match.",
+        "endMatchIncompleteWarning": "The match does not look complete yet. End it anyway?",
+        "winner": "Winner",
+        "cancel": "Cancel",
+        "refereeArea": "Referee area",
+        "enterScores": "Enter scores",
+        "rotateLandscape": "Rotate landscape",
+        "exitLandscape": "Exit landscape",
+        "randomDraw": "Random draw",
+        "randomDrawTitle": "Random draw",
+        "randomDrawHint": "Use this to quickly choose the side with first preference before the match.",
+        "randomDrawWinner": "Selected side",
+        "randomDrawServe": "Serve preference",
+        "randomDrawSide": "Side preference",
+        "drawing": "Drawing...",
+        "drawAgain": "Draw again",
+        "startDraw": "Start draw",
+        "close": "Close",
+        "swapScoreboardSides": "Swap display sides",
+        "showPlayerNames": "Show player names",
+        "hidePlayerNames": "Hide player names",
+        "forfeit": "Forfeit",
+        "forfeitTitle": "Record forfeit / walkover",
+        "forfeitSelectWinner": "Select the winning side",
+        "forfeitHint": "The selected side wins by walkover; the opponent is recorded as having forfeited.",
+        "walkover": "Walkover",
+        "forfeitConfirm": "Confirm forfeit",
+        "save": "Save",
+        "editSetTitle": "Edit set {number} score",
+        "editSetTooltip": "Tap to edit set {number} score",
+        "editSetHintLatest": "Enter the new score for the current set.",
+        "editSetHintPast": "This set has ended. Any later sets will be cleared and must be re-entered.",
+        "editSetWillResetLater": "Saving will clear later sets (they must be re-entered).",
+        "editSetErrorInvalid": "Invalid score.",
+        "editSetErrorCap": "Scores cannot exceed {cap}.",
+        "editSetErrorIncomplete": "Past sets must end with a valid winning score.",
+        "editSetSuccess": "Set score updated",
+        "pickleballServer": "Server",
+        "sideLabel": "Side {side}",
+        "servingSideTooltip": "{team} is serving",
+        "serverNumberTooltip": "Server {number}",
+        "matchHistory": "Match history",
+        "matchHistoryEmpty": "No events yet",
+        "logServeChanged": "Serve changed",
+        "logUndo": "Point undone"
+      },
+      "scoreboard": {
+        "court": "Court",
+        "live": "LIVE",
+        "final": "Final",
+        "rounds": {
+          "group": "Group stage",
+          "qf": "Quarter Finals",
+          "sf": "Semi Finals",
+          "f": "Final",
+          "thirdPlace": "3rd Place",
+          "fifthPlace": "5th Place",
+          "seventhPlace": "7th Place",
+          "r16": "Round of 16",
+          "r32": "Round of 32",
+          "r64": "Round of 64",
+          "r128": "Round of 128"
+        },
+        "selectCourts": "Courts",
+        "allCourts": "All",
+        "gridSize": "Layout",
+        "fullscreen": "Fullscreen",
+        "exitFullscreen": "Exit",
+        "fullNames": "Full names",
+        "showFinished": "Finished matches",
+        "share": "Share",
+        "noLiveMatches": "No live matches right now",
+        "qrTitle": "Share scoreboard",
+        "copyLink": "Copy link",
+        "linkCopied": "Link copied",
+        "liveScoreboard": "Live scoreboard",
+        "overlay": {
+          "title": "Livestream overlay links",
+          "description": "Paste a link into an OBS browser source. Each court link automatically switches to whichever match is live on that court.",
+          "court": "Court",
+          "linkCopied": "Link copied",
+          "noCourts": "No courts have been set up for this tournament yet.",
+          "close": "Close"
+        }
+      },
+      "showcase": {
+        "showcaseTitle": "Athlete showcase",
+        "tournament": "Tournament",
+        "randomPlayers": "Random players",
+        "singlePlayer": "Single player",
+        "pairs": "Pairs",
+        "matches": "Matchups",
+        "champion": "Champion",
+        "championTitle": "Congratulations champion",
+        "championSubtitle": "A brilliant run ends with a well-earned title.",
+        "randomOrder": "Random",
+        "scheduleOrder": "Schedule",
+        "pause": "Pause",
+        "play": "Play",
+        "share": "Share",
+        "fullscreen": "Fullscreen",
+        "exitFullscreen": "Exit",
+        "hideControls": "Hide controls",
+        "linkCopied": "Link copied",
+        "copyFailed": "Could not copy link",
+        "playerCode": "{code}",
+        "athleteSpotlight": "Tournament athlete spotlight",
+        "live": "In progress",
+        "court": "Court {court}",
+        "noPlayers": "No players yet",
+        "addPlayersFirst": "Add players to this tournament to start the slideshow.",
+        "noPairs": "No pairs yet",
+        "noMatches": "No match schedule yet",
+        "switchToPlayers": "Switch to random players to showcase the current roster.",
+        "loadFailed": "Could not load showcase",
+        "tryAgain": "Please check the connection or reload the page."
+      },
+      "umpires": {
+        "title": "Referees & Umpires",
+        "description": "Add referees, link them to an account so they can enter live scores, and assign them to matches.",
+        "rounds": {
+          "group": "Group stage",
+          "qf": "Quarter Finals",
+          "sf": "Semi Finals",
+          "f": "Final",
+          "thirdPlace": "3rd Place",
+          "fifthPlace": "5th Place",
+          "seventhPlace": "7th Place",
+          "r16": "Round of 16",
+          "r32": "Round of 32",
+          "r64": "Round of 64",
+          "r128": "Round of 128"
+        },
+        "addReferee": "Add referee",
+        "name": "Name",
+        "email": "Email",
+        "phone": "Phone",
+        "notes": "Notes",
+        "save": "Save",
+        "cancel": "Cancel",
+        "delete": "Delete",
+        "edit": "Edit",
+        "linked": "Linked",
+        "court": "Court",
+        "noMatches": "No matches to assign yet.",
+        "noReferees": "No referees added yet.",
+        "linkAccount": "Link account",
+        "unlinkAccount": "Unlink",
+        "linkedTo": "Linked to {email}",
+        "notLinked": "No account linked",
+        "linkByEmail": "Link by account email",
+        "emailPlaceholder": "referee@email.com",
+        "assignReferee": "Assign referee",
+        "currentReferee": "Referee: {name}",
+        "noReferee": "No referee assigned",
+        "selectReferee": "Select a referee",
+        "selectAll": "Select all matches",
+        "selectMatch": "Select match",
+        "selectedMatches": "{count} matches selected",
+        "applyToSelected": "Apply to selected",
+        "applyToAll": "Apply to all",
+        "clearSelection": "Clear selection",
+        "bulkAssignSuccess": "Referee assigned to {count} matches",
+        "assignByCourt": "Assign by court",
+        "assignByCourtDesc": "Assign one referee to all matches on a court.",
+        "selectCourt": "Select a court",
+        "applyToCourt": "Apply to court",
+        "courtMatchesCount": "{count} matches",
+        "noCourtMatches": "No matches have a court yet. Generate the schedule first.",
+        "unassign": "Remove",
+        "assign": "Assign"
+      },
+      "playoffSlot": {
+        "winnerOf": "Winner of {match}",
+        "loserOf": "Loser of {match}",
+        "nthPoolLabel": "{rank} Pool {pool}",
+        "bye": "BYE",
+        "tbd": "TBD",
+        "ordinals": {
+          "1": "1st",
+          "2": "2nd",
+          "3": "3rd",
+          "4": "4th",
+          "5": "5th",
+          "6": "6th",
+          "7": "7th",
+          "8": "8th",
+          "other": "{rank}th"
+        }
+      },
+      "manualScore": {
+        "title": "Enter score",
+        "deleteMatch": "Delete match",
+        "deleteFailed": "Failed to delete match",
+        "panelTitle": "Match results",
+        "panelDescription": "Manually record the score and winner for matches that were played offline.",
+        "vs": "vs",
+        "set": "Set",
+        "addSet": "Add set",
+        "removeSet": "Remove set",
+        "winner": "Winner",
+        "noWinnerYet": "Enter scores until one side wins the match.",
+        "setValid": "Score is valid to end the set",
+        "setIncomplete": "Score does not yet finish the set",
+        "setsProgress": "Won {won}/{need} sets (best of {bestOf}).",
+        "setsProgressTied": "{side1} - {side2} sets (need {need} to win).",
+        "back": "Back",
+        "cancel": "Cancel",
+        "save": "Save result",
+        "noMatches": "No matches to score yet.",
+        "court": "Court",
+        "enterResult": "Enter result",
+        "viewList": "List",
+        "viewCalendar": "Calendar",
+        "showPlayerNames": "Player names",
+        "showPlayerNamesBadge": "Show player names",
+        "calendar": {
+          "time": "Time",
+          "empty": "No matches have both court and time to show on the calendar yet."
+        },
+        "filters": {
+          "title": "Filters",
+          "categories": "Categories",
+          "rounds": "Rounds",
+          "courts": "Courts",
+          "status": "Status",
+          "dates": "Dates",
+          "teams": "Teams",
+          "search": "Search",
+          "searchPlaceholder": "Search player or team",
+          "referee": "Referee",
+          "refereeOnlyLabel": "My matches",
+          "clear": "Clear filters",
+          "apply": "Apply",
+          "empty": "No matches match these filters.",
+          "statusUpcoming": "Upcoming / live",
+          "statusFinished": "Finished",
+          "statusCancelled": "Cancelled",
+          "statusForfeited": "Forfeited"
+        },
+        "rounds": {
+          "group": "Group stage",
+          "qf": "Quarter Finals",
+          "sf": "Semi Finals",
+          "f": "Final",
+          "thirdPlace": "3rd Place",
+          "fifthPlace": "5th Place",
+          "seventhPlace": "7th Place",
+          "r16": "Round of 16",
+          "r32": "Round of 32",
+          "r64": "Round of 64",
+          "r128": "Round of 128"
+        },
+        "status": {
+          "IN_PROGRESS": "In progress",
+          "SCHEDULED": "Scheduled",
+          "UNSCHEDULED": "Unscheduled",
+          "FINISHED": "Finished",
+          "CANCELLED": "Cancelled"
+        },
+        "matchCardStatus": {
+          "SCHEDULED": "Upcoming",
+          "UNSCHEDULED": "Unscheduled"
+        },
+        "modeScore": "Score",
+        "modeForfeit": "Forfeit",
+        "modeManual": "Manual points",
+        "selectWinner": "Select the winning side",
+        "forfeitHint": "The other side is recorded as a forfeit.",
+        "points": "Points",
+        "walkover": "W/O",
+        "draw": "Draw",
+        "matchDetail": {
+          "title": "Match Details",
+          "tabDetails": "Details",
+          "tabStats": "Stats",
+          "editResult": "Edit result",
+          "awaitingFeeders": "This match is waiting for the previous round to finish before both teams are known.",
+          "referee": "Referee",
+          "matchOptions": "Match options",
+          "bySet": "By set",
+          "schedule": "Schedule",
+          "resetResult": "Reset result",
+          "refereeInfo": "Referee information",
+          "refereeName": "Referee name",
+          "assignedReferee": "Assigned referee",
+          "notes": "Notes"
+        },
+        "scheduleUpdated": "Schedule updated",
+        "scheduleUpdateFailed": "Failed to update schedule",
+        "resetResultConfirmTitle": "Reset match result",
+        "resetResultConfirmText": "Are you sure you want to move this match back to not started?",
+        "resetResultConfirmButton": "Reset result",
+        "resetResultWarning": "This will clear the score, sets, winner, standings points, and forfeit state for this match. Court and match time are kept.",
+        "resetResultSuccess": "Match result reset",
+        "resetResultFailed": "Failed to reset match result"
+      },
+      "qrBar": {
+        "download": "Download QR",
+        "share": "Share",
+        "copy": "Copy link",
+        "copied": "Copied",
+        "downloadSuccess": "QR downloaded",
+        "copySuccess": "Link copied",
+        "copyError": "Could not copy link"
+      },
+      "teamPage": {
+        "title": "Team details",
+        "notFound": "Team not found in this tournament.",
+        "backToList": "Team list",
+        "teamLabel": "Competing team",
+        "defaultTeamName": "Unnamed team",
+        "members": "Members",
+        "noMembers": "Team has not added players yet.",
+        "defaultPlayerName": "Player",
+        "scheduleTitle": "Schedule & results",
+        "noMatches": "No matches yet.",
+        "noResult": "No result yet",
+        "matchWon": "Won",
+        "matchLost": "Lost",
+        "openMatchDetail": "Open match {number} details",
+        "courtPrefix": "Court {number}",
+        "matchInfo": "{round} · Match {number}",
+        "qrTitle": "QR for this page",
+        "copied": "Copied",
+        "copyLink": "Copy link",
+        "copySuccess": "Link copied",
+        "copyError": "Could not copy link",
+        "tabs": {
+          "overview": "Overview",
+          "teams": "Teams",
+          "schedule": "Schedule",
+          "standings": "Standings"
+        },
+        "rounds": {
+          "group": "Group stage",
+          "qf": "Quarter Finals",
+          "sf": "Semi Finals",
+          "f": "Final",
+          "thirdPlace": "3rd Place",
+          "fifthPlace": "5th Place",
+          "seventhPlace": "7th Place",
+          "r16": "Round of 16",
+          "r32": "Round of 32",
+          "r64": "Round of 64",
+          "r128": "Round of 128"
+        }
+      },
+      "playerPage": {
+        "title": "Player info",
+        "errorTitle": "Cannot open player page",
+        "ambiguousCode": "This player code is duplicated. Please use a longer code or open from the team list.",
+        "playerNotFound": "Player not found in this tournament.",
+        "backToList": "Back to team list",
+        "backToListShort": "Team list",
+        "athleteLabel": "Athlete",
+        "categoriesTitle": "Joined categories",
+        "noCategories": "No categories yet.",
+        "scheduleTitle": "Schedule & results",
+        "noMatches": "No matches yet.",
+        "opponentLabel": "Opponent",
+        "scoreLabel": "Score",
+        "noOpponent": "No opponent yet",
+        "courtPrefix": "Court {number}",
+        "noSchedule": "Not scheduled",
+        "defaultTeamName": "Unnamed team",
+        "defaultCategory": "Category",
+        "qrTitle": "QR for this page",
+        "copied": "Copied",
+        "copyLink": "Copy link",
+        "copySuccess": "Link copied",
+        "copyError": "Could not copy link",
+        "categoryTypes": {
+          "MENS_SINGLE": "Men's Singles",
+          "WOMENS_SINGLE": "Women's Singles",
+          "MENS_DOUBLE": "Men's Doubles",
+          "WOMENS_DOUBLE": "Women's Doubles",
+          "MIXED_DOUBLE": "Mixed Doubles",
+          "CUSTOM": "Category"
+        },
+        "matchStatuses": {
+          "SCHEDULED": "Upcoming",
+          "IN_PROGRESS": "In progress",
+          "FINISHED": "Finished",
+          "CANCELLED": "Cancelled"
+        },
+        "rounds": {
+          "group": "Group stage",
+          "qf": "Quarter Finals",
+          "sf": "Semi Finals",
+          "f": "Final",
+          "thirdPlace": "3rd Place",
+          "fifthPlace": "5th Place",
+          "seventhPlace": "7th Place",
+          "r16": "Round of 16",
+          "r32": "Round of 32",
+          "r64": "Round of 64",
+          "r128": "Round of 128"
+        }
+      },
+      "managers": {
+        "title": "Tournament managers",
+        "description": "Assign other users to help manage this tournament with specific permissions.",
+        "searchPlaceholder": "Search users by name or email",
+        "searching": "Searching…",
+        "noResults": "No users found",
+        "permissionsLabel": "Permissions",
+        "selectAtLeastOne": "Select at least one permission",
+        "add": "Add manager",
+        "noManagers": "No managers assigned yet.",
+        "edit": "Edit",
+        "save": "Save",
+        "cancel": "Cancel",
+        "remove": "Remove",
+        "accessDenied": "Only the host can manage this list.",
+        "permissions": {
+          "RESULTS": "Results & scoring",
+          "SCHEDULE": "Schedule, courts & referees",
+          "PARTICIPANTS": "Players & registrations",
+          "STRUCTURE": "Categories & format"
+        }
       }
     },
     "join": {
@@ -2774,10 +4275,14 @@
       "losses": "Losses",
       "winRate": "Win Rate",
       "totalMatches": "Total Matches",
+      "menDoubles": "Men's Doubles",
+      "womenDoubles": "Women's Doubles",
+      "mixedDoubles": "Mixed Doubles",
       "totalShuttlecocks": "Shuttlecocks",
       "downloadAchievement": "Download achievement image",
       "achievementImageTitle": "Personal Achievement",
       "appTagline": "Badminton session management platform",
+      "resultPending": "Win/loss results have not been recorded",
       "unnamed": "Unnamed",
       "noData": "No data available"
     },
@@ -2835,7 +4340,7 @@
     "shareSection": "Share",
     "shareImage": "Share Image",
     "qrViewSessionDetail": "QR view session detail",
-    "shareTipView": "Players can scan the QR code to view session details and register to join.",
+    "shareTipView": "Use this when you want players to preview the session details first.",
     "shareImageTipsTitle": "💡 Share Image Tips",
     "shareImageTipsDescription": "Download beautiful session images to share on social media and attract more players to join!",
     "share": "Share Images",
@@ -2876,7 +4381,6 @@
     "copyJoinCode": "Copy code",
     "copyJoinCodeFailed": "Failed to copy join code",
     "shareTipsTitle": "Sharing tips",
-    "shareTipView": "Use this when you want players to preview the session details first.",
     "shareTipJoin": "Use this when you want players to join the session right away on mobile.",
     "headerActions": "Actions",
     "openSessionNotes": "Open session notes",
@@ -2957,6 +4461,7 @@
       "playerFallback": "Player {number}",
       "matchEndedSuccessfully": "Match ended successfully",
       "preSelectNext": "Pre-select Next",
+      "displayModeLabel": "Display",
       "cancelPreSelect": "Cancel Pre-select",
       "confirmCancelPreSelectTitle": "Confirm Cancel Pre-select",
       "confirmCancelPreSelectMessage": "Are you sure you want to cancel pre-selecting players for the next match?",
@@ -2974,7 +4479,20 @@
       "preSelectCancelledDesc": "Next match pre-selection has been cancelled",
       "errorCancellingPreSelect": "Error cancelling pre-select",
       "errorAssigningPlayers": "Error assigning players",
-      "playersDeselected": "Players deselected from court"
+      "playersDeselected": "Players deselected from court",
+      "matchRepeatWarning": {
+        "openDetails": "View repeated match warning",
+        "title": "Match warning",
+        "description": "Some player relationships in this match have appeared in more than 2 matches.",
+        "hostNote": "This warning is only for the host to consider choosing another matchup. It does not block confirmation.",
+        "teammatesTitle": "Pairs that have teamed up more than 2 matches",
+        "opponentsTitle": "Pairs that have faced each other more than 2 matches",
+        "noTeammates": "No repeated teammate pairs.",
+        "noOpponents": "No repeated opponent pairs.",
+        "matchCount": "{count} matches",
+        "close": "Got it"
+      },
+      "needMorePlayers": "Need {count} more waiting player(s) to pair up"
     },
     "matchResult": {
       "title": "Match Result",
@@ -3004,6 +4522,18 @@
       "ready": "Ready",
       "inactive": "Inactive",
       "playerStatistics": "Player Statistics",
+      "rankingInfoAriaLabel": "View player ranking calculation",
+      "rankingInfoTitle": "Player ranking calculation",
+      "rankingInfoClose": "Got it",
+      "rankingInfoEligibilityTitle": "MVP eligibility",
+      "rankingInfoEligibility": "A player must play at least 50% of the matches played by the most active player in the session, capped at 3 required matches. Players without a win are not eligible for MVP.",
+      "rankingInfoOrderTitle": "Ranking order",
+      "rankingInfoOrderWinRate": "1. Higher win rate ranks first.",
+      "rankingInfoOrderWins": "2. If win rate is tied, more wins rank first.",
+      "rankingInfoOrderMatches": "3. If still tied, more total matches rank first.",
+      "rankingInfoOrderTie": "4. If still tied, all tied players are shown as shared MVPs.",
+      "rankingInfoMvpTitle": "Overall, male and female MVP",
+      "rankingInfoMvp": "The system shows the overall MVP by default. Turn on \"Split MVP by gender\" to only show separate male/female MVPs for mixed sessions.",
       "managePlayers": "Manage Players",
       "gridView": "Grid View",
       "grid": "Grid",
@@ -3167,6 +4697,16 @@
     "playing": "Playing",
     "resting": "Resting",
     "resetFilters": "Reset",
+    "mvp": "MVP",
+    "sharedMvp": "Shared MVP",
+    "maleMvp": "Male MVP",
+    "sharedMaleMvp": "Shared Male MVP",
+    "femaleMvp": "Female MVP",
+    "sharedFemaleMvp": "Shared Female MVP",
+    "overallMvp": "Overall MVP",
+    "showGenderMvp": "Split MVP by gender",
+    "exportColumns": "Export columns",
+    "exportColumnsDescription": "Choose columns to show in the exported image.",
     "playerCount": "{count} players",
     "playerCountSingular": "{count} player",
     "exportImage": "Export Image"
@@ -3270,7 +4810,10 @@
       "requiredRole": "Required role:",
       "yourRole": "Your role:",
       "unknown": "Unknown",
-      "goHome": "Go Home"
+      "goHome": "Go Home",
+      "checkingAuthentication": "Checking authentication...",
+      "redirecting": "Redirecting...",
+      "loading": "Loading..."
     },
     "tooManyRequests": "Too many requests. Please try again later."
   },
@@ -3376,7 +4919,8 @@
     "genderValues": {
       "male": "Male",
       "female": "Female",
-      "other": "Other"
+      "other": "Other",
+      "preferNotToSay": "Prefer not to say"
     }
   },
   "fee": {
@@ -3419,6 +4963,9 @@
     "accountHolderNamePlaceholder": "Enter account holder name",
     "qrCode": "QR Code",
     "uploadQrCode": "Upload QR Code",
+    "downloadQrCode": "Download QR",
+    "downloadQrCodeSuccess": "QR code downloaded",
+    "downloadQrCodeFailed": "Could not download directly, opened the QR code so you can save it manually",
     "removeQrCode": "Remove QR Code",
     "isDefault": "Set as default",
     "setAsDefault": "Set as default",
@@ -3540,6 +5087,21 @@
     "default": "Default",
     "qrCodeUploaded": "QR code uploaded",
     "loadTransactionsFailed": "Failed to load transactions",
+    "searchByPlayer": "Search by player name...",
+    "filterStatus": "Status",
+    "filterAll": "All",
+    "filterHasPending": "Has pending",
+    "filterAllPaid": "Fully paid",
+    "dateFilterAll": "All time",
+    "dateFilterToday": "Today",
+    "dateFilterWeek": "This week",
+    "dateFilterMonth": "This month",
+    "dateFilterYear": "This year",
+    "sortTotalAmount": "Total amount",
+    "sortPendingAmount": "Pending amount",
+    "sortLatest": "Latest",
+    "sortNameAZ": "A-Z",
+    "sortMostSessions": "Most sessions",
     "playerTransactionsDescription": "View your payment history with each host",
     "hostTransactionsDescription": "View payment history from your players",
     "manageSettings": "Manage Settings",
@@ -3569,6 +5131,10 @@
     "bulkApprovePaymentsFailed": "Failed to bulk approve payments",
     "invalidAmount": "Invalid amount",
     "setSplitAmountFailed": "Failed to set split amount",
+    "recalculatePayments": "Apply New Fees",
+    "recalculatePaymentsHint": "Update fees for members based on latest configuration",
+    "recalculateSuccess": "Updated fees for {count} payment(s)",
+    "recalculateFailed": "Failed to recalculate payments",
     "transfer": "Pay Now",
     "amountRequired": "Please enter an amount",
     "expenses": "Expenses",
@@ -3670,12 +5236,24 @@
     "notificationsTab": "Notifications",
     "approvalRequestsTab": "Approval Requests",
     "approvalRequestsEmpty": "No pending approval requests",
+    "allNotificationCount": "All notifications",
+    "clubJoinRequestBadge": "Club",
+    "clubJoinRequestMessage": "Request to join “{clubName}”",
+    "unknownClub": "Club",
+    "venueRequestCreateBadge": "New venue",
+    "venueRequestUpdateBadge": "Venue update",
+    "venueRequestMessage": "{name} submitted a venue request",
+    "venueRequestUntitled": "Venue request",
     "approve": "Approve",
     "reject": "Reject",
     "approvalSession": "Badminton Session",
     "approvalLevel": "Skill Level",
-    "approvalPlayer": "Player Slot",
+    "approvalPlayer": "Registered slot",
     "approvalSlotCount": "Slots registered",
+    "approvalPageTitle": "Approve join request",
+    "approvalSessionsPlayedCount": "Played {count} sessions",
+    "approvalSubmittedPrefix": "Requested",
+    "approvalViewProfile": "View profile",
     "approveSuccess": "Request approved",
     "club": {
       "creationPending": "Your club creation request is under review",
@@ -3687,7 +5265,9 @@
     "rejectSuccess": "Request rejected",
     "approvalActionFailed": "Action failed",
     "approvalPending": "Pending",
-    "approvalDetailTitle": "Request Details",
+    "sessionRequestDetailTitle": "Session Join Request",
+    "clubRequestDetailTitle": "Club Join Request",
+    "venueRequestDetailTitle": "Venue Request",
     "approvalNotFound": "Request not found",
     "approvalNotFoundDescription": "This request may have already been processed or does not exist.",
     "approvalActionCompleted": "Request processed successfully",
@@ -3696,6 +5276,18 @@
     "approvalPhone": "Phone",
     "approvalNote": "Note",
     "approvalGender": "Gender",
+    "approvalClub": "Club",
+    "approvalEmail": "Email",
+    "approvalMessage": "Reason for joining",
+    "approvalEmailVerified": "Email verified",
+    "approvalEmailNotVerified": "Email not verified",
+    "approvalMemberSince": "Member since {year}",
+    "approvalResponse": "Response",
+    "approvalRequestedAt": "Requested at",
+    "approvalSubmittedBy": "Submitted by",
+    "approvalStatusApproved": "Approved",
+    "approvalStatusRejected": "Rejected",
+    "approvalVenueInfo": "Venue details",
     "types": {
       "SYSTEM": "System",
       "SESSION": "Session",
@@ -3736,7 +5328,11 @@
       "playerAddedTitle": "You have been added to a session",
       "playerAddedMessage": "You have been added to “{sessionName}”.",
       "playerRemovedTitle": "You have been removed from a session",
-      "playerRemovedMessage": "You have been removed from “{sessionName}”."
+      "playerRemovedMessage": "You have been removed from “{sessionName}”.",
+      "postLikedTitle": "New like on your post",
+      "postLikedMessage": "{actorName} liked your post.",
+      "postCommentedTitle": "New comment on your post",
+      "postCommentedMessage": "{actorName} commented on your post."
     }
   },
   "posts": {
@@ -3746,9 +5342,11 @@
     "delete": "Delete",
     "success": "Success",
     "error": "Error",
+    "userAvatar": "User avatar",
     "noPosts": "No posts yet",
     "beFirstToShare": "Be the first to share something!",
     "composerPlaceholder": "Share something with the badminton community...",
+    "composerPlaceholderWithName": "What's on your mind, {name}?",
     "contentLabel": "Post content",
     "contentRequired": "Please enter some content",
     "createSuccess": "Post created successfully",
@@ -3759,17 +5357,31 @@
     "retryDescription": "Please try again in a moment.",
     "loading": "Loading...",
     "loadMore": "Load more posts",
+    "done": "Done",
+    "backToPost": "Back to post",
     "location": "Location",
     "locationPlaceholder": "Search for a location...",
     "removeLocation": "Remove",
-    "imagesMax": "Images (max 10)",
+    "addToPost": "Add to your post",
+    "addPhoto": "Add photos",
+    "addLocation": "Add location",
+    "imagesMax": "Images (max 5)",
     "addImages": "Add images",
+    "imagesSelected": "{count} images selected",
     "imagePreview": "Image preview {index}",
     "removeImage": "Remove image {index}",
+    "removeImages": "Remove images",
     "closeModal": "Close modal",
     "sharedFrom": "Shared from {name}",
     "postMenu": "Post menu",
     "postImage": "Post image {index}",
+    "viewOnMap": "View on Google Maps",
+    "postNotFound": "This post is no longer available",
+    "postNotFoundDescription": "It may have been deleted or the link is incorrect.",
+    "backToFeed": "Back to newsfeed",
+    "like": "Like",
+    "comment": "Comment",
+    "share": "Share",
     "likePost": "Like post",
     "unlikePost": "Unlike post",
     "likeError": "Failed to like post",
@@ -3796,7 +5408,9 @@
       "subtitle": "Feature Under Development",
       "description": "We're building a space for you to share and connect with the badminton community. Stay tuned! 🏸",
       "badge": "COMING SOON"
-    }
+    },
+    "suggestedSessions": "Suggested sessions",
+    "viewAllSessions": "View all sessions"
   },
   "clubs": {
     "notification": {
@@ -3811,6 +5425,7 @@
     "noClubsFound": "No Clubs Found",
     "noClubsFoundDescription": "Try adjusting your search or check back later for new clubs",
     "members": "members",
+    "session": "session",
     "sessions": "sessions",
     "active": "Active",
     "viewDetails": "View Details",
@@ -3844,6 +5459,8 @@
     },
     "clubDetails": "Club Details",
     "clubMembers": "Club Members",
+    "showingMembers": "Showing {visible}/{total} members",
+    "viewMoreMembers": "View more members",
     "recentAnnouncements": "Recent Announcements",
     "noAnnouncements": "No announcements yet",
     "noDescription": "No description provided",
@@ -3867,7 +5484,9 @@
     "joinRequests": "Join Requests",
     "noPendingRequests": "No pending join requests",
     "managingGroups": "Groups I Manage",
+    "adminManagingGroups": "All Groups in the System",
     "noManagedClubs": "Not managing any groups yet",
+    "noSystemClubs": "No groups in the system yet",
     "memberClubsTab": "Groups I've Joined",
     "noMemberClubsTab": "Not a member of any group yet",
     "awaitingApproval": "Awaiting Approval",
@@ -3896,6 +5515,9 @@
     "failedToUpdateClub": "Failed to update club",
     "failedToLoadClub": "Failed to load club",
     "addClubMember": "Add Club Member",
+    "searchUserPlaceholder": "Search by name or email...",
+    "alreadyMember": "Already a member",
+    "noUsersFound": "No users found",
     "noClubMembersYet": "No members yet",
     "addFirstMember": "Add first member",
     "clubMemberAddedSuccess": "Member added successfully",
@@ -3903,9 +5525,34 @@
     "confirmRemoveClubMember": "Are you sure you want to remove this member from the club?",
     "clubMemberRemovedSuccess": "Member removed successfully",
     "failedToRemoveClubMember": "Failed to remove member",
+    "memberDetails": "Member details",
+    "viewProfile": "View profile",
+    "removeFromClub": "Remove from club",
+    "confirmRemoveMemberTitle": "Remove member",
+    "memberGender": "Gender",
+    "memberGenderMale": "Male",
+    "memberGenderFemale": "Female",
+    "memberGenderOther": "Other",
+    "memberLevel": "Level",
+    "memberJoinedDate": "Joined date",
+    "memberInfoNotUpdated": "Not updated",
     "clubNotFound": "Club not found",
     "feeConfiguration": "Fee Configuration",
     "currency": "VND",
+    "month": "month",
+    "selectMonth": "Select month",
+    "month1": "January",
+    "month2": "February",
+    "month3": "March",
+    "month4": "April",
+    "month5": "May",
+    "month6": "June",
+    "month7": "July",
+    "month8": "August",
+    "month9": "September",
+    "month10": "October",
+    "month11": "November",
+    "month12": "December",
     "manageFeesTitle": "Fee Configuration",
     "monthlyFeeConfig": "Monthly Fee (For Tracking)",
     "maleMonthlyFee": "Monthly Fee (Male)",
@@ -3914,6 +5561,10 @@
     "perSessionFeeDescription": "This fee will be applied when members join a session",
     "malePerSessionFee": "Session Fee (Male)",
     "femalePerSessionFee": "Session Fee (Female)",
+    "saveConfiguration": "Save configuration",
+    "feesUpdatedSuccess": "Fees updated successfully",
+    "failedToLoadFees": "Failed to load fee configuration",
+    "failedToUpdateFees": "Failed to update fees",
     "description": "Description",
     "descriptionPlaceholder": "Enter club description...",
     "colorLabel": "Theme Color",
@@ -3929,6 +5580,16 @@
     "fixedMembersOnly": "Club Members Only",
     "regularMembersOnly": "Regular Members Only",
     "perSessionFee": "Per Session Fee",
+    "monthlyMembers": "Monthly Fixed Members",
+    "monthlyMembersDescription": "Assign members with a fixed monthly fee for this month",
+    "monthlyFixedMember": "Monthly Fixed",
+    "selectMember": "Select member",
+    "addMonthlyMember": "Add member",
+    "noMonthlyMembers": "No monthly fixed members for this month",
+    "monthlyMemberAddedSuccess": "Monthly member added successfully",
+    "monthlyMemberRemovedSuccess": "Monthly member removed successfully",
+    "failedToUpdateMonthlyMembers": "Failed to update monthly members",
+    "remove": "Remove",
     "manageMembers": "Manage Members",
     "allMembers": "All Members",
     "addMember": "Add Member",
@@ -4106,6 +5767,16 @@
     "findSessions": "Find Sessions",
     "findSessionsAtVenue": "Find Sessions",
     "nameFormat": "Badminton Court {name}",
+    "fullNameFormat": {
+      "BADMINTON": "{name} Badminton Court",
+      "PICKLEBALL": "{name} Pickleball Court"
+    },
+    "seo": {
+      "courtsCount": "{count} courts",
+      "openingHours": "Open: {hours}",
+      "fallbackTitle": "Badminton Court",
+      "fallbackDescription": "View badminton court details on Vmito - the badminton session management platform."
+    },
     "searchPlaceholder": "Search by venue name, address..."
   },
   "venueRequests": {
@@ -4235,5 +5906,76 @@
       "noFeedback": "No feedback found",
       "accessDenied": "You do not have permission to access this page"
     }
+  },
+  "productTour": {
+    "tours": {
+      "createSession": {
+        "steps": {
+          "createSession": {
+            "title": "Create your first session",
+            "description": "Tap this button to create your first badminton session. You can enter details with AI or fill in the form manually."
+          },
+          "submitSession": {
+            "title": "Complete the session details",
+            "description": "Fill in the session name, venue, time and number of courts, then press this button to create the session."
+          },
+          "manageSession": {
+            "title": "Open the management page",
+            "description": "Your session is created! Tap here to open the management page — where you add players and run matches."
+          },
+          "openPlayersTab": {
+            "title": "Open the Players tab",
+            "description": "Tap this tab to manage your session's player list."
+          },
+          "addPlayer": {
+            "title": "Add players",
+            "description": "Tap this button to add players. You can add them over time; you need at least 4 to pair up matches when game time comes."
+          },
+          "doneCreate": {
+            "title": "Session setup done! 🎉",
+            "description": "You now know how to create a session and add players. When you have enough people and it is game time, reopen your session — we will walk you through running the matches."
+          }
+        }
+      },
+      "runMatches": {
+        "steps": {
+          "openOverviewTab": {
+            "title": "Open the Overview tab",
+            "description": "It is game time! Go to the Overview tab to start the session."
+          },
+          "startSession": {
+            "title": "Start the session",
+            "description": "Press this button to start the session. Once started, you can assign players to courts."
+          },
+          "openCourtsTab": {
+            "title": "Open the Courts tab",
+            "description": "Tap this tab to view the courts and pair up players."
+          },
+          "assignPlayers": {
+            "title": "Pair up players",
+            "description": "Press this button to assign players to the court — auto-match balanced pairs or pick them manually.",
+            "disabledTitle": "Add more players",
+            "disabledDescription": "You need 4 waiting players to pair up a match. Go to the Players tab to add more, then come back here to pair them up."
+          },
+          "startMatch": {
+            "title": "Start the match",
+            "description": "The court is ready! Press this button to start the match."
+          },
+          "endMatch": {
+            "title": "End the match",
+            "description": "When the match is over, press this button to record the score and free the court for the next round."
+          },
+          "doneRun": {
+            "title": "Congratulations! 🎉",
+            "description": "You now know the full flow of running a badminton session: starting it, pairing players up and managing matches. Have fun!"
+          }
+        }
+      }
+    },
+    "progress": "Step {current}/{total}",
+    "skip": "Skip the tour",
+    "resume": "Resume the tour",
+    "finish": "Finish",
+    "restartCta": "View interactive tour"
   }
 }

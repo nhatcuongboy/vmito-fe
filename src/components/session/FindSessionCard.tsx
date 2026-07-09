@@ -3,7 +3,7 @@
 import { ISession, UserRole } from '@/lib/api/types';
 import { Box, Flex, Icon, Text, Badge } from '@chakra-ui/react';
 import { IconButton } from '@/components/ui/chakra-compat';
-import { MapPin, Navigation } from 'lucide-react';
+import { MapPin, Navigation, Facebook } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { formatVenueName, getGoogleMapsUrl } from '@/utils';
 import { AppAddressDisplay } from '@/components/common/AppAddressDisplay';
@@ -28,6 +28,7 @@ interface FindSessionCardProps {
   session: ISession;
   variant?: ViewMode;
   onJoin: (session: ISession) => void;
+  onAddGuest?: (session: ISession) => void;
   isJoined?: boolean;
   userRegistrationStatus?: 'PENDING' | 'APPROVED' | 'REJECTED' | null;
   onRegistrationUpdate?: () => void | Promise<void>;
@@ -37,12 +38,14 @@ interface FindSessionCardProps {
   coverPhotoOverlay?: React.ReactNode;
   compactTopContent?: React.ReactNode;
   showSlotBadge?: boolean;
+  imagePriority?: boolean;
 }
 
 const FindSessionCard = ({
   session,
   variant = 'grid',
   onJoin,
+  onAddGuest,
   isJoined = false,
   userRegistrationStatus = null,
   onRegistrationUpdate,
@@ -52,6 +55,7 @@ const FindSessionCard = ({
   coverPhotoOverlay,
   compactTopContent,
   showSlotBadge = true,
+  imagePriority = false,
 }: FindSessionCardProps) => {
   const isCompact = variant === 'list';
   const t = useTranslations('session');
@@ -75,7 +79,7 @@ const FindSessionCard = ({
 
   const {
     isOpen: isDeleteModalOpen,
-    onOpen: onOpenDeleteModal,
+    onOpen: _onOpenDeleteModal,
     onClose: onCloseDeleteModal,
   } = useModal();
 
@@ -83,6 +87,10 @@ const FindSessionCard = ({
   const isOwner = session.hostId === user?.id;
   const isAdmin = user?.role === UserRole.ADMIN;
   const canManage = isOwner || isAdmin;
+
+  // Crawled (vãng lai) Facebook sessions render a read-only variant:
+  // no slot ratio, no host/registration actions — only "view original post".
+  const isCrawled = session.isCrawled === true;
 
   // Calculate if session is full (only count approved players)
   const maxPlayers = session.numberOfCourts * session.maxPlayersPerCourt;
@@ -140,13 +148,16 @@ const FindSessionCard = ({
           mr={2}
           color="green.500"
           mt={isCompact ? 0.5 : 1}
+          flexShrink={0}
         />
-        <Box flex="1" overflow="hidden">
-          <Flex align="center" gap={2} wrap="wrap">
+        <Box flex="1" overflow="hidden" minW={0}>
+          <Flex align="center" gap={2}>
             <Text
               fontWeight="medium"
               fontSize={isCompact ? 'sm' : 'md'}
               lineClamp={1}
+              flex="1"
+              minW={0}
             >
               {session.venue?.name
                 ? formatVenueName(
@@ -156,7 +167,12 @@ const FindSessionCard = ({
                 : session.location}
             </Text>
             {distance !== undefined && (
-              <Badge colorPalette="green" variant="subtle" size="sm">
+              <Badge
+                colorPalette="green"
+                variant="subtle"
+                size="sm"
+                flexShrink={0}
+              >
                 {distance < 1
                   ? `${Math.round(distance * 1000)}m`
                   : `${distance.toFixed(1)}km`}
@@ -178,6 +194,8 @@ const FindSessionCard = ({
         </Box>
       </Flex>
     ) : null;
+
+  const extraInfoRows = <>{locationRow}</>;
 
   // Slot availability badge - hidden if session is expired
   const isExpired =
@@ -201,16 +219,16 @@ const FindSessionCard = ({
     <Badge
       colorPalette={
         userRegistrationStatus === 'APPROVED'
-          ? 'green'
+          ? 'yellow'
           : userRegistrationStatus === 'PENDING'
             ? 'yellow'
             : 'red'
       }
-      variant="solid"
+      variant={userRegistrationStatus === 'APPROVED' ? 'subtle' : 'solid'}
       borderWidth="1px"
       borderColor={
         userRegistrationStatus === 'APPROVED'
-          ? 'green.400'
+          ? 'yellow.200'
           : userRegistrationStatus === 'PENDING'
             ? 'yellow.400'
             : 'red.400'
@@ -224,9 +242,27 @@ const FindSessionCard = ({
     </Badge>
   ) : null;
 
+  // "Bài đăng Facebook" badge for crawled Facebook sessions (translucent gray to balance visual weight)
+  const crawledBadge = isCrawled ? (
+    <Badge
+      bg="blackAlpha.600"
+      _dark={{ bg: 'whiteAlpha.200' }}
+      color="white"
+      borderWidth="1px"
+      borderColor="whiteAlpha.200"
+      backdropFilter="blur(4px)"
+      gap={1}
+    >
+      <Icon as={Facebook} boxSize={3} />
+      {t('crawledBadge')}
+    </Badge>
+  ) : null;
+
   const combinedBadges = (
     <Flex gap={1}>
-      {showSlotBadge && slotAvailabilityBadge}
+      {crawledBadge}
+      {/* Crawled sessions have no managed player slots — hide the slot badge */}
+      {!isCrawled && showSlotBadge && slotAvailabilityBadge}
       {registrationStatusBadge}
     </Flex>
   );
@@ -240,6 +276,14 @@ const FindSessionCard = ({
     onJoin(session);
   };
 
+  const handleAddGuest = () => {
+    if (!user) {
+      onOpenLoginModal();
+      return;
+    }
+    onAddGuest?.(session);
+  };
+
   // Action configuration for find session card
   // Logic: Show only ONE button
   // - If user is host/admin: show "Host" (manage) button only
@@ -247,42 +291,76 @@ const FindSessionCard = ({
   //   - APPROVED: show "Vào sân" (view session)
   //   - PENDING/REJECTED: show "Xem đăng ký" (view registration)
   //   - No registration: show "Đăng ký" (register)
-  const actions: SessionActionConfig = {
-    // Hide all extra buttons
-    showMoreButton: false,
-    showCallButton: false,
-    showDownloadButton: false,
-    showShareButton: false,
-    showDeleteButton: false,
+  const actions: SessionActionConfig = isCrawled
+    ? {
+        // Crawled (vãng lai) sessions are view-only: no host/registration
+        // actions on Vmito — only a link out to the original Facebook post.
+        showMoreButton: false,
+        showCallButton: false,
+        showDownloadButton: false,
+        showShareButton: false,
+        showDeleteButton: false,
+        showManageButton: false,
+        showViewSessionButton: false,
+        showViewRegistrationButton: false,
+        showRegisterButton: false,
+        showExternalLinkButton: !!session.externalUrl,
+        externalUrl: session.externalUrl,
+      }
+    : {
+        // Hide all extra buttons
+        showMoreButton: false,
+        showCallButton: false,
+        showDownloadButton: false,
+        showShareButton: false,
+        showDeleteButton: false,
 
-    // For owner or ADMIN: show ONLY manage button
-    showManageButton: canManage,
-    manageButtonHref: `/host/sessions/${session.slug || session.id}`,
+        // For owner or ADMIN: show ONLY manage button
+        showManageButton: canManage,
+        manageButtonHref: `/host/sessions/${session.slug || session.id}`,
 
-    // For non-owners: show ONE button based on status
-    // Priority: APPROVED > PENDING/REJECTED > No registration
-    showViewSessionButton: !canManage && userRegistrationStatus === 'APPROVED',
-    showViewRegistrationButton:
-      !canManage &&
-      !!userRegistrationStatus &&
-      userRegistrationStatus !== 'APPROVED',
-    onViewRegistration: onOpenViewRegistrationModal,
-    showRegisterButton: !canManage && !userRegistrationStatus && !isJoined,
-    onRegister: handleRegister,
-    registerButtonDisabled: isFull,
-  };
+        // For non-owners: show ONE button based on status
+        // Priority: APPROVED > PENDING/REJECTED > No registration
+        showViewSessionButton:
+          !canManage && userRegistrationStatus === 'APPROVED',
+        showViewRegistrationButton: !canManage && !!userRegistrationStatus,
+        onViewRegistration: onOpenViewRegistrationModal,
+        showAddGuestButton:
+          !canManage &&
+          !!userRegistrationStatus &&
+          !!onAddGuest &&
+          userRegistrationStatus !== null,
+        onAddGuest: handleAddGuest,
+        showRegisterButton: !canManage && !userRegistrationStatus && !isJoined,
+        onRegister: handleRegister,
+        registerButtonDisabled: isFull,
+      };
 
   return (
     <>
       <BaseSessionCard
         session={session}
         variant={variant}
-        extraInfoRows={locationRow}
+        extraInfoRows={extraInfoRows}
         registrationBadgeContent={combinedBadges}
         coverPhotoOverlay={coverPhotoOverlay}
         compactTopContent={compactTopContent}
         actions={actions}
-        onHostClick={onHostClick ? () => onHostClick(session) : undefined}
+        imagePriority={imagePriority}
+        onHostClick={
+          isCrawled
+            ? session.externalAuthorUrl
+              ? () =>
+                  window.open(
+                    session.externalAuthorUrl,
+                    '_blank',
+                    'noopener,noreferrer'
+                  )
+              : undefined
+            : onHostClick
+              ? () => onHostClick(session)
+              : undefined
+        }
       />
 
       {/* Login prompt modal */}

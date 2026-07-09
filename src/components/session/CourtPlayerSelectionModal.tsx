@@ -2,9 +2,10 @@ import { Button as CompatButton } from '@/components/ui/chakra-compat';
 import { VModal } from '@/components/ui/VModal';
 import { CourtService } from '@/lib/api/court.service';
 import { CourtDirection, SuggestedPlayersResponse } from '@/lib/api/types';
-import { Court, Player } from '@/types/session';
+import { Court, Match, Player } from '@/types/session';
 import { PlayerGrid } from '@/components/player/PlayerGrid';
 import BadmintonCourt from '@/components/court/BadmintonCourt';
+
 import { Box, Flex, HStack, Input, Tabs, Text } from '@chakra-ui/react';
 import { Search, Sparkles, User, UserPlus, Users } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
@@ -18,6 +19,11 @@ import React, {
 import { Locale } from '@/i18n/locales';
 import MatchCourtPreview, { MatchPairStats } from './MatchCourtPreview';
 import { TMatchType } from '@/hooks/useCourtsTabModals';
+import {
+  getMatchRepeatWarning,
+  MatchRepeatWarningResult,
+} from '@/utils/match-repeat-warning';
+import { LEVEL_DEFINITIONS, LEVELS, getLevelRank } from '@/constants/levels';
 
 type SelectionMode = 'auto' | 'manual';
 
@@ -61,6 +67,7 @@ interface ICourtPlayerSelectionModalProps {
   isLoadingManualConfirm?: boolean;
 
   // Optional
+  matchHistory?: Match[];
   courtColor?: string;
   title?: string;
   description?: string;
@@ -86,6 +93,7 @@ const CourtPlayerSelectionModal: React.FC<ICourtPlayerSelectionModalProps> = ({
   formatWaitTime,
   isLoadingAutoConfirm = false,
   isLoadingManualConfirm = false,
+  matchHistory = [],
   courtColor,
   title,
   description,
@@ -328,6 +336,40 @@ const CourtPlayerSelectionModal: React.FC<ICourtPlayerSelectionModalProps> = ({
     [selectedPlayers]
   );
 
+  const autoMatchRepeatWarning = useMemo(
+    () =>
+      getMatchRepeatWarning(
+        matchHistory,
+        autoAssignPlayers,
+        CourtDirection.HORIZONTAL,
+        matchType
+      ),
+    [autoAssignPlayers, matchHistory, matchType]
+  );
+
+  const manualMatchRepeatPlayers = useMemo(
+    () =>
+      selectedPositions
+        .map((player, index) =>
+          player ? { ...player, courtPosition: index } : null
+        )
+        .filter((player): player is Player & { courtPosition: number } =>
+          Boolean(player)
+        ),
+    [selectedPositions]
+  );
+
+  const manualMatchRepeatWarning = useMemo(
+    () =>
+      getMatchRepeatWarning(
+        matchHistory,
+        manualMatchRepeatPlayers,
+        court?.direction || CourtDirection.HORIZONTAL,
+        matchType
+      ),
+    [court?.direction, manualMatchRepeatPlayers, matchHistory, matchType]
+  );
+
   if (!isOpen || !court) return null;
 
   const isAutoMode = mode === 'auto';
@@ -496,6 +538,7 @@ const CourtPlayerSelectionModal: React.FC<ICourtPlayerSelectionModalProps> = ({
               onAiToggle={handleAiToggle}
               getCourtDisplayName={getCourtDisplayName}
               courtColor={courtColor}
+              matchRepeatWarning={autoMatchRepeatWarning}
               t={t}
             />
           </Tabs.Content>
@@ -515,6 +558,7 @@ const CourtPlayerSelectionModal: React.FC<ICourtPlayerSelectionModalProps> = ({
               onPlayerRemove={onPlayerRemove}
               getCourtDisplayName={getCourtDisplayName}
               formatWaitTime={formatWaitTime}
+              matchRepeatWarning={manualMatchRepeatWarning}
               t={t}
             />
           </Tabs.Content>
@@ -526,21 +570,17 @@ const CourtPlayerSelectionModal: React.FC<ICourtPlayerSelectionModalProps> = ({
 
 // ─── Auto-Assign Sub-Component ───────────────────────────────────────────────
 
-const LEVEL_SHORT_LABELS: Record<number, string> = {
-  1: 'Yếu',
-  2: 'TBY',
-  3: 'TB-',
-  4: 'TB',
-  5: 'TB+',
-  6: 'Khá',
-  7: 'BC',
-  8: 'CN',
-};
+const LEVEL_SHORT_LABELS = Object.fromEntries(
+  LEVEL_DEFINITIONS.map((level) => [level.id, level.shortLabel])
+) as Record<number, string>;
 
 const normalizeAiReasonLevels = (reason: string) =>
-  reason.replace(/\b(?:Level|Cấp|等级)\s*([1-8])\b/gi, (_, level: string) => {
-    return LEVEL_SHORT_LABELS[Number(level)] ?? _;
-  });
+  reason.replace(
+    /\b(?:Level|Cấp|等级)\s*(10|[1-9])\b/gi,
+    (_, level: string) => {
+      return LEVEL_SHORT_LABELS[Number(level)] ?? _;
+    }
+  );
 
 interface IAutoAssignContentProps {
   court: Court;
@@ -559,6 +599,7 @@ interface IAutoAssignContentProps {
     courtNumber: number
   ) => string;
   courtColor?: string;
+  matchRepeatWarning?: MatchRepeatWarningResult | null;
   t: ReturnType<typeof useTranslations<'SessionDetail'>>;
 }
 
@@ -574,6 +615,7 @@ const AutoAssignContent: React.FC<IAutoAssignContentProps> = ({
   onAiToggle,
   getCourtDisplayName,
   courtColor,
+  matchRepeatWarning,
   t,
 }) => {
   const aiPoweredMatchingLabel = t.has('courtsTab.aiPoweredMatching')
@@ -741,6 +783,7 @@ const AutoAssignContent: React.FC<IAutoAssignContentProps> = ({
         pair1Players={!isLoading ? suggestedPlayers?.pair1.players : undefined}
         pair2Players={!isLoading ? suggestedPlayers?.pair2.players : undefined}
         scoreDifference={suggestedPlayers?.scoreDifference}
+        matchRepeatWarning={matchRepeatWarning}
       />
 
       {/* TopCount Selection — temporarily hidden */}
@@ -766,6 +809,7 @@ interface IManualSelectContentProps {
     courtNumber: number
   ) => string;
   formatWaitTime: (waitTimeInMinutes: number) => string;
+  matchRepeatWarning?: MatchRepeatWarningResult | null;
   t: ReturnType<typeof useTranslations<'SessionDetail'>>;
 }
 
@@ -782,6 +826,7 @@ const ManualSelectContent: React.FC<IManualSelectContentProps> = ({
   onPlayerRemove,
   getCourtDisplayName,
   formatWaitTime,
+  matchRepeatWarning,
   t,
 }) => {
   const [searchText, setSearchText] = useState('');
@@ -800,7 +845,10 @@ const ManualSelectContent: React.FC<IManualSelectContentProps> = ({
   // Doubles: Positions 0,1 = pair 1; positions 2,3 = pair 2
   // Singles: Position 0 = player 1; position 1 = player 2
   const manualPairStats = useMemo(() => {
-    const getLevelScore = (player?: Player) => player?.level ?? 3;
+    const intermediateRank = getLevelRank(LEVELS.INTERMEDIATE) ?? 3;
+    const getLevelScore = (player?: Player) =>
+      (player?.level ? getLevelRank(player.level) : undefined) ??
+      intermediateRank;
 
     if (matchType === 'singles') {
       const p1 = selectedPositions[0];
@@ -860,6 +908,7 @@ const ManualSelectContent: React.FC<IManualSelectContentProps> = ({
             courtName={getCourtDisplayName(court.courtName, court.courtNumber)}
             width="100%"
             direction={court?.direction || CourtDirection.HORIZONTAL}
+            matchRepeatWarning={matchRepeatWarning}
           />
 
           {/* Inline Pair Stats for manual selection */}

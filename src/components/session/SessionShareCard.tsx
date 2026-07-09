@@ -21,8 +21,8 @@ import {
   MapPin,
   Phone,
   Shield,
-  Sparkles,
   SquareAsterisk,
+  Ticket,
   Trophy,
   User,
   Users,
@@ -33,7 +33,7 @@ import { FeeService } from '@/lib/api/fee.service';
 import { getSkillLevelColor } from '@/lib/utils/skillLevel.utils';
 import { useLevelLabel } from '@/hooks/useLevelLabel';
 import { formatVenueName } from '@/utils';
-import { formatTimeByDevicePreference } from '@/utils/time-helpers';
+import { formatTimeRangeByDevicePreference } from '@/utils/time-helpers';
 import dayjs from '@/lib/dayjs';
 import { DEFAULT_COVER_PHOTO } from '@/constants';
 import QRCode from 'qrcode';
@@ -76,6 +76,14 @@ export const SESSION_SHARE_TEMPLATES: SessionShareTemplateMeta[] = [
     description: 'Thiết kế ban đầu dạng social poster.',
   },
   {
+    id: 'event-pass',
+    name: 'Vé tham gia',
+    ratioLabel: '4:5',
+    width: 1080,
+    height: 1350,
+    description: 'Premium, giống vé mời tham gia kèo.',
+  },
+  {
     id: 'classic-clean',
     name: 'Gọn gàng',
     ratioLabel: '2:3',
@@ -106,14 +114,6 @@ export const SESSION_SHARE_TEMPLATES: SessionShareTemplateMeta[] = [
     width: 1080,
     height: 1080,
     description: 'Gọn đẹp cho feed và thumbnail.',
-  },
-  {
-    id: 'event-pass',
-    name: 'Vé tham gia',
-    ratioLabel: '4:5',
-    width: 1080,
-    height: 1350,
-    description: 'Premium, giống vé mời tham gia kèo.',
   },
 ];
 
@@ -172,16 +172,6 @@ const formatLegacyPortraitDate = (
       ? date.format('dddd, DD/MM')
       : date.format('ddd, MM/DD');
   return formattedDate.charAt(0).toUpperCase() + formattedDate.slice(1);
-};
-
-const formatLegacyPortraitTime = (
-  dateString: string | Date,
-  locale: string
-): string => {
-  const date = dayjs
-    .tz(dateString)
-    .locale(locale === Locale.VI ? Locale.VI : Locale.EN);
-  return date.format('HH:mm');
 };
 
 const getCourtLabel = (session: ISession, courtsLabel: string) => {
@@ -243,9 +233,7 @@ const useShareCardData = (session: ISession): ShareCardData => {
     return {
       date: formatDate(startTime, locale),
       time: session.startTime
-        ? `${formatTimeByDevicePreference(session.startTime)}${
-            endTime ? ` - ${formatTimeByDevicePreference(endTime)}` : ''
-          }`
+        ? formatTimeRangeByDevicePreference(session.startTime, endTime)
         : t('timeNotSet'),
       venue: venueName,
       address: getAddressLabel(session),
@@ -265,17 +253,29 @@ const DetailItem = ({
   icon,
   label,
   color = '#179a3b',
+  labelColor = '#252833',
+  lineClamp = 2,
   size = 'md',
 }: {
   icon: React.ElementType;
   label?: string;
   color?: string;
-  size?: 'sm' | 'md' | 'lg';
+  labelColor?: string;
+  lineClamp?: number;
+  size?: 'sm' | 'md' | 'venue' | 'lg';
 }) => {
   if (!label) return null;
 
-  const iconSize = size === 'lg' ? 52 : size === 'md' ? 38 : 28;
-  const fontSize = size === 'lg' ? '34px' : size === 'md' ? '25px' : '18px';
+  const iconSize =
+    size === 'lg' ? 52 : size === 'venue' ? 44 : size === 'md' ? 38 : 28;
+  const fontSize =
+    size === 'lg'
+      ? '34px'
+      : size === 'venue'
+        ? '30px'
+        : size === 'md'
+          ? '25px'
+          : '18px';
 
   return (
     <Flex align="center" gap={size === 'lg' ? 5 : 3} minW={0}>
@@ -283,9 +283,11 @@ const DetailItem = ({
       <Text
         fontSize={fontSize}
         fontWeight="800"
-        color="#252833"
+        color={labelColor}
         lineHeight="1.12"
-        lineClamp={2}
+        lineClamp={lineClamp}
+        overflowWrap="break-word"
+        minW={0}
       >
         {label}
       </Text>
@@ -361,31 +363,42 @@ const QrBlock = ({
   qrDataUrl,
   size,
   dark = false,
+  showTitle = true,
+  titleFontSize,
+  captionFontSize,
+  caption = 'Quét QR để xem kèo',
 }: {
   qrDataUrl: string;
   size: number;
   dark?: boolean;
+  showTitle?: boolean;
+  titleFontSize?: string;
+  captionFontSize?: string;
+  caption?: string;
 }) => (
   <Flex align="center" gap={4}>
     <Box bg="white" p="8px" borderRadius="18px" flexShrink={0}>
       <Image src={qrDataUrl} alt="VMITO QR Code" boxSize={`${size}px`} />
     </Box>
     <Box>
+      {showTitle && (
+        <Text
+          fontSize={titleFontSize || (size >= 130 ? '27px' : '17px')}
+          fontWeight="950"
+          color={dark ? 'white' : '#0e5c23'}
+          lineHeight="1.05"
+        >
+          VMITO.COM
+        </Text>
+      )}
       <Text
-        fontSize={size >= 130 ? '27px' : '17px'}
-        fontWeight="950"
-        color={dark ? 'white' : '#0e5c23'}
-        lineHeight="1.05"
-      >
-        VMITO.COM
-      </Text>
-      <Text
-        fontSize={size >= 130 ? '20px' : '13px'}
+        fontSize={captionFontSize || (size >= 130 ? '20px' : '13px')}
         fontWeight="800"
         color={dark ? 'whiteAlpha.800' : '#127b2f'}
         lineHeight="1.15"
+        whiteSpace="nowrap"
       >
-        Quét QR để xem kèo
+        {caption}
       </Text>
     </Box>
   </Flex>
@@ -395,12 +408,22 @@ const CoverImage = ({
   session,
   height,
   rounded = '0',
+  imageFilter,
+  overlay,
 }: {
   session: ISession;
   height: string;
   rounded?: string;
+  imageFilter?: string;
+  overlay?: string;
 }) => (
-  <Box position="relative" h={height} overflow="hidden" borderRadius={rounded}>
+  <Box
+    position="relative"
+    h={height}
+    overflow="hidden"
+    borderRadius={rounded}
+    bg="#182233"
+  >
     <Image
       src={session.coverPhoto || DEFAULT_COVER_PHOTO}
       alt={session.name}
@@ -408,12 +431,18 @@ const CoverImage = ({
       h="100%"
       objectFit="cover"
       crossOrigin="anonymous"
+      filter={imageFilter}
     />
-    <Box
-      position="absolute"
-      inset={0}
-      bg="linear-gradient(180deg, rgba(0,0,0,0.05) 0%, rgba(0,0,0,0.42) 100%)"
-    />
+    {overlay !== 'none' && (
+      <Box
+        position="absolute"
+        inset={0}
+        bg={
+          overlay ||
+          'linear-gradient(180deg, rgba(0,0,0,0.05) 0%, rgba(0,0,0,0.42) 100%)'
+        }
+      />
+    )}
   </Box>
 );
 
@@ -593,9 +622,7 @@ const LegacyPortraitCard = ({
     ? formatLegacyPortraitDate(session.startTime, locale)
     : formatLegacyPortraitDate(session.createdAt, locale);
   const compactTime = session.startTime
-    ? `${formatLegacyPortraitTime(session.startTime, locale)} - ${
-        session.endTime ? formatLegacyPortraitTime(session.endTime, locale) : ''
-      }`
+    ? formatTimeRangeByDevicePreference(session.startTime, session.endTime)
     : '';
   const skillLevelColor = getSkillLevelColor(session.requiredLevels);
 
@@ -889,9 +916,7 @@ const LegacySocialCard = ({ id, session, qrDataUrl }: TemplateProps) => {
     ? formatDate(session.startTime, locale)
     : formatDate(session.createdAt, locale);
   const compactTime = session.startTime
-    ? `${formatTimeByDevicePreference(session.startTime)} - ${
-        session.endTime ? formatTimeByDevicePreference(session.endTime) : ''
-      }`
+    ? formatTimeRangeByDevicePreference(session.startTime, session.endTime)
     : '';
   const skillLevelColor = getSkillLevelColor(session.requiredLevels);
 
@@ -1194,15 +1219,12 @@ const SocialPosterCard = ({
             Tuyển vãng lai
           </Text>
         </Box>
-        <Text color="#c78400" fontSize="25px" fontWeight="950">
-          {meta.ratioLabel}
-        </Text>
       </Flex>
       <Heading
         mt={6}
-        fontSize="72px"
+        fontSize="64px"
         fontWeight="950"
-        lineHeight="0.98"
+        lineHeight="1.08"
         color="#17231b"
         textTransform="uppercase"
         lineClamp={2}
@@ -1254,7 +1276,7 @@ const SocialPosterCard = ({
         justify="space-between"
         align="center"
       >
-        {qrDataUrl && <QrBlock qrDataUrl={qrDataUrl} size={125} />}
+        {qrDataUrl && <QrBlock qrDataUrl={qrDataUrl} size={125} dark />}
         <Text
           fontSize="25px"
           fontWeight="950"
@@ -1458,15 +1480,17 @@ const EventPassCard = ({
             VMITO PASS
           </Text>
         </Flex>
-        <Text color="#ffd84d" fontSize="24px" fontWeight="950">
-          4:5
-        </Text>
       </Flex>
       <Box mt={9} borderRadius="30px" overflow="hidden" h="360px">
-        <CoverImage session={session} height="360px" />
+        <CoverImage
+          session={session}
+          height="360px"
+          imageFilter="saturate(1.08) contrast(1.04)"
+          overlay="linear-gradient(180deg, rgba(0,0,0,0.01) 0%, rgba(0,0,0,0.14) 100%)"
+        />
       </Box>
       <Flex mt={9} gap={4} align="center">
-        <Icon as={Sparkles} color="#ffd84d" boxSize="40px" />
+        <Icon as={Ticket} color="#ffd84d" boxSize="40px" />
         <Text
           color="#ffd84d"
           fontSize="30px"
@@ -1479,20 +1503,23 @@ const EventPassCard = ({
       <Heading
         mt={4}
         color="white"
-        fontSize="78px"
+        h="130px"
+        fontSize="62px"
         fontWeight="950"
-        lineHeight="0.96"
+        lineHeight="1.02"
         textTransform="uppercase"
         lineClamp={2}
+        overflowWrap="break-word"
       >
         {session.name}
       </Heading>
-      <Grid templateColumns="1fr 1fr" gap={5} mt={9}>
+      <Grid templateColumns="1fr 1fr" gap={5} mt={6}>
         <Box bg="#1f2937" borderRadius="26px" p={7}>
           <DetailItem
             icon={Calendar}
             label={data.date}
             color="#ffd84d"
+            labelColor="#ffd84d"
             size="md"
           />
         </Box>
@@ -1501,37 +1528,55 @@ const EventPassCard = ({
             icon={Clock}
             label={data.time}
             color="#ffd84d"
+            labelColor="#ffd84d"
             size="md"
           />
         </Box>
       </Grid>
-      <Box mt={6} bg="white" borderRadius="30px" p={8}>
-        <Stack gap={6}>
-          <DetailItem icon={MapPin} label={data.venue} size="lg" />
+      <Box mt={5} bg="white" borderRadius="30px" px={9} py={4} minH="270px">
+        <Stack gap={4}>
+          <DetailItem
+            icon={MapPin}
+            label={data.venue}
+            size="venue"
+            lineClamp={1}
+          />
           <Grid templateColumns="1fr 1fr" gap={5}>
-            <DetailItem icon={User} label={data.host} size="md" />
-            <DetailItem icon={Users} label={data.maxPlayers} size="md" />
-            <DetailItem icon={SquareAsterisk} label={data.courts} size="md" />
-            <DetailItem icon={Phone} label={data.phone} size="md" />
+            <Stack gap={4} minW={0}>
+              <DetailItem icon={User} label={data.host} size="md" />
+              <DetailItem icon={SquareAsterisk} label={data.courts} size="md" />
+              <LevelBadges levels={session.requiredLevels} size="md" />
+            </Stack>
+            <Stack gap={4} minW={0} align="flex-start">
+              <DetailItem icon={Users} label={data.maxPlayers} size="md" />
+              <DetailItem icon={Phone} label={data.phone} size="md" />
+              <PricePill fee={data.fee} />
+            </Stack>
           </Grid>
-          <Flex align="center" justify="space-between" gap={6}>
-            <LevelBadges levels={session.requiredLevels} size="md" />
-            <PricePill fee={data.fee} />
-          </Flex>
         </Stack>
       </Box>
       <Flex
         position="absolute"
         left="58px"
         right="58px"
-        bottom="62px"
+        bottom="54px"
         justify="space-between"
         align="center"
       >
-        {qrDataUrl && <QrBlock qrDataUrl={qrDataUrl} size={132} dark />}
+        {qrDataUrl && (
+          <QrBlock
+            qrDataUrl={qrDataUrl}
+            size={104}
+            dark
+            showTitle={false}
+            titleFontSize="24px"
+            captionFontSize="21px"
+            caption="Quét QR để xem kèo"
+          />
+        )}
         <Text
           color="white"
-          fontSize="26px"
+          fontSize="23px"
           fontWeight="950"
           textAlign="right"
           lineHeight="1.1"

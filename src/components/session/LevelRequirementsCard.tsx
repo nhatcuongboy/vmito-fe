@@ -21,11 +21,13 @@ import LevelDescriptionsModal from './LevelDescriptionsModal';
 interface LevelRequirementsCardProps<T extends FieldValues> {
   control: Control<T>;
   setValue: UseFormSetValue<T>;
+  children?: React.ReactNode;
 }
 
 export default function LevelRequirementsCard<T extends FieldValues>({
   control,
   setValue,
+  children,
 }: LevelRequirementsCardProps<T>) {
   const t = useTranslations('session');
   const tLevelDescriptions = useTranslations('common.levelDescriptions');
@@ -172,6 +174,8 @@ export default function LevelRequirementsCard<T extends FieldValues>({
           })}
         </Grid>
       </Stack>
+
+      {children && <Box mt={4}>{children}</Box>}
 
       <LevelDescriptionsModal
         isOpen={isDescriptionsOpen}

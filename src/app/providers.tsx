@@ -87,7 +87,9 @@ const system = createSystem(defaultConfig, {
           value: { _light: '#1a202c', _dark: '#f7fafc' },
         },
         'fg.muted': {
-          value: { _light: '#718096', _dark: '#a0aec0' },
+          // #718096 was 4.03:1 on white — below WCAG AA (4.5:1) for body text.
+          // #64748b is the closest slate that passes (4.76:1).
+          value: { _light: '#64748b', _dark: '#a0aec0' },
         },
         'fg.subtle': {
           value: { _light: '#4a5568', _dark: '#cbd5e0' },
@@ -135,9 +137,11 @@ const system = createSystem(defaultConfig, {
 import { SocketProvider } from '@/contexts/SocketContext';
 import { SidebarProvider } from '@/contexts/SidebarContext';
 import { AppSettingsProvider } from '@/contexts/AppSettingsContext';
+import { TopBarSearchProvider } from '@/contexts/TopBarSearchContext';
 import { Toaster } from '@/components/ui/toaster';
 import { GlobalErrorModal } from '@/components/ui/GlobalErrorModal';
 import GlobalCourtCallModal from '@/components/session/GlobalCourtCallModal';
+import TourController from '@/components/tour/TourController';
 
 // Custom system configuration for badminton app
 // ... (omitted for brevity in replacement search but effectively kept)
@@ -148,14 +152,17 @@ export function Providers({ children }: { children: React.ReactNode }) {
       <ChakraProvider value={system}>
         <AppSettingsProvider>
           <SidebarProvider>
-            <AuthProvider>
-              <SocketProvider>
-                {children}
-                <Toaster />
-                <GlobalErrorModal />
-                <GlobalCourtCallModal />
-              </SocketProvider>
-            </AuthProvider>
+            <TopBarSearchProvider>
+              <AuthProvider>
+                <SocketProvider>
+                  {children}
+                  <Toaster />
+                  <GlobalErrorModal />
+                  <GlobalCourtCallModal />
+                  <TourController />
+                </SocketProvider>
+              </AuthProvider>
+            </TopBarSearchProvider>
           </SidebarProvider>
         </AppSettingsProvider>
       </ChakraProvider>

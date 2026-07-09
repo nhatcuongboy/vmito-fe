@@ -44,6 +44,11 @@ import { StarRatingDisplay, RatingList } from '@/components/rating';
 
 import { Player, UserRatingStats, Rating } from '@/lib/api/types';
 
+function getGenderTranslationKey(gender?: string) {
+  if (gender === 'PREFER_NOT_TO_SAY') return 'preferNotToSay';
+  return gender?.toLowerCase();
+}
+
 interface IPlayerDetailModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -317,7 +322,7 @@ export const PlayerDetailModal = ({
                   <User size={12} />
                 )}
                 {player.gender
-                  ? t(`genderValues.${player.gender.toLowerCase()}`)
+                  ? t(`genderValues.${getGenderTranslationKey(player.gender)}`)
                   : t('unknown')}
               </Badge>
             }

@@ -1,7 +1,8 @@
 import { toaster } from '@/components/ui/toaster';
-import { api, ApiResponse } from './base';
+import { api, ApiResponse, dedupGet } from './base';
 import {
   Tournament,
+  TournamentStatus,
   CreateTournamentRequest,
   TournamentUmpire,
   TournamentScoringDevice,
@@ -9,13 +10,19 @@ import {
   CategoryMatch,
   ScheduleType,
   TournamentVenue,
+  ScoreboardResponse,
+  GetScoreboardParams,
+  DuplicateTournamentRequest,
+  DuplicateTournamentResponse,
 } from './types';
 
 export const TournamentService = {
   // Get all tournaments (public)
   getAllTournaments: async (): Promise<Tournament[]> => {
     const response = await api.get<ApiResponse<Tournament[]>>('/tournaments');
-    return response.data.data || [];
+    return (response.data.data || []).filter(
+      (tournament) => tournament.isPublished
+    );
   },
 
   // Get my tournaments (host only)
@@ -25,9 +32,15 @@ export const TournamentService = {
     return response.data.data || [];
   },
 
+  // Get all tournaments for admins/management surfaces.
+  getManageableTournaments: async (): Promise<Tournament[]> => {
+    const response = await api.get<ApiResponse<Tournament[]>>('/tournaments');
+    return response.data.data || [];
+  },
+
   // Get tournament by ID
   getTournament: async (id: string): Promise<Tournament> => {
-    const response = await api.get<ApiResponse<Tournament>>(
+    const response = await dedupGet<ApiResponse<Tournament>>(
       `/tournaments/${id}`
     );
     return response.data.data!;
@@ -78,15 +91,39 @@ export const TournamentService = {
     return response.data.data!;
   },
 
+  // Update tournament lifecycle status (start / finish / cancel / reopen)
+  updateTournamentStatus: async (
+    id: string,
+    status: TournamentStatus
+  ): Promise<Tournament> => {
+    const response = await api.put<ApiResponse<Tournament>>(
+      `/tournaments/${id}`,
+      { status }
+    );
+    toaster.success({ title: 'Tournament status updated' });
+    return response.data.data!;
+  },
+
   // Delete tournament
   deleteTournament: async (id: string): Promise<void> => {
     await api.delete<ApiResponse<null>>(`/tournaments/${id}`);
     toaster.success({ title: 'Tournament deleted successfully' });
   },
 
+  duplicateTournament: async (
+    id: string,
+    data: DuplicateTournamentRequest
+  ): Promise<DuplicateTournamentResponse> => {
+    const response = await api.post<ApiResponse<DuplicateTournamentResponse>>(
+      `/tournaments/${id}/duplicate`,
+      data
+    );
+    return response.data.data!;
+  },
+
   // Umpire management
   getUmpires: async (tournamentId: string): Promise<TournamentUmpire[]> => {
-    const response = await api.get<ApiResponse<TournamentUmpire[]>>(
+    const response = await dedupGet<ApiResponse<TournamentUmpire[]>>(
       `/tournaments/${tournamentId}/umpires`
     );
     return response.data.data || [];
@@ -124,6 +161,46 @@ export const TournamentService = {
   deleteUmpire: async (id: string): Promise<void> => {
     await api.delete<ApiResponse<null>>(`/tournament-umpires/${id}`);
     toaster.success({ title: 'Umpire deleted successfully' });
+  },
+
+  // Link an umpire to a user account by email (promotes them to a referee).
+  linkUmpireToAccount: async (
+    umpireId: string,
+    email: string
+  ): Promise<TournamentUmpire> => {
+    const response = await api.patch<ApiResponse<TournamentUmpire>>(
+      `/tournament-umpires/${umpireId}/link-account`,
+      { email }
+    );
+    toaster.success({ title: 'Referee account linked' });
+    return response.data.data!;
+  },
+
+  unlinkUmpireAccount: async (umpireId: string): Promise<TournamentUmpire> => {
+    const response = await api.delete<ApiResponse<TournamentUmpire>>(
+      `/tournament-umpires/${umpireId}/link-account`
+    );
+    toaster.success({ title: 'Referee account unlinked' });
+    return response.data.data!;
+  },
+
+  // Public live scoreboard
+  getScoreboard: async (
+    tournamentId: string,
+    params: GetScoreboardParams = {}
+  ): Promise<ScoreboardResponse> => {
+    const search = new URLSearchParams();
+    if (params.status) search.set('status', params.status);
+    if (params.courts && params.courts.length > 0) {
+      search.set('courtIds', params.courts.join(','));
+    }
+    if (params.includeFinished) search.set('includeFinished', 'true');
+    const qs = search.toString();
+    const response = await api.get<ApiResponse<ScoreboardResponse>>(
+      `/tournaments/${tournamentId}/scoreboard${qs ? `?${qs}` : ''}`,
+      { skipGlobalError: true }
+    );
+    return response.data.data!;
   },
 
   // Scoring Device management
@@ -172,7 +249,7 @@ export const TournamentService = {
 
   // Court management
   getCourts: async (tournamentId: string): Promise<TournamentCourt[]> => {
-    const response = await api.get<ApiResponse<TournamentCourt[]>>(
+    const response = await dedupGet<ApiResponse<TournamentCourt[]>>(
       `/tournaments/${tournamentId}/courts`
     );
     return response.data.data || [];
@@ -213,10 +290,42 @@ export const TournamentService = {
 
   // All matches across categories
   getAllMatches: async (tournamentId: string): Promise<CategoryMatch[]> => {
-    const response = await api.get<ApiResponse<CategoryMatch[]>>(
+    const response = await dedupGet<ApiResponse<CategoryMatch[]>>(
       `/tournaments/${tournamentId}/all-matches`
     );
     return response.data.data || [];
+  },
+
+  // Clear all schedule assignments (court, startTime, duration) for every match
+  clearSchedule: async (
+    tournamentId: string
+  ): Promise<{ success: boolean; clearedCount: number }> => {
+    const response = await api.delete<
+      ApiResponse<{ success: boolean; clearedCount: number }>
+    >(`/tournaments/${tournamentId}/schedule/clear`);
+    return response.data.data ?? { success: true, clearedCount: 0 };
+  },
+
+  // Delete every match that has not been scheduled yet (status SCHEDULED with
+  // no court / startTime). Matches that are IN_PROGRESS, FINISHED, or already
+  // scheduled are preserved.
+  deleteUnscheduledMatches: async (
+    tournamentId: string
+  ): Promise<{ success: boolean; deletedCount: number }> => {
+    const response = await api.delete<
+      ApiResponse<{ success: boolean; deletedCount: number }>
+    >(`/tournaments/${tournamentId}/schedule/matches/unscheduled`);
+    return response.data.data ?? { success: true, deletedCount: 0 };
+  },
+
+  // Delete ALL matches in the tournament, regardless of status.
+  deleteAllMatches: async (
+    tournamentId: string
+  ): Promise<{ success: boolean; deletedCount: number }> => {
+    const response = await api.delete<
+      ApiResponse<{ success: boolean; deletedCount: number }>
+    >(`/tournaments/${tournamentId}/matches`);
+    return response.data.data ?? { success: true, deletedCount: 0 };
   },
 
   // Update schedule type
@@ -241,10 +350,25 @@ export const TournamentService = {
 
   addVenue: async (
     tournamentId: string,
-    data: {
-      venueId: string;
-      courts?: { courtNumber: number; courtName?: string }[];
-    }
+    data:
+      | {
+          /** Linked mode — points to an existing Venue record. */
+          venueId: string;
+          courts?: { courtNumber: number; courtName?: string }[];
+        }
+      | {
+          /** Inline mode — stores address directly without a Venue record. */
+          venueId?: never;
+          name: string;
+          acronym?: string;
+          placeId?: string;
+          address?: string;
+          lat?: number;
+          lng?: number;
+          district?: string;
+          city?: string;
+          courts?: { courtNumber: number; courtName?: string }[];
+        }
   ): Promise<TournamentVenue> => {
     const response = await api.post<ApiResponse<TournamentVenue>>(
       `/tournaments/${tournamentId}/venues`,

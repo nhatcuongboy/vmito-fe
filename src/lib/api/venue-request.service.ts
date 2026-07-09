@@ -49,6 +49,13 @@ export const VenueRequestService = {
     return response.data.data || [];
   },
 
+  getById: async (id: string): Promise<VenueRequest> => {
+    const response = await api.get<ApiResponse<VenueRequest>>(
+      `/venue-requests/${id}`
+    );
+    return response.data.data!;
+  },
+
   approve: async (id: string): Promise<VenueRequest> => {
     const response = await api.post<ApiResponse<VenueRequest>>(
       `/venue-requests/${id}/approve`

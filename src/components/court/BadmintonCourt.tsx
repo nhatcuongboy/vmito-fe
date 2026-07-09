@@ -9,6 +9,8 @@ import CourtPlayer, { BadmintonCourtPlayer } from './CourtPlayer';
 import { useAiAssistantStore } from '@/stores/useAiAssistantStore';
 import { useLocale, useTranslations } from 'next-intl';
 import { Locale } from '@/i18n/locales';
+import MatchRepeatWarningButton from '@/components/session/MatchRepeatWarning';
+import { MatchRepeatWarningResult } from '@/utils/match-repeat-warning';
 
 interface BadmintonCourtProps {
   players: BadmintonCourtPlayer[];
@@ -35,6 +37,7 @@ interface BadmintonCourtProps {
     player?: BadmintonCourtPlayer;
   }>; // Pre-selected players for next match
   onAIAnalysis?: () => void; // Callback for AI analysis button
+  matchRepeatWarning?: MatchRepeatWarningResult | null;
 }
 
 export default function BadmintonCourt({
@@ -57,6 +60,7 @@ export default function BadmintonCourt({
   direction = CourtDirection.HORIZONTAL,
   preSelectedPlayers = [],
   onAIAnalysis,
+  matchRepeatWarning,
 }: BadmintonCourtProps) {
   const [clickedPlayer, setClickedPlayer] = useState<string | null>(null);
   const aspectRatio = 13.4 / 6.1;
@@ -679,7 +683,6 @@ export default function BadmintonCourt({
               />
             )
           )}
-      )
       {isLoading && (
         <Box
           position="absolute"
@@ -702,6 +705,7 @@ export default function BadmintonCourt({
           <Spinner size="md" />
         </Box>
       )}
+      <MatchRepeatWarningButton warning={matchRepeatWarning} />
       {/* AI Analysis button - only visible when READY or IN_USE */}
       {(status === 'READY' || status === 'IN_USE') && (
         <Box

@@ -6,7 +6,10 @@ import AppEmptyState from '@/components/ui/AppEmptyState';
 import { useLevelLabel } from '@/hooks/useLevelLabel';
 import { VModal } from '@/components/ui/VModal';
 import { ROUTES, TIME_RANGES, BOTTOM_TAB_HEIGHT } from '@/constants';
-import { VIETNAM_CITIES } from '@/constants/vietnam-locations';
+import {
+  VIETNAM_CITIES,
+  normalizeCityForApi,
+} from '@/constants/vietnam-locations';
 import { RatingStatsProvider } from '@/contexts/RatingStatsContext';
 import { useRouter } from '@/i18n/config';
 import { ExtractedSessionData } from '@/lib/api/ai.service';
@@ -32,7 +35,16 @@ import {
   booleanField,
 } from '@/hooks/useUrlFilters';
 import { useViewMode } from '@/hooks/useViewMode';
-import { Badge, Box, Flex, Grid, HStack, Icon, Text } from '@chakra-ui/react';
+import {
+  Badge,
+  Box,
+  Flex,
+  Grid,
+  HStack,
+  Icon,
+  Spinner,
+  Text,
+} from '@chakra-ui/react';
 import { Search, X } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import {
@@ -65,7 +77,18 @@ import FindSessionCard from './FindSessionCard';
 import { SessionCardSkeleton } from './SessionCardSkeleton';
 import SessionSearchBar from './SessionSearchBar';
 import ResultsHeader from './ResultsHeader';
-import SessionMap from './SessionMap';
+import { useRegisterTopBarSearch } from '@/contexts/TopBarSearchContext';
+
+// Map view pulls in @react-google-maps/api (~150KB) — load it only when the
+// user switches to map mode instead of shipping it with the initial page
+const SessionMap = dynamic(() => import('./SessionMap'), {
+  ssr: false,
+  loading: () => (
+    <Flex justify="center" align="center" minH="40vh">
+      <Spinner size="xl" color="green.500" />
+    </Flex>
+  ),
+});
 
 const PAGE_SIZE = 12;
 const MAP_PAGE_SIZE = 500; // fetch all for map view
@@ -84,6 +107,7 @@ const SESSION_FILTERS_SCHEMA = {
   hasSlots: booleanField(false),
   minSlots: numberField(0),
   splitEvenly: booleanField(false),
+  sessionType: stringField('all'),
   near: booleanField(false),
   sort: stringField('date_asc'),
 };
@@ -106,6 +130,10 @@ export default function FindSessionList({
   const [sessions, setSessions] = useState<ISession[]>(initialSessions);
   const [totalCount, setTotalCount] = useState(0);
   const [loading, setLoading] = useState(initialSessions.length === 0);
+  // When the server already rendered the first page of sessions, run the
+  // first client fetch as a silent revalidation instead of swapping the
+  // (LCP) cards out for skeletons
+  const silentRevalidateRef = useRef(initialSessions.length > 0);
   const [loadingMore, setLoadingMore] = useState(false);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
@@ -137,6 +165,9 @@ export default function FindSessionList({
       hasSlots: urlFilters.hasSlots,
       minAvailableSlots: urlFilters.minSlots,
       splitEvenly: urlFilters.splitEvenly,
+      sessionType: ['regular', 'facebook'].includes(urlFilters.sessionType)
+        ? (urlFilters.sessionType as 'regular' | 'facebook')
+        : 'all',
     }),
     [urlFilters]
   );
@@ -170,6 +201,8 @@ export default function FindSessionList({
   const [selectedSessionForDetail, setSelectedSessionForDetail] =
     useState<ISession | null>(null);
   const [isJoinModalOpen, setIsJoinModalOpen] = useState(false);
+  const [isAdditionalRegistration, setIsAdditionalRegistration] =
+    useState(false);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const [isAIModalOpen, setIsAIModalOpen] = useState(false);
   const [isLoginPromptOpen, setIsLoginPromptOpen] = useState(false);
@@ -190,7 +223,7 @@ export default function FindSessionList({
   const tVenue = useTranslations('venue');
   const { getLevelShortLabel } = useLevelLabel();
   const { user } = useAuthStore();
-  const { useAiForCreation } = usePreferenceStore();
+  const { useAiForCreation, preferredCity } = usePreferenceStore();
 
   const { ref, inView } = useInView({
     threshold: 0.1,
@@ -224,7 +257,9 @@ export default function FindSessionList({
         loadingMoreRef.current = true;
         setLoadingMore(true);
       } else {
-        setLoading(true);
+        if (!silentRevalidateRef.current) {
+          setLoading(true);
+        }
         setPage(1); // Reset to first page on filter change
       }
       setError(null);
@@ -239,21 +274,27 @@ export default function FindSessionList({
       const currentPage = isLoadMore && !isMapMode ? page + 1 : 1;
 
       // Prepare filters for API
-      const apiFilters: Parameters<
-        typeof SessionService.getAvailableSessions
-      >[0] = {
+      const apiFilters: NonNullable<
+        Parameters<typeof SessionService.getAvailableSessions>[0]
+      > = {
         date: filters.date,
         searchQuery: filters.searchQuery,
         // Send City NAME(s) instead of CODE(s) — comma-separated for multi-select
         city:
           filters.cities.length > 0
             ? filters.cities
-                .map(
-                  (code) =>
-                    VIETNAM_CITIES.find((c) => c.code === code)?.name ?? code
-                )
+                .map((code) => {
+                  const name =
+                    VIETNAM_CITIES.find((c) => c.code === code)?.name ?? code;
+                  return normalizeCityForApi(name);
+                })
                 .join(',')
-            : undefined,
+            : preferredCity
+              ? normalizeCityForApi(
+                  VIETNAM_CITIES.find((c) => c.code === preferredCity)?.name ??
+                    preferredCity
+                )
+              : undefined,
         // Send cleaned District name(s) — comma-separated for multi-select
         district:
           filters.districts.length > 0
@@ -263,6 +304,7 @@ export default function FindSessionList({
         hasSlots: filters.hasSlots ? true : undefined,
         minAvailableSlots:
           filters.minAvailableSlots > 0 ? filters.minAvailableSlots : undefined,
+        sessionType: filters.sessionType as 'all' | 'regular' | 'facebook',
         page: currentPage,
         limit: effectiveLimit,
       };
@@ -386,6 +428,7 @@ export default function FindSessionList({
         loadingMoreRef.current = false;
         setLoadingMore(false);
       } else {
+        silentRevalidateRef.current = false;
         setLoading(false);
       }
     }
@@ -408,12 +451,14 @@ export default function FindSessionList({
     filters.levels,
     filters.timeRanges,
     filters.splitEvenly,
+    filters.sessionType,
     sortByDistance,
     userLocation,
     filters.searchQuery,
     sortBy,
     refreshKey,
     viewMode, // re-fetch with larger limit when switching to/from map mode
+    preferredCity,
   ]);
 
   // Trigger load more when in view
@@ -449,6 +494,7 @@ export default function FindSessionList({
       hasSlots: pendingFilters.hasSlots,
       minSlots: pendingFilters.minAvailableSlots,
       splitEvenly: pendingFilters.splitEvenly,
+      sessionType: pendingFilters.sessionType,
       near: pendingSortByDistance,
     });
     if (pendingUserLocation) {
@@ -472,6 +518,7 @@ export default function FindSessionList({
       hasSlots: false,
       minAvailableSlots: 0,
       splitEvenly: false,
+      sessionType: 'all',
     });
     setPendingSortByDistance(false);
     setPendingUserLocation(null);
@@ -496,6 +543,7 @@ export default function FindSessionList({
     (filters.minAvailableSlots > 0 ? 1 : 0) +
     (filters.minFee > 0 || filters.maxFee < 200000 ? 1 : 0) +
     (filters.splitEvenly ? 1 : 0) +
+    (filters.sessionType !== 'all' ? 1 : 0) +
     (sortByDistance ? 1 : 0);
 
   // Count of non-search filters for showing the clear-all button
@@ -508,6 +556,20 @@ export default function FindSessionList({
         router.push(ROUTES.AUTH.SIGNIN);
         return;
       }
+      setIsAdditionalRegistration(false);
+      setSelectedSession(session);
+      setIsJoinModalOpen(true);
+    },
+    [user, router]
+  );
+
+  const handleAddGuestClick = useCallback(
+    (session: ISession) => {
+      if (!user) {
+        router.push(ROUTES.AUTH.SIGNIN);
+        return;
+      }
+      setIsAdditionalRegistration(true);
       setSelectedSession(session);
       setIsJoinModalOpen(true);
     },
@@ -572,6 +634,16 @@ export default function FindSessionList({
     router.push(ROUTES.SESSIONS.NEW);
   };
 
+  // Register desktop search bar in the top bar
+  useRegisterTopBarSearch({
+    value: filters.searchQuery ?? '',
+    onChange: handleSearchQueryChange,
+    placeholder: t('searchPlaceholder'),
+    onFilterClick: toggleFilters,
+    activeFilterCount: activeFilterCount,
+    showFilter: true,
+  });
+
   return (
     <Box>
       {/* Search Bar & Main Controls */}
@@ -585,6 +657,8 @@ export default function FindSessionList({
         hideCreateOnMobile={true}
         topOffset={0}
         fixedOnMobile={true}
+        hideOnDesktop={true}
+        showCitySelector={true}
       />
 
       {/* Filter Drawer */}
@@ -644,6 +718,36 @@ export default function FindSessionList({
                   boxSize={3}
                   cursor="pointer"
                   onClick={handleClearVenueFilter}
+                  _hover={{ color: 'red.500' }}
+                />
+              </Badge>
+            )}
+
+            {/* Session type */}
+            {filters.sessionType !== 'all' && (
+              <Badge
+                colorPalette={
+                  filters.sessionType === 'facebook' ? 'blue' : 'green'
+                }
+                variant="subtle"
+                px={3}
+                py={1.5}
+                borderRadius="full"
+                display="flex"
+                alignItems="center"
+                gap={2}
+                boxShadow="sm"
+              >
+                <Text fontSize="xs" fontWeight="semibold">
+                  {filters.sessionType === 'facebook'
+                    ? t('filters.facebookSessions')
+                    : t('filters.regularSessions')}
+                </Text>
+                <Icon
+                  as={X}
+                  boxSize={3}
+                  cursor="pointer"
+                  onClick={() => setUrlFilters({ sessionType: 'all' })}
                   _hover={{ color: 'red.500' }}
                 />
               </Badge>
@@ -967,12 +1071,16 @@ export default function FindSessionList({
             }
             gap={viewMode === 'list' ? 4 : 6}
           >
-            {sortedSessions.map((session) => (
+            {sortedSessions.map((session, index) => (
               <FindSessionCard
                 key={session.id}
                 session={session}
                 variant={viewMode}
+                // Only the first card is the LCP candidate on mobile —
+                // more high-priority images just compete for bandwidth
+                imagePriority={index === 0}
                 onJoin={handleJoinClick}
+                onAddGuest={handleAddGuestClick}
                 isJoined={joinedSessionIds.has(session.id)}
                 userRegistrationStatus={
                   registrationStatusMap[session.id] || null
@@ -982,50 +1090,35 @@ export default function FindSessionList({
                 onHostClick={handleHostClick}
               />
             ))}
+
+            {/* Load-more skeletons: same grid so they fill the remaining
+                slots of a partial last row instead of starting a new one */}
+            {hasMore &&
+              Array.from({ length: 3 }).map((_, index) => (
+                <SessionCardSkeleton
+                  key={`load-more-${index}`}
+                  variant={viewMode}
+                  display={
+                    viewMode === 'list'
+                      ? {
+                          base: index < 1 ? 'flex' : 'none',
+                          sm: index < 2 ? 'flex' : 'none',
+                          md: 'flex',
+                        }
+                      : {
+                          base: index < 1 ? 'flex' : 'none',
+                          md: index < 2 ? 'flex' : 'none',
+                          lg: 'flex',
+                        }
+                  }
+                />
+              ))}
           </Grid>
 
           {/* Infinite Scroll Trigger */}
           {hasMore && (
-            <Box ref={ref} mt={8} mb={10} width="full">
-              <Grid
-                templateColumns={
-                  viewMode === 'list'
-                    ? {
-                        base: '1fr',
-                        sm: 'repeat(2, 1fr)',
-                        md: 'repeat(3, 1fr)',
-                        lg: 'repeat(4, 1fr)',
-                      }
-                    : {
-                        base: '1fr',
-                        md: 'repeat(2, 1fr)',
-                        lg: 'repeat(3, 1fr)',
-                      }
-                }
-                gap={viewMode === 'list' ? 4 : 6}
-              >
-                {/* Mobile: 1 skeleton, Tablet: 2 skeletons, Desktop: 3 skeletons */}
-                {Array.from({ length: 3 }).map((_, index) => (
-                  <SessionCardSkeleton
-                    key={index}
-                    variant={viewMode}
-                    display={
-                      viewMode === 'list'
-                        ? {
-                            base: index < 1 ? 'flex' : 'none',
-                            sm: index < 2 ? 'flex' : 'none',
-                            md: 'flex',
-                          }
-                        : {
-                            base: index < 1 ? 'flex' : 'none',
-                            md: index < 2 ? 'flex' : 'none',
-                            lg: 'flex',
-                          }
-                    }
-                  />
-                ))}
-              </Grid>
-              <Flex justify="center" mt={4}>
+            <Box ref={ref} mt={4} mb={10} width="full">
+              <Flex justify="center">
                 <Text color="gray.500" fontSize="sm">
                   {t('loadingMore') || 'Đang tải thêm...'}
                 </Text>
@@ -1046,6 +1139,7 @@ export default function FindSessionList({
               ROUTES.SESSIONS.DETAIL(selectedSession.id, selectedSession.slug)
             );
           }}
+          isAdditionalRegistration={isAdditionalRegistration}
         />
       )}
 
@@ -1063,7 +1157,10 @@ export default function FindSessionList({
         title={t('hostInfo') || 'Thông tin Host'}
         size="md"
         hideSecondaryAction={true}
-        maxBodyHeight={{ base: '60vh', md: '75vh' }}
+        maxBodyHeight={{
+          base: 'calc(100vh - 120px)',
+          md: 'calc(100vh - 112px)',
+        }}
       >
         {selectedSessionForDetail && (
           <AppHostDetail

@@ -1,25 +1,17 @@
 'use client';
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import {
-  Box,
-  Flex,
-  Heading,
-  Input,
-  Text,
-  Spinner,
-  Badge,
-} from '@chakra-ui/react';
+import { Box, Flex, Heading, Input, Text, Badge } from '@chakra-ui/react';
 import { Button, VStack } from '@/components/ui/chakra-compat';
 import {
   ChevronDown,
   Edit,
   GitBranch,
-  GripVertical,
   Layers,
   ListTree,
   RefreshCw,
   Shuffle,
+  Trash2,
   Trophy,
   Users,
   Zap,
@@ -34,12 +26,17 @@ import {
   CategoryRegistration,
   MatchStatus,
 } from '@/lib/api/types';
+import { TournamentMatchListSkeleton } from '@/components/tournament/skeletons';
 import { CategoryService } from '@/lib/api/category.service';
+import { TournamentService } from '@/lib/api/tournament.service';
 import { toaster } from '@/components/ui/toaster';
+import { VModal } from '@/components/ui/VModal';
 import SetupPoolsModal, { TSetupStep } from './SetupPoolsModal';
 import AdvancingTeamsModal from './AdvancingTeamsModal';
 import PlayoffsBracketModal from './PlayoffsBracketModal';
 import SingleEliminationBracketModal from './SingleEliminationBracketModal';
+import DoubleEliminationBracketModal from './DoubleEliminationBracketModal';
+import DoubleEliminationBracketViz from './DoubleEliminationBracketViz';
 import BracketVisualization from './BracketVisualization';
 
 interface IRoundsPanelProps {
@@ -60,7 +57,15 @@ const CATEGORY_COLORS = [
 ];
 
 const POOL_LABELS = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
-const ORDINAL_LABELS = ['1st', '2nd', '3rd', '4th', '5th', '6th', '7th', '8th'];
+
+const getOrdinalLabel = (
+  rank: number,
+  t: ReturnType<typeof useTranslations>
+): string => {
+  const oneBased = rank + 1;
+  const key = oneBased >= 1 && oneBased <= 8 ? String(oneBased) : 'other';
+  return t(`panels.rounds.ordinals.${key}`, { rank: oneBased });
+};
 
 const getParticipantName = (participant: CategoryMatchParticipant): string => {
   const reg = participant?.categoryRegistration;
@@ -83,6 +88,45 @@ const STATUS_COLOR_MAP: Record<string, string> = {
   [MatchStatus.CANCELLED]: 'red',
 };
 
+type MatchGenerationPreview = Awaited<
+  ReturnType<typeof CategoryService.getMatchGenerationPreview>
+>;
+
+const nextPowerOf2 = (n: number): number => {
+  let power = 1;
+  while (power < n) power *= 2;
+  return power;
+};
+
+const getExpectedEliminationMatchCount = (category: Category): number => {
+  const isSingleElimination =
+    category.format === CategoryFormat.SINGLE_ELIMINATION;
+  const isDoubleElimination =
+    category.format === CategoryFormat.DOUBLE_ELIMINATION;
+  const teamCount =
+    isSingleElimination || isDoubleElimination
+      ? (category._count?.registrations ?? category.registrations?.length ?? 0)
+      : (category.groupCount ?? 0) * (category.winnersPerGroup ?? 0);
+
+  if (teamCount < 2) return 0;
+
+  const bracketSize = nextPowerOf2(teamCount);
+
+  if (isDoubleElimination) {
+    // Pure double elimination: upper (n-1) + lower (n-2) + grand final (1).
+    const deConfig = (
+      category.formatConfig as Record<string, unknown> | undefined
+    )?.doubleElimination as Record<string, unknown> | undefined;
+    const hasReset = deConfig?.isTrueDoubleElimination !== false;
+    return bracketSize * 2 - 2 + (hasReset ? 1 : 0);
+  }
+
+  const mainMatches = bracketSize - 1;
+  const hasThirdPlace = category.thirdPlaceMatch && bracketSize >= 4;
+
+  return mainMatches + (hasThirdPlace ? 1 : 0);
+};
+
 export default function RoundsPanel({
   categories,
   selectedCategory,
@@ -100,6 +144,20 @@ export default function RoundsPanel({
   const [isCreatingGroups, setIsCreatingGroups] = useState(false);
   const [isAssigning, setIsAssigning] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [isGeneratingShells, setIsGeneratingShells] = useState(false);
+  const [isCompleting, setIsCompleting] = useState(false);
+  const [isGenerateConfirmOpen, setIsGenerateConfirmOpen] = useState(false);
+  const [isRegenerateConfirmOpen, setIsRegenerateConfirmOpen] = useState(false);
+  const [isGenerateGroupConfirmOpen, setIsGenerateGroupConfirmOpen] =
+    useState(false);
+  const [
+    isGenerateEliminationConfirmOpen,
+    setIsGenerateEliminationConfirmOpen,
+  ] = useState(false);
+  const [generationPreview, setGenerationPreview] =
+    useState<MatchGenerationPreview | null>(null);
+  const [isDeleteAllMatchesOpen, setIsDeleteAllMatchesOpen] = useState(false);
+  const [isDeletingAllMatches, setIsDeletingAllMatches] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [groupCountInput, setGroupCountInput] = useState<number>(2);
 
@@ -124,6 +182,8 @@ export default function RoundsPanel({
   const isRoundRobin = activeCategory?.format === CategoryFormat.ROUND_ROBIN;
   const isSingleElimination =
     activeCategory?.format === CategoryFormat.SINGLE_ELIMINATION;
+  const isDoubleElimination =
+    activeCategory?.format === CategoryFormat.DOUBLE_ELIMINATION;
   const isPoolFormat = isRRSE || isRoundRobin;
 
   // SE bracket modal state
@@ -160,8 +220,10 @@ export default function RoundsPanel({
         grouped[gId].push(match);
       }
       setMatchesByGroup(grouped);
+      return { groupsData, matchesData, regsData };
     } catch (error) {
       console.error('Error loading groups and matches:', error);
+      return null;
     } finally {
       setLoading(false);
     }
@@ -176,13 +238,18 @@ export default function RoundsPanel({
 
   const handleRefreshCategory = async () => {
     if (!activeCategory) return;
+    let updated: Category | null = null;
     try {
-      const updated = await CategoryService.getCategory(activeCategory.id);
+      updated = await CategoryService.getCategory(activeCategory.id);
       setLocalCategory(updated);
     } catch {
       // ignore
     }
-    await loadGroupsAndMatches(activeCategory.id);
+    const loaded = await loadGroupsAndMatches(activeCategory.id);
+    return {
+      category: updated ?? activeCategory,
+      matches: loaded?.matchesData,
+    };
   };
 
   // ─── Flat layout handlers (ROUND_ROBIN) ──────────────────────────────────
@@ -208,7 +275,9 @@ export default function RoundsPanel({
       await loadGroupsAndMatches(activeCategory.id);
     } catch (error: unknown) {
       const message =
-        error instanceof Error ? error.message : 'Failed to create groups';
+        error instanceof Error
+          ? error.message
+          : t('panels.rounds.createGroupsFailed');
       toaster.error({ title: message });
     } finally {
       setIsCreatingGroups(false);
@@ -226,10 +295,35 @@ export default function RoundsPanel({
       await loadGroupsAndMatches(activeCategory.id);
     } catch (error: unknown) {
       const message =
-        error instanceof Error ? error.message : 'Failed to assign teams';
+        error instanceof Error
+          ? error.message
+          : t('panels.rounds.assignTeamsFailed');
       toaster.error({ title: message });
     } finally {
       setIsAssigning(false);
+    }
+  };
+
+  const runGenerateAllMatches = async (
+    forceReplaceScheduledMatches = false
+  ) => {
+    if (!activeCategory) return;
+    try {
+      setIsGenerating(true);
+      await CategoryService.generateAllGroupMatches(activeCategory.id, {
+        forceReplaceScheduledMatches,
+      });
+      setIsRegenerateConfirmOpen(false);
+      setGenerationPreview(null);
+      await loadGroupsAndMatches(activeCategory.id);
+    } catch (error: unknown) {
+      const message =
+        error instanceof Error
+          ? error.message
+          : t('panels.rounds.generateMatchesFailed');
+      toaster.error({ title: message });
+    } finally {
+      setIsGenerating(false);
     }
   };
 
@@ -237,14 +331,148 @@ export default function RoundsPanel({
     if (!activeCategory) return;
     try {
       setIsGenerating(true);
-      await CategoryService.generateAllGroupMatches(activeCategory.id);
-      await loadGroupsAndMatches(activeCategory.id);
+      const preview = await CategoryService.getMatchGenerationPreview(
+        activeCategory.id
+      );
+      setGenerationPreview(preview);
+      if (!preview.canGenerate) {
+        toaster.error({
+          title: t('panels.rounds.cannotRegenerateStartedTitle'),
+          description: t('panels.rounds.cannotRegenerateStartedDesc'),
+        });
+        return;
+      }
+      if (preview.requiresForceReplaceScheduledMatches) {
+        // Stronger, specific confirm (losing court/time assignments).
+        setIsRegenerateConfirmOpen(true);
+        return;
+      }
+      // Plain case: ask for a simple confirmation before generating.
+      setIsGenerateGroupConfirmOpen(true);
     } catch (error: unknown) {
       const message =
-        error instanceof Error ? error.message : 'Failed to generate matches';
+        error instanceof Error
+          ? error.message
+          : t('panels.rounds.generateMatchesFailed');
       toaster.error({ title: message });
     } finally {
       setIsGenerating(false);
+    }
+  };
+
+  const handleGenerateEliminationShells = async () => {
+    if (!activeCategory) return;
+    try {
+      setIsGeneratingShells(true);
+      await CategoryService.generateEliminationShells(activeCategory.id, {
+        showToast: false,
+      });
+      await loadGroupsAndMatches(activeCategory.id);
+      toaster.success({
+        title: t('panels.rounds.eliminationGamesGenerated'),
+      });
+    } catch (error: unknown) {
+      const apiError = error as {
+        response?: { data?: { code?: string; message?: string | string[] } };
+      };
+      const code = apiError?.response?.data?.code;
+      if (code === 'HAS_SCORED_ELIMINATION') {
+        toaster.error({ title: t('panels.rounds.eliminationHasScores') });
+        return;
+      }
+      const raw = apiError?.response?.data?.message;
+      const message = Array.isArray(raw)
+        ? raw.join(', ')
+        : raw ||
+          (error instanceof Error
+            ? error.message
+            : t('panels.rounds.generateEliminationFailed'));
+      toaster.error({
+        title: t('panels.rounds.generateEliminationFailed'),
+        description: message,
+      });
+    } finally {
+      setIsGeneratingShells(false);
+    }
+  };
+
+  const handleDeleteAllMatches = async () => {
+    if (!activeCategory?.tournamentId) return;
+    try {
+      setIsDeletingAllMatches(true);
+      const result = await TournamentService.deleteAllMatches(
+        activeCategory.tournamentId
+      );
+      toaster.success({
+        title: t('panels.rounds.deleteAllMatchesSuccess', {
+          count: result.deletedCount,
+        }),
+      });
+      setIsDeleteAllMatchesOpen(false);
+      await loadGroupsAndMatches(activeCategory.id);
+    } catch (error: unknown) {
+      const message =
+        error instanceof Error
+          ? error.message
+          : t('panels.rounds.deleteAllMatchesError');
+      toaster.error({ title: message });
+    } finally {
+      setIsDeletingAllMatches(false);
+    }
+  };
+
+  const handleGenerateBracket = async () => {
+    if (!activeCategory) return;
+    try {
+      setIsCompleting(true);
+      await CategoryService.completeGroupStage(activeCategory.id, {
+        showToast: false,
+      });
+      setIsGenerateConfirmOpen(false);
+      const refreshed = await handleRefreshCategory();
+      const refreshedCategory = refreshed?.category ?? activeCategory;
+      const generatedMatches =
+        refreshed?.matches?.filter(
+          (match) => !match.groupId && match.round !== 'GROUP'
+        ) ?? [];
+      const expectedMatches =
+        getExpectedEliminationMatchCount(refreshedCategory);
+
+      if (
+        expectedMatches > 0 &&
+        generatedMatches.length > 0 &&
+        generatedMatches.length < expectedMatches
+      ) {
+        toaster.info({
+          title: t('panels.rounds.bracketGeneratedIncompleteTitle'),
+          description: t(
+            'panels.rounds.bracketGeneratedIncompleteDescription',
+            {
+              actual: generatedMatches.length,
+              expected: expectedMatches,
+            }
+          ),
+        });
+      } else {
+        toaster.success({ title: t('panels.rounds.bracketGenerated') });
+      }
+    } catch (error: unknown) {
+      const apiError = error as {
+        response?: { data?: { message?: string | string[] } };
+      };
+      const raw = apiError?.response?.data?.message;
+      const message = Array.isArray(raw)
+        ? raw.join(', ')
+        : raw ||
+          (error instanceof Error
+            ? error.message
+            : t('panels.rounds.generateBracketFailed'));
+      toaster.error({
+        title: t('panels.rounds.generateBracketFailed'),
+        description: message,
+      });
+    } finally {
+      setIsCompleting(false);
     }
   };
 
@@ -253,6 +481,10 @@ export default function RoundsPanel({
   const totalMatches = Object.values(matchesByGroup).reduce(
     (sum, matches) => sum + matches.length,
     0
+  );
+  const tournamentMatchCount = Math.max(
+    totalMatches,
+    categories.reduce((sum, cat) => sum + (cat._count?.matches ?? 0), 0)
   );
   const allGroupsHaveMatches =
     groups.length > 0 &&
@@ -276,21 +508,173 @@ export default function RoundsPanel({
     const ungrouped = matchesByGroup['_ungrouped'] ?? [];
     return ungrouped.filter((m) => m.round !== 'GROUP');
   }, [matchesByGroup]);
+  // The bracket preview is renderable as soon as the advancing config yields at
+  // least two playoff slots — it only needs winnersPerGroup × groupCount. Gating
+  // solely on created elimination matches (which require the group stage to be
+  // finished first) hid the diagram after saving a default playoffs config.
   const isPlayoffsConfigured =
-    eliminationMatches.length > 0 || activeCategory?.thirdPlaceMatch;
+    eliminationMatches.length > 0 ||
+    Boolean(activeCategory?.thirdPlaceMatch) ||
+    winnersPerGroup * groupCount >= 2;
+  const hasEliminationMatches = eliminationMatches.length > 0;
+  // "Filled" = advancing teams have actually been seeded into the shells.
+  // Empty shells (created ahead of time so they can be scheduled) are NOT
+  // filled, so finalizing them is a first-time "Chốt đội đi tiếp", not a
+  // "Chốt lại" — this keeps the label consistent with the schedule page.
+  const bracketFilled = eliminationMatches.some(
+    (match) => (match.participants?.length ?? 0) > 0
+  );
+  const finishedEliminationMatches = eliminationMatches.filter(
+    (match) => match.status === MatchStatus.FINISHED
+  ).length;
+  // A first-round BYE is auto-finished with score 'BYE'; that's a seeding
+  // artefact, not a played result, so it must not count as "scored" (otherwise
+  // a freshly-seeded bracket with byes would wrongly look locked).
+  const isPlayedResult = (match: CategoryMatch) =>
+    (Boolean(match.score) && match.score !== 'BYE') ||
+    (match.sets?.length ?? 0) > 0;
+  const scoredEliminationMatches = eliminationMatches.filter(
+    (match) =>
+      (match.status === MatchStatus.FINISHED && match.score !== 'BYE') ||
+      isPlayedResult(match)
+  ).length;
+  // Mirrors the backend's HAS_SCORED_ELIMINATION guard in
+  // regenerateEliminationShells: blocks on IN_PROGRESS (a match started at 0-0
+  // must still block) or a real played result — but not on auto-BYE matches.
+  const touchedEliminationMatches = eliminationMatches.filter(
+    (match) => match.status === MatchStatus.IN_PROGRESS || isPlayedResult(match)
+  ).length;
+
+  // Group-stage completion progress (used to gate bracket generation)
+  const groupStageMatches = useMemo(
+    () =>
+      Object.values(matchesByGroup)
+        .flat()
+        .filter((m) => m.round === 'GROUP'),
+    [matchesByGroup]
+  );
+  const finishedGroupMatches = groupStageMatches.filter(
+    (m) => m.status === MatchStatus.FINISHED
+  ).length;
+  const totalGroupMatches = groupStageMatches.length;
+  const allGroupMatchesFinished =
+    totalGroupMatches > 0 && finishedGroupMatches === totalGroupMatches;
+
+  const roundsActions = (
+    <Flex justify="flex-end" gap={2} flexWrap="wrap">
+      <Button
+        size="sm"
+        variant="ghost"
+        colorPalette="red"
+        borderRadius="lg"
+        leftIcon={<Trash2 size={14} />}
+        disabled={tournamentMatchCount === 0 || isDeletingAllMatches}
+        onClick={() => setIsDeleteAllMatchesOpen(true)}
+      >
+        {t('panels.rounds.deleteAllMatches')}
+      </Button>
+    </Flex>
+  );
+
+  const roundsModals = (
+    <>
+      <VModal
+        isOpen={isGenerateGroupConfirmOpen}
+        onClose={() => setIsGenerateGroupConfirmOpen(false)}
+        title={t('panels.rounds.confirmGenerateGroupTitle')}
+        size="sm"
+        primaryActionText={t('panels.rounds.confirmGenerateAction')}
+        onPrimaryAction={() => {
+          setIsGenerateGroupConfirmOpen(false);
+          void runGenerateAllMatches(false);
+        }}
+        isPrimaryLoading={isGenerating}
+        isSecondaryDisabled={isGenerating}
+      >
+        <Text fontSize="sm" color="gray.700" _dark={{ color: 'gray.200' }}>
+          {totalGroupMatches > 0
+            ? t('panels.rounds.confirmRegenerateGroupDesc')
+            : t('panels.rounds.confirmGenerateGroupDesc')}
+        </Text>
+      </VModal>
+
+      <VModal
+        isOpen={isGenerateEliminationConfirmOpen}
+        onClose={() => setIsGenerateEliminationConfirmOpen(false)}
+        title={t('panels.rounds.confirmGenerateEliminationTitle')}
+        size="sm"
+        primaryActionText={t('panels.rounds.confirmGenerateAction')}
+        onPrimaryAction={() => {
+          setIsGenerateEliminationConfirmOpen(false);
+          void handleGenerateEliminationShells();
+        }}
+        isPrimaryLoading={isGeneratingShells}
+        isSecondaryDisabled={isGeneratingShells}
+      >
+        <Text fontSize="sm" color="gray.700" _dark={{ color: 'gray.200' }}>
+          {hasEliminationMatches
+            ? t('panels.rounds.confirmRegenerateEliminationDesc')
+            : t('panels.rounds.confirmGenerateEliminationDesc')}
+        </Text>
+      </VModal>
+
+      <VModal
+        isOpen={isRegenerateConfirmOpen}
+        onClose={() => {
+          setIsRegenerateConfirmOpen(false);
+          setGenerationPreview(null);
+        }}
+        title={t('panels.rounds.replaceScheduledConfirmTitle')}
+        size="sm"
+        primaryActionText={t('panels.rounds.replaceScheduledConfirmAction')}
+        primaryColorScheme="red"
+        onPrimaryAction={() => runGenerateAllMatches(true)}
+        isPrimaryLoading={isGenerating}
+        isSecondaryDisabled={isGenerating}
+      >
+        <Text fontSize="sm" color="gray.700" _dark={{ color: 'gray.200' }}>
+          {t('panels.rounds.replaceScheduledConfirmDesc', {
+            count: generationPreview?.scheduledAssignedMatches ?? 0,
+          })}
+        </Text>
+      </VModal>
+
+      <VModal
+        isOpen={isDeleteAllMatchesOpen}
+        onClose={() => setIsDeleteAllMatchesOpen(false)}
+        title={t('panels.rounds.deleteAllMatchesConfirmTitle')}
+        size="sm"
+        primaryActionText={t('panels.rounds.deleteAllMatchesConfirmAction')}
+        primaryColorScheme="red"
+        onPrimaryAction={handleDeleteAllMatches}
+        isPrimaryLoading={isDeletingAllMatches}
+        isSecondaryDisabled={isDeletingAllMatches}
+      >
+        <Text fontSize="sm" color="gray.700" _dark={{ color: 'gray.200' }}>
+          {t('panels.rounds.deleteAllMatchesConfirmDesc', {
+            count: tournamentMatchCount,
+          })}
+        </Text>
+      </VModal>
+    </>
+  );
 
   const advancingSlots = useMemo(() => {
     if (!isAdvancingConfigured || groupCount <= 0) return [];
     const slots: string[] = [];
     for (let rank = 0; rank < winnersPerGroup; rank++) {
       for (let g = 0; g < groupCount; g++) {
-        const ordinal = ORDINAL_LABELS[rank] ?? `${rank + 1}th`;
         const poolLabel = POOL_LABELS[g] ?? String(g + 1);
-        slots.push(`${ordinal} Pool ${poolLabel}`);
+        slots.push(
+          t('panels.rounds.nthPoolLabel', {
+            rank: getOrdinalLabel(rank, t),
+            pool: poolLabel,
+          })
+        );
       }
     }
     return slots;
-  }, [isAdvancingConfigured, groupCount, winnersPerGroup]);
+  }, [isAdvancingConfigured, groupCount, winnersPerGroup, t]);
 
   // ─── Category selector (shared) ────────────────────────────────────────────
 
@@ -314,7 +698,8 @@ export default function RoundsPanel({
             py={1.5}
             borderRadius="full"
             bg="gray.100"
-            _hover={{ bg: 'gray.200' }}
+            _hover={{ bg: 'gray.200', _dark: { bg: 'gray.700' } }}
+            _dark={{ bg: 'gray.800' }}
             cursor="pointer"
             fontSize="sm"
             fontWeight="medium"
@@ -360,6 +745,7 @@ export default function RoundsPanel({
                 py={1}
                 border="1px solid"
                 borderColor="gray.100"
+                _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
               >
                 {categories.map((cat, idx) => (
                   <Flex
@@ -371,7 +757,7 @@ export default function RoundsPanel({
                     py={2.5}
                     w="full"
                     fontSize="sm"
-                    _hover={{ bg: 'gray.50' }}
+                    _hover={{ bg: 'gray.50', _dark: { bg: 'gray.700' } }}
                     onClick={() => {
                       onSelectCategory(cat);
                       setIsDropdownOpen(false);
@@ -395,14 +781,12 @@ export default function RoundsPanel({
         {activeCategory && (
           <Badge
             variant="subtle"
-            colorPalette="blue"
+            colorPalette="gray"
             px={3}
             py={1}
             borderRadius="md"
             fontSize="xs"
-            fontWeight="bold"
-            textTransform="uppercase"
-            letterSpacing="wider"
+            fontWeight="medium"
           >
             {formatName}
           </Badge>
@@ -411,9 +795,9 @@ export default function RoundsPanel({
     );
   };
 
-  // ─── Single Elimination Stepper Layout ─────────────────────────────────────
+  // ─── Single / Double Elimination Stepper Layout ────────────────────────────
 
-  if (isSingleElimination) {
+  if (isSingleElimination || isDoubleElimination) {
     const hasBracketMatches = eliminationMatches.length > 0;
 
     return (
@@ -425,9 +809,7 @@ export default function RoundsPanel({
         <CategorySelector />
 
         {loading ? (
-          <Flex justify="center" py={8}>
-            <Spinner />
-          </Flex>
+          <TournamentMatchListSkeleton count={4} />
         ) : (
           <Box position="relative" pl={6}>
             <VStack gap={8} align="stretch">
@@ -437,8 +819,8 @@ export default function RoundsPanel({
                 subtitle={t('panels.rounds.bracketSubtitle')}
                 color="green"
               >
-                {hasBracketMatches ? (
-                  <VStack gap={3} align="stretch">
+                <VStack gap={3} align="stretch">
+                  {hasBracketMatches && (
                     <Box
                       bg="white"
                       borderRadius="xl"
@@ -446,50 +828,100 @@ export default function RoundsPanel({
                       borderColor="gray.200"
                       overflow="hidden"
                       p={3}
+                      _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
                     >
-                      <BracketVisualization
-                        teamCount={totalRegistrations}
-                        groupCount={1}
-                        winnersPerGroup={totalRegistrations}
-                        thirdPlaceMatch={
-                          activeCategory?.thirdPlaceMatch ?? false
-                        }
-                        compact
-                      />
+                      {isDoubleElimination ? (
+                        <DoubleEliminationBracketViz
+                          teamCount={totalRegistrations}
+                          isTrueDoubleElimination={
+                            (
+                              activeCategory?.formatConfig as
+                                | Record<string, unknown>
+                                | undefined
+                            )?.doubleElimination
+                              ? ((
+                                  (
+                                    activeCategory?.formatConfig as Record<
+                                      string,
+                                      unknown
+                                    >
+                                  ).doubleElimination as Record<string, unknown>
+                                ).isTrueDoubleElimination as boolean) !== false
+                              : true
+                          }
+                          compact
+                        />
+                      ) : (
+                        <BracketVisualization
+                          teamCount={totalRegistrations}
+                          groupCount={1}
+                          winnersPerGroup={totalRegistrations}
+                          thirdPlaceMatch={
+                            activeCategory?.thirdPlaceMatch ?? false
+                          }
+                          compact
+                        />
+                      )}
                     </Box>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      leftIcon={<Edit size={14} />}
-                      onClick={() => setIsSEBracketModalOpen(true)}
-                    >
-                      {t('panels.rounds.setupBracket')}
-                    </Button>
-                  </VStack>
-                ) : (
+                  )}
                   <Button
                     size="sm"
-                    w="full"
-                    style={{ background: '#1a202c', color: 'white' }}
+                    variant={hasBracketMatches ? 'outline' : 'solid'}
+                    leftIcon={
+                      hasBracketMatches ? <Edit size={14} /> : undefined
+                    }
+                    style={
+                      hasBracketMatches
+                        ? undefined
+                        : { background: '#1a202c', color: 'white' }
+                    }
                     onClick={() => setIsSEBracketModalOpen(true)}
                   >
                     {t('panels.rounds.setupBracket')}
                   </Button>
-                )}
+                  <GenerateBracketSection
+                    hasBracket={hasBracketMatches}
+                    canGenerate={totalRegistrations >= 2}
+                    isLoading={isCompleting}
+                    onClick={() => setIsGenerateConfirmOpen(true)}
+                  />
+                </VStack>
               </StepperSection>
             </VStack>
           </Box>
         )}
 
         {activeCategory && (
-          <SingleEliminationBracketModal
-            isOpen={isSEBracketModalOpen}
-            onClose={() => setIsSEBracketModalOpen(false)}
-            category={activeCategory}
-            registrations={registrations}
-            onSaved={handleRefreshCategory}
-          />
+          <>
+            {isDoubleElimination ? (
+              <DoubleEliminationBracketModal
+                isOpen={isSEBracketModalOpen}
+                onClose={() => setIsSEBracketModalOpen(false)}
+                category={activeCategory}
+                registrations={registrations}
+                onSaved={handleRefreshCategory}
+              />
+            ) : (
+              <SingleEliminationBracketModal
+                isOpen={isSEBracketModalOpen}
+                onClose={() => setIsSEBracketModalOpen(false)}
+                category={activeCategory}
+                registrations={registrations}
+                onSaved={handleRefreshCategory}
+              />
+            )}
+            <GenerateBracketConfirmModal
+              isOpen={isGenerateConfirmOpen}
+              onClose={() => setIsGenerateConfirmOpen(false)}
+              onConfirm={handleGenerateBracket}
+              isLoading={isCompleting}
+              hasBracket={hasEliminationMatches}
+            />
+            {roundsModals}
+          </>
         )}
+
+        {roundsActions}
       </VStack>
     );
   }
@@ -507,274 +939,495 @@ export default function RoundsPanel({
         <CategorySelector />
 
         {loading ? (
-          <Flex justify="center" py={8}>
-            <Spinner />
-          </Flex>
+          <TournamentMatchListSkeleton count={4} />
         ) : (
-          <Box position="relative" pl={6}>
-            {/* Vertical connector line */}
-            {isRRSE && (
-              <Box
-                position="absolute"
-                left="22px"
-                top="28px"
-                bottom="28px"
-                w="2px"
-                bg="gray.200"
-              />
-            )}
+          <>
+            {isRRSE &&
+              allGroupMatchesFinished &&
+              isAdvancingConfigured &&
+              !hasEliminationMatches && (
+                <BracketReadyBanner
+                  finishedGroupMatches={finishedGroupMatches}
+                  totalGroupMatches={totalGroupMatches}
+                  categoryName={activeCategory.name}
+                  hasBracket={hasEliminationMatches}
+                  playoffMatchCount={eliminationMatches.length}
+                  scoredPlayoffMatchCount={scoredEliminationMatches}
+                  isLoading={isCompleting}
+                  onClick={() => setIsGenerateConfirmOpen(true)}
+                />
+              )}
 
-            <VStack gap={8} align="stretch">
-              {/* ── Phase 1: Pool Play ── */}
-              <StepperSection
-                icon={RefreshCw}
-                title={t('panels.rounds.poolPlay')}
-                subtitle={t('panels.rounds.poolPlaySubtitle')}
-              >
-                {isPoolsConfigured ? (
-                  <VStack gap={3} align="stretch">
-                    {/* Pool summary — side-by-side grids */}
-                    <Flex gap={3} flexWrap="wrap">
-                      {groups.map((group, idx) => {
-                        const groupRegs = group.registrations ?? [];
-                        const poolLabel =
-                          group.name ??
-                          `Pool ${POOL_LABELS[idx] ?? String(idx + 1)}`;
-                        return (
+            <Box position="relative" pl={6}>
+              {/* Vertical connector line */}
+              {isRRSE && (
+                <Box
+                  position="absolute"
+                  left="22px"
+                  top="28px"
+                  bottom="28px"
+                  w="2px"
+                  bg="gray.200"
+                  _dark={{ bg: 'gray.700' }}
+                />
+              )}
+
+              <VStack gap={8} align="stretch">
+                {/* ── Phase 1: Pool Play ── */}
+                <StepperSection
+                  icon={RefreshCw}
+                  title={t('panels.rounds.poolPlay')}
+                  subtitle={t('panels.rounds.poolPlaySubtitle')}
+                >
+                  {isPoolsConfigured ? (
+                    <VStack gap={2.5} align="stretch">
+                      {/* Pool summary — side-by-side grids */}
+                      <Flex gap={3} flexWrap="wrap">
+                        {groups.map((group, idx) => {
+                          const groupRegs = group.registrations ?? [];
+                          const groupMatchCount =
+                            matchesByGroup[group.id]?.length ?? 0;
+                          // Format group name: if name is just a letter (A, B, C...), prepend with translated "Bảng"
+                          const poolLabel = group.name
+                            ? group.name.length === 1 ||
+                              /^[A-Z]$/.test(group.name)
+                              ? `${t('panels.rounds.poolLabel')} ${group.name}`
+                              : group.name
+                            : `${t('panels.rounds.poolLabel')} ${
+                                POOL_LABELS[idx] ?? String(idx + 1)
+                              }`;
+                          return (
+                            <Box
+                              key={group.id}
+                              bg="white"
+                              borderRadius="xl"
+                              borderWidth="1.5px"
+                              borderColor="yellow.200"
+                              overflow="hidden"
+                              flex="1 1 180px"
+                              maxW="280px"
+                              _dark={{
+                                bg: 'gray.800',
+                                borderColor: 'gray.700',
+                              }}
+                            >
+                              <Flex
+                                px={3}
+                                py={2}
+                                align="center"
+                                justify="space-between"
+                                gap={2}
+                                borderBottomWidth="1px"
+                                borderColor="gray.100"
+                                _dark={{ borderColor: 'gray.700' }}
+                              >
+                                <Text fontWeight="semibold" fontSize="sm">
+                                  {poolLabel}
+                                </Text>
+                                {groupMatchCount > 0 && (
+                                  <Badge
+                                    colorPalette="green"
+                                    variant="subtle"
+                                    fontSize="2xs"
+                                  >
+                                    {t('panels.rounds.matchCount', {
+                                      count: groupMatchCount,
+                                    })}
+                                  </Badge>
+                                )}
+                              </Flex>
+                              <VStack gap={0} align="stretch">
+                                {groupRegs.length > 0
+                                  ? groupRegs.map((gr) => {
+                                      const reg = gr.categoryRegistration;
+                                      const name = reg?.player
+                                        ? reg.player.name
+                                        : reg?.pair
+                                          ? (reg.pair.name ??
+                                            reg.pair.members
+                                              ?.map((m) => m.player?.name)
+                                              .join(' & ') ??
+                                            '?')
+                                          : '?';
+                                      return (
+                                        <Flex
+                                          key={gr.id}
+                                          px={3}
+                                          py={2}
+                                          align="center"
+                                          borderBottomWidth="1px"
+                                          borderColor="gray.50"
+                                          _last={{ borderBottomWidth: '0' }}
+                                          _dark={{ borderColor: 'gray.700' }}
+                                        >
+                                          <Text fontSize="xs">{name}</Text>
+                                        </Flex>
+                                      );
+                                    })
+                                  : Array.from({
+                                      length: group._count?.registrations ?? 0,
+                                    }).map((_, i) => (
+                                      <Flex
+                                        key={i}
+                                        px={3}
+                                        py={2}
+                                        borderBottomWidth="1px"
+                                        borderColor="gray.50"
+                                        _last={{ borderBottomWidth: '0' }}
+                                        _dark={{ borderColor: 'gray.700' }}
+                                      >
+                                        <Text
+                                          fontSize="xs"
+                                          color="gray.400"
+                                          _dark={{ color: 'gray.500' }}
+                                        >
+                                          {t('panels.rounds.teamLabel')} {i + 1}
+                                        </Text>
+                                      </Flex>
+                                    ))}
+                              </VStack>
+                            </Box>
+                          );
+                        })}
+                      </Flex>
+
+                      {/* Group-stage status — always visible so the host can
+                          tell at a glance whether matches were generated and
+                          how many, instead of only showing a count once > 0. */}
+                      {totalGroupMatches > 0 ? (
+                        <Badge
+                          alignSelf="flex-start"
+                          colorPalette={
+                            allGroupMatchesFinished ? 'green' : 'gray'
+                          }
+                          variant="outline"
+                          borderRadius="md"
+                          px={2}
+                          py={0.5}
+                          fontSize="xs"
+                          fontWeight="medium"
+                        >
+                          {t('panels.rounds.groupMatchesStatus', {
+                            total: totalGroupMatches,
+                            finished: finishedGroupMatches,
+                          })}
+                        </Badge>
+                      ) : (
+                        <Badge
+                          alignSelf="flex-start"
+                          colorPalette="gray"
+                          variant="outline"
+                          borderRadius="md"
+                          px={2}
+                          py={0.5}
+                          fontSize="xs"
+                          fontWeight="medium"
+                          color="fg.muted"
+                        >
+                          {t('panels.rounds.groupMatchesNotGenerated')}
+                        </Badge>
+                      )}
+
+                      {/* Edit buttons */}
+                      <Flex gap={2} flexWrap="wrap">
+                        <Button
+                          size="sm"
+                          variant="subtle"
+                          colorPalette="gray"
+                          borderRadius="lg"
+                          flex="1"
+                          leftIcon={<Edit size={14} />}
+                          onClick={() => {
+                            setPoolsModalInitialStep('configure');
+                            setIsPoolsModalOpen(true);
+                          }}
+                        >
+                          {t('panels.rounds.editPools')}
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="subtle"
+                          colorPalette="gray"
+                          borderRadius="lg"
+                          flex="1"
+                          leftIcon={<Edit size={14} />}
+                          onClick={() => {
+                            setPoolsModalInitialStep('matches');
+                            setIsPoolsModalOpen(true);
+                          }}
+                        >
+                          {t('panels.rounds.editMatches')}
+                        </Button>
+                      </Flex>
+
+                      {/* Explicit generate — mirrors "Phát sinh trận vòng loại"
+                          in the playoff section, so both stages follow the same
+                          Configure → Generate model instead of the pool matches
+                          being generated implicitly on modal save. */}
+                      <Button
+                        size="sm"
+                        w="full"
+                        borderRadius="lg"
+                        colorPalette={totalGroupMatches > 0 ? 'gray' : 'blue'}
+                        variant={totalGroupMatches > 0 ? 'subtle' : 'solid'}
+                        leftIcon={<RefreshCw size={14} />}
+                        loading={isGenerating}
+                        disabled={isGenerating || !hasTeamsInGroups}
+                        onClick={handleGenerateAllMatches}
+                      >
+                        {totalGroupMatches > 0
+                          ? t('panels.rounds.regenerateGroupGames')
+                          : t('panels.rounds.generateGroupGames')}
+                      </Button>
+
+                      {/* Chốt đội đi tiếp: fills the playoff bracket with the
+                          advancing teams once the group stage is done. Lives
+                          here (not under Playoffs) since it's the natural next
+                          step right after group matches finish. Only shown once
+                          group matches exist, so a fresh category isn't cluttered
+                          with a disabled finalize button. */}
+                      {isRRSE &&
+                        (totalGroupMatches > 0 || hasEliminationMatches) && (
+                          <GenerateBracketSection
+                            variant="finalize"
+                            hasBracket={bracketFilled}
+                            canGenerate={
+                              allGroupMatchesFinished &&
+                              scoredEliminationMatches === 0
+                            }
+                            scoredMatches={scoredEliminationMatches}
+                            isLoading={isCompleting}
+                            onClick={() => setIsGenerateConfirmOpen(true)}
+                          />
+                        )}
+                    </VStack>
+                  ) : (
+                    <Button
+                      size="sm"
+                      w="full"
+                      style={{ background: '#1a202c', color: 'white' }}
+                      onClick={() => {
+                        setPoolsModalInitialStep('configure');
+                        setIsPoolsModalOpen(true);
+                      }}
+                    >
+                      {t('panels.rounds.setupPools')}
+                    </Button>
+                  )}
+                </StepperSection>
+
+                {/* ── Phase 2: Advancing Teams (RRSE only) ── */}
+                {isRRSE && (
+                  <StepperSection
+                    icon={Users}
+                    title={t('panels.rounds.advancingTeams')}
+                    subtitle={t('panels.rounds.advancingTeamsSubtitle')}
+                  >
+                    {isAdvancingConfigured ? (
+                      <VStack gap={3} align="stretch">
+                        <Box
+                          bg="white"
+                          borderRadius="xl"
+                          borderWidth="1.5px"
+                          borderColor="yellow.200"
+                          overflow="hidden"
+                          _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
+                        >
                           <Box
-                            key={group.id}
+                            px={4}
+                            py={3}
+                            borderBottomWidth="1px"
+                            borderColor="gray.100"
+                            _dark={{ borderColor: 'gray.700' }}
+                          >
+                            <Text fontWeight="semibold" fontSize="sm">
+                              {t('panels.rounds.playoffs')}
+                            </Text>
+                          </Box>
+                          <VStack gap={0} align="stretch">
+                            {advancingSlots.map((slot, idx) => (
+                              <Flex
+                                key={idx}
+                                px={4}
+                                py={2}
+                                align="center"
+                                gap={2}
+                                borderBottomWidth={
+                                  idx < advancingSlots.length - 1 ? '1px' : '0'
+                                }
+                                borderColor="gray.50"
+                                _dark={{ borderColor: 'gray.700' }}
+                              >
+                                <Users size={14} color="#A0AEC0" />
+                                <Text fontSize="xs">{slot}</Text>
+                              </Flex>
+                            ))}
+                          </VStack>
+                        </Box>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          leftIcon={<Edit size={14} />}
+                          onClick={() => setIsAdvancingModalOpen(true)}
+                        >
+                          {t('panels.rounds.editAdvancingTeams')}
+                        </Button>
+                      </VStack>
+                    ) : (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        w="full"
+                        onClick={() => setIsAdvancingModalOpen(true)}
+                      >
+                        {t('panels.rounds.addAdvancingTeams')}
+                      </Button>
+                    )}
+                  </StepperSection>
+                )}
+
+                {/* ── Phase 3: Playoffs (RRSE only) ── */}
+                {isRRSE && (
+                  <StepperSection
+                    icon={ListTree}
+                    title={t('panels.rounds.playoffs')}
+                    subtitle={t('panels.rounds.playoffsSubtitle')}
+                  >
+                    <VStack gap={3} align="stretch">
+                      {isPlayoffsConfigured ? (
+                        <>
+                          {/* Bracket thumbnail. When no shells exist yet this is
+                              only a preview of the shape derived from the
+                              advancing-teams config, so dim it and label it as
+                              such — otherwise it's indistinguishable from real
+                              generated matches. */}
+                          <Box
+                            position="relative"
                             bg="white"
                             borderRadius="xl"
                             borderWidth="1.5px"
                             borderColor="yellow.200"
                             overflow="hidden"
-                            flex="1 1 180px"
-                            maxW="280px"
+                            p={3}
+                            _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
                           >
-                            <Box
-                              px={3}
-                              py={2}
-                              borderBottomWidth="1px"
-                              borderColor="gray.100"
-                            >
-                              <Text fontWeight="semibold" fontSize="sm">
-                                {poolLabel}
-                              </Text>
+                            <Box opacity={hasEliminationMatches ? 1 : 0.5}>
+                              <BracketVisualization
+                                teamCount={winnersPerGroup * groupCount}
+                                groupCount={groupCount}
+                                winnersPerGroup={winnersPerGroup || 2}
+                                thirdPlaceMatch={
+                                  activeCategory?.thirdPlaceMatch ?? false
+                                }
+                                compact
+                              />
                             </Box>
-                            <VStack gap={0} align="stretch">
-                              {groupRegs.length > 0
-                                ? groupRegs.map((gr) => {
-                                    const reg = gr.categoryRegistration;
-                                    const name = reg?.player
-                                      ? reg.player.name
-                                      : reg?.pair
-                                        ? (reg.pair.name ??
-                                          reg.pair.members
-                                            ?.map((m) => m.player?.name)
-                                            .join(' & ') ??
-                                          '?')
-                                        : '?';
-                                    return (
-                                      <Flex
-                                        key={gr.id}
-                                        px={3}
-                                        py={2}
-                                        align="center"
-                                        justify="space-between"
-                                        borderBottomWidth="1px"
-                                        borderColor="gray.50"
-                                        _last={{ borderBottomWidth: '0' }}
-                                      >
-                                        <Text fontSize="xs">{name}</Text>
-                                        <Box color="gray.300">
-                                          <GripVertical size={12} />
-                                        </Box>
-                                      </Flex>
-                                    );
-                                  })
-                                : Array.from({
-                                    length: group._count?.registrations ?? 0,
-                                  }).map((_, i) => (
-                                    <Flex
-                                      key={i}
-                                      px={3}
-                                      py={2}
-                                      borderBottomWidth="1px"
-                                      borderColor="gray.50"
-                                      _last={{ borderBottomWidth: '0' }}
-                                    >
-                                      <Text fontSize="xs" color="gray.400">
-                                        Team {i + 1}
-                                      </Text>
-                                    </Flex>
-                                  ))}
-                            </VStack>
+                            {!hasEliminationMatches && (
+                              <Badge
+                                position="absolute"
+                                top={2}
+                                right={2}
+                                colorPalette="gray"
+                                variant="solid"
+                              >
+                                {t('panels.rounds.bracketPreviewLabel')}
+                              </Badge>
+                            )}
                           </Box>
-                        );
-                      })}
-                    </Flex>
-
-                    {/* Edit buttons */}
-                    <Flex gap={2} flexWrap="wrap">
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        flex="1"
-                        leftIcon={<Edit size={14} />}
-                        onClick={() => {
-                          setPoolsModalInitialStep('configure');
-                          setIsPoolsModalOpen(true);
-                        }}
-                      >
-                        {t('panels.rounds.setupPools')}
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        flex="1"
-                        leftIcon={<Edit size={14} />}
-                        onClick={() => {
-                          setPoolsModalInitialStep('matches');
-                          setIsPoolsModalOpen(true);
-                        }}
-                      >
-                        {t('panels.rounds.setupMatches')}
-                      </Button>
-                    </Flex>
-                  </VStack>
-                ) : (
-                  <Button
-                    size="sm"
-                    w="full"
-                    style={{ background: '#1a202c', color: 'white' }}
-                    onClick={() => {
-                      setPoolsModalInitialStep('configure');
-                      setIsPoolsModalOpen(true);
-                    }}
-                  >
-                    {t('panels.rounds.setupPools')}
-                  </Button>
-                )}
-              </StepperSection>
-
-              {/* ── Phase 2: Advancing Teams (RRSE only) ── */}
-              {isRRSE && (
-                <StepperSection
-                  icon={Users}
-                  title={t('panels.rounds.advancingTeams')}
-                  subtitle={t('panels.rounds.advancingTeamsSubtitle')}
-                >
-                  {isAdvancingConfigured ? (
-                    <VStack gap={3} align="stretch">
-                      <Box
-                        bg="white"
-                        borderRadius="xl"
-                        borderWidth="1.5px"
-                        borderColor="yellow.200"
-                        overflow="hidden"
-                      >
-                        <Box
-                          px={4}
-                          py={3}
-                          borderBottomWidth="1px"
-                          borderColor="gray.100"
-                        >
-                          <Text fontWeight="semibold" fontSize="sm">
-                            {t('panels.rounds.playoffs')}
-                          </Text>
-                        </Box>
-                        <VStack gap={0} align="stretch">
-                          {advancingSlots.map((slot, idx) => (
-                            <Flex
-                              key={idx}
-                              px={4}
-                              py={2}
-                              align="center"
-                              gap={2}
-                              borderBottomWidth={
-                                idx < advancingSlots.length - 1 ? '1px' : '0'
+                          {/* Count reflects real generated shells only (not the
+                              config-derived expected count), so the host can
+                              tell whether matches exist yet. */}
+                          {hasEliminationMatches ? (
+                            <Badge
+                              alignSelf="flex-start"
+                              colorPalette={
+                                finishedEliminationMatches ===
+                                eliminationMatches.length
+                                  ? 'green'
+                                  : 'gray'
                               }
-                              borderColor="gray.50"
+                              variant="outline"
+                              borderRadius="md"
+                              px={2}
+                              py={0.5}
+                              fontSize="xs"
+                              fontWeight="medium"
                             >
-                              <Users size={14} color="#A0AEC0" />
-                              <Text fontSize="xs">{slot}</Text>
-                            </Flex>
-                          ))}
-                        </VStack>
-                      </Box>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        leftIcon={<Edit size={14} />}
-                        onClick={() => setIsAdvancingModalOpen(true)}
-                      >
-                        {t('panels.rounds.editAdvancingTeams')}
-                      </Button>
+                              {t('panels.rounds.playoffMatchesStatus', {
+                                total: eliminationMatches.length,
+                                finished: finishedEliminationMatches,
+                              })}
+                            </Badge>
+                          ) : (
+                            <Badge
+                              alignSelf="flex-start"
+                              colorPalette="gray"
+                              variant="outline"
+                              borderRadius="md"
+                              px={2}
+                              py={0.5}
+                              fontSize="xs"
+                              fontWeight="medium"
+                              color="fg.muted"
+                            >
+                              {t('panels.rounds.playoffMatchesNotGenerated')}
+                            </Badge>
+                          )}
+                          <Button
+                            size="sm"
+                            variant="subtle"
+                            colorPalette="gray"
+                            borderRadius="lg"
+                            w="full"
+                            leftIcon={<Edit size={14} />}
+                            onClick={() => setIsPlayoffsModalOpen(true)}
+                          >
+                            {t('panels.rounds.setupBracket')}
+                          </Button>
+                        </>
+                      ) : (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          colorPalette="gray"
+                          borderRadius="lg"
+                          w="full"
+                          onClick={() => setIsPlayoffsModalOpen(true)}
+                        >
+                          {t('panels.rounds.addBracket')}
+                        </Button>
+                      )}
+                      {isAdvancingConfigured &&
+                        winnersPerGroup * groupCount >= 2 && (
+                          <Button
+                            size="sm"
+                            w="full"
+                            borderRadius="lg"
+                            colorPalette={
+                              hasEliminationMatches ? 'gray' : 'blue'
+                            }
+                            variant={hasEliminationMatches ? 'subtle' : 'solid'}
+                            leftIcon={<RefreshCw size={14} />}
+                            disabled={
+                              touchedEliminationMatches > 0 ||
+                              isGeneratingShells
+                            }
+                            loading={isGeneratingShells}
+                            onClick={() =>
+                              setIsGenerateEliminationConfirmOpen(true)
+                            }
+                          >
+                            {hasEliminationMatches
+                              ? t('panels.rounds.regenerateEliminationGames')
+                              : t('panels.rounds.generateEliminationGames')}
+                          </Button>
+                        )}
                     </VStack>
-                  ) : (
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      w="full"
-                      onClick={() => setIsAdvancingModalOpen(true)}
-                    >
-                      {t('panels.rounds.addAdvancingTeams')}
-                    </Button>
-                  )}
-                </StepperSection>
-              )}
-
-              {/* ── Phase 3: Playoffs (RRSE only) ── */}
-              {isRRSE && (
-                <StepperSection
-                  icon={ListTree}
-                  title={t('panels.rounds.playoffs')}
-                  subtitle={t('panels.rounds.playoffsSubtitle')}
-                >
-                  {isPlayoffsConfigured ? (
-                    <VStack gap={3} align="stretch">
-                      {/* Bracket thumbnail */}
-                      <Box
-                        bg="white"
-                        borderRadius="xl"
-                        borderWidth="1.5px"
-                        borderColor="yellow.200"
-                        overflow="hidden"
-                        p={3}
-                      >
-                        <BracketVisualization
-                          teamCount={winnersPerGroup * groupCount}
-                          groupCount={groupCount}
-                          winnersPerGroup={winnersPerGroup || 2}
-                          thirdPlaceMatch={
-                            activeCategory?.thirdPlaceMatch ?? false
-                          }
-                          compact
-                        />
-                      </Box>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        leftIcon={<Edit size={14} />}
-                        onClick={() => setIsPlayoffsModalOpen(true)}
-                      >
-                        {t('panels.rounds.setupBracket')}
-                      </Button>
-                    </VStack>
-                  ) : (
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      w="full"
-                      onClick={() => setIsPlayoffsModalOpen(true)}
-                    >
-                      {t('panels.rounds.addBracket')}
-                    </Button>
-                  )}
-                </StepperSection>
-              )}
-            </VStack>
-          </Box>
+                  </StepperSection>
+                )}
+              </VStack>
+            </Box>
+          </>
         )}
 
         {/* Modals */}
@@ -802,8 +1455,18 @@ export default function RoundsPanel({
               groupCount={groupCount || 2}
               onSaved={handleRefreshCategory}
             />
+            <GenerateBracketConfirmModal
+              isOpen={isGenerateConfirmOpen}
+              onClose={() => setIsGenerateConfirmOpen(false)}
+              onConfirm={handleGenerateBracket}
+              isLoading={isCompleting}
+              hasBracket={hasEliminationMatches}
+            />
+            {roundsModals}
           </>
         )}
+
+        {roundsActions}
       </VStack>
     );
   }
@@ -820,9 +1483,7 @@ export default function RoundsPanel({
       <CategorySelector />
 
       {loading ? (
-        <Flex justify="center" py={8}>
-          <Spinner />
-        </Flex>
+        <TournamentMatchListSkeleton count={4} />
       ) : groups.length === 0 ? (
         <Box
           borderWidth="1px"
@@ -830,15 +1491,27 @@ export default function RoundsPanel({
           borderRadius="xl"
           p={6}
           bg="gray.50"
+          _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
         >
           <Flex direction="column" align="center" gap={4}>
-            <Box color="gray.400">
+            <Box color="gray.400" _dark={{ color: 'gray.500' }}>
               <GitBranch size={32} />
             </Box>
-            <Text fontSize="sm" color="gray.600" fontWeight="medium">
+            <Text
+              fontSize="sm"
+              color="gray.600"
+              fontWeight="medium"
+              _dark={{ color: 'gray.300' }}
+            >
               {t('panels.rounds.setupGroups')}
             </Text>
-            <Text fontSize="xs" color="gray.500" textAlign="center" px={2}>
+            <Text
+              fontSize="xs"
+              color="gray.500"
+              textAlign="center"
+              px={2}
+              _dark={{ color: 'gray.400' }}
+            >
               {t('panels.rounds.setupGroupsDescription')}
             </Text>
 
@@ -852,6 +1525,7 @@ export default function RoundsPanel({
               align="center"
               w="100%"
               maxW="320px"
+              _dark={{ bg: 'gray.900', borderColor: 'gray.700' }}
             >
               <Text fontSize="sm" fontWeight="medium" flex={1}>
                 {t('panels.rounds.numberOfGroups')}
@@ -915,11 +1589,17 @@ export default function RoundsPanel({
               align="center"
               gap={2}
               flexWrap="wrap"
+              _dark={{ bg: 'green.900', borderColor: 'green.700' }}
             >
               {!hasTeamsInGroups ? (
                 <>
                   <Shuffle size={16} color="var(--chakra-colors-green-600)" />
-                  <Text fontSize="sm" color="green.700" flex={1}>
+                  <Text
+                    fontSize="sm"
+                    color="green.700"
+                    flex={1}
+                    _dark={{ color: 'green.200' }}
+                  >
                     {t('panels.rounds.noTeamsInGroups')}
                   </Text>
                   <Button
@@ -936,7 +1616,12 @@ export default function RoundsPanel({
               ) : (
                 <>
                   <Zap size={16} color="var(--chakra-colors-green-600)" />
-                  <Text fontSize="sm" color="green.700" flex={1}>
+                  <Text
+                    fontSize="sm"
+                    color="green.700"
+                    flex={1}
+                    _dark={{ color: 'green.200' }}
+                  >
                     {t('panels.rounds.readyToGenerate', {
                       count: totalTeamsInGroups,
                     })}
@@ -949,7 +1634,7 @@ export default function RoundsPanel({
                   >
                     {isGenerating
                       ? t('panels.rounds.generating')
-                      : t('panels.rounds.generateAllMatches')}
+                      : t('panels.rounds.generateGroupGames')}
                   </Button>
                 </>
               )}
@@ -965,12 +1650,23 @@ export default function RoundsPanel({
               p={3}
               align="center"
               gap={2}
+              _dark={{ bg: 'green.900', borderColor: 'green.700' }}
             >
               <Trophy size={16} color="var(--chakra-colors-green-600)" />
-              <Text fontSize="sm" color="green.700" fontWeight="medium">
+              <Text
+                fontSize="sm"
+                color="green.700"
+                fontWeight="medium"
+                _dark={{ color: 'green.200' }}
+              >
                 {t('panels.rounds.allGroupsHaveMatches')}
               </Text>
-              <Text fontSize="sm" color="green.600" ml="auto">
+              <Text
+                fontSize="sm"
+                color="green.600"
+                ml="auto"
+                _dark={{ color: 'green.300' }}
+              >
                 {t('panels.rounds.matchCount', { count: totalMatches })}
               </Text>
             </Flex>
@@ -978,7 +1674,13 @@ export default function RoundsPanel({
 
           {groups.map((group) => {
             const groupMatches = matchesByGroup[group.id] || [];
-            const groupName = group.name || `Group ${group.groupNumber}`;
+            // Format group name: if name is just a letter (A, B, C...), prepend with translated "Bảng"
+            // Otherwise use the name as-is or fallback to groupLabel with number
+            const groupName = group.name
+              ? group.name.length === 1 || /^[A-Z]$/.test(group.name)
+                ? `${t('panels.rounds.poolLabel')} ${group.name}`
+                : group.name
+              : t('panels.rounds.groupLabel', { number: group.groupNumber });
             const regCount = group._count?.registrations || 0;
 
             return (
@@ -988,6 +1690,8 @@ export default function RoundsPanel({
                 borderColor="gray.200"
                 borderRadius="xl"
                 overflow="hidden"
+                bg="white"
+                _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
               >
                 <Flex
                   bg="gray.50"
@@ -999,6 +1703,7 @@ export default function RoundsPanel({
                     groupMatches.length > 0 || regCount > 0 ? '1px' : '0'
                   }
                   borderColor="gray.200"
+                  _dark={{ bg: 'gray.900', borderColor: 'gray.700' }}
                 >
                   <Flex align="center" gap={2}>
                     <Text fontWeight="semibold" fontSize="sm">
@@ -1050,7 +1755,8 @@ export default function RoundsPanel({
                             idx < groupMatches.length - 1 ? '1px' : '0'
                           }
                           borderColor="gray.100"
-                          _hover={{ bg: 'gray.50' }}
+                          _hover={{ bg: 'gray.50', _dark: { bg: 'gray.700' } }}
+                          _dark={{ borderColor: 'gray.700' }}
                         >
                           <Flex align="center" gap={3}>
                             <Text
@@ -1058,6 +1764,7 @@ export default function RoundsPanel({
                               color="gray.400"
                               fontWeight="medium"
                               minW="32px"
+                              _dark={{ color: 'gray.500' }}
                             >
                               #{match.matchNumber}
                             </Text>
@@ -1079,6 +1786,7 @@ export default function RoundsPanel({
                                 fontSize="xs"
                                 color="gray.400"
                                 flexShrink={0}
+                                _dark={{ color: 'gray.500' }}
                               >
                                 {t('panels.rounds.vs')}
                               </Text>
@@ -1102,6 +1810,9 @@ export default function RoundsPanel({
                               fontWeight={match.score ? 'semibold' : 'normal'}
                               minW="60px"
                               textAlign="center"
+                              _dark={{
+                                color: match.score ? 'gray.200' : 'gray.500',
+                              }}
                             >
                               {match.score || t('panels.rounds.noScore')}
                             </Text>
@@ -1120,7 +1831,11 @@ export default function RoundsPanel({
                   </VStack>
                 ) : regCount === 0 ? (
                   <Flex py={4} justify="center">
-                    <Text fontSize="xs" color="gray.400">
+                    <Text
+                      fontSize="xs"
+                      color="gray.400"
+                      _dark={{ color: 'gray.500' }}
+                    >
                       {t('panels.rounds.noTeamsInGroup')}
                     </Text>
                   </Flex>
@@ -1130,6 +1845,9 @@ export default function RoundsPanel({
           })}
         </VStack>
       )}
+
+      {roundsActions}
+      {roundsModals}
     </VStack>
   );
 }
@@ -1153,36 +1871,263 @@ function StepperSection({
   const iconColor = color === 'green' ? '#38A169' : '#D69E2E';
 
   return (
-    <Box position="relative">
-      {/* Step indicator dot */}
-      <Flex
-        position="absolute"
-        left="-6px"
-        top="4px"
-        w="36px"
-        h="36px"
-        bg={bgColor}
-        borderRadius="lg"
-        align="center"
-        justify="center"
-        zIndex={1}
-        borderWidth="2px"
-        borderColor="white"
-        boxShadow="sm"
-      >
-        <Icon size={18} color={iconColor} />
+    <Box>
+      <Flex align="flex-start" gap={3} mb={3}>
+        <Flex
+          w="40px"
+          h="40px"
+          bg={bgColor}
+          borderRadius="lg"
+          align="center"
+          justify="center"
+          flexShrink={0}
+          borderWidth="1px"
+          borderColor="white"
+          boxShadow="sm"
+          _dark={{
+            bg: color === 'green' ? 'green.900' : 'yellow.900',
+            borderColor: 'gray.700',
+          }}
+        >
+          <Icon size={18} color={iconColor} />
+        </Flex>
+        <Box minW={0} flex={1}>
+          <Text fontWeight="bold" fontSize="md" lineHeight="1.2">
+            {title}
+          </Text>
+          <Text
+            fontSize="sm"
+            color="gray.500"
+            mt={1}
+            _dark={{ color: 'gray.400' }}
+          >
+            {subtitle}
+          </Text>
+        </Box>
       </Flex>
 
-      {/* Content */}
-      <Box ml="42px">
-        <Text fontWeight="bold" fontSize="md">
-          {title}
-        </Text>
-        <Text fontSize="sm" color="gray.500" mb={3}>
-          {subtitle}
-        </Text>
+      <Box ml="20px" pl={5}>
         {children}
       </Box>
     </Box>
+  );
+}
+
+function BracketReadyBanner({
+  finishedGroupMatches,
+  totalGroupMatches,
+  categoryName,
+  hasBracket,
+  playoffMatchCount,
+  scoredPlayoffMatchCount,
+  isLoading,
+  onClick,
+}: {
+  finishedGroupMatches: number;
+  totalGroupMatches: number;
+  categoryName: string;
+  hasBracket: boolean;
+  playoffMatchCount: number;
+  scoredPlayoffMatchCount: number;
+  isLoading: boolean;
+  onClick: () => void;
+}) {
+  const t = useTranslations('pages.tournaments.detail.manage');
+  const hasPlayoffScores = scoredPlayoffMatchCount > 0;
+
+  return (
+    <Box
+      ml={{ base: 0, md: '20px' }}
+      mb={5}
+      borderWidth="1px"
+      borderColor={hasBracket ? 'orange.200' : 'green.200'}
+      borderRadius="xl"
+      bg={hasBracket ? 'orange.50' : 'green.50'}
+      px={{ base: 4, md: 5 }}
+      py={4}
+      _dark={{
+        bg: hasBracket ? 'orange.950' : 'green.950',
+        borderColor: hasBracket ? 'orange.800' : 'green.800',
+      }}
+    >
+      <Flex
+        align={{ base: 'stretch', md: 'center' }}
+        justify="space-between"
+        gap={3}
+        direction={{ base: 'column', md: 'row' }}
+      >
+        <Box minW={0}>
+          <Text
+            fontSize="sm"
+            fontWeight="bold"
+            color={hasBracket ? 'orange.800' : 'green.800'}
+            _dark={{ color: hasBracket ? 'orange.200' : 'green.200' }}
+          >
+            {categoryName} ·{' '}
+            {t('panels.rounds.groupProgress', {
+              finished: finishedGroupMatches,
+              total: totalGroupMatches,
+            })}
+          </Text>
+          <Text fontWeight="bold" mt={1}>
+            {hasBracket
+              ? t('panels.rounds.bracketReadyRegenerateTitle')
+              : t('panels.rounds.bracketReadyGenerateTitle')}
+          </Text>
+          <Text
+            fontSize="sm"
+            color="gray.700"
+            mt={1}
+            _dark={{ color: 'gray.200' }}
+          >
+            {!hasBracket
+              ? t('panels.rounds.bracketReadyGenerateDescription')
+              : hasPlayoffScores
+                ? t(
+                    'panels.rounds.bracketReadyRegenerateWithScoresDescription',
+                    {
+                      matches: playoffMatchCount,
+                      scored: scoredPlayoffMatchCount,
+                    }
+                  )
+                : t(
+                    'panels.rounds.bracketReadyRegenerateWithoutScoresDescription',
+                    { matches: playoffMatchCount }
+                  )}
+          </Text>
+        </Box>
+
+        <Button
+          size="sm"
+          colorPalette={hasBracket ? 'orange' : 'green'}
+          variant={hasBracket ? 'outline' : 'solid'}
+          leftIcon={<Trophy size={14} />}
+          loading={isLoading}
+          onClick={onClick}
+          flexShrink={0}
+        >
+          {hasBracket
+            ? t('panels.rounds.refinalizeAdvancing')
+            : t('panels.rounds.finalizeAdvancing')}
+        </Button>
+      </Flex>
+    </Box>
+  );
+}
+
+// ─── GenerateBracketSection ──────────────────────────────────────────────────
+// Triggers the backend completeGroupStage flow which generates the elimination
+// bracket (from group standings for RRSE, or from all registrations for SE).
+
+function GenerateBracketSection({
+  hasBracket,
+  canGenerate,
+  scoredMatches = 0,
+  isLoading,
+  onClick,
+  variant = 'bracket',
+}: {
+  hasBracket: boolean;
+  canGenerate: boolean;
+  scoredMatches?: number;
+  isLoading: boolean;
+  onClick: () => void;
+  // 'finalize' → RRSE "Chốt đội đi tiếp" (fill advancing teams into the shells);
+  // 'bracket' → direct SE/DE "Tạo nhánh đấu" (build the bracket from scratch).
+  variant?: 'finalize' | 'bracket';
+}) {
+  const t = useTranslations('pages.tournaments.detail.manage');
+  const primaryLabel =
+    variant === 'finalize'
+      ? hasBracket
+        ? t('panels.rounds.refinalizeAdvancing')
+        : t('panels.rounds.finalizeAdvancing')
+      : hasBracket
+        ? t('panels.rounds.regenerateBracket')
+        : t('panels.rounds.generatePlayoffs');
+
+  // Lightweight: a single clear button plus one small helper line, instead of a
+  // heavy bordered card — keeps the section uncluttered.
+  const helper =
+    !canGenerate && !hasBracket
+      ? { text: t('panels.rounds.generateBracketLocked'), tone: 'muted' }
+      : !canGenerate && hasBracket && scoredMatches > 0
+        ? {
+            text: t('panels.rounds.regenerateBracketLocked', {
+              scored: scoredMatches,
+            }),
+            tone: 'warn',
+          }
+        : canGenerate && hasBracket
+          ? { text: t('panels.rounds.overwriteWarning'), tone: 'warn' }
+          : null;
+
+  return (
+    <VStack align="stretch" gap={1.5}>
+      <Button
+        size="sm"
+        w="full"
+        borderRadius="lg"
+        colorPalette={hasBracket ? 'orange' : 'green'}
+        variant={hasBracket ? 'outline' : 'solid'}
+        leftIcon={<Trophy size={14} />}
+        disabled={!canGenerate || isLoading}
+        loading={isLoading}
+        onClick={onClick}
+      >
+        {primaryLabel}
+      </Button>
+      {helper && (
+        <Text
+          fontSize="xs"
+          textAlign="center"
+          color={helper.tone === 'warn' ? 'orange.600' : 'fg.muted'}
+          _dark={helper.tone === 'warn' ? { color: 'orange.400' } : undefined}
+        >
+          {helper.text}
+        </Text>
+      )}
+    </VStack>
+  );
+}
+
+// ─── GenerateBracketConfirmModal ─────────────────────────────────────────────
+
+function GenerateBracketConfirmModal({
+  isOpen,
+  onClose,
+  onConfirm,
+  isLoading,
+  hasBracket,
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+  onConfirm: () => void;
+  isLoading: boolean;
+  hasBracket: boolean;
+}) {
+  const t = useTranslations('pages.tournaments.detail.manage');
+
+  return (
+    <VModal
+      isOpen={isOpen}
+      onClose={onClose}
+      title={t('panels.rounds.confirmGenerateTitle')}
+      zIndex={1600}
+      primaryActionText={t('panels.rounds.generatePlayoffs')}
+      onPrimaryAction={onConfirm}
+      isPrimaryLoading={isLoading}
+      primaryColorScheme={hasBracket ? 'orange' : 'green'}
+      secondaryActionText={t('panels.rounds.cancel')}
+    >
+      <Text fontSize="sm" color="gray.600" _dark={{ color: 'gray.300' }}>
+        {t('panels.rounds.confirmGenerateMessage')}
+      </Text>
+      {hasBracket && (
+        <Text fontSize="sm" color="orange.600" mt={2}>
+          {t('panels.rounds.overwriteWarning')}
+        </Text>
+      )}
+    </VModal>
   );
 }

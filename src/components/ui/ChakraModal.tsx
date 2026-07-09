@@ -48,6 +48,7 @@ export const Modal = ({
         onClick={onClose}
       >
         <Box
+          position="relative"
           bg="white"
           _dark={{ bg: 'gray.800' }}
           borderRadius="lg"

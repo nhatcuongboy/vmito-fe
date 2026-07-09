@@ -49,15 +49,7 @@ export const AppAddressDisplay = ({
           fontStyle="italic"
           lineClamp={lineClamp}
         >
-          ({fullNewAddress}){' '}
-          <Text
-            as="span"
-            color="red.500"
-            fontWeight="semibold"
-            fontStyle="normal"
-          >
-            ({t('newAddressBadge')})
-          </Text>
+          ({fullNewAddress})
         </Text>
       )}
     </Box>

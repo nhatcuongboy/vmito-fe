@@ -320,15 +320,11 @@ export function SessionPaymentSummary({
   totalExpenses = 0,
 }: SessionPaymentSummaryProps) {
   const t = useTranslations('payment');
-  const tFixed = useTranslations('clubs');
 
   const paymentsArray = useMemo(
     () => (Array.isArray(payments) ? payments : []),
     [payments]
   );
-  const fixedMemberCount = paymentsArray.filter(
-    (p) => p.player?.isClubMember
-  ).length;
   const totalAmount = paymentsArray.reduce((sum, p) => sum + p.amount, 0);
   const approvedAmount = paymentsArray
     .filter((p) => p.status === PaymentStatus.APPROVED)
@@ -348,14 +344,6 @@ export function SessionPaymentSummary({
       <HStack justify="space-between" mb={3}>
         <Text fontWeight="semibold">{t('paymentSummary')}</Text>
         <HStack gap={2}>
-          {fixedMemberCount > 0 && (
-            <Badge colorPalette="teal">
-              <UserCheck size={12} />
-              <Text ml={1}>
-                {fixedMemberCount} {tFixed('clubMember')}
-              </Text>
-            </Badge>
-          )}
           {session.feeConfig?.feeType === FeeType.SPLIT_EVENLY && (
             <Badge colorPalette="purple">{t('splitEvenly')}</Badge>
           )}
@@ -474,7 +462,7 @@ export default function SessionPaymentList({
       { id: string; name: string; color?: string }
     >();
     paymentsArray.forEach((p) => {
-      if (p.player?.isClubMember && p.player?.club) {
+      if (p.player?.clubFeeApplied && p.player?.club) {
         const group = p.player.club;
         if (!groupsMap.has(group.id)) {
           groupsMap.set(group.id, {
@@ -499,9 +487,9 @@ export default function SessionPaymentList({
 
     // Member type filter
     if (memberFilter === 'fixed') {
-      filtered = filtered.filter((p) => p.player?.isClubMember);
+      filtered = filtered.filter((p) => p.player?.clubFeeApplied);
     } else if (memberFilter === 'regular') {
-      filtered = filtered.filter((p) => !p.player?.isClubMember);
+      filtered = filtered.filter((p) => !p.player?.clubFeeApplied);
     } else if (memberFilter !== 'all') {
       // Filter by specific group ID
       filtered = filtered.filter((p) => p.player?.club?.id === memberFilter);
@@ -594,7 +582,7 @@ export default function SessionPaymentList({
   // Helper to render fixed member info with tooltip
   const renderFixedMemberAmount = (payment: PaymentRecord) => {
     const player = payment.player;
-    const isFixed = player?.isClubMember && player?.club;
+    const isFixed = player?.clubFeeApplied && player?.club;
 
     if (!isFixed) {
       return (
@@ -611,7 +599,7 @@ export default function SessionPaymentList({
         content={
           <Box>
             <Text fontWeight="bold" mb={1}>
-              {tFixed('clubMember')}: {groupName}
+              {tFixed('monthlyFixedMember')}: {groupName}
             </Text>
             <Text fontSize="sm">
               {tFixed('perSessionFee')}:{' '}
@@ -620,14 +608,14 @@ export default function SessionPaymentList({
           </Box>
         }
       >
-        <HStack gap={1} cursor="help" justify="flex-end">
-          <Text fontWeight="semibold" color="teal.600">
-            {FeeService.formatFeeExact(payment.amount)}
-          </Text>
-          <Badge colorPalette="teal" variant="subtle" fontSize="2xs" px={1}>
-            {groupName}
-          </Badge>
-        </HStack>
+        <Text
+          fontWeight="semibold"
+          color="teal.600"
+          cursor="help"
+          textAlign="right"
+        >
+          {FeeService.formatFeeExact(payment.amount)}
+        </Text>
       </VTooltip>
     );
   };
@@ -757,7 +745,7 @@ export default function SessionPaymentList({
                   bg="white"
                   border="1px solid"
                   borderColor={
-                    payment.player?.isClubMember ? 'teal.200' : 'gray.200'
+                    payment.player?.clubFeeApplied ? 'teal.200' : 'gray.200'
                   }
                   borderRadius="lg"
                   p={3}
@@ -765,7 +753,7 @@ export default function SessionPaymentList({
                   transition="all 0.2s"
                   _dark={{
                     bg: 'gray.800',
-                    borderColor: payment.player?.isClubMember
+                    borderColor: payment.player?.clubFeeApplied
                       ? 'teal.600'
                       : 'gray.700',
                   }}
@@ -796,7 +784,7 @@ export default function SessionPaymentList({
                                 {getGenderText(payment.player.gender)}
                               </Text>
                             )}
-                            {payment.player?.isClubMember && (
+                            {payment.player?.clubFeeApplied && (
                               <Badge
                                 colorPalette="teal"
                                 variant="subtle"
@@ -806,7 +794,7 @@ export default function SessionPaymentList({
                                 <UserCheck size={10} />
                                 <Text ml={0.5}>
                                   {payment.player?.club?.name ||
-                                    tFixed('clubMember')}
+                                    tFixed('monthlyFixedMember')}
                                 </Text>
                               </Badge>
                             )}
@@ -997,7 +985,7 @@ export default function SessionPaymentList({
                                       {getGenderText(payment.player.gender)}
                                     </Badge>
                                   )}
-                                  {payment.player?.isClubMember && (
+                                  {payment.player?.clubFeeApplied && (
                                     <Badge
                                       colorPalette="teal"
                                       variant="subtle"
@@ -1005,7 +993,7 @@ export default function SessionPaymentList({
                                       px={1}
                                     >
                                       {payment.player?.club?.name ||
-                                        tFixed('clubMember')}
+                                        tFixed('monthlyFixedMember')}
                                     </Badge>
                                   )}
                                 </HStack>

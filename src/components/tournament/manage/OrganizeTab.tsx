@@ -1,17 +1,17 @@
 'use client';
 
-import { Box, Flex, Text } from '@chakra-ui/react';
 import { VStack } from '@/components/ui/chakra-compat';
 import {
   Users,
+  UserCog,
   Layers,
-  ClipboardCheck,
   Workflow,
   BarChart3,
   GitBranch,
   MapPin,
   Calendar,
   Heart,
+  Gavel,
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Tournament, Category } from '@/lib/api/types';
@@ -26,39 +26,6 @@ interface OrganizeTabProps {
   onTournamentUpdate: (updated: Tournament) => void;
 }
 
-const CATEGORY_COLORS = [
-  'yellow.400',
-  'blue.300',
-  'green.400',
-  'purple.400',
-  'pink.400',
-  'orange.400',
-  'cyan.400',
-  'red.400',
-];
-
-function CategoryDotsPreview({ categories }: { categories: Category[] }) {
-  if (categories.length === 0) return null;
-
-  return (
-    <Flex gap={4} flexWrap="wrap">
-      {categories.map((cat, idx) => (
-        <Flex key={cat.id} align="center" gap={1.5}>
-          <Box
-            w="8px"
-            h="8px"
-            borderRadius="full"
-            bg={CATEGORY_COLORS[idx % CATEGORY_COLORS.length]}
-          />
-          <Text fontSize="xs" color="gray.600">
-            {cat.name}
-          </Text>
-        </Flex>
-      ))}
-    </Flex>
-  );
-}
-
 export default function OrganizeTab({
   tournament,
   categories,
@@ -67,6 +34,7 @@ export default function OrganizeTab({
   onTournamentUpdate,
 }: OrganizeTabProps) {
   const t = useTranslations('pages.tournaments.detail.manage');
+  const tu = useTranslations('pages.tournaments.umpires');
 
   const totalRegistrations = categories.reduce(
     (sum, cat) => sum + (cat._count?.registrations || 0),
@@ -74,7 +42,7 @@ export default function OrganizeTab({
   );
 
   return (
-    <VStack gap={3} align="stretch">
+    <VStack gap={2.5} align="stretch">
       {/* Publish status banner - always visible */}
       <PublishStatusBanner
         tournament={tournament}
@@ -92,23 +60,22 @@ export default function OrganizeTab({
         onClick={() => onItemClick('teams')}
       />
 
+      {/* Players */}
+      <ManageMenuItem
+        icon={UserCog}
+        title={t('organize.players.title')}
+        description={t('organize.players.description')}
+        isActive={selectedItem === 'players'}
+        onClick={() => onItemClick('players')}
+      />
+
       {/* Categories */}
       <ManageMenuItem
         icon={Layers}
         title={t('organize.categories.title')}
-        preview={<CategoryDotsPreview categories={categories} />}
+        description={t('organize.categories.description')}
         isActive={selectedItem === 'categories'}
         onClick={() => onItemClick('categories')}
-      />
-
-      {/* Registration */}
-      <ManageMenuItem
-        icon={ClipboardCheck}
-        title={t('organize.registration.title')}
-        description={t('organize.registration.description')}
-        badge={t('organize.registration.badge')}
-        isActive={selectedItem === 'registration'}
-        onClick={() => onItemClick('registration')}
       />
 
       {/* Format */}
@@ -155,6 +122,15 @@ export default function OrganizeTab({
         description={t('organize.schedule.description')}
         isActive={selectedItem === 'schedule'}
         onClick={() => onItemClick('schedule')}
+      />
+
+      {/* Referees & Umpires */}
+      <ManageMenuItem
+        icon={Gavel}
+        title={tu('title')}
+        description={tu('description')}
+        isActive={selectedItem === 'umpires'}
+        onClick={() => onItemClick('umpires')}
       />
 
       {/* Sponsors */}

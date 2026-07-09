@@ -1,15 +1,15 @@
 'use client';
 
-import { Box, Flex, Text, Input, HStack, Spinner } from '@chakra-ui/react';
+import { Box, Flex, Text, Input, HStack } from '@chakra-ui/react';
 import { VStack } from '@/components/ui/chakra-compat';
-import { Minus, Plus, MapPin, Search } from 'lucide-react';
+import { Minus, Plus } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { useEffect, useState, useMemo, useRef } from 'react';
-import { VenueService } from '@/lib/api/venue.service';
+import { useEffect, useState } from 'react';
 import { TournamentService } from '@/lib/api/tournament.service';
 import { TournamentVenue, Venue } from '@/lib/api/types';
 import { toaster } from '@/components/ui/toaster';
 import { VModal } from '@/components/ui/VModal';
+import LocationAutocomplete from '@/components/common/LocationAutocomplete';
 
 interface VenueConfigModalProps {
   isOpen: boolean;
@@ -24,6 +24,16 @@ interface CourtInput {
   courtName: string;
 }
 
+interface LocationData {
+  placeId: string;
+  name: string;
+  address: string;
+  lat: number;
+  lng: number;
+  district?: string;
+  city?: string;
+}
+
 export default function VenueConfigModal({
   isOpen,
   onClose,
@@ -34,12 +44,8 @@ export default function VenueConfigModal({
   const t = useTranslations('pages.tournaments.detail.manage.panels.venues');
 
   // Venue search / select
-  const [allVenues, setAllVenues] = useState<Venue[]>([]);
-  const [isLoadingVenues, setIsLoadingVenues] = useState(false);
-  const [search, setSearch] = useState('');
-  const [showDropdown, setShowDropdown] = useState(false);
   const [selectedVenue, setSelectedVenue] = useState<Venue | null>(null);
-  const dropdownRef = useRef<HTMLDivElement>(null);
+  const [location, setLocation] = useState<LocationData | null>(null);
 
   // Extra fields
   const [name, setName] = useState('');
@@ -53,28 +59,31 @@ export default function VenueConfigModal({
 
   const [isSaving, setIsSaving] = useState(false);
 
-  // Close dropdown on outside click
-  useEffect(() => {
-    const handleClick = (e: MouseEvent) => {
-      if (
-        dropdownRef.current &&
-        !dropdownRef.current.contains(e.target as Node)
-      ) {
-        setShowDropdown(false);
-      }
-    };
-    document.addEventListener('mousedown', handleClick);
-    return () => document.removeEventListener('mousedown', handleClick);
-  }, []);
-
   useEffect(() => {
     if (isOpen) {
-      loadVenues();
       if (existingTournamentVenue) {
-        setSelectedVenue(existingTournamentVenue.venue);
-        setSearch(existingTournamentVenue.venue.name);
-        setName(existingTournamentVenue.venue.name ?? '');
-        setAcronym(existingTournamentVenue.venue.acronym ?? '');
+        const isLinked = !!existingTournamentVenue.venue;
+        if (isLinked) {
+          // Linked mode: venue is a proper Venue record
+          setSelectedVenue(existingTournamentVenue.venue!);
+          setLocation(null);
+          setName(existingTournamentVenue.venue!.name ?? '');
+          setAcronym(existingTournamentVenue.venue!.acronym ?? '');
+        } else {
+          // Inline mode: address stored directly on TournamentVenue
+          setSelectedVenue(null);
+          setLocation({
+            placeId: existingTournamentVenue.placeId ?? '',
+            name: existingTournamentVenue.name ?? '',
+            address: existingTournamentVenue.address ?? '',
+            lat: existingTournamentVenue.lat ?? 0,
+            lng: existingTournamentVenue.lng ?? 0,
+            district: existingTournamentVenue.district,
+            city: existingTournamentVenue.city,
+          });
+          setName(existingTournamentVenue.name ?? '');
+          setAcronym(existingTournamentVenue.acronym ?? '');
+        }
         const existingCourts = existingTournamentVenue.courts ?? [];
         if (existingCourts.length > 0) {
           setCourtCount(existingCourts.length);
@@ -90,47 +99,20 @@ export default function VenueConfigModal({
         }
       } else {
         setSelectedVenue(null);
-        setSearch('');
+        setLocation(null);
         setName('');
         setAcronym('');
         setCourtCount(1);
         setCourts([{ courtNumber: 1, courtName: '' }]);
       }
-      setShowDropdown(false);
     }
   }, [isOpen, existingTournamentVenue]);
 
-  const loadVenues = async () => {
-    try {
-      setIsLoadingVenues(true);
-      const data = await VenueService.getAllVenues();
-      setAllVenues(data);
-    } catch {
-      toaster.error({ title: 'Failed to load venues' });
-    } finally {
-      setIsLoadingVenues(false);
-    }
-  };
-
-  const filteredVenues = useMemo(() => {
-    const q = search.toLowerCase().trim();
-    if (!q) return allVenues.slice(0, 20);
-    return allVenues
-      .filter(
-        (v) =>
-          v.name.toLowerCase().includes(q) ||
-          (v.address ?? '').toLowerCase().includes(q) ||
-          (v.city ?? '').toLowerCase().includes(q)
-      )
-      .slice(0, 20);
-  }, [allVenues, search]);
-
-  const handleSelectVenue = (venue: Venue) => {
-    setSelectedVenue(venue);
-    setSearch(venue.name);
-    setName(venue.name);
-    setAcronym(venue.acronym ?? '');
-    setShowDropdown(false);
+  const handleLocationSelect = (nextLocation: LocationData) => {
+    setSelectedVenue(null);
+    setLocation(nextLocation);
+    setName(nextLocation.name);
+    setAcronym('');
   };
 
   const handleCourtCountChange = (delta: number) => {
@@ -158,45 +140,64 @@ export default function VenueConfigModal({
   };
 
   const handleSave = async () => {
-    if (!selectedVenue) {
+    if (!selectedVenue && !location) {
+      toaster.error({ title: t('nameRequired') });
+      return;
+    }
+    if (!name.trim()) {
       toaster.error({ title: t('nameRequired') });
       return;
     }
 
+    const courtPayload = courts.map((c) => ({
+      courtNumber: c.courtNumber,
+      courtName: c.courtName || undefined,
+    }));
+
     try {
       setIsSaving(true);
 
-      const venueId = selectedVenue.id;
+      if (selectedVenue) {
+        // --- Linked mode: user selected an existing verified venue ---
+        const venueId = selectedVenue.id;
 
-      // If editing and venue changed, remove old venue first
-      if (
-        existingTournamentVenue &&
-        existingTournamentVenue.venueId !== venueId
-      ) {
-        await TournamentService.removeVenue(
-          tournamentId,
-          existingTournamentVenue.venueId
-        );
-      }
+        // If editing and the venue changed, remove the old link first
+        if (
+          existingTournamentVenue &&
+          existingTournamentVenue.venueId !== venueId
+        ) {
+          await TournamentService.removeVenue(
+            tournamentId,
+            existingTournamentVenue.venueId!
+          );
+        }
 
-      // Update name/acronym if changed
-      if (
-        name.trim() !== selectedVenue.name ||
-        acronym.trim() !== (selectedVenue.acronym ?? '')
-      ) {
-        await VenueService.updateVenue(venueId, {
-          name: name.trim() || selectedVenue.name,
+        await TournamentService.addVenue(tournamentId, {
+          venueId,
+          courts: courtPayload,
+        });
+      } else {
+        // --- Inline mode: store address directly, no venues table record ---
+        if (existingTournamentVenue && existingTournamentVenue.venueId) {
+          // Was previously linked — remove the old venue link
+          await TournamentService.removeVenue(
+            tournamentId,
+            existingTournamentVenue.venueId
+          );
+        }
+
+        await TournamentService.addVenue(tournamentId, {
+          name: name.trim() || location!.name,
           acronym: acronym.trim() || undefined,
+          placeId: location!.placeId,
+          address: location!.address,
+          lat: location!.lat,
+          lng: location!.lng,
+          district: location!.district,
+          city: location!.city,
+          courts: courtPayload,
         });
       }
-
-      const result = await TournamentService.addVenue(tournamentId, {
-        venueId,
-        courts: courts.map((c) => ({
-          courtNumber: c.courtNumber,
-          courtName: c.courtName || undefined,
-        })),
-      });
 
       toaster.success({ title: t('venueSaved') });
       onSaved();
@@ -210,27 +211,40 @@ export default function VenueConfigModal({
 
   const title = existingTournamentVenue ? t('editVenue') : t('addVenue');
 
-  const inputStyle = {
-    border: '1px solid #E2E8F0',
+  const inputProps = {
+    borderWidth: '1px',
+    borderColor: 'gray.200',
     borderRadius: '12px',
-    padding: '12px 16px',
+    px: 4,
+    py: 3,
     fontSize: '14px',
     width: '100%',
-    outline: 'none',
-    background: 'white',
-  };
+    height: 'auto',
+    bg: 'white',
+    color: 'gray.800',
+    _placeholder: { color: 'gray.400' },
+    _dark: {
+      bg: 'gray.700',
+      borderColor: 'gray.600',
+      color: 'gray.100',
+      _placeholder: { color: 'gray.400' },
+    },
+  } as const;
 
-  const counterBtnStyle = {
+  const counterBtnProps = {
     width: '36px',
     height: '36px',
     borderRadius: '50%',
-    border: '1px solid #E2E8F0',
+    borderWidth: '1px',
+    borderColor: 'gray.200',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
     cursor: 'pointer',
-    background: 'white',
-  };
+    bg: 'white',
+    color: 'gray.700',
+    _dark: { bg: 'gray.700', borderColor: 'gray.600', color: 'gray.100' },
+  } as const;
 
   return (
     <VModal
@@ -243,102 +257,26 @@ export default function VenueConfigModal({
       isPrimaryLoading={isSaving}
     >
       <VStack gap={4} align="stretch">
-        {/* Address — venue search select */}
-        <Box position="relative" ref={dropdownRef}>
-          <Flex
-            align="center"
-            gap={2}
-            px={4}
-            style={{
-              border: showDropdown ? '1px solid #3182ce' : '1px solid #E2E8F0',
-              borderRadius: '12px',
-              background: 'white',
-            }}
-          >
-            <Search size={15} color="#A0AEC0" />
-            <Input
-              value={search}
-              onChange={(e) => {
-                setSearch(e.target.value);
-                setSelectedVenue(null);
-                setShowDropdown(true);
-              }}
-              onFocus={() => setShowDropdown(true)}
-              placeholder="Address"
-              border="none"
-              outline="none"
-              p={0}
-              py={3}
-              flex={1}
-              fontSize="14px"
-              _focus={{ outline: 'none', boxShadow: 'none' }}
-            />
-            {isLoadingVenues && <Spinner size="sm" color="gray.400" />}
-          </Flex>
-
-          {showDropdown && (
-            <Box
-              position="absolute"
-              top="calc(100% + 4px)"
-              left={0}
-              right={0}
-              bg="white"
-              border="1px solid #E2E8F0"
-              borderRadius="12px"
-              boxShadow="lg"
-              zIndex={200}
-              maxH="220px"
-              overflowY="auto"
-            >
-              {filteredVenues.length === 0 ? (
-                <Box px={4} py={3}>
-                  <Text fontSize="sm" color="gray.400">
-                    {search ? t('noResults') : t('noVenues')}
-                  </Text>
-                </Box>
-              ) : (
-                filteredVenues.map((venue) => (
-                  <Box
-                    key={venue.id}
-                    px={4}
-                    py={3}
-                    cursor="pointer"
-                    bg={selectedVenue?.id === venue.id ? 'blue.50' : 'white'}
-                    _hover={{ bg: 'gray.50' }}
-                    onClick={() => handleSelectVenue(venue)}
-                    borderBottom="1px solid #F7FAFC"
-                  >
-                    <Flex align="center" gap={2}>
-                      <MapPin size={13} color="#A0AEC0" />
-                      <Box>
-                        <Text
-                          fontSize="sm"
-                          fontWeight="medium"
-                          color="gray.800"
-                        >
-                          {venue.name}
-                        </Text>
-                        {venue.address && (
-                          <Text fontSize="xs" color="gray.500">
-                            {venue.address}
-                            {venue.city ? `, ${venue.city}` : ''}
-                          </Text>
-                        )}
-                      </Box>
-                    </Flex>
-                  </Box>
-                ))
-              )}
-            </Box>
-          )}
-        </Box>
+        {/* Inline suggestions stay visible inside the modal scroll container. */}
+        <LocationAutocomplete
+          onSelect={handleLocationSelect}
+          defaultValue={
+            existingTournamentVenue?.venue?.address ??
+            existingTournamentVenue?.address ??
+            existingTournamentVenue?.venue?.name ??
+            existingTournamentVenue?.name
+          }
+          placeholder={t('address')}
+          suggestionsPlacement="inline"
+          suggestionsMaxH="220px"
+        />
 
         {/* Name */}
         <Input
           value={name}
           onChange={(e) => setName(e.target.value)}
-          placeholder="Name"
-          style={inputStyle}
+          placeholder={t('name')}
+          {...inputProps}
           _focus={{ borderColor: '#3182ce', boxShadow: '0 0 0 1px #3182ce' }}
         />
 
@@ -347,8 +285,9 @@ export default function VenueConfigModal({
           <Input
             value={acronym}
             onChange={(e) => setAcronym(e.target.value)}
-            placeholder="Acronym"
-            style={{ ...inputStyle, maxWidth: '160px' }}
+            placeholder={t('acronym')}
+            {...inputProps}
+            maxW="160px"
             _focus={{ borderColor: '#3182ce', boxShadow: '0 0 0 1px #3182ce' }}
           />
         </Box>
@@ -362,8 +301,8 @@ export default function VenueConfigModal({
             <Box
               as="button"
               onClick={() => handleCourtCountChange(-1)}
-              style={counterBtnStyle}
-              _hover={{ bg: 'gray.50' }}
+              {...counterBtnProps}
+              _hover={{ bg: 'gray.50', _dark: { bg: 'gray.600' } }}
             >
               <Minus size={14} />
             </Box>
@@ -378,8 +317,8 @@ export default function VenueConfigModal({
             <Box
               as="button"
               onClick={() => handleCourtCountChange(1)}
-              style={counterBtnStyle}
-              _hover={{ bg: 'gray.50' }}
+              {...counterBtnProps}
+              _hover={{ bg: 'gray.50', _dark: { bg: 'gray.600' } }}
             >
               <Plus size={14} />
             </Box>
@@ -393,8 +332,8 @@ export default function VenueConfigModal({
               key={index}
               value={court.courtName}
               onChange={(e) => handleCourtNameChange(index, e.target.value)}
-              placeholder={`Court ${index + 1}`}
-              style={inputStyle}
+              placeholder={`${t('court')} ${index + 1}`}
+              {...inputProps}
               _focus={{
                 borderColor: '#3182ce',
                 boxShadow: '0 0 0 1px #3182ce',

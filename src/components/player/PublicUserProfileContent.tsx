@@ -10,6 +10,7 @@ import {
   HStack,
   Icon,
   Image,
+  Portal,
   SimpleGrid,
   Skeleton,
   Text,
@@ -23,6 +24,7 @@ import {
   Phone,
   Settings,
   User,
+  X,
 } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
 import { usePathname, useRouter } from '@/i18n/config';
@@ -33,6 +35,7 @@ import UserProfileModal from '@/components/ui/UserProfileModal';
 import { RatingService } from '@/lib/api/rating.service';
 import { SessionService } from '@/lib/api/session.service';
 import { UserService, IPublicProfileMeta } from '@/lib/api/user.service';
+import { getFullSizeAvatarUrl } from '@/lib/utils/image';
 import { ClubsService } from '@/lib/api/clubs.service';
 import { useAuthStore } from '@/stores/useAuthStore';
 import {
@@ -115,7 +118,7 @@ export default function PublicUserProfileContent({
   const [ratings, setRatings] = useState<Rating[]>([]);
   const [hostedSessions, setHostedSessions] = useState<ISession[]>([]);
   const [clubs, setClubs] = useState<IClub[]>([]);
-  const [totalHostedSessions, setTotalHostedSessions] = useState(0);
+  const [allHostedSessionsCount, setAllHostedSessionsCount] = useState(0);
   const [activeHostedSessionsCount, setActiveHostedSessionsCount] = useState(0);
   const [endedHostedSessionsCount, setEndedHostedSessionsCount] = useState(0);
   const [totalSessionPages, setTotalSessionPages] = useState(0);
@@ -199,6 +202,7 @@ export default function PublicUserProfileContent({
 
         const [
           hostedSessionsResponse,
+          allCountResponse,
           activeCountResponse,
           endedCountResponse,
         ] = await Promise.all([
@@ -208,6 +212,10 @@ export default function PublicUserProfileContent({
             sortBy: 'startTime',
             sortOrder: 'desc',
             ...sessionFilters,
+          }),
+          SessionService.getPublicSessions(userId, {
+            page: 1,
+            limit: 1,
           }),
           SessionService.getPublicSessions(userId, {
             page: 1,
@@ -225,7 +233,7 @@ export default function PublicUserProfileContent({
         ]);
 
         setHostedSessions(hostedSessionsResponse.data);
-        setTotalHostedSessions(hostedSessionsResponse.total);
+        setAllHostedSessionsCount(allCountResponse.total);
         setActiveHostedSessionsCount(activeCountResponse.total);
         setEndedHostedSessionsCount(endedCountResponse.total);
         setTotalSessionPages(hostedSessionsResponse.totalPages);
@@ -267,6 +275,7 @@ export default function PublicUserProfileContent({
 
   const isOwner = currentUser?.id === userId;
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isAvatarPreviewOpen, setIsAvatarPreviewOpen] = useState(false);
 
   const joinedAt = profile?.createdAt;
   const phone = profile?.phone;
@@ -394,6 +403,12 @@ export default function PublicUserProfileContent({
                   borderWidth="4px"
                   borderColor="white"
                   mb="-32px"
+                  cursor={avatarUrl ? 'pointer' : 'default'}
+                  onClick={() => {
+                    if (avatarUrl) setIsAvatarPreviewOpen(true);
+                  }}
+                  _hover={avatarUrl ? { opacity: 0.9 } : undefined}
+                  transition="opacity 0.2s"
                 >
                   <Avatar.Fallback name={displayName}>
                     <User size={24} />
@@ -450,7 +465,7 @@ export default function PublicUserProfileContent({
                       color="gray.800"
                       _dark={{ color: 'gray.100' }}
                     >
-                      {totalHostedSessions}
+                      {allHostedSessionsCount}
                     </Text>
                   </Box>
 
@@ -791,7 +806,7 @@ export default function PublicUserProfileContent({
                 color="gray.800"
                 _dark={{ color: 'gray.100' }}
               >
-                {t('hostedSessions')} ({totalHostedSessions})
+                {t('hostedSessions')} ({allHostedSessionsCount})
               </Text>
             </Flex>
 
@@ -943,6 +958,80 @@ export default function PublicUserProfileContent({
       >
         <RatingList ratings={ratings} emptyMessage={t('noReviews')} />
       </VModal>
+
+      {/* Avatar full-size preview */}
+      {isAvatarPreviewOpen && avatarUrl && (
+        <Portal>
+          <Flex
+            position="fixed"
+            top={0}
+            left={0}
+            right={0}
+            bottom={0}
+            bg="blackAlpha.800"
+            zIndex={2000}
+            align="center"
+            justify="center"
+            p={4}
+            onClick={() => setIsAvatarPreviewOpen(false)}
+            animation="fadeIn 0.15s ease-out"
+            css={{
+              '@keyframes fadeIn': {
+                from: { opacity: 0 },
+                to: { opacity: 1 },
+              },
+            }}
+          >
+            <Box
+              position="relative"
+              display="inline-flex"
+              alignItems="center"
+              justifyContent="center"
+            >
+              <Box
+                as="button"
+                {...({ type: 'button' } as Record<string, unknown>)}
+                position="absolute"
+                top="-12px"
+                right="-12px"
+                w={12}
+                h={12}
+                display="inline-flex"
+                alignItems="center"
+                justifyContent="center"
+                borderRadius="full"
+                bg="blackAlpha.800"
+                color="white"
+                borderWidth="2px"
+                borderColor="whiteAlpha.800"
+                boxShadow="0 8px 24px rgba(0,0,0,.24)"
+                _hover={{ bg: 'blackAlpha.900' }}
+                _active={{ bg: 'blackAlpha.950' }}
+                transition="background 0.2s"
+                aria-label="Close image preview"
+                zIndex={1}
+                onClick={(e: React.MouseEvent) => {
+                  e.stopPropagation();
+                  setIsAvatarPreviewOpen(false);
+                }}
+              >
+                <Icon as={X} boxSize={5} />
+              </Box>
+              <Image
+                src={getFullSizeAvatarUrl(avatarUrl)}
+                alt={displayName}
+                w={{ base: '92vw', md: '560px' }}
+                maxW="92vw"
+                maxH="90vh"
+                borderRadius="16px"
+                objectFit="contain"
+                boxShadow="0 4px 16px rgba(0,0,0,.08)"
+                onClick={(e: React.MouseEvent) => e.stopPropagation()}
+              />
+            </Box>
+          </Flex>
+        </Portal>
+      )}
     </>
   );
 }

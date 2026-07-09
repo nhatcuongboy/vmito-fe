@@ -5,6 +5,7 @@ import NewSessionForm from '@/components/session/NewSessionForm';
 import { Suspense } from 'react';
 import PageLayout from '@/components/layout/PageLayout';
 import { useTranslations } from 'next-intl';
+import { useTourStore } from '@/stores/useTourStore';
 
 export default function NewSessionPage() {
   const router = useRouter();
@@ -15,9 +16,14 @@ export default function NewSessionPage() {
       <PageLayout title={t('createSession')}>
         <NewSessionForm
           backHref="/host/sessions"
-          onSuccess={(session) =>
-            router.push(`/sessions/${session.slug || session.id}`)
-          }
+          onSuccess={(session) => {
+            useTourStore
+              .getState()
+              .completeStep('create-session-tour', 'submit-session', {
+                sessionId: session.slug || session.id,
+              });
+            router.push(`/sessions/${session.slug || session.id}`);
+          }}
         />
       </PageLayout>
     </Suspense>

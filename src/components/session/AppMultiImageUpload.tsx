@@ -54,6 +54,7 @@ interface IAppMultiImageUploadProps {
   maxImages?: number;
   category?: EImageCategory;
   label?: string | null;
+  compact?: boolean;
 }
 
 const SortableImageItem = ({
@@ -64,6 +65,7 @@ const SortableImageItem = ({
   onSetBanner,
   disabled,
   t,
+  compact,
 }: {
   image: ISessionImage;
   index: number;
@@ -72,6 +74,7 @@ const SortableImageItem = ({
   onSetBanner: (index: number) => void;
   disabled?: boolean;
   t: ReturnType<typeof useTranslations>;
+  compact?: boolean;
 }) => {
   const {
     attributes,
@@ -99,14 +102,18 @@ const SortableImageItem = ({
       borderWidth={isBanner ? 3 : 1}
       borderColor={isBanner ? 'green.500' : 'gray.200'}
       _dark={{ borderColor: isBanner ? 'green.400' : 'gray.600' }}
-      w={{ base: 'calc(50% - 6px)', sm: '120px' }}
+      w={
+        compact
+          ? { base: '72px', sm: '84px' }
+          : { base: 'calc(50% - 6px)', sm: '120px' }
+      }
       flexShrink={0}
     >
       <ChakraImage
         src={image.url}
         alt={`Session image ${index + 1}`}
         width="100%"
-        height="120px"
+        height={compact ? '84px' : '120px'}
         objectFit="cover"
       />
 
@@ -183,6 +190,7 @@ const AppMultiImageUpload = ({
   maxImages = 5,
   category = EImageCategory.SESSION_COVER,
   label,
+  compact = false,
 }: IAppMultiImageUploadProps) => {
   const t = useTranslations('session');
   const tc = useTranslations('common');
@@ -350,12 +358,17 @@ const AppMultiImageUpload = ({
   return (
     <Box w="full" maxW="full" minW={0} overflowX="clip">
       {label !== null && (
-        <Flex justify="space-between" align="center" mb={2} w="full">
+        <Flex
+          justify="space-between"
+          align="center"
+          mb={compact ? 1 : 2}
+          w="full"
+        >
           <Text fontSize="sm" fontWeight="medium">
             {label || t('sessionImages')}
           </Text>
           <Text fontSize="xs" color="gray.500">
-            {t('maxImages', { max: maxImages })} — {images.length}/{maxImages}
+            {images.length}/{maxImages}
           </Text>
         </Flex>
       )}
@@ -392,6 +405,7 @@ const AppMultiImageUpload = ({
                     onSetBanner={handleSetBanner}
                     disabled={disabled}
                     t={t}
+                    compact={compact}
                   />
                 ))}
 
@@ -402,9 +416,13 @@ const AppMultiImageUpload = ({
                     direction="column"
                     align="center"
                     justify="center"
-                    gap={2}
-                    w={{ base: 'calc(50% - 6px)', sm: '120px' }}
-                    h="126px"
+                    gap={compact ? 1 : 2}
+                    w={
+                      compact
+                        ? { base: '72px', sm: '84px' }
+                        : { base: 'calc(50% - 6px)', sm: '120px' }
+                    }
+                    h={compact ? '90px' : '126px'}
                     flexShrink={0}
                     borderWidth={1}
                     borderStyle="dashed"
@@ -431,7 +449,7 @@ const AppMultiImageUpload = ({
                     {isDirectUploading ? (
                       <Spinner size="sm" />
                     ) : (
-                      <ImagePlus size={24} />
+                      <ImagePlus size={compact ? 18 : 24} />
                     )}
                     <Text fontSize="xs" fontWeight="semibold">
                       {isDirectUploading ? tc('uploading') : t('uploadNew')}
@@ -450,19 +468,23 @@ const AppMultiImageUpload = ({
             maxW="full"
             minW={0}
             boxSizing="border-box"
-            minH={{ base: '150px', md: '180px' }}
+            minH={
+              compact
+                ? { base: '104px', md: '116px' }
+                : { base: '150px', md: '180px' }
+            }
             borderWidth={2}
             borderStyle="dashed"
             borderColor={isDragActive ? 'green.400' : 'gray.300'}
-            borderRadius="xl"
+            borderRadius={compact ? 'lg' : 'xl'}
             bg={isDragActive ? 'green.50' : 'gray.50'}
             _dark={{
               bg: isDragActive ? 'green.950' : 'gray.800',
               borderColor: isDragActive ? 'green.500' : 'gray.600',
             }}
             mb={3}
-            px={4}
-            py={6}
+            px={compact ? 3 : 4}
+            py={compact ? 3 : 6}
             textAlign="center"
             transition="all 0.2s"
             onDragOver={handleDragOver}
@@ -470,27 +492,27 @@ const AppMultiImageUpload = ({
             onDrop={handleDrop}
           >
             <Flex
-              w={12}
-              h={12}
+              w={compact ? 9 : 12}
+              h={compact ? 9 : 12}
               align="center"
               justify="center"
               borderRadius="full"
               bg={{ base: 'green.100', _dark: 'green.900' }}
               color={{ base: 'green.700', _dark: 'green.200' }}
-              mb={3}
+              mb={compact ? 2 : 3}
             >
-              <ImagePlus size={24} />
+              <ImagePlus size={compact ? 18 : 24} />
             </Flex>
             <Text color="gray.700" fontSize="sm" fontWeight="semibold">
               {t('noImagesYet')}
             </Text>
-            <Text mt={1} color="gray.500" fontSize="sm">
+            <Text mt={0.5} color="gray.500" fontSize="xs">
               {t('orDropItHere')}
             </Text>
             <Flex
-              direction={{ base: 'column', sm: 'row' }}
+              direction="row"
               gap={2}
-              mt={4}
+              mt={compact ? 3 : 4}
               w="full"
               maxW="360px"
               justify="center"

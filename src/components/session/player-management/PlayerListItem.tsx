@@ -200,6 +200,7 @@ const PlayerListItem: React.FC<PlayerListItemProps> = ({
 }) => {
   const t = useTranslations('pages.playerManagement');
   const tCommon = useTranslations('common');
+  const tClubs = useTranslations('clubs');
   const { getLevelShortLabel } = useLevelLabel();
 
   const getGenderLabel = (gender?: string) => {
@@ -353,6 +354,27 @@ const PlayerListItem: React.FC<PlayerListItemProps> = ({
                   >
                     <Box as={UserCheck} boxSize="12px" />
                     {player.club.name}
+                  </Badge>
+                )}
+
+                {/* Monthly Fixed Member Badge (read-only) */}
+                {player.clubFeeApplied && (
+                  <Badge
+                    display="flex"
+                    alignItems="center"
+                    gap={1}
+                    bg="teal.50"
+                    color="teal.700"
+                    borderRadius="lg"
+                    px={2.5}
+                    py={1}
+                    fontSize="xs"
+                    fontWeight="semibold"
+                    border="1px solid"
+                    borderColor="teal.100"
+                  >
+                    <Box as={UserCheck} boxSize="12px" />
+                    {tClubs('monthlyFixedMember')}
                   </Badge>
                 )}
 

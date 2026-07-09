@@ -49,8 +49,8 @@ export default function CreateVenueModal({
   const [acronym, setAcronym] = useState('');
   const [courtsCount, setCourtsCount] = useState(2);
   const [courtNames, setCourtNames] = useState<string[]>([
-    'Court 1',
-    'Court 2',
+    `${t('panels.venues.court')} 1`,
+    `${t('panels.venues.court')} 2`,
   ]);
   const [isSaving, setIsSaving] = useState(false);
 
@@ -60,14 +60,14 @@ export default function CreateVenueModal({
       const newNames = [...prev];
       if (courtsCount > newNames.length) {
         for (let i = newNames.length; i < courtsCount; i++) {
-          newNames.push(`Court ${i + 1}`);
+          newNames.push(`${t('panels.venues.court')} ${i + 1}`);
         }
       } else if (courtsCount < newNames.length) {
         newNames.splice(courtsCount);
       }
       return newNames;
     });
-  }, [courtsCount]);
+  }, [courtsCount, t]);
 
   const handleLocationSelect = (loc: LocationData) => {
     setLocation(loc);
@@ -124,14 +124,14 @@ export default function CreateVenueModal({
         )
       );
 
-      toaster.success({ title: 'Venue created successfully' });
+      toaster.success({ title: t('panels.venues.venueSaved') });
 
       // We pass the new venue up so VenuePanel can use it temporarily or mutate SWR
       onCreated(newVenue);
       onClose();
     } catch (error) {
       console.error('Failed to create venue', error);
-      toaster.error({ title: 'Failed to create venue' });
+      toaster.error({ title: t('panels.venues.saveError') });
     } finally {
       setIsSaving(false);
     }

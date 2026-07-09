@@ -9,6 +9,7 @@ import { CourtService } from '@/lib/api/court.service';
 import { CourtDirection } from '@/lib/api/types';
 import { Court, Player } from '@/types/session';
 import MatchCourtPreview from './MatchCourtPreview';
+import { getLevelRank } from '@/constants/levels';
 
 interface PreSelectedPlayerInfo {
   playerId: string;
@@ -108,16 +109,9 @@ const PreSelectPreviewModal: React.FC<PreSelectPreviewModalProps> = ({
 
     const entries = sortedPreSelectedPlayers.map((entry) => {
       const visualIndex = mapping[entry.position] ?? entry.position;
-      // For horizontal direction (singles mode), pair is determined by left/right side
-      // visualIndex 0,1 are on the left (pair 1), visualIndex 2,3 are on the right (pair 2)
-      const pairNumber =
-        direction === CourtDirection.HORIZONTAL
-          ? visualIndex < 2
-            ? 1
-            : 2
-          : visualIndex % 2 === 0
-            ? 1
-            : 2;
+      // Pairs are split by court side (left/right column), matching BadmintonCourt:
+      // even visual index (0, 2) = left column (pair 1), odd (1, 3) = right column (pair 2)
+      const pairNumber = visualIndex % 2 === 0 ? 1 : 2;
       return { ...entry, visualIndex, pairNumber };
     });
 
@@ -128,12 +122,14 @@ const PreSelectPreviewModal: React.FC<PreSelectPreviewModalProps> = ({
       .filter((entry) => entry.pairNumber === 2)
       .sort((a, b) => a.visualIndex - b.visualIndex);
 
+    const getLevelScore = (player?: Player) =>
+      player?.level ? (getLevelRank(player.level) ?? 0) : 0;
     const pair1Total = pair1.reduce(
-      (sum, entry) => sum + (entry.player?.level ?? 0),
+      (sum, entry) => sum + getLevelScore(entry.player),
       0
     );
     const pair2Total = pair2.reduce(
-      (sum, entry) => sum + (entry.player?.level ?? 0),
+      (sum, entry) => sum + getLevelScore(entry.player),
       0
     );
 

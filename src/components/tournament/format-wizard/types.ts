@@ -2,6 +2,7 @@ export enum TournamentFormatType {
   ROUND_ROBIN = 'ROUND_ROBIN',
   SINGLE_ELIMINATION = 'SINGLE_ELIMINATION',
   ROUND_ROBIN_TO_SE = 'ROUND_ROBIN_TO_SE',
+  DOUBLE_ELIMINATION = 'DOUBLE_ELIMINATION',
 }
 
 export type FilterCategory = TournamentFormatType | null;
@@ -41,23 +42,48 @@ export interface RoundRobinConfig {
   standingsColumns: StandingsColumn[];
 }
 
+export type MatchFormatValue = 'BEST_OF_1' | 'BEST_OF_3' | 'BEST_OF_5';
+
+/** Knockout round labels used as keys for per-round format overrides. */
+export type KnockoutRound = 'R16' | 'QF' | 'SF' | 'F' | '3RD';
+
+/** Optional per-round match-format overrides (falls back to the base format). */
+export type RoundFormats = Partial<Record<KnockoutRound, MatchFormatValue>>;
+
 export interface SingleEliminationConfig {
   seedingMethod: 'manual' | 'random' | 'ranking';
-  matchFormat: 'BEST_OF_1' | 'BEST_OF_3';
+  matchFormat: MatchFormatValue;
   thirdPlaceMatch: boolean;
+  /** Per-round format overrides; rounds not listed use `matchFormat`. */
+  roundFormats?: RoundFormats;
+}
+
+export interface DoubleEliminationConfig {
+  seedingMethod: 'manual' | 'random' | 'ranking';
+  matchFormat: MatchFormatValue;
+  /**
+   * When true, the lower-bracket champion must beat the upper-bracket champion
+   * twice (a bracket-reset / second grand final is created).
+   */
+  isTrueDoubleElimination: boolean;
+  /** Per-round format overrides; rounds not listed use `matchFormat`. */
+  roundFormats?: RoundFormats;
 }
 
 export interface RoundRobinToSEConfig {
   roundRobin: RoundRobinConfig;
   qualifiersPerGroup: number;
-  eliminationMatchFormat: 'BEST_OF_1' | 'BEST_OF_3';
+  eliminationMatchFormat: MatchFormatValue;
   eliminationSeedingMethod: 'manual' | 'random' | 'ranking';
+  /** Per-round format overrides; rounds not listed use `eliminationMatchFormat`. */
+  roundFormats?: RoundFormats;
 }
 
 export type FormatConfig =
   | RoundRobinConfig
   | SingleEliminationConfig
-  | RoundRobinToSEConfig;
+  | RoundRobinToSEConfig
+  | DoubleEliminationConfig;
 
 export interface FormatTemplate {
   id: TournamentFormatType;

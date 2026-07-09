@@ -39,7 +39,15 @@ import {
   XCircle,
 } from 'lucide-react';
 import { VenueService } from '@/lib/api/venue.service';
-import { ClosureStatus, Venue, VenueRequestType } from '@/lib/api/types';
+import {
+  ClosureStatus,
+  Venue,
+  VenueCustomerType,
+  VenueDayType,
+  VenuePriceBook,
+  VenuePriceRule,
+  VenueRequestType,
+} from '@/lib/api/types';
 import PageLayout from '@/components/layout/PageLayout';
 import { Button } from '@/components/ui/chakra-compat';
 import { DEFAULT_COVER_PHOTO } from '@/constants';
@@ -51,7 +59,7 @@ import {
   normalizePhoneForZalo,
 } from '@/utils/phone-utils';
 import { useAuthStore } from '@/stores/useAuthStore';
-import { formatVenueName, getGoogleMapsUrl } from '@/utils';
+import { formatVenueFullName, getGoogleMapsUrl } from '@/utils';
 import { useTranslations } from 'next-intl';
 import VenueMapPin from '@/components/venue/VenueMapPin';
 import VenueRequestModal from '@/components/venue/VenueRequestModal';
@@ -65,9 +73,136 @@ const LoginPromptModal = dynamic(
 
 const OPEN_VENUE_UPDATE_REQUEST_ACTION = 'openVenueUpdateRequest';
 
-function formatPrice(amount?: number) {
-  if (!amount) return null;
-  return new Intl.NumberFormat('vi-VN').format(amount) + 'đ';
+function formatTablePrice(amount?: number) {
+  if (!amount) return '-';
+  return new Intl.NumberFormat('vi-VN').format(amount) + ' đ';
+}
+
+function getLegacyPricingSummary(venue: Venue) {
+  const fixed = venue.hourlyRateFixed;
+  const walkIn = venue.hourlyRateWalkIn;
+
+  if (fixed && walkIn) {
+    if (fixed === walkIn) return `${formatTablePrice(fixed)} / giờ`;
+
+    const minPrice = Math.min(fixed, walkIn);
+    const maxPrice = Math.max(fixed, walkIn);
+    return `Từ ${formatTablePrice(minPrice)} tới ${formatTablePrice(
+      maxPrice
+    )} / giờ`;
+  }
+
+  if (fixed) return `Cố định: ${formatTablePrice(fixed)} / giờ`;
+  if (walkIn) return `Vãng lai: ${formatTablePrice(walkIn)} / giờ`;
+
+  return null;
+}
+
+function minuteToHourLabel(value: number) {
+  if (value === 1440) return '24h';
+
+  const hours = Math.floor(value / 60);
+  const minutes = value % 60;
+  return minutes === 0
+    ? `${hours}h`
+    : `${hours}h${minutes.toString().padStart(2, '0')}`;
+}
+
+function formatTimeRange(startMinute: number, endMinute: number) {
+  return `${minuteToHourLabel(startMinute)} - ${minuteToHourLabel(endMinute)}`;
+}
+
+function compactWeekdayLabel(daysOfWeek?: number[]) {
+  const days = [...new Set(daysOfWeek || [])].sort((a, b) => a - b);
+  if (days.length === 0) return 'Theo thứ';
+  if (days.join(',') === '1,2,3,4,5') return 'T2 - T6';
+  if (days.join(',') === '6,7') return 'T7 - CN';
+  if (days.join(',') === '1,2,3,4,5,6,7') return 'Hằng ngày';
+
+  return days.map((day) => (day === 7 ? 'CN' : `T${day + 1}`)).join(', ');
+}
+
+function getRuleDayLabel(rule: VenuePriceRule) {
+  if (rule.dayType === VenueDayType.EVERYDAY) return 'Hằng ngày';
+  if (rule.dayType === VenueDayType.WEEKEND) return 'T7 - CN';
+  if (rule.dayType === VenueDayType.WEEKDAY) {
+    return compactWeekdayLabel(rule.daysOfWeek);
+  }
+  if (rule.dayType === VenueDayType.HOLIDAY) return 'Ngày lễ';
+  if (rule.dayType === VenueDayType.SPECIFIC_DATE && rule.specificDate) {
+    return new Date(rule.specificDate).toLocaleDateString('vi-VN');
+  }
+
+  return 'Khác';
+}
+
+function getRuleDaySort(rule: VenuePriceRule) {
+  if (rule.dayType === VenueDayType.EVERYDAY) return 0;
+  if (rule.dayType === VenueDayType.WEEKDAY) {
+    return Math.min(...(rule.daysOfWeek?.length ? rule.daysOfWeek : [1]));
+  }
+  if (rule.dayType === VenueDayType.WEEKEND) return 6;
+  if (rule.dayType === VenueDayType.HOLIDAY) return 8;
+  return 9;
+}
+
+function getActivePriceBook(priceBooks: VenuePriceBook[]) {
+  return [...priceBooks]
+    .filter((book) => book.isActive)
+    .sort((a, b) => {
+      const priorityDiff = (b.priority || 0) - (a.priority || 0);
+      if (priorityDiff !== 0) return priorityDiff;
+      return (
+        new Date(b.effectiveFrom).getTime() -
+        new Date(a.effectiveFrom).getTime()
+      );
+    })[0];
+}
+
+interface PricingTableRow {
+  dayLabel: string;
+  daySort: number;
+  timeLabel: string;
+  startMinute: number;
+  fixed?: number;
+  walkIn?: number;
+}
+
+function buildPricingRows(priceBook?: VenuePriceBook) {
+  const rows = new Map<string, PricingTableRow>();
+
+  (priceBook?.rules || []).forEach((rule) => {
+    if (
+      rule.customerType !== VenueCustomerType.FIXED &&
+      rule.customerType !== VenueCustomerType.WALK_IN
+    ) {
+      return;
+    }
+
+    const dayLabel = getRuleDayLabel(rule);
+    const timeLabel = formatTimeRange(rule.startMinute, rule.endMinute);
+    const key = `${dayLabel}-${rule.startMinute}-${rule.endMinute}`;
+    const current = rows.get(key) || {
+      dayLabel,
+      daySort: getRuleDaySort(rule),
+      timeLabel,
+      startMinute: rule.startMinute,
+    };
+
+    if (rule.customerType === VenueCustomerType.FIXED) {
+      current.fixed = rule.pricePerHour;
+    } else {
+      current.walkIn = rule.pricePerHour;
+    }
+
+    rows.set(key, current);
+  });
+
+  return [...rows.values()].sort((a, b) => {
+    const dayDiff = a.daySort - b.daySort;
+    if (dayDiff !== 0) return dayDiff;
+    return a.startMinute - b.startMinute;
+  });
 }
 
 interface VenueDetailClientProps {
@@ -90,6 +225,7 @@ export default function VenueDetailClient({
   const [activeTab, setActiveTab] = useState('about');
   const [isUpdateRequestOpen, setIsUpdateRequestOpen] = useState(false);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+  const [priceBooks, setPriceBooks] = useState<VenuePriceBook[]>([]);
 
   useEffect(() => {
     if (initialVenue) return;
@@ -115,6 +251,21 @@ export default function VenueDetailClient({
       fetchVenue();
     }
   }, [params.id, initialVenue]);
+
+  useEffect(() => {
+    if (!venue?.id) return;
+
+    const fetchPriceBooks = async () => {
+      try {
+        const data = await VenueService.getPriceBooks(venue.id);
+        setPriceBooks(data);
+      } catch (error) {
+        console.error('Failed to fetch venue price books:', error);
+      }
+    };
+
+    fetchPriceBooks();
+  }, [venue?.id]);
 
   useEffect(() => {
     if (
@@ -181,9 +332,9 @@ export default function VenueDetailClient({
     );
   }
 
-  const venueName = formatVenueName(
+  const venueName = formatVenueFullName(
     venue.name,
-    t('nameFormat', { name: '{name}' })
+    t(`fullNameFormat.${venue.sportType ?? 'BADMINTON'}`, { name: '{name}' })
   );
 
   const googleMapsUrl = getGoogleMapsUrl({
@@ -193,6 +344,10 @@ export default function VenueDetailClient({
     lat: venue.lat,
     lng: venue.lng,
   });
+  const activePriceBook = getActivePriceBook(priceBooks);
+  const pricingRows = buildPricingRows(activePriceBook);
+  const hasPricingRows = pricingRows.length > 0;
+  const legacyPricingSummary = getLegacyPricingSummary(venue);
 
   return (
     <PageLayout
@@ -337,6 +492,17 @@ export default function VenueDetailClient({
             </Box>
             {isAdmin && (
               <HStack gap={2} flexShrink={0}>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  colorPalette="green"
+                  onClick={() =>
+                    router.push(`/admin/venues/${venue.id}/pricing`)
+                  }
+                >
+                  <Banknote size={14} />
+                  Bảng giá
+                </Button>
                 <Button
                   variant="outline"
                   size="sm"
@@ -521,17 +687,23 @@ export default function VenueDetailClient({
                   )}
 
                   {/* Bảng giá */}
-                  {(venue.hourlyRateFixed || venue.hourlyRateWalkIn) && (
-                    <Box
-                      p={6}
-                      bg="white"
-                      _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
-                      borderRadius="2xl"
-                      borderWidth="1px"
-                      borderColor="gray.100"
-                      shadow="sm"
+                  <Box
+                    p={6}
+                    bg="white"
+                    _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
+                    borderRadius="2xl"
+                    borderWidth="1px"
+                    borderColor="gray.100"
+                    shadow="sm"
+                  >
+                    <Flex
+                      align={{ base: 'flex-start', sm: 'center' }}
+                      justify="space-between"
+                      gap={3}
+                      mb={4}
+                      direction={{ base: 'column', sm: 'row' }}
                     >
-                      <Flex align="center" gap={3} mb={4}>
+                      <Flex align="center" gap={3}>
                         <Box
                           p={2.5}
                           borderRadius="xl"
@@ -545,72 +717,177 @@ export default function VenueDetailClient({
                           Bảng giá
                         </Heading>
                       </Flex>
-                      <Flex gap={3} flexWrap="wrap">
-                        {venue.hourlyRateFixed && (
-                          <Box
-                            flex="1"
-                            minW="140px"
-                            p={4}
-                            borderRadius="xl"
-                            bg="green.50"
-                            _dark={{ bg: 'green.900/20' }}
-                            borderWidth="1px"
-                            borderColor="green.100"
-                          >
-                            <Text fontSize="xs" color="gray.500" mb={1}>
-                              Giá cố định
-                            </Text>
-                            <Text
-                              fontSize="xl"
-                              fontWeight="bold"
-                              color="green.600"
-                            >
-                              {formatPrice(venue.hourlyRateFixed)}
-                              <Text
-                                as="span"
-                                fontSize="sm"
-                                fontWeight="normal"
-                                color="gray.500"
-                              >
-                                /h
-                              </Text>
-                            </Text>
+                      {isAdmin && !hasPricingRows && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          colorPalette="green"
+                          onClick={() =>
+                            router.push(`/admin/venues/${venue.id}/pricing`)
+                          }
+                        >
+                          <Banknote size={14} />
+                          Cập nhật bảng giá
+                        </Button>
+                      )}
+                    </Flex>
+
+                    {hasPricingRows ? (
+                      <Box overflowX="auto">
+                        <Box
+                          as="table"
+                          w="full"
+                          minW="640px"
+                          borderWidth="1px"
+                          borderColor="green.700"
+                          borderCollapse="collapse"
+                          color="green.900"
+                          _dark={{
+                            color: 'green.100',
+                            borderColor: 'green.500',
+                          }}
+                        >
+                          <Box as="thead">
+                            <Box as="tr">
+                              {['Thứ', 'Khung giờ', 'Cố định', 'Vãng lai'].map(
+                                (heading) => (
+                                  <Box
+                                    key={heading}
+                                    as="th"
+                                    py={4}
+                                    px={4}
+                                    borderWidth="1px"
+                                    borderColor="green.700"
+                                    bg="green.50"
+                                    fontSize={{ base: 'sm', md: 'md' }}
+                                    fontWeight="bold"
+                                    textAlign="center"
+                                    _dark={{
+                                      bg: 'green.950',
+                                      borderColor: 'green.500',
+                                    }}
+                                  >
+                                    {heading}
+                                  </Box>
+                                )
+                              )}
+                            </Box>
                           </Box>
-                        )}
-                        {venue.hourlyRateWalkIn && (
-                          <Box
-                            flex="1"
-                            minW="140px"
-                            p={4}
-                            borderRadius="xl"
-                            bg="orange.50"
-                            _dark={{ bg: 'orange.900/20' }}
-                            borderWidth="1px"
-                            borderColor="orange.100"
-                          >
-                            <Text fontSize="xs" color="gray.500" mb={1}>
-                              Giá vãng lai
-                            </Text>
-                            <Text
-                              fontSize="xl"
-                              fontWeight="bold"
-                              color="orange.600"
-                            >
-                              {formatPrice(venue.hourlyRateWalkIn)}
-                              <Text
-                                as="span"
-                                fontSize="sm"
-                                fontWeight="normal"
-                                color="gray.500"
-                              >
-                                /h
-                              </Text>
-                            </Text>
+                          <Box as="tbody">
+                            {pricingRows.map((row, index) => {
+                              const previousRow = pricingRows[index - 1];
+                              const showDay =
+                                !previousRow ||
+                                previousRow.dayLabel !== row.dayLabel;
+                              const rowSpan = pricingRows.filter(
+                                (item) => item.dayLabel === row.dayLabel
+                              ).length;
+
+                              return (
+                                <Box
+                                  as="tr"
+                                  key={`${row.dayLabel}-${row.timeLabel}`}
+                                >
+                                  {showDay && (
+                                    <Box
+                                      as="td"
+                                      {...{ rowSpan }}
+                                      py={4}
+                                      px={4}
+                                      borderWidth="1px"
+                                      borderColor="green.700"
+                                      fontWeight="semibold"
+                                      textAlign="center"
+                                      verticalAlign="middle"
+                                      _dark={{ borderColor: 'green.500' }}
+                                    >
+                                      {row.dayLabel}
+                                    </Box>
+                                  )}
+                                  <Box
+                                    as="td"
+                                    py={3}
+                                    px={4}
+                                    borderWidth="1px"
+                                    borderColor="green.700"
+                                    textAlign="center"
+                                    _dark={{ borderColor: 'green.500' }}
+                                  >
+                                    {row.timeLabel}
+                                  </Box>
+                                  <Box
+                                    as="td"
+                                    py={3}
+                                    px={4}
+                                    borderWidth="1px"
+                                    borderColor="green.700"
+                                    fontWeight="medium"
+                                    textAlign="center"
+                                    _dark={{ borderColor: 'green.500' }}
+                                  >
+                                    {formatTablePrice(row.fixed)}
+                                  </Box>
+                                  <Box
+                                    as="td"
+                                    py={3}
+                                    px={4}
+                                    borderWidth="1px"
+                                    borderColor="green.700"
+                                    fontWeight="medium"
+                                    textAlign="center"
+                                    _dark={{ borderColor: 'green.500' }}
+                                  >
+                                    {formatTablePrice(row.walkIn)}
+                                  </Box>
+                                </Box>
+                              );
+                            })}
                           </Box>
+                        </Box>
+                        {activePriceBook?.notes && (
+                          <Text fontSize="sm" color="gray.500" mt={3}>
+                            {activePriceBook.notes}
+                          </Text>
                         )}
+                      </Box>
+                    ) : legacyPricingSummary ? (
+                      <Box
+                        p={4}
+                        borderRadius="xl"
+                        bg="green.50"
+                        _dark={{ bg: 'green.900/20' }}
+                        borderWidth="1px"
+                        borderColor="green.100"
+                      >
+                        <Text fontSize="xs" color="gray.500" mb={1}>
+                          Giá tham khảo
+                        </Text>
+                        <Text
+                          fontSize={{ base: 'lg', md: 'xl' }}
+                          fontWeight="bold"
+                          color="green.700"
+                          _dark={{ color: 'green.200' }}
+                        >
+                          {legacyPricingSummary}
+                        </Text>
+                      </Box>
+                    ) : (
+                      <Flex
+                        direction="column"
+                        align="center"
+                        justify="center"
+                        py={8}
+                        color="gray.400"
+                        gap={2}
+                        textAlign="center"
+                      >
+                        <Banknote size={36} strokeWidth={1.4} />
+                        <Text fontSize="sm" fontStyle="italic">
+                          Chưa có thông tin bảng giá.
+                        </Text>
                       </Flex>
-                    </Box>
-                  )}
+                    )}
+                  </Box>
 
                   {/* Tiện ích & Quy định */}
                   {(venue.hasCarParking !== undefined ||

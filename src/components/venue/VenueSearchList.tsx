@@ -4,7 +4,10 @@ import { Button, IconButton } from '@/components/ui/chakra-compat';
 import { useDisclosure } from '@/components/ui/ChakraHooks';
 import AppEmptyState from '@/components/ui/AppEmptyState';
 import { toaster } from '@/components/ui/toaster';
-import { VIETNAM_CITIES } from '@/constants/vietnam-locations';
+import {
+  VIETNAM_CITIES,
+  normalizeCityForApi,
+} from '@/constants/vietnam-locations';
 import {
   TOP_BAR_HEIGHT_MOBILE,
   TOP_BAR_HEIGHT_DESKTOP,
@@ -55,7 +58,9 @@ import {
 import { AppSearchBar } from '@/components/common/AppSearchBar';
 import VenueRequestModal from './VenueRequestModal';
 import { useAuthStore } from '@/stores/useAuthStore';
+import { usePreferenceStore } from '@/stores/usePreferenceStore';
 import { usePathname, useRouter } from '@/i18n/config';
+import { useRegisterTopBarSearch } from '@/contexts/TopBarSearchContext';
 
 const LoginPromptModal = dynamic(
   () => import('@/components/auth/LoginPromptModal'),
@@ -147,6 +152,7 @@ export default function VenueSearchList() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const { isAuthenticated } = useAuthStore();
+  const { preferredCity } = usePreferenceStore();
   const [venues, setVenues] = useState<Venue[]>([]);
   const [totalCount, setTotalCount] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
@@ -258,12 +264,18 @@ export default function VenueSearchList() {
           city:
             filters.city.length > 0
               ? filters.city
-                  .map(
-                    (code) =>
-                      VIETNAM_CITIES.find((c) => c.code === code)?.name ?? code
-                  )
+                  .map((code) => {
+                    const name =
+                      VIETNAM_CITIES.find((c) => c.code === code)?.name ?? code;
+                    return normalizeCityForApi(name);
+                  })
                   .join(',')
-              : undefined,
+              : preferredCity
+                ? normalizeCityForApi(
+                    VIETNAM_CITIES.find((c) => c.code === preferredCity)
+                      ?.name ?? preferredCity
+                  )
+                : undefined,
           district:
             filters.district.length > 0
               ? filters.district.join(',')
@@ -361,6 +373,7 @@ export default function VenueSearchList() {
     filters.sort,
     userLocation,
     viewMode, // re-fetch with larger limit when switching to/from map mode
+    preferredCity,
   ]);
 
   // Trigger load more when in view
@@ -491,6 +504,16 @@ export default function VenueSearchList() {
     filters.city.length + filters.district.length + (filters.near ? 1 : 0);
   const hasVenueSearch = filters.q.trim().length > 0;
 
+  // Register desktop search bar in the top bar
+  useRegisterTopBarSearch({
+    value: keyword,
+    onChange: setKeyword,
+    placeholder: t('venue.searchPlaceholder'),
+    onFilterClick: toggleFilters,
+    activeFilterCount: activeFilterCount,
+    showFilter: true,
+  });
+
   // Sort dropdown state
   const [isSortOpen, setIsSortOpen] = useState(false);
   const sortDropdownRef = useRef<HTMLDivElement>(null);
@@ -574,6 +597,7 @@ export default function VenueSearchList() {
         bg={{ base: 'bg', md: 'transparent' }}
         pt={2}
         pb={{ base: 0, md: 2 }}
+        display={{ base: 'block', md: 'none' }}
       >
         <Flex align="center" gap={2} w="100%" maxW="650px" mx="auto">
           <Box flex={1} w="100%">
@@ -584,6 +608,7 @@ export default function VenueSearchList() {
               onFilterClick={toggleFilters}
               activeFilterCount={activeFilterCount}
               showFilter={true}
+              showCitySelector={true}
             />
           </Box>
         </Flex>

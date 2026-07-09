@@ -79,6 +79,16 @@ export interface SessionActionConfig {
   showManageButton?: boolean;
 
   /**
+   * Show add guest button next to other primary actions
+   */
+  showAddGuestButton?: boolean;
+
+  /**
+   * Callback when add guest button is clicked
+   */
+  onAddGuest?: () => void;
+
+  /**
    * Custom href for manage button
    * Auto-computed based on user role if not provided
    */
@@ -110,6 +120,13 @@ export interface SessionActionConfig {
   onViewRegistration?: () => void;
 
   /**
+   * Render the "View Registration" button as an icon-only button instead of
+   * a labeled button (matches the icon-only style used next to the
+   * "View Session" button elsewhere).
+   */
+  compactViewRegistrationButton?: boolean;
+
+  /**
    * Show register button (for non-registered users)
    * Can be disabled if session is full
    */
@@ -129,4 +146,16 @@ export interface SessionActionConfig {
    * Status of registration status fetching for current user
    */
   isRegistrationLoading?: boolean;
+
+  /**
+   * Show "Xem bài gốc" (view original post) button for crawled (vãng lai)
+   * Facebook sessions. Opens {@link externalUrl} in a new tab.
+   */
+  showExternalLinkButton?: boolean;
+
+  /**
+   * URL of the original Facebook post, opened when the external-link button
+   * is clicked. Required when showExternalLinkButton is true.
+   */
+  externalUrl?: string;
 }

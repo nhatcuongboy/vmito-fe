@@ -7,6 +7,7 @@ import {
   RoundRobinConfig,
   SingleEliminationConfig,
   RoundRobinToSEConfig,
+  DoubleEliminationConfig,
 } from './types';
 
 export const FORMAT_TEMPLATES: FormatTemplate[] = [
@@ -16,6 +17,10 @@ export const FORMAT_TEMPLATES: FormatTemplate[] = [
   },
   {
     id: TournamentFormatType.SINGLE_ELIMINATION,
+    filterCategories: [TournamentFormatType.SINGLE_ELIMINATION],
+  },
+  {
+    id: TournamentFormatType.DOUBLE_ELIMINATION,
     filterCategories: [TournamentFormatType.SINGLE_ELIMINATION],
   },
   {
@@ -191,8 +196,8 @@ export const AVAILABLE_STANDINGS_COLUMNS: StandingsColumn[] = [
 export const DEFAULT_RR_CONFIG: RoundRobinConfig = {
   pointsEarning: 'match_results',
   winPoints: 2,
-  tiePoints: 1,
-  lossPoints: 0,
+  tiePoints: 0,
+  lossPoints: 1,
   cancelledMatchPoints: 0,
   gameWinPoints: 0,
   gameLossPoints: 0,
@@ -210,6 +215,12 @@ export const DEFAULT_SE_CONFIG: SingleEliminationConfig = {
   thirdPlaceMatch: false,
 };
 
+export const DEFAULT_DE_CONFIG: DoubleEliminationConfig = {
+  seedingMethod: 'manual',
+  matchFormat: 'BEST_OF_3',
+  isTrueDoubleElimination: true,
+};
+
 export const DEFAULT_RR_TO_SE_CONFIG: RoundRobinToSEConfig = {
   roundRobin: { ...DEFAULT_RR_CONFIG },
   qualifiersPerGroup: 2,
@@ -219,7 +230,11 @@ export const DEFAULT_RR_TO_SE_CONFIG: RoundRobinToSEConfig = {
 
 export function getDefaultConfig(
   format: TournamentFormatType
-): RoundRobinConfig | SingleEliminationConfig | RoundRobinToSEConfig {
+):
+  | RoundRobinConfig
+  | SingleEliminationConfig
+  | RoundRobinToSEConfig
+  | DoubleEliminationConfig {
   switch (format) {
     case TournamentFormatType.ROUND_ROBIN:
       return {
@@ -231,6 +246,8 @@ export function getDefaultConfig(
       };
     case TournamentFormatType.SINGLE_ELIMINATION:
       return { ...DEFAULT_SE_CONFIG };
+    case TournamentFormatType.DOUBLE_ELIMINATION:
+      return { ...DEFAULT_DE_CONFIG };
     case TournamentFormatType.ROUND_ROBIN_TO_SE:
       return {
         ...DEFAULT_RR_TO_SE_CONFIG,

@@ -33,6 +33,7 @@ import {
   TableContainer,
 } from '@/components/ui/VTable';
 import { Field } from '@/components/ui/Field';
+import { useTranslations } from 'next-intl';
 
 const venueSchema = z.object({
   name: z.string().min(2, 'Name is required'),
@@ -66,6 +67,8 @@ export default function BulkCreateVenueModal({
   onClose,
   onSuccess,
 }: Props) {
+  const t = useTranslations('admin.venues.bulk');
+  const tc = useTranslations('common');
   const [tab, setTab] = useState<string>('manual');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -162,7 +165,7 @@ export default function BulkCreateVenueModal({
       },
       error: (error: Error) => {
         toaster.error({
-          title: 'Error parsing CSV file',
+          title: t('csvParseError'),
           description: error.message,
         });
       },
@@ -178,7 +181,7 @@ export default function BulkCreateVenueModal({
 
   const onSubmitCsv = async () => {
     if (csvErrors.length > 0) {
-      toaster.error({ title: 'Please fix validation errors first' });
+      toaster.error({ title: t('fixValidationErrors') });
       return;
     }
     if (csvData.length === 0) return;
@@ -191,17 +194,17 @@ export default function BulkCreateVenueModal({
     try {
       const res = await VenueService.createBulkVenues(venuesData);
       toaster.success({
-        title: 'Bulk Created Successfully',
-        description: `${res.count} venues added/processed.`,
+        title: t('createSuccess'),
+        description: `${res.count} ${t('venuesProcessed')}`,
       });
       onSuccess();
       handleClose();
     } catch (error) {
       toaster.error({
-        title: 'Creation Failed',
+        title: tc('error'),
         description:
           (error as { response?: { data?: { message?: string } } }).response
-            ?.data?.message || 'An error occurred during bulk creation.',
+            ?.data?.message || t('createError'),
       });
     } finally {
       setIsSubmitting(false);

@@ -39,6 +39,7 @@ function SignInForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const t = useTranslations('auth.signin');
+  const tGuard = useTranslations('auth.guard');
   const locale = useLocale();
   const { user, isAuthenticated } = useAuthStore();
   const isHydrated = useAuthHydration();
@@ -162,7 +163,7 @@ function SignInForm() {
         <VStack gap={4}>
           <Spinner size="lg" color="green.500" />
           <Text color="fg.muted">
-            {isRedirecting ? 'Redirecting...' : 'Loading...'}
+            {isRedirecting ? tGuard('redirecting') : tGuard('loading')}
           </Text>
         </VStack>
       </Box>

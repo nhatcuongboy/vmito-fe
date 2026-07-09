@@ -6,7 +6,7 @@ import {
   SuggestedPlayersResponse,
 } from '@/lib/api/types';
 import { Court, Match, Player } from '@/types/session';
-import { Box, Text } from '@chakra-ui/react';
+import { Box, Flex, Text } from '@chakra-ui/react';
 import { useTranslations } from 'next-intl';
 import React from 'react';
 import { createCourtElapsedTimeFormatter } from '@/utils/time-helpers';
@@ -18,6 +18,9 @@ import WaitingPlayers from './WaitingPlayers';
 import { useCourtsTabModals } from '@/hooks/useCourtsTabModals';
 import { useCourtsTabActions } from '@/hooks/useCourtsTabActions';
 import { SessionCourtsTabSkeleton } from './SessionTabSkeletons';
+import { SessionService } from '@/lib/api/session.service';
+import CourtDisplayModeSwitch from '@/components/court/CourtDisplayModeSwitch';
+import { useTourCompleteWhen } from '@/components/tour/useTourCompleteWhen';
 
 interface SessionCourtsTabProps {
   session: ISession;
@@ -55,6 +58,52 @@ const SessionCourtsTab: React.FC<SessionCourtsTabProps> = ({
     defaultMatchType: session.defaultMatchType,
   });
   const actions = useCourtsTabActions({ onDataRefresh });
+  const [matchHistory, setMatchHistory] = React.useState<Match[]>([]);
+
+  React.useEffect(() => {
+    let isMounted = true;
+
+    const loadMatchHistory = async () => {
+      try {
+        const result = await SessionService.getSessionMatchesWithFilters(
+          session.id
+        );
+        if (!isMounted) return;
+
+        setMatchHistory(
+          result.matches.filter(
+            (match) =>
+              match.status === 'FINISHED' ||
+              (match.status as string) === 'COMPLETED'
+          )
+        );
+      } catch (error) {
+        console.error('Error loading match history for warnings:', error);
+        if (isMounted) {
+          setMatchHistory([]);
+        }
+      }
+    };
+
+    loadMatchHistory();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [session.id, session.updatedAt]);
+
+  // Product tour: advance the matchmaking / match steps as courts progress
+  useTourCompleteWhen(
+    'assign-players',
+    (session.courts ?? []).some(
+      (court: Court) => court.status === 'READY' || !!court.currentMatchId
+    )
+  );
+  useTourCompleteWhen(
+    'start-match',
+    (session.courts ?? []).some((court: Court) => !!court.currentMatchId)
+  );
+  useTourCompleteWhen('end-match', matchHistory.length > 0);
 
   const hasPreSelectedPlayers = (court: Court): boolean => {
     return !!(
@@ -188,7 +237,11 @@ const SessionCourtsTab: React.FC<SessionCourtsTabProps> = ({
           </Text>
         )}
         <Box>
-          <SimpleGrid columns={{ base: 1, md: 2 }} gap={6} mt={4} p={1}>
+          {/* Display Mode Switch */}
+          <Flex justify="flex-end" mt={2} px={1}>
+            <CourtDisplayModeSwitch />
+          </Flex>
+          <SimpleGrid columns={{ base: 1, md: 2 }} gap={6} mt={2} p={1}>
             {(session.courts ?? []).map((court: Court) => {
               const currentMatch = getCurrentMatch(court.id);
               return (
@@ -200,6 +253,7 @@ const SessionCourtsTab: React.FC<SessionCourtsTabProps> = ({
                   mode={mode}
                   isRefreshing={isRefreshing}
                   waitingPlayers={waitingPlayers}
+                  matchHistory={matchHistory}
                   onAssignPlayersClick={modals.openPlayerSelectionModal}
                   onPreSelectClick={modals.openPreSelectModal}
                   onViewPreSelect={modals.openPreSelectPreviewModal}
@@ -240,6 +294,7 @@ const SessionCourtsTab: React.FC<SessionCourtsTabProps> = ({
         formatWaitTime={waitTimeFormatter}
         isLoadingAutoConfirm={modals.loadingConfirmAutoAssign}
         isLoadingManualConfirm={modals.confirmingManualMatch}
+        matchHistory={matchHistory}
         courtColor={session.courtColor}
       />
 
@@ -264,6 +319,7 @@ const SessionCourtsTab: React.FC<SessionCourtsTabProps> = ({
         formatWaitTime={waitTimeFormatter}
         isLoadingAutoConfirm={modals.confirmingPreSelect}
         isLoadingManualConfirm={modals.confirmingPreSelect}
+        matchHistory={matchHistory}
         courtColor={session.courtColor}
         title={
           modals.selectedPreSelectCourt

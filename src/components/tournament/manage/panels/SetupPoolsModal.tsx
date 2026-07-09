@@ -19,6 +19,7 @@ import {
   CategoryGroup,
   CategoryMatch,
   CategoryRegistration,
+  MatchStatus,
 } from '@/lib/api/types';
 import { CategoryService } from '@/lib/api/category.service';
 import { generateRoundRobinMatches } from '@/utils/round-robin';
@@ -112,17 +113,33 @@ const getMatchName = (match: CategoryMatch, position: 1 | 2): string => {
   return '?';
 };
 
+const naturalTeamSort = (a: IPreviewTeam, b: IPreviewTeam): number =>
+  a.name.localeCompare(b.name, undefined, {
+    numeric: true,
+    sensitivity: 'base',
+  });
+
 const distributeIntoGroups = (
   teams: IPreviewTeam[],
-  groupCount: number
+  groupCount: number,
+  poolLabelText: string
 ): IPreviewPool[] => {
   const pools: IPreviewPool[] = Array.from({ length: groupCount }, (_, i) => ({
-    name: `Pool ${POOL_LABELS[i] ?? String(i + 1)}`,
+    name: `${poolLabelText} ${POOL_LABELS[i] ?? String(i + 1)}`,
     teams: [],
   }));
-  teams.forEach((team, idx) => {
-    pools[idx % groupCount].teams.push(team);
+
+  const orderedTeams = [...teams].sort(naturalTeamSort);
+  const baseGroupSize = Math.floor(orderedTeams.length / groupCount);
+  const remainder = orderedTeams.length % groupCount;
+  let offset = 0;
+
+  pools.forEach((pool, idx) => {
+    const groupSize = baseGroupSize + (idx < remainder ? 1 : 0);
+    pool.teams = orderedTeams.slice(offset, offset + groupSize);
+    offset += groupSize;
   });
+
   return pools;
 };
 
@@ -266,6 +283,8 @@ export default function SetupPoolsModal({
     null
   );
   const [isEditMatchesOpen, setIsEditMatchesOpen] = useState(false);
+  // Confirmation before a save that would wipe existing matches/scores
+  const [isConfirmOverwriteOpen, setIsConfirmOverwriteOpen] = useState(false);
 
   // Reset and load on open
   useEffect(() => {
@@ -282,6 +301,7 @@ export default function SetupPoolsModal({
     setHasChanges(initialStep === 'configure');
     setCustomMatches(null);
     setIsEditMatchesOpen(false);
+    setIsConfirmOverwriteOpen(false);
     loadData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen, category.id]);
@@ -318,9 +338,11 @@ export default function SetupPoolsModal({
     [registrations, seedOrder]
   );
 
+  const poolLabelText = t('panels.rounds.poolLabel');
+
   const previewPools = useMemo(
-    () => distributeIntoGroups(previewTeams, groupCount),
-    [previewTeams, groupCount]
+    () => distributeIntoGroups(previewTeams, groupCount, poolLabelText),
+    [previewTeams, groupCount, poolLabelText]
   );
 
   // Editable pool state — starts from previewPools, updated by drag-and-drop
@@ -346,15 +368,22 @@ export default function SetupPoolsModal({
   const groupNameMap = useMemo(() => {
     const map: Record<string, string> = {};
     existingGroups.forEach((g, idx) => {
-      map[g.id] = g.name || `Pool ${POOL_LABELS[idx] ?? String(idx + 1)}`;
+      map[g.id] =
+        g.name || `${poolLabelText} ${POOL_LABELS[idx] ?? String(idx + 1)}`;
     });
     return map;
-  }, [existingGroups]);
+  }, [existingGroups, poolLabelText]);
 
   const maxGroupCount = Math.max(1, Math.floor(registrations.length / 2));
 
   // Decide what to show in the matches step
   const showExistingMatches = !hasChanges && existingMatches.length > 0;
+
+  // Saving recreates all groups/matches from scratch (see handleSaveMatches),
+  // which destroys any scores already recorded. Warn before doing that.
+  const hasPlayedMatches = existingMatches.some(
+    (m) => !!m.score || m.status === MatchStatus.FINISHED
+  );
 
   // ─── DnD for pool teams ────────────────────────────────────────────────────
 
@@ -450,20 +479,33 @@ export default function SetupPoolsModal({
     setCustomMatches(null);
   };
 
-  const handleGenerateGames = () => {
+  const validatePools = (): boolean => {
     if (previewTeams.length < 2) {
       toaster.error({ title: t('panels.rounds.needAtLeast2Teams') });
-      return;
+      return false;
     }
     const badPool = previewPools.find((p) => p.teams.length < 2);
     if (badPool) {
       toaster.error({
         title: t('panels.rounds.poolNeedsMinTeams', { pool: badPool.name }),
       });
-      return;
+      return false;
     }
+    return true;
+  };
+
+  // Manual method: proceed to the matches step to enter matches by hand.
+  const handleEnterMatches = () => {
+    if (!validatePools()) return;
     setCustomMatches(null); // ensure fresh auto-generated matches on first open
     setStep('matches');
+  };
+
+  // Auto method: save the pool configuration only. Round-robin matches are
+  // generated later via the explicit "Phát sinh trận vòng bảng" button.
+  const handleSavePoolsConfig = () => {
+    if (!validatePools()) return;
+    handleSavePress();
   };
 
   const handleEditMatchesConfirm = (
@@ -525,13 +567,13 @@ export default function SetupPoolsModal({
         }
       }
 
+      // Only persist explicit, manually-entered matches here. Auto round-robin
+      // generation is a separate, explicit step ("Phát sinh trận vòng bảng" in
+      // the rounds panel) so that saving pool configuration never silently
+      // (re)creates matches — keeping the Configure → Generate model consistent
+      // with the playoff section.
       if (customMatches) {
-        // Save custom-edited matches one by one
-        const groupNameToId: Record<string, string> = {};
-        newGroups.forEach((g, idx) => {
-          groupNameToId[`Pool ${POOL_LABELS[idx] ?? String(idx + 1)}`] = g.id;
-        });
-        // Fetch registrations to build name→id map
+        // Fetch registrations to validate participant IDs still exist
         const regs = await CategoryService.getRegistrations(category.id);
         const regIdSet = new Set(regs.map((r) => r.id));
         let matchNumber = 1;
@@ -546,22 +588,32 @@ export default function SetupPoolsModal({
             ],
           });
         }
-      } else {
-        // Generate round-robin matches automatically
-        await CategoryService.generateAllGroupMatches(category.id, {
-          showToast: false,
-        });
       }
 
-      toaster.success({ title: t('panels.rounds.matchesSaved') });
+      toaster.success({
+        title: customMatches
+          ? t('panels.rounds.matchesSaved')
+          : t('panels.rounds.poolsSaved'),
+      });
       onSaved();
       onClose();
     } catch (error: unknown) {
       const msg =
-        error instanceof Error ? error.message : 'Failed to save matches';
+        error instanceof Error
+          ? error.message
+          : t('panels.rounds.matchesSaveFailed');
       toaster.error({ title: msg });
     } finally {
       setIsSaving(false);
+    }
+  };
+
+  // Gate the save behind a confirmation when it would discard recorded scores.
+  const handleSavePress = () => {
+    if (hasPlayedMatches) {
+      setIsConfirmOverwriteOpen(true);
+    } else {
+      handleSaveMatches();
     }
   };
 
@@ -575,14 +627,26 @@ export default function SetupPoolsModal({
           <Button variant="ghost" onClick={onClose}>
             {t('panels.rounds.cancel')}
           </Button>
-          <Button
-            style={{ background: '#1a202c', color: 'white' }}
-            leftIcon={<Sparkles size={14} />}
-            onClick={handleGenerateGames}
-            disabled={registrations.length < 2 || loadingData}
-          >
-            {t('panels.rounds.generateGames')}
-          </Button>
+          {matchMethod === 'manual' ? (
+            <Button
+              style={{ background: '#1a202c', color: 'white' }}
+              leftIcon={<Sparkles size={14} />}
+              onClick={handleEnterMatches}
+              disabled={registrations.length < 2 || loadingData}
+            >
+              {t('panels.rounds.enterMatches')}
+            </Button>
+          ) : (
+            <Button
+              style={{ background: '#1a202c', color: 'white' }}
+              onClick={handleSavePoolsConfig}
+              disabled={registrations.length < 2 || loadingData || isSaving}
+            >
+              {isSaving
+                ? t('panels.rounds.saving')
+                : t('panels.rounds.savePools')}
+            </Button>
+          )}
         </>
       ) : (
         <>
@@ -599,7 +663,7 @@ export default function SetupPoolsModal({
           )}
           <Button
             style={{ background: '#1a202c', color: 'white' }}
-            onClick={showExistingMatches ? onClose : handleSaveMatches}
+            onClick={showExistingMatches ? onClose : handleSavePress}
             disabled={isSaving}
           >
             {isSaving
@@ -1002,13 +1066,16 @@ export default function SetupPoolsModal({
 
         {/* ─── Step 2: Match list ──────────────────────────────────────── */}
         {step === 'matches' && (
-          <Box maxW="560px" mx="auto" py={2}>
+          <Box maxW="1200px" mx="auto" py={2} px={4}>
             {/* Edit matches button */}
             <Box mb={4}>
               <Button
                 size="sm"
                 variant="outline"
                 w="full"
+                maxW="400px"
+                mx="auto"
+                display="block"
                 onClick={() => setIsEditMatchesOpen(true)}
               >
                 {t('panels.rounds.editMatches')}
@@ -1016,7 +1083,15 @@ export default function SetupPoolsModal({
             </Box>
 
             {/* Match cards */}
-            <VStack gap={3} align="stretch">
+            <Box
+              display="grid"
+              gridTemplateColumns={{
+                base: 'repeat(2, 1fr)',
+                md: 'repeat(3, 1fr)',
+                lg: 'repeat(4, 1fr)',
+              }}
+              gap={3}
+            >
               {(() => {
                 // Display priority: customMatches → existingMatches → previewMatches
                 const displayMatches: Array<{
@@ -1038,8 +1113,9 @@ export default function SetupPoolsModal({
                         key: match.id,
                         number: idx + 1,
                         poolLabel: match.groupId
-                          ? (groupNameMap[match.groupId] ?? 'Pool')
-                          : 'Pool',
+                          ? (groupNameMap[match.groupId] ??
+                            t('panels.rounds.poolLabel'))
+                          : t('panels.rounds.poolLabel'),
                         name1: getMatchName(match, 1),
                         name2: getMatchName(match, 2),
                       }))
@@ -1078,7 +1154,7 @@ export default function SetupPoolsModal({
                   </Box>
                 ));
               })()}
-            </VStack>
+            </Box>
           </Box>
         )}
       </VModal>
@@ -1119,6 +1195,25 @@ export default function SetupPoolsModal({
         teams={previewTeams}
         onConfirm={handleSeedsConfirm}
       />
+      {/* Overwrite confirmation — only shown when scores would be discarded */}
+      <VModal
+        isOpen={isConfirmOverwriteOpen}
+        onClose={() => setIsConfirmOverwriteOpen(false)}
+        title={t('panels.rounds.confirmOverwriteTitle')}
+        primaryActionText={t('panels.rounds.confirmOverwriteConfirm')}
+        onPrimaryAction={() => {
+          setIsConfirmOverwriteOpen(false);
+          handleSaveMatches();
+        }}
+        isPrimaryLoading={isSaving}
+        primaryColorScheme="red"
+        secondaryActionText={t('panels.rounds.cancel')}
+        zIndex={1500}
+      >
+        <Text fontSize="sm" color="gray.600">
+          {t('panels.rounds.confirmOverwriteMessage')}
+        </Text>
+      </VModal>
     </>
   );
 }

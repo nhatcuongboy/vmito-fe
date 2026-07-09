@@ -4,6 +4,7 @@ import { ReactNode } from 'react';
 import { Box, Container, ContainerProps } from '@chakra-ui/react';
 import PageWrapper from './PageWrapper';
 import TopBar from '../ui/TopBar';
+import CityOnboardingModal from '../ui/CityOnboardingModal';
 import { DiscoveryTabNav } from '../navigation/DiscoveryTabNav';
 import { usePathname } from '@/i18n/config';
 import { ROUTES } from '@/constants';
@@ -18,9 +19,11 @@ import { useIsMainPage } from '@/hooks/useBottomNavVisibility';
 interface PageLayoutProps extends Omit<ContainerProps, 'title'> {
   title?: React.ReactNode;
   icon?: ReactNode;
+  mobileIcon?: ReactNode;
   rightContent?: ReactNode;
   showBackButton?: boolean;
   backHref?: string;
+  onBack?: () => void;
   maxW?: string;
   children?: ReactNode;
   isLoading?: boolean;
@@ -32,14 +35,34 @@ interface PageLayoutProps extends Omit<ContainerProps, 'title'> {
   hideTopBarBorder?: boolean;
   /** Force title to be centered on mobile regardless of path */
   centerTitle?: boolean;
+  showTopBarMenuButton?: boolean;
+  showTopBarLogo?: boolean;
+  topBarLogoHref?: string;
+  showTopBarLogoDesktopOnly?: boolean;
+  showTopBarAuthActions?: boolean;
+  showTopBarAiAssistantButton?: boolean;
+  /** Disable the left margin offset normally applied for the global sidebar */
+  disableSidebarOffset?: boolean;
+  /**
+   * Vertical gap between the top bar and the page content. Defaults to
+   * CONTENT_PT_OFFSET; pass '0px' to butt the content right up against the bar
+   * (e.g. the tournament shell, whose bordered container needs no extra gap).
+   */
+  contentTopOffset?: string;
+  rootClassName?: string;
+  topBarClassName?: string;
+  /** On desktop, render this content centered in the top bar (search bar) instead of the title */
+  topBarSearchContent?: ReactNode;
 }
 
 export default function PageLayout({
   title,
   icon,
+  mobileIcon,
   rightContent,
   showBackButton,
   backHref,
+  onBack,
   maxW = 'container.xl',
   children,
   isLoading = false,
@@ -54,6 +77,17 @@ export default function PageLayout({
   subHeader,
   hideTopBarBorder = false,
   centerTitle = false,
+  showTopBarMenuButton = true,
+  showTopBarLogo = true,
+  topBarLogoHref = '/',
+  showTopBarLogoDesktopOnly = false,
+  showTopBarAuthActions = true,
+  showTopBarAiAssistantButton = true,
+  disableSidebarOffset = false,
+  contentTopOffset = CONTENT_PT_OFFSET,
+  rootClassName,
+  topBarClassName,
+  topBarSearchContent,
   ...containerProps
 }: PageLayoutProps) {
   const isMainPage = useIsMainPage();
@@ -64,6 +98,7 @@ export default function PageLayout({
     '/',
     ROUTES.BROWSE.VENUES.LIST,
     ROUTES.CLUBS.BROWSE,
+    ROUTES.BROWSE.TOURNAMENTS.LIST,
   ].some((path) => {
     const normalized =
       pathname.replace(/^\/[a-z]{2}(\/|$)/, '/').replace(/\/$/, '') || '/';
@@ -74,23 +109,37 @@ export default function PageLayout({
 
   return (
     <PageWrapper
+      className={rootClassName}
       bg={bg}
       background={background}
       bgColor={bgColor}
       backgroundColor={backgroundColor}
       _dark={_dark}
       minH={minH ?? '100vh'}
+      {...(disableSidebarOffset ? { ml: 0 } : {})}
     >
       <TopBar
         title={title}
         icon={icon}
+        mobileIcon={mobileIcon}
         rightContent={rightContent}
         showBackButton={showBackButton ?? variant === 'secondary'}
         backHref={backHref}
+        onBack={onBack}
         variant={variant}
         hideBottomBorder={isDiscoveryPage || hideTopBarBorder}
         centerTitle={centerTitle}
+        showMenuButton={showTopBarMenuButton}
+        showLogo={showTopBarLogo}
+        logoHref={topBarLogoHref}
+        showLogoDesktopOnly={showTopBarLogoDesktopOnly}
+        showAuthActions={showTopBarAuthActions}
+        showAiAssistantButton={showTopBarAiAssistantButton}
+        showCitySelector={isDiscoveryPage}
+        className={topBarClassName}
+        desktopSearchContent={topBarSearchContent}
       />
+      {isDiscoveryPage && <CityOnboardingModal />}
       {isDiscoveryPage && <DiscoveryTabNav />}
       {!isDiscoveryPage && subHeader && (
         <Box
@@ -103,6 +152,7 @@ export default function PageLayout({
         </Box>
       )}
       <Container
+        as="main"
         maxW={maxW}
         px={CONTAINER_PX}
         minH={minH ?? '100vh'}
@@ -111,10 +161,10 @@ export default function PageLayout({
             ? isDiscoveryPage
               ? `calc(${TOP_BAR_HEIGHT_MOBILE}px + env(safe-area-inset-top) + 112px)`
               : `calc(${TOP_BAR_HEIGHT_MOBILE}px + env(safe-area-inset-top) + 44px)`
-            : `calc(${TOP_BAR_HEIGHT_MOBILE}px + env(safe-area-inset-top) + ${CONTENT_PT_OFFSET})`,
+            : `calc(${TOP_BAR_HEIGHT_MOBILE}px + env(safe-area-inset-top) + ${contentTopOffset})`,
           md: subHeader
-            ? CONTENT_PT_OFFSET
-            : `calc(${TOP_BAR_HEIGHT_DESKTOP}px + env(safe-area-inset-top) + ${CONTENT_PT_OFFSET})`,
+            ? contentTopOffset
+            : `calc(${TOP_BAR_HEIGHT_DESKTOP}px + env(safe-area-inset-top) + ${contentTopOffset})`,
         }}
         pb="calc(64px + env(safe-area-inset-bottom) + 24px)"
         {...containerProps}

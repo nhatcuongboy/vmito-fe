@@ -23,7 +23,7 @@ type TTranslate = (key: string) => string;
 type TRegisterGender = NonNullable<RegisterRequest['gender']>;
 
 const isRegisterGender = (value: string): value is TRegisterGender => {
-  return value === 'MALE' || value === 'FEMALE' || value === 'OTHER';
+  return value === 'MALE' || value === 'FEMALE';
 };
 
 function createSignUpSchema(t: TTranslate) {
@@ -43,12 +43,9 @@ function createSignUpSchema(t: TTranslate) {
       gender: z
         .string()
         .optional()
-        .refine(
-          (value) => !value || ['MALE', 'FEMALE', 'OTHER'].includes(value),
-          {
-            message: t('genderInvalid'),
-          }
-        ),
+        .refine((value) => !value || ['MALE', 'FEMALE'].includes(value), {
+          message: t('genderInvalid'),
+        }),
     })
     .refine((data) => data.password === data.confirmPassword, {
       message: t('passwordsDoNotMatch'),
@@ -226,7 +223,6 @@ export default function SignUpClient({ locale }: SignUpClientProps) {
                             <option value="">{tCommon('selectGender')}</option>
                             <option value="MALE">{tCommon('male')}</option>
                             <option value="FEMALE">{tCommon('female')}</option>
-                            <option value="OTHER">{tCommon('other')}</option>
                           </VSelect>
                         )}
                       />

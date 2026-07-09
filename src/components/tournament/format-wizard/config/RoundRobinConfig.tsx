@@ -17,14 +17,19 @@ export default function RoundRobinConfig() {
   };
 
   return (
-    <Flex direction={{ base: 'column', lg: 'row' }} gap={6} h="full">
+    <Flex direction={{ base: 'column', lg: 'row' }} gap={6} align="flex-start">
       {/* Left: Configuration form */}
-      <Box flex={1} overflowY="auto" minH={0} pr={{ lg: 4 }}>
+      <Box flex={1} minW={0} pr={{ lg: 4 }}>
         <RoundRobinConfigForm config={config} update={update} />
       </Box>
 
       {/* Right: Preview table */}
-      <Box w={{ base: 'full', lg: '45%' }} flexShrink={0} pt={{ lg: 0 }}>
+      <Box
+        w={{ base: 'full', lg: '45%' }}
+        flexShrink={0}
+        position={{ lg: 'sticky' }}
+        top={{ lg: 0 }}
+      >
         <PreviewTable columns={config.standingsColumns} />
       </Box>
     </Flex>

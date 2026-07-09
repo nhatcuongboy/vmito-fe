@@ -12,6 +12,7 @@ export enum UserRole {
   GUEST = 'GUEST',
   PLAYER = 'PLAYER',
   ADMIN = 'ADMIN',
+  REFEREE = 'REFEREE',
 }
 
 // Court Direction enum
@@ -53,7 +54,9 @@ export enum PlayerStatus {
 }
 
 export enum PlayerLevel {
+  BEGINNER_MINUS = 9,
   BEGINNER = 1,
+  BEGINNER_PLUS = 10,
   ADVANCED_BEGINNER = 2,
   LOW_INTERMEDIATE = 3,
   INTERMEDIATE = 4,
@@ -67,6 +70,14 @@ export interface LevelDescription {
   level: number;
   description: string;
   updatedAt?: string;
+}
+
+export interface LevelDefinition {
+  id: number;
+  code: string;
+  shortLabel: string;
+  sortOrder: number;
+  active: boolean;
 }
 
 // ============================================
@@ -194,6 +205,21 @@ export interface SessionPaymentsResponse {
   stats: PaymentStats;
 }
 
+// Response for getHostTransactionsWithUser
+export interface HostTransactionsWithUserResponse {
+  user: {
+    id: string;
+    name: string;
+    image?: string;
+  };
+  payments: PaymentRecord[];
+  summary: {
+    totalAmount: number; // VND
+    paidAmount: number; // VND
+    pendingAmount: number; // VND
+  };
+}
+
 // Request types for fee configuration
 export interface CreateSessionFeeConfigRequest {
   feeType: FeeType;
@@ -255,11 +281,121 @@ export enum ClosureStatus {
   TEMPORARILY_CLOSED = 'TEMPORARILY_CLOSED',
 }
 
+export enum VenueDayType {
+  EVERYDAY = 'EVERYDAY',
+  WEEKDAY = 'WEEKDAY',
+  WEEKEND = 'WEEKEND',
+  HOLIDAY = 'HOLIDAY',
+  SPECIFIC_DATE = 'SPECIFIC_DATE',
+}
+
+export enum VenueCustomerType {
+  FIXED = 'FIXED',
+  WALK_IN = 'WALK_IN',
+  STUDENT = 'STUDENT',
+  MEMBER = 'MEMBER',
+  CUSTOM = 'CUSTOM',
+}
+
+export interface VenuePriceRule {
+  id: string;
+  priceBookId: string;
+  dayType: VenueDayType;
+  daysOfWeek: number[];
+  specificDate?: string | null;
+  startMinute: number;
+  endMinute: number;
+  customerType: VenueCustomerType;
+  pricePerHour: number;
+  minimumMinutes?: number | null;
+  billingStepMinutes?: number | null;
+  priority: number;
+  notes?: string | null;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface VenuePriceBook {
+  id: string;
+  venueId: string;
+  name: string;
+  currency: string;
+  effectiveFrom: string;
+  effectiveTo?: string | null;
+  isActive: boolean;
+  priority: number;
+  notes?: string | null;
+  priceImageUrl?: string | null;
+  priceImagePublicId?: string | null;
+  rules?: VenuePriceRule[];
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface CreateVenuePriceBookRequest {
+  name: string;
+  currency?: string;
+  effectiveFrom: string;
+  effectiveTo?: string | null;
+  isActive?: boolean;
+  priority?: number;
+  notes?: string | null;
+  priceImageUrl?: string | null;
+  priceImagePublicId?: string | null;
+}
+
+export type UpdateVenuePriceBookRequest = Partial<CreateVenuePriceBookRequest>;
+
+export interface CreateVenuePriceRuleRequest {
+  dayType: VenueDayType;
+  daysOfWeek?: number[];
+  specificDate?: string | null;
+  startMinute: number;
+  endMinute: number;
+  customerType: VenueCustomerType;
+  pricePerHour: number;
+  minimumMinutes?: number | null;
+  billingStepMinutes?: number | null;
+  priority?: number;
+  notes?: string | null;
+}
+
+export type UpdateVenuePriceRuleRequest = Partial<CreateVenuePriceRuleRequest>;
+
+export interface CalculateVenueRentalPriceRequest {
+  startTime: string;
+  endTime: string;
+  numberOfCourts: number;
+  customerType: VenueCustomerType;
+}
+
+export interface VenueRentalPriceBreakdown {
+  fromMinute: number;
+  toMinute: number;
+  from: string;
+  to: string;
+  minutes: number;
+  billableMinutes: number;
+  numberOfCourts: number;
+  pricePerHour: number;
+  amount: number;
+  ruleId: string | null;
+  source: 'PRICE_BOOK' | 'LEGACY';
+}
+
+export interface VenueRentalPriceCalculation {
+  totalAmount: number;
+  priceBookId: string | null;
+  currency: string;
+  breakdown: VenueRentalPriceBreakdown[];
+}
+
 export interface Venue {
   id: string;
   slug?: string;
   placeId?: string;
   name: string;
+  sportType?: SportType;
   acronym?: string;
   description?: string;
   address: string;
@@ -393,6 +529,7 @@ export interface ISession {
   images?: string[];
   imagePublicIds?: string[];
   shuttlecock?: string;
+  referenceVideoUrl?: string | null;
   status: SessionStatus;
   startTime?: Date;
   endTime?: Date;
@@ -400,6 +537,12 @@ export interface ISession {
   updatedAt: Date;
   location?: string;
   venue?: Venue;
+  clubId?: string | null;
+  club?: {
+    id: string;
+    name: string;
+    color?: string;
+  } | null;
   description?: string;
   courts?: Court[];
   players?: Player[];
@@ -416,6 +559,13 @@ export interface ISession {
     courts: number;
   };
   viewCount?: number;
+  // Crawled (vãng lai) sessions imported from public Facebook posts — view-only
+  isCrawled?: boolean;
+  externalUrl?: string; // link bài Facebook gốc
+  externalSource?: string; // tên group Facebook nguồn
+  externalAuthorUrl?: string; // link trang cá nhân FB của chủ bài
+  externalAuthorAvatar?: string; // ảnh đại diện FB của chủ bài (hotlink)
+  externalGroupUrl?: string; // link group Facebook nguồn
 }
 
 // Player types
@@ -425,6 +575,7 @@ export interface Player {
   userId?: string;
   createdByUserId?: string; // User who registered this player (for multi-slot grouping)
   playerNumber: number;
+  createdAt?: string;
   name?: string;
   gender?: GenderType;
   level?: number;
@@ -549,6 +700,8 @@ export interface BulkPlayerData {
   phone?: string;
   requireConfirmInfo?: boolean;
   userId?: string; // Optional userId to link with existing user
+  isClubMember?: boolean;
+  clubId?: string;
 }
 
 export interface BulkPlayersResponse {
@@ -569,6 +722,7 @@ export interface BulkPlayersInfoResponse {
 
 // Court creation interface
 export interface CourtConfig {
+  id?: string;
   courtNumber: number;
   courtName?: string;
   direction?: CourtDirection;
@@ -596,11 +750,13 @@ export interface CreateSessionRequest {
   defaultMatchType?: 'SINGLES' | 'DOUBLES';
   courts?: CourtConfig[];
   venue?: Omit<Venue, 'id' | 'createdAt' | 'updatedAt'>; // Inline venue object (backend doesn't support venueId)
+  clubId?: string | null;
   feeConfig?: CreateSessionFeeConfigRequest; // Fee configuration
   coverPhoto?: string;
   coverPhotoPublicId?: string;
   images?: string[];
   imagePublicIds?: string[];
+  referenceVideoUrl?: string | null;
 }
 
 // Bulk session creation types
@@ -685,6 +841,11 @@ export enum TournamentStatus {
   CANCELLED = 'CANCELLED',
 }
 
+export enum SportType {
+  BADMINTON = 'BADMINTON',
+  PICKLEBALL = 'PICKLEBALL',
+}
+
 export enum CategoryType {
   MENS_SINGLE = 'MENS_SINGLE',
   WOMENS_SINGLE = 'WOMENS_SINGLE',
@@ -692,6 +853,11 @@ export enum CategoryType {
   WOMENS_DOUBLE = 'WOMENS_DOUBLE',
   MIXED_DOUBLE = 'MIXED_DOUBLE',
   CUSTOM = 'CUSTOM',
+}
+
+export enum CategoryRegistrationMode {
+  INDIVIDUAL = 'INDIVIDUAL',
+  TEAM = 'TEAM',
 }
 
 export enum MatchStatus {
@@ -704,6 +870,7 @@ export enum MatchStatus {
 export enum MatchFormat {
   BEST_OF_1 = 'BEST_OF_1', // 1 set only
   BEST_OF_3 = 'BEST_OF_3', // Best of 3 sets (first to win 2 sets)
+  BEST_OF_5 = 'BEST_OF_5', // Best of 5 sets (first to win 3 sets)
 }
 
 export enum ScheduleType {
@@ -716,12 +883,20 @@ export interface Tournament {
   id: string;
   slug: string;
   name: string;
+  description?: string | null;
   startDate: Date;
   endDate: Date;
   hostId: string;
   status: TournamentStatus;
+  sportType?: SportType;
   isPublished: boolean;
   scheduleType?: ScheduleType;
+  coverPhoto?: string;
+  coverPhotoPublicId?: string;
+  youtubeVideoUrls?: string[];
+  contactName?: string | null;
+  contactEmail?: string | null;
+  contactPhone?: string | null;
   createdAt: Date;
   updatedAt: Date;
   host?: {
@@ -735,6 +910,7 @@ export interface Tournament {
   umpires?: TournamentUmpire[];
   scoringDevices?: TournamentScoringDevice[];
   courts?: TournamentCourt[];
+  sponsors?: Sponsor[];
   _count?: {
     players: number;
     pairs: number;
@@ -742,10 +918,33 @@ export interface Tournament {
   };
 }
 
+export interface Sponsor {
+  id: string;
+  tournamentId: string;
+  name: string;
+  logo?: string | null;
+  logoPublicId?: string | null;
+  website?: string | null;
+  displayOrder: number;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface CreateSponsorRequest {
+  name: string;
+  logo?: string;
+  logoPublicId?: string;
+  website?: string;
+  displayOrder?: number;
+}
+
+export type UpdateSponsorRequest = Partial<CreateSponsorRequest>;
+
 export enum CategoryFormat {
   ROUND_ROBIN = 'ROUND_ROBIN',
   SINGLE_ELIMINATION = 'SINGLE_ELIMINATION',
   ROUND_ROBIN_TO_SE = 'ROUND_ROBIN_TO_SE',
+  DOUBLE_ELIMINATION = 'DOUBLE_ELIMINATION',
 }
 
 export interface Category {
@@ -753,6 +952,8 @@ export interface Category {
   tournamentId: string;
   name: string;
   type: CategoryType;
+  registrationMode: CategoryRegistrationMode;
+  teamSize: number;
   format: CategoryFormat;
   hasGroupStage: boolean;
   averageMatchDuration?: number;
@@ -762,6 +963,18 @@ export interface Category {
   matchFormat: MatchFormat; // BEST_OF_1 or BEST_OF_3
   eliminationMatchFormat?: MatchFormat;
   thirdPlaceMatch?: boolean;
+  // ── Per-set scoring rules (BWF defaults: 21 / win-by-2 / cap 30) ──
+  pointsToWin?: number;
+  winByTwo?: boolean;
+  /** Null/undefined = no hard cap. */
+  pointCap?: number | null;
+  // ── Per-stage scoring overrides (null/undefined = inherit) ──
+  knockoutPointsToWin?: number | null;
+  knockoutWinByTwo?: boolean | null;
+  knockoutPointCap?: number | null;
+  finalPointsToWin?: number | null;
+  finalWinByTwo?: boolean | null;
+  finalPointCap?: number | null;
   formatConfig?: Record<string, unknown>;
   createdAt: Date;
   updatedAt: Date;
@@ -773,6 +986,18 @@ export interface Category {
     matches: number;
     groups: number;
   };
+}
+
+export interface CategoryGroupStageCompletion {
+  categoryId: string;
+  categoryName: string;
+  isEligible: boolean;
+  isCompleted: boolean;
+  canGenerateBracket: boolean;
+  hasBracket: boolean;
+  totalGroupMatches: number;
+  finishedGroupMatches: number;
+  unfinishedGroupMatches: number;
 }
 
 export interface CategoryRegistration {
@@ -822,6 +1047,7 @@ export interface CategoryMatch {
   groupId?: string;
   round: string;
   matchNumber: number;
+  matchCode?: string;
   status: MatchStatus;
   startTime?: Date;
   endTime?: Date; // Actual end time — set when match finishes
@@ -831,17 +1057,37 @@ export interface CategoryMatch {
   sets?: MatchSet[]; // Structured set scores
   winnerId?: string;
   isDraw: boolean;
+  isForfeit?: boolean; // Decided by forfeit/walkover: winnerId wins, the other forfeited
+  refereeName?: string | null; // Name entered by the referee when ending the match
   // Score breakdown for group stage calculations (total across all sets)
   player1Score?: number; // Sum of all sets
   player2Score?: number; // Sum of all sets
   player3Score?: number; // For doubles: sum of all sets
   player4Score?: number; // For doubles: sum of all sets
+  player1Points?: number; // Manual standings points for side 1 (pointsEarning = 'manual')
+  player2Points?: number; // Manual standings points for side 2 (pointsEarning = 'manual')
+  servingSide?: 1 | 2 | null; // Pickleball doubles: side currently serving
+  serverNumber?: 1 | 2 | null; // Pickleball doubles: first or second server
   matchFormat?: MatchFormat; // Match format for this specific match/round
-  notes?: string;
+  // Per-match scoring-rule overrides. Null = inherit from category.
+  pointsToWin?: number | null;
+  winByTwo?: boolean | null;
+  pointCap?: number | null;
+  notes?: string | null;
+  refereeId?: string; // Assigned referee (TournamentUmpire id)
+  referee?: TournamentUmpire | null;
+  // Double-elimination bracket linkage. bracketType: 'UPPER' | 'LOWER' | 'GF'.
+  bracketType?: string | null;
+  winnerNextMatchId?: string | null;
+  winnerNextSlot?: number | null;
+  loserNextMatchId?: string | null;
+  loserNextSlot?: number | null;
   createdAt: Date;
   updatedAt: Date;
   participants?: CategoryMatchParticipant[];
   court?: TournamentCourt;
+  /** Populated by getMatchById — used to resolve inherited scoring rules / format. */
+  category?: Category;
 }
 
 export interface CategoryMatchParticipant {
@@ -859,6 +1105,13 @@ export interface TournamentUmpire {
   email?: string;
   phone?: string;
   notes?: string;
+  userId?: string; // Linked user account (login-able referee)
+  user?: {
+    id: string;
+    name: string;
+    email: string;
+    image?: string;
+  } | null;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -888,8 +1141,18 @@ export interface TournamentCourt {
 export interface TournamentVenue {
   id: string;
   tournamentId: string;
-  venueId: string;
-  venue: Venue;
+  /** Linked to an existing Venue record. Optional when using inline address. */
+  venueId?: string;
+  venue?: Venue;
+  /** Inline address fields — used when venueId is absent (address-only mode). */
+  name?: string;
+  acronym?: string;
+  placeId?: string;
+  address?: string;
+  lat?: number;
+  lng?: number;
+  district?: string;
+  city?: string;
   courts?: TournamentCourt[];
   createdAt: Date;
 }
@@ -897,9 +1160,12 @@ export interface TournamentVenue {
 export interface TournamentPlayer {
   id: string;
   tournamentId: string;
+  code?: string;
   name: string;
   email?: string;
   phone?: string;
+  image?: string;
+  imagePublicId?: string;
   gender?: GenderType;
   level?: number;
   levelDescription?: string;
@@ -907,6 +1173,16 @@ export interface TournamentPlayer {
   createdAt: Date;
   updatedAt: Date;
   userId?: string;
+  user?: {
+    id: string;
+    name?: string;
+    image?: string;
+  };
+  /** Usage counts: how many category registrations and pair memberships reference this player */
+  _count?: {
+    registrations: number;
+    pairMembers: number;
+  };
 }
 
 export interface TournamentPair {
@@ -934,10 +1210,31 @@ export interface CreateTournamentRequest {
   startDate: Date;
   endDate: Date;
   venueId?: string;
+  sportType?: SportType;
 }
+
+export interface DuplicateTournamentRequest {
+  name: string;
+  startDate: string;
+  endDate: string;
+  venueId?: string | null;
+  copy: {
+    format: true;
+    schedule: boolean;
+    teams: boolean;
+    venues: boolean;
+    matchResults: boolean;
+    customHomePage: boolean;
+  };
+}
+
+export type DuplicateTournamentResponse = Tournament;
 
 export interface UpdateCategoryRequest {
   name?: string;
+  type?: CategoryType;
+  registrationMode?: CategoryRegistrationMode;
+  teamSize?: number;
   format?: CategoryFormat;
   hasGroupStage?: boolean;
   averageMatchDuration?: number;
@@ -947,6 +1244,17 @@ export interface UpdateCategoryRequest {
   matchFormat?: MatchFormat;
   eliminationMatchFormat?: MatchFormat;
   thirdPlaceMatch?: boolean;
+  // Per-set scoring rules
+  pointsToWin?: number;
+  winByTwo?: boolean;
+  pointCap?: number | null;
+  // Per-stage scoring overrides (null = inherit)
+  knockoutPointsToWin?: number | null;
+  knockoutWinByTwo?: boolean | null;
+  knockoutPointCap?: number | null;
+  finalPointsToWin?: number | null;
+  finalWinByTwo?: boolean | null;
+  finalPointCap?: number | null;
   formatConfig?: Record<string, unknown>;
 }
 
@@ -959,6 +1267,7 @@ export interface CreateCategoryMatchRequest {
   groupId?: string;
   round: string;
   matchNumber: number;
+  matchCode?: string;
   participants: Array<{
     categoryRegistrationId: string;
     position: number;
@@ -973,13 +1282,104 @@ export interface EndCategoryMatchRequest {
   sets?: MatchSet[]; // Structured set scores
   winnerId?: string;
   isDraw?: boolean;
+  isForfeit?: boolean; // Decided by forfeit/walkover: winnerId wins, the other forfeited
   // Score breakdown for group stage calculations (total across all sets)
   // If sets array is provided, these will be calculated automatically
   player1Score?: number; // Total points (sum of all sets)
   player2Score?: number; // Total points (sum of all sets)
   player3Score?: number; // For doubles: total points (sum of all sets)
   player4Score?: number; // For doubles: total points (sum of all sets)
-  notes?: string;
+  player1Points?: number; // Manual standings points for side 1 (pointsEarning = 'manual')
+  player2Points?: number; // Manual standings points for side 2 (pointsEarning = 'manual')
+  notes?: string | null;
+  refereeName?: string | null;
+}
+
+// ─── Live scoring / scoreboard types ───
+
+export interface LiveScoreUpdateRequest {
+  side: 1 | 2; // 1 = position 1, 2 = position 2
+  delta: 1 | -1; // +1 to add a point, -1 to correct
+  clientId?: string; // origin tag for echo-suppression
+  seq?: number; // monotonic per clientId
+}
+
+export interface PickleballServeUpdateRequest {
+  servingSide: 1 | 2;
+  serverNumber: 1 | 2;
+  clientId?: string;
+  seq?: number;
+}
+
+export interface UpdateSetScoreRequest {
+  player1Score: number;
+  player2Score: number;
+  clientId?: string;
+  seq?: number;
+}
+
+export interface AssignRefereeRequest {
+  refereeId: string; // TournamentUmpire id
+}
+
+export interface LinkUmpireAccountRequest {
+  email: string;
+}
+
+export interface GetScoreboardParams {
+  status?: MatchStatus;
+  courts?: string[]; // TournamentCourt ids
+  includeFinished?: boolean;
+}
+
+export interface ScoreboardSide {
+  registrationId: string | null;
+  name: string;
+  players: string[];
+}
+
+// Normalized match payload returned by GET /tournaments/:id/scoreboard and
+// broadcast over the /tournaments socket (the `match` field of each event).
+export interface ScoreboardMatch {
+  matchId: string;
+  tournamentId: string | null;
+  categoryId: string;
+  categoryName: string | null;
+  sportType?: SportType | null;
+  teamSize?: number | null;
+  isDoubles?: boolean | null;
+  round: string;
+  matchNumber: number;
+  status: MatchStatus;
+  court: { id: string; courtNumber: number; courtName: string | null } | null;
+  matchFormat: MatchFormat | null;
+  refereeName: string | null;
+  side1: ScoreboardSide;
+  side2: ScoreboardSide;
+  sets: MatchSet[];
+  score: string | null;
+  currentSet: { setNumber: number; side1: number; side2: number } | null;
+  setWins: { side1: number; side2: number };
+  servingSide?: 1 | 2 | null;
+  serverNumber?: 1 | 2 | null;
+  winnerId: string | null;
+  isDraw: boolean;
+  isComplete: boolean; // rules say the match is won (referee must confirm End)
+  pendingWinnerId: string | null;
+  startTime: string | null;
+  endTime: string | null;
+  estimatedEndTime: string | null;
+  updatedAt: string;
+}
+
+export interface ScoreboardResponse {
+  tournament: { id: string; name: string; slug: string };
+  matches: ScoreboardMatch[];
+  courts: Array<{
+    court: { id: string; courtNumber: number; courtName: string | null };
+    matches: ScoreboardMatch[];
+  }>;
+  ungrouped: ScoreboardMatch[];
 }
 
 // Group Standings types
@@ -993,10 +1393,16 @@ export interface GroupStanding {
   matchesWon: number;
   matchesLost: number;
   matchesDrawn: number;
+  matchesForfeited: number; // Số trận bị xử thua do bỏ cuộc
+  matchesCancelled: number; // Số trận bị huỷ
   points: number; // Win = 2, Draw = 1, Loss = 0 (hoặc custom)
   pointsFor: number; // Tổng điểm ghi được
   pointsAgainst: number; // Tổng điểm bị thua
   pointDifference: number; // pointsFor - pointsAgainst
+  gamesWon: number; // Tổng số set thắng
+  gamesLost: number; // Tổng số set thua
+  gameDifference: number; // gamesWon - gamesLost
+  recentForm?: Array<'W' | 'L' | 'D'>; // Kết quả 5 trận gần nhất (cũ → mới)
   rank: number; // Thứ hạng trong group
 }
 
@@ -1009,6 +1415,48 @@ export type CategoryStandingsResponse = Array<{
   group: CategoryGroup;
   standings: GroupStanding[];
 }>;
+
+// ─── Tournament managers ───
+export type TournamentPermission =
+  | 'RESULTS'
+  | 'SCHEDULE'
+  | 'PARTICIPANTS'
+  | 'STRUCTURE';
+
+export const TOURNAMENT_PERMISSIONS: TournamentPermission[] = [
+  'RESULTS',
+  'SCHEDULE',
+  'PARTICIPANTS',
+  'STRUCTURE',
+];
+
+export interface TournamentManager {
+  id: string;
+  tournamentId: string;
+  userId: string;
+  permissions: TournamentPermission[];
+  addedById?: string;
+  createdAt: string;
+  updatedAt: string;
+  user?: { id: string; name: string; email: string; image?: string };
+}
+
+// Current user's management access to a tournament (gates the manage UI).
+export interface TournamentMyAccess {
+  tournamentId: string;
+  isHost: boolean;
+  isAdmin: boolean;
+  permissions: TournamentPermission[];
+}
+
+export interface AddTournamentManagerRequest {
+  userId: string;
+  permissions: TournamentPermission[];
+}
+
+export interface UpdateTournamentManagerRequest {
+  permissions: TournamentPermission[];
+}
 
 // ============================================
 // Rating & Review System Types
@@ -1079,6 +1527,7 @@ export enum NotificationType {
   REGISTRATION = 'REGISTRATION', // Registration status updates
   PAYMENT = 'PAYMENT', // Payment-related notifications
   CLUB = 'CLUB', // Club-related notifications
+  POST = 'POST', // Post interactions (like, comment)
 }
 
 export interface INotification {
@@ -1238,6 +1687,59 @@ export interface ISaveScheduleResponse {
 export interface IValidateScheduleResponse {
   valid: boolean;
   errors: { field: string; message: string }[];
+}
+
+// ===== Next Available Court mode (live queue) =====
+export enum TournamentCourtStatus {
+  AVAILABLE = 'AVAILABLE',
+  OCCUPIED = 'OCCUPIED',
+  MAINTENANCE = 'MAINTENANCE',
+}
+
+export interface ICourtCurrentMatch {
+  matchId: string;
+  categoryId: string;
+  round: string;
+  matchNumber: number;
+  status: string;
+  participants: IQueuedMatchParticipant[];
+}
+
+export interface ICourtAvailability {
+  courtId: string;
+  courtNumber: number;
+  courtName?: string;
+  status: TournamentCourtStatus;
+  currentMatchId?: string;
+  currentMatch?: ICourtCurrentMatch;
+  estimatedAvailableAt?: string;
+}
+
+export interface IQueuedMatchParticipant {
+  id: string;
+  name: string;
+}
+
+export interface IQueuedMatch {
+  matchId: string;
+  categoryId: string;
+  round: string;
+  matchNumber: number;
+  queueOrder: number;
+  estimatedDuration?: number;
+  participants: IQueuedMatchParticipant[];
+}
+
+export interface IAutoAssignResult {
+  success: boolean;
+  matchId: string;
+  courtId?: string;
+  assignedAt?: string;
+  error?: string;
+}
+
+export interface IInitializeQueueResponse {
+  queuedCount: number;
 }
 
 // Image category enum

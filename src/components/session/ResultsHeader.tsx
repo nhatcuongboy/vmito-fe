@@ -174,6 +174,8 @@ export default function ResultsHeader({
               size="sm"
               variant="outline"
               onClick={() => setIsOpen((v) => !v)}
+              // The text label is hidden on mobile, leaving an icon-only button
+              aria-label={t(activeOption.labelKey)}
               display="flex"
               alignItems="center"
               gap={1.5}

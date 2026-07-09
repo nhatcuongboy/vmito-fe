@@ -6,6 +6,7 @@ import { Player } from '@/types/session';
 import { Badge, Box, Flex, HStack, Text } from '@chakra-ui/react';
 import { Sparkles } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import { MatchRepeatWarningResult } from '@/utils/match-repeat-warning';
 
 type MatchCourtPlayer = Player & {
   pairNumber?: number;
@@ -26,6 +27,7 @@ interface MatchCourtPreviewProps {
   showAiLoadingOverlay?: boolean;
   aiLoadingLabel?: string;
   maxW?: { base: string; md: string } | string;
+  matchRepeatWarning?: MatchRepeatWarningResult | null;
 }
 
 export default function MatchCourtPreview({
@@ -41,6 +43,7 @@ export default function MatchCourtPreview({
   showAiLoadingOverlay = false,
   aiLoadingLabel,
   maxW = { base: '100%', md: '360px' },
+  matchRepeatWarning,
 }: MatchCourtPreviewProps) {
   const t = useTranslations('SessionDetail');
   const hasPairStats =
@@ -52,76 +55,78 @@ export default function MatchCourtPreview({
       w="full"
       maxW={maxW}
       mx="auto"
-      position="relative"
       _dark={{ filter: 'saturate(0.85) brightness(0.92)' }}
     >
-      <BadmintonCourt
-        players={players}
-        isActive={true}
-        courtName={courtName}
-        courtNumber={courtNumber}
-        width="100%"
-        isLoading={isLoading}
-        direction={direction}
-        courtColor={courtColor}
-      />
+      <Box position="relative">
+        <BadmintonCourt
+          players={players}
+          isActive={true}
+          courtName={courtName}
+          courtNumber={courtNumber}
+          width="100%"
+          isLoading={isLoading}
+          direction={direction}
+          courtColor={courtColor}
+          matchRepeatWarning={matchRepeatWarning}
+        />
 
-      {showAiLoadingOverlay && (
-        <Flex
-          position="absolute"
-          top={0}
-          left={0}
-          right={0}
-          bottom={hasPairStats ? '58px' : 0}
-          align="center"
-          justify="center"
-          bg="blackAlpha.600"
-          zIndex={5}
-          borderRadius="md"
-          direction="column"
-          gap={2}
-        >
-          <Box
-            width="60%"
-            height="4px"
-            bg="whiteAlpha.300"
-            borderRadius="full"
-            overflow="hidden"
+        {showAiLoadingOverlay && (
+          <Flex
+            position="absolute"
+            top={0}
+            left={0}
+            right={0}
+            bottom={0}
+            align="center"
+            justify="center"
+            bg="blackAlpha.600"
+            zIndex={5}
+            borderRadius="md"
+            direction="column"
+            gap={2}
           >
             <Box
-              height="100%"
-              width="40%"
-              bg="purple.400"
+              width="60%"
+              height="4px"
+              bg="whiteAlpha.300"
               borderRadius="full"
-              animation="aiSlide 1.5s ease-in-out infinite"
-              css={{
-                '@keyframes aiSlide': {
-                  '0%': { transform: 'translateX(-100%)' },
-                  '50%': { transform: 'translateX(200%)' },
-                  '100%': { transform: 'translateX(-100%)' },
-                },
-              }}
-            />
-          </Box>
-          <HStack gap={1.5}>
-            <Box
-              as={Sparkles}
-              boxSize={3.5}
-              color="purple.300"
-              animation="pulse 1.5s ease-in-out infinite"
-              css={{
-                '@keyframes pulse': {
-                  '0%, 100%': { opacity: 0.6 },
-                  '50%': { opacity: 1 },
-                },
-              }}
-            />
-            <Text fontSize="xs" color="white" fontWeight="medium">
-              {aiLoadingLabel ?? t('courtsTab.loadingSuggestedPlayers')}
-            </Text>
-          </HStack>
-        </Flex>
-      )}
+              overflow="hidden"
+            >
+              <Box
+                height="100%"
+                width="40%"
+                bg="purple.400"
+                borderRadius="full"
+                animation="aiSlide 1.5s ease-in-out infinite"
+                css={{
+                  '@keyframes aiSlide': {
+                    '0%': { transform: 'translateX(-100%)' },
+                    '50%': { transform: 'translateX(200%)' },
+                    '100%': { transform: 'translateX(-100%)' },
+                  },
+                }}
+              />
+            </Box>
+            <HStack gap={1.5}>
+              <Box
+                as={Sparkles}
+                boxSize={3.5}
+                color="purple.300"
+                animation="pulse 1.5s ease-in-out infinite"
+                css={{
+                  '@keyframes pulse': {
+                    '0%, 100%': { opacity: 0.6 },
+                    '50%': { opacity: 1 },
+                  },
+                }}
+              />
+              <Text fontSize="xs" color="white" fontWeight="medium">
+                {aiLoadingLabel ?? t('courtsTab.loadingSuggestedPlayers')}
+              </Text>
+            </HStack>
+          </Flex>
+        )}
+      </Box>
 
       {hasPairStats && (
         <MatchPairStats

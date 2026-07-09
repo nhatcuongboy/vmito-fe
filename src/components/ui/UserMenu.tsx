@@ -1,8 +1,18 @@
 'use client';
 
-import BugReportModal from '@/components/feedback/BugReportModal';
-import ContactModal from '@/components/feedback/ContactModal';
+import dynamic from 'next/dynamic';
 import { VModal } from '@/components/ui/VModal';
+
+// These feedback modals pull in react-hook-form + zod (~92KB) — load them
+// only when the user opens them from the menu
+const BugReportModal = dynamic(
+  () => import('@/components/feedback/BugReportModal'),
+  { ssr: false }
+);
+const ContactModal = dynamic(
+  () => import('@/components/feedback/ContactModal'),
+  { ssr: false }
+);
 import { ROUTES } from '@/constants/routes';
 import { usePathname, useRouter } from '@/i18n/config';
 import { Locale } from '@/i18n/locales';
@@ -24,6 +34,7 @@ import {
   Bug,
   Check,
   ChevronRight,
+  House,
   Languages,
   LogOut,
   Menu as MenuIcon,
@@ -47,6 +58,7 @@ type MenuState = 'MAIN' | 'APPEARANCE' | 'LANGUAGE';
 export default function UserMenu({ onLogout }: UserMenuProps) {
   const { user } = useAuthStore();
   const common = useTranslations('common');
+  const navigation = useTranslations('navigation');
   const locale = useLocale();
   const router = useRouter();
   const pathname = usePathname();
@@ -199,6 +211,32 @@ export default function UserMenu({ onLogout }: UserMenuProps) {
           </Text>
         </Flex>
       </Box>
+
+      {/* Home */}
+      <Flex
+        align="center"
+        gap={{ base: 2, md: 3 }}
+        px={{ base: 3, md: 4 }}
+        py={{ base: 2, md: 2 }}
+        cursor="pointer"
+        _hover={{ bg: 'gray.50', _dark: { bg: 'gray.700' } }}
+        onClick={() => {
+          setIsOpen(false);
+          router.push(ROUTES.HOME);
+        }}
+      >
+        <Box
+          bg="gray.100"
+          _dark={{ bg: 'gray.700' }}
+          p={{ base: 1.5, md: 2 }}
+          borderRadius="full"
+        >
+          <House size={16} />
+        </Box>
+        <Text fontSize={{ base: 'sm', md: 'md' }} fontWeight="medium" flex={1}>
+          {navigation('mainHome')}
+        </Text>
+      </Flex>
 
       {/* Appearance */}
       <Flex

@@ -3,7 +3,7 @@
 import { useMemo } from 'react';
 import { Box, Flex, Text } from '@chakra-ui/react';
 import { VStack } from '@/components/ui/chakra-compat';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { formatTimeByDevicePreference } from '@/utils/time-helpers';
 import {
   DndContext,
@@ -15,6 +15,9 @@ import {
   useSensors,
 } from '@dnd-kit/core';
 import { CategoryMatch, TournamentCourt, Category } from '@/lib/api/types';
+import { resolveMatchSideLabel } from '@/lib/tournament/bracketSlots';
+import { usePlayoffSlotLabels } from '@/lib/tournament/usePlayoffSlotLabels';
+import { getMatchDisplayCode } from '@/lib/tournament/codes';
 
 const CATEGORY_COLORS = [
   '#ECC94B',
@@ -56,46 +59,32 @@ interface ScheduleCalendarViewProps {
   ) => void;
 }
 
-const getTeamLabel = (match: CategoryMatch, position: number): string => {
-  const participant = match.participants?.find((p) => p.position === position);
-  if (!participant?.categoryRegistration) {
-    if (match.round === 'SF') return `Winner of ${match.matchNumber}`;
-    if (match.round === 'F') return `Winner of ${match.matchNumber}`;
-    if (match.round === '3RD') return `Loser of ${match.matchNumber}`;
-    return 'TBD';
-  }
-  const reg = participant.categoryRegistration;
-  if (reg.pair?.members) {
-    return (
-      reg.pair.name ||
-      reg.pair.members.map((m) => m.player?.name || '?').join(' / ')
-    );
-  }
-  return reg.player?.name || 'Unknown';
-};
-
-const getMatchCode = (match: CategoryMatch, categories: Category[]): string => {
-  const cat = categories.find((c) => c.id === match.categoryId);
-  const catAbbrev = cat?.name?.substring(0, 2) || '?';
-  return `${catAbbrev}${match.matchNumber}`;
-};
-
-const getRoundLabel = (match: CategoryMatch): string => {
+const getRoundLabel = (
+  match: CategoryMatch,
+  t: ReturnType<typeof useTranslations>
+): string => {
   if (match.round === 'GROUP' && match.groupId) {
-    return `Pool ${match.round}`;
+    return t('roundGroup');
   }
   return match.round;
 };
 
 function DraggableMatch({
   match,
-  categories,
   categoryIndex,
+  category,
+  allMatches,
 }: {
   match: CategoryMatch;
-  categories: Category[];
   categoryIndex: number;
+  category?: Category;
+  allMatches: CategoryMatch[];
 }) {
+  const t = useTranslations(
+    'pages.tournaments.detail.manage.organize.schedule.list'
+  );
+  const slotLabels = usePlayoffSlotLabels();
+  const labelCtx = { allMatches, category, labels: slotLabels };
   const { attributes, listeners, setNodeRef, transform, isDragging } =
     useDraggable({ id: match.id });
 
@@ -128,7 +117,7 @@ function DraggableMatch({
     >
       <Flex justify="space-between" mb={0.5}>
         <Text fontWeight="bold" truncate>
-          {getMatchCode(match, categories)} • {getRoundLabel(match)}
+          {getMatchDisplayCode(match)} • {getRoundLabel(match, t)}
         </Text>
         {match.startTime && (
           <Text color="gray.500" flexShrink={0}>
@@ -136,8 +125,8 @@ function DraggableMatch({
           </Text>
         )}
       </Flex>
-      <Text truncate>{getTeamLabel(match, 1)}</Text>
-      <Text truncate>{getTeamLabel(match, 2)}</Text>
+      <Text truncate>{resolveMatchSideLabel(match, 1, labelCtx)}</Text>
+      <Text truncate>{resolveMatchSideLabel(match, 2, labelCtx)}</Text>
     </Box>
   );
 }
@@ -182,6 +171,7 @@ export default function ScheduleCalendarView({
   const t = useTranslations(
     'pages.tournaments.detail.manage.organize.schedule.list'
   );
+  const locale = useLocale();
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } })
   );
@@ -192,6 +182,11 @@ export default function ScheduleCalendarView({
     categories.forEach((c, i) => map.set(c.id, i));
     return map;
   }, [categories]);
+
+  const categoryById = useMemo(
+    () => new Map(categories.map((c) => [c.id, c])),
+    [categories]
+  );
 
   // Split matches into scheduled and unscheduled
   const scheduledMatches = matches.filter((m) => m.startTime && m.courtId);
@@ -288,7 +283,7 @@ export default function ScheduleCalendarView({
                 mb={2}
               >
                 <Text fontSize="sm" fontWeight="semibold">
-                  {new Date(day + 'T00:00:00').toLocaleDateString('en-US', {
+                  {new Date(day + 'T00:00:00').toLocaleDateString(locale, {
                     weekday: 'short',
                     month: 'short',
                     day: 'numeric',
@@ -350,10 +345,11 @@ export default function ScheduleCalendarView({
                               <DraggableMatch
                                 key={match.id}
                                 match={match}
-                                categories={categories}
                                 categoryIndex={
                                   categoryIndexMap.get(match.categoryId) || 0
                                 }
+                                category={categoryById.get(match.categoryId)}
+                                allMatches={matches}
                               />
                             ))}
                           </VStack>
@@ -378,8 +374,9 @@ export default function ScheduleCalendarView({
         {/* Unscheduled sidebar */}
         <UnscheduledPanel
           matches={unscheduledMatches}
-          categories={categories}
           categoryIndexMap={categoryIndexMap}
+          categoryById={categoryById}
+          allMatches={matches}
           defaultMatchLength={defaultMatchLength}
         />
       </Flex>
@@ -389,13 +386,15 @@ export default function ScheduleCalendarView({
 
 function UnscheduledPanel({
   matches,
-  categories,
   categoryIndexMap,
+  categoryById,
+  allMatches,
   defaultMatchLength,
 }: {
   matches: CategoryMatch[];
-  categories: Category[];
   categoryIndexMap: Map<string, number>;
+  categoryById: Map<string, Category>;
+  allMatches: CategoryMatch[];
   defaultMatchLength: number;
 }) {
   const { setNodeRef, isOver } = useDroppable({ id: 'unscheduled-panel' });
@@ -429,8 +428,9 @@ function UnscheduledPanel({
           <DraggableMatch
             key={match.id}
             match={match}
-            categories={categories}
             categoryIndex={categoryIndexMap.get(match.categoryId) || 0}
+            category={categoryById.get(match.categoryId)}
+            allMatches={allMatches}
           />
         ))}
       </VStack>

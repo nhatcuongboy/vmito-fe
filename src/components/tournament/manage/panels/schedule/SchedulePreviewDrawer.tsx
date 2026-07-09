@@ -12,6 +12,7 @@ import {
   Users,
 } from 'lucide-react';
 import { IGenerateScheduleResponse } from '@/lib/api/types';
+import { useTranslations } from 'next-intl';
 
 interface SchedulePreviewDrawerProps {
   isOpen: boolean;
@@ -33,18 +34,21 @@ const CATEGORY_COLORS = [
   '#FEB2B2',
 ];
 
-function getRoundLabel(round: string): string {
+function getRoundLabel(
+  round: string,
+  t: ReturnType<typeof useTranslations>
+): string {
   const labels: Record<string, string> = {
-    GROUP: 'Pool Play',
-    POOL_PLAY: 'Pool Play',
-    FINAL: 'Final',
-    FINALS: 'Finals',
-    SEMIFINALS: 'Semi Finals',
-    SEMI_FINALS: 'Semi Finals',
-    QUARTERFINALS: 'Quarter Finals',
-    QUARTER_FINALS: 'Quarter Finals',
-    '3RD': '3rd Place',
-    ROUND_OF_16: 'Round of 16',
+    GROUP: t('rounds.poolPlay'),
+    POOL_PLAY: t('rounds.poolPlay'),
+    FINAL: t('rounds.final'),
+    FINALS: t('rounds.finals'),
+    SEMIFINALS: t('rounds.semiFinals'),
+    SEMI_FINALS: t('rounds.semiFinals'),
+    QUARTERFINALS: t('rounds.quarterFinals'),
+    QUARTER_FINALS: t('rounds.quarterFinals'),
+    '3RD': t('rounds.thirdPlace'),
+    ROUND_OF_16: t('rounds.roundOf16'),
   };
   return labels[round] ?? round.replace(/_/g, ' ');
 }
@@ -62,6 +66,9 @@ export default function SchedulePreviewDrawer({
   onCancel,
   isLoadingView = false,
 }: SchedulePreviewDrawerProps) {
+  const t = useTranslations(
+    'pages.tournaments.detail.manage.organize.schedule.preview'
+  );
   const { summary, conflicts } = generationResponse;
   const isComplete = summary.unscheduledMatches === 0;
 
@@ -74,11 +81,11 @@ export default function SchedulePreviewDrawer({
     <VModal
       isOpen={isOpen}
       onClose={handleCancel}
-      title="Generated schedule"
-      primaryActionText="View schedule"
+      title={t('generatedSchedule')}
+      primaryActionText={t('viewSchedule')}
       onPrimaryAction={onViewSchedule}
       isPrimaryLoading={isLoadingView}
-      secondaryActionText="Cancel"
+      secondaryActionText={t('cancel')}
       onSecondaryAction={handleCancel}
       size="lg"
     >
@@ -103,8 +110,10 @@ export default function SchedulePreviewDrawer({
               fontWeight="medium"
             >
               {isComplete
-                ? 'Successfully generated a schedule for all matches.'
-                : `${summary.unscheduledMatches} match(es) could not be scheduled. Consider adding more time slots.`}
+                ? t('generationComplete')
+                : t('generationIncomplete', {
+                    count: summary.unscheduledMatches,
+                  })}
             </Text>
           </Flex>
         </Box>
@@ -158,7 +167,7 @@ export default function SchedulePreviewDrawer({
                             <Trophy size={13} />
                           )}
                           <Text fontWeight="medium">
-                            {getRoundLabel(r.round)}
+                            {getRoundLabel(r.round, t)}
                           </Text>
                         </Flex>
                         <Text
@@ -220,7 +229,7 @@ export default function SchedulePreviewDrawer({
             <Flex align="center" gap={2} mb={1}>
               <AlertTriangle size={14} color="#DD6B20" />
               <Text fontSize="xs" fontWeight="medium" color="orange.700">
-                {conflicts.length} scheduling conflict(s)
+                {t('schedulingConflicts', { count: conflicts.length })}
               </Text>
             </Flex>
             {conflicts.slice(0, 3).map((c, i) => (
@@ -230,7 +239,7 @@ export default function SchedulePreviewDrawer({
             ))}
             {conflicts.length > 3 && (
               <Text fontSize="xs" color="orange.500" pl={5}>
-                +{conflicts.length - 3} more
+                {t('moreConflicts', { count: conflicts.length - 3 })}
               </Text>
             )}
           </Box>

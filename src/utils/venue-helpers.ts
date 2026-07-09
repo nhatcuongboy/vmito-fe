@@ -1,10 +1,5 @@
-export const formatVenueName = (
-  name: string,
-  formatPattern: string
-): string => {
-  if (!name) return name;
-
-  // Check if name already has a prefix/suffix indicating it's a venue
+// Check if name already has a prefix/suffix indicating it's a venue
+const hasVenueNameAffix = (name: string): boolean => {
   const lowerName = name.toLowerCase();
 
   // Vietnamese prefixes
@@ -22,13 +17,33 @@ export const formatVenueName = (
   // Chinese suffixes
   const hasCnSuffix = lowerName.endsWith('场') || lowerName.endsWith('俱乐部');
 
-  if (hasViPrefix || hasEnSuffix || hasCnSuffix) {
+  return hasViPrefix || hasEnSuffix || hasCnSuffix;
+};
+
+export const formatVenueName = (
+  name: string,
+  formatPattern: string
+): string => {
+  if (!name) return name;
+
+  if (hasVenueNameAffix(name)) {
     return name;
   }
 
   // Format using the provided pattern
   return formatPattern.replace('{name}', name);
 };
+
+/**
+ * Format the full venue name with the sport-specific prefix/suffix
+ * (e.g. vi "Sân cầu lông {name}", en "{name} Badminton Court").
+ * Used on the venue detail page and its SEO metadata so the page title
+ * and the search-engine title always match.
+ */
+export const formatVenueFullName = (
+  name: string,
+  formatPattern: string
+): string => formatVenueName(name, formatPattern);
 
 export interface MapUrlOptions {
   address?: string | null;

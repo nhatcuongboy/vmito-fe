@@ -12,6 +12,7 @@ import {
 import { useTranslations } from 'next-intl';
 import { useState, useMemo } from 'react';
 import { Button } from '@/components/ui/chakra-compat';
+import { toaster } from '@/components/ui/toaster';
 import {
   PaymentRecord,
   PaymentStatus,
@@ -20,7 +21,14 @@ import {
   FeeType,
 } from '@/lib/api/types';
 import { FeeService } from '@/lib/api/fee.service';
-import { CreditCard, QrCode, Building2, User, Send } from 'lucide-react';
+import {
+  CreditCard,
+  QrCode,
+  Building2,
+  User,
+  Send,
+  Download,
+} from 'lucide-react';
 import PaymentStatusBadge from './PaymentStatusBadge';
 import SubmitPaymentModal from './SubmitPaymentModal';
 import FastTransferModal from './FastTransferModal';
@@ -43,6 +51,16 @@ interface PaymentInfoTabProps {
   onUploadProof: (file: File) => Promise<string>;
 }
 
+const normalizeTransferMessage = (message: string) =>
+  message
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[đĐ]/g, 'd')
+    .replace(/[^a-zA-Z0-9\s]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .slice(0, 70);
+
 export default function PaymentInfoTab({
   session,
   paymentRecords,
@@ -57,6 +75,7 @@ export default function PaymentInfoTab({
   );
 
   const [isFastTransferOpen, setIsFastTransferOpen] = useState(false);
+  const [isDownloadingQr, setIsDownloadingQr] = useState(false);
 
   // Bank list state
   const [banks, setBanks] = useState<Bank[]>([]);
@@ -73,23 +92,65 @@ export default function PaymentInfoTab({
   const canSubmit = (payment: PaymentRecord) =>
     payment.status === PaymentStatus.PENDING;
 
-  // Construct a default message for transfer: "Name - Date - PlayerName"
+  // Construct a default message for transfer: "Name Date PlayerName"
   const defaultMessage = useMemo(() => {
-    // Session name (max 10 chars to avoid overflow in bank apps)
-    const sName = session.name?.substring(0, 15).trim() || '';
+    const sName = session.name?.trim() || '';
 
-    // Short date: DD/MM
+    // Short date: DDMM
     let sDate = '';
     if (session.startTime) {
       const d = new Date(session.startTime);
-      sDate = `${d.getDate()}/${d.getMonth() + 1}`;
+      const day = String(d.getDate()).padStart(2, '0');
+      const month = String(d.getMonth() + 1).padStart(2, '0');
+      sDate = `${day}${month}`;
     }
 
-    // Player name (assuming current user is the first record)
-    const pName = paymentRecords[0]?.player?.name?.split(' ').pop() || ''; // Take last name only for brevity
+    const pName = paymentRecords[0]?.player?.name?.trim() || '';
 
-    return `${sName} ${sDate} ${pName}`.trim();
+    return normalizeTransferMessage(`${sName} ${sDate} ${pName}`);
   }, [session.name, session.startTime, paymentRecords]);
+
+  const paymentQrUrl = useMemo(() => {
+    const generatedQrUrl = getVietQRImageUrl(
+      hostPaymentSettings?.bankName ?? '',
+      hostPaymentSettings?.bankAccountNumber ?? '',
+      {
+        accountName: hostPaymentSettings?.accountHolderName,
+        amount: pendingAmount > 0 ? pendingAmount : undefined,
+        addInfo: defaultMessage || undefined,
+        bankList: banks,
+      }
+    );
+
+    return generatedQrUrl || hostPaymentSettings?.qrCodeUrl || null;
+  }, [hostPaymentSettings, pendingAmount, defaultMessage, banks]);
+
+  const handleDownloadPaymentQr = async () => {
+    if (!paymentQrUrl) return;
+
+    setIsDownloadingQr(true);
+    try {
+      const response = await fetch(paymentQrUrl);
+      if (!response.ok) throw new Error('Failed to download QR code');
+
+      const blob = await response.blob();
+      const objectUrl = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = objectUrl;
+      link.download = `vmito-payment-qr-${session.id}.png`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(objectUrl);
+
+      toaster.success({ title: t('downloadQrCodeSuccess') });
+    } catch {
+      window.open(paymentQrUrl, '_blank', 'noopener,noreferrer');
+      toaster.error({ title: t('downloadQrCodeFailed') });
+    } finally {
+      setIsDownloadingQr(false);
+    }
+  };
 
   const handleSubmit = async (data: {
     paymentMethod: PaymentMethod;
@@ -213,17 +274,7 @@ export default function PaymentInfoTab({
 
             {/* QR Code */}
             {(() => {
-              const qrUrl =
-                hostPaymentSettings.qrCodeUrl ||
-                getVietQRImageUrl(
-                  hostPaymentSettings.bankName ?? '',
-                  hostPaymentSettings.bankAccountNumber ?? '',
-                  {
-                    accountName: hostPaymentSettings.accountHolderName,
-                    bankList: banks,
-                  }
-                );
-              if (!qrUrl) return null;
+              if (!paymentQrUrl) return null;
               return (
                 <Box mb={4} textAlign="center">
                   <HStack justify="center" mb={2}>
@@ -233,7 +284,7 @@ export default function PaymentInfoTab({
                     </Text>
                   </HStack>
                   <Image
-                    src={qrUrl}
+                    src={paymentQrUrl}
                     alt="QR Code"
                     maxH="160px"
                     mx="auto"
@@ -241,6 +292,17 @@ export default function PaymentInfoTab({
                     border="1px solid"
                     borderColor="gray.200"
                   />
+                  <Button
+                    mt={3}
+                    size="sm"
+                    variant="outline"
+                    colorPalette="green"
+                    loading={isDownloadingQr}
+                    onClick={handleDownloadPaymentQr}
+                  >
+                    <Download size={14} />
+                    <Text ml={1}>{t('downloadQrCode')}</Text>
+                  </Button>
                 </Box>
               );
             })()}

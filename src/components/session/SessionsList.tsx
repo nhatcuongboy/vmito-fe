@@ -37,6 +37,8 @@ interface SessionsListProps {
   emptyStateTitle?: string;
   /** Custom empty state description - if not provided, will use default translation */
   emptyStateDescription?: string;
+  /** Show an "Add guest" button on cards where the user already has a registration */
+  onAddGuest?: (session: ISession) => void;
 }
 
 export default function SessionsList({
@@ -51,6 +53,7 @@ export default function SessionsList({
   forceViewSessionButton = false,
   emptyStateTitle,
   emptyStateDescription,
+  onAddGuest,
 }: SessionsListProps) {
   const [internalViewMode] = useViewMode('sessions');
   const viewMode = externalViewMode ?? internalViewMode;
@@ -219,6 +222,7 @@ export default function SessionsList({
                 }}
                 showDownloadShareButtons={showDownloadShareButtons}
                 forceViewSessionButton={forceViewSessionButton}
+                onAddGuest={onAddGuest}
               />
             ))}
           </Grid>
@@ -232,7 +236,10 @@ export default function SessionsList({
         title={t('hostInfo') || 'Thông tin Host'}
         size="md"
         hideSecondaryAction={true}
-        maxBodyHeight={{ base: '60vh', md: '75vh' }}
+        maxBodyHeight={{
+          base: 'calc(100vh - 120px)',
+          md: 'calc(100vh - 112px)',
+        }}
       >
         {selectedSessionForDetail && (
           <AppHostDetail

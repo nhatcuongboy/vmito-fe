@@ -1,6 +1,6 @@
 'use client';
 
-import { Box, Flex, Heading, Text, Spinner } from '@chakra-ui/react';
+import { Box, Flex, Heading, Text } from '@chakra-ui/react';
 import { IconButton, Button, VStack } from '@/components/ui/chakra-compat';
 import { MapPin, Plus, Edit2, Trash2 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
@@ -11,6 +11,7 @@ import { TournamentService } from '@/lib/api/tournament.service';
 import { toaster } from '@/components/ui/toaster';
 import VenueMapPin from '@/components/venue/VenueMapPin';
 import { VModal } from '@/components/ui/VModal';
+import { TournamentMatchListSkeleton } from '@/components/tournament/skeletons';
 
 interface VenuePanelProps {
   tournament: Tournament;
@@ -39,11 +40,11 @@ export default function VenuePanel({
       const data = await TournamentService.getVenues(tournament.id);
       setVenues(data);
     } catch {
-      toaster.error({ title: 'Failed to load venues' });
+      toaster.error({ title: t('loadError') });
     } finally {
       setIsLoading(false);
     }
-  }, [tournament.id]);
+  }, [t, tournament.id]);
 
   useEffect(() => {
     loadVenues();
@@ -67,12 +68,12 @@ export default function VenuePanel({
       setRemovingId(confirmRemoveVenue.id);
       await TournamentService.removeVenue(
         tournament.id,
-        confirmRemoveVenue.venueId
+        confirmRemoveVenue.venueId ?? confirmRemoveVenue.id
       );
       setVenues((prev) => prev.filter((v) => v.id !== confirmRemoveVenue.id));
       onTournamentChanged?.();
     } catch {
-      toaster.error({ title: 'Failed to remove venue' });
+      toaster.error({ title: t('removeError') });
     } finally {
       setRemovingId(null);
       setConfirmRemoveVenue(null);
@@ -114,15 +115,19 @@ export default function VenuePanel({
       </Flex>
 
       {isLoading ? (
-        <Flex justify="center" py={10}>
-          <Spinner />
-        </Flex>
+        <TournamentMatchListSkeleton count={3} />
       ) : venues.length === 0 ? (
         <VStack gap={6} align="center" py={10}>
-          <Box p={4} bg="red.50" borderRadius="full">
+          <Box p={4} bg="red.50" borderRadius="full" _dark={{ bg: 'red.900' }}>
             <MapPin size={48} color="#F56565" />
           </Box>
-          <Text fontSize="md" color="gray.500" textAlign="center" maxW="300px">
+          <Text
+            fontSize="md"
+            color="gray.500"
+            textAlign="center"
+            maxW="300px"
+            _dark={{ color: 'gray.400' }}
+          >
             {t('noLinkedVenues')}
           </Text>
           <Button
@@ -151,6 +156,7 @@ export default function VenuePanel({
               borderRadius="2xl"
               overflow="hidden"
               bg="white"
+              _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
             >
               {/* Map Section */}
               <Box
@@ -160,10 +166,10 @@ export default function VenuePanel({
                 borderRadius="2xl"
                 overflow="hidden"
               >
-                {tv.venue.lat && tv.venue.lng ? (
+                {(tv.venue?.lat ?? tv.lat) && (tv.venue?.lng ?? tv.lng) ? (
                   <VenueMapPin
-                    lat={tv.venue.lat}
-                    lng={tv.venue.lng}
+                    lat={(tv.venue?.lat ?? tv.lat)!}
+                    lng={(tv.venue?.lng ?? tv.lng)!}
                     height="200px"
                     zoom={15}
                   />
@@ -174,6 +180,7 @@ export default function VenuePanel({
                     align="center"
                     justify="center"
                     bg="gray.100"
+                    _dark={{ bg: 'gray.900' }}
                   >
                     <MapPin size={40} color="#A0AEC0" />
                   </Flex>
@@ -184,29 +191,53 @@ export default function VenuePanel({
               <Flex justify="space-between" align="start" p={4}>
                 <Box flex="1">
                   <Flex align="center" gap={2} mb={1}>
-                    <Text fontWeight="bold" fontSize="md" color="gray.800">
-                      {tv.venue.name}
+                    <Text
+                      fontWeight="bold"
+                      fontSize="md"
+                      color="gray.800"
+                      _dark={{ color: 'gray.100' }}
+                    >
+                      {tv.venue?.name ?? tv.name}
                     </Text>
-                    {tv.venue.acronym && (
-                      <Box bg="gray.100" px={2} py={0.5} borderRadius="md">
+                    {(tv.venue?.acronym ?? tv.acronym) && (
+                      <Box
+                        bg="gray.100"
+                        px={2}
+                        py={0.5}
+                        borderRadius="md"
+                        _dark={{ bg: 'gray.700' }}
+                      >
                         <Text
                           fontSize="xs"
                           fontWeight="semibold"
                           color="gray.600"
+                          _dark={{ color: 'gray.300' }}
                         >
-                          {tv.venue.acronym}
+                          {tv.venue?.acronym ?? tv.acronym}
                         </Text>
                       </Box>
                     )}
                   </Flex>
-                  {tv.venue.address && (
-                    <Text fontSize="sm" color="gray.500" mb={1}>
-                      {tv.venue.address}
-                      {tv.venue.city ? `, ${tv.venue.city}` : ''}
+                  {(tv.venue?.address ?? tv.address) && (
+                    <Text
+                      fontSize="sm"
+                      color="gray.500"
+                      mb={1}
+                      _dark={{ color: 'gray.400' }}
+                    >
+                      {tv.venue?.address ?? tv.address}
+                      {(tv.venue?.city ?? tv.city)
+                        ? `, ${tv.venue?.city ?? tv.city}`
+                        : ''}
                     </Text>
                   )}
                   {tv.courts && tv.courts.length > 0 && (
-                    <Text fontSize="xs" color="gray.400" mb={2}>
+                    <Text
+                      fontSize="xs"
+                      color="gray.400"
+                      mb={2}
+                      _dark={{ color: 'gray.500' }}
+                    >
                       {tv.courts.length} {t('courtsCount')}:{' '}
                       {tv.courts
                         .map(
@@ -215,10 +246,10 @@ export default function VenuePanel({
                         .join(', ')}
                     </Text>
                   )}
-                  {tv.venue.lat && tv.venue.lng && (
+                  {(tv.venue?.lat ?? tv.lat) && (tv.venue?.lng ?? tv.lng) && (
                     <Button
                       as="a"
-                      href={`https://www.google.com/maps/dir/?api=1&destination=${tv.venue.lat},${tv.venue.lng}`}
+                      href={`https://www.google.com/maps/dir/?api=1&destination=${tv.venue?.lat ?? tv.lat},${tv.venue?.lng ?? tv.lng}`}
                       variant="outline"
                       size="xs"
                       colorPalette="green"
@@ -226,21 +257,21 @@ export default function VenuePanel({
                       onClick={(event) => {
                         event.preventDefault();
                         window.open(
-                          `https://www.google.com/maps/dir/?api=1&destination=${tv.venue.lat},${tv.venue.lng}`,
+                          `https://www.google.com/maps/dir/?api=1&destination=${tv.venue?.lat ?? tv.lat},${tv.venue?.lng ?? tv.lng}`,
                           '_blank',
                           'noopener,noreferrer'
                         );
                       }}
                     >
                       <MapPin size={14} />
-                      Xem trên Google Maps
+                      {t('viewOnGoogleMaps')}
                     </Button>
                   )}
                 </Box>
 
                 <Flex align="center" gap={1}>
                   <IconButton
-                    aria-label="Edit venue"
+                    aria-label={t('editVenue')}
                     variant="ghost"
                     size="sm"
                     onClick={() => handleEdit(tv)}
@@ -248,7 +279,7 @@ export default function VenuePanel({
                     <Edit2 size={16} />
                   </IconButton>
                   <IconButton
-                    aria-label="Remove venue"
+                    aria-label={t('removeVenue')}
                     variant="ghost"
                     size="sm"
                     onClick={() => handleRemove(tv)}
@@ -278,21 +309,26 @@ export default function VenuePanel({
       <VModal
         isOpen={!!confirmRemoveVenue}
         onClose={() => setConfirmRemoveVenue(null)}
-        title="Remove venue"
+        title={t('removeVenue')}
         size="sm"
-        primaryActionText="Remove"
+        primaryActionText={t('remove')}
         primaryColorScheme="red"
         onPrimaryAction={handleConfirmRemove}
         isPrimaryLoading={!!removingId}
-        secondaryActionText="Cancel"
+        secondaryActionText={t('cancel')}
         isCentered
       >
-        <Text fontSize="sm" color="gray.600">
-          Remove{' '}
-          <Text as="span" fontWeight="semibold" color="gray.800">
-            {confirmRemoveVenue?.venue.name}
+        <Text fontSize="sm" color="gray.600" _dark={{ color: 'gray.300' }}>
+          {t('removeConfirmPrefix')}{' '}
+          <Text
+            as="span"
+            fontWeight="semibold"
+            color="gray.800"
+            _dark={{ color: 'gray.100' }}
+          >
+            {confirmRemoveVenue?.venue?.name ?? confirmRemoveVenue?.name}
           </Text>{' '}
-          from this tournament?
+          {t('removeConfirmSuffix')}
         </Text>
       </VModal>
     </Box>

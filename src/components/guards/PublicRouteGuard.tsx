@@ -2,6 +2,7 @@
 
 import { useAuthStore, useAuthHydration } from '@/stores/useAuthStore';
 import { useRouter } from '@/i18n/config';
+import { useTranslations } from 'next-intl';
 import { useEffect } from 'react';
 import { Box, Spinner, Text, VStack } from '@chakra-ui/react';
 
@@ -22,6 +23,7 @@ export default function PublicRouteGuard({
   const { user, isAuthenticated, isLoading } = useAuthStore();
   const isHydrated = useAuthHydration();
   const router = useRouter();
+  const t = useTranslations('auth.guard');
 
   useEffect(() => {
     // Wait for hydration before checking auth
@@ -70,7 +72,7 @@ export default function PublicRouteGuard({
       >
         <VStack gap={4}>
           <Spinner size="lg" color="green.500" />
-          <Text color="fg.muted">Checking authentication...</Text>
+          <Text color="fg.muted">{t('checkingAuthentication')}</Text>
         </VStack>
       </Box>
     );
@@ -79,7 +81,7 @@ export default function PublicRouteGuard({
   // If already logged in, determine if we show children or loading
   if (isAuthenticated && user) {
     const isHostOrAdmin = user.role === 'ADMIN' || user.role === 'HOST';
-    const isPlayer = user.role === 'PLAYER';
+    const isPlayerOrReferee = user.role === 'PLAYER' || user.role === 'REFEREE';
     const isGuest = user.role === 'GUEST';
 
     // Current path check
@@ -88,7 +90,7 @@ export default function PublicRouteGuard({
     const isOnJoinPage = currentPath.includes('/join-by-code');
 
     // If it's a role that MUST redirect, show redirecting state
-    if (isHostOrAdmin || isPlayer) {
+    if (isHostOrAdmin || isPlayerOrReferee) {
       return (
         <Box
           minH="100vh"
@@ -99,7 +101,7 @@ export default function PublicRouteGuard({
         >
           <VStack gap={4}>
             <Spinner size="lg" color="green.500" />
-            <Text color="fg.muted">Redirecting...</Text>
+            <Text color="fg.muted">{t('redirecting')}</Text>
           </VStack>
         </Box>
       );
@@ -121,7 +123,7 @@ export default function PublicRouteGuard({
       >
         <VStack gap={4}>
           <Spinner size="lg" color="green.500" />
-          <Text color="fg.muted">Redirecting...</Text>
+          <Text color="fg.muted">{t('redirecting')}</Text>
         </VStack>
       </Box>
     );

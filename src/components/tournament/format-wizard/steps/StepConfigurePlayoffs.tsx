@@ -5,7 +5,12 @@ import { LegacySelect } from '@/components/ui/VSelect';
 import { useTranslations } from 'next-intl';
 import { useFormatWizard } from '../FormatWizardContext';
 import FormatSidebar from '../components/FormatSidebar';
-import { RoundRobinToSEConfig as RRToSEConfigType } from '../types';
+import {
+  RoundRobinToSEConfig as RRToSEConfigType,
+  MatchFormatValue,
+  RoundFormats,
+} from '../types';
+import PerRoundFormatConfig from '../components/PerRoundFormatConfig';
 import { Minus, Plus, RefreshCw, GitBranch } from 'lucide-react';
 
 export default function StepConfigurePlayoffs() {
@@ -180,16 +185,24 @@ export default function StepConfigurePlayoffs() {
                 value={config.eliminationMatchFormat}
                 onChange={(e) =>
                   updateElim({
-                    eliminationMatchFormat: e.target.value as
-                      | 'BEST_OF_1'
-                      | 'BEST_OF_3',
+                    eliminationMatchFormat: e.target.value as MatchFormatValue,
                   })
                 }
               >
                 <option value="BEST_OF_1">{t('config.se.bestOf1')}</option>
                 <option value="BEST_OF_3">{t('config.se.bestOf3')}</option>
+                <option value="BEST_OF_5">{t('config.se.bestOf5')}</option>
               </LegacySelect>
             </Box>
+
+            {/* Per-round format overrides */}
+            <PerRoundFormatConfig
+              baseFormat={config.eliminationMatchFormat}
+              value={config.roundFormats ?? {}}
+              onChange={(roundFormats: RoundFormats) =>
+                updateElim({ roundFormats })
+              }
+            />
 
             {/* Seeding method */}
             <Box mb={5}>

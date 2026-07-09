@@ -2,7 +2,7 @@
 
 import { SessionService } from '@/lib/api/session.service';
 import { Player, PlayerStatistics } from '@/lib/api/types';
-import { formatTimeByDevicePreference } from '@/utils/time-helpers';
+import { formatTimeRangeByDevicePreference } from '@/utils/time-helpers';
 import {
   Badge,
   Box,
@@ -35,15 +35,125 @@ import { PlayerDetailModal } from '../player/PlayerDetailModal';
 import { PlayerService } from '@/lib/api/player.service';
 
 import { useDownloadSessionImage } from '@/hooks/useDownloadSessionImage';
+import { useLevelLabel } from '@/hooks/useLevelLabel';
 import { VButton } from '@/components/ui/VButton';
-import { Download } from 'lucide-react';
+import { VSwitch } from '@/components/ui/VSwitch';
+import { Checkbox } from '@/components/ui/checkbox';
+import {
+  PopoverBody,
+  PopoverContent,
+  PopoverRoot,
+  PopoverTrigger,
+} from '@/components/ui/popover';
+import { Columns3, Download } from 'lucide-react';
 import { ISession } from '@/lib/api/types';
+import { getLevelRank } from '@/constants/levels';
 import QRCode from 'qrcode';
 
 interface SessionPlayersProps {
   sessionId: string;
   session?: ISession;
 }
+
+type MvpGroup = {
+  players: PlayerStatistics[];
+  minMatches: number;
+};
+
+type MvpGroups = {
+  overall: MvpGroup;
+  male: MvpGroup;
+  female: MvpGroup;
+};
+
+type StatsColumnKey =
+  | 'no'
+  | 'name'
+  | 'gender'
+  | 'level'
+  | 'totalMatches'
+  | 'wins'
+  | 'losses'
+  | 'winRate'
+  | 'shuttlecock';
+
+const ALL_STATS_COLUMNS: StatsColumnKey[] = [
+  'no',
+  'name',
+  'gender',
+  'level',
+  'totalMatches',
+  'wins',
+  'losses',
+  'winRate',
+  'shuttlecock',
+];
+
+const DEFAULT_EXPORT_COLUMNS: StatsColumnKey[] = [
+  'no',
+  'name',
+  'gender',
+  'totalMatches',
+  'wins',
+  'losses',
+  'winRate',
+];
+
+const getMvpMinMatches = (players: PlayerStatistics[]) => {
+  const maxMatches = players.reduce(
+    (max, player) => Math.max(max, player.totalMatches),
+    0
+  );
+
+  if (maxMatches <= 0) return 1;
+
+  return Math.max(1, Math.min(3, Math.ceil(maxMatches * 0.5)));
+};
+
+const comparePlayerRanking = (a: PlayerStatistics, b: PlayerStatistics) => {
+  if (b.winRate !== a.winRate) return b.winRate - a.winRate;
+  if (b.wins !== a.wins) return b.wins - a.wins;
+  if (b.totalMatches !== a.totalMatches) {
+    return b.totalMatches - a.totalMatches;
+  }
+  return (a.name || '').localeCompare(b.name || '');
+};
+
+const getMvpGroup = (
+  players: PlayerStatistics[],
+  gender?: PlayerStatistics['gender']
+): MvpGroup => {
+  const minMatches = getMvpMinMatches(players);
+  const eligiblePlayers = players.filter(
+    (player) =>
+      player.totalMatches >= minMatches &&
+      player.wins > 0 &&
+      player.winRate > 0 &&
+      (!gender || player.gender === gender)
+  );
+
+  if (eligiblePlayers.length === 0) {
+    return { players: [], minMatches };
+  }
+
+  const sorted = [...eligiblePlayers].sort(comparePlayerRanking);
+
+  const leader = sorted[0];
+  const tiedPlayers = sorted.filter(
+    (player) =>
+      player.winRate === leader.winRate &&
+      player.wins === leader.wins &&
+      player.totalMatches === leader.totalMatches
+  );
+
+  return { players: tiedPlayers, minMatches };
+};
+
+const getMvpGroups = (players: PlayerStatistics[]): MvpGroups => ({
+  overall: getMvpGroup(players),
+  male: getMvpGroup(players, 'MALE'),
+  female: getMvpGroup(players, 'FEMALE'),
+});
 
 /** Sortable + filterable statistics table using VTable */
 const StatsTable = ({
@@ -52,6 +162,8 @@ const StatsTable = ({
   onPlayerClick,
   t,
   exportMode = false,
+  showGenderMvp = false,
+  visibleColumns,
   sortConfig: externalSortConfig = null,
   onSort,
 }: {
@@ -61,9 +173,12 @@ const StatsTable = ({
   onPlayerClick: (id: string) => void;
   t: ReturnType<typeof useTranslations<'SessionPlayers'>>;
   exportMode?: boolean;
+  showGenderMvp?: boolean;
+  visibleColumns?: StatsColumnKey[];
   sortConfig?: ISortConfig<keyof PlayerStatistics> | null;
   onSort?: (config: ISortConfig<keyof PlayerStatistics> | null) => void;
 }) => {
+  const { getLevelShortLabel } = useLevelLabel();
   // Use filterable with the stats passed. If externalFilters is provided, it should be used.
   const { filteredData } = useFilterable<PlayerStatistics>(stats);
 
@@ -79,7 +194,31 @@ const StatsTable = ({
     );
   }, [stats, filteredData, exportMode, externalFilters]);
 
-  // Sorting
+  const mvpGroups = useMemo(() => getMvpGroups(displayedData), [displayedData]);
+
+  const overallMvpIds = useMemo(
+    () => new Set(mvpGroups.overall.players.map((player) => player.playerId)),
+    [mvpGroups.overall.players]
+  );
+  const maleMvpIds = useMemo(
+    () =>
+      showGenderMvp
+        ? new Set(mvpGroups.male.players.map((player) => player.playerId))
+        : new Set<string>(),
+    [mvpGroups.male.players, showGenderMvp]
+  );
+  const femaleMvpIds = useMemo(
+    () =>
+      showGenderMvp
+        ? new Set(mvpGroups.female.players.map((player) => player.playerId))
+        : new Set<string>(),
+    [mvpGroups.female.players, showGenderMvp]
+  );
+
+  const isSharedOverallMvp = mvpGroups.overall.players.length > 1;
+  const isSharedMaleMvp = mvpGroups.male.players.length > 1;
+  const isSharedFemaleMvp = mvpGroups.female.players.length > 1;
+
   const [sortConfig, setSortConfig] = useState<ISortConfig<
     keyof PlayerStatistics
   > | null>(externalSortConfig);
@@ -89,44 +228,25 @@ const StatsTable = ({
     setSortConfig(externalSortConfig);
   }, [externalSortConfig]);
 
-  const maxWinRate = useMemo(() => {
-    if (displayedData.length === 0) return 0;
-    const rates = displayedData
-      .filter((p) => p.totalMatches > 0)
-      .map((p) => p.winRate);
-    return rates.length > 0 ? Math.max(...rates) : 0;
-  }, [displayedData]);
-
-  // Find MVP: player with highest win rate, with tiebreakers
-  const mvpPlayerId = useMemo(() => {
-    const playersWithMatches = displayedData.filter(
-      (p) => p.totalMatches > 0 && p.winRate > 0
-    );
-    if (playersWithMatches.length === 0) return null;
-
-    // Sort by: 1) winRate desc, 2) wins desc, 3) totalMatches desc, 4) name asc
-    const sorted = [...playersWithMatches].sort((a, b) => {
-      // 1. Compare win rate
-      if (b.winRate !== a.winRate) return b.winRate - a.winRate;
-
-      // 2. If same win rate, compare number of wins
-      if (b.wins !== a.wins) return b.wins - a.wins;
-
-      // 3. If same wins, compare total matches (more matches = more consistent)
-      if (b.totalMatches !== a.totalMatches)
-        return b.totalMatches - a.totalMatches;
-
-      // 4. If still tied, sort by name alphabetically
-      return (a.name || '').localeCompare(b.name || '');
-    });
-
-    return sorted[0]?.playerId || null;
-  }, [displayedData]);
-
   const sortedData = useMemo(() => {
-    if (!sortConfig) return displayedData;
+    if (!sortConfig) return [...displayedData].sort(comparePlayerRanking);
 
     return [...displayedData].sort((a, b) => {
+      // Level IDs are stable identifiers, not skill order (e.g. Yếu- = 9 but
+      // ranks below TB- = 3), so sort by their canonical rank instead.
+      if (sortConfig.key === 'level') {
+        const aVal = a.level;
+        const bVal = b.level;
+
+        if (aVal == null && bVal == null) return 0;
+        if (aVal == null) return 1;
+        if (bVal == null) return -1;
+
+        const aRank = getLevelRank(Number(aVal)) ?? Number.MAX_SAFE_INTEGER;
+        const bRank = getLevelRank(Number(bVal)) ?? Number.MAX_SAFE_INTEGER;
+        return sortConfig.direction === 'asc' ? aRank - bRank : bRank - aRank;
+      }
+
       const aVal = a[sortConfig.key];
       const bVal = b[sortConfig.key];
 
@@ -163,10 +283,13 @@ const StatsTable = ({
     [sortConfig, onSort]
   );
 
-  // const { getLevelShortLabel } = useLevelLabel();
-
   const sortHandler = (key: string) =>
     handleSort(key as keyof PlayerStatistics);
+
+  const visibleColumnSet = useMemo(
+    () => new Set(visibleColumns || ALL_STATS_COLUMNS),
+    [visibleColumns]
+  );
 
   // Helper properties to reduce spacing on table cells
   const thProps = exportMode
@@ -181,78 +304,107 @@ const StatsTable = ({
       <Table>
         <Thead>
           <Tr>
-            <Th
-              sortKey={exportMode ? undefined : 'playerNumber'}
-              sortConfig={exportMode ? undefined : sortConfig}
-              onSort={exportMode ? undefined : sortHandler}
-              w={exportMode ? '40px' : '60px'}
-              textAlign="center"
-              {...thProps}
-            >
-              {t('columnNo')}
-            </Th>
-            <Th
-              sortKey={exportMode ? undefined : 'name'}
-              sortConfig={exportMode ? undefined : sortConfig}
-              onSort={exportMode ? undefined : sortHandler}
-              minW={exportMode ? '120px' : { base: '144px', md: '120px' }}
-              {...thProps}
-            >
-              {t('columnName')}
-            </Th>
-            <Th
-              sortKey={exportMode ? undefined : 'gender'}
-              sortConfig={exportMode ? undefined : sortConfig}
-              onSort={exportMode ? undefined : sortHandler}
-              textAlign="center"
-              {...thProps}
-            >
-              {t('columnGender')}
-            </Th>
-
-            <Th
-              sortKey={exportMode ? undefined : 'totalMatches'}
-              sortConfig={exportMode ? undefined : sortConfig}
-              onSort={exportMode ? undefined : sortHandler}
-              textAlign="center"
-              {...thProps}
-            >
-              {t('columnTotalMatches')}
-            </Th>
-            <Th
-              sortKey={exportMode ? undefined : 'wins'}
-              sortConfig={exportMode ? undefined : sortConfig}
-              onSort={exportMode ? undefined : sortHandler}
-              textAlign="center"
-              {...thProps}
-            >
-              {t('columnWins')}
-            </Th>
-            <Th
-              sortKey={exportMode ? undefined : 'losses'}
-              sortConfig={exportMode ? undefined : sortConfig}
-              onSort={exportMode ? undefined : sortHandler}
-              textAlign="center"
-              {...thProps}
-            >
-              {t('columnLosses')}
-            </Th>
-            <Th
-              sortKey={exportMode ? undefined : 'winRate'}
-              sortConfig={exportMode ? undefined : sortConfig}
-              onSort={exportMode ? undefined : sortHandler}
-              textAlign="center"
-              {...thProps}
-            >
-              <HStack justify="center" gap={1} as="span" display="inline-flex">
-                <Text as="span">{t('columnWinRate')}</Text>
-              </HStack>
-            </Th>
-            {!exportMode && (
+            {visibleColumnSet.has('no') && (
+              <Th
+                sortKey={exportMode ? undefined : 'playerNumber'}
+                sortConfig={exportMode ? undefined : sortConfig}
+                onSort={exportMode ? undefined : sortHandler}
+                w={exportMode ? '40px' : '60px'}
+                textAlign="center"
+                {...thProps}
+              >
+                {t('columnNo')}
+              </Th>
+            )}
+            {visibleColumnSet.has('name') && (
+              <Th
+                sortKey={exportMode ? undefined : 'name'}
+                sortConfig={exportMode ? undefined : sortConfig}
+                onSort={exportMode ? undefined : sortHandler}
+                minW={exportMode ? '120px' : { base: '144px', md: '120px' }}
+                {...thProps}
+              >
+                {t('columnName')}
+              </Th>
+            )}
+            {visibleColumnSet.has('gender') && (
+              <Th
+                sortKey={exportMode ? undefined : 'gender'}
+                sortConfig={exportMode ? undefined : sortConfig}
+                onSort={exportMode ? undefined : sortHandler}
+                textAlign="center"
+                {...thProps}
+              >
+                {t('columnGender')}
+              </Th>
+            )}
+            {visibleColumnSet.has('level') && (
+              <Th
+                sortKey={exportMode ? undefined : 'level'}
+                sortConfig={exportMode ? undefined : sortConfig}
+                onSort={exportMode ? undefined : sortHandler}
+                textAlign="center"
+                {...thProps}
+              >
+                {t('columnLevel')}
+              </Th>
+            )}
+            {visibleColumnSet.has('totalMatches') && (
+              <Th
+                sortKey={exportMode ? undefined : 'totalMatches'}
+                sortConfig={exportMode ? undefined : sortConfig}
+                onSort={exportMode ? undefined : sortHandler}
+                textAlign="center"
+                {...thProps}
+              >
+                {t('columnTotalMatches')}
+              </Th>
+            )}
+            {visibleColumnSet.has('wins') && (
+              <Th
+                sortKey={exportMode ? undefined : 'wins'}
+                sortConfig={exportMode ? undefined : sortConfig}
+                onSort={exportMode ? undefined : sortHandler}
+                textAlign="center"
+                {...thProps}
+              >
+                {t('columnWins')}
+              </Th>
+            )}
+            {visibleColumnSet.has('losses') && (
+              <Th
+                sortKey={exportMode ? undefined : 'losses'}
+                sortConfig={exportMode ? undefined : sortConfig}
+                onSort={exportMode ? undefined : sortHandler}
+                textAlign="center"
+                {...thProps}
+              >
+                {t('columnLosses')}
+              </Th>
+            )}
+            {visibleColumnSet.has('winRate') && (
+              <Th
+                sortKey={exportMode ? undefined : 'winRate'}
+                sortConfig={exportMode ? undefined : sortConfig}
+                onSort={exportMode ? undefined : sortHandler}
+                textAlign="center"
+                {...thProps}
+              >
+                <HStack
+                  justify="center"
+                  gap={1}
+                  as="span"
+                  display="inline-flex"
+                >
+                  <Text as="span">{t('columnWinRate')}</Text>
+                </HStack>
+              </Th>
+            )}
+            {visibleColumnSet.has('shuttlecock') && (
               <Th
                 sortKey="totalShuttlecocks"
-                sortConfig={sortConfig}
-                onSort={sortHandler}
+                sortConfig={exportMode ? undefined : sortConfig}
+                onSort={exportMode ? undefined : sortHandler}
                 textAlign="center"
                 {...thProps}
               >
@@ -264,6 +416,11 @@ const StatsTable = ({
         <Tbody>
           {sortedData.map((p, index) => {
             const isNA = p.wins === 0 && p.losses === 0;
+            const isOverallMvp =
+              !showGenderMvp && overallMvpIds.has(p.playerId);
+            const isMaleMvp = maleMvpIds.has(p.playerId);
+            const isFemaleMvp = femaleMvpIds.has(p.playerId);
+
             return (
               <Tr
                 key={p.playerId}
@@ -277,88 +434,149 @@ const StatsTable = ({
                     : { bg: 'green.50', _dark: { bg: 'green.900/10' } }
                 }
               >
-                <Td textAlign="center" {...tdProps}>
-                  <Text fontSize="xs" fontWeight="bold" color="fg.muted">
-                    {index + 1}
-                  </Text>
-                </Td>
-                <Td {...tdProps}>
-                  <HStack gap={1.5} align="center">
-                    <Text fontWeight="semibold" fontSize="sm" color="fg">
-                      {p.name || t('unnamed')}
+                {visibleColumnSet.has('no') && (
+                  <Td textAlign="center" {...tdProps}>
+                    <Text fontSize="xs" fontWeight="bold" color="fg.muted">
+                      {index + 1}
                     </Text>
-                    {p.playerId === mvpPlayerId && (
+                  </Td>
+                )}
+                {visibleColumnSet.has('name') && (
+                  <Td {...tdProps}>
+                    <HStack gap={1.5} align="center" wrap="wrap">
+                      <Text fontWeight="semibold" fontSize="sm" color="fg">
+                        {p.name || t('unnamed')}
+                      </Text>
+                      {isOverallMvp && (
+                        <Badge
+                          colorPalette="yellow"
+                          variant="solid"
+                          size="xs"
+                          fontSize="9px"
+                          px={1}
+                          borderRadius="sm"
+                          whiteSpace="nowrap"
+                        >
+                          {isSharedOverallMvp ? t('sharedMvp') : t('mvp')}
+                        </Badge>
+                      )}
+                      {isMaleMvp && (
+                        <Badge
+                          colorPalette="blue"
+                          variant="subtle"
+                          size="xs"
+                          fontSize="9px"
+                          px={1}
+                          borderRadius="sm"
+                          whiteSpace="nowrap"
+                        >
+                          {isSharedMaleMvp ? t('sharedMaleMvp') : t('maleMvp')}
+                        </Badge>
+                      )}
+                      {isFemaleMvp && (
+                        <Badge
+                          colorPalette="pink"
+                          variant="subtle"
+                          size="xs"
+                          fontSize="9px"
+                          px={1}
+                          borderRadius="sm"
+                          whiteSpace="nowrap"
+                        >
+                          {isSharedFemaleMvp
+                            ? t('sharedFemaleMvp')
+                            : t('femaleMvp')}
+                        </Badge>
+                      )}
+                    </HStack>
+                  </Td>
+                )}
+                {visibleColumnSet.has('gender') && (
+                  <Td textAlign="center" {...tdProps}>
+                    {p.gender ? (
                       <Badge
-                        colorPalette="yellow"
-                        variant="solid"
-                        size="xs"
-                        fontSize="9px"
-                        px={1}
-                        borderRadius="sm"
+                        colorPalette={p.gender === 'MALE' ? 'blue' : 'pink'}
+                        variant="subtle"
+                        size="sm"
+                        px={2}
+                        borderRadius="md"
+                      >
+                        {t(p.gender.toLowerCase())}
+                      </Badge>
+                    ) : (
+                      <Text fontSize="sm" color="fg.muted">
+                        {'—'}
+                      </Text>
+                    )}
+                  </Td>
+                )}
+                {visibleColumnSet.has('level') && (
+                  <Td textAlign="center" {...tdProps}>
+                    {p.level ? (
+                      <Badge
+                        colorPalette="purple"
+                        variant="subtle"
+                        size="sm"
+                        px={2}
+                        borderRadius="md"
                         whiteSpace="nowrap"
                       >
-                        MVP
+                        {getLevelShortLabel(p.level)}
                       </Badge>
+                    ) : (
+                      <Text fontSize="sm" color="fg.muted">
+                        {'—'}
+                      </Text>
                     )}
-                  </HStack>
-                </Td>
-                <Td textAlign="center" {...tdProps}>
-                  {p.gender ? (
-                    <Badge
-                      colorPalette={p.gender === 'MALE' ? 'blue' : 'pink'}
-                      variant="subtle"
-                      size="sm"
-                      px={2}
-                      borderRadius="md"
-                    >
-                      {t(p.gender.toLowerCase())}
-                    </Badge>
-                  ) : (
-                    <Text fontSize="sm" color="fg.muted">
-                      {'—'}
+                  </Td>
+                )}
+                {visibleColumnSet.has('totalMatches') && (
+                  <Td textAlign="center" {...tdProps}>
+                    <Text fontSize="sm" fontWeight="semibold">
+                      {p.totalMatches}
                     </Text>
-                  )}
-                </Td>
-
-                <Td textAlign="center" {...tdProps}>
-                  <Text fontSize="sm" fontWeight="semibold">
-                    {p.totalMatches}
-                  </Text>
-                </Td>
-                <Td textAlign="center" {...tdProps}>
-                  <Text
-                    fontSize="sm"
-                    fontWeight="bold"
-                    color={isNA ? 'fg.muted' : 'green.600'}
-                  >
-                    {isNA ? '—' : p.wins}
-                  </Text>
-                </Td>
-                <Td textAlign="center" {...tdProps}>
-                  <Text
-                    fontSize="sm"
-                    fontWeight="bold"
-                    color={isNA ? 'fg.muted' : 'red.500'}
-                  >
-                    {isNA ? '—' : p.losses}
-                  </Text>
-                </Td>
-                <Td textAlign="center" {...tdProps}>
-                  <Badge
-                    px={2.5}
-                    py={0.5}
-                    borderRadius="full"
-                    fontSize="xs"
-                    fontWeight="bold"
-                    colorPalette={
-                      isNA ? 'gray' : p.winRate >= 50 ? 'green' : 'orange'
-                    }
-                    variant="subtle"
-                  >
-                    {isNA ? '—' : `${p.winRate}%`}
-                  </Badge>
-                </Td>
-                {!exportMode && (
+                  </Td>
+                )}
+                {visibleColumnSet.has('wins') && (
+                  <Td textAlign="center" {...tdProps}>
+                    <Text
+                      fontSize="sm"
+                      fontWeight="bold"
+                      color={isNA ? 'fg.muted' : 'green.600'}
+                    >
+                      {isNA ? '—' : p.wins}
+                    </Text>
+                  </Td>
+                )}
+                {visibleColumnSet.has('losses') && (
+                  <Td textAlign="center" {...tdProps}>
+                    <Text
+                      fontSize="sm"
+                      fontWeight="bold"
+                      color={isNA ? 'fg.muted' : 'red.500'}
+                    >
+                      {isNA ? '—' : p.losses}
+                    </Text>
+                  </Td>
+                )}
+                {visibleColumnSet.has('winRate') && (
+                  <Td textAlign="center" {...tdProps}>
+                    <Badge
+                      px={2.5}
+                      py={0.5}
+                      borderRadius="full"
+                      fontSize="xs"
+                      fontWeight="bold"
+                      colorPalette={
+                        isNA ? 'gray' : p.winRate >= 50 ? 'green' : 'orange'
+                      }
+                      variant="subtle"
+                    >
+                      {isNA ? '—' : `${p.winRate}%`}
+                    </Badge>
+                  </Td>
+                )}
+                {visibleColumnSet.has('shuttlecock') && (
                   <Td textAlign="center" {...tdProps}>
                     <Text fontSize="sm" fontWeight="semibold">
                       {p.totalShuttlecocks != null ? p.totalShuttlecocks : '—'}
@@ -401,6 +619,10 @@ const SessionPlayers: React.FC<SessionPlayersProps> = ({
   const [sortConfig, setSortConfig] = useState<ISortConfig<
     keyof PlayerStatistics
   > | null>(null);
+  const [showGenderMvp, setShowGenderMvp] = useState(false);
+  const [exportColumns, setExportColumns] = useState<StatsColumnKey[]>(
+    DEFAULT_EXPORT_COLUMNS
+  );
 
   const fetchStats = useCallback(async () => {
     setLoading(true);
@@ -480,6 +702,35 @@ const SessionPlayers: React.FC<SessionPlayersProps> = ({
     }, 100);
   };
 
+  const getColumnLabel = (column: StatsColumnKey) => {
+    const labelMap: Record<StatsColumnKey, string> = {
+      no: t('columnNo'),
+      name: t('columnName'),
+      gender: t('columnGender'),
+      level: t('columnLevel'),
+      totalMatches: t('columnTotalMatches'),
+      wins: t('columnWins'),
+      losses: t('columnLosses'),
+      winRate: t('columnWinRate'),
+      shuttlecock: t('columnShuttlecock'),
+    };
+
+    return labelMap[column];
+  };
+
+  const toggleExportColumn = (column: StatsColumnKey) => {
+    setExportColumns((current) => {
+      if (current.includes(column)) {
+        if (current.length === 1) return current;
+        return current.filter((item) => item !== column);
+      }
+
+      return ALL_STATS_COLUMNS.filter(
+        (candidate) => current.includes(candidate) || candidate === column
+      );
+    });
+  };
+
   return (
     <VStack gap={0} align="stretch" position="relative">
       {/* Hidden container specifically for exporting the image */}
@@ -491,7 +742,7 @@ const SessionPlayers: React.FC<SessionPlayersProps> = ({
           _dark={{ bg: 'gray.800' }}
           pt={3}
           px={8}
-          pb={2}
+          pb={5}
         >
           <VStack align="stretch" gap={2}>
             <Box borderBottom="2px solid" borderColor="green.100" pb={2}>
@@ -514,9 +765,9 @@ const SessionPlayers: React.FC<SessionPlayersProps> = ({
                 >
                   {session?.startTime && (
                     <Text textAlign="center">
-                      🕒 {formatTimeByDevicePreference(session.startTime)}
-                      {'-'}
-                      {formatTimeByDevicePreference(
+                      🕒{' '}
+                      {formatTimeRangeByDevicePreference(
+                        session.startTime,
                         new Date(
                           new Date(session.startTime).getTime() +
                             (session.sessionDuration || 120) * 60 * 1000
@@ -564,6 +815,8 @@ const SessionPlayers: React.FC<SessionPlayersProps> = ({
                   onPlayerClick={() => {}}
                   t={t}
                   exportMode={true}
+                  showGenderMvp={showGenderMvp}
+                  visibleColumns={exportColumns}
                   sortConfig={sortConfig}
                 />
               </Box>
@@ -611,7 +864,24 @@ const SessionPlayers: React.FC<SessionPlayersProps> = ({
         </Box>
       </Box>
 
-      {/* Unified card: toolbar + table */}
+      {!loading && !error && stats.length > 0 && (
+        <Flex justify="flex-end" align="center" mb={2}>
+          <HStack gap={2}>
+            <Text fontSize="sm" color="fg.muted" fontWeight="medium">
+              {t('showGenderMvp')}
+            </Text>
+            <VSwitch
+              checked={showGenderMvp}
+              onCheckedChange={(details) => setShowGenderMvp(!!details.checked)}
+              colorPalette="green"
+              size="sm"
+              aria-label={t('showGenderMvp')}
+            />
+          </HStack>
+        </Flex>
+      )}
+
+      {/* Unified card: table */}
       <Box
         bg={{ base: 'white', _dark: 'gray.800' }}
         borderRadius="xl"
@@ -634,18 +904,16 @@ const SessionPlayers: React.FC<SessionPlayersProps> = ({
             <Text color="fg.muted">{t('noDataAvailable')}</Text>
           </Center>
         ) : (
-          <>
-            {/* Stats table */}
-            <StatsTable
-              stats={filteredStats}
-              filters={filters}
-              handleFilter={handleFilter}
-              onPlayerClick={handlePlayerClick}
-              t={t}
-              sortConfig={sortConfig}
-              onSort={setSortConfig}
-            />
-          </>
+          <StatsTable
+            stats={filteredStats}
+            filters={filters}
+            handleFilter={handleFilter}
+            onPlayerClick={handlePlayerClick}
+            t={t}
+            showGenderMvp={showGenderMvp}
+            sortConfig={sortConfig}
+            onSort={setSortConfig}
+          />
         )}
 
         {/* Footer with count + export action */}
@@ -657,7 +925,9 @@ const SessionPlayers: React.FC<SessionPlayersProps> = ({
             borderColor={{ base: 'gray.100', _dark: 'gray.700' }}
             bg={{ base: 'gray.50/60', _dark: 'gray.900/50' }}
             justify="space-between"
-            align="center"
+            align={{ base: 'stretch', md: 'center' }}
+            gap={3}
+            direction={{ base: 'column', md: 'row' }}
           >
             <Flex
               gap={{ base: 2, md: 4 }}
@@ -670,16 +940,51 @@ const SessionPlayers: React.FC<SessionPlayersProps> = ({
                   : t('playerCount', { count: stats.length })}
               </Text>
             </Flex>
-            <VButton
-              size="xs"
-              variant="outline"
-              colorPalette="green"
-              onClick={handleExport}
-              loading={isDownloading}
-            >
-              <Icon as={Download} boxSize={3} mr={1} />
-              {t('exportImage') || 'Xuất ảnh'}
-            </VButton>
+            <HStack gap={2} justify={{ base: 'space-between', md: 'flex-end' }}>
+              <PopoverRoot positioning={{ placement: 'top-end' }}>
+                <PopoverTrigger asChild>
+                  <VButton
+                    size="xs"
+                    variant="outline"
+                    colorPalette="gray"
+                    aria-label={t('exportColumns')}
+                  >
+                    <Icon as={Columns3} boxSize={3} mr={1} />
+                    {t('exportColumns')}
+                  </VButton>
+                </PopoverTrigger>
+                <PopoverContent w="240px">
+                  <PopoverBody p={3}>
+                    <VStack align="stretch" gap={2}>
+                      <Text fontSize="xs" color="fg.muted">
+                        {t('exportColumnsDescription')}
+                      </Text>
+                      {ALL_STATS_COLUMNS.map((column) => (
+                        <Checkbox
+                          key={column}
+                          checked={exportColumns.includes(column)}
+                          onCheckedChange={() => toggleExportColumn(column)}
+                          colorPalette="green"
+                          size="sm"
+                        >
+                          {getColumnLabel(column)}
+                        </Checkbox>
+                      ))}
+                    </VStack>
+                  </PopoverBody>
+                </PopoverContent>
+              </PopoverRoot>
+              <VButton
+                size="xs"
+                variant="outline"
+                colorPalette="green"
+                onClick={handleExport}
+                loading={isDownloading}
+              >
+                <Icon as={Download} boxSize={3} mr={1} />
+                {t('exportImage') || 'Xuất ảnh'}
+              </VButton>
+            </HStack>
           </Flex>
         )}
       </Box>

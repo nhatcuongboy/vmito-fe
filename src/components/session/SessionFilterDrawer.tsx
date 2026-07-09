@@ -195,6 +195,7 @@ export default function SessionFilterDrawer({
                     <Box position="relative" flex="1">
                       <VDateTimeInput
                         type="date"
+                        aria-label={t('filters.date')}
                         size="md"
                         width="auto"
                         minW="160px"
@@ -343,6 +344,53 @@ export default function SessionFilterDrawer({
                       <MapPin size={16} />
                       {t('filters.nearMe')}
                     </Badge>
+                  </Flex>
+                </Box>
+
+                <Box>
+                  <Text
+                    fontSize="xs"
+                    fontWeight="semibold"
+                    color="gray.500"
+                    mb={1.5}
+                    textTransform="uppercase"
+                  >
+                    {t('filters.sessionType')}
+                  </Text>
+                  <Flex gap={2} wrap="wrap">
+                    {(
+                      [
+                        ['all', t('filters.allSessions')],
+                        ['regular', t('filters.regularSessions')],
+                        ['facebook', t('filters.facebookSessions')],
+                      ] as const
+                    ).map(([value, label]) => {
+                      const isSelected = filters.sessionType === value;
+                      return (
+                        <Badge
+                          key={value}
+                          px={4}
+                          py={1.5}
+                          borderRadius="full"
+                          cursor="pointer"
+                          variant={isSelected ? 'solid' : 'outline'}
+                          colorPalette={isSelected ? 'blue' : 'gray'}
+                          onClick={() =>
+                            setFilters({
+                              ...filters,
+                              sessionType: value,
+                            })
+                          }
+                          fontSize="sm"
+                          fontWeight="semibold"
+                          transition="all 0.2s"
+                          _hover={{ transform: 'scale(1.05)' }}
+                          borderWidth={isSelected ? '0' : '2px'}
+                        >
+                          {label}
+                        </Badge>
+                      );
+                    })}
                   </Flex>
                 </Box>
               </Flex>
@@ -566,6 +614,7 @@ export default function SessionFilterDrawer({
                   <Input
                     size="md"
                     type="number"
+                    aria-label={`${t('filters.cost')} — ${t('filters.feeMin')}`}
                     width="110px"
                     value={filters.minFee}
                     onChange={(e) =>
@@ -595,6 +644,7 @@ export default function SessionFilterDrawer({
                   <Input
                     size="md"
                     type="number"
+                    aria-label={`${t('filters.cost')} — ${t('filters.feeMax')}`}
                     width="110px"
                     value={filters.maxFee}
                     onChange={(e) =>

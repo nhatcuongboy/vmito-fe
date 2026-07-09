@@ -19,7 +19,7 @@ function RegisterContent() {
   const { getLevelLabel } = useLevelLabel();
   const [name, setName] = useState('');
   const [gender, setGender] = useState('MALE');
-  const [level, setLevel] = useState<number>(VALID_LEVELS[1]); // Default to 2 (Y)
+  const [level, setLevel] = useState<number>(VALID_LEVELS[1]); // Default to Y
   const [phone, setPhone] = useState('');
   const [loading, setLoading] = useState(false);
   const router = useRouter();

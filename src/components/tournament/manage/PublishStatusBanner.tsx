@@ -52,6 +52,10 @@ export default function PublishStatusBanner({
         py={3}
         cursor="pointer"
         _hover={{ opacity: 0.85 }}
+        _dark={{
+          bg: isPublished ? 'green.900' : 'gray.800',
+          borderColor: isPublished ? 'green.700' : 'gray.700',
+        }}
         transition="opacity 0.15s"
         onClick={confirmModal.onOpen}
       >
@@ -68,6 +72,7 @@ export default function PublishStatusBanner({
               fontWeight="semibold"
               fontSize="sm"
               color={isPublished ? 'green.800' : 'gray.700'}
+              _dark={{ color: isPublished ? 'green.100' : 'gray.100' }}
             >
               {isPublished ? t('publishedTitle') : t('draftTitle')}
             </Text>
@@ -75,6 +80,7 @@ export default function PublishStatusBanner({
               fontSize="xs"
               color={isPublished ? 'green.600' : 'gray.500'}
               mt={0.5}
+              _dark={{ color: isPublished ? 'green.300' : 'gray.400' }}
             >
               {isPublished ? t('publishedSubtitle') : t('draftSubtitle')}
             </Text>
@@ -103,6 +109,7 @@ export default function PublishStatusBanner({
             borderRadius="xl"
             align="center"
             justify="center"
+            _dark={{ bg: 'gray.700' }}
           >
             <FileText size={28} color="var(--chakra-colors-gray-600)" />
           </Flex>
@@ -110,7 +117,7 @@ export default function PublishStatusBanner({
             <Text fontWeight="bold" fontSize="lg" mb={2}>
               {isPublished ? t('confirmDraftTitle') : t('confirmPublishTitle')}
             </Text>
-            <Text fontSize="sm" color="gray.600">
+            <Text fontSize="sm" color="gray.600" _dark={{ color: 'gray.300' }}>
               {isPublished
                 ? t('confirmDraftDescription')
                 : t('confirmPublishDescription')}

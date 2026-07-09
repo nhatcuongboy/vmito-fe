@@ -1,16 +1,23 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { Flex, Text, Spinner } from '@chakra-ui/react';
+import { Flex, Text } from '@chakra-ui/react';
 import { Button } from '@/components/ui/chakra-compat';
 import { useTranslations } from 'next-intl';
 import { VModal, useModal } from '@/components/ui/VModal';
-import { List, Calendar as CalendarIcon, Sparkles } from 'lucide-react';
+import {
+  List,
+  Calendar as CalendarIcon,
+  Sparkles,
+  Wand2,
+  Plus,
+} from 'lucide-react';
 import {
   Tournament,
   Category,
   CategoryMatch,
   TournamentCourt,
+  TournamentUmpire,
   IBulkScheduleItem,
   IGenerateScheduleResponse,
 } from '@/lib/api/types';
@@ -24,7 +31,11 @@ import EditMatchTimeSheet from './EditMatchTimeSheet';
 import GenerateScheduleDrawerV2 from './GenerateScheduleDrawerV2';
 import GenerationResultModal from './GenerationResultModal';
 import SchedulePreviewDrawer from './SchedulePreviewDrawer';
+import AIImportScheduleDrawer from './AIImportScheduleDrawer';
+import AddMatchSheet from './AddMatchSheet';
+import DeleteMatchConfirmModal from './DeleteMatchConfirmModal';
 import { IGenerateScheduleResult } from '@/utils/schedule-generator';
+import { TournamentMatchListSkeleton } from '@/components/tournament/skeletons';
 
 type ViewMode = 'list' | 'calendar';
 
@@ -34,7 +45,12 @@ interface ManageScheduleModalProps {
   tournament: Tournament;
   categories: Category[];
   onScheduleSaved?: () => void;
+  onOpenRoundsPanel?: (categoryId: string) => void;
 }
+
+type ScheduleReadiness = Awaited<
+  ReturnType<typeof ScheduleGeneratorService.getReadiness>
+>;
 
 export default function ManageScheduleModal({
   isOpen,
@@ -42,6 +58,7 @@ export default function ManageScheduleModal({
   tournament,
   categories,
   onScheduleSaved,
+  onOpenRoundsPanel,
 }: ManageScheduleModalProps) {
   const t = useTranslations(
     'pages.tournaments.detail.manage.organize.schedule.manager'
@@ -50,6 +67,7 @@ export default function ManageScheduleModal({
   const [viewMode, setViewMode] = useState<ViewMode>('list');
   const [allMatches, setAllMatches] = useState<CategoryMatch[]>([]);
   const [courts, setCourts] = useState<TournamentCourt[]>([]);
+  const [umpires, setUmpires] = useState<TournamentUmpire[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [dirtyMatches, setDirtyMatches] = useState<
@@ -57,11 +75,17 @@ export default function ManageScheduleModal({
   >(new Map());
   const [defaultMatchLength] = useState(60);
   const [manualEntry, setManualEntry] = useState(false);
+  const [readiness, setReadiness] = useState<ScheduleReadiness | null>(null);
 
   const generateDrawerModal = useModal();
   const resultModal = useModal();
-  const [generationResult, setGenerationResult] =
-    useState<IGenerateScheduleResult | null>(null);
+  const aiImportModal = useModal();
+  const addMatchModal = useModal();
+  const [deletingMatch, setDeletingMatch] = useState<CategoryMatch | null>(
+    null
+  );
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [generationResult] = useState<IGenerateScheduleResult | null>(null);
   const [editingMatch, setEditingMatch] = useState<string | null>(null);
 
   // Backend-generated schedule state
@@ -86,23 +110,32 @@ export default function ManageScheduleModal({
     const fetchData = async () => {
       setIsLoading(true);
       try {
-        const [matchesData, courtsData] = await Promise.all([
-          TournamentService.getAllMatches(tournament.id),
-          TournamentService.getCourts(tournament.id),
-        ]);
+        const [matchesData, courtsData, umpiresData, readinessData] =
+          await Promise.all([
+            TournamentService.getAllMatches(tournament.id),
+            TournamentService.getCourts(tournament.id),
+            TournamentService.getUmpires(tournament.id),
+            ScheduleGeneratorService.getReadiness(tournament.id),
+          ]);
         setAllMatches(matchesData);
         setCourts(courtsData);
+        setUmpires(umpiresData);
+        setReadiness(readinessData);
       } catch (error) {
         console.error('Error loading schedule data:', error);
-        toaster.error({ title: 'Failed to load schedule data' });
+        toaster.error({ title: t('loadFailed') });
       } finally {
         setIsLoading(false);
       }
     };
     fetchData();
-  }, [isOpen, tournament.id]);
+  }, [isOpen, t, tournament.id]);
 
   const hasScheduledMatches = allMatches.some((m) => m.startTime && m.courtId);
+  const hasGeneratedMatches =
+    (readiness?.totalMatches ?? allMatches.length) > 0;
+  const firstRoundsCategoryId =
+    readiness?.categoriesWithoutMatches[0]?.categoryId ?? categories[0]?.id;
 
   // Only show courts that are associated with a venue (courts the tournament has configured).
   // Falls back to all courts if none have a venue association.
@@ -141,15 +174,6 @@ export default function ManageScheduleModal({
       });
     },
     []
-  );
-
-  const handleGenerated = useCallback(
-    (result: IGenerateScheduleResult) => {
-      setGenerationResult(result);
-      generateDrawerModal.onClose();
-      resultModal.onOpen();
-    },
-    [generateDrawerModal, resultModal]
   );
 
   // Handle backend-generated schedule
@@ -197,11 +221,11 @@ export default function ManageScheduleModal({
       setViewMode('list');
       previewDrawerModal.onClose();
     } catch {
-      toaster.error({ title: 'Failed to load schedule preview' });
+      toaster.error({ title: t('previewLoadFailed') });
     } finally {
       setIsLoadingPreview(false);
     }
-  }, [backendGenerationResponse, tournament.id, previewDrawerModal]);
+  }, [backendGenerationResponse, t, tournament.id, previewDrawerModal]);
 
   // Save the pending preview schedule to DB
   const handleSavePreview = useCallback(async () => {
@@ -213,18 +237,20 @@ export default function ManageScheduleModal({
         pendingScheduleId
       );
       if (result.success) {
-        toaster.success({ title: `Saved ${result.scheduledCount} match(es)` });
+        toaster.success({
+          title: t('saveSuccess', { count: result.scheduledCount }),
+        });
         setPendingScheduleId(null);
         setBackendGenerationResponse(null);
         onScheduleSaved?.();
         onClose();
       }
     } catch {
-      toaster.error({ title: 'Failed to save schedule' });
+      toaster.error({ title: t('saveFailed') });
     } finally {
       setIsSavingPreview(false);
     }
-  }, [pendingScheduleId, tournament.id, onScheduleSaved]);
+  }, [pendingScheduleId, t, tournament.id, onScheduleSaved, onClose]);
 
   const handlePreviewCancel = useCallback(() => {
     setBackendGenerationResponse(null);
@@ -285,7 +311,7 @@ export default function ManageScheduleModal({
       onClose();
     } catch (error) {
       console.error('Error saving schedule:', error);
-      toaster.error({ title: 'Failed to save schedule' });
+      toaster.error({ title: t('saveFailed') });
     } finally {
       setIsSaving(false);
     }
@@ -295,6 +321,41 @@ export default function ManageScheduleModal({
     setDirtyMatches(new Map());
     onClose();
   };
+
+  // A manually-created match is already persisted by AddMatchSheet — just
+  // surface it in the list view.
+  const handleMatchCreated = useCallback(
+    (match: CategoryMatch) => {
+      setAllMatches((prev) => [...prev, match]);
+      setManualEntry(true);
+      setViewMode('list');
+      onScheduleSaved?.();
+    },
+    [onScheduleSaved]
+  );
+
+  const handleConfirmDelete = useCallback(async () => {
+    if (!deletingMatch) return;
+    const matchId = deletingMatch.id;
+    setIsDeleting(true);
+    try {
+      await CategoryService.deleteMatch(matchId);
+      setAllMatches((prev) => prev.filter((m) => m.id !== matchId));
+      setDirtyMatches((prev) => {
+        if (!prev.has(matchId)) return prev;
+        const next = new Map(prev);
+        next.delete(matchId);
+        return next;
+      });
+      setDeletingMatch(null);
+      onScheduleSaved?.();
+    } catch (error) {
+      console.error('Error deleting match:', error);
+      toaster.error({ title: t('deleteFailed') });
+    } finally {
+      setIsDeleting(false);
+    }
+  }, [deletingMatch, onScheduleSaved, t]);
 
   return (
     <>
@@ -319,7 +380,7 @@ export default function ManageScheduleModal({
           top={0}
           bg="white"
           zIndex={10}
-          _dark={{ bg: 'gray.800' }}
+          _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
         >
           <Flex gap={2} align="center">
             {/* Segmented view-mode toggle */}
@@ -377,6 +438,24 @@ export default function ManageScheduleModal({
               <Sparkles size={14} />
               {t('generate')}
             </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              colorPalette="purple"
+              onClick={aiImportModal.onOpen}
+            >
+              <Wand2 size={14} />
+              {t('aiImport.button')}
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              colorPalette="green"
+              onClick={addMatchModal.onOpen}
+            >
+              <Plus size={14} />
+              {t('addMatch')}
+            </Button>
           </Flex>
           <Button variant="outline" size="sm" onClick={handleCancel}>
             {t('close')}
@@ -385,8 +464,36 @@ export default function ManageScheduleModal({
 
         {/* Content */}
         {isLoading ? (
-          <Flex justify="center" align="center" minH="400px">
-            <Spinner />
+          <TournamentMatchListSkeleton count={5} />
+        ) : !hasGeneratedMatches && dirtyMatches.size === 0 && !manualEntry ? (
+          <Flex
+            direction="column"
+            align="center"
+            justify="center"
+            minH="400px"
+            gap={4}
+          >
+            <Text fontSize="4xl">🏆</Text>
+            <Text
+              color="gray.500"
+              textAlign="center"
+              maxW="340px"
+              _dark={{ color: 'gray.400' }}
+            >
+              {t('matchesNotGeneratedTitle')}
+            </Text>
+            <Button
+              bg="gray.800"
+              color="white"
+              onClick={() => {
+                onClose();
+                if (firstRoundsCategoryId) {
+                  onOpenRoundsPanel?.(firstRoundsCategoryId);
+                }
+              }}
+            >
+              {t('goToRounds')}
+            </Button>
           </Flex>
         ) : !hasScheduledMatches && dirtyMatches.size === 0 && !manualEntry ? (
           /* Empty state */
@@ -398,7 +505,12 @@ export default function ManageScheduleModal({
             gap={4}
           >
             <Text fontSize="4xl">📅</Text>
-            <Text color="gray.500" textAlign="center" maxW="300px">
+            <Text
+              color="gray.500"
+              textAlign="center"
+              maxW="300px"
+              _dark={{ color: 'gray.400' }}
+            >
               {t('emptyTitle')}
             </Text>
             <Button
@@ -409,7 +521,7 @@ export default function ManageScheduleModal({
               <Sparkles size={16} />
               {t('generateSchedule')}
             </Button>
-            <Text fontSize="sm" color="gray.400">
+            <Text fontSize="sm" color="gray.400" _dark={{ color: 'gray.500' }}>
               OR
             </Text>
             <Button
@@ -431,6 +543,9 @@ export default function ManageScheduleModal({
               setViewMode('list');
               setEditingMatch(matchId);
             }}
+            onDeleteMatch={(matchId) =>
+              setDeletingMatch(allMatches.find((m) => m.id === matchId) ?? null)
+            }
           />
         ) : (
           <ScheduleCalendarView
@@ -455,7 +570,7 @@ export default function ManageScheduleModal({
           bottom={0}
           bg="white"
           zIndex={10}
-          _dark={{ bg: 'gray.800' }}
+          _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
         >
           <Button variant="ghost" onClick={handleCancel}>
             {t('cancel')}
@@ -486,8 +601,8 @@ export default function ManageScheduleModal({
         isOpen={generateDrawerModal.isOpen}
         onClose={generateDrawerModal.onClose}
         tournamentId={tournament.id}
+        tournamentStartDate={tournament.startDate}
         categories={categories}
-        allMatches={allMatches}
         courts={courts}
         venueName={tournament.venue?.name}
         onGenerated={handleBackendGenerated}
@@ -521,17 +636,105 @@ export default function ManageScheduleModal({
         onClose={() => setEditingMatch(null)}
         match={allMatches.find((m) => m.id === editingMatch) ?? null}
         courts={courts}
-        onUpdate={async (matchId, courtId, startTime, endTime) => {
+        tournamentStartDate={tournament.startDate}
+        umpires={umpires}
+        onUpdate={async (
+          matchId,
+          courtId,
+          startTime,
+          endTime,
+          matchCode,
+          refereeId
+        ) => {
+          const previous = allMatches.find((m) => m.id === matchId);
+          const referee = refereeId
+            ? (umpires.find((u) => u.id === refereeId) ?? null)
+            : null;
           handleMatchMove(matchId, courtId, startTime, endTime);
+          setAllMatches((prev) =>
+            prev.map((m) =>
+              m.id === matchId
+                ? {
+                    ...m,
+                    matchCode,
+                    refereeId: refereeId ?? undefined,
+                    referee,
+                  }
+                : m
+            )
+          );
           setEditingMatch(null);
           try {
-            await CategoryService.bulkUpdateSchedule([
-              { matchId, courtId, startTime, endTime },
-            ]);
+            const tasks: Promise<unknown>[] = [
+              CategoryService.updateMatch(
+                matchId,
+                { matchCode },
+                {
+                  showToast: false,
+                }
+              ),
+              CategoryService.bulkUpdateSchedule([
+                { matchId, courtId, startTime, endTime },
+              ]),
+            ];
+            if (refereeId) {
+              tasks.push(
+                CategoryService.assignReferee(matchId, refereeId, {
+                  showToast: false,
+                })
+              );
+            } else if (previous?.refereeId) {
+              tasks.push(
+                CategoryService.unassignReferee(matchId, { showToast: false })
+              );
+            }
+            await Promise.all(tasks);
           } catch {
             toaster.error({ title: t('updateFailed') });
           }
         }}
+      />
+      {/* AI Import Schedule Drawer */}
+      <AIImportScheduleDrawer
+        isOpen={aiImportModal.isOpen}
+        onClose={aiImportModal.onClose}
+        tournamentId={tournament.id}
+        categories={categories}
+        courts={courts}
+        matches={allMatches}
+        onImported={async () => {
+          try {
+            const matchesData = await TournamentService.getAllMatches(
+              tournament.id
+            );
+            setAllMatches(matchesData);
+            setDirtyMatches(new Map());
+            setManualEntry(true);
+            setViewMode('list');
+            onScheduleSaved?.();
+          } catch {
+            // ignore reload error - toast already shown by drawer
+          }
+        }}
+      />
+
+      {/* Manual match entry */}
+      <AddMatchSheet
+        isOpen={addMatchModal.isOpen}
+        onClose={addMatchModal.onClose}
+        categories={categories}
+        courts={courts}
+        allMatches={allMatches}
+        onCreated={handleMatchCreated}
+      />
+
+      {/* Delete confirmation */}
+      <DeleteMatchConfirmModal
+        isOpen={deletingMatch !== null}
+        onClose={() => setDeletingMatch(null)}
+        match={deletingMatch}
+        onConfirm={handleConfirmDelete}
+        isDeleting={isDeleting}
       />
     </>
   );

@@ -21,12 +21,30 @@ import { Button, Image } from '@/components/ui/chakra-compat';
 import { LogIn, Menu, ChevronLeft } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useState } from 'react';
-import NotificationBell from './NotificationBell';
-import SlideOutMenu from './SlideOutMenu';
-import UserMenu from './UserMenu';
+import dynamic from 'next/dynamic';
 import SubNavigation, { NavItem } from './SubNavigation';
+// SlideOutMenu doubles as the persistent desktop sidebar (translateX(0) at
+// the md breakpoint, see SlideOutMenu.tsx) — PageWrapper reserves margin for
+// it on first paint, so it must render immediately. Lazy-loading it left a
+// blank gap where the sidebar should be until the chunk loaded.
+import SlideOutMenu from './SlideOutMenu';
+
+// These are genuinely interaction/auth-gated (only matter post-hydration),
+// so keep them out of the initial bundle. Fixed-size placeholders prevent
+// layout shift while their chunks load.
+const NotificationBell = dynamic(() => import('./NotificationBell'), {
+  ssr: false,
+  loading: () => <Box w="40px" h="40px" />,
+});
+const UserMenu = dynamic(() => import('./UserMenu'), {
+  ssr: false,
+  loading: () => <Box w="40px" h="40px" />,
+});
 import AiAssistantTopBarButton from './AiAssistantTopBarButton';
 import { useAiAssistantVisibility } from '@/hooks/useAiAssistantVisibility';
+import CitySelector from './CitySelector';
+import { useTopBarSearch } from '@/contexts/TopBarSearchContext';
+import { DebouncedAppSearchBar } from '@/components/common/DebouncedAppSearchBar';
 
 interface TopBarProps {
   showBackButton?: boolean;
@@ -34,6 +52,7 @@ interface TopBarProps {
   onBack?: () => void;
   title?: React.ReactNode;
   icon?: React.ReactNode;
+  mobileIcon?: React.ReactNode;
   rightContent?: React.ReactNode;
   navItems?: NavItem[];
   /** 'secondary' hides menu/logo/notification/profile on mobile, shows back button */
@@ -41,11 +60,22 @@ interface TopBarProps {
   hideBottomBorder?: boolean;
   /** Force title to be centered on mobile regardless of path */
   centerTitle?: boolean;
+  showMenuButton?: boolean;
+  showLogo?: boolean;
+  logoHref?: string;
+  showLogoDesktopOnly?: boolean;
+  showAuthActions?: boolean;
+  showAiAssistantButton?: boolean;
+  showCitySelector?: boolean;
+  className?: string;
+  /** On desktop, render this content centered in the top bar instead of the title */
+  desktopSearchContent?: React.ReactNode;
 }
 
 export default function TopBar({
   title,
   icon,
+  mobileIcon,
   rightContent,
   showBackButton = false,
   backHref = '/',
@@ -54,6 +84,15 @@ export default function TopBar({
   variant = 'main',
   hideBottomBorder = false,
   centerTitle = false,
+  showMenuButton = true,
+  showLogo = true,
+  logoHref = '/',
+  showLogoDesktopOnly = false,
+  showAuthActions = true,
+  showAiAssistantButton = true,
+  showCitySelector = false,
+  className,
+  desktopSearchContent,
 }: TopBarProps) {
   const common = useTranslations('common');
   const appName = common('appName');
@@ -62,6 +101,27 @@ export default function TopBar({
   const pathname = usePathname();
   const { toggleCollapse } = useSidebar();
   const showAiAssistant = useAiAssistantVisibility();
+  const { searchConfig, callbacksRef } = useTopBarSearch();
+
+  // Context search config takes priority; construct the search bar. Fall back to
+  // prop. Uses the debounced variant so typing stays snappy and doesn't lose
+  // characters while the onChange side effect (URL navigation) is in flight.
+  const resolvedDesktopSearch = searchConfig ? (
+    <DebouncedAppSearchBar
+      value={searchConfig.value}
+      onChange={(val) => callbacksRef.current?.onChange(val)}
+      placeholder={searchConfig.placeholder}
+      onFilterClick={
+        searchConfig.hasFilterClick
+          ? () => callbacksRef.current?.onFilterClick?.()
+          : undefined
+      }
+      activeFilterCount={searchConfig.activeFilterCount}
+      showFilter={searchConfig.showFilter}
+    />
+  ) : (
+    desktopSearchContent
+  );
 
   const normalizedPath =
     pathname.replace(/^\/[a-z]{2}(\/|$)/, '/').replace(/\/$/, '') || '/';
@@ -90,6 +150,7 @@ export default function TopBar({
   return (
     <>
       <Box
+        className={className}
         position="fixed"
         top={0}
         left={0}
@@ -148,60 +209,93 @@ export default function TopBar({
               flex={isLeftAlignedTitle ? 1 : 'none'}
               minW={0}
             >
-              <IconButton
-                aria-label="Open menu"
-                onClick={() => {
-                  const isMobile = window.innerWidth < 768;
-                  if (isMobile) {
-                    onMenuOpen();
-                  } else {
-                    toggleCollapse();
+              {showMenuButton && (
+                <IconButton
+                  aria-label="Open menu"
+                  onClick={() => {
+                    const isMobile = window.innerWidth < 768;
+                    if (isMobile) {
+                      onMenuOpen();
+                    } else {
+                      toggleCollapse();
+                    }
+                  }}
+                  variant="ghost"
+                  color="fg"
+                  _hover={{ bg: 'bg.muted' }}
+                  borderRadius="full"
+                  size="md"
+                  display={
+                    variant === 'secondary'
+                      ? { base: 'none', md: 'flex' }
+                      : 'flex'
                   }
-                }}
-                variant="ghost"
-                color="fg"
-                _hover={{ bg: 'bg.muted' }}
-                borderRadius="full"
-                size="md"
-                display={
-                  variant === 'secondary'
-                    ? { base: 'none', md: 'flex' }
-                    : 'flex'
-                }
-              >
-                <Menu size={20} />
-              </IconButton>
-
-              <Box
-                display={
-                  variant === 'secondary'
-                    ? { base: 'none', md: 'flex' }
-                    : 'flex'
-                }
-                alignItems="center"
-              >
-                <Link
-                  href="/"
-                  style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
                 >
-                  {icon || (
-                    <Image
-                      src="/icons/app-logo.png"
-                      h="32px"
-                      w="auto"
-                      alt={appName}
-                    />
-                  )}
-                  <Text
-                    display={{ base: 'none', md: 'block' }}
-                    fontSize={{ base: 'md', md: 'lg' }}
-                    fontWeight="bold"
-                    color="green.600"
+                  <Menu size={20} />
+                </IconButton>
+              )}
+
+              {showLogo && (
+                <Box
+                  display={
+                    variant === 'secondary' || showLogoDesktopOnly
+                      ? { base: 'none', md: 'flex' }
+                      : 'flex'
+                  }
+                  alignItems="center"
+                >
+                  <Link
+                    href={logoHref}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                    }}
                   >
-                    Vmito
-                  </Text>
-                </Link>
-              </Box>
+                    <Box display={{ base: 'flex', md: 'none' }}>
+                      {mobileIcon || icon || (
+                        <Image
+                          src="/icons/app-logo-96.png"
+                          h="32px"
+                          w="32px"
+                          alt={appName}
+                          loading="eager"
+                          fetchPriority="high"
+                        />
+                      )}
+                    </Box>
+                    <Box display={{ base: 'none', md: 'flex' }}>
+                      {icon || (
+                        <Image
+                          src="/icons/app-logo-96.png"
+                          h="32px"
+                          w="32px"
+                          alt={appName}
+                          loading="eager"
+                          fetchPriority="high"
+                        />
+                      )}
+                    </Box>
+                    <Text
+                      display={{ base: 'none', md: 'block' }}
+                      fontSize={{ base: 'md', md: 'lg' }}
+                      fontWeight="bold"
+                      color="green.600"
+                    >
+                      Vmito
+                    </Text>
+                  </Link>
+                </Box>
+              )}
+
+              {showCitySelector && variant !== 'secondary' && (
+                <Box
+                  display={{ base: 'none', md: 'block' }}
+                  ml={{ base: 0, md: 3 }}
+                >
+                  <CitySelector />
+                </Box>
+              )}
 
               {/* Back button logic */}
               {(showBackButton || variant === 'secondary') && (
@@ -253,10 +347,12 @@ export default function TopBar({
               {/* App title - left aligned detail pages on mobile */}
               {title && isLeftAlignedTitle && (
                 <Heading
-                  size={{ base: 'md', md: 'lg' }}
+                  size={{ md: 'lg' }}
+                  fontSize={{ base: '18px', md: undefined }}
                   color="fg"
                   fontWeight="bold"
-                  maxWidth={{ base: 'calc(100vw - 168px)', md: '600px' }}
+                  maxWidth={{ base: '100%', md: '600px' }}
+                  minW={0}
                   whiteSpace="nowrap"
                   overflow="hidden"
                   textOverflow="ellipsis"
@@ -275,28 +371,52 @@ export default function TopBar({
               )}
             </Flex>
 
-            {/* App title - centered independently from left/right actions */}
-            {title && isCenteredTitle && (
-              <Heading
-                size={{ base: 'md', md: 'lg' }}
-                color="fg"
-                fontWeight="bold"
-                maxWidth={{ base: '50vw', md: '500px' }}
-                whiteSpace="nowrap"
-                overflow="hidden"
-                textOverflow="ellipsis"
+            {/* Desktop search content - shown only on desktop, centered */}
+            {resolvedDesktopSearch && (
+              <Flex
+                flex={1}
+                minW={0}
+                mx={2}
                 height="100%"
-                display="flex"
-                alignItems="center"
-                justifyContent="center"
-                position="absolute"
-                left="50%"
-                transform="translateX(-50%)"
-                textAlign="center"
-                pointerEvents="none"
+                align="center"
+                justify="center"
+                display={{ base: 'none', md: 'flex' }}
               >
-                {title}
-              </Heading>
+                <Box w="100%" maxW="500px">
+                  {resolvedDesktopSearch}
+                </Box>
+              </Flex>
+            )}
+
+            {/* App title - centered in the space between the side actions.
+                Kept in normal flow (not absolutely positioned) so it can never
+                sit underneath the action buttons, and truncates with a single
+                trailing ellipsis instead of clipping both ends. */}
+            {title && isCenteredTitle && (
+              <Flex
+                flex={1}
+                minW={0}
+                mx={2}
+                height="100%"
+                align="center"
+                justify="center"
+                display={
+                  resolvedDesktopSearch ? { base: 'flex', md: 'none' } : 'flex'
+                }
+              >
+                <Heading
+                  size={{ base: 'md', md: 'lg' }}
+                  color="fg"
+                  fontWeight="bold"
+                  minW={0}
+                  maxWidth="100%"
+                  whiteSpace="nowrap"
+                  overflow="hidden"
+                  textOverflow="ellipsis"
+                >
+                  {title}
+                </Heading>
+              </Flex>
             )}
 
             {/* Right side - Actions */}
@@ -310,10 +430,14 @@ export default function TopBar({
             >
               {rightContent}
 
-              {!isHydrated || isLoading ? null : isAuthenticated ? (
+              {!showAuthActions ||
+              !isHydrated ||
+              isLoading ? null : isAuthenticated ? (
                 <>
                   <Box display="flex" alignItems="center" gap={2}>
-                    {showAiAssistant && <AiAssistantTopBarButton />}
+                    {showAiAssistant && showAiAssistantButton && (
+                      <AiAssistantTopBarButton />
+                    )}
                     <NotificationBell color="fg" _hover={{ bg: 'bg.muted' }} />
                     <UserMenu onLogout={handleLogout} />
                   </Box>
@@ -321,14 +445,16 @@ export default function TopBar({
               ) : !pathname.includes('/auth/signin') &&
                 !pathname.includes('/auth/signup') ? (
                 <Button
+                  aria-label={common('login')}
                   onClick={() => router.push('/auth/signin')}
                   colorPalette="green"
                   variant="outline"
                   size="xs"
-                  h={{ base: '36px', md: '38px' }}
-                  minW="auto"
+                  h={{ base: '40px', md: '38px' }}
+                  w="auto"
+                  minW={{ base: 'auto', md: 'auto' }}
                   px={{ base: 3, md: 4 }}
-                  gap={1.5}
+                  gap={{ base: 1.5, md: 1.5 }}
                   fontSize={{ base: 'sm', md: 'sm' }}
                   fontWeight="700"
                   borderRadius="md"
@@ -353,8 +479,10 @@ export default function TopBar({
                   }}
                   transition="background-color 0.2s, border-color 0.2s, color 0.2s, box-shadow 0.2s"
                 >
-                  <LogIn size={15} />
-                  {common('login')}
+                  <LogIn size={17} />
+                  <Box as="span" display="inline">
+                    {common('login')}
+                  </Box>
                 </Button>
               ) : null}
             </Box>
@@ -363,7 +491,9 @@ export default function TopBar({
         </Container>
       </Box>
 
-      <SlideOutMenu isOpen={isMenuOpen} onClose={onMenuClose} />
+      {showMenuButton && (
+        <SlideOutMenu isOpen={isMenuOpen} onClose={onMenuClose} />
+      )}
     </>
   );
 }

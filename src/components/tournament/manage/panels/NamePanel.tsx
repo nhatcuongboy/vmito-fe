@@ -1,6 +1,6 @@
 'use client';
 
-import { Box, Flex, Heading, Text, Input } from '@chakra-ui/react';
+import { Box, Flex, Heading, Text, Input, Textarea } from '@chakra-ui/react';
 import { Button } from '@/components/ui/chakra-compat';
 import { useTranslations } from 'next-intl';
 import { Tournament } from '@/lib/api/types';
@@ -20,6 +20,7 @@ export default function NamePanel({
 }: NamePanelProps) {
   const t = useTranslations('pages.tournaments.detail.manage.panels.name');
   const [name, setName] = useState(tournament.name);
+  const [description, setDescription] = useState(tournament.description ?? '');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -30,7 +31,10 @@ export default function NamePanel({
       return;
     }
 
-    if (name === tournament.name) {
+    if (
+      name === tournament.name &&
+      description === (tournament.description ?? '')
+    ) {
       toaster.info({ title: t('errors.noChanges') });
       return;
     }
@@ -39,6 +43,7 @@ export default function NamePanel({
       setIsSubmitting(true);
       const updated = await TournamentService.updateTournament(tournament.id, {
         name: name.trim(),
+        description: description.trim() || null,
       });
       onTournamentUpdate?.(updated);
       toaster.success({ title: t('success') });
@@ -49,14 +54,15 @@ export default function NamePanel({
     }
   };
 
-  const hasChanges = name !== tournament.name;
+  const hasChanges =
+    name !== tournament.name || description !== (tournament.description ?? '');
 
   return (
     <Box>
       <Heading size="md" mb={2}>
         {t('title')}
       </Heading>
-      <Text color="gray.600" mb={6}>
+      <Text color="gray.600" mb={6} _dark={{ color: 'gray.300' }}>
         {t('description')}
       </Text>
 
@@ -71,10 +77,25 @@ export default function NamePanel({
           />
         </Field>
 
+        <Field label={t('notesLabel')} mb={6}>
+          <Textarea
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            placeholder={t('notesPlaceholder')}
+            rows={5}
+            resize="vertical"
+            maxLength={2000}
+            disabled={isSubmitting}
+          />
+        </Field>
+
         <Flex justify="flex-end" gap={3}>
           <Button
             variant="outline"
-            onClick={() => setName(tournament.name)}
+            onClick={() => {
+              setName(tournament.name);
+              setDescription(tournament.description ?? '');
+            }}
             disabled={!hasChanges || isSubmitting}
           >
             {t('cancel')}

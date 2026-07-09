@@ -24,18 +24,31 @@ export interface IAdvancingTeamsModalProps {
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
 const POOL_LABELS = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
-const ORDINAL_LABELS = ['1st', '2nd', '3rd', '4th', '5th', '6th', '7th', '8th'];
+
+const getOrdinalLabel = (
+  rank: number,
+  t: ReturnType<typeof useTranslations>
+): string => {
+  const oneBased = rank + 1;
+  const key = oneBased >= 1 && oneBased <= 8 ? String(oneBased) : 'other';
+  return t(`panels.rounds.ordinals.${key}`, { rank: oneBased });
+};
 
 const generateAdvancingPreview = (
   groupCount: number,
-  winnersPerGroup: number
+  winnersPerGroup: number,
+  t: ReturnType<typeof useTranslations>
 ): string[] => {
   const slots: string[] = [];
   for (let rank = 0; rank < winnersPerGroup; rank++) {
     for (let g = 0; g < groupCount; g++) {
-      const ordinal = ORDINAL_LABELS[rank] ?? `${rank + 1}th`;
       const poolLabel = POOL_LABELS[g] ?? String(g + 1);
-      slots.push(`${ordinal} Pool ${poolLabel}`);
+      slots.push(
+        t('panels.rounds.nthPoolLabel', {
+          rank: getOrdinalLabel(rank, t),
+          pool: poolLabel,
+        })
+      );
     }
   }
   return slots;
@@ -111,13 +124,19 @@ export default function AdvancingTeamsModal({
 
   const playoffsTeamCount = winnersPerGroup * groupCount;
 
+  // Teams advance as `winnersPerGroup × groupCount`, so only multiples of the
+  // group count are reachable — listing every integer makes intermediate values
+  // snap to the nearest multiple (no-ops). Cap at the (evenly distributed) group
+  // size so we never advance more teams than a group actually contains.
   const teamCountOptions = useMemo(() => {
+    if (groupCount <= 0) return [0];
+    const maxWinnersPerGroup = Math.floor(totalRegistrations / groupCount);
     const options: number[] = [];
-    for (let n = 0; n <= totalRegistrations; n++) {
-      options.push(n);
+    for (let w = 0; w <= maxWinnersPerGroup; w++) {
+      options.push(w * groupCount);
     }
     return options;
-  }, [totalRegistrations]);
+  }, [groupCount, totalRegistrations]);
 
   const handleTeamCountChange = (total: number) => {
     if (total === 0 || groupCount <= 0) {
@@ -130,8 +149,8 @@ export default function AdvancingTeamsModal({
   const isAllTeamsAdvancing = playoffsTeamCount >= totalRegistrations;
 
   const advancingSlots = useMemo(
-    () => generateAdvancingPreview(groupCount, winnersPerGroup),
-    [groupCount, winnersPerGroup]
+    () => generateAdvancingPreview(groupCount, winnersPerGroup, t),
+    [groupCount, winnersPerGroup, t]
   );
 
   const handleSave = async () => {
@@ -156,7 +175,7 @@ export default function AdvancingTeamsModal({
       const msg =
         error instanceof Error
           ? error.message
-          : 'Failed to save advancing teams';
+          : t('panels.rounds.advancingTeamsSaveFailed');
       toaster.error({ title: msg });
     } finally {
       setIsSaving(false);

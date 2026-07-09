@@ -39,6 +39,7 @@ interface IAppImageGalleryPickerProps {
   selectedImages?: ISelectedImage[];
   maxSelect?: number;
   category?: EImageCategory;
+  zIndex?: number;
 }
 
 const AppImageGalleryPicker = ({
@@ -48,6 +49,7 @@ const AppImageGalleryPicker = ({
   selectedImages = [],
   maxSelect = 5,
   category = EImageCategory.SESSION_COVER,
+  zIndex,
 }: IAppImageGalleryPickerProps) => {
   const t = useTranslations('session');
   const tc = useTranslations('common');
@@ -204,7 +206,12 @@ const AppImageGalleryPicker = ({
 
   return (
     <>
-      <Modal isOpen={isMounted && isOpen} onClose={onClose} size="xl">
+      <Modal
+        isOpen={isMounted && isOpen}
+        onClose={onClose}
+        size="xl"
+        zIndex={zIndex}
+      >
         <ModalOverlay />
         <ModalContent maxH="80vh">
           <ModalHeader>{t('selectFromGallery')}</ModalHeader>

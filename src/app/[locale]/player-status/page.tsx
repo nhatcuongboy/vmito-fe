@@ -16,6 +16,7 @@ import {
 import { RefreshCw, Clock, Users, Trophy } from 'lucide-react';
 import { toaster } from '@/components/ui/toaster';
 import { Button } from '@/components/ui/chakra-compat';
+import { useTranslations } from 'next-intl';
 
 interface PlayerStatus {
   id: string;
@@ -35,6 +36,7 @@ interface PlayerStatus {
 }
 
 function PlayerStatusContent() {
+  const t = useTranslations('playerStatus');
   const [playerStatus, setPlayerStatus] = useState<PlayerStatus | null>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -44,7 +46,7 @@ function PlayerStatusContent() {
   const fetchPlayerStatus = useCallback(
     async (showRefreshing = false) => {
       if (!guestToken) {
-        toaster.error({ title: 'Invalid player token' });
+        toaster.error({ title: t('invalidToken') });
         setLoading(false);
         return;
       }
@@ -59,18 +61,18 @@ function PlayerStatusContent() {
           setPlayerStatus(data.data);
         } else {
           toaster.error({
-            title: data.message || 'Failed to fetch player status',
+            title: data.message || t('fetchError'),
           });
         }
       } catch (error) {
-        toaster.error({ title: 'Failed to fetch player status' });
+        toaster.error({ title: t('fetchError') });
         console.error('Status fetch error:', error);
       } finally {
         setLoading(false);
         setRefreshing(false);
       }
     },
-    [guestToken]
+    [guestToken, t]
   );
 
   useEffect(() => {

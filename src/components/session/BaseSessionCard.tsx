@@ -3,7 +3,10 @@
 import { useState } from 'react';
 import { ISession, UserRole } from '@/lib/api/types';
 import { useLevelLabel } from '@/hooks/useLevelLabel';
-import { formatTimeByDevicePreference } from '@/utils/time-helpers';
+import {
+  formatTimeByDevicePreference,
+  formatTimeRangeByDevicePreference,
+} from '@/utils/time-helpers';
 import dayjs from '@/lib/dayjs';
 import {
   Avatar,
@@ -48,26 +51,34 @@ import {
   Square,
   ChevronRight,
   Info,
+  Facebook,
 } from 'lucide-react';
-import { motion } from 'framer-motion';
 import { FeeService } from '@/lib/api/fee.service';
 import { FeeType } from '@/lib/api/types';
 import { useLocale, useTranslations } from 'next-intl';
 import { Locale } from '@/i18n/locales';
 import FeeDetailPopover from '@/components/fee/FeeDetailPopover';
 import { getSkillLevelColor } from '@/lib/utils/skillLevel.utils';
+import { normalizeImageUrl } from '@/lib/images/normalizeImageUrl';
+import { VALID_LEVELS, sortLevelsByRank } from '@/constants/levels';
 import { AppPlayerRating } from '@/components/rating';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { DEFAULT_COVER_PHOTO } from '@/constants';
+import { useMyClubIds } from '@/hooks/useMyClubIds';
 import { Button, IconButton } from '@/components/ui/chakra-compat';
 import { NextLinkButton } from '@/components/ui/NextLinkButton';
 import { toaster } from '@/components/ui/toaster';
 import { SessionActionConfig } from './BaseSessionCard.types';
 import { Link } from '@/i18n/config';
-import SessionShareImageModal from './SessionShareImageModal';
+import dynamic from 'next/dynamic';
 import LevelDescriptionsModal from './LevelDescriptionsModal';
+
+// Loaded on demand: pulls in html-to-image, which is only needed when sharing
+const SessionShareImageModal = dynamic(
+  () => import('./SessionShareImageModal'),
+  { ssr: false }
+);
 import LevelBadgeWithDescription from './LevelBadgeWithDescription';
-import { VALID_LEVELS } from '@/constants/levels';
 
 // Helper functions for formatting with locale support
 export const formatDate = (
@@ -95,6 +106,14 @@ export const formatTime = (
 ): string => {
   // Use device time format preference instead of hardcoded HH:mm
   return formatTimeByDevicePreference(dateString);
+};
+
+export const formatTimeRange = (
+  startTime: string | Date,
+  endTime?: string | Date | null,
+  endFallback?: string
+): string => {
+  return formatTimeRangeByDevicePreference(startTime, endTime, endFallback);
 };
 
 export const statusColors: Record<string, string> = {
@@ -162,6 +181,9 @@ interface BaseSessionCardProps {
 
   // Always show full day name instead of "Hôm nay"/"Ngày mai" (e.g., "Thứ năm, 09/04/26")
   alwaysShowDayName?: boolean;
+
+  // Eagerly load the cover photo with high fetch priority (set for above-the-fold cards — the page LCP)
+  imagePriority?: boolean;
 }
 
 const BaseSessionCard = ({
@@ -183,6 +205,7 @@ const BaseSessionCard = ({
   disableCardLink = false,
   showYearInDate = false,
   alwaysShowDayName = false,
+  imagePriority = false,
 }: BaseSessionCardProps & { hostActions?: React.ReactNode }) => {
   const isCompact = variant === 'list';
   const t = useTranslations('session');
@@ -190,6 +213,7 @@ const BaseSessionCard = ({
   const { getLevelShortLabel } = useLevelLabel();
   const locale = useLocale();
   const { user } = useAuthStore();
+  const { clubIds: viewerClubIds } = useMyClubIds();
   const [isLoading, setIsLoading] = useState(false);
   const [isShareImageModalOpen, setIsShareImageModalOpen] = useState(false);
   const [isLevelDescriptionsOpen, setIsLevelDescriptionsOpen] = useState(false);
@@ -202,6 +226,16 @@ const BaseSessionCard = ({
   const maxPlayers = session.numberOfCourts * session.maxPlayersPerCourt;
   const totalPlayers = session._count?.players || 0;
   const isFull = totalPlayers >= maxPlayers;
+  // For session cards, always show the session fee (not "Contact host")
+  const feeDisplayText = FeeService.getSessionFeeForCard(session);
+  const canSeeSessionFee = FeeService.canViewerSeeSessionFee(
+    session,
+    user?.id,
+    viewerClubIds
+  );
+  // Crawled (vãng lai) Facebook sessions have no managed players — hide the
+  // capacity / slot-ratio rows that only apply to internal sessions.
+  const isCrawled = session.isCrawled === true;
 
   // Helper function: Handle share action
   const handleShare = async (e: React.MouseEvent) => {
@@ -382,7 +416,7 @@ const BaseSessionCard = ({
     if (actions.showManageButton && canManage) {
       const manageHref =
         actions.manageButtonHref ||
-        (user?.role === UserRole.PLAYER
+        (user?.role === UserRole.PLAYER || user?.role === UserRole.REFEREE
           ? `/player/sessions/${session.slug || session.id}`
           : `/host/sessions/${session.slug || session.id}`);
       buttons.push(
@@ -397,6 +431,30 @@ const BaseSessionCard = ({
           <Icon as={Settings} boxSize={4} />
           {t('manageSession')}
         </NextLinkButton>
+      );
+    }
+
+    // External link button — crawled (vãng lai) Facebook sessions are view-only,
+    // this sends the user to the original public post to contact the host there.
+    if (actions.showExternalLinkButton && actions.externalUrl) {
+      buttons.push(
+        <Button
+          key="external-link"
+          variant="solid"
+          size="sm"
+          shadow="md"
+          bg="#1877F2"
+          color="white"
+          _hover={{ bg: '#166FE5' }}
+          _active={{ bg: '#1558B0' }}
+          onClick={(e: React.MouseEvent) => {
+            e.stopPropagation();
+            window.open(actions.externalUrl, '_blank', 'noopener,noreferrer');
+          }}
+        >
+          <Icon as={Facebook} boxSize={4} />
+          {t('viewOriginalPost')}
+        </Button>
       );
     }
 
@@ -438,20 +496,53 @@ const BaseSessionCard = ({
     if (actions.showViewRegistrationButton && actions.onViewRegistration) {
       return (
         <Flex w={isCompact ? 'auto' : 'full'} justify="flex-end">
-          <Button
-            colorPalette="green"
-            variant="subtle"
-            size="sm"
-            shadow="md"
-            loading={actions.isRegistrationLoading}
-            onClick={(e: React.MouseEvent) => {
-              e.stopPropagation();
-              actions.onViewRegistration?.();
-            }}
-          >
-            <Icon as={ClipboardList} boxSize={4} />
-            {t('viewMyRegistration')}
-          </Button>
+          <Flex gap={2} align="center">
+            {actions.compactViewRegistrationButton ? (
+              <IconButton
+                size="sm"
+                variant="subtle"
+                colorPalette="green"
+                aria-label={t('viewMyRegistration')}
+                shadow="md"
+                icon={<Icon as={ClipboardList} />}
+                loading={actions.isRegistrationLoading}
+                onClick={(e: React.MouseEvent) => {
+                  e.stopPropagation();
+                  actions.onViewRegistration?.();
+                }}
+              />
+            ) : (
+              <Button
+                colorPalette="green"
+                variant="subtle"
+                size="sm"
+                shadow="md"
+                loading={actions.isRegistrationLoading}
+                onClick={(e: React.MouseEvent) => {
+                  e.stopPropagation();
+                  actions.onViewRegistration?.();
+                }}
+              >
+                <Icon as={ClipboardList} boxSize={4} />
+                {t('viewMyRegistration')}
+              </Button>
+            )}
+            {actions.showAddGuestButton && actions.onAddGuest && (
+              <IconButton
+                size="sm"
+                variant="outline"
+                colorPalette="green"
+                aria-label={t('addGuest')}
+                shadow="md"
+                icon={<Icon as={UserPlus} />}
+                disabled={isFull}
+                onClick={(e: React.MouseEvent) => {
+                  e.stopPropagation();
+                  actions.onAddGuest?.();
+                }}
+              />
+            )}
+          </Flex>
         </Flex>
       );
     }
@@ -463,16 +554,48 @@ const BaseSessionCard = ({
         `/player/sessions/${session.slug || session.id}`;
       return (
         <Flex w={isCompact ? 'auto' : 'full'} justify="flex-end">
-          <NextLinkButton
-            href={viewSessionHref}
-            colorPalette="green"
-            variant="solid"
-            size="sm"
-            loading={actions.isRegistrationLoading}
-          >
-            <Icon as={LogIn} boxSize={4} />
-            {t('viewSession')}
-          </NextLinkButton>
+          <Flex gap={2} align="center">
+            <NextLinkButton
+              href={viewSessionHref}
+              colorPalette="green"
+              variant="solid"
+              size="sm"
+              loading={actions.isRegistrationLoading}
+            >
+              <Icon as={LogIn} boxSize={4} />
+              {t('viewSession')}
+            </NextLinkButton>
+            {actions.showViewRegistrationButton &&
+              actions.onViewRegistration && (
+                <IconButton
+                  size="sm"
+                  variant="outline"
+                  colorPalette="green"
+                  aria-label={t('viewMyRegistration')}
+                  shadow="md"
+                  icon={<Icon as={ClipboardList} />}
+                  onClick={(e: React.MouseEvent) => {
+                    e.stopPropagation();
+                    actions.onViewRegistration?.();
+                  }}
+                />
+              )}
+            {actions.showAddGuestButton && actions.onAddGuest && (
+              <IconButton
+                size="sm"
+                variant="outline"
+                colorPalette="green"
+                aria-label={t('addGuest')}
+                shadow="md"
+                icon={<Icon as={UserPlus} />}
+                disabled={isFull}
+                onClick={(e: React.MouseEvent) => {
+                  e.stopPropagation();
+                  actions.onAddGuest?.();
+                }}
+              />
+            )}
+          </Flex>
         </Flex>
       );
     }
@@ -489,11 +612,7 @@ const BaseSessionCard = ({
       ? formatDate(session.startTime, locale)
       : formatDate(session.createdAt, locale) + ` (${t('notStarted')})`,
     time: session.startTime
-      ? `${formatTime(session.startTime, locale)} - ${
-          session.endTime
-            ? formatTime(session.endTime, locale)
-            : t('inProgress')
-        }`
+      ? formatTimeRange(session.startTime, session.endTime, t('inProgress'))
       : t('notStartedYet'),
     numberOfCourts: session.numberOfCourts,
     totalPlayers: session._count?.players || 0,
@@ -539,7 +658,7 @@ const BaseSessionCard = ({
     : formatCompactDate(session.createdAt);
 
   const compactTime = session.startTime
-    ? `${formatTime(session.startTime, locale)} - ${session.endTime ? formatTime(session.endTime, locale) : ''}`
+    ? formatTimeRange(session.startTime, session.endTime)
     : '';
 
   // Calculate level segments for the side strip
@@ -557,7 +676,7 @@ const BaseSessionCard = ({
     }
 
     // For multiple levels, show only the highest level color
-    const highestLevel = Math.max(...session.requiredLevels);
+    const highestLevel = sortLevelsByRank(session.requiredLevels).at(-1)!;
     const highestLevelColor = getSkillLevelColor([highestLevel]).color;
     return [highestLevelColor];
   };
@@ -586,14 +705,19 @@ const BaseSessionCard = ({
   };
 
   const cardContent = (
-    <motion.div
-      whileTap={disableCardLink ? undefined : { scale: 0.98, opacity: 0.95 }}
-      style={{
-        height: '100%',
-        width: '100%',
-        display: 'flex',
-        flexDirection: 'column',
-      }}
+    // CSS-only tap feedback (used to be framer-motion's whileTap, which cost
+    // ~112KB of JS on every page rendering session cards)
+    <Box
+      h="100%"
+      w="100%"
+      display="flex"
+      flexDirection="column"
+      transition="transform 0.15s ease, opacity 0.15s ease"
+      _active={
+        disableCardLink || isMouseOverActionButton
+          ? undefined
+          : { transform: 'scale(0.98)', opacity: 0.95 }
+      }
     >
       <Box
         position="relative"
@@ -615,7 +739,6 @@ const BaseSessionCard = ({
               }
         }
         maxW="400px"
-        minW="300px"
         w="100%"
         mx="auto"
         display="flex"
@@ -659,11 +782,30 @@ const BaseSessionCard = ({
         {!isCompact && (
           <Box position="relative" h="180px" overflow="hidden">
             <Image
-              src={session.coverPhoto || DEFAULT_COVER_PHOTO}
+              src={
+                // 800x380 matches the card's ~2.1:1 cover box at 2x DPR;
+                // c_fill pre-crops what objectFit:cover would discard anyway
+                normalizeImageUrl(session.coverPhoto, {
+                  cloudinaryWidth: 800,
+                  cloudinaryHeight: 380,
+                }) || DEFAULT_COVER_PHOTO
+              }
               alt={session.name}
               w="100%"
               h="100%"
               objectFit="cover"
+              loading={imagePriority ? 'eager' : 'lazy'}
+              // "low" keeps near-viewport lazy covers from competing with
+              // the first card's image (the LCP) for bandwidth
+              fetchPriority={imagePriority ? 'high' : 'low'}
+              decoding="async"
+              onError={(e) => {
+                // Hotlinked Facebook images can expire — fall back to default
+                const img = e.currentTarget as HTMLImageElement;
+                if (img.src !== DEFAULT_COVER_PHOTO) {
+                  img.src = DEFAULT_COVER_PHOTO;
+                }
+              }}
             />
             {/* Status Badge Overlay */}
             <Box position="absolute" top={3} right={3}>
@@ -701,8 +843,8 @@ const BaseSessionCard = ({
 
         {/* Content Section */}
         <Box
-          p={isCompact ? 3 : 5}
-          pb={isCompact ? 3 : 5}
+          p={isCompact ? 3 : { base: 4, sm: 5 }}
+          pb={isCompact ? 3 : { base: 4, sm: 5 }}
           flex="1"
           display="flex"
           flexDirection="column"
@@ -787,29 +929,79 @@ const BaseSessionCard = ({
                         ? displayHostName.charAt(0).toUpperCase()
                         : ''}
                     </Avatar.Fallback>
-                    {session.host?.image && (
-                      <Avatar.Image src={session.host.image} />
+                    {(isCrawled
+                      ? session.externalAuthorAvatar
+                      : session.host?.image) && (
+                      <Avatar.Image
+                        src={normalizeImageUrl(
+                          isCrawled
+                            ? session.externalAuthorAvatar
+                            : session.host?.image
+                        )}
+                        // Decorative — the host name is rendered right next to it
+                        alt=""
+                      />
                     )}
                   </Avatar.Root>
                 </Box>
-                <Text
-                  position="relative"
-                  zIndex={3}
-                  fontSize="sm"
-                  fontWeight="medium"
-                  cursor={onHostClick ? 'pointer' : 'default'}
-                  _hover={onHostClick ? { textDecoration: 'underline' } : {}}
-                  onClick={(e) => {
-                    if (onHostClick) {
-                      e.stopPropagation();
-                      onHostClick(e);
-                    }
-                  }}
-                >
-                  {displayHostName}
-                </Text>
-                <AppPlayerRating userId={session.hostId} showBullet />
-                {hostActions}
+                <Flex direction="column" align="flex-start" minW={0} flex={1}>
+                  <Flex align="center" gap={2} maxW="full">
+                    <Text
+                      position="relative"
+                      zIndex={3}
+                      fontSize="sm"
+                      fontWeight="semibold"
+                      cursor={onHostClick ? 'pointer' : 'default'}
+                      _hover={
+                        onHostClick ? { textDecoration: 'underline' } : {}
+                      }
+                      onClick={(e) => {
+                        if (onHostClick) {
+                          e.stopPropagation();
+                          onHostClick(e);
+                        }
+                      }}
+                      lineClamp={1}
+                    >
+                      {displayHostName}
+                    </Text>
+                    {/* Bot has no meaningful rating for crawled sessions */}
+                    {!isCrawled && (
+                      <AppPlayerRating userId={session.hostId} showBullet />
+                    )}
+                    {hostActions}
+                  </Flex>
+                  {isCrawled && session.externalSource && (
+                    <Text
+                      position="relative"
+                      zIndex={3}
+                      fontSize="xs"
+                      color="gray.500"
+                      _dark={{ color: 'whiteAlpha.600' }}
+                      lineClamp={1}
+                      cursor={session.externalGroupUrl ? 'pointer' : 'default'}
+                      _hover={
+                        session.externalGroupUrl
+                          ? { textDecoration: 'underline' }
+                          : {}
+                      }
+                      onClick={
+                        session.externalGroupUrl
+                          ? (e: React.MouseEvent) => {
+                              e.stopPropagation();
+                              window.open(
+                                session.externalGroupUrl,
+                                '_blank',
+                                'noopener,noreferrer'
+                              );
+                            }
+                          : undefined
+                      }
+                    >
+                      {session.externalSource}
+                    </Text>
+                  )}
+                </Flex>
               </Flex>
             )}
 
@@ -840,23 +1032,32 @@ const BaseSessionCard = ({
                     {convertedSession.numberOfCourts} {t('courtsAvailable')}
                   </Text>
                 </Flex>
-                <Flex align="center" gap={1}>
-                  <Icon as={Users} boxSize={4} color="green.500" />
-                  <Text fontSize="xs">
-                    {t('maxPlayers', { count: convertedSession.maxPlayers })}
-                  </Text>
-                </Flex>
-                <Flex align="center" gap={1}>
-                  <Icon as={UserCheck} boxSize={4} color="green.500" />
-                  <Text fontSize="xs">
-                    {convertedSession.totalPlayers}/
-                    {convertedSession.maxPlayers} {t('players')}
-                  </Text>
-                </Flex>
-                {session.shuttlecock && (
+                {!isCrawled && (
                   <Flex align="center" gap={1}>
-                    <Icon as={Feather} boxSize={4} color="green.500" />
+                    <Icon as={Users} boxSize={4} color="green.500" />
                     <Text fontSize="xs">
+                      {t('maxPlayers', { count: convertedSession.maxPlayers })}
+                    </Text>
+                  </Flex>
+                )}
+                {!isCrawled && (
+                  <Flex align="center" gap={1}>
+                    <Icon as={UserCheck} boxSize={4} color="green.500" />
+                    <Text fontSize="xs">
+                      {convertedSession.totalPlayers}/
+                      {convertedSession.maxPlayers} {t('players')}
+                    </Text>
+                  </Flex>
+                )}
+                {session.shuttlecock && (
+                  <Flex align="center" gap={1} minW={0}>
+                    <Icon
+                      as={Feather}
+                      boxSize={4}
+                      color="green.500"
+                      flexShrink={0}
+                    />
+                    <Text fontSize="xs" lineClamp={1} minW={0}>
                       {t('shuttlecock') + ' ' + session.shuttlecock}
                     </Text>
                   </Flex>
@@ -892,24 +1093,33 @@ const BaseSessionCard = ({
                     )}
                   </Text>
                 </Flex>
-                <Flex align="center" gap={2}>
-                  <Icon as={Users} boxSize={5} color="green.500" />
-                  <Text fontSize="sm">
-                    {t('maxPlayers', { count: convertedSession.maxPlayers })}
-                  </Text>
-                </Flex>
-
-                <Flex align="center" gap={2}>
-                  <Icon as={UserCheck} boxSize={5} color="green.500" />
-                  <Text fontSize="sm">
-                    {convertedSession.totalPlayers}/
-                    {convertedSession.maxPlayers} {t('players')}
-                  </Text>
-                </Flex>
-                {session.shuttlecock && (
+                {!isCrawled && (
                   <Flex align="center" gap={2}>
-                    <Icon as={Feather} boxSize={5} color="green.500" />
+                    <Icon as={Users} boxSize={5} color="green.500" />
                     <Text fontSize="sm">
+                      {t('maxPlayers', { count: convertedSession.maxPlayers })}
+                    </Text>
+                  </Flex>
+                )}
+
+                {!isCrawled && (
+                  <Flex align="center" gap={2}>
+                    <Icon as={UserCheck} boxSize={5} color="green.500" />
+                    <Text fontSize="sm">
+                      {convertedSession.totalPlayers}/
+                      {convertedSession.maxPlayers} {t('players')}
+                    </Text>
+                  </Flex>
+                )}
+                {session.shuttlecock && (
+                  <Flex align="center" gap={2} minW={0}>
+                    <Icon
+                      as={Feather}
+                      boxSize={5}
+                      color="green.500"
+                      flexShrink={0}
+                    />
+                    <Text fontSize="sm" lineClamp={1} minW={0}>
                       {t('shuttlecock') + ' ' + session.shuttlecock}
                     </Text>
                   </Flex>
@@ -926,29 +1136,29 @@ const BaseSessionCard = ({
               />
               <Wrap gap={1}>
                 {session.requiredLevels && session.requiredLevels.length > 0 ? (
-                  Array.from(new Set(session.requiredLevels))
-                    .sort((a, b) => a - b)
-                    .map((level) => {
-                      const levelColor = getSkillLevelColor([level]);
-                      return (
-                        <LevelBadgeWithDescription
-                          key={level}
-                          level={level}
-                          colorPalette={levelColor.colorPalette}
-                          variant="solid"
-                          size={isCompact ? 'sm' : 'md'}
-                          fontSize="xs"
-                          fontWeight="bold"
-                          px={isCompact ? 2 : 2.5}
-                          py={0.5}
-                          borderRadius="full"
-                          borderWidth="1px"
-                          borderColor={levelColor.borderColor}
-                        >
-                          {getLevelShortLabel(level)}
-                        </LevelBadgeWithDescription>
-                      );
-                    })
+                  sortLevelsByRank(
+                    Array.from(new Set(session.requiredLevels))
+                  ).map((level) => {
+                    const levelColor = getSkillLevelColor([level]);
+                    return (
+                      <LevelBadgeWithDescription
+                        key={level}
+                        level={level}
+                        colorPalette={levelColor.colorPalette}
+                        variant="solid"
+                        size={isCompact ? 'sm' : 'md'}
+                        fontSize="xs"
+                        fontWeight="bold"
+                        px={isCompact ? 2 : 2.5}
+                        py={0.5}
+                        borderRadius="full"
+                        borderWidth="1px"
+                        borderColor={levelColor.borderColor}
+                      >
+                        {getLevelShortLabel(level)}
+                      </LevelBadgeWithDescription>
+                    );
+                  })
                 ) : (
                   <Badge
                     colorPalette="gray"
@@ -983,8 +1193,9 @@ const BaseSessionCard = ({
                 }}
                 _active={{ transform: 'scale(0.95)' }}
                 flexShrink={0}
-                minW="20px"
-                h="20px"
+                // 24px is the WCAG minimum touch-target size
+                minW="24px"
+                h="24px"
                 borderRadius="full"
                 transition="all 0.2s"
                 icon={<Icon as={Info} boxSize={3} />}
@@ -1039,9 +1250,10 @@ const BaseSessionCard = ({
                             color={{ base: 'red.600', _dark: 'red.300' }}
                             whiteSpace="nowrap"
                           >
-                            {FeeService.getFeeDisplayText(session.feeConfig)}
+                            {feeDisplayText}
                           </Text>
-                          {session.feeConfig.feeType === FeeType.FIXED &&
+                          {canSeeSessionFee &&
+                            session.feeConfig.feeType === FeeType.FIXED &&
                             ((session.feeConfig.maleFee || 0) > 0 ||
                               (session.feeConfig.femaleFee || 0) > 0) && (
                               <Text
@@ -1054,6 +1266,18 @@ const BaseSessionCard = ({
                                 /slot
                               </Text>
                             )}
+                          <Box
+                            position="relative"
+                            zIndex={3}
+                            onMouseEnter={() =>
+                              setIsMouseOverActionButton(true)
+                            }
+                            onMouseLeave={() =>
+                              setIsMouseOverActionButton(false)
+                            }
+                          >
+                            <FeeDetailPopover feeConfig={session.feeConfig} />
+                          </Box>
                         </Flex>
                       </Flex>
                     )}
@@ -1077,7 +1301,12 @@ const BaseSessionCard = ({
               ) : (
                 <>
                   {/* Row 1: Price and Top Actions */}
-                  <Flex align="flex-start" justify="space-between" gap={3}>
+                  <Flex
+                    align="flex-start"
+                    justify="space-between"
+                    gap={2}
+                    wrap="wrap"
+                  >
                     {/* Price Section */}
                     <Box flexShrink={0} pt={0.5}>
                       {session.feeConfig && (
@@ -1094,9 +1323,10 @@ const BaseSessionCard = ({
                               color={{ base: 'red.600', _dark: 'red.300' }}
                               whiteSpace="nowrap"
                             >
-                              {FeeService.getFeeDisplayText(session.feeConfig)}
+                              {feeDisplayText}
                             </Text>
-                            {session.feeConfig.feeType === FeeType.FIXED &&
+                            {canSeeSessionFee &&
+                              session.feeConfig.feeType === FeeType.FIXED &&
                               ((session.feeConfig.maleFee || 0) > 0 ||
                                 (session.feeConfig.femaleFee || 0) > 0) && (
                                 <Text
@@ -1109,9 +1339,18 @@ const BaseSessionCard = ({
                                   /slot
                                 </Text>
                               )}
-                            {!isCompact && (
+                            <Box
+                              position="relative"
+                              zIndex={3}
+                              onMouseEnter={() =>
+                                setIsMouseOverActionButton(true)
+                              }
+                              onMouseLeave={() =>
+                                setIsMouseOverActionButton(false)
+                              }
+                            >
                               <FeeDetailPopover feeConfig={session.feeConfig} />
-                            )}
+                            </Box>
                           </Flex>
                         </Flex>
                       )}
@@ -1124,10 +1363,11 @@ const BaseSessionCard = ({
                         zIndex={3}
                         flex="1"
                         textAlign="right"
+                        minW="120px"
                         onMouseEnter={() => setIsMouseOverActionButton(true)}
                         onMouseLeave={() => setIsMouseOverActionButton(false)}
                       >
-                        <Flex justify="flex-end" gap={2}>
+                        <Flex justify="flex-end" gap={2} wrap="wrap">
                           {topActionsRendered || oldTopActions || actionButtons}
                         </Flex>
                       </Box>
@@ -1189,17 +1429,19 @@ const BaseSessionCard = ({
           </Flex>
         )}
       </Box>
-    </motion.div>
+    </Box>
   );
 
   return (
     <>
       {cardContent}
-      <SessionShareImageModal
-        isOpen={isShareImageModalOpen}
-        onClose={() => setIsShareImageModalOpen(false)}
-        session={session}
-      />
+      {isShareImageModalOpen && (
+        <SessionShareImageModal
+          isOpen={isShareImageModalOpen}
+          onClose={() => setIsShareImageModalOpen(false)}
+          session={session}
+        />
+      )}
       <LevelDescriptionsModal
         isOpen={isLevelDescriptionsOpen}
         onClose={() => setIsLevelDescriptionsOpen(false)}

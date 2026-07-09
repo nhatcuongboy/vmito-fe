@@ -5,7 +5,7 @@ import { Box, Flex, Text, Image, Badge, Icon, Heading } from '@chakra-ui/react';
 import { Clock, MapPin, Users, Sparkles } from 'lucide-react';
 import { useRouter } from '@/i18n/config';
 import { useLocale } from 'next-intl';
-import { formatTime } from './BaseSessionCard';
+import { formatTime, formatTimeRange } from './BaseSessionCard';
 import { DEFAULT_COVER_PHOTO } from '@/constants';
 import { FeeService } from '@/lib/api/fee.service';
 import { FeeType } from '@/lib/api/types';
@@ -190,10 +190,7 @@ const RecommendationCard = ({
             {/* Time */}
             <Flex align="center" gap={1.5}>
               <Icon as={Clock} boxSize={3.5} color="green.500" flexShrink={0} />
-              <Text>
-                {formatTime(session.startTime, locale)} -{' '}
-                {formatTime(session.endTime, locale)}
-              </Text>
+              <Text>{formatTimeRange(session.startTime, session.endTime)}</Text>
             </Flex>
 
             {/* Fee and Slots */}

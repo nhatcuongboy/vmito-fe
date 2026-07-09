@@ -3,16 +3,35 @@
 import React, { Suspense } from 'react';
 import { Flex, Spinner } from '@chakra-ui/react';
 import FindSessionList from '@/components/session/FindSessionList';
-import SuggestionsList from '@/components/session/SuggestionsList';
+import dynamic from 'next/dynamic';
+
+// Only shown to logged-in users who switch to "auto" mode — keep it out of the
+// initial bundle for the default browse view
+const SuggestionsList = dynamic(
+  () => import('@/components/session/SuggestionsList'),
+  {
+    ssr: false,
+    loading: () => (
+      <Flex justify="center" align="center" minH="40vh">
+        <Spinner size="xl" color="green.500" />
+      </Flex>
+    ),
+  }
+);
 import PageLayout from '@/components/layout/PageLayout';
 import { Image } from '@chakra-ui/react';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { useTranslations } from 'next-intl';
 import { useSearchParams, useRouter, usePathname } from 'next/navigation';
+import type { ISession } from '@/lib/api/types';
 
 type HomeMode = 'browse' | 'auto';
 
-function HomeContent() {
+interface HomeContentProps {
+  initialSessions?: ISession[];
+}
+
+function HomeContent({ initialSessions }: HomeContentProps) {
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
@@ -41,13 +60,26 @@ function HomeContent() {
   return (
     <PageLayout
       title={tNavigation('findSessions')}
-      icon={<Image src="/icons/app-logo.png" h="32px" alt="Logo" />}
+      icon={
+        <Image
+          src="/icons/app-logo-96.png"
+          h="32px"
+          w="32px"
+          alt="Logo"
+          loading="eager"
+          fetchPriority="high"
+        />
+      }
       bg="green.50"
       _dark={{ bg: 'gray.900' }}
       minH="100vh"
     >
       {mode === 'browse' || !user ? (
-        <FindSessionList mode={mode} onModeChange={handleModeChange} />
+        <FindSessionList
+          initialSessions={initialSessions}
+          mode={mode}
+          onModeChange={handleModeChange}
+        />
       ) : (
         <SuggestionsList mode={mode} onModeChange={handleModeChange} />
       )}
@@ -55,7 +87,7 @@ function HomeContent() {
   );
 }
 
-export default function HomePageContent() {
+export default function HomePageContent({ initialSessions }: HomeContentProps) {
   return (
     <Suspense
       fallback={
@@ -64,7 +96,7 @@ export default function HomePageContent() {
         </Flex>
       }
     >
-      <HomeContent />
+      <HomeContent initialSessions={initialSessions} />
     </Suspense>
   );
 }

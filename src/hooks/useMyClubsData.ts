@@ -72,6 +72,7 @@ export function useMyClubsData(): UseMyClubsDataReturn {
   const { canAccessHostFeatures } = useCanAccessHostFeatures();
   const isAdmin = currentUser?.role === UserRole.ADMIN;
 
+  // ── Shared state ───────────────────────────────────────────────────────────
   const [myClubs, setMyClubs] = useState<IMyClub[]>([]);
   const [joinRequests, setJoinRequests] = useState<IClubJoinRequest[]>([]);
   const [incomingRequests, setIncomingRequests] = useState<IClubJoinRequest[]>(
@@ -84,13 +85,13 @@ export function useMyClubsData(): UseMyClubsDataReturn {
   const [isLoadingPending, setIsLoadingPending] = useState(false);
   const [adminManagedClubs, setAdminManagedClubs] = useState<IMyClub[]>([]);
 
+  // ── Derived state ──────────────────────────────────────────────────────────
   const uniqueClubs = Array.from(
     myClubs
       .reduce((map, club) => {
         const existing = map.get(club.id);
-        if (!existing || club.role === EMemberRole.ADMIN) {
+        if (!existing || club.role === EMemberRole.ADMIN)
           map.set(club.id, club);
-        }
         return map;
       }, new Map<string, IMyClub>())
       .values()
@@ -109,31 +110,48 @@ export function useMyClubsData(): UseMyClubsDataReturn {
           .values()
       )
     : uniqueClubs.filter(isManaging);
+
   const memberClubs = uniqueClubs.filter((c) => !isManaging(c));
   const pendingOutgoing = joinRequests.filter(
     (r) => r.status === EJoinRequestStatus.PENDING
   );
 
-  const loadIncomingRequests = useCallback(
+  // ── Admin: single call for all pending join requests ───────────────────────
+  const refetchAdminJoinRequests = useCallback(async () => {
+    try {
+      setIsLoadingIncoming(true);
+      const requests = await ClubsService.getAdminJoinRequests();
+      setIncomingRequests(
+        requests.filter((r) => r.status === EJoinRequestStatus.PENDING)
+      );
+    } catch (error) {
+      console.error('Failed to load admin join requests:', error);
+    } finally {
+      setIsLoadingIncoming(false);
+    }
+  }, []);
+
+  // ── Host: N calls, one per managed club (acceptable for small club counts) ─
+  const loadIncomingRequestsForHost = useCallback(
     async (clubs: IMyClub[], hostUserId?: string) => {
-      const adminClubIds = clubs
+      const hostClubIds = clubs
         .filter(
           (c) => c.role === EMemberRole.ADMIN || c.host?.id === hostUserId
         )
         .map((c) => c.id);
-      if (adminClubIds.length === 0) {
+
+      if (hostClubIds.length === 0) {
         setIncomingRequests([]);
         return;
       }
       try {
         setIsLoadingIncoming(true);
         const results = await Promise.all(
-          adminClubIds.map((id) => ClubsService.getJoinRequests(id))
+          hostClubIds.map((id) => ClubsService.getJoinRequests(id))
         );
-        const pending = results
-          .flat()
-          .filter((r) => r.status === EJoinRequestStatus.PENDING);
-        setIncomingRequests(pending);
+        setIncomingRequests(
+          results.flat().filter((r) => r.status === EJoinRequestStatus.PENDING)
+        );
       } catch (error) {
         console.error('Failed to load incoming requests:', error);
       } finally {
@@ -143,54 +161,50 @@ export function useMyClubsData(): UseMyClubsDataReturn {
     []
   );
 
+  // ── Main data loader ───────────────────────────────────────────────────────
   const loadData = useCallback(async () => {
     if (!currentUser) return;
-    let loadedClubs: IMyClub[] = [];
-    let loadedManagedClubs: IMyClub[] = [];
     try {
       setIsLoading(true);
-      const [clubs, requests, adminClubs] = await Promise.all([
-        ClubsService.getMyClubs(),
-        ClubsService.getMyJoinRequests(),
-        isAdmin ? ClubsService.getClubsToManage() : Promise.resolve([]),
-      ]);
-      loadedClubs = clubs;
-      loadedManagedClubs = adminClubs.map(mapClubToManagedClub);
-      setMyClubs(clubs);
-      setJoinRequests(requests);
-      setAdminManagedClubs(loadedManagedClubs);
+
+      if (isAdmin) {
+        // Admin: 3 parallel calls, no getMyClubs/getMyJoinRequests needed
+        const [adminClubs, pendingJoinRequests, pendingClubsList] =
+          await Promise.all([
+            ClubsService.getClubsToManage(),
+            ClubsService.getAdminJoinRequests(),
+            ClubsService.getPendingClubs(),
+          ]);
+        setAdminManagedClubs(adminClubs.map(mapClubToManagedClub));
+        setIncomingRequests(
+          pendingJoinRequests.filter(
+            (r) => r.status === EJoinRequestStatus.PENDING
+          )
+        );
+        setPendingClubs(pendingClubsList);
+      } else {
+        // Host: fetch own clubs + join requests
+        const [clubs, requests] = await Promise.all([
+          ClubsService.getMyClubs(),
+          ClubsService.getMyJoinRequests(),
+        ]);
+        setMyClubs(clubs);
+        setJoinRequests(requests);
+        // Load incoming requests after clubs are known
+        loadIncomingRequestsForHost(clubs, currentUser.id);
+      }
     } catch (error) {
       console.error('Failed to load my clubs data:', error);
     } finally {
       setIsLoading(false);
     }
-    loadIncomingRequests(
-      isAdmin ? loadedManagedClubs : loadedClubs,
-      currentUser?.id
-    );
-  }, [currentUser, isAdmin, loadIncomingRequests]);
-
-  const fetchPendingClubs = useCallback(async () => {
-    try {
-      setIsLoadingPending(true);
-      const clubs = await ClubsService.getPendingClubs();
-      setPendingClubs(clubs);
-    } catch (error) {
-      console.error('Failed to fetch pending clubs:', error);
-      toaster.create({ title: t('clubs.failedToFetchClubs'), type: 'error' });
-    } finally {
-      setIsLoadingPending(false);
-    }
-  }, [t]);
+  }, [currentUser, isAdmin, loadIncomingRequestsForHost]);
 
   useEffect(() => {
     loadData();
   }, [loadData]);
 
-  useEffect(() => {
-    if (isAdmin) fetchPendingClubs();
-  }, [isAdmin, fetchPendingClubs]);
-
+  // ── Actions ────────────────────────────────────────────────────────────────
   const handleApprove = async (clubId: string) => {
     try {
       setIsActionLoading(true);
@@ -199,7 +213,6 @@ export function useMyClubsData(): UseMyClubsDataReturn {
         title: t('clubs.adminApproval.approveSuccess'),
         type: 'success',
       });
-      await fetchPendingClubs();
       await loadData();
     } catch (error) {
       console.error('Failed to approve club:', error);
@@ -220,7 +233,11 @@ export function useMyClubsData(): UseMyClubsDataReturn {
         title: t('clubs.requestApprovedSuccessfully'),
         type: 'success',
       });
-      await loadIncomingRequests(managedClubs, currentUser?.id);
+      if (isAdmin) {
+        await refetchAdminJoinRequests();
+      } else {
+        await loadIncomingRequestsForHost(managedClubs, currentUser?.id);
+      }
     } catch (error) {
       console.error('Failed to approve join request:', error);
       toaster.create({ title: t('common.error'), type: 'error' });
@@ -246,7 +263,6 @@ export function useMyClubsData(): UseMyClubsDataReturn {
           title: t('clubs.adminApproval.rejectSuccess'),
           type: 'success',
         });
-        await fetchPendingClubs();
         await loadData();
       } else {
         await ClubsService.rejectJoinRequest(
@@ -258,7 +274,11 @@ export function useMyClubsData(): UseMyClubsDataReturn {
           title: t('clubs.requestRejectedSuccessfully'),
           type: 'success',
         });
-        await loadIncomingRequests(managedClubs, currentUser?.id);
+        if (isAdmin) {
+          await refetchAdminJoinRequests();
+        } else {
+          await loadIncomingRequestsForHost(managedClubs, currentUser?.id);
+        }
       }
     } catch (error) {
       console.error('Failed to reject:', error);

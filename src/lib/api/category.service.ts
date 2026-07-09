@@ -1,9 +1,10 @@
 import { toaster } from '@/components/ui/toaster';
-import { api, ApiResponse } from './base';
+import { api, ApiResponse, dedupGet } from './base';
 import {
   Category,
   CategoryRegistration,
   CategoryMatch,
+  CategoryGroupStageCompletion,
   CategoryGroup,
   CategoryGroupRegistration,
   GroupStandingsResponse,
@@ -13,12 +14,16 @@ import {
   CreateCategoryMatchRequest,
   EndCategoryMatchRequest,
   IBulkScheduleItem,
+  LiveScoreUpdateRequest,
+  MatchStatus,
+  PickleballServeUpdateRequest,
+  UpdateSetScoreRequest,
 } from './types';
 
 export const CategoryService = {
   // Get all categories of a tournament
   getCategories: async (tournamentId: string): Promise<Category[]> => {
-    const response = await api.get<ApiResponse<Category[]>>(
+    const response = await dedupGet<ApiResponse<Category[]>>(
       `/tournaments/${tournamentId}/categories`
     );
     return response.data.data || [];
@@ -30,10 +35,29 @@ export const CategoryService = {
     return response.data.data!;
   },
 
+  getGroupStageCompletion: async (
+    categoryId: string
+  ): Promise<CategoryGroupStageCompletion> => {
+    const response = await api.get<ApiResponse<CategoryGroupStageCompletion>>(
+      `/categories/${categoryId}/group-stage-completion`
+    );
+    return response.data.data!;
+  },
+
   // Create category
   createCategory: async (
     tournamentId: string,
-    data: { name: string; type: string; format?: string }
+    data: {
+      name: string;
+      type: string;
+      format?: string;
+      registrationMode?: string;
+      teamSize?: number;
+      matchFormat?: string;
+      pointsToWin?: number;
+      winByTwo?: boolean;
+      pointCap?: number | null;
+    }
   ): Promise<Category> => {
     const response = await api.post<ApiResponse<Category>>(
       `/tournaments/${tournamentId}/categories`,
@@ -69,8 +93,28 @@ export const CategoryService = {
   getRegistrations: async (
     categoryId: string
   ): Promise<CategoryRegistration[]> => {
-    const response = await api.get<ApiResponse<CategoryRegistration[]>>(
+    const response = await dedupGet<ApiResponse<CategoryRegistration[]>>(
       `/categories/${categoryId}/registrations`
+    );
+    return response.data.data || [];
+  },
+
+  getRegistration: async (
+    categoryId: string,
+    registrationId: string
+  ): Promise<CategoryRegistration> => {
+    const response = await api.get<ApiResponse<CategoryRegistration>>(
+      `/categories/${categoryId}/registrations/${registrationId}`
+    );
+    return response.data.data!;
+  },
+
+  getRegistrationMatches: async (
+    categoryId: string,
+    registrationId: string
+  ): Promise<CategoryMatch[]> => {
+    const response = await api.get<ApiResponse<CategoryMatch[]>>(
+      `/categories/${categoryId}/registrations/${registrationId}/matches`
     );
     return response.data.data || [];
   },
@@ -87,6 +131,35 @@ export const CategoryService = {
     if (options?.showToast !== false) {
       toaster.success({ title: 'Registration created successfully' });
     }
+    return response.data.data!;
+  },
+
+  bulkCreateRegistrations: async (
+    categoryId: string,
+    payload: { names?: string[]; tournamentPlayerIds?: string[] }
+  ): Promise<CategoryRegistration[]> => {
+    const response = await api.post<ApiResponse<CategoryRegistration[]>>(
+      `/categories/${categoryId}/registrations/bulk`,
+      payload
+    );
+    return response.data.data ?? [];
+  },
+
+  convertLegacyRegistrationToPair: async (
+    categoryId: string,
+    registrationId: string,
+    data: {
+      name?: string;
+      playerIds: string[];
+      type?: string;
+      notes?: string;
+    }
+  ): Promise<CategoryRegistration> => {
+    const response = await api.put<ApiResponse<CategoryRegistration>>(
+      `/categories/${categoryId}/registrations/${registrationId}/convert-to-pair`,
+      data
+    );
+    toaster.success({ title: 'Team roster saved successfully' });
     return response.data.data!;
   },
 
@@ -128,13 +201,16 @@ export const CategoryService = {
 
   updateMatch: async (
     id: string,
-    data: Partial<CategoryMatch>
+    data: Partial<CategoryMatch>,
+    options?: { showToast?: boolean }
   ): Promise<CategoryMatch> => {
     const response = await api.put<ApiResponse<CategoryMatch>>(
       `/category-matches/${id}`,
       data
     );
-    toaster.success({ title: 'Match updated successfully' });
+    if (options?.showToast !== false) {
+      toaster.success({ title: 'Match updated successfully' });
+    }
     return response.data.data!;
   },
 
@@ -161,6 +237,147 @@ export const CategoryService = {
     );
     toaster.success({ title: 'Match ended successfully' });
     return response.data.data!;
+  },
+
+  resetMatchResult: async (
+    id: string,
+    options?: { showToast?: boolean }
+  ): Promise<CategoryMatch> => {
+    const resetPayload = {
+      status: MatchStatus.SCHEDULED,
+      score: null,
+      sets: [],
+      winnerId: null,
+      isDraw: false,
+      isForfeit: false,
+      player1Score: null,
+      player2Score: null,
+      player3Score: null,
+      player4Score: null,
+      player1Points: null,
+      player2Points: null,
+      notes: null,
+      refereeName: null,
+      endTime: null,
+    } as unknown as Partial<CategoryMatch>;
+
+    try {
+      const response = await api.post<ApiResponse<CategoryMatch>>(
+        `/category-matches/${id}/reset-result`,
+        undefined,
+        { skipGlobalError: true }
+      );
+      if (options?.showToast !== false) {
+        toaster.success({ title: 'Match result reset successfully' });
+      }
+      return response.data.data!;
+    } catch (error) {
+      const status = (error as { response?: { status?: number } })?.response
+        ?.status;
+      if (status !== 404 && status !== 405) {
+        throw error;
+      }
+
+      const response = await api.put<ApiResponse<CategoryMatch>>(
+        `/category-matches/${id}`,
+        resetPayload
+      );
+      if (options?.showToast !== false) {
+        toaster.success({ title: 'Match result reset successfully' });
+      }
+      return response.data.data!;
+    }
+  },
+
+  // Live scoring (host / admin / assigned referee). No toaster — high frequency.
+  liveUpdateScore: async (
+    id: string,
+    data: LiveScoreUpdateRequest
+  ): Promise<CategoryMatch> => {
+    const response = await api.patch<ApiResponse<CategoryMatch>>(
+      `/category-matches/${id}/score`,
+      data,
+      { skipGlobalError: true }
+    );
+    return response.data.data!;
+  },
+
+  undoLastPoint: async (id: string): Promise<CategoryMatch> => {
+    const response = await api.patch<ApiResponse<CategoryMatch>>(
+      `/category-matches/${id}/score/undo`,
+      undefined,
+      { skipGlobalError: true }
+    );
+    return response.data.data!;
+  },
+
+  updatePickleballServe: async (
+    id: string,
+    data: PickleballServeUpdateRequest
+  ): Promise<CategoryMatch> => {
+    const response = await api.patch<ApiResponse<CategoryMatch>>(
+      `/category-matches/${id}/pickleball-serve`,
+      data
+    );
+    return response.data.data!;
+  },
+
+  // Overwrite a single set's score (referee correction). High-stakes mutation
+  // — surfaces the global error toaster on failure so the referee notices.
+  updateSetScore: async (
+    id: string,
+    setNumber: number,
+    data: UpdateSetScoreRequest
+  ): Promise<CategoryMatch> => {
+    const response = await api.patch<ApiResponse<CategoryMatch>>(
+      `/category-matches/${id}/sets/${setNumber}/score`,
+      data
+    );
+    return response.data.data!;
+  },
+
+  // Referee assignment (host / admin)
+  assignReferee: async (
+    matchId: string,
+    refereeId: string,
+    options?: { showToast?: boolean }
+  ): Promise<CategoryMatch> => {
+    const response = await api.patch<ApiResponse<CategoryMatch>>(
+      `/category-matches/${matchId}/referee`,
+      { refereeId }
+    );
+    if (options?.showToast !== false) {
+      toaster.success({ title: 'Referee assigned' });
+    }
+    return response.data.data!;
+  },
+
+  unassignReferee: async (
+    matchId: string,
+    options?: { showToast?: boolean }
+  ): Promise<CategoryMatch> => {
+    const response = await api.delete<ApiResponse<CategoryMatch>>(
+      `/category-matches/${matchId}/referee`
+    );
+    if (options?.showToast !== false) {
+      toaster.success({ title: 'Referee unassigned' });
+    }
+    return response.data.data!;
+  },
+
+  // Matches assigned to the current user (referee)
+  getMyAssignments: async (
+    tournamentId?: string,
+    status?: string
+  ): Promise<CategoryMatch[]> => {
+    const params = new URLSearchParams();
+    if (tournamentId) params.set('tournamentId', tournamentId);
+    if (status) params.set('status', status);
+    const qs = params.toString();
+    const response = await api.get<ApiResponse<CategoryMatch[]>>(
+      `/category-matches/my-assignments${qs ? `?${qs}` : ''}`
+    );
+    return response.data.data || [];
   },
 
   // Standings
@@ -320,13 +537,43 @@ export const CategoryService = {
     return response.data.data!;
   },
 
+  getMatchGenerationPreview: async (
+    categoryId: string
+  ): Promise<{
+    existingMatches: number;
+    scheduledAssignedMatches: number;
+    inProgressMatches: number;
+    finishedMatches: number;
+    canGenerate: boolean;
+    requiresForceReplaceScheduledMatches: boolean;
+    blockingReason?: 'HAS_STARTED_OR_FINISHED_MATCHES';
+  }> => {
+    const response = await api.get<
+      ApiResponse<{
+        existingMatches: number;
+        scheduledAssignedMatches: number;
+        inProgressMatches: number;
+        finishedMatches: number;
+        canGenerate: boolean;
+        requiresForceReplaceScheduledMatches: boolean;
+        blockingReason?: 'HAS_STARTED_OR_FINISHED_MATCHES';
+      }>
+    >(`/categories/${categoryId}/matches/generation-preview`);
+    return response.data.data!;
+  },
+
   generateAllGroupMatches: async (
     categoryId: string,
-    options?: { showToast?: boolean }
+    options?: {
+      showToast?: boolean;
+      forceReplaceScheduledMatches?: boolean;
+    }
   ): Promise<Array<{ group: CategoryGroup; matches: CategoryMatch[] }>> => {
     const response = await api.post<
       ApiResponse<Array<{ group: CategoryGroup; matches: CategoryMatch[] }>>
-    >(`/categories/${categoryId}/groups/generate-all-matches`);
+    >(`/categories/${categoryId}/groups/generate-all-matches`, {
+      forceReplaceScheduledMatches: options?.forceReplaceScheduledMatches,
+    });
     if (options?.showToast !== false) {
       toaster.success({ title: 'All matches generated successfully' });
     }
@@ -343,12 +590,33 @@ export const CategoryService = {
     return response.data.data || [];
   },
 
-  // Complete group stage
-  completeGroupStage: async (categoryId: string): Promise<unknown> => {
+  // Create (or re-create) the playoff bracket shells for a RRSE category.
+  // Backs the "Phát sinh trận vòng loại" button — decoupled from group-match
+  // generation and from filling participants (completeGroupStage).
+  generateEliminationShells: async (
+    categoryId: string,
+    options?: { showToast?: boolean }
+  ): Promise<CategoryMatch[]> => {
+    const response = await api.post<ApiResponse<CategoryMatch[]>>(
+      `/categories/${categoryId}/generate-elimination-shells`
+    );
+    if (options?.showToast !== false) {
+      toaster.success({ title: 'Elimination bracket generated successfully' });
+    }
+    return response.data.data ?? [];
+  },
+
+  // Complete group stage / generate the elimination bracket
+  completeGroupStage: async (
+    categoryId: string,
+    options?: { showToast?: boolean }
+  ): Promise<unknown> => {
     const response = await api.post<ApiResponse<unknown>>(
       `/categories/${categoryId}/complete-group-stage`
     );
-    toaster.success({ title: 'Group stage completed successfully' });
+    if (options?.showToast !== false) {
+      toaster.success({ title: 'Group stage completed successfully' });
+    }
     return response.data.data!;
   },
 

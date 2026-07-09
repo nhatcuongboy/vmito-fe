@@ -6,6 +6,7 @@ import { Box, Text } from '@chakra-ui/react';
 import { Mars, User, Venus, X, HelpCircle } from 'lucide-react';
 import { useRef } from 'react';
 import PlayerTooltip from './PlayerTooltip';
+import { useCourtDisplayModeStore } from '@/stores/useCourtDisplayModeStore';
 
 import { TMatchType } from '@/hooks/useCourtsTabModals';
 
@@ -49,6 +50,56 @@ function getPairColor(player?: BadmintonCourtPlayer, playerIndex?: number) {
   return pairColors[pairIndex] || pairColors[0];
 }
 
+// Canvas-based name truncation helper to avoid trailing space before ellipsis
+let memoCanvas: HTMLCanvasElement | null = null;
+let memoContext: CanvasRenderingContext2D | null = null;
+
+function getTruncatedName(name: string, maxWidth: number): string {
+  if (typeof window === 'undefined') return name;
+
+  try {
+    if (!memoCanvas) {
+      memoCanvas = document.createElement('canvas');
+      memoContext = memoCanvas.getContext('2d');
+    }
+    const context = memoContext;
+    if (!context) return name;
+
+    context.font =
+      '600 15px system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+
+    const trimmed = name.trim();
+    if (context.measureText(trimmed).width <= maxWidth) {
+      return trimmed;
+    }
+
+    const ellipsis = '...';
+    const ellipsisWidth = context.measureText(ellipsis).width;
+    const targetWidth = maxWidth - ellipsisWidth;
+
+    let low = 0;
+    let high = trimmed.length;
+    let bestFitLength = 0;
+
+    while (low <= high) {
+      const mid = Math.floor((low + high) / 2);
+      const testString = trimmed.slice(0, mid);
+      if (context.measureText(testString).width <= targetWidth) {
+        bestFitLength = mid;
+        low = mid + 1;
+      } else {
+        high = mid - 1;
+      }
+    }
+
+    const truncated = trimmed.slice(0, bestFitLength).trimEnd();
+    return `${truncated}${ellipsis}`;
+  } catch (e) {
+    console.error('Error truncating name:', e);
+    return name;
+  }
+}
+
 // CourtPlayer component
 interface CourtPlayerProps {
   player: BadmintonCourtPlayer;
@@ -71,6 +122,8 @@ export default function CourtPlayer({
 }: CourtPlayerProps) {
   const { getLevelShortLabel } = useLevelLabel();
   const playerRef = useRef<HTMLDivElement>(null!);
+  const courtDisplayMode = useCourtDisplayModeStore((s) => s.courtDisplayMode);
+  const isNameMode = courtDisplayMode === 'name';
 
   // Skip if player is invalid
   if (!player || !player.id) {
@@ -120,12 +173,21 @@ export default function CourtPlayer({
           aria-expanded={isClicked}
           position="relative"
           bg={pairColors.bg}
-          borderRadius="full"
+          borderRadius={isNameMode ? '8px' : 'full'}
           border="3px solid"
           borderColor={pairColors.border}
-          p={1}
-          w="50px"
-          h="50px"
+          p={isNameMode ? 0 : 1}
+          {...(isNameMode
+            ? {
+                w: '96px',
+                h: '38px',
+                px: '6px',
+                py: '4px',
+              }
+            : {
+                w: '50px',
+                h: '50px',
+              })}
           display="flex"
           flexDirection="column"
           alignItems="center"
@@ -150,8 +212,8 @@ export default function CourtPlayer({
           {/* Gender badge at top-left */}
           <Box
             position="absolute"
-            top="-8px"
-            left="-8px"
+            top={isNameMode ? '-10px' : '-8px'}
+            left={isNameMode ? '-10px' : '-8px'}
             bg={getGenderColor(player.gender)}
             color="white"
             borderRadius="full"
@@ -176,7 +238,7 @@ export default function CourtPlayer({
                 left="-4px"
                 right="-4px"
                 bottom="-4px"
-                borderRadius="full"
+                borderRadius={isNameMode ? '10px' : 'full'}
                 boxShadow={`0 0 0 10px rgba(255, 255, 255, 0.6), 0 0 16px 0 ${playerEffectColor}`}
                 zIndex={2}
                 pointerEvents="none"
@@ -203,24 +265,39 @@ export default function CourtPlayer({
               `}</style>
             </>
           )}
-          {/* Player Number only (gender hidden) */}
-          <Text
-            fontSize="l"
-            fontWeight="bold"
-            color={pairColors.border}
-            lineHeight="1"
-            mb={0.5}
-          >
-            #{player.playerNumber}
-          </Text>
+          {/* Player display: number mode shows #{number}, name mode shows player name */}
+          {isNameMode ? (
+            <Text
+              fontSize="15px"
+              fontWeight={600}
+              color={pairColors.border}
+              lineHeight="1.2"
+              overflow="hidden"
+              textOverflow="ellipsis"
+              whiteSpace="nowrap"
+              maxW="100%"
+            >
+              {getTruncatedName(player.name || `#${player.playerNumber}`, 78)}
+            </Text>
+          ) : (
+            <Text
+              fontSize="l"
+              fontWeight="bold"
+              color={pairColors.border}
+              lineHeight="1"
+              mb={0.5}
+            >
+              #{player.playerNumber}
+            </Text>
+          )}
         </Box>
 
         {mode !== 'view' && (
           <>
             <Box
               position="absolute"
-              top="-10px"
-              right="-12px"
+              top={isNameMode ? '-12px' : '-10px'}
+              right={isNameMode ? '-10px' : '-12px'}
               bg={pairColors.border}
               color="white"
               borderRadius="full"
@@ -242,8 +319,8 @@ export default function CourtPlayer({
         {mode === 'selection' && (
           <Box
             position="absolute"
-            bottom="-8px"
-            right="-8px"
+            bottom={isNameMode ? '-10px' : '-8px'}
+            right={isNameMode ? '-10px' : '-8px'}
             bg="red.500"
             color="white"
             borderRadius="full"

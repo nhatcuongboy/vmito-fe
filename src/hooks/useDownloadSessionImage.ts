@@ -54,9 +54,12 @@ export const useDownloadSessionImage = (): UseDownloadSessionImageReturn => {
         // We call it once to "warm up" and then once more for the actual data
         await toPng(element, { cacheBust: true });
 
+        const elementBackgroundColor =
+          window.getComputedStyle(element).backgroundColor || '#ffffff';
+
         const dataUrl = await toPng(element, {
           quality: 1,
-          backgroundColor: '#ffffff',
+          backgroundColor: elementBackgroundColor,
           cacheBust: true,
           pixelRatio: 2, // Ensure good quality on mobile/high-DPI screens
         });

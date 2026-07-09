@@ -4,9 +4,8 @@ import { TOP_BAR_HEIGHT_MOBILE, TOP_BAR_HEIGHT_DESKTOP } from '@/constants';
 import { Box, Flex, Icon } from '@chakra-ui/react';
 import { Sparkles } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { useEffect, useRef, useState } from 'react';
 import { SessionSearchBarProps } from './SessionSearchBar.types';
-import { AppSearchBar } from '../common/AppSearchBar';
+import { DebouncedAppSearchBar } from '../common/DebouncedAppSearchBar';
 import { Button } from '../ui/chakra-compat';
 
 export default function SessionSearchBar({
@@ -20,28 +19,14 @@ export default function SessionSearchBar({
   hideCreateOnMobile = false,
   topOffset = 0,
   fixedOnMobile = false,
+  hideOnDesktop = false,
+  showCitySelector = false,
 }: SessionSearchBarProps) {
   const t = useTranslations('session');
 
-  // Local input value — updates immediately for snappy typing feel
-  const [localValue, setLocalValue] = useState(searchQuery);
-  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  // Sync external value (e.g. reset from URL) into local state
-  useEffect(() => {
-    setLocalValue(searchQuery);
-  }, [searchQuery]);
-
-  const handleChange = (val: string) => {
-    setLocalValue(val);
-    if (timerRef.current) clearTimeout(timerRef.current);
-    timerRef.current = setTimeout(() => {
-      onSearchChange(val);
-    }, 400);
-  };
-
   const createBtn = onCreateClick && (
     <Button
+      data-tour="create-session"
       colorPalette="green"
       onClick={onCreateClick}
       size={{ base: 'sm', md: 'md' }}
@@ -61,6 +46,25 @@ export default function SessionSearchBar({
 
   return (
     <>
+      {hideOnDesktop && topAddon && (
+        <Box
+          display={{ base: 'none', md: 'block' }}
+          position="sticky"
+          top={`calc(${TOP_BAR_HEIGHT_DESKTOP}px + env(safe-area-inset-top))`}
+          left={0}
+          right={0}
+          width="100vw"
+          marginLeft="calc(50% - 50vw)"
+          zIndex={100}
+          bg="transparent"
+          pb={2}
+        >
+          <Box maxW="1280px" mx="auto">
+            {topAddon}
+          </Box>
+        </Box>
+      )}
+
       {/* Sticky Area: Search (Mobile/Desktop) */}
       <Box
         position={{ base: fixedOnMobile ? 'fixed' : 'sticky', md: 'sticky' }}
@@ -84,6 +88,7 @@ export default function SessionSearchBar({
           md: 'none',
         }}
         mb={{ base: topAddon ? 4 : 0, md: 0 }}
+        display={hideOnDesktop ? { base: 'block', md: 'none' } : 'block'}
       >
         <Flex
           direction={{ base: 'column-reverse', md: 'column' }}
@@ -100,13 +105,14 @@ export default function SessionSearchBar({
           )}
           <Flex align="center" gap={2} w="100%" maxW="650px" mx="auto">
             <Box flex={1} w="100%">
-              <AppSearchBar
-                value={localValue}
-                onChange={handleChange}
+              <DebouncedAppSearchBar
+                value={searchQuery}
+                onChange={onSearchChange}
                 placeholder={t('searchPlaceholder')}
                 onFilterClick={onToggleFilters}
                 activeFilterCount={activeFilterCount}
                 showFilter={true}
+                showCitySelector={showCitySelector}
               />
             </Box>
           </Flex>

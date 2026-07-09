@@ -6,14 +6,16 @@ interface PreferenceState {
   preferredCity: string | null;
   preferredDistricts: string[];
   onboardingCompleted: boolean;
-
   useAiForCreation: boolean;
+  _hasHydrated: boolean;
 
   // Actions
+  setPreferredCity: (city: string | null) => void;
   setPreferredArea: (city: string | null, districts: string[]) => void;
   setUseAiForCreation: (useAi: boolean) => void;
   setOnboardingCompleted: (completed: boolean) => void;
   resetPreferences: () => void;
+  _setHasHydrated: (value: boolean) => void;
 }
 
 export const usePreferenceStore = create<PreferenceState>()(
@@ -22,8 +24,11 @@ export const usePreferenceStore = create<PreferenceState>()(
       preferredCity: null,
       preferredDistricts: [],
       onboardingCompleted: false,
-
       useAiForCreation: DEFAULT_USE_AI_FOR_CREATION,
+      _hasHydrated: false,
+
+      setPreferredCity: (city) => set({ preferredCity: city }),
+      _setHasHydrated: (value) => set({ _hasHydrated: value }),
 
       setPreferredArea: (city, districts) =>
         set({
@@ -47,6 +52,9 @@ export const usePreferenceStore = create<PreferenceState>()(
     {
       name: 'user-preferences',
       storage: createJSONStorage(() => localStorage),
+      onRehydrateStorage: () => (state) => {
+        state?._setHasHydrated(true);
+      },
     }
   )
 );

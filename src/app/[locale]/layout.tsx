@@ -18,8 +18,7 @@ import {
 export const viewport = {
   width: 'device-width',
   initialScale: 1,
-  maximumScale: 1,
-  userScalable: false,
+  // Users must be able to zoom (WCAG 1.4.4) — never cap the scale
   viewportFit: 'cover',
   themeColor: [
     { media: '(prefers-color-scheme: light)', color: '#ffffff' },
@@ -69,7 +68,12 @@ export default async function LocaleLayout({
   return (
     <html lang={locale} suppressHydrationWarning>
       <head>
-        <link rel="preload" as="image" href="/icons/logo-show.png" />
+        <link
+          rel="preload"
+          as="image"
+          href="/icons/app-logo-96.png"
+          fetchPriority="high"
+        />
         <StructuredData data={[websiteSchema, organizationSchema]} />
       </head>
       <body className="antialiased">

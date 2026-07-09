@@ -45,8 +45,6 @@ import { SearchFilterBar } from '@/components/ui/SearchFilterBar';
 import { FilterDrawer } from '@/components/ui/FilterDrawer';
 import { FilterChip } from '@/components/ui/FilterChip';
 
-const PAGE_SIZE = 20;
-
 const USER_FILTERS_SCHEMA = {
   q: stringField(''),
   role: stringField(''),
@@ -83,7 +81,10 @@ function AdminUsersContent() {
   const { user: currentUser, isAuthenticated, isHydrated } = useAuthStore();
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
+  const [totalCount, setTotalCount] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
   const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(20);
 
   // URL-synced filters
   const [filters, setFilters] = useUrlFilters(USER_FILTERS_SCHEMA);
@@ -135,19 +136,25 @@ function AdminUsersContent() {
   const fetchUsers = useCallback(async () => {
     try {
       setLoading(true);
-      const data = await AdminService.getUsers({
+      const result = await AdminService.getUsersPaginated({
         search: filters.q || undefined,
         role: filters.role || undefined,
+        page,
+        limit: pageSize,
       });
-      setUsers(data);
-      setPage(1);
+      setUsers(result.data);
+      setTotalCount(result.pagination.total);
+      setTotalPages(result.pagination.totalPages);
     } catch (error) {
       console.error('Failed to fetch users:', error);
-      toaster.error({ title: 'Failed to load users' });
+      toaster.error({ title: t('users.loadError') });
+      setUsers([]);
+      setTotalCount(0);
+      setTotalPages(0);
     } finally {
       setLoading(false);
     }
-  }, [filters.q, filters.role]);
+  }, [filters.q, filters.role, page, pageSize, t]);
 
   useEffect(() => {
     if (!isHydrated) return;
@@ -157,17 +164,18 @@ function AdminUsersContent() {
     }
     if (!currentUser) return;
     if (currentUser.role !== UserRole.ADMIN) {
-      toaster.error({ title: 'Access denied. Admin only.' });
+      toaster.error({ title: t('accessDeniedAdmin') });
       router.replace('/dashboard');
       return;
     }
     fetchUsers();
-  }, [isHydrated, isAuthenticated, currentUser, router, fetchUsers]);
+  }, [isHydrated, isAuthenticated, currentUser, router, fetchUsers, t]);
 
   // Debounce: write keyword to URL 500ms after the user stops typing
   useEffect(() => {
     const timer = setTimeout(() => {
       setFilters({ q: keyword });
+      setPage(1);
     }, 500);
     return () => clearTimeout(timer);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -178,6 +186,7 @@ function AdminUsersContent() {
 
   const handleSubmitFilters = () => {
     setFilters({ role: pendingRole });
+    setPage(1);
     toggleFilters();
   };
 
@@ -199,13 +208,13 @@ function AdminUsersContent() {
   const handleCreate = async (data: CreateUserFormValues) => {
     try {
       await AdminService.createUser(data);
-      toaster.success({ title: 'User created successfully' });
+      toaster.success({ title: t('users.createSuccess') });
       setIsCreateOpen(false);
       createForm.reset();
       fetchUsers();
     } catch (error) {
       console.error('Failed to create user:', error);
-      toaster.error({ title: 'Failed to create user' });
+      toaster.error({ title: t('users.createError') });
     }
   };
 
@@ -217,12 +226,12 @@ function AdminUsersContent() {
         role: data.role,
       };
       await AdminService.updateUser(selectedUser.id, updateData);
-      toaster.success({ title: 'User updated successfully' });
+      toaster.success({ title: t('users.updateSuccess') });
       setIsEditOpen(false);
       fetchUsers();
     } catch (error) {
       console.error('Failed to update user:', error);
-      toaster.error({ title: 'Failed to update user' });
+      toaster.error({ title: t('users.updateError') });
     }
   };
 
@@ -230,12 +239,12 @@ function AdminUsersContent() {
     if (!selectedUser) return;
     try {
       await AdminService.deleteUser(selectedUser.id);
-      toaster.success({ title: 'User deleted successfully' });
+      toaster.success({ title: t('users.deleteSuccess') });
       setIsDeleteOpen(false);
       fetchUsers();
     } catch (error) {
       console.error('Failed to delete user:', error);
-      toaster.error({ title: 'Failed to delete user' });
+      toaster.error({ title: t('users.deleteError') });
     }
   };
 
@@ -253,8 +262,13 @@ function AdminUsersContent() {
     setIsDeleteOpen(true);
   };
 
-  const totalPages = Math.ceil(users.length / PAGE_SIZE);
-  const paginatedUsers = users.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+  const showingFrom = totalCount === 0 ? 0 : (page - 1) * pageSize + 1;
+  const showingTo = Math.min(page * pageSize, totalCount);
+  const totalRecordsLabel = `Total records: ${totalCount.toLocaleString()}`;
+  const paginationLabel =
+    totalCount > 0
+      ? `${totalRecordsLabel} · Showing ${showingFrom.toLocaleString()}-${showingTo.toLocaleString()}`
+      : totalRecordsLabel;
 
   return (
     <MainLayout title="Admin - Users">
@@ -362,7 +376,7 @@ function AdminUsersContent() {
                 </Tr>
               </Thead>
               <Tbody>
-                {paginatedUsers.map((user) => (
+                {users.map((user) => (
                   <Tr key={user.id}>
                     <Td w="180px" fontWeight="medium">
                       {user.name}
@@ -407,16 +421,24 @@ function AdminUsersContent() {
                 No users found
               </Box>
             )}
+            {totalCount > 0 && (
+              <Box px={4} py={3} borderTopWidth="1px" borderColor="gray.100">
+                <VTablePagination
+                  page={page}
+                  totalPages={totalPages}
+                  totalCount={totalCount}
+                  pageSize={pageSize}
+                  isLoading={loading}
+                  label={paginationLabel}
+                  onPageChange={setPage}
+                  onPageSizeChange={(newSize) => {
+                    setPageSize(newSize);
+                    setPage(1);
+                  }}
+                />
+              </Box>
+            )}
           </TableContainer>
-
-          <VTablePagination
-            page={page}
-            totalPages={totalPages}
-            totalCount={users.length}
-            pageSize={PAGE_SIZE}
-            isLoading={loading}
-            onPageChange={setPage}
-          />
         </VStack>
 
         {/* Create User Dialog */}

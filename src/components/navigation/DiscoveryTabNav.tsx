@@ -1,6 +1,6 @@
 'use client';
 
-import { Box } from '@chakra-ui/react';
+import { Box, Flex } from '@chakra-ui/react';
 import { useRouter, usePathname } from '@/i18n/config';
 import {
   ROUTES,
@@ -8,6 +8,7 @@ import {
   TOP_BAR_HEIGHT_MOBILE,
 } from '@/constants';
 import { useTranslations } from 'next-intl';
+import { Flame } from 'lucide-react';
 
 import { UnderlineTabs } from '../ui/UnderlineTabs';
 
@@ -17,10 +18,25 @@ export function DiscoveryTabNav() {
   const t = useTranslations('navigation');
 
   const tabs = [
-    { id: ROUTES.HOME, label: t('findSessions') },
+    {
+      id: ROUTES.HOME,
+      label: (
+        <Flex align="center" gap={1}>
+          {t('findSessions')}
+          <Box
+            as={Flame}
+            color="orange.500"
+            fill="orange.500"
+            w="14px"
+            h="14px"
+            display="inline-block"
+          />
+        </Flex>
+      ),
+    },
     { id: ROUTES.BROWSE.VENUES.LIST, label: t('findVenues') },
     { id: ROUTES.CLUBS.BROWSE, label: t('findClubs') },
-    // { id: ROUTES.BROWSE.TOURNAMENTS.LIST, label: t('findTournaments') },
+    { id: ROUTES.BROWSE.TOURNAMENTS.LIST, label: t('findTournaments') },
   ];
 
   // Helper to check which tab is active
