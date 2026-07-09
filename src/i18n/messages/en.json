@@ -245,7 +245,10 @@
     "filters": {
       "area": "Area",
       "allCities": "All Cities"
-    }
+    },
+    "lightShort": "Light",
+    "darkShort": "Dark",
+    "resultsCount": "{count} results"
   },
   "session": {
     "session": "Session",
@@ -825,7 +828,12 @@
     "mapLoadError": "Map loading error",
     "mapLoadErrorDescription": "Please check your network connection or API Key.",
     "playersCount": "{count} player{count, plural, =1 {} other {s}}",
-    "error": "Error"
+    "error": "Error",
+    "today": "Today",
+    "tomorrow": "Tomorrow",
+    "splitEvenly": "Split evenly",
+    "viewSessionAt": "View session {name} at {venue}",
+    "coverAlt": "Cover photo of {name}"
   },
   "court": {
     "title": "Court",
@@ -5800,7 +5808,14 @@
     "reasonAvailableSlots": "Slots available",
     "suggestionBadge": "Suggested",
     "modeBrowse": "All",
-    "modeAuto": "Suggest"
+    "modeAuto": "Suggest",
+    "forYou": "Suggested for you",
+    "popular": "Popular sessions",
+    "sectionAria": "Session suggestions for you",
+    "listAria": "Suggested sessions list, use arrow keys to scroll",
+    "viewMoreSimilar": "View more similar sessions ({count})",
+    "loadMore": "Load more",
+    "aiRecommendationAria": "AI-powered recommendation"
   },
   "venue": {
     "verified": "Verified",
@@ -5829,7 +5844,75 @@
       "fallbackTitle": "Badminton Court",
       "fallbackDescription": "View badminton court details on Vmito - the badminton session management platform."
     },
-    "searchPlaceholder": "Search by venue name, address..."
+    "searchPlaceholder": "Search by venue name, address...",
+    "detail": {
+      "title": "Venue details",
+      "loadError": "Unable to load venue information",
+      "tryAgainLater": "Please try again later.",
+      "notFound": "Venue not found",
+      "notFoundDesc": "The venue you are looking for does not exist or has been removed.",
+      "backToList": "Back to venue list",
+      "permanentlyClosed": "Permanently closed",
+      "temporarilyClosed": "Temporarily closed",
+      "pricing": "Pricing",
+      "edit": "Edit",
+      "tabAbout": "About",
+      "tabPhotos": "Photos",
+      "tabAnnouncements": "Announcements",
+      "aboutHeading": "About this venue",
+      "noDescription": "No description for this venue yet.",
+      "courtLayout": "Court layout",
+      "updatePricing": "Update pricing",
+      "tableDay": "Day",
+      "tableTime": "Time",
+      "tableFixed": "Fixed",
+      "tableWalkIn": "Walk-in",
+      "referencePrice": "Reference price",
+      "noPricing": "No pricing information yet.",
+      "amenitiesHeading": "Amenities & Rules",
+      "carParking": "Parking",
+      "canteen": "Canteen",
+      "wifiPasswordLabel": "Password:",
+      "bookingPolicy": "Booking policy",
+      "photosHeading": "Photos",
+      "imageAlt": "{name} - photo {index}",
+      "noPhotos": "No photos yet.",
+      "announcementsHeading": "Announcements",
+      "noAnnouncements": "No announcements yet.",
+      "quickInfo": "Quick info",
+      "courtsLabel": "Number of courts",
+      "courtsValue": "{count} courts",
+      "notUpdated": "Not updated",
+      "findSessionsHere": "Find sessions at this venue",
+      "findSessionsHereDesc": "Discover activities happening at this venue.",
+      "location": "Location",
+      "locatedWithinLabel": "Located within:",
+      "googleMaps": "Find on Google Maps",
+      "contact": "Contact",
+      "phone": "Phone",
+      "callNow": "Call now",
+      "perHour": "/ hour",
+      "priceRange": "From {min} to {max} / hour",
+      "fixedLabel": "Fixed:",
+      "walkInLabel": "Walk-in:",
+      "day": {
+        "everyday": "Daily",
+        "weekdays": "Mon - Fri",
+        "weekend": "Sat - Sun",
+        "holiday": "Holiday",
+        "byWeekday": "By weekday",
+        "other": "Other"
+      },
+      "weekday": {
+        "d1": "Mon",
+        "d2": "Tue",
+        "d3": "Wed",
+        "d4": "Thu",
+        "d5": "Fri",
+        "d6": "Sat",
+        "d7": "Sun"
+      }
+    }
   },
   "venueRequests": {
     "suggestNewVenue": "Suggest new venue",

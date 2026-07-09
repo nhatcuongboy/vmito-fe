@@ -4,6 +4,7 @@ import { IconButton } from '@/components/ui/chakra-compat';
 import LoginPromptModal from '@/components/auth/LoginPromptModal';
 import { useFavoriteToggle } from '@/hooks/useFavoriteToggle';
 import type { FavoriteType } from '@/lib/api/favorite.service';
+import { useAuthStore, useAuthHydration } from '@/stores/useAuthStore';
 import { Icon } from '@chakra-ui/react';
 import { Heart } from 'lucide-react';
 import { useTranslations } from 'next-intl';
@@ -29,6 +30,8 @@ export function FavoriteButton({
   onChange,
 }: FavoriteButtonProps) {
   const t = useTranslations('common.favorites');
+  const { isAuthenticated } = useAuthStore();
+  const isHydrated = useAuthHydration();
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const { isFavorite, isToggling, toggleFavorite } = useFavoriteToggle({
     type,
@@ -37,6 +40,9 @@ export function FavoriteButton({
     onLoginRequired: () => setIsLoginOpen(true),
     onChange,
   });
+
+  // Hide favorite controls for guests (once auth state is hydrated to avoid flash)
+  if (isHydrated && !isAuthenticated) return null;
 
   const isDark = variant === 'overlay-dark';
   const isOverlay = variant === 'overlay' || isDark;

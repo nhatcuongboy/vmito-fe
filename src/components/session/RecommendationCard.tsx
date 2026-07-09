@@ -4,7 +4,7 @@ import { memo } from 'react';
 import { Box, Flex, Text, Image, Badge, Icon, Heading } from '@chakra-ui/react';
 import { Clock, MapPin, Users, Sparkles } from 'lucide-react';
 import { useRouter } from '@/i18n/config';
-import { useLocale } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { formatTime, formatTimeRange } from './BaseSessionCard';
 import { DEFAULT_COVER_PHOTO } from '@/constants';
 import { FeeService } from '@/lib/api/fee.service';
@@ -65,6 +65,9 @@ const RecommendationCard = ({
 }: RecommendationCardProps) => {
   const router = useRouter();
   const locale = useLocale();
+  const t = useTranslations('session');
+  const tFee = useTranslations('fee');
+  const tSuggestions = useTranslations('suggestions');
 
   const isMobile = variant === 'mobile';
 
@@ -78,7 +81,7 @@ const RecommendationCard = ({
 
   // Format fee display
   const getFeeDisplay = () => {
-    if (!session.feeConfig) return 'Miễn phí';
+    if (!session.feeConfig) return tFee('free');
 
     const { feeType, maleFee, femaleFee } = session.feeConfig;
 
@@ -93,7 +96,7 @@ const RecommendationCard = ({
       return `${FeeService.formatFee(minFee)}-${FeeService.formatFee(maxFee)}`;
     }
 
-    return 'Chia đều';
+    return tFee('splitEvenly');
   };
 
   // Mobile variant: 75% screen width, horizontal card
@@ -126,7 +129,10 @@ const RecommendationCard = ({
         onClick={handleClick}
         tabIndex={0}
         role="button"
-        aria-label={`Xem chi tiết kèo ${session.name} tại ${session.venue.name}`}
+        aria-label={t('viewSessionAt', {
+          name: session.name,
+          venue: session.venue.name,
+        })}
         onKeyDown={(e) => {
           if (e.key === 'Enter' || e.key === ' ') {
             e.preventDefault();
@@ -151,10 +157,10 @@ const RecommendationCard = ({
             display="flex"
             alignItems="center"
             gap={1}
-            aria-label="AI-powered recommendation"
+            aria-label={tSuggestions('aiRecommendationAria')}
           >
             <Icon as={Sparkles} boxSize={3} />
-            Gợi ý
+            {tSuggestions('suggestionBadge')}
           </Badge>
         )}
 
@@ -162,7 +168,7 @@ const RecommendationCard = ({
         <Box position="relative" h="120px" overflow="hidden">
           <Image
             src={session.coverPhoto || DEFAULT_COVER_PHOTO}
-            alt={`Ảnh bìa kèo ${session.name}`}
+            alt={t('coverAlt', { name: session.name })}
             w="100%"
             h="100%"
             objectFit="cover"
@@ -237,7 +243,10 @@ const RecommendationCard = ({
       onClick={handleClick}
       tabIndex={0}
       role="button"
-      aria-label={`Xem chi tiết kèo ${session.name} tại ${session.venue.name}`}
+      aria-label={t('viewSessionAt', {
+        name: session.name,
+        venue: session.venue.name,
+      })}
       onKeyDown={(e) => {
         if (e.key === 'Enter' || e.key === ' ') {
           e.preventDefault();
@@ -262,7 +271,7 @@ const RecommendationCard = ({
           display="flex"
           alignItems="center"
           gap={0.5}
-          aria-label="AI-powered recommendation"
+          aria-label={tSuggestions('aiRecommendationAria')}
         >
           <Icon as={Sparkles} boxSize={2.5} />
           Gợi ý
@@ -273,7 +282,7 @@ const RecommendationCard = ({
       <Box position="relative" h="78px" overflow="hidden">
         <Image
           src={session.coverPhoto || DEFAULT_COVER_PHOTO}
-          alt={`Ảnh bìa kèo ${session.name}`}
+          alt={t('coverAlt', { name: session.name })}
           w="100%"
           h="100%"
           objectFit="cover"

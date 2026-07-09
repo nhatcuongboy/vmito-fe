@@ -247,7 +247,10 @@
     "filters": {
       "area": "Khu vực",
       "allCities": "Tất cả thành phố"
-    }
+    },
+    "lightShort": "Sáng",
+    "darkShort": "Tối",
+    "resultsCount": "{count} kết quả"
   },
   "session": {
     "session": "Kèo",
@@ -833,7 +836,12 @@
     "mapLoadErrorDescription": "Vui lòng kiểm tra kết nối mạng hoặc API Key.",
     "playersCount": "{count} người",
     "error": "Lỗi",
-    "advanced": "Nâng cao"
+    "advanced": "Nâng cao",
+    "today": "Hôm nay",
+    "tomorrow": "Ngày mai",
+    "splitEvenly": "Chia đều",
+    "viewSessionAt": "Xem chi tiết kèo {name} tại {venue}",
+    "coverAlt": "Ảnh bìa kèo {name}"
   },
   "court": {
     "title": "Sân",
@@ -5821,7 +5829,14 @@
     "reasonAvailableSlots": "Còn slot",
     "suggestionBadge": "Gợi ý",
     "modeBrowse": "Tất cả",
-    "modeAuto": "Gợi ý"
+    "modeAuto": "Gợi ý",
+    "forYou": "Gợi ý cho bạn",
+    "popular": "Kèo phổ biến",
+    "sectionAria": "Gợi ý kèo cho bạn",
+    "listAria": "Danh sách kèo gợi ý, sử dụng phím mũi tên để cuộn",
+    "viewMoreSimilar": "Xem thêm kèo tương tự ({count})",
+    "loadMore": "Tải thêm",
+    "aiRecommendationAria": "Gợi ý bằng AI"
   },
   "venue": {
     "verified": "Đã xác minh",
@@ -5850,7 +5865,75 @@
       "fallbackTitle": "Sân cầu lông",
       "fallbackDescription": "Xem thông tin chi tiết sân cầu lông trên Vmito - nền tảng quản lý kèo cầu lông."
     },
-    "searchPlaceholder": "Tìm kiếm sân..."
+    "searchPlaceholder": "Tìm kiếm sân...",
+    "detail": {
+      "title": "Chi tiết sân",
+      "loadError": "Không thể tải thông tin sân",
+      "tryAgainLater": "Vui lòng thử lại sau.",
+      "notFound": "Không tìm thấy sân",
+      "notFoundDesc": "Sân bạn đang tìm kiếm không tồn tại hoặc đã bị xóa.",
+      "backToList": "Quay lại danh sách sân",
+      "permanentlyClosed": "Đóng cửa vĩnh viễn",
+      "temporarilyClosed": "Tạm đóng cửa",
+      "pricing": "Bảng giá",
+      "edit": "Chỉnh sửa",
+      "tabAbout": "Giới thiệu",
+      "tabPhotos": "Hình ảnh",
+      "tabAnnouncements": "Thông báo",
+      "aboutHeading": "Giới thiệu về sân",
+      "noDescription": "Chưa có mô tả về sân này.",
+      "courtLayout": "Sơ đồ sân",
+      "updatePricing": "Cập nhật bảng giá",
+      "tableDay": "Thứ",
+      "tableTime": "Khung giờ",
+      "tableFixed": "Cố định",
+      "tableWalkIn": "Vãng lai",
+      "referencePrice": "Giá tham khảo",
+      "noPricing": "Chưa có thông tin bảng giá.",
+      "amenitiesHeading": "Tiện ích & Quy định",
+      "carParking": "Bãi đậu xe",
+      "canteen": "Căn tin",
+      "wifiPasswordLabel": "Mật khẩu:",
+      "bookingPolicy": "Chính sách đặt sân",
+      "photosHeading": "Hình ảnh",
+      "imageAlt": "{name} - ảnh {index}",
+      "noPhotos": "Chưa có hình ảnh nào.",
+      "announcementsHeading": "Thông báo",
+      "noAnnouncements": "Chưa có thông báo nào.",
+      "quickInfo": "Thông tin nhanh",
+      "courtsLabel": "Số sân",
+      "courtsValue": "{count} sân",
+      "notUpdated": "Chưa cập nhật",
+      "findSessionsHere": "Tìm kèo tại sân này",
+      "findSessionsHereDesc": "Khám phá các buổi sinh hoạt đang diễn ra tại sân.",
+      "location": "Địa điểm",
+      "locatedWithinLabel": "Nằm trong:",
+      "googleMaps": "Tìm trên Google Maps",
+      "contact": "Liên hệ",
+      "phone": "Điện thoại",
+      "callNow": "Gọi ngay",
+      "perHour": "/ giờ",
+      "priceRange": "Từ {min} tới {max} / giờ",
+      "fixedLabel": "Cố định:",
+      "walkInLabel": "Vãng lai:",
+      "day": {
+        "everyday": "Hằng ngày",
+        "weekdays": "T2 - T6",
+        "weekend": "T7 - CN",
+        "holiday": "Ngày lễ",
+        "byWeekday": "Theo thứ",
+        "other": "Khác"
+      },
+      "weekday": {
+        "d1": "T2",
+        "d2": "T3",
+        "d3": "T4",
+        "d4": "T5",
+        "d5": "T6",
+        "d6": "T7",
+        "d7": "CN"
+      }
+    }
   },
   "venueRequests": {
     "suggestNewVenue": "Đề xuất sân mới",

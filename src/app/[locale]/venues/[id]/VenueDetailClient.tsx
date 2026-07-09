@@ -73,27 +73,33 @@ const LoginPromptModal = dynamic(
 
 const OPEN_VENUE_UPDATE_REQUEST_ACTION = 'openVenueUpdateRequest';
 
+type VenueT = (key: string, values?: Record<string, string | number>) => string;
+
 function formatTablePrice(amount?: number) {
   if (!amount) return '-';
   return new Intl.NumberFormat('vi-VN').format(amount) + ' đ';
 }
 
-function getLegacyPricingSummary(venue: Venue) {
+function getLegacyPricingSummary(venue: Venue, t: VenueT) {
   const fixed = venue.hourlyRateFixed;
   const walkIn = venue.hourlyRateWalkIn;
 
   if (fixed && walkIn) {
-    if (fixed === walkIn) return `${formatTablePrice(fixed)} / giờ`;
+    if (fixed === walkIn)
+      return `${formatTablePrice(fixed)} ${t('detail.perHour')}`;
 
     const minPrice = Math.min(fixed, walkIn);
     const maxPrice = Math.max(fixed, walkIn);
-    return `Từ ${formatTablePrice(minPrice)} tới ${formatTablePrice(
-      maxPrice
-    )} / giờ`;
+    return t('detail.priceRange', {
+      min: formatTablePrice(minPrice),
+      max: formatTablePrice(maxPrice),
+    });
   }
 
-  if (fixed) return `Cố định: ${formatTablePrice(fixed)} / giờ`;
-  if (walkIn) return `Vãng lai: ${formatTablePrice(walkIn)} / giờ`;
+  if (fixed)
+    return `${t('detail.fixedLabel')} ${formatTablePrice(fixed)} ${t('detail.perHour')}`;
+  if (walkIn)
+    return `${t('detail.walkInLabel')} ${formatTablePrice(walkIn)} ${t('detail.perHour')}`;
 
   return null;
 }
@@ -112,28 +118,28 @@ function formatTimeRange(startMinute: number, endMinute: number) {
   return `${minuteToHourLabel(startMinute)} - ${minuteToHourLabel(endMinute)}`;
 }
 
-function compactWeekdayLabel(daysOfWeek?: number[]) {
+function compactWeekdayLabel(daysOfWeek: number[] | undefined, t: VenueT) {
   const days = [...new Set(daysOfWeek || [])].sort((a, b) => a - b);
-  if (days.length === 0) return 'Theo thứ';
-  if (days.join(',') === '1,2,3,4,5') return 'T2 - T6';
-  if (days.join(',') === '6,7') return 'T7 - CN';
-  if (days.join(',') === '1,2,3,4,5,6,7') return 'Hằng ngày';
+  if (days.length === 0) return t('detail.day.byWeekday');
+  if (days.join(',') === '1,2,3,4,5') return t('detail.day.weekdays');
+  if (days.join(',') === '6,7') return t('detail.day.weekend');
+  if (days.join(',') === '1,2,3,4,5,6,7') return t('detail.day.everyday');
 
-  return days.map((day) => (day === 7 ? 'CN' : `T${day + 1}`)).join(', ');
+  return days.map((day) => t(`detail.weekday.d${day}`)).join(', ');
 }
 
-function getRuleDayLabel(rule: VenuePriceRule) {
-  if (rule.dayType === VenueDayType.EVERYDAY) return 'Hằng ngày';
-  if (rule.dayType === VenueDayType.WEEKEND) return 'T7 - CN';
+function getRuleDayLabel(rule: VenuePriceRule, t: VenueT) {
+  if (rule.dayType === VenueDayType.EVERYDAY) return t('detail.day.everyday');
+  if (rule.dayType === VenueDayType.WEEKEND) return t('detail.day.weekend');
   if (rule.dayType === VenueDayType.WEEKDAY) {
-    return compactWeekdayLabel(rule.daysOfWeek);
+    return compactWeekdayLabel(rule.daysOfWeek, t);
   }
-  if (rule.dayType === VenueDayType.HOLIDAY) return 'Ngày lễ';
+  if (rule.dayType === VenueDayType.HOLIDAY) return t('detail.day.holiday');
   if (rule.dayType === VenueDayType.SPECIFIC_DATE && rule.specificDate) {
     return new Date(rule.specificDate).toLocaleDateString('vi-VN');
   }
 
-  return 'Khác';
+  return t('detail.day.other');
 }
 
 function getRuleDaySort(rule: VenuePriceRule) {
@@ -168,7 +174,7 @@ interface PricingTableRow {
   walkIn?: number;
 }
 
-function buildPricingRows(priceBook?: VenuePriceBook) {
+function buildPricingRows(priceBook: VenuePriceBook | undefined, t: VenueT) {
   const rows = new Map<string, PricingTableRow>();
 
   (priceBook?.rules || []).forEach((rule) => {
@@ -179,7 +185,7 @@ function buildPricingRows(priceBook?: VenuePriceBook) {
       return;
     }
 
-    const dayLabel = getRuleDayLabel(rule);
+    const dayLabel = getRuleDayLabel(rule, t);
     const timeLabel = formatTimeRange(rule.startMinute, rule.endMinute);
     const key = `${dayLabel}-${rule.startMinute}-${rule.endMinute}`;
     const current = rows.get(key) || {
@@ -239,8 +245,8 @@ export default function VenueDetailClient({
       } catch (error) {
         console.error('Failed to fetch venue:', error);
         toaster.error({
-          title: 'Không thể tải thông tin sân',
-          description: 'Vui lòng thử lại sau.',
+          title: t('detail.loadError'),
+          description: t('detail.tryAgainLater'),
         });
       } finally {
         setLoading(false);
@@ -308,7 +314,7 @@ export default function VenueDetailClient({
 
   if (loading) {
     return (
-      <PageLayout title="Chi tiết sân">
+      <PageLayout title={t('detail.title')}>
         <Flex justify="center" align="center" minH="400px">
           <Spinner size="xl" colorPalette="green" />
         </Flex>
@@ -318,14 +324,14 @@ export default function VenueDetailClient({
 
   if (!venue) {
     return (
-      <PageLayout title="Chi tiết sân">
+      <PageLayout title={t('detail.title')}>
         <Container maxW="container.md" py={16} textAlign="center">
-          <Heading mb={4}>Không tìm thấy sân</Heading>
+          <Heading mb={4}>{t('detail.notFound')}</Heading>
           <Text color="gray.500" mb={6}>
-            Sân bạn đang tìm kiếm không tồn tại hoặc đã bị xóa.
+            {t('detail.notFoundDesc')}
           </Text>
           <Button onClick={() => router.push('/venues')} colorPalette="green">
-            Quay lại danh sách sân
+            {t('detail.backToList')}
           </Button>
         </Container>
       </PageLayout>
@@ -345,9 +351,9 @@ export default function VenueDetailClient({
     lng: venue.lng,
   });
   const activePriceBook = getActivePriceBook(priceBooks);
-  const pricingRows = buildPricingRows(activePriceBook);
+  const pricingRows = buildPricingRows(activePriceBook, t);
   const hasPricingRows = pricingRows.length > 0;
-  const legacyPricingSummary = getLegacyPricingSummary(venue);
+  const legacyPricingSummary = getLegacyPricingSummary(venue, t);
 
   return (
     <PageLayout
@@ -437,8 +443,8 @@ export default function VenueDetailClient({
                   <XCircle size={16} />
                   <Text fontSize="sm">
                     {venue.closureStatus === ClosureStatus.PERMANENTLY_CLOSED
-                      ? 'Đóng cửa vĩnh viễn'
-                      : 'Tạm đóng cửa'}
+                      ? t('detail.permanentlyClosed')
+                      : t('detail.temporarilyClosed')}
                   </Text>
                 </Badge>
               )}
@@ -501,7 +507,7 @@ export default function VenueDetailClient({
                   }
                 >
                   <Banknote size={14} />
-                  Bảng giá
+                  {t('detail.pricing')}
                 </Button>
                 <Button
                   variant="outline"
@@ -510,7 +516,7 @@ export default function VenueDetailClient({
                   onClick={() => router.push(`/admin/venues/${venue.id}/edit`)}
                 >
                   <Settings size={14} />
-                  Chỉnh sửa
+                  {t('detail.edit')}
                 </Button>
               </HStack>
             )}
@@ -557,7 +563,7 @@ export default function VenueDetailClient({
             >
               <Info size={16} />
               <Text fontSize="sm" fontWeight="semibold">
-                Giới thiệu
+                {t('detail.tabAbout')}
               </Text>
             </Tabs.Trigger>
 
@@ -574,7 +580,7 @@ export default function VenueDetailClient({
             >
               <ImageIcon size={16} />
               <Text fontSize="sm" fontWeight="semibold">
-                Hình ảnh
+                {t('detail.tabPhotos')}
               </Text>
             </Tabs.Trigger>
             <Tabs.Trigger
@@ -590,7 +596,7 @@ export default function VenueDetailClient({
             >
               <Bell size={16} />
               <Text fontSize="sm" fontWeight="semibold">
-                Thông báo
+                {t('detail.tabAnnouncements')}
               </Text>
             </Tabs.Trigger>
           </Tabs.List>
@@ -617,7 +623,7 @@ export default function VenueDetailClient({
                     shadow="sm"
                   >
                     <Heading size="md" mb={4} fontWeight="bold">
-                      Giới thiệu về sân
+                      {t('detail.aboutHeading')}
                     </Heading>
                     {venue.description ? (
                       <Box
@@ -644,7 +650,7 @@ export default function VenueDetailClient({
                       />
                     ) : (
                       <Text fontSize="sm" color="gray.400" fontStyle="italic">
-                        Chưa có mô tả về sân này.
+                        {t('detail.noDescription')}
                       </Text>
                     )}
                   </Box>
@@ -661,7 +667,7 @@ export default function VenueDetailClient({
                       shadow="sm"
                     >
                       <Heading size="md" mb={4} fontWeight="bold">
-                        Sơ đồ sân
+                        {t('detail.courtLayout')}
                       </Heading>
                       <Box
                         borderRadius="xl"
@@ -676,7 +682,7 @@ export default function VenueDetailClient({
                       >
                         <Image
                           src={venue.courtLayoutImage}
-                          alt="Sơ đồ sân"
+                          alt={t('detail.courtLayout')}
                           w="100%"
                           objectFit="contain"
                           maxH="320px"
@@ -714,7 +720,7 @@ export default function VenueDetailClient({
                           <Banknote size={20} color="#DD6B20" />
                         </Box>
                         <Heading size="md" fontWeight="bold">
-                          Bảng giá
+                          {t('detail.pricing')}
                         </Heading>
                       </Flex>
                       {isAdmin && !hasPricingRows && (
@@ -727,7 +733,7 @@ export default function VenueDetailClient({
                           }
                         >
                           <Banknote size={14} />
-                          Cập nhật bảng giá
+                          {t('detail.updatePricing')}
                         </Button>
                       )}
                     </Flex>
@@ -749,28 +755,31 @@ export default function VenueDetailClient({
                         >
                           <Box as="thead">
                             <Box as="tr">
-                              {['Thứ', 'Khung giờ', 'Cố định', 'Vãng lai'].map(
-                                (heading) => (
-                                  <Box
-                                    key={heading}
-                                    as="th"
-                                    py={4}
-                                    px={4}
-                                    borderWidth="1px"
-                                    borderColor="green.700"
-                                    bg="green.50"
-                                    fontSize={{ base: 'sm', md: 'md' }}
-                                    fontWeight="bold"
-                                    textAlign="center"
-                                    _dark={{
-                                      bg: 'green.950',
-                                      borderColor: 'green.500',
-                                    }}
-                                  >
-                                    {heading}
-                                  </Box>
-                                )
-                              )}
+                              {[
+                                t('detail.tableDay'),
+                                t('detail.tableTime'),
+                                t('detail.tableFixed'),
+                                t('detail.tableWalkIn'),
+                              ].map((heading) => (
+                                <Box
+                                  key={heading}
+                                  as="th"
+                                  py={4}
+                                  px={4}
+                                  borderWidth="1px"
+                                  borderColor="green.700"
+                                  bg="green.50"
+                                  fontSize={{ base: 'sm', md: 'md' }}
+                                  fontWeight="bold"
+                                  textAlign="center"
+                                  _dark={{
+                                    bg: 'green.950',
+                                    borderColor: 'green.500',
+                                  }}
+                                >
+                                  {heading}
+                                </Box>
+                              ))}
                             </Box>
                           </Box>
                           <Box as="tbody">
@@ -860,7 +869,7 @@ export default function VenueDetailClient({
                         borderColor="green.100"
                       >
                         <Text fontSize="xs" color="gray.500" mb={1}>
-                          Giá tham khảo
+                          {t('detail.referencePrice')}
                         </Text>
                         <Text
                           fontSize={{ base: 'lg', md: 'xl' }}
@@ -883,7 +892,7 @@ export default function VenueDetailClient({
                       >
                         <Banknote size={36} strokeWidth={1.4} />
                         <Text fontSize="sm" fontStyle="italic">
-                          Chưa có thông tin bảng giá.
+                          {t('detail.noPricing')}
                         </Text>
                       </Flex>
                     )}
@@ -904,7 +913,7 @@ export default function VenueDetailClient({
                       shadow="sm"
                     >
                       <Heading size="md" mb={5} fontWeight="bold">
-                        Tiện ích & Quy định
+                        {t('detail.amenitiesHeading')}
                       </Heading>
                       <VStack gap={5} align="stretch">
                         {/* Amenity tags */}
@@ -926,7 +935,7 @@ export default function VenueDetailClient({
                                 gap={1.5}
                               >
                                 <Car size={14} />
-                                Bãi đậu xe
+                                {t('detail.carParking')}
                               </Badge>
                             )}
                             {venue.hasCanteen !== undefined && (
@@ -944,7 +953,7 @@ export default function VenueDetailClient({
                                 gap={1.5}
                               >
                                 <UtensilsCrossed size={14} />
-                                Căn tin
+                                {t('detail.canteen')}
                               </Badge>
                             )}
                           </Flex>
@@ -979,7 +988,8 @@ export default function VenueDetailClient({
                                   color="gray.500"
                                   wordBreak="break-all"
                                 >
-                                  Mật khẩu: {venue.wifiPassword}
+                                  {t('detail.wifiPasswordLabel')}{' '}
+                                  {venue.wifiPassword}
                                 </Text>
                               )}
                             </Box>
@@ -1000,7 +1010,7 @@ export default function VenueDetailClient({
                             </Box>
                             <Box flex="1" minW={0}>
                               <Text fontSize="xs" color="gray.500" mb={0.5}>
-                                Chính sách đặt sân
+                                {t('detail.bookingPolicy')}
                               </Text>
                               <Text
                                 fontSize="md"
@@ -1030,7 +1040,7 @@ export default function VenueDetailClient({
                   shadow="sm"
                 >
                   <Heading size="md" mb={5} fontWeight="bold">
-                    Hình ảnh
+                    {t('detail.photosHeading')}
                   </Heading>
                   {venue.images && venue.images.length > 0 ? (
                     <SimpleGrid columns={{ base: 2, md: 3 }} gap={4}>
@@ -1050,7 +1060,10 @@ export default function VenueDetailClient({
                         >
                           <Image
                             src={imgUrl}
-                            alt={`${venueName} - ảnh ${idx + 1}`}
+                            alt={t('detail.imageAlt', {
+                              name: venueName,
+                              index: idx + 1,
+                            })}
                             w="full"
                             h="full"
                             objectFit="cover"
@@ -1070,7 +1083,7 @@ export default function VenueDetailClient({
                     >
                       <ImageIcon size={40} strokeWidth={1.2} />
                       <Text fontSize="sm" fontStyle="italic">
-                        Chưa có hình ảnh nào.
+                        {t('detail.noPhotos')}
                       </Text>
                     </Flex>
                   )}
@@ -1089,7 +1102,7 @@ export default function VenueDetailClient({
                   shadow="sm"
                 >
                   <Heading size="md" mb={5} fontWeight="bold">
-                    Thông báo
+                    {t('detail.announcementsHeading')}
                   </Heading>
                   <Flex
                     direction="column"
@@ -1101,7 +1114,7 @@ export default function VenueDetailClient({
                   >
                     <Bell size={40} strokeWidth={1.2} />
                     <Text fontSize="sm" fontStyle="italic">
-                      Chưa có thông báo nào.
+                      {t('detail.noAnnouncements')}
                     </Text>
                   </Flex>
                 </Box>
@@ -1122,7 +1135,7 @@ export default function VenueDetailClient({
                   borderColor="gray.100"
                 >
                   <Heading size="sm" mb={4}>
-                    Thông tin nhanh
+                    {t('detail.quickInfo')}
                   </Heading>
                   <VStack gap={4} align="stretch">
                     {venue.openingHours && (
@@ -1148,7 +1161,7 @@ export default function VenueDetailClient({
                             color="gray.500"
                             _dark={{ color: 'gray.400' }}
                           >
-                            Giờ mở cửa
+                            {t('openingHours')}
                           </Text>
                           <Text fontWeight="semibold" fontSize="sm">
                             {venue.openingHours}
@@ -1179,10 +1192,12 @@ export default function VenueDetailClient({
                             color="gray.500"
                             _dark={{ color: 'gray.400' }}
                           >
-                            Số sân
+                            {t('detail.courtsLabel')}
                           </Text>
                           <Text fontWeight="semibold" fontSize="sm">
-                            {venue.numberOfCourts} sân
+                            {t('detail.courtsValue', {
+                              count: venue.numberOfCourts,
+                            })}
                           </Text>
                         </Box>
                       </HStack>
@@ -1195,7 +1210,7 @@ export default function VenueDetailClient({
                         textAlign="center"
                         py={2}
                       >
-                        Chưa cập nhật
+                        {t('detail.notUpdated')}
                       </Text>
                     )}
                   </VStack>
@@ -1212,10 +1227,10 @@ export default function VenueDetailClient({
                   borderColor="green.100"
                 >
                   <Heading size="sm" mb={1} color="green.700">
-                    Tìm kèo tại sân này
+                    {t('detail.findSessionsHere')}
                   </Heading>
                   <Text fontSize="xs" color="green.600" mb={3}>
-                    Khám phá các buổi sinh hoạt đang diễn ra tại sân.
+                    {t('detail.findSessionsHereDesc')}
                   </Text>
                   <Button
                     w="full"
@@ -1223,7 +1238,7 @@ export default function VenueDetailClient({
                     onClick={handleFindSessions}
                   >
                     <Search size={16} />
-                    Tìm kèo
+                    {t('findSessions')}
                   </Button>
                 </Box>
 
@@ -1238,7 +1253,7 @@ export default function VenueDetailClient({
                   borderColor="gray.100"
                 >
                   <Heading size="sm" mb={3}>
-                    Địa điểm
+                    {t('detail.location')}
                   </Heading>
                   <Flex align="flex-start" gap={2} mb={2}>
                     <MapPin
@@ -1257,7 +1272,8 @@ export default function VenueDetailClient({
                   </Flex>
                   {venue.locatedWithin && (
                     <Text fontSize="xs" color="gray.500" mb={2}>
-                      Nằm trong: <strong>{venue.locatedWithin}</strong>
+                      {t('detail.locatedWithinLabel')}{' '}
+                      <strong>{venue.locatedWithin}</strong>
                     </Text>
                   )}
                   {venue.lat && venue.lng && (
@@ -1278,7 +1294,7 @@ export default function VenueDetailClient({
                     >
                       <Button variant="outline" w="full" size="sm" isWithinLink>
                         <ExternalLink size={14} />
-                        Tìm trên Google Maps
+                        {t('detail.googleMaps')}
                       </Button>
                     </a>
                   )}
@@ -1296,7 +1312,7 @@ export default function VenueDetailClient({
                     borderColor="gray.100"
                   >
                     <Heading size="sm" mb={4}>
-                      Liên hệ
+                      {t('detail.contact')}
                     </Heading>
                     <VStack gap={3} align="stretch">
                       {venue.phone && (
@@ -1327,7 +1343,7 @@ export default function VenueDetailClient({
                               </Box>
                               <Box>
                                 <Text fontSize="xs" color="gray.500" mb={0.5}>
-                                  Điện thoại
+                                  {t('detail.phone')}
                                 </Text>
                                 <Text fontSize="sm" fontWeight="semibold">
                                   {trimPhone(venue.phone)}
@@ -1365,7 +1381,7 @@ export default function VenueDetailClient({
                               }
                             >
                               <Phone size={14} />
-                              Gọi ngay
+                              {t('detail.callNow')}
                             </Button>
                           </Flex>
                         </Box>
@@ -1401,7 +1417,7 @@ export default function VenueDetailClient({
                             </Box>
                             <Box flex="1" minW={0}>
                               <Text fontSize="xs" color="gray.500" mb={0.5}>
-                                Website
+                                {t('website')}
                               </Text>
                               <Text
                                 fontSize="sm"

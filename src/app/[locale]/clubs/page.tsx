@@ -529,7 +529,7 @@ function BrowseClubsContent() {
                 color="fg.muted"
                 display={{ base: 'none', md: 'block' }}
               >
-                {totalCount} kết quả
+                {t('common.resultsCount', { count: totalCount })}
               </Text>
             )}
 

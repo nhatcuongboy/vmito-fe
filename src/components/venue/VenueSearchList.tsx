@@ -643,7 +643,7 @@ export default function VenueSearchList() {
               flex={1}
               display={{ base: 'none', md: 'block' }}
             >
-              {totalCount} kết quả
+              {t('common.resultsCount', { count: totalCount })}
             </Text>
           )}
 

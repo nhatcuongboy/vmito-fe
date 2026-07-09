@@ -7,7 +7,7 @@ import {
   formatTimeByDevicePreference,
   formatTimeRangeByDevicePreference,
 } from '@/utils/time-helpers';
-import dayjs from '@/lib/dayjs';
+import dayjs, { getDayjsLocale } from '@/lib/dayjs';
 import {
   Avatar,
   Badge,
@@ -628,16 +628,16 @@ const BaseSessionCard = ({
   const formatCompactDate = (dateString: string | Date): string => {
     const date = dayjs(dateString)
       .tz('Asia/Ho_Chi_Minh')
-      .locale(locale === Locale.VI ? Locale.VI : Locale.EN);
+      .locale(getDayjsLocale(locale));
     const today = dayjs.tz().startOf('day');
     const tomorrow = today.add(1, 'day');
     const dateToCompare = date.startOf('day');
 
     let dateLabel = '';
     if (!alwaysShowDayName && dateToCompare.isSame(today)) {
-      dateLabel = locale === Locale.VI ? 'Hôm nay' : 'Today';
+      dateLabel = t('today');
     } else if (!alwaysShowDayName && dateToCompare.isSame(tomorrow)) {
-      dateLabel = locale === Locale.VI ? 'Ngày mai' : 'Tomorrow';
+      dateLabel = t('tomorrow');
     } else {
       dateLabel =
         locale === Locale.VI ? date.format('dddd') : date.format('ddd');

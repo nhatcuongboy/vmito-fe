@@ -1,6 +1,7 @@
 'use client';
 
 import { Button } from '@/components/ui/chakra-compat';
+import { useAuthStore, useAuthHydration } from '@/stores/useAuthStore';
 import { Icon, Text } from '@chakra-ui/react';
 import { Heart } from 'lucide-react';
 import { useTranslations } from 'next-intl';
@@ -15,6 +16,11 @@ export function FavoriteFilterButton({
   onToggle,
 }: FavoriteFilterButtonProps) {
   const t = useTranslations('common.favorites');
+  const { isAuthenticated } = useAuthStore();
+  const isHydrated = useAuthHydration();
+
+  // Hide the favorites filter for guests (once auth state is hydrated to avoid flash)
+  if (isHydrated && !isAuthenticated) return null;
 
   return (
     <Button

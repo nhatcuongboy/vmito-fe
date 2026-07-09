@@ -96,4 +96,4 @@ All user-facing text must use next-intl translations — never hardcode UI strin
 
 ### Debug
 
-- The app is already running at http://localhost:3000, don't run the start command anymore, just open it and check/debug.
+- The app is already running at http://localhost:3000, don't run the start command anymore, just open it and check/debug. If this port isn't running, please start it.
