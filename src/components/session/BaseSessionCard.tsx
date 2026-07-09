@@ -72,6 +72,7 @@ import { SessionActionConfig } from './BaseSessionCard.types';
 import { Link } from '@/i18n/config';
 import dynamic from 'next/dynamic';
 import LevelDescriptionsModal from './LevelDescriptionsModal';
+import { FavoriteButton } from '@/components/favorites/FavoriteButton';
 
 // Loaded on demand: pulls in html-to-image, which is only needed when sharing
 const SessionShareImageModal = dynamic(
@@ -830,6 +831,19 @@ const BaseSessionCard = ({
                 </Badge>
               )}
             </Box>
+            <Box
+              position="absolute"
+              top={3}
+              left={registrationBadgeContent ? 14 : 3}
+              zIndex={3}
+            >
+              <FavoriteButton
+                type="SESSION"
+                targetId={session.id}
+                isFavorite={session.isFavorite}
+                returnUrl={cardHref}
+              />
+            </Box>
             {/* Registration Status Overlay */}
             {registrationBadgeContent && (
               <Box position="absolute" top={3} left={3}>
@@ -849,6 +863,17 @@ const BaseSessionCard = ({
           display="flex"
           flexDirection="column"
         >
+          {isCompact && (
+            <Box position="absolute" top={2} right={2} zIndex={3}>
+              <FavoriteButton
+                type="SESSION"
+                targetId={session.id}
+                isFavorite={session.isFavorite}
+                size="xs"
+                returnUrl={cardHref}
+              />
+            </Box>
+          )}
           <Stack gap={isCompact ? 2 : 4} flex="1">
             {/* Compact-only top content (e.g. suggestion badges) */}
             {isCompact && compactTopContent}
@@ -965,12 +990,40 @@ const BaseSessionCard = ({
                     >
                       {displayHostName}
                     </Text>
-                    {/* Bot has no meaningful rating for crawled sessions */}
-                    {!isCrawled && (
-                      <AppPlayerRating userId={session.hostId} showBullet />
-                    )}
                     {hostActions}
                   </Flex>
+                  {!isCrawled && (
+                    <Flex
+                      align="center"
+                      gap={1}
+                      mt={0.5}
+                      cursor={onHostClick ? 'pointer' : 'default'}
+                      onClick={(e) => {
+                        if (onHostClick) {
+                          e.stopPropagation();
+                          onHostClick(e);
+                        }
+                      }}
+                    >
+                      <Text
+                        position="relative"
+                        zIndex={3}
+                        fontSize="xs"
+                        color="gray.500"
+                        _dark={{ color: 'whiteAlpha.600' }}
+                        _hover={
+                          onHostClick ? { textDecoration: 'underline' } : {}
+                        }
+                      >
+                        {t('host')}
+                      </Text>
+                      <AppPlayerRating
+                        userId={session.hostId}
+                        showBullet
+                        size="xs"
+                      />
+                    </Flex>
+                  )}
                   {isCrawled && session.externalSource && (
                     <Text
                       position="relative"

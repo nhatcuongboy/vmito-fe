@@ -286,11 +286,11 @@ const SessionDetailBody = ({
               )}
             </Text>
           ) : (
-            <Flex align="center" justify="space-between" gap={2}>
+            <Flex align="center" gap={1} mt={0.5}>
               <Text fontSize="xs" color="gray.500">
                 {t('host')}
               </Text>
-              <AppPlayerRating userId={session.hostId} />
+              <AppPlayerRating userId={session.hostId} showBullet size="xs" />
             </Flex>
           )}
         </Box>
