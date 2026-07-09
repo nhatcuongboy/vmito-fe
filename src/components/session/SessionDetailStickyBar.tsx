@@ -44,7 +44,6 @@ import dayjs from '@/lib/dayjs';
 import LevelBadgeWithDescription from './LevelBadgeWithDescription';
 import LevelDescriptionsModal from './LevelDescriptionsModal';
 import { formatTimeRangeByDevicePreference } from '@/utils/time-helpers';
-import { useMyClubIds } from '@/hooks/useMyClubIds';
 
 interface ISessionDetailStickyBarProps {
   session: ISession;
@@ -80,7 +79,6 @@ const SessionDetailStickyBar = ({
   const { getLevelShortLabel } = useLevelLabel();
   const { isCollapsed } = useSidebar();
   const { user } = useAuthStore();
-  const { clubIds: viewerClubIds } = useMyClubIds();
   const isAdmin = user?.role === UserRole.ADMIN;
   const canManage = isOwner || isAdmin;
   const skillLevelColor = getSkillLevelColor(session.requiredLevels);
@@ -93,18 +91,10 @@ const SessionDetailStickyBar = ({
     session.status === SessionStatus.FINISHED ||
     session.status === SessionStatus.CANCELLED ||
     isPastEndTime;
-  const canSeeSessionFee = FeeService.canViewerSeeSessionFee(
-    session,
-    user?.id,
-    viewerClubIds
-  );
-  // For detail/modal views, show "Contact host" for club sessions
-  const feeDisplayText = FeeService.getSessionFeeForModal(
-    session,
-    user?.id,
-    viewerClubIds,
-    t('contactHostForFee')
-  );
+  const canSeeSessionFee = true;
+  // Always show the session's actual walk-in (vãng lai) fee — never hide it
+  // behind a "Contact host" placeholder.
+  const feeDisplayText = FeeService.getSessionFeeForCard(session);
 
   const formatDetailDate = (dateString: string | Date): string => {
     const date = dayjs
