@@ -462,6 +462,7 @@ export default function FindSessionList({
     refreshKey,
     viewMode, // re-fetch with larger limit when switching to/from map mode
     preferredCity,
+    urlFilters.favorite,
   ]);
 
   // Trigger load more when in view
@@ -697,32 +698,9 @@ export default function FindSessionList({
           />
         }
       >
-        {(filters.venueId || nonSearchFilterCount > 0) && (
+        {(filters.venueId ||
+          nonSearchFilterCount - (urlFilters.favorite ? 1 : 0) > 0) && (
           <HStack gap={2} wrap="wrap">
-            {urlFilters.favorite && (
-              <Badge
-                colorPalette="red"
-                variant="subtle"
-                px={3}
-                py={1.5}
-                borderRadius="full"
-                display="flex"
-                alignItems="center"
-                gap={2}
-                boxShadow="sm"
-              >
-                <Text fontSize="xs" fontWeight="semibold">
-                  {t('filters.favoritesOnly')}
-                </Text>
-                <Icon
-                  as={X}
-                  boxSize={3}
-                  cursor="pointer"
-                  onClick={() => setUrlFilters({ favorite: false })}
-                  _hover={{ color: 'red.500' }}
-                />
-              </Badge>
-            )}
             {/* Venue */}
             {filters.venueId && (
               <Badge

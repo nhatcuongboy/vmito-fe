@@ -377,6 +377,7 @@ export default function VenueSearchList() {
     userLocation,
     viewMode, // re-fetch with larger limit when switching to/from map mode
     preferredCity,
+    filters.favorite,
   ]);
 
   // Trigger load more when in view
@@ -758,35 +759,8 @@ export default function VenueSearchList() {
       {!loading &&
         (filters.city.length > 0 ||
           filters.district.length > 0 ||
-          filters.near ||
-          filters.favorite) && (
+          filters.near) && (
           <Flex align="center" flexWrap="wrap" gap={2} mb={4} minH="28px">
-            {filters.favorite && (
-              <Badge
-                colorPalette="red"
-                variant="subtle"
-                borderRadius="full"
-                px={3}
-                py={1}
-                fontSize="xs"
-                fontWeight="semibold"
-                display="flex"
-                alignItems="center"
-                gap={1.5}
-              >
-                {t('common.favorites.filter')}
-                <Box
-                  as="span"
-                  cursor="pointer"
-                  display="inline-flex"
-                  alignItems="center"
-                  onClick={() => setFilters({ favorite: false })}
-                  _hover={{ color: 'red.700' }}
-                >
-                  <X size={12} />
-                </Box>
-              </Badge>
-            )}
             {filters.near && (
               <Badge
                 colorPalette="blue"

@@ -638,34 +638,8 @@ function BrowseClubsContent() {
             </Flex>
           </Flex>
 
-          {activeFilterCount > 0 && (
+          {activeFilterCount - (favoriteOnly ? 1 : 0) > 0 && (
             <Flex align="center" flexWrap="wrap" gap={2}>
-              {favoriteOnly && (
-                <Badge
-                  colorPalette="red"
-                  variant="subtle"
-                  borderRadius="full"
-                  px={3}
-                  py={1}
-                  fontSize="xs"
-                  fontWeight="semibold"
-                  display="flex"
-                  alignItems="center"
-                  gap={1.5}
-                >
-                  {t('common.favorites.filter')}
-                  <Box
-                    as="span"
-                    cursor="pointer"
-                    display="inline-flex"
-                    alignItems="center"
-                    onClick={() => setFavoriteOnly(false)}
-                    _hover={{ color: 'red.700' }}
-                  >
-                    <X size={12} />
-                  </Box>
-                </Badge>
-              )}
               {sortByDistance && (
                 <Badge
                   colorPalette="blue"

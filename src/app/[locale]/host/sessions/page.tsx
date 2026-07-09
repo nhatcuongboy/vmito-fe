@@ -37,6 +37,7 @@ import { SessionEventType } from '@/contexts/SocketContext';
 import { Button } from '@/components/ui/chakra-compat';
 import { PlayCircle } from 'lucide-react';
 import { useTourStore } from '@/stores/useTourStore';
+import { FavoriteFilterButton } from '@/components/favorites/FavoriteFilterButton';
 
 // Realtime events (emitted to the host's user room) that should refresh the
 // hosted sessions list: new join requests and generic notifications
@@ -86,6 +87,7 @@ function HostSessionsContent() {
   const loadingMoreRef = useRef(false);
   const [filters, setFilters] = useState<ISessionFilterState>({});
   const [sortBy, setSortBy] = useState<SessionSortBy>('date_asc');
+  const [favoriteOnly, setFavoriteOnly] = useState(false);
   const [isAIModalOpen, setIsAIModalOpen] = useState(false);
 
   const [viewMode, setViewMode] = useViewMode('host-sessions');
@@ -139,6 +141,7 @@ function HostSessionsContent() {
                 : filters.status,
         endTimeBefore: undefined,
         endTimeAfter: undefined,
+        favoriteOnly,
         ...apiSortParams,
       });
 
@@ -175,7 +178,14 @@ function HostSessionsContent() {
       fetchHostedSessions();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user?.id, filters.searchQuery, sortBy, filters.status, sessionStatusTab]);
+  }, [
+    user?.id,
+    filters.searchQuery,
+    sortBy,
+    filters.status,
+    sessionStatusTab,
+    favoriteOnly,
+  ]);
 
   // Refetch the list when realtime events for this host arrive so player
   // counts and pending requests don't go stale while the page is open.
@@ -394,6 +404,12 @@ function HostSessionsContent() {
             showViewModeMap={false}
             viewMode={viewMode}
             setViewMode={setViewMode}
+            favoriteButton={
+              <FavoriteFilterButton
+                isActive={favoriteOnly}
+                onToggle={() => setFavoriteOnly((value) => !value)}
+              />
+            }
           />
           <SessionsList
             sessions={filteredSessions}

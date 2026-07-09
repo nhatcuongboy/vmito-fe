@@ -25,6 +25,7 @@ import { StatusTabSwitch } from '@/components/session/StatusTabSwitch';
 import { useViewMode } from '@/hooks/useViewMode';
 import { useSocketListRefresh } from '@/hooks/useSocketListRefresh';
 import { SessionEventType } from '@/contexts/SocketContext';
+import { FavoriteFilterButton } from '@/components/favorites/FavoriteFilterButton';
 import dynamic from 'next/dynamic';
 
 const JoinSessionModal = dynamic(
@@ -102,6 +103,7 @@ function PlayerSessionsContent() {
   );
   const [filters, setFilters] = useState<ISessionFilterState>({});
   const [sortBy, setSortBy] = useState<SessionSortBy>('date_asc');
+  const [favoriteOnly, setFavoriteOnly] = useState(false);
 
   const loadingMoreRef = useRef(false);
 
@@ -156,6 +158,7 @@ function PlayerSessionsContent() {
           sessionStatusTab === 'ended'
             ? SessionStatus.FINISHED
             : filters.status,
+        favoriteOnly,
         ...apiSortParams,
       });
 
@@ -195,7 +198,14 @@ function PlayerSessionsContent() {
       fetchPlayerSessions();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user?.id, filters.searchQuery, sortBy, filters.status, sessionStatusTab]);
+  }, [
+    user?.id,
+    filters.searchQuery,
+    sortBy,
+    filters.status,
+    sessionStatusTab,
+    favoriteOnly,
+  ]);
 
   // Refetch the list when realtime events for this player arrive so
   // registration statuses don't go stale while waiting for host approval.
@@ -335,6 +345,12 @@ function PlayerSessionsContent() {
             showViewModeMap={false}
             viewMode={viewMode}
             setViewMode={setViewMode}
+            favoriteButton={
+              <FavoriteFilterButton
+                isActive={favoriteOnly}
+                onToggle={() => setFavoriteOnly((value) => !value)}
+              />
+            }
           />
           <SessionsList
             sessions={filteredSessions}

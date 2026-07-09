@@ -157,6 +157,7 @@ export const PlayerService = {
     sortOrder?: 'asc' | 'desc';
     status?: string;
     excludeStatuses?: string[];
+    favoriteOnly?: boolean;
   }): Promise<{
     data: ISession[];
     total: number;
@@ -173,6 +174,7 @@ export const PlayerService = {
     if (filters?.status) params.append('status', filters.status);
     if (filters?.excludeStatuses && filters.excludeStatuses.length > 0)
       params.append('excludeStatuses', filters.excludeStatuses.join(','));
+    if (filters?.favoriteOnly) params.append('favoriteOnly', 'true');
 
     const url = params.toString()
       ? `/players/me/sessions?${params.toString()}`
