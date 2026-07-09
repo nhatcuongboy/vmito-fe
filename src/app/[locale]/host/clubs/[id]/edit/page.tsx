@@ -235,20 +235,46 @@ const EditClubPage = () => {
           setBannerIndex(0);
         }
 
-        // Collect all unique venue names from schedules so we can resolve them
-        const uniqueVenueNames = new Set<string>();
-        if (group.schedules) {
-          group.schedules.forEach((s) => {
-            if (s.notes) uniqueVenueNames.add(s.notes);
+        // Set host user for admin
+        if (isAdmin && group.host) {
+          setSelectedHostUserId(group.hostId);
+          // Add current host to hostUsers so it appears in dropdown
+          setHostUsers((prev) => {
+            const exists = prev.some((u) => u.id === group.host.id);
+            if (exists) return prev;
+            return [
+              {
+                id: group.host.id,
+                name: group.host.name,
+                email: group.host.email || '',
+                role: UserRole.HOST,
+                createdAt: '',
+                updatedAt: '',
+              },
+              ...prev,
+            ];
           });
         }
-        if (group.defaultVenue?.name) {
-          uniqueVenueNames.add(group.defaultVenue.name);
+
+        // Collect all unique venue info from schedules so we can resolve them
+        // Notes are stored as "Venue Name | Address", so we parse the venue name
+        const notesToVenueName = new Map<string, string>();
+        if (group.schedules) {
+          group.schedules.forEach((s) => {
+            if (s.notes) {
+              // Extract venue name from "Name | Address" format
+              const venueName = s.notes.split(' | ')[0];
+              notesToVenueName.set(s.notes, venueName);
+            }
+          });
         }
 
         // Fetch a broader venue list covering all schedule venue names
         // We do one search per unique name that isn't the defaultVenue
         const nameToVenue = new Map<string, TVenueOption>();
+        // Map from notes string to resolved venue
+        const notesToResolvedVenue = new Map<string, TVenueOption>();
+
         if (group.defaultVenue) {
           nameToVenue.set(group.defaultVenue.name, {
             id: group.defaultVenue.id,
@@ -258,27 +284,36 @@ const EditClubPage = () => {
         }
 
         await Promise.all(
-          Array.from(uniqueVenueNames).map(async (venueName) => {
-            if (nameToVenue.has(venueName)) return;
-            try {
-              const result = await VenueService.searchVenues({
-                keyword: venueName,
-                limit: 10,
-              });
-              const matched = (result.data ?? []).find(
-                (v) => v.name === venueName
-              );
-              if (matched) {
-                nameToVenue.set(venueName, {
-                  id: matched.id,
-                  name: matched.name,
-                  address: matched.address,
-                });
+          Array.from(notesToVenueName.entries()).map(
+            async ([notesKey, venueName]) => {
+              // Skip if we already have this venue from defaultVenue
+              if (nameToVenue.has(venueName)) {
+                notesToResolvedVenue.set(notesKey, nameToVenue.get(venueName)!);
+                return;
               }
-            } catch {
-              // ignore individual search errors
+              try {
+                const result = await VenueService.searchVenues({
+                  keyword: venueName,
+                  limit: 10,
+                });
+                // Match by venue name (not the full "name | address" string)
+                const matched = (result.data ?? []).find(
+                  (v) => v.name === venueName
+                );
+                if (matched) {
+                  const venueOption = {
+                    id: matched.id,
+                    name: matched.name,
+                    address: matched.address,
+                  };
+                  nameToVenue.set(venueName, venueOption);
+                  notesToResolvedVenue.set(notesKey, venueOption);
+                }
+              } catch {
+                // ignore individual search errors
+              }
             }
-          })
+          )
         );
 
         // Pin all resolved venues so they always appear in the select options
@@ -300,7 +335,10 @@ const EditClubPage = () => {
           group.schedules.forEach((s) => {
             const key = s.notes || '__default__';
             if (!noteGroups.has(key)) {
-              const resolvedVenue = s.notes ? nameToVenue.get(s.notes) : null;
+              // Use notesToResolvedVenue which maps the full notes string to the venue
+              const resolvedVenue = s.notes
+                ? notesToResolvedVenue.get(s.notes)
+                : null;
               noteGroups.set(key, {
                 venueId:
                   resolvedVenue?.id ||
@@ -337,7 +375,7 @@ const EditClubPage = () => {
     };
 
     loadGroup();
-  }, [groupId, setValue, router, t]);
+  }, [groupId, setValue, router, t, isAdmin]);
 
   // --- VenueGroup helpers (identical to create page) ---
   const addVenueGroup = () =>
