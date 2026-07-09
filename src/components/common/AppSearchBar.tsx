@@ -65,7 +65,7 @@ export function AppSearchBar({
         border="1px solid"
         borderColor={{ base: 'gray.300', _dark: 'gray.500' }}
         bg={{ base: 'white', md: 'white', _dark: 'gray.800' }}
-        fontSize="15px"
+        fontSize={{ base: '16px', md: '15px' }}
         color="fg"
         boxShadow={{
           base: '0 2px 8px 0 rgba(0,0,0,0.12)',

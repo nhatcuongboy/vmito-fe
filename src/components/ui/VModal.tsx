@@ -142,7 +142,7 @@ export const VModal: React.FC<VModalProps> = ({
   showFooterDivider = true,
   isCentered = true,
 }) => {
-  // Handle escape key
+  // Handle escape key and body scroll lock
   React.useEffect(() => {
     const handleEscape = (event: KeyboardEvent) => {
       if (event.key === 'Escape' && isOpen) {
@@ -150,14 +150,29 @@ export const VModal: React.FC<VModalProps> = ({
       }
     };
 
+    let originalOverflow = '';
+    let originalPaddingRight = '';
+
     if (isOpen) {
       document.addEventListener('keydown', handleEscape);
-      // Removed document.body.style.overflow manipulation to prevent layout shift ("giật màn hình")
+
+      originalOverflow = document.body.style.overflow;
+      originalPaddingRight = document.body.style.paddingRight;
+
+      const scrollbarWidth =
+        window.innerWidth - document.documentElement.clientWidth;
+      document.body.style.overflow = 'hidden';
+      if (scrollbarWidth > 0) {
+        document.body.style.paddingRight = `${scrollbarWidth}px`;
+      }
     }
 
     return () => {
       document.removeEventListener('keydown', handleEscape);
-      // document.body.style.overflow = 'unset';
+      if (isOpen) {
+        document.body.style.overflow = originalOverflow;
+        document.body.style.paddingRight = originalPaddingRight;
+      }
     };
   }, [isOpen, onClose]);
 
