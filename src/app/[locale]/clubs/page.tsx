@@ -51,6 +51,7 @@ import PageLayout from '@/components/layout/PageLayout';
 import { useDebounce } from '@/hooks/useDebounce';
 import { AppSearchBar } from '@/components/common/AppSearchBar';
 import { useRegisterTopBarSearch } from '@/contexts/TopBarSearchContext';
+import { FavoriteFilterButton } from '@/components/favorites/FavoriteFilterButton';
 
 const LoginPromptModal = dynamic(
   () => import('@/components/auth/LoginPromptModal'),
@@ -120,6 +121,7 @@ function BrowseClubsContent() {
   const [cities, setCities] = useState<string[]>([]);
   const [districts, setDistricts] = useState<string[]>([]);
   const [sortByDistance, setSortByDistance] = useState(false);
+  const [favoriteOnly, setFavoriteOnly] = useState(false);
   const [sort, setSort] = useState('distance');
   const [isSortOpen, setIsSortOpen] = useState(false);
   const sortDropdownRef = useRef<HTMLDivElement>(null);
@@ -195,7 +197,7 @@ function BrowseClubsContent() {
         CLUB_SORT_OPTIONS.find((option) => option.value === sort) ??
         CLUB_SORT_OPTIONS[0];
 
-      const params: Record<string, string | number | undefined> = {
+      const params: Record<string, string | number | boolean | undefined> = {
         page: pageNum,
         limit: 12,
         search: debouncedSearch || undefined,
@@ -206,6 +208,7 @@ function BrowseClubsContent() {
         district: districts.length === 1 ? districts[0] : undefined,
         sortBy: activeSortOption.sortBy,
         sortOrder: activeSortOption.sortOrder,
+        favoriteOnly: favoriteOnly || undefined,
       };
 
       if (sortByDistance && userLocation) {
@@ -288,7 +291,15 @@ function BrowseClubsContent() {
     setPage(1);
     fetchClubs(1);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [debouncedSearch, cities, districts, sortByDistance, sort, userLocation]);
+  }, [
+    debouncedSearch,
+    cities,
+    districts,
+    favoriteOnly,
+    sortByDistance,
+    sort,
+    userLocation,
+  ]);
 
   // Trigger load more when the sentinel is close to the viewport.
   useEffect(() => {
@@ -379,6 +390,7 @@ function BrowseClubsContent() {
     setCities([]);
     setDistricts([]);
     setSortByDistance(false);
+    setFavoriteOnly(false);
     setUserLocation(null);
     toggleFilters();
   };
@@ -432,7 +444,10 @@ function BrowseClubsContent() {
   }, [pendingCities]);
 
   const activeFilterCount =
-    cities.length + districts.length + (sortByDistance ? 1 : 0);
+    cities.length +
+    districts.length +
+    (sortByDistance ? 1 : 0) +
+    (favoriteOnly ? 1 : 0);
   const activeSortOption =
     CLUB_SORT_OPTIONS.find((option) => option.value === sort) ??
     CLUB_SORT_OPTIONS[0];
@@ -514,11 +529,16 @@ function BrowseClubsContent() {
                 color="fg.muted"
                 display={{ base: 'none', md: 'block' }}
               >
-                {totalCount} kết quả
+                {t('common.resultsCount', { count: totalCount })}
               </Text>
             )}
 
             <Flex align="center" gap={2} ml="auto">
+              <FavoriteFilterButton
+                isActive={favoriteOnly}
+                onToggle={() => setFavoriteOnly((value) => !value)}
+              />
+
               <Box position="relative" ref={sortDropdownRef}>
                 <Button
                   size="sm"
@@ -618,7 +638,7 @@ function BrowseClubsContent() {
             </Flex>
           </Flex>
 
-          {activeFilterCount > 0 && (
+          {activeFilterCount - (favoriteOnly ? 1 : 0) > 0 && (
             <Flex align="center" flexWrap="wrap" gap={2}>
               {sortByDistance && (
                 <Badge
@@ -1020,6 +1040,7 @@ function BrowseClubsContent() {
                   setCities([]);
                   setDistricts([]);
                   setSortByDistance(false);
+                  setFavoriteOnly(false);
                   setUserLocation(null);
                 }}
               >
@@ -1049,6 +1070,15 @@ function BrowseClubsContent() {
                 key={club.id}
                 club={club}
                 variant={viewMode === 'list' ? 'list' : 'grid'}
+                onFavoriteChange={(clubId, isFavorite) => {
+                  setClubs((prev) =>
+                    prev
+                      .map((item) =>
+                        item.id === clubId ? { ...item, isFavorite } : item
+                      )
+                      .filter((item) => !favoriteOnly || item.isFavorite)
+                  );
+                }}
               />
             ))}
           </SimpleGrid>

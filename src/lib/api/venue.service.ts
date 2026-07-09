@@ -24,6 +24,7 @@ export const VenueService = {
     status?: string;
     isVerified?: boolean;
     hasNewAddress?: boolean;
+    favoriteOnly?: boolean;
     sortBy?: string;
     sortOrder?: string;
     page?: number;

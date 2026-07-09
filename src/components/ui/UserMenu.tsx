@@ -158,13 +158,13 @@ export default function UserMenu({ onLogout }: UserMenuProps) {
   const getThemeLabelShort = (theme: 'light' | 'dark' | 'system') => {
     switch (theme) {
       case 'dark':
-        return 'Tối';
+        return common('darkShort');
       case 'light':
-        return 'Sáng';
+        return common('lightShort');
       case 'system':
-        return 'Tự động';
+        return common('deviceTheme');
       default:
-        return 'Tự động';
+        return common('deviceTheme');
     }
   };
 

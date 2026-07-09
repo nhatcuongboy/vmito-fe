@@ -141,6 +141,15 @@
     "contact": "Liên hệ",
     "bugReport": "Báo cáo lỗi",
     "developedBy": "Phát triển bởi Nhật Cường.",
+    "favorites": {
+      "add": "Thêm vào yêu thích",
+      "remove": "Bỏ yêu thích",
+      "filter": "Yêu thích",
+      "shortLabel": "Yêu thích",
+      "featureName": "yêu thích",
+      "addFailed": "Không thể thêm vào yêu thích",
+      "removeFailed": "Không thể bỏ yêu thích"
+    },
     "levels": {
       "1": "Yếu",
       "2": "Trung bình yếu",
@@ -238,7 +247,10 @@
     "filters": {
       "area": "Khu vực",
       "allCities": "Tất cả thành phố"
-    }
+    },
+    "lightShort": "Sáng",
+    "darkShort": "Tối",
+    "resultsCount": "{count} kết quả"
   },
   "session": {
     "session": "Kèo",
@@ -524,6 +536,7 @@
       "allSessions": "Tất cả",
       "regularSessions": "Kèo thường",
       "facebookSessions": "Bài đăng Facebook",
+      "favoritesOnly": "Yêu thích",
       "nearMe": "Gần tôi",
       "sortByDistance": "Sắp xếp theo khoảng cách",
       "cost": "Chi phí",
@@ -662,9 +675,17 @@
       "title": "Xem trước & tải ảnh kèo",
       "description": "Chọn mẫu ảnh phù hợp để chia sẻ lên mạng xã hội.",
       "templatesLabel": "Mẫu ảnh",
+      "aiTemplatesLabel": "Mẫu AI",
       "preview": "Xem trước",
       "download": "Tải ảnh",
       "open": "Tải ảnh",
+      "generateAi": "Tạo ảnh AI",
+      "generateBeforeDownload": "Vui lòng tạo ảnh AI trước khi tải",
+      "aiGenerateSuccess": "Đã tạo nền AI cho ảnh kèo",
+      "aiGenerateError": "Không thể tạo ảnh AI",
+      "cached": "Đã có",
+      "quotaStatus": "Đã dùng {used}/{limit}",
+      "quotaRemaining": "Còn {remaining} lượt",
       "templates": {
         "legacy-portrait": {
           "name": "Mẫu chuẩn 2:3",
@@ -693,6 +714,18 @@
         "event-pass": {
           "name": "Vé tham gia",
           "description": "Premium, giống vé mời tham gia kèo."
+        },
+        "ai-neon-stadium": {
+          "name": "Sân neon",
+          "description": "Nền sân đêm, đèn neon xanh vàng, năng lượng cao."
+        },
+        "ai-yellow-smash": {
+          "name": "Vàng đen năng động",
+          "description": "Nền thể thao vàng đen, nổi bật như poster tuyển người."
+        },
+        "ai-premium-dark": {
+          "name": "Premium stadium",
+          "description": "Nền sân cao cấp, tối sang, hợp bài đăng chuyên nghiệp."
         }
       }
     },
@@ -803,7 +836,12 @@
     "mapLoadErrorDescription": "Vui lòng kiểm tra kết nối mạng hoặc API Key.",
     "playersCount": "{count} người",
     "error": "Lỗi",
-    "advanced": "Nâng cao"
+    "advanced": "Nâng cao",
+    "today": "Hôm nay",
+    "tomorrow": "Ngày mai",
+    "splitEvenly": "Chia đều",
+    "viewSessionAt": "Xem chi tiết kèo {name} tại {venue}",
+    "coverAlt": "Ảnh bìa kèo {name}"
   },
   "court": {
     "title": "Sân",
@@ -3794,6 +3832,8 @@
         }
       },
       "manualScore": {
+        "showingMatches": "Đang hiển thị {count} trên {total} trận đấu",
+        "loadMore": "Xem thêm",
         "title": "Nhập điểm",
         "deleteMatch": "Xóa trận đấu",
         "deleteFailed": "Không thể xóa trận đấu",
@@ -4302,6 +4342,7 @@
     "sessionName": "Tên kèo",
     "host": "Host",
     "fee": "Phí",
+    "walkInFeeInfo": "Phí vãng lai áp dụng cho người chơi chưa đóng phí cố định theo tháng của CLB.",
     "requiredLevels": "Trình độ",
     "allLevels": "Tất cả trình độ",
     "location": "Địa chỉ",
@@ -4858,6 +4899,25 @@
     "failedToCreateUser": "Không thể tạo người dùng",
     "failedToUpdateUser": "Không thể cập nhật người dùng",
     "failedToDeleteUser": "Không thể xóa người dùng",
+    "aiImageQuota": {
+      "title": "Quota ảnh AI",
+      "manage": "Quản lý quota ảnh AI",
+      "loadError": "Không thể tải quota ảnh AI",
+      "resetSuccess": "Đã reset quota ảnh AI",
+      "resetError": "Không thể reset quota ảnh AI",
+      "grantSuccess": "Đã cấp thêm quota ảnh AI",
+      "grantError": "Không thể cấp thêm quota ảnh AI",
+      "invalidGrantAmount": "Số lượt cấp thêm phải lớn hơn 0",
+      "used": "Đã dùng",
+      "limit": "Giới hạn",
+      "extra": "Cấp thêm",
+      "remaining": "Còn lại",
+      "extraCredits": "Lượt cấp thêm",
+      "reason": "Lý do",
+      "reasonPlaceholder": "Cấp hỗ trợ thủ công",
+      "resetUsed": "Reset đã dùng",
+      "grantCredits": "Cấp lượt"
+    },
     "accessDenied": "Từ chối truy cập. Chỉ dành cho quản trị viên.",
     "venueManagement": "Quản lý địa điểm",
     "venues": "Địa điểm",
@@ -5236,7 +5296,7 @@
     "noNotifications": "Chưa có thông báo",
     "unreadNotifications": "Thông báo chưa đọc",
     "markAsRead": "Đánh dấu đã đọc",
-    "markAllAsRead": "Đã đọc tất cả",
+    "markAllAsRead": "Đọc tất cả",
     "delete": "Xóa",
     "new": "Mới",
     "broadcastNotifications": "Gửi thông báo",
@@ -5769,7 +5829,14 @@
     "reasonAvailableSlots": "Còn slot",
     "suggestionBadge": "Gợi ý",
     "modeBrowse": "Tất cả",
-    "modeAuto": "Gợi ý"
+    "modeAuto": "Gợi ý",
+    "forYou": "Gợi ý cho bạn",
+    "popular": "Kèo phổ biến",
+    "sectionAria": "Gợi ý kèo cho bạn",
+    "listAria": "Danh sách kèo gợi ý, sử dụng phím mũi tên để cuộn",
+    "viewMoreSimilar": "Xem thêm kèo tương tự ({count})",
+    "loadMore": "Tải thêm",
+    "aiRecommendationAria": "Gợi ý bằng AI"
   },
   "venue": {
     "verified": "Đã xác minh",
@@ -5798,7 +5865,75 @@
       "fallbackTitle": "Sân cầu lông",
       "fallbackDescription": "Xem thông tin chi tiết sân cầu lông trên Vmito - nền tảng quản lý kèo cầu lông."
     },
-    "searchPlaceholder": "Tìm kiếm sân..."
+    "searchPlaceholder": "Tìm kiếm sân...",
+    "detail": {
+      "title": "Chi tiết sân",
+      "loadError": "Không thể tải thông tin sân",
+      "tryAgainLater": "Vui lòng thử lại sau.",
+      "notFound": "Không tìm thấy sân",
+      "notFoundDesc": "Sân bạn đang tìm kiếm không tồn tại hoặc đã bị xóa.",
+      "backToList": "Quay lại danh sách sân",
+      "permanentlyClosed": "Đóng cửa vĩnh viễn",
+      "temporarilyClosed": "Tạm đóng cửa",
+      "pricing": "Bảng giá",
+      "edit": "Chỉnh sửa",
+      "tabAbout": "Giới thiệu",
+      "tabPhotos": "Hình ảnh",
+      "tabAnnouncements": "Thông báo",
+      "aboutHeading": "Giới thiệu về sân",
+      "noDescription": "Chưa có mô tả về sân này.",
+      "courtLayout": "Sơ đồ sân",
+      "updatePricing": "Cập nhật bảng giá",
+      "tableDay": "Thứ",
+      "tableTime": "Khung giờ",
+      "tableFixed": "Cố định",
+      "tableWalkIn": "Vãng lai",
+      "referencePrice": "Giá tham khảo",
+      "noPricing": "Chưa có thông tin bảng giá.",
+      "amenitiesHeading": "Tiện ích & Quy định",
+      "carParking": "Bãi đậu xe",
+      "canteen": "Căn tin",
+      "wifiPasswordLabel": "Mật khẩu:",
+      "bookingPolicy": "Chính sách đặt sân",
+      "photosHeading": "Hình ảnh",
+      "imageAlt": "{name} - ảnh {index}",
+      "noPhotos": "Chưa có hình ảnh nào.",
+      "announcementsHeading": "Thông báo",
+      "noAnnouncements": "Chưa có thông báo nào.",
+      "quickInfo": "Thông tin nhanh",
+      "courtsLabel": "Số sân",
+      "courtsValue": "{count} sân",
+      "notUpdated": "Chưa cập nhật",
+      "findSessionsHere": "Tìm kèo tại sân này",
+      "findSessionsHereDesc": "Khám phá các buổi sinh hoạt đang diễn ra tại sân.",
+      "location": "Địa điểm",
+      "locatedWithinLabel": "Nằm trong:",
+      "googleMaps": "Tìm trên Google Maps",
+      "contact": "Liên hệ",
+      "phone": "Điện thoại",
+      "callNow": "Gọi ngay",
+      "perHour": "/ giờ",
+      "priceRange": "Từ {min} tới {max} / giờ",
+      "fixedLabel": "Cố định:",
+      "walkInLabel": "Vãng lai:",
+      "day": {
+        "everyday": "Hằng ngày",
+        "weekdays": "T2 - T6",
+        "weekend": "T7 - CN",
+        "holiday": "Ngày lễ",
+        "byWeekday": "Theo thứ",
+        "other": "Khác"
+      },
+      "weekday": {
+        "d1": "T2",
+        "d2": "T3",
+        "d3": "T4",
+        "d4": "T5",
+        "d5": "T6",
+        "d6": "T7",
+        "d7": "CN"
+      }
+    }
   },
   "venueRequests": {
     "suggestNewVenue": "Đề xuất sân mới",

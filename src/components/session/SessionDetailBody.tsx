@@ -34,7 +34,7 @@ import { getSkillLevelColor } from '@/lib/utils/skillLevel.utils';
 import { sortLevelsByRank } from '@/constants/levels';
 import { AppPlayerRating } from '@/components/rating';
 import { AppAddressDisplay } from '@/components/common/AppAddressDisplay';
-import dayjs from '@/lib/dayjs';
+import dayjs, { getDayjsLocale } from '@/lib/dayjs';
 import SessionParticipantList from './SessionParticipantList';
 import { normalizePhoneForZalo } from '@/utils/phone-utils';
 import Image from 'next/image';
@@ -92,22 +92,27 @@ const SessionDetailBody = ({
     const date = dayjs
       .utc(dateString)
       .tz('Asia/Ho_Chi_Minh')
-      .locale(locale === Locale.VI ? Locale.VI : Locale.EN);
+      .locale(getDayjsLocale(locale));
     const today = dayjs().tz('Asia/Ho_Chi_Minh').startOf('day');
     const tomorrow = today.add(1, 'day');
     const dateToCompare = date.startOf('day');
 
     let prefix = '';
     if (dateToCompare.isSame(today)) {
-      prefix = locale === Locale.VI ? 'Hôm nay' : 'Today';
+      prefix = t('today');
     } else if (dateToCompare.isSame(tomorrow)) {
-      prefix = locale === Locale.VI ? 'Ngày mai' : 'Tomorrow';
+      prefix = t('tomorrow');
     } else {
       const dayName = date.format('dddd');
       prefix = dayName.charAt(0).toUpperCase() + dayName.slice(1);
     }
 
-    const dateFormat = locale === Locale.VI ? 'DD/MM/YYYY' : 'MMM DD, YYYY';
+    const dateFormat =
+      locale === Locale.VI
+        ? 'DD/MM/YYYY'
+        : locale === Locale.CN
+          ? 'YYYY年M月D日'
+          : 'MMM DD, YYYY';
     return `${prefix}, ${date.format(dateFormat)}`;
   };
 
@@ -257,15 +262,10 @@ const SessionDetailBody = ({
             />
           )}
         </Avatar.Root>
-        <Box flex={1}>
-          <Flex align="center" gap={2}>
-            <Text fontWeight="bold" fontSize="lg">
-              {displayHostName}
-            </Text>
-            {!isCrawled && (
-              <AppPlayerRating userId={session.hostId} showBullet />
-            )}
-          </Flex>
+        <Box flex={1} minW={0}>
+          <Text fontWeight="bold" fontSize="lg">
+            {displayHostName}
+          </Text>
           {isCrawled ? (
             <Text fontSize="xs" color="gray.500" fontStyle="italic" mt={0.5}>
               {session.externalGroupUrl ? (
@@ -291,9 +291,12 @@ const SessionDetailBody = ({
               )}
             </Text>
           ) : (
-            <Text fontSize="xs" color="gray.500">
-              {t('host')}
-            </Text>
+            <Flex align="center" gap={1} mt={0.5}>
+              <Text fontSize="xs" color="gray.500">
+                {t('host')}
+              </Text>
+              <AppPlayerRating userId={session.hostId} showBullet size="xs" />
+            </Flex>
           )}
         </Box>
         <Flex gap={2}>

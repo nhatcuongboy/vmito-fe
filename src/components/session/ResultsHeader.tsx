@@ -59,6 +59,7 @@ interface ResultsHeaderProps {
   onModeChange?: (mode: 'browse' | 'auto') => void;
   isLoading?: boolean;
   children?: React.ReactNode;
+  favoriteButton?: React.ReactNode;
   sortOptions?: SortOption[];
   sortBy?: SessionSortBy;
   onSortChange?: (sort: SessionSortBy) => void;
@@ -72,6 +73,7 @@ export default function ResultsHeader({
   mode,
   onModeChange,
   children,
+  favoriteButton,
   sortOptions,
   sortBy: controlledSortBy,
   onSortChange,
@@ -166,8 +168,10 @@ export default function ResultsHeader({
           )}
         </HStack>
 
-        {/* Right: Sort + View mode toggle */}
+        {/* Right: Favorite + Sort + View mode toggle */}
         <HStack gap={2} flexShrink={0} ms="auto">
+          {favoriteButton}
+
           {/* Sort Dropdown */}
           <Box position="relative" ref={dropdownRef}>
             <Button

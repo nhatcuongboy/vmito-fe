@@ -131,35 +131,20 @@ export function useMyClubsData(): UseMyClubsDataReturn {
     }
   }, []);
 
-  // ── Host: N calls, one per managed club (acceptable for small club counts) ─
-  const loadIncomingRequestsForHost = useCallback(
-    async (clubs: IMyClub[], hostUserId?: string) => {
-      const hostClubIds = clubs
-        .filter(
-          (c) => c.role === EMemberRole.ADMIN || c.host?.id === hostUserId
-        )
-        .map((c) => c.id);
-
-      if (hostClubIds.length === 0) {
-        setIncomingRequests([]);
-        return;
-      }
-      try {
-        setIsLoadingIncoming(true);
-        const results = await Promise.all(
-          hostClubIds.map((id) => ClubsService.getJoinRequests(id))
-        );
-        setIncomingRequests(
-          results.flat().filter((r) => r.status === EJoinRequestStatus.PENDING)
-        );
-      } catch (error) {
-        console.error('Failed to load incoming requests:', error);
-      } finally {
-        setIsLoadingIncoming(false);
-      }
-    },
-    []
-  );
+  // ── Host: single call across every club the user manages ───────────────────
+  const loadIncomingRequestsForHost = useCallback(async () => {
+    try {
+      setIsLoadingIncoming(true);
+      const requests = await ClubsService.getMyManagedJoinRequests();
+      setIncomingRequests(
+        requests.filter((r) => r.status === EJoinRequestStatus.PENDING)
+      );
+    } catch (error) {
+      console.error('Failed to load incoming requests:', error);
+    } finally {
+      setIsLoadingIncoming(false);
+    }
+  }, []);
 
   // ── Main data loader ───────────────────────────────────────────────────────
   const loadData = useCallback(async () => {
@@ -191,7 +176,7 @@ export function useMyClubsData(): UseMyClubsDataReturn {
         setMyClubs(clubs);
         setJoinRequests(requests);
         // Load incoming requests after clubs are known
-        loadIncomingRequestsForHost(clubs, currentUser.id);
+        loadIncomingRequestsForHost();
       }
     } catch (error) {
       console.error('Failed to load my clubs data:', error);
@@ -236,7 +221,7 @@ export function useMyClubsData(): UseMyClubsDataReturn {
       if (isAdmin) {
         await refetchAdminJoinRequests();
       } else {
-        await loadIncomingRequestsForHost(managedClubs, currentUser?.id);
+        await loadIncomingRequestsForHost();
       }
     } catch (error) {
       console.error('Failed to approve join request:', error);
@@ -277,7 +262,7 @@ export function useMyClubsData(): UseMyClubsDataReturn {
         if (isAdmin) {
           await refetchAdminJoinRequests();
         } else {
-          await loadIncomingRequestsForHost(managedClubs, currentUser?.id);
+          await loadIncomingRequestsForHost();
         }
       }
     } catch (error) {

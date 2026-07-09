@@ -86,6 +86,7 @@ export const SessionService = {
     endTimeBefore?: string;
     endTimeAfter?: string;
     sessionType?: 'all' | 'regular' | 'facebook';
+    favoriteOnly?: boolean;
   }): Promise<{
     data: ISession[];
     total: number;
@@ -111,6 +112,7 @@ export const SessionService = {
       params.append('endTimeAfter', filters.endTimeAfter);
     if (filters?.sessionType && filters.sessionType !== 'all')
       params.append('sessionType', filters.sessionType);
+    if (filters?.favoriteOnly) params.append('favoriteOnly', 'true');
 
     const url = params.toString()
       ? `/sessions?${params.toString()}`
@@ -209,6 +211,7 @@ export const SessionService = {
     sortBy?: string;
     sortOrder?: 'asc' | 'desc';
     sessionType?: 'all' | 'regular' | 'facebook';
+    favoriteOnly?: boolean;
   }): Promise<{
     data: ISession[];
     pagination: {
@@ -248,6 +251,7 @@ export const SessionService = {
     if (filters?.sortOrder) params.append('sortOrder', filters.sortOrder);
     if (filters?.sessionType && filters.sessionType !== 'all')
       params.append('sessionType', filters.sessionType);
+    if (filters?.favoriteOnly === true) params.append('favoriteOnly', 'true');
 
     const url = params.toString()
       ? `/sessions/available?${params.toString()}`

@@ -40,7 +40,7 @@ export const AppPlayerRating: React.FC<AppPlayerRatingProps> = ({
     <Flex align="center" gap={size === 'xs' ? 0.5 : 1} flexShrink={0}>
       {showBullet && (
         <Text fontSize={textSizes[size]} color="gray.500">
-          •
+          ·
         </Text>
       )}
       <Icon

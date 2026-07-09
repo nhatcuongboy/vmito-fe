@@ -40,11 +40,10 @@ import { useAuthStore } from '@/stores/useAuthStore';
 import { useLevelLabel } from '@/hooks/useLevelLabel';
 import { getSkillLevelColor } from '@/lib/utils/skillLevel.utils';
 import { sortLevelsByRank } from '@/constants/levels';
-import dayjs from '@/lib/dayjs';
+import dayjs, { getDayjsLocale } from '@/lib/dayjs';
 import LevelBadgeWithDescription from './LevelBadgeWithDescription';
 import LevelDescriptionsModal from './LevelDescriptionsModal';
 import { formatTimeRangeByDevicePreference } from '@/utils/time-helpers';
-import { useMyClubIds } from '@/hooks/useMyClubIds';
 
 interface ISessionDetailStickyBarProps {
   session: ISession;
@@ -80,7 +79,6 @@ const SessionDetailStickyBar = ({
   const { getLevelShortLabel } = useLevelLabel();
   const { isCollapsed } = useSidebar();
   const { user } = useAuthStore();
-  const { clubIds: viewerClubIds } = useMyClubIds();
   const isAdmin = user?.role === UserRole.ADMIN;
   const canManage = isOwner || isAdmin;
   const skillLevelColor = getSkillLevelColor(session.requiredLevels);
@@ -93,37 +91,34 @@ const SessionDetailStickyBar = ({
     session.status === SessionStatus.FINISHED ||
     session.status === SessionStatus.CANCELLED ||
     isPastEndTime;
-  const canSeeSessionFee = FeeService.canViewerSeeSessionFee(
-    session,
-    user?.id,
-    viewerClubIds
-  );
-  // For detail/modal views, show "Contact host" for club sessions
-  const feeDisplayText = FeeService.getSessionFeeForModal(
-    session,
-    user?.id,
-    viewerClubIds,
-    t('contactHostForFee')
-  );
+  const canSeeSessionFee = true;
+  // Always show the session's actual walk-in (vãng lai) fee — never hide it
+  // behind a "Contact host" placeholder.
+  const feeDisplayText = FeeService.getSessionFeeForCard(session);
 
   const formatDetailDate = (dateString: string | Date): string => {
     const date = dayjs
       .utc(dateString)
       .tz('Asia/Ho_Chi_Minh')
-      .locale(locale === Locale.VI ? Locale.VI : Locale.EN);
+      .locale(getDayjsLocale(locale));
     const today = dayjs().tz('Asia/Ho_Chi_Minh').startOf('day');
     const tomorrow = today.add(1, 'day');
     const dateToCompare = date.startOf('day');
     let prefix = '';
     if (dateToCompare.isSame(today)) {
-      prefix = locale === Locale.VI ? 'Hôm nay' : 'Today';
+      prefix = t('today');
     } else if (dateToCompare.isSame(tomorrow)) {
-      prefix = locale === Locale.VI ? 'Ngày mai' : 'Tomorrow';
+      prefix = t('tomorrow');
     } else {
       const dayName = date.format('dddd');
       prefix = dayName.charAt(0).toUpperCase() + dayName.slice(1);
     }
-    const dateFormat = locale === Locale.VI ? 'DD/MM/YYYY' : 'MMM DD, YYYY';
+    const dateFormat =
+      locale === Locale.VI
+        ? 'DD/MM/YYYY'
+        : locale === Locale.CN
+          ? 'YYYY年M月D日'
+          : 'MMM DD, YYYY';
     return `${prefix}, ${date.format(dateFormat)}`;
   };
 

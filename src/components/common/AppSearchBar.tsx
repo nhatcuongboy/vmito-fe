@@ -28,13 +28,13 @@ export function AppSearchBar({
 
   const getPaddingRight = () => {
     let desktopPadding = 16;
-    if (hasClear && showFilter) desktopPadding = 84;
-    else if (hasClear || showFilter) desktopPadding = 48;
+    if (hasClear && showFilter) desktopPadding = 96;
+    else if (hasClear || showFilter) desktopPadding = 56;
 
     let mobilePadding = desktopPadding;
     if (showCitySelector) {
       // City selector + clear button both go to the left of filter
-      mobilePadding = showFilter ? 178 : 146;
+      mobilePadding = showFilter ? 176 : 144;
     }
 
     return { base: `${mobilePadding}px`, md: `${desktopPadding}px` };
@@ -65,7 +65,7 @@ export function AppSearchBar({
         border="1px solid"
         borderColor={{ base: 'gray.300', _dark: 'gray.500' }}
         bg={{ base: 'white', md: 'white', _dark: 'gray.800' }}
-        fontSize="15px"
+        fontSize={{ base: '16px', md: '15px' }}
         color="fg"
         boxShadow={{
           base: '0 2px 8px 0 rgba(0,0,0,0.12)',
@@ -95,40 +95,16 @@ export function AppSearchBar({
         transition="background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease"
       />
 
-      {showCitySelector && (
-        <Box
-          position="absolute"
-          right={{
-            base: showFilter ? '56px' : '24px',
-            md: '24px', // Doesn't matter, hidden on md
-          }}
-          top="50%"
-          transform="translateY(-50%)"
-          zIndex={1}
-          display={{ base: 'block', md: 'none' }}
-        >
-          <CitySelector />
-        </Box>
-      )}
-
-      {hasClear && (
-        <Box
-          position="absolute"
-          right={{
-            base:
-              showFilter && showCitySelector
-                ? '146px'
-                : showFilter
-                  ? '56px'
-                  : showCitySelector
-                    ? '114px'
-                    : '24px',
-            md: showFilter ? '56px' : '24px',
-          }}
-          top="50%"
-          transform="translateY(-50%)"
-          zIndex={1}
-        >
+      <Flex
+        position="absolute"
+        right="24px"
+        top="50%"
+        transform="translateY(-50%)"
+        zIndex={1}
+        align="center"
+        gap={1.5}
+      >
+        {hasClear && (
           <Flex
             as="button"
             onClick={() => onChange('')}
@@ -145,17 +121,15 @@ export function AppSearchBar({
           >
             <X size={16} />
           </Flex>
-        </Box>
-      )}
+        )}
 
-      {showFilter && (
-        <Box
-          position="absolute"
-          right="24px"
-          top="50%"
-          transform="translateY(-50%)"
-          zIndex={1}
-        >
+        {showCitySelector && (
+          <Box display={{ base: 'block', md: 'none' }}>
+            <CitySelector hideIcon={true} />
+          </Box>
+        )}
+
+        {showFilter && (
           <Flex
             as="button"
             onClick={onFilterClick}
@@ -198,8 +172,8 @@ export function AppSearchBar({
               </Badge>
             )}
           </Flex>
-        </Box>
-      )}
+        )}
+      </Flex>
     </Box>
   );
 }

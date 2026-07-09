@@ -436,7 +436,7 @@ export default function TournamentManage({
   };
 
   return (
-    <Box h={{ md: '100%' }} minH={0}>
+    <Box h={{ md: '100%' }} minH={0} pt={{ base: 4, md: 0 }}>
       <Tabs
         value={activeManageTab}
         onValueChange={handleManageTabChange}

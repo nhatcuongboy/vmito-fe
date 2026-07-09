@@ -219,7 +219,7 @@ const useShareCardData = (session: ISession): ShareCardData => {
       session.feeConfig?.feeType === 'SPLIT_EVENLY'
         ? session.feeConfig.splitPerPlayer
           ? FeeService.formatFee(session.feeConfig.splitPerPlayer)
-          : 'Chia đều'
+          : t('splitEvenly')
         : session.feeConfig
           ? session.feeConfig.maleFee === session.feeConfig.femaleFee
             ? FeeService.formatFee(session.feeConfig.maleFee || 0)
@@ -837,7 +837,7 @@ const LegacyPortraitCard = ({
                           ? FeeService.formatFee(
                               session.feeConfig.splitPerPlayer
                             )
-                          : 'Chia đều'
+                          : t('splitEvenly')
                         : session.feeConfig.maleFee ===
                             session.feeConfig.femaleFee
                           ? FeeService.formatFee(session.feeConfig.maleFee || 0)
@@ -1123,7 +1123,7 @@ const LegacySocialCard = ({ id, session, qrDataUrl }: TemplateProps) => {
                           ? FeeService.formatFee(
                               session.feeConfig.splitPerPlayer
                             )
-                          : 'Chia đều'
+                          : t('splitEvenly')
                         : session.feeConfig.maleFee ===
                             session.feeConfig.femaleFee
                           ? FeeService.formatFee(session.feeConfig.maleFee || 0)

@@ -27,10 +27,12 @@ import { stripHtml } from '@/utils';
 import { useLevelLabel } from '@/hooks/useLevelLabel';
 import { getSkillLevelColor } from '@/lib/utils/skillLevel.utils';
 import { getLevelRank, sortLevelsByRank } from '@/constants/levels';
+import { FavoriteButton } from '@/components/favorites/FavoriteButton';
 
 interface ClubCardProps {
   club: IClubListItem;
   variant?: 'grid' | 'list';
+  onFavoriteChange?: (clubId: string, isFavorite: boolean) => void;
 }
 
 // Helper function to format schedule display
@@ -59,7 +61,11 @@ const formatScheduleDisplay = (
   return scheduleLines.join('\n');
 };
 
-export default function ClubCard({ club, variant = 'grid' }: ClubCardProps) {
+export default function ClubCard({
+  club,
+  variant = 'grid',
+  onFavoriteChange,
+}: ClubCardProps) {
   const router = useRouter();
   const t = useTranslations();
   const { getLevelLabel } = useLevelLabel();
@@ -161,6 +167,15 @@ export default function ClubCard({ club, variant = 'grid' }: ClubCardProps) {
               </HStack>
             </Box>
           )}
+          <Box position="absolute" top={3} right={3} zIndex={3}>
+            <FavoriteButton
+              type="CLUB"
+              targetId={club.id}
+              isFavorite={club.isFavorite}
+              returnUrl={`/clubs/${club.slug ?? club.id}`}
+              onChange={(isFavorite) => onFavoriteChange?.(club.id, isFavorite)}
+            />
+          </Box>
         </Box>
 
         {/* Content Row below Banner */}
@@ -304,7 +319,7 @@ export default function ClubCard({ club, variant = 'grid' }: ClubCardProps) {
 
         {/* Status Badge Overlay */}
         {isActive && (
-          <Box position="absolute" top={3} right={3}>
+          <Box position="absolute" top={3} left={3} zIndex={2}>
             <Badge
               colorPalette="green"
               variant="solid"
@@ -321,6 +336,15 @@ export default function ClubCard({ club, variant = 'grid' }: ClubCardProps) {
             </Badge>
           </Box>
         )}
+        <Box position="absolute" top={3} right={3} zIndex={3}>
+          <FavoriteButton
+            type="CLUB"
+            targetId={club.id}
+            isFavorite={club.isFavorite}
+            returnUrl={`/clubs/${club.slug ?? club.id}`}
+            onChange={(isFavorite) => onFavoriteChange?.(club.id, isFavorite)}
+          />
+        </Box>
       </Box>
 
       {/* Content Section - Flex grow to push button to bottom */}

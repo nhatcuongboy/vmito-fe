@@ -39,10 +39,12 @@ import {
   normalizePhoneForTel,
   normalizePhoneForZalo,
 } from '@/utils/phone-utils';
+import { FavoriteButton } from '@/components/favorites/FavoriteButton';
 
 interface VenueCardProps {
   venue: Venue;
   variant?: 'grid' | 'list';
+  onFavoriteChange?: (venueId: string, isFavorite: boolean) => void;
 }
 
 function formatPrice(amount?: number) {
@@ -50,7 +52,11 @@ function formatPrice(amount?: number) {
   return new Intl.NumberFormat('vi-VN').format(amount) + 'đ';
 }
 
-export default function VenueCard({ venue, variant = 'grid' }: VenueCardProps) {
+export default function VenueCard({
+  venue,
+  variant = 'grid',
+  onFavoriteChange,
+}: VenueCardProps) {
   const router = useRouter();
   const t = useTranslations('venue');
   const userRole = useAuthStore((state) => state.user?.role);
@@ -163,8 +169,20 @@ export default function VenueCard({ venue, variant = 'grid' }: VenueCardProps) {
             </HStack>
           </Box>
 
-          <HStack position="absolute" top={3} right={3} gap={2}>
-            {/* Find Sessions Button on Banner */}
+          <Box position="absolute" top={3} right={3} zIndex={3}>
+            <FavoriteButton
+              type="VENUE"
+              targetId={venue.id}
+              isFavorite={venue.isFavorite}
+              returnUrl={`/venues/${venue.slug || venue.id}`}
+              onChange={(isFavorite) =>
+                onFavoriteChange?.(venue.id, isFavorite)
+              }
+            />
+          </Box>
+
+          {/* Find Sessions Button on Banner */}
+          <Box position="absolute" bottom={3} right={3} zIndex={3}>
             <Button
               size="xs"
               colorPalette="green"
@@ -179,23 +197,7 @@ export default function VenueCard({ venue, variant = 'grid' }: VenueCardProps) {
             >
               {t('findSessions')}
             </Button>
-            <IconButton
-              size="sm"
-              w="32px"
-              h="32px"
-              bg="white"
-              color="gray.600"
-              borderRadius="full"
-              shadow="sm"
-              aria-label="Navigate"
-              onClick={(e) => {
-                e.stopPropagation();
-                handleNavigate();
-              }}
-              icon={<MapPinned size={16} />}
-              _hover={{ bg: 'gray.50', color: 'green.500' }}
-            />
-          </HStack>
+          </Box>
         </Box>
 
         {/* Content Row below Banner */}
@@ -361,6 +363,15 @@ export default function VenueCard({ venue, variant = 'grid' }: VenueCardProps) {
               </Badge>
             )}
           </HStack>
+        </Box>
+        <Box position="absolute" top={3} right={3} zIndex={3}>
+          <FavoriteButton
+            type="VENUE"
+            targetId={venue.id}
+            isFavorite={venue.isFavorite}
+            returnUrl={`/venues/${venue.slug || venue.id}`}
+            onChange={(isFavorite) => onFavoriteChange?.(venue.id, isFavorite)}
+          />
         </Box>
       </Box>
 

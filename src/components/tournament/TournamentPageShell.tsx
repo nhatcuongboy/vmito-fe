@@ -1059,15 +1059,17 @@ export default function TournamentPageShell({
               </Button>
             )}
             <Flex
-              p={1}
-              gap={1}
+              p={0.5}
+              gap={0.5}
               borderWidth="1px"
               borderColor="gray.200"
-              borderRadius="full"
-              bg="gray.50"
+              borderRadius="lg"
+              bg="white"
               ml="auto"
+              shadow="sm"
+              h="fit-content"
               _dark={{
-                bg: 'var(--tournament-surface-muted, var(--chakra-colors-gray-800))',
+                bg: 'var(--tournament-surface, var(--chakra-colors-gray-800))',
                 borderColor:
                   'var(--tournament-border, var(--chakra-colors-gray-700))',
               }}
@@ -1076,8 +1078,9 @@ export default function TournamentPageShell({
                 size="sm"
                 variant={teamsView === 'players' ? 'solid' : 'ghost'}
                 colorPalette={teamsView === 'players' ? 'green' : 'gray'}
-                borderRadius="full"
-                px={4}
+                borderRadius="md"
+                h={8}
+                px={3}
                 onClick={() => handleTeamsViewChange('players')}
               >
                 <HStack gap={2}>
@@ -1089,8 +1092,9 @@ export default function TournamentPageShell({
                 size="sm"
                 variant={teamsView === 'category' ? 'solid' : 'ghost'}
                 colorPalette={teamsView === 'category' ? 'green' : 'gray'}
-                borderRadius="full"
-                px={4}
+                borderRadius="md"
+                h={8}
+                px={3}
                 onClick={() => handleTeamsViewChange('category')}
               >
                 <HStack gap={2}>

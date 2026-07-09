@@ -7,6 +7,7 @@ import { ISession } from '@/lib/api/types';
 import RecommendationCard from './RecommendationCard';
 import { Button } from '@/components/ui/chakra-compat';
 import { useAuthStore } from '@/stores/useAuthStore';
+import { useTranslations } from 'next-intl';
 
 interface RecommendedSession
   extends Omit<
@@ -143,6 +144,7 @@ const SessionRecommendations = ({
   userId,
   variant,
 }: SessionRecommendationsProps) => {
+  const t = useTranslations('suggestions');
   const { user } = useAuthStore();
   const effectiveUserId = userId || user?.id;
 
@@ -151,6 +153,7 @@ const SessionRecommendations = ({
 
   const isMobile = variant === 'mobile';
   const [showAll, setShowAll] = useState(false);
+  const sectionTitle = isFallback ? t('popular') : t('forYou');
 
   // Hide section on error or empty state
   if (error || (!isLoading && recommendations.length === 0)) {
@@ -162,7 +165,7 @@ const SessionRecommendations = ({
     return (
       <Box w="100%" py={isMobile ? 4 : 0}>
         <Heading size={isMobile ? 'md' : 'sm'} mb={3} px={isMobile ? 4 : 0}>
-          {isFallback ? 'Kèo phổ biến' : 'Gợi ý cho bạn'}
+          {sectionTitle}
         </Heading>
         {isMobile ? (
           <Flex gap={3} overflowX="auto" px={4} pb={2}>
@@ -191,9 +194,9 @@ const SessionRecommendations = ({
   // Mobile layout: horizontal scroll
   if (isMobile) {
     return (
-      <Box w="100%" py={4} as="section" aria-label="Gợi ý kèo cho bạn">
+      <Box w="100%" py={4} as="section" aria-label={t('sectionAria')}>
         <Heading size="md" mb={3} px={4} as="h2">
-          {isFallback ? 'Kèo phổ biến' : 'Gợi ý cho bạn'}
+          {sectionTitle}
         </Heading>
         <Flex
           gap={3}
@@ -202,7 +205,7 @@ const SessionRecommendations = ({
           pb={2}
           role="list"
           tabIndex={0}
-          aria-label="Danh sách kèo gợi ý, sử dụng phím mũi tên để cuộn"
+          aria-label={t('listAria')}
           onKeyDown={(e) => {
             const container = e.currentTarget;
             if (e.key === 'ArrowLeft') {
@@ -241,9 +244,9 @@ const SessionRecommendations = ({
     : recommendations.slice(0, 3);
 
   return (
-    <Box w="100%" pb={6} as="section" aria-label="Gợi ý kèo cho bạn">
+    <Box w="100%" pb={6} as="section" aria-label={t('sectionAria')}>
       <Heading size="xs" mb={3} as="h2" color="gray.700">
-        {isFallback ? 'Kèo phổ biến' : 'Gợi ý cho bạn'}
+        {sectionTitle}
       </Heading>
       <Stack gap={2.5} role="list">
         {displayedRecommendations.map((session) => (
@@ -268,7 +271,7 @@ const SessionRecommendations = ({
           colorPalette="green"
           onClick={() => setShowAll(true)}
         >
-          Xem thêm kèo tương tự ({recommendations.length - 3})
+          {t('viewMoreSimilar', { count: recommendations.length - 3 })}
         </Button>
       )}
 
@@ -283,7 +286,7 @@ const SessionRecommendations = ({
           loading={isLoading}
           onClick={loadMore}
         >
-          Tải thêm
+          {t('loadMore')}
         </Button>
       )}
     </Box>

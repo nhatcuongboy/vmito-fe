@@ -6,7 +6,11 @@ import { Box, Flex, Portal, Text } from '@chakra-ui/react';
 import { Check, ChevronDown, MapPin } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 
-export default function CitySelector() {
+export default function CitySelector({
+  hideIcon = false,
+}: {
+  hideIcon?: boolean;
+}) {
   const preferredCity = usePreferenceStore((s) => s.preferredCity);
   const setPreferredCity = usePreferenceStore((s) => s.setPreferredCity);
 
@@ -66,48 +70,35 @@ export default function CitySelector() {
         ref={buttonRef}
         align="center"
         gap={1}
-        px={{ base: 1.5, md: 2.5 }}
+        pl={hideIcon ? 2.5 : { base: 1.5, md: 2.5 }}
+        pr={{ base: 1.5, md: 2.5 }}
         py={1}
         borderRadius="full"
-        borderWidth={{ base: '0px', md: '1px' }}
-        borderColor={{
-          base: 'transparent',
-          md: isOpen ? 'green.400' : 'green.300',
-        }}
-        bg={{
-          base: isOpen ? 'bg.muted' : 'transparent',
-          md: isOpen ? 'green.100' : 'green.50',
-        }}
-        color={{
-          base: isOpen ? 'fg' : 'fg.muted',
-          md: isOpen ? 'green.800' : 'green.700',
-        }}
+        borderWidth="1px"
+        borderColor={isOpen ? 'gray.400' : 'gray.300'}
+        bg={isOpen ? 'gray.100' : 'gray.50'}
+        color={isOpen ? 'fg' : 'fg.muted'}
         _dark={{
-          borderColor: isOpen ? 'green.500' : 'green.700',
-          bg: {
-            base: isOpen ? 'bg.muted' : 'transparent',
-            md: isOpen ? 'green.900' : 'green.950',
-          },
-          color: {
-            base: isOpen ? 'fg' : 'fg.muted',
-            md: isOpen ? 'green.200' : 'green.300',
-          },
+          borderColor: isOpen ? 'gray.500' : 'gray.700',
+          bg: isOpen ? 'gray.700' : 'gray.800',
+          color: isOpen ? 'fg' : 'gray.300',
         }}
         cursor="pointer"
         _hover={{
-          borderColor: { base: 'transparent', md: 'green.400' },
-          bg: { base: 'bg.muted', md: 'green.100' },
-          color: { base: 'fg', md: 'green.700' },
+          borderColor: 'gray.400',
+          bg: 'gray.100',
+          color: 'fg',
           _dark: {
-            borderColor: 'green.500',
-            bg: { base: 'bg.muted', md: 'green.900' },
+            borderColor: 'gray.500',
+            bg: 'gray.700',
+            color: 'fg',
           },
         }}
         onClick={handleToggle}
         userSelect="none"
         transition="all 0.15s"
       >
-        <MapPin size={15} />
+        {!hideIcon && <MapPin size={15} />}
 
         {/* Short text for mobile */}
         <Text

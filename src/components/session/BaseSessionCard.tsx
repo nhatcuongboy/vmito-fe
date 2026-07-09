@@ -7,7 +7,7 @@ import {
   formatTimeByDevicePreference,
   formatTimeRangeByDevicePreference,
 } from '@/utils/time-helpers';
-import dayjs from '@/lib/dayjs';
+import dayjs, { getDayjsLocale } from '@/lib/dayjs';
 import {
   Avatar,
   Badge,
@@ -72,6 +72,7 @@ import { SessionActionConfig } from './BaseSessionCard.types';
 import { Link } from '@/i18n/config';
 import dynamic from 'next/dynamic';
 import LevelDescriptionsModal from './LevelDescriptionsModal';
+import { FavoriteButton } from '@/components/favorites/FavoriteButton';
 
 // Loaded on demand: pulls in html-to-image, which is only needed when sharing
 const SessionShareImageModal = dynamic(
@@ -627,16 +628,16 @@ const BaseSessionCard = ({
   const formatCompactDate = (dateString: string | Date): string => {
     const date = dayjs(dateString)
       .tz('Asia/Ho_Chi_Minh')
-      .locale(locale === Locale.VI ? Locale.VI : Locale.EN);
+      .locale(getDayjsLocale(locale));
     const today = dayjs.tz().startOf('day');
     const tomorrow = today.add(1, 'day');
     const dateToCompare = date.startOf('day');
 
     let dateLabel = '';
     if (!alwaysShowDayName && dateToCompare.isSame(today)) {
-      dateLabel = locale === Locale.VI ? 'Hôm nay' : 'Today';
+      dateLabel = t('today');
     } else if (!alwaysShowDayName && dateToCompare.isSame(tomorrow)) {
-      dateLabel = locale === Locale.VI ? 'Ngày mai' : 'Tomorrow';
+      dateLabel = t('tomorrow');
     } else {
       dateLabel =
         locale === Locale.VI ? date.format('dddd') : date.format('ddd');
@@ -836,6 +837,16 @@ const BaseSessionCard = ({
                 {registrationBadgeContent}
               </Box>
             )}
+            {/* Favorite toggle — bottom-right of the cover photo, clear of
+                the top badges regardless of their text length */}
+            <Box position="absolute" bottom={3} right={3} zIndex={3}>
+              <FavoriteButton
+                type="SESSION"
+                targetId={session.id}
+                isFavorite={session.isFavorite}
+                returnUrl={cardHref}
+              />
+            </Box>
             {/* Custom Cover Photo Overlay */}
             {coverPhotoOverlay}
           </Box>
@@ -849,6 +860,17 @@ const BaseSessionCard = ({
           display="flex"
           flexDirection="column"
         >
+          {isCompact && (
+            <Box position="absolute" top={2} right={2} zIndex={3}>
+              <FavoriteButton
+                type="SESSION"
+                targetId={session.id}
+                isFavorite={session.isFavorite}
+                size="xs"
+                returnUrl={cardHref}
+              />
+            </Box>
+          )}
           <Stack gap={isCompact ? 2 : 4} flex="1">
             {/* Compact-only top content (e.g. suggestion badges) */}
             {isCompact && compactTopContent}
@@ -965,12 +987,40 @@ const BaseSessionCard = ({
                     >
                       {displayHostName}
                     </Text>
-                    {/* Bot has no meaningful rating for crawled sessions */}
-                    {!isCrawled && (
-                      <AppPlayerRating userId={session.hostId} showBullet />
-                    )}
                     {hostActions}
                   </Flex>
+                  {!isCrawled && (
+                    <Flex
+                      align="center"
+                      gap={1}
+                      mt={0.5}
+                      cursor={onHostClick ? 'pointer' : 'default'}
+                      onClick={(e) => {
+                        if (onHostClick) {
+                          e.stopPropagation();
+                          onHostClick(e);
+                        }
+                      }}
+                    >
+                      <Text
+                        position="relative"
+                        zIndex={3}
+                        fontSize="xs"
+                        color="gray.500"
+                        _dark={{ color: 'whiteAlpha.600' }}
+                        _hover={
+                          onHostClick ? { textDecoration: 'underline' } : {}
+                        }
+                      >
+                        {t('host')}
+                      </Text>
+                      <AppPlayerRating
+                        userId={session.hostId}
+                        showBullet
+                        size="xs"
+                      />
+                    </Flex>
+                  )}
                   {isCrawled && session.externalSource && (
                     <Text
                       position="relative"

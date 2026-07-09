@@ -487,7 +487,7 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
                   </NextLinkButton>
                 </VTooltip>
                 <VTooltip
-                  content="Tìm giải"
+                  content={nav('browseTournaments')}
                   positioning={{
                     placement: 'right',
                     offset: { mainAxis: 12 },
@@ -527,7 +527,7 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
                       />
                       {!isCollapsed && (
                         <Text display={{ base: 'block', md: 'block' }}>
-                          Tìm giải
+                          {nav('browseTournaments')}
                         </Text>
                       )}
                     </Flex>

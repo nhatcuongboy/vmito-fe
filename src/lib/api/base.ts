@@ -125,11 +125,15 @@ api.interceptors.response.use(
       originalRequest.url?.includes('/auth/reset-password');
 
     // Handle 401 Unauthorized - Token expired or invalid
+    // Only attempt refresh if we actually have a refresh token (meaning the user was logged in)
+    const hasRefreshToken =
+      typeof window !== 'undefined' && !!useAuthStore.getState().refreshToken;
     if (
       status === 401 &&
       typeof window !== 'undefined' &&
       !originalRequest._retry &&
-      !isAuthRequest // Don't try to refresh for login/register
+      !isAuthRequest && // Don't try to refresh for login/register
+      hasRefreshToken
     ) {
       if (isRefreshing) {
         return new Promise(function (resolve, reject) {
@@ -184,7 +188,12 @@ api.interceptors.response.use(
       // Only handle UI interactions on the client side
       if (typeof window !== 'undefined') {
         // For GET requests, show toaster to avoid interrupting user flow
-        if (method === 'GET' && !error.config?.skipGlobalError) {
+        // Exclude 401 for guests (no refresh token) to prevent annoying unauthorized toasts on public pages
+        if (
+          method === 'GET' &&
+          !error.config?.skipGlobalError &&
+          status !== 401
+        ) {
           toaster.error({ title: message });
         } else {
           // For mutations (POST, PUT, DELETE), show modal/toast to ensure user sees the error

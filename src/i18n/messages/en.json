@@ -140,6 +140,15 @@
     "contact": "Contact Us",
     "bugReport": "Bug Report",
     "developedBy": "Developed by Nhat Cuong.",
+    "favorites": {
+      "add": "Add to favorites",
+      "remove": "Remove from favorites",
+      "filter": "Favorites",
+      "shortLabel": "Favorites",
+      "featureName": "favorites",
+      "addFailed": "Could not add to favorites",
+      "removeFailed": "Could not remove from favorites"
+    },
     "levels": {
       "1": "Weak",
       "2": "Advanced Beginner",
@@ -236,7 +245,10 @@
     "filters": {
       "area": "Area",
       "allCities": "All Cities"
-    }
+    },
+    "lightShort": "Light",
+    "darkShort": "Dark",
+    "resultsCount": "{count} results"
   },
   "session": {
     "session": "Session",
@@ -522,6 +534,7 @@
       "allSessions": "All",
       "regularSessions": "Regular sessions",
       "facebookSessions": "Facebook posts",
+      "favoritesOnly": "Favorites",
       "nearMe": "Near Me",
       "sortByDistance": "Sort by Distance",
       "cost": "Cost",
@@ -660,9 +673,17 @@
       "title": "Preview & download session image",
       "description": "Choose a social-ready image template before downloading.",
       "templatesLabel": "Templates",
+      "aiTemplatesLabel": "AI templates",
       "preview": "Preview",
       "download": "Download image",
       "open": "Download",
+      "generateAi": "Generate AI image",
+      "generateBeforeDownload": "Please generate the AI image before downloading",
+      "aiGenerateSuccess": "AI background generated",
+      "aiGenerateError": "Could not generate AI image",
+      "cached": "Cached",
+      "quotaStatus": "Used {used}/{limit}",
+      "quotaRemaining": "{remaining} left",
       "templates": {
         "legacy-portrait": {
           "name": "Original 2:3",
@@ -691,6 +712,18 @@
         "event-pass": {
           "name": "Event pass",
           "description": "Premium invite-style session pass."
+        },
+        "ai-neon-stadium": {
+          "name": "Neon court",
+          "description": "Night court background with green-yellow neon energy."
+        },
+        "ai-yellow-smash": {
+          "name": "Yellow smash",
+          "description": "Bold yellow-black sports background for recruitment posts."
+        },
+        "ai-premium-dark": {
+          "name": "Premium stadium",
+          "description": "Dark premium court background for polished posts."
         }
       }
     },
@@ -795,7 +828,12 @@
     "mapLoadError": "Map loading error",
     "mapLoadErrorDescription": "Please check your network connection or API Key.",
     "playersCount": "{count} player{count, plural, =1 {} other {s}}",
-    "error": "Error"
+    "error": "Error",
+    "today": "Today",
+    "tomorrow": "Tomorrow",
+    "splitEvenly": "Split evenly",
+    "viewSessionAt": "View session {name} at {venue}",
+    "coverAlt": "Cover photo of {name}"
   },
   "court": {
     "title": "Court",
@@ -3785,6 +3823,8 @@
         }
       },
       "manualScore": {
+        "showingMatches": "Showing {count} of {total} matches",
+        "loadMore": "Load more",
         "title": "Enter score",
         "deleteMatch": "Delete match",
         "deleteFailed": "Failed to delete match",
@@ -4293,6 +4333,7 @@
     "sessionName": "Name",
     "host": "Host",
     "fee": "Fee",
+    "walkInFeeInfo": "Walk-in rate for players who haven't paid the club's fixed monthly fee.",
     "requiredLevels": "Levels",
     "allLevels": "All Levels",
     "location": "Address",
@@ -4843,6 +4884,25 @@
     "failedToCreateUser": "Failed to create user",
     "failedToUpdateUser": "Failed to update user",
     "failedToDeleteUser": "Failed to delete user",
+    "aiImageQuota": {
+      "title": "AI image quota",
+      "manage": "Manage AI image quota",
+      "loadError": "Failed to load AI image quota",
+      "resetSuccess": "AI image quota reset",
+      "resetError": "Failed to reset AI image quota",
+      "grantSuccess": "AI image quota granted",
+      "grantError": "Failed to grant AI image quota",
+      "invalidGrantAmount": "Grant amount must be greater than 0",
+      "used": "Used",
+      "limit": "Limit",
+      "extra": "Extra",
+      "remaining": "Remaining",
+      "extraCredits": "Extra credits",
+      "reason": "Reason",
+      "reasonPlaceholder": "Manual support grant",
+      "resetUsed": "Reset used",
+      "grantCredits": "Grant credits"
+    },
     "accessDenied": "Access denied. Admin only.",
     "venueManagement": "Venue Management",
     "venues": "Venues",
@@ -5748,7 +5808,14 @@
     "reasonAvailableSlots": "Slots available",
     "suggestionBadge": "Suggested",
     "modeBrowse": "All",
-    "modeAuto": "Suggest"
+    "modeAuto": "Suggest",
+    "forYou": "Suggested for you",
+    "popular": "Popular sessions",
+    "sectionAria": "Session suggestions for you",
+    "listAria": "Suggested sessions list, use arrow keys to scroll",
+    "viewMoreSimilar": "View more similar sessions ({count})",
+    "loadMore": "Load more",
+    "aiRecommendationAria": "AI-powered recommendation"
   },
   "venue": {
     "verified": "Verified",
@@ -5777,7 +5844,75 @@
       "fallbackTitle": "Badminton Court",
       "fallbackDescription": "View badminton court details on Vmito - the badminton session management platform."
     },
-    "searchPlaceholder": "Search by venue name, address..."
+    "searchPlaceholder": "Search by venue name, address...",
+    "detail": {
+      "title": "Venue details",
+      "loadError": "Unable to load venue information",
+      "tryAgainLater": "Please try again later.",
+      "notFound": "Venue not found",
+      "notFoundDesc": "The venue you are looking for does not exist or has been removed.",
+      "backToList": "Back to venue list",
+      "permanentlyClosed": "Permanently closed",
+      "temporarilyClosed": "Temporarily closed",
+      "pricing": "Pricing",
+      "edit": "Edit",
+      "tabAbout": "About",
+      "tabPhotos": "Photos",
+      "tabAnnouncements": "Announcements",
+      "aboutHeading": "About this venue",
+      "noDescription": "No description for this venue yet.",
+      "courtLayout": "Court layout",
+      "updatePricing": "Update pricing",
+      "tableDay": "Day",
+      "tableTime": "Time",
+      "tableFixed": "Fixed",
+      "tableWalkIn": "Walk-in",
+      "referencePrice": "Reference price",
+      "noPricing": "No pricing information yet.",
+      "amenitiesHeading": "Amenities & Rules",
+      "carParking": "Parking",
+      "canteen": "Canteen",
+      "wifiPasswordLabel": "Password:",
+      "bookingPolicy": "Booking policy",
+      "photosHeading": "Photos",
+      "imageAlt": "{name} - photo {index}",
+      "noPhotos": "No photos yet.",
+      "announcementsHeading": "Announcements",
+      "noAnnouncements": "No announcements yet.",
+      "quickInfo": "Quick info",
+      "courtsLabel": "Number of courts",
+      "courtsValue": "{count} courts",
+      "notUpdated": "Not updated",
+      "findSessionsHere": "Find sessions at this venue",
+      "findSessionsHereDesc": "Discover activities happening at this venue.",
+      "location": "Location",
+      "locatedWithinLabel": "Located within:",
+      "googleMaps": "Find on Google Maps",
+      "contact": "Contact",
+      "phone": "Phone",
+      "callNow": "Call now",
+      "perHour": "/ hour",
+      "priceRange": "From {min} to {max} / hour",
+      "fixedLabel": "Fixed:",
+      "walkInLabel": "Walk-in:",
+      "day": {
+        "everyday": "Daily",
+        "weekdays": "Mon - Fri",
+        "weekend": "Sat - Sun",
+        "holiday": "Holiday",
+        "byWeekday": "By weekday",
+        "other": "Other"
+      },
+      "weekday": {
+        "d1": "Mon",
+        "d2": "Tue",
+        "d3": "Wed",
+        "d4": "Thu",
+        "d5": "Fri",
+        "d6": "Sat",
+        "d7": "Sun"
+      }
+    }
   },
   "venueRequests": {
     "suggestNewVenue": "Suggest new venue",
