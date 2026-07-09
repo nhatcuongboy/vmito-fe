@@ -480,7 +480,7 @@ export default function TopBar({
                   transition="background-color 0.2s, border-color 0.2s, color 0.2s, box-shadow 0.2s"
                 >
                   <LogIn size={17} />
-                  <Box as="span" display="inline">
+                  <Box as="span" display={{ base: 'none', md: 'inline' }}>
                     {common('login')}
                   </Box>
                 </Button>
