@@ -9,9 +9,7 @@ import {
   SimpleGrid,
   Spinner,
   Image,
-  Icon,
 } from '@chakra-ui/react';
-import { VTooltip } from '@/components/ui/VTooltip';
 import QRCode from 'qrcode';
 import { Button, IconButton, VStack } from '@/components/ui/chakra-compat';
 import {
@@ -503,22 +501,18 @@ export default function SessionInfo({
   const { downloadSessionImage, isDownloading } = useDownloadSessionImage();
 
   const showExtendedInfo = !compactUntilMaxPlayers || isExpanded;
-  const canSeeSessionFee = FeeService.canViewerSeeSessionFee(
-    session,
-    user?.id,
-    viewerClubIds
-  );
+  // const canSeeSessionFee = FeeService.canViewerSeeSessionFee(
+  //   session,
+  //   user?.id,
+  //   viewerClubIds
+  // );
+  const canSeeSessionFee = true;
   // For detail/modal views, show "Contact host" for club sessions
   const feeDisplayText = FeeService.getSessionFeeForModal(
     session,
     user?.id,
     viewerClubIds,
     tSession('contactHostForFee')
-  );
-  // Fallback for sessions with no feeConfig of their own (e.g. relying on the
-  // club's fixed monthly fee) — still surface the club's walk-in rate.
-  const clubWalkInFeeText = FeeService.getClubWalkInFeeDisplayText(
-    session.club?.currentMonthFee
   );
 
   const playerAchievementExportId =
@@ -770,7 +764,7 @@ export default function SessionInfo({
             </Flex>
           </InfoRow>
 
-          {session.feeConfig ? (
+          {session.feeConfig && (
             <InfoRow icon={DollarSign} label={t('fee')}>
               <Flex align="center">
                 <Text color="green.600" fontWeight="bold">
@@ -786,43 +780,6 @@ export default function SessionInfo({
                 )}
               </Flex>
             </InfoRow>
-          ) : (
-            canSeeSessionFee &&
-            clubWalkInFeeText && (
-              <InfoRow icon={DollarSign} label={t('fee')}>
-                <Flex align="center">
-                  <Text color="green.600" fontWeight="bold">
-                    {clubWalkInFeeText}
-                  </Text>
-                  <Text ml={1} color="gray.500" fontSize="sm">
-                    /slot
-                  </Text>
-                  <VTooltip content={t('walkInFeeInfo')}>
-                    <Flex
-                      as="button"
-                      cursor="pointer"
-                      color="green.500"
-                      bg="green.50"
-                      _hover={{
-                        color: 'green.600',
-                        bg: 'green.100',
-                        transform: 'scale(1.1)',
-                      }}
-                      _active={{ transform: 'scale(0.95)' }}
-                      display="inline-flex"
-                      alignItems="center"
-                      justifyContent="center"
-                      ml={1.5}
-                      borderRadius="full"
-                      padding="2px"
-                      transition="all 0.2s"
-                    >
-                      <Icon as={Info} boxSize={3} />
-                    </Flex>
-                  </VTooltip>
-                </Flex>
-              </InfoRow>
-            )
           )}
 
           {session.description && (
