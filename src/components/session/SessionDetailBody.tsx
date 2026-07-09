@@ -257,15 +257,10 @@ const SessionDetailBody = ({
             />
           )}
         </Avatar.Root>
-        <Box flex={1}>
-          <Flex align="center" gap={2}>
-            <Text fontWeight="bold" fontSize="lg">
-              {displayHostName}
-            </Text>
-            {!isCrawled && (
-              <AppPlayerRating userId={session.hostId} showBullet />
-            )}
-          </Flex>
+        <Box flex={1} minW={0}>
+          <Text fontWeight="bold" fontSize="lg">
+            {displayHostName}
+          </Text>
           {isCrawled ? (
             <Text fontSize="xs" color="gray.500" fontStyle="italic" mt={0.5}>
               {session.externalGroupUrl ? (
@@ -291,9 +286,12 @@ const SessionDetailBody = ({
               )}
             </Text>
           ) : (
-            <Text fontSize="xs" color="gray.500">
-              {t('host')}
-            </Text>
+            <Flex align="center" justify="space-between" gap={2}>
+              <Text fontSize="xs" color="gray.500">
+                {t('host')}
+              </Text>
+              <AppPlayerRating userId={session.hostId} />
+            </Flex>
           )}
         </Box>
         <Flex gap={2}>
