@@ -602,7 +602,7 @@ export default function VenueDetailClient({
             mt={0}
           >
             {/* ── Left column: tab content ── */}
-            <Box>
+            <Box minW={0}>
               {/* Tab: Giới thiệu */}
               <Tabs.Content value="about" pt={0}>
                 <VStack gap={4} align="stretch">
@@ -1109,7 +1109,7 @@ export default function VenueDetailClient({
             </Box>
 
             {/* ── Right column: sticky sidebar ── */}
-            <Box>
+            <Box minW={0}>
               <VStack gap={5} align="stretch" position="sticky" top="80px">
                 {/* Quick Info */}
                 <Box
