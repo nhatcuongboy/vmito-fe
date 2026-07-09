@@ -3814,6 +3814,8 @@
         }
       },
       "manualScore": {
+        "showingMatches": "Đang hiển thị {count} trên {total} trận đấu",
+        "loadMore": "Xem thêm",
         "title": "Nhập điểm",
         "deleteMatch": "Xóa trận đấu",
         "deleteFailed": "Không thể xóa trận đấu",

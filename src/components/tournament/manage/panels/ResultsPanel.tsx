@@ -10,7 +10,15 @@ import {
 } from 'react';
 import { usePathname, useSearchParams } from 'next/navigation';
 import { useRouter } from '@/i18n/config';
-import { Badge, Box, Flex, Heading, SimpleGrid, Text } from '@chakra-ui/react';
+import {
+  Badge,
+  Box,
+  Flex,
+  Heading,
+  SimpleGrid,
+  Text,
+  useBreakpointValue,
+} from '@chakra-ui/react';
 import { Button, Input, VStack } from '@/components/ui/chakra-compat';
 import { AppSearchBar } from '@/components/common/AppSearchBar';
 import {
@@ -196,6 +204,12 @@ export default function ResultsPanel({
   const [filters, setFilters] = useState<ResultFilters>(() =>
     parseFiltersFromSearchParams(searchParams)
   );
+  const pageSize = useBreakpointValue({ base: 50, md: 100 }) ?? 50;
+  const [visibleCount, setVisibleCount] = useState(50);
+
+  useEffect(() => {
+    setVisibleCount(pageSize);
+  }, [pageSize, filters]);
   const [deletingMatch, setDeletingMatch] = useState<CategoryMatch | null>(
     null
   );
@@ -550,9 +564,13 @@ export default function ResultsPanel({
     }
   }, [bracketCategoryToGenerate, load, tManage]);
 
+  const visibleMatches = useMemo(() => {
+    return filteredMatches.slice(0, visibleCount);
+  }, [filteredMatches, visibleCount]);
+
   const groups = useMemo(() => {
     const byCat = new Map<string, CategoryMatch[]>();
-    for (const match of filteredMatches) {
+    for (const match of visibleMatches) {
       if (!byCat.has(match.categoryId)) byCat.set(match.categoryId, []);
       byCat.get(match.categoryId)!.push(match);
     }
@@ -561,7 +579,15 @@ export default function ResultsPanel({
       name: categoryById.get(categoryId)?.name ?? '',
       items,
     }));
-  }, [filteredMatches, categoryById]);
+  }, [visibleMatches, categoryById]);
+
+  const totalCountPerCategory = useMemo(() => {
+    const counts = new Map<string, number>();
+    for (const match of filteredMatches) {
+      counts.set(match.categoryId, (counts.get(match.categoryId) ?? 0) + 1);
+    }
+    return counts;
+  }, [filteredMatches]);
 
   const focusedMatchId = searchParams.get(FILTER_PARAM_KEYS.focusMatch);
   const getMatchCardDomId = useCallback(
@@ -973,7 +999,12 @@ export default function ResultsPanel({
                 >
                   {group.name}
                 </Heading>
-                <Badge colorPalette="gray">{group.items.length}</Badge>
+                <Badge colorPalette="gray">
+                  {group.items.length ===
+                  (totalCountPerCategory.get(group.categoryId) ?? 0)
+                    ? group.items.length
+                    : `${group.items.length} / ${totalCountPerCategory.get(group.categoryId) ?? 0}`}
+                </Badge>
               </Flex>
               <SimpleGrid columns={{ base: 1, lg: 2 }} gap={3}>
                 {group.items.map((match) => (
@@ -994,6 +1025,29 @@ export default function ResultsPanel({
               </SimpleGrid>
             </Box>
           ))}
+          {filteredMatches.length > visibleCount && (
+            <VStack py={4} gap={2} align="center">
+              <Text
+                fontSize="xs"
+                color="gray.500"
+                _dark={{ color: 'gray.400' }}
+              >
+                {t('showingMatches', {
+                  count: visibleCount,
+                  total: filteredMatches.length,
+                })}
+              </Text>
+              <Button
+                variant="subtle"
+                colorPalette="green"
+                size="sm"
+                borderRadius="full"
+                onClick={() => setVisibleCount((prev) => prev + pageSize)}
+              >
+                {t('loadMore')}
+              </Button>
+            </VStack>
+          )}
         </VStack>
       )}
 

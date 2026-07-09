@@ -3805,6 +3805,8 @@
         }
       },
       "manualScore": {
+        "showingMatches": "Showing {count} of {total} matches",
+        "loadMore": "Load more",
         "title": "Enter score",
         "deleteMatch": "Delete match",
         "deleteFailed": "Failed to delete match",
