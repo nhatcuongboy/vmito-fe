@@ -542,6 +542,12 @@ export interface ISession {
     id: string;
     name: string;
     color?: string;
+    // This month's club-configured walk-in (vãng lai) per-session fee,
+    // used as a fallback when the session has no feeConfig of its own.
+    currentMonthFee?: {
+      maleFeePerSession?: number | null;
+      femaleFeePerSession?: number | null;
+    } | null;
   } | null;
   description?: string;
   courts?: Court[];

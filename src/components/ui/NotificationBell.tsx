@@ -61,12 +61,7 @@ import { getNotificationDisplayText } from '@/lib/notifications/content';
 import { getNotificationTargetRoute } from '@/lib/notifications/routing';
 import { ROUTES } from '@/constants/routes';
 import { formatTimeByDevicePreference } from '@/utils/time-helpers';
-import {
-  EJoinRequestStatus,
-  EMemberRole,
-  IClubJoinRequest,
-  IMyClub,
-} from '@/types/club';
+import { EJoinRequestStatus, IClubJoinRequest } from '@/types/club';
 
 interface NotificationBellProps {
   color?: string;
@@ -87,11 +82,6 @@ type TUnifiedItem =
 const PANEL_CACHE_TTL_MS = 30_000;
 
 const formatBadgeCount = (count: number) => (count > 99 ? '99+' : count);
-
-const isManagedClub = (club: IMyClub, userId?: string) =>
-  club.role === EMemberRole.ADMIN ||
-  club.role === EMemberRole.MODERATOR ||
-  club.host?.id === userId;
 
 const getNotificationIcon = (type: NotificationType, action?: string) => {
   switch (type) {
@@ -198,30 +188,10 @@ export default function NotificationBell({
         const requests =
           user?.role === UserRole.ADMIN
             ? await ClubsService.getAdminJoinRequests()
-            : await (async () => {
-                const clubs = await ClubsService.getMyClubs();
-                const managedClubs = clubs.filter((club) =>
-                  isManagedClub(club, user?.id)
-                );
+            : await ClubsService.getMyManagedJoinRequests();
 
-                if (managedClubs.length === 0) return [];
-
-                const results = await Promise.all(
-                  managedClubs.map((club) =>
-                    ClubsService.getJoinRequests(club.id)
-                  )
-                );
-
-                return results.flat();
-              })();
-
-        // Dedupe by id — the same club (and its requests) can be returned
-        // twice when the user is both host and member of that club
-        const uniqueRequests = Array.from(
-          new Map(requests.map((request) => [request.id, request])).values()
-        );
         setClubJoinRequests(
-          uniqueRequests.filter(
+          requests.filter(
             (request) => request.status === EJoinRequestStatus.PENDING
           )
         );
@@ -232,7 +202,7 @@ export default function NotificationBell({
         setIsClubRequestsLoading(false);
       }
     },
-    [clubJoinRequests.length, user?.id, user?.role]
+    [clubJoinRequests.length, user?.role]
   );
 
   const fetchVenueRequests = useCallback(

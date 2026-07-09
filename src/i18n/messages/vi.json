@@ -662,9 +662,17 @@
       "title": "Xem trước & tải ảnh kèo",
       "description": "Chọn mẫu ảnh phù hợp để chia sẻ lên mạng xã hội.",
       "templatesLabel": "Mẫu ảnh",
+      "aiTemplatesLabel": "Mẫu AI",
       "preview": "Xem trước",
       "download": "Tải ảnh",
       "open": "Tải ảnh",
+      "generateAi": "Tạo ảnh AI",
+      "generateBeforeDownload": "Vui lòng tạo ảnh AI trước khi tải",
+      "aiGenerateSuccess": "Đã tạo nền AI cho ảnh kèo",
+      "aiGenerateError": "Không thể tạo ảnh AI",
+      "cached": "Đã có",
+      "quotaStatus": "Đã dùng {used}/{limit}",
+      "quotaRemaining": "Còn {remaining} lượt",
       "templates": {
         "legacy-portrait": {
           "name": "Mẫu chuẩn 2:3",
@@ -693,6 +701,18 @@
         "event-pass": {
           "name": "Vé tham gia",
           "description": "Premium, giống vé mời tham gia kèo."
+        },
+        "ai-neon-stadium": {
+          "name": "Sân neon",
+          "description": "Nền sân đêm, đèn neon xanh vàng, năng lượng cao."
+        },
+        "ai-yellow-smash": {
+          "name": "Vàng đen năng động",
+          "description": "Nền thể thao vàng đen, nổi bật như poster tuyển người."
+        },
+        "ai-premium-dark": {
+          "name": "Premium stadium",
+          "description": "Nền sân cao cấp, tối sang, hợp bài đăng chuyên nghiệp."
         }
       }
     },
@@ -4302,6 +4322,7 @@
     "sessionName": "Tên kèo",
     "host": "Host",
     "fee": "Phí",
+    "walkInFeeInfo": "Phí vãng lai áp dụng cho người chơi chưa đóng phí cố định theo tháng của CLB.",
     "requiredLevels": "Trình độ",
     "allLevels": "Tất cả trình độ",
     "location": "Địa chỉ",
@@ -4858,6 +4879,25 @@
     "failedToCreateUser": "Không thể tạo người dùng",
     "failedToUpdateUser": "Không thể cập nhật người dùng",
     "failedToDeleteUser": "Không thể xóa người dùng",
+    "aiImageQuota": {
+      "title": "Quota ảnh AI",
+      "manage": "Quản lý quota ảnh AI",
+      "loadError": "Không thể tải quota ảnh AI",
+      "resetSuccess": "Đã reset quota ảnh AI",
+      "resetError": "Không thể reset quota ảnh AI",
+      "grantSuccess": "Đã cấp thêm quota ảnh AI",
+      "grantError": "Không thể cấp thêm quota ảnh AI",
+      "invalidGrantAmount": "Số lượt cấp thêm phải lớn hơn 0",
+      "used": "Đã dùng",
+      "limit": "Giới hạn",
+      "extra": "Cấp thêm",
+      "remaining": "Còn lại",
+      "extraCredits": "Lượt cấp thêm",
+      "reason": "Lý do",
+      "reasonPlaceholder": "Cấp hỗ trợ thủ công",
+      "resetUsed": "Reset đã dùng",
+      "grantCredits": "Cấp lượt"
+    },
     "accessDenied": "Từ chối truy cập. Chỉ dành cho quản trị viên.",
     "venueManagement": "Quản lý địa điểm",
     "venues": "Địa điểm",

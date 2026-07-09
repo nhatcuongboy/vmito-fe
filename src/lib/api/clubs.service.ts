@@ -212,6 +212,18 @@ export const ClubsService = {
   },
 
   /**
+   * Pending join requests across every club the current user manages
+   * (host or ADMIN/MODERATOR member). Single call, replaces the previous
+   * one-request-per-club fan-out.
+   */
+  getMyManagedJoinRequests: async (): Promise<IClubJoinRequest[]> => {
+    const response = await api.get<ApiResponse<IClubJoinRequest[]>>(
+      `/clubs/my/join-requests`
+    );
+    return response.data.data || [];
+  },
+
+  /**
    * Get a single join request detail
    */
   getJoinRequestById: async (

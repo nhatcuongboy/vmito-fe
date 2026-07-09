@@ -660,9 +660,17 @@
       "title": "Preview & download session image",
       "description": "Choose a social-ready image template before downloading.",
       "templatesLabel": "Templates",
+      "aiTemplatesLabel": "AI templates",
       "preview": "Preview",
       "download": "Download image",
       "open": "Download",
+      "generateAi": "Generate AI image",
+      "generateBeforeDownload": "Please generate the AI image before downloading",
+      "aiGenerateSuccess": "AI background generated",
+      "aiGenerateError": "Could not generate AI image",
+      "cached": "Cached",
+      "quotaStatus": "Used {used}/{limit}",
+      "quotaRemaining": "{remaining} left",
       "templates": {
         "legacy-portrait": {
           "name": "Original 2:3",
@@ -691,6 +699,18 @@
         "event-pass": {
           "name": "Event pass",
           "description": "Premium invite-style session pass."
+        },
+        "ai-neon-stadium": {
+          "name": "Neon court",
+          "description": "Night court background with green-yellow neon energy."
+        },
+        "ai-yellow-smash": {
+          "name": "Yellow smash",
+          "description": "Bold yellow-black sports background for recruitment posts."
+        },
+        "ai-premium-dark": {
+          "name": "Premium stadium",
+          "description": "Dark premium court background for polished posts."
         }
       }
     },
@@ -4293,6 +4313,7 @@
     "sessionName": "Name",
     "host": "Host",
     "fee": "Fee",
+    "walkInFeeInfo": "Walk-in rate for players who haven't paid the club's fixed monthly fee.",
     "requiredLevels": "Levels",
     "allLevels": "All Levels",
     "location": "Address",
@@ -4843,6 +4864,25 @@
     "failedToCreateUser": "Failed to create user",
     "failedToUpdateUser": "Failed to update user",
     "failedToDeleteUser": "Failed to delete user",
+    "aiImageQuota": {
+      "title": "AI image quota",
+      "manage": "Manage AI image quota",
+      "loadError": "Failed to load AI image quota",
+      "resetSuccess": "AI image quota reset",
+      "resetError": "Failed to reset AI image quota",
+      "grantSuccess": "AI image quota granted",
+      "grantError": "Failed to grant AI image quota",
+      "invalidGrantAmount": "Grant amount must be greater than 0",
+      "used": "Used",
+      "limit": "Limit",
+      "extra": "Extra",
+      "remaining": "Remaining",
+      "extraCredits": "Extra credits",
+      "reason": "Reason",
+      "reasonPlaceholder": "Manual support grant",
+      "resetUsed": "Reset used",
+      "grantCredits": "Grant credits"
+    },
     "accessDenied": "Access denied. Admin only.",
     "venueManagement": "Venue Management",
     "venues": "Venues",

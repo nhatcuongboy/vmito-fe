@@ -640,9 +640,17 @@
       "title": "预览并下载活动图片",
       "description": "下载前选择适合社交平台分享的图片模板。",
       "templatesLabel": "模板",
+      "aiTemplatesLabel": "AI 模板",
       "preview": "预览",
       "download": "下载图片",
       "open": "预览并下载",
+      "generateAi": "生成 AI 图片",
+      "generateBeforeDownload": "请先生成 AI 图片再下载",
+      "aiGenerateSuccess": "AI 背景已生成",
+      "aiGenerateError": "无法生成 AI 图片",
+      "cached": "已缓存",
+      "quotaStatus": "已用 {used}/{limit}",
+      "quotaRemaining": "剩余 {remaining} 次",
       "templates": {
         "legacy-portrait": {
           "name": "原版 2:3",
@@ -671,6 +679,18 @@
         "event-pass": {
           "name": "活动票",
           "description": "高级邀请函风格的活动图片。"
+        },
+        "ai-neon-stadium": {
+          "name": "霓虹球场",
+          "description": "夜间球场背景，绿色和黄色霓虹动感。"
+        },
+        "ai-yellow-smash": {
+          "name": "黄黑动感",
+          "description": "醒目的黄黑运动背景，适合招募海报。"
+        },
+        "ai-premium-dark": {
+          "name": "高级球场",
+          "description": "深色高级球场背景，适合专业发布。"
         }
       }
     },
@@ -4253,6 +4273,7 @@
     "sessionName": "场次名称",
     "host": "主办方",
     "fee": "费用",
+    "walkInFeeInfo": "适用于尚未支付俱乐部固定月费的球员的临时收费。",
     "requiredLevels": "等级要求",
     "allLevels": "所有等级",
     "location": "地点",
@@ -4803,6 +4824,25 @@
     "failedToCreateUser": "创建用户失败",
     "failedToUpdateUser": "更新用户失败",
     "failedToDeleteUser": "删除用户失败",
+    "aiImageQuota": {
+      "title": "AI 图片额度",
+      "manage": "管理 AI 图片额度",
+      "loadError": "无法加载 AI 图片额度",
+      "resetSuccess": "AI 图片额度已重置",
+      "resetError": "无法重置 AI 图片额度",
+      "grantSuccess": "AI 图片额度已发放",
+      "grantError": "无法发放 AI 图片额度",
+      "invalidGrantAmount": "发放数量必须大于 0",
+      "used": "已用",
+      "limit": "限制",
+      "extra": "额外",
+      "remaining": "剩余",
+      "extraCredits": "额外次数",
+      "reason": "原因",
+      "reasonPlaceholder": "人工支持发放",
+      "resetUsed": "重置已用",
+      "grantCredits": "发放次数"
+    },
     "accessDenied": "拒绝访问。仅限管理员。",
     "venueManagement": "Venue Management",
     "venues": "Venues",

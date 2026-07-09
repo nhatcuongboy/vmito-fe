@@ -142,6 +142,38 @@ export const FeeService = {
     return `${FeeService.formatFee(minFee)}-${FeeService.formatFee(maxFee)}`;
   },
 
+  // Format the club's this-month walk-in (vãng lai) per-session fee — used as
+  // a fallback on the session overview when the session has no feeConfig of
+  // its own (e.g. it relies on the club's fixed monthly fee instead).
+  getClubWalkInFeeDisplayText: (
+    currentMonthFee:
+      | {
+          maleFeePerSession?: number | null;
+          femaleFeePerSession?: number | null;
+        }
+      | null
+      | undefined
+  ): string => {
+    if (
+      !currentMonthFee ||
+      (!currentMonthFee.maleFeePerSession &&
+        !currentMonthFee.femaleFeePerSession)
+    ) {
+      return '';
+    }
+
+    const maleFee = currentMonthFee.maleFeePerSession || 0;
+    const femaleFee = currentMonthFee.femaleFeePerSession || 0;
+
+    if (maleFee === femaleFee) {
+      return FeeService.formatFee(maleFee);
+    }
+
+    const minFee = Math.min(maleFee, femaleFee);
+    const maxFee = Math.max(maleFee, femaleFee);
+    return `${FeeService.formatFee(minFee)}-${FeeService.formatFee(maxFee)}`;
+  },
+
   canViewerSeeSessionFee: (
     session: Pick<ISession, 'clubId' | 'hostId'>,
     viewerUserId?: string,
