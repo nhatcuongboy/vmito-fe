@@ -692,14 +692,11 @@ const SessionPlayers: React.FC<SessionPlayersProps> = ({
 
   const handleExport = (e: React.MouseEvent) => {
     e.stopPropagation();
-    // Small timeout to ensure the DOM is ready if needed, though html-to-image usually waits.
-    setTimeout(() => {
-      downloadSessionImage(
-        session || ({ id: sessionId } as ISession),
-        'session-stats-export-area',
-        'ThongKeTranDau'
-      );
-    }, 100);
+    downloadSessionImage(
+      session || ({ id: sessionId } as ISession),
+      'session-stats-export-area',
+      'ThongKeTranDau'
+    );
   };
 
   const getColumnLabel = (column: StatsColumnKey) => {
