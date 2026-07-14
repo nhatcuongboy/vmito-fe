@@ -157,7 +157,6 @@ export default function TopBar({
         right={0}
         zIndex={1100}
         bg="bg"
-        backdropFilter="blur(10px)"
         borderBottom={
           hideBottomBorder ? { base: 'none', md: '1px solid' } : '1px solid'
         }

@@ -58,6 +58,12 @@ export const useDownloadSessionImage = (): UseDownloadSessionImageReturn => {
       setIsDownloading(true);
 
       try {
+        // Let the browser paint the loading state before the DOM cloning
+        // below blocks the main thread for several seconds
+        await new Promise<void>((resolve) =>
+          requestAnimationFrame(() => setTimeout(resolve, 0))
+        );
+
         // Wait for all images inside the element to be loaded
         const images = element.getElementsByTagName('img');
         const imagePromises = Array.from(images).map((img) => {
@@ -70,8 +76,13 @@ export const useDownloadSessionImage = (): UseDownloadSessionImageReturn => {
         await Promise.all(imagePromises);
 
         // Safari workaround: the first render often misses images, so warm up
-        // once and use the second render for the actual data
-        if (needsWarmupRender()) {
+        // once and use the second render for the actual data. Only remote
+        // images are affected — data: URLs (e.g. QR codes) render fine on the
+        // first pass, so skip the extra render when there's nothing remote.
+        const hasRemoteImages = Array.from(images).some(
+          (img) => img.src && !img.src.startsWith('data:')
+        );
+        if (needsWarmupRender() && hasRemoteImages) {
           await toBlob(element, { cacheBust: true });
         }
 
