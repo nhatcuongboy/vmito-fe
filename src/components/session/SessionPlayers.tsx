@@ -300,7 +300,17 @@ const StatsTable = ({
     : { px: { base: 2, md: 3 }, py: 2 };
 
   return (
-    <TableContainer borderRadius="none" borderWidth="0" boxShadow="none">
+    <TableContainer
+      borderRadius="none"
+      borderWidth="0"
+      boxShadow="none"
+      // overflowX="auto" (the default) forces overflow-y to a scrollable
+      // "auto" too per the CSS spec, which WebKit renders as a scrollbar
+      // baked into the exported PNG even with nothing to actually scroll.
+      // Export mode never needs horizontal scroll either (fixed 700px
+      // off-screen canvas), so go fully visible on both axes there.
+      overflowX={exportMode ? 'visible' : 'auto'}
+    >
       <Table>
         <Thead>
           <Tr>

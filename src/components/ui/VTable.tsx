@@ -87,6 +87,11 @@ export const TableContainer = ({
   <Box
     position="relative"
     overflowX="auto"
+    // Per the CSS Overflow spec, when overflow-x is non-visible, a
+    // "visible" overflow-y is force-resolved to "auto" too — setting
+    // overflowY explicitly here would NOT override that coupling, so
+    // callers that must avoid any vertical scroll (e.g. image export)
+    // need overflowX="visible" as well; see SessionPlayers.tsx exportMode.
     bg="white"
     _dark={{ bg: 'gray.800' }}
     borderRadius="lg"
