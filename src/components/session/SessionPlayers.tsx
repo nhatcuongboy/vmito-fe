@@ -814,6 +814,7 @@ const SessionPlayers: React.FC<SessionPlayersProps> = ({
                 border="1px solid"
                 borderColor="gray.200"
                 overflow="hidden"
+                pb={2}
               >
                 <StatsTable
                   stats={filteredStats}
