@@ -1,7 +1,11 @@
 'use client';
 
 import { useState, useCallback, useRef } from 'react';
-import { toBlob } from 'html-to-image';
+// modern-screenshot instead of html-to-image: html-to-image copies ~350
+// computed style properties per node on WebKit (no cssText fast path there),
+// which made exports take ~15s on iOS; modern-screenshot only inlines styles
+// that differ from per-tag defaults, so Safari performs like Chrome
+import { domToBlob } from 'modern-screenshot';
 import { ISession } from '@/lib/api/types';
 import { toaster } from '@/components/ui/toaster';
 import { useTranslations } from 'next-intl';
@@ -83,17 +87,16 @@ export const useDownloadSessionImage = (): UseDownloadSessionImageReturn => {
           (img) => img.src && !img.src.startsWith('data:')
         );
         if (needsWarmupRender() && hasRemoteImages) {
-          await toBlob(element, { cacheBust: true });
+          await domToBlob(element, { fetch: { bypassingCache: true } });
         }
 
         const elementBackgroundColor =
           window.getComputedStyle(element).backgroundColor || '#ffffff';
 
-        const blob = await toBlob(element, {
-          quality: 1,
+        const blob = await domToBlob(element, {
           backgroundColor: elementBackgroundColor,
-          cacheBust: true,
-          pixelRatio: 2, // Ensure good quality on mobile/high-DPI screens
+          scale: 2, // Ensure good quality on mobile/high-DPI screens
+          fetch: { bypassingCache: true },
         });
         if (!blob) {
           throw new Error('Image generation returned no data');
