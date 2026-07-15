@@ -38,7 +38,7 @@ import TournamentProfileHero, {
   getTournamentCoverImage,
 } from './TournamentProfileHero';
 import MatchDetailModal from '@/components/tournament/manage/panels/MatchDetailModal';
-import { ResultMatchCard } from '@/components/tournament/manage/panels/ResultsPanel';
+import { ResultMatchCard } from '@/components/tournament/manage/panels/ResultMatchCard';
 
 export default function PublicTournamentTeamPage() {
   const t = useTranslations('pages.tournaments.teamPage');

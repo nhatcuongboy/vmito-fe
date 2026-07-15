@@ -14,7 +14,7 @@ import { useLocale, useTranslations } from 'next-intl';
 import { Copy, Check } from 'lucide-react';
 
 import { TournamentCourt } from '@/lib/api/types';
-import { formatCourtLabel } from './ResultsPanel';
+import { formatCourtLabel } from '@/lib/tournament/court';
 import { toaster } from '@/components/ui/toaster';
 
 interface Props {
