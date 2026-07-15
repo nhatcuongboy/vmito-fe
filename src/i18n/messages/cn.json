@@ -653,6 +653,7 @@
       "title": "预览并下载活动图片",
       "description": "下载前选择适合社交平台分享的图片模板。",
       "templatesLabel": "模板",
+      "themesLabel": "主题",
       "aiTemplatesLabel": "AI 模板",
       "preview": "预览",
       "download": "下载图片",
@@ -664,6 +665,23 @@
       "cached": "已缓存",
       "quotaStatus": "已用 {used}/{limit}",
       "quotaRemaining": "剩余 {remaining} 次",
+      "themes": {
+        "default": {
+          "name": "默认"
+        },
+        "dark": {
+          "name": "深色"
+        },
+        "premium": {
+          "name": "高级"
+        },
+        "sport-yellow": {
+          "name": "运动黄"
+        },
+        "club-green": {
+          "name": "俱乐部绿"
+        }
+      },
       "templates": {
         "legacy-portrait": {
           "name": "原版 2:3",

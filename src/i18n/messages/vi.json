@@ -675,6 +675,7 @@
       "title": "Xem trước & tải ảnh kèo",
       "description": "Chọn mẫu ảnh phù hợp để chia sẻ lên mạng xã hội.",
       "templatesLabel": "Mẫu ảnh",
+      "themesLabel": "Theme",
       "aiTemplatesLabel": "Mẫu AI",
       "preview": "Xem trước",
       "download": "Tải ảnh",
@@ -686,6 +687,23 @@
       "cached": "Đã có",
       "quotaStatus": "Đã dùng {used}/{limit}",
       "quotaRemaining": "Còn {remaining} lượt",
+      "themes": {
+        "default": {
+          "name": "Mặc định"
+        },
+        "dark": {
+          "name": "Tối"
+        },
+        "premium": {
+          "name": "Premium"
+        },
+        "sport-yellow": {
+          "name": "Vàng thể thao"
+        },
+        "club-green": {
+          "name": "Xanh CLB"
+        }
+      },
       "templates": {
         "legacy-portrait": {
           "name": "Mẫu chuẩn 2:3",
