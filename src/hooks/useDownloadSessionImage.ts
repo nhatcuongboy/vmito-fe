@@ -1,7 +1,11 @@
 'use client';
 
 import { useState, useCallback, useRef } from 'react';
-import { toBlob } from 'html-to-image';
+// modern-screenshot instead of html-to-image: html-to-image copies ~350
+// computed style properties per node on WebKit (no cssText fast path there),
+// which made exports take ~15s on iOS; modern-screenshot only inlines styles
+// that differ from per-tag defaults, so Safari performs like Chrome
+import { domToBlob } from 'modern-screenshot';
 import { ISession } from '@/lib/api/types';
 import { toaster } from '@/components/ui/toaster';
 import { useTranslations } from 'next-intl';
@@ -14,6 +18,10 @@ interface UseDownloadSessionImageReturn {
     options?: {
       templateId?: string;
       ratio?: string;
+      // Share-card templates are a full-bleed photo, where lossless PNG costs
+      // several MB for no visible benefit; the stats table is flat text/color,
+      // where PNG stays small and avoids JPEG artifacts around text edges
+      imageType?: 'png' | 'jpeg';
     }
   ) => Promise<void>;
   isDownloading: boolean;
@@ -47,6 +55,7 @@ export const useDownloadSessionImage = (): UseDownloadSessionImageReturn => {
       options?: {
         templateId?: string;
         ratio?: string;
+        imageType?: 'png' | 'jpeg';
       }
     ) => {
       if (isDownloadingRef.current) return;
@@ -58,6 +67,12 @@ export const useDownloadSessionImage = (): UseDownloadSessionImageReturn => {
       setIsDownloading(true);
 
       try {
+        // Let the browser paint the loading state before the DOM cloning
+        // below blocks the main thread for several seconds
+        await new Promise<void>((resolve) =>
+          requestAnimationFrame(() => setTimeout(resolve, 0))
+        );
+
         // Wait for all images inside the element to be loaded
         const images = element.getElementsByTagName('img');
         const imagePromises = Array.from(images).map((img) => {
@@ -70,19 +85,27 @@ export const useDownloadSessionImage = (): UseDownloadSessionImageReturn => {
         await Promise.all(imagePromises);
 
         // Safari workaround: the first render often misses images, so warm up
-        // once and use the second render for the actual data
-        if (needsWarmupRender()) {
-          await toBlob(element, { cacheBust: true });
+        // once and use the second render for the actual data. Only remote
+        // images are affected — data: URLs (e.g. QR codes) render fine on the
+        // first pass, so skip the extra render when there's nothing remote.
+        const hasRemoteImages = Array.from(images).some(
+          (img) => img.src && !img.src.startsWith('data:')
+        );
+        if (needsWarmupRender() && hasRemoteImages) {
+          await domToBlob(element, { fetch: { bypassingCache: true } });
         }
 
         const elementBackgroundColor =
           window.getComputedStyle(element).backgroundColor || '#ffffff';
+        const imageType = options?.imageType || 'png';
+        const mimeType = imageType === 'jpeg' ? 'image/jpeg' : 'image/png';
 
-        const blob = await toBlob(element, {
-          quality: 1,
+        const blob = await domToBlob(element, {
           backgroundColor: elementBackgroundColor,
-          cacheBust: true,
-          pixelRatio: 2, // Ensure good quality on mobile/high-DPI screens
+          scale: 2, // Ensure good quality on mobile/high-DPI screens
+          fetch: { bypassingCache: true },
+          type: mimeType,
+          quality: imageType === 'jpeg' ? 0.92 : undefined,
         });
         if (!blob) {
           throw new Error('Image generation returned no data');
@@ -95,13 +118,14 @@ export const useDownloadSessionImage = (): UseDownloadSessionImageReturn => {
         const ratioPart = options?.ratio
           ? `-${options.ratio.replace(':', 'x')}`
           : '';
-        const filename = `${filenamePrefix}${templatePart}${ratioPart}-${shortId}.png`;
+        const extension = imageType === 'jpeg' ? 'jpg' : 'png';
+        const filename = `${filenamePrefix}${templatePart}${ratioPart}-${shortId}.${extension}`;
 
         // iOS can't reliably save via <a download> (and in-app browsers ignore
         // it entirely) — the native share sheet with "Save Image" is the only
         // dependable path there
         if (isIOS() && typeof navigator.share === 'function') {
-          const file = new File([blob], filename, { type: 'image/png' });
+          const file = new File([blob], filename, { type: mimeType });
           if (navigator.canShare?.({ files: [file] })) {
             try {
               await navigator.share({ files: [file] });

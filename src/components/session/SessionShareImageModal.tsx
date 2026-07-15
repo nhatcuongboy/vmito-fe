@@ -103,9 +103,13 @@ export default function SessionShareImageModal({
     }) || Math.min(300, selectedTemplate.width);
 
   const handleDownload = () => {
+    // These templates are a full-bleed cover photo — JPEG keeps the file a
+    // fraction of lossless PNG's size with no visible quality loss for a
+    // photo, unlike the flat-color/text stats table export
     downloadSessionImage(session, exportElementId, 'TuyenVangLai', {
       templateId: selectedTemplateId,
       ratio: selectedTemplate.ratioLabel,
+      imageType: 'jpeg',
     });
   };
 

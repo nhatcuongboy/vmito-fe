@@ -74,7 +74,7 @@ import dynamic from 'next/dynamic';
 import LevelDescriptionsModal from './LevelDescriptionsModal';
 import { FavoriteButton } from '@/components/favorites/FavoriteButton';
 
-// Loaded on demand: pulls in html-to-image, which is only needed when sharing
+// Loaded on demand: pulls in modern-screenshot, which is only needed when sharing
 const SessionShareImageModal = dynamic(
   () => import('./SessionShareImageModal'),
   { ssr: false }

@@ -193,7 +193,6 @@ export default function SidebarNav({
       borderRightWidth={isEmbedded ? '1px' : undefined}
       borderColor="gray.200"
       boxShadow={isEmbedded ? 'none' : 'sm'}
-      backdropFilter="blur(18px)"
       overflow="hidden"
       display="flex"
       flexDirection="column"

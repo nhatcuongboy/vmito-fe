@@ -138,7 +138,6 @@ export default function BottomNavigationBar({
         base: 'sm',
         _dark: '0 -16px 40px rgba(0, 0, 0, 0.32)',
       }}
-      backdropFilter="blur(18px)"
       display={alwaysVisible ? 'flex' : { base: 'flex', md: 'none' }}
       justifyContent="center"
       alignItems="center"
