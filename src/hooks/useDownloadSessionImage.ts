@@ -17,6 +17,7 @@ interface UseDownloadSessionImageReturn {
     filenamePrefix?: string,
     options?: {
       templateId?: string;
+      themeId?: string;
       ratio?: string;
       // Share-card templates are a full-bleed photo, where lossless PNG costs
       // several MB for no visible benefit; the stats table is flat text/color,
@@ -54,6 +55,7 @@ export const useDownloadSessionImage = (): UseDownloadSessionImageReturn => {
       filenamePrefix: string = 'ThongKeTranDau',
       options?: {
         templateId?: string;
+        themeId?: string;
         ratio?: string;
         imageType?: 'png' | 'jpeg';
       }
@@ -115,11 +117,12 @@ export const useDownloadSessionImage = (): UseDownloadSessionImageReturn => {
         const templatePart = options?.templateId
           ? `-${options.templateId}`
           : '';
+        const themePart = options?.themeId ? `-${options.themeId}` : '';
         const ratioPart = options?.ratio
           ? `-${options.ratio.replace(':', 'x')}`
           : '';
         const extension = imageType === 'jpeg' ? 'jpg' : 'png';
-        const filename = `${filenamePrefix}${templatePart}${ratioPart}-${shortId}.${extension}`;
+        const filename = `${filenamePrefix}${templatePart}${themePart}${ratioPart}-${shortId}.${extension}`;
 
         // iOS can't reliably save via <a download> (and in-app browsers ignore
         // it entirely) — the native share sheet with "Save Image" is the only

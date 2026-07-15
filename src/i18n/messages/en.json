@@ -673,6 +673,7 @@
       "title": "Preview & download session image",
       "description": "Choose a social-ready image template before downloading.",
       "templatesLabel": "Templates",
+      "themesLabel": "Theme",
       "aiTemplatesLabel": "AI templates",
       "preview": "Preview",
       "download": "Download image",
@@ -684,6 +685,23 @@
       "cached": "Cached",
       "quotaStatus": "Used {used}/{limit}",
       "quotaRemaining": "{remaining} left",
+      "themes": {
+        "default": {
+          "name": "Default"
+        },
+        "dark": {
+          "name": "Dark"
+        },
+        "premium": {
+          "name": "Premium"
+        },
+        "sport-yellow": {
+          "name": "Sport yellow"
+        },
+        "club-green": {
+          "name": "Club green"
+        }
+      },
       "templates": {
         "legacy-portrait": {
           "name": "Original 2:3",
