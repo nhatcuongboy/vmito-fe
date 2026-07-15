@@ -4,7 +4,7 @@ import { Box, Flex, Text, Badge } from '@chakra-ui/react';
 import { useTranslations } from 'next-intl';
 import { ScoreboardMatch, SportType } from '@/lib/api/types';
 import { getRoundDisplayLabel } from '@/lib/tournament/roundLabel';
-import { formatCourtLabel } from '@/components/tournament/manage/panels/ResultsPanel';
+import { formatCourtLabel } from '@/lib/tournament/court';
 
 interface Props {
   match: ScoreboardMatch;

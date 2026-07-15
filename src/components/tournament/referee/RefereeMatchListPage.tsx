@@ -31,16 +31,16 @@ import {
   CATEGORY_COLORS,
   ChipOption,
   EMPTY_FILTERS,
-  FilterDrawer,
   getActiveFilterCount,
   getCategoryColor,
   matchMatchesFilters,
-  ModeButton,
   ResultFilters,
-  ResultMatchCard,
-  ResultsCalendarView,
-  formatCourtLabel,
-} from '@/components/tournament/manage/panels/ResultsPanel';
+} from '@/components/tournament/manage/panels/resultsFilters';
+import { ResultMatchCard } from '@/components/tournament/manage/panels/ResultMatchCard';
+import { ResultsCalendarView } from '@/components/tournament/manage/panels/ResultsCalendarView';
+import { ResultsFilterDrawer } from '@/components/tournament/manage/panels/ResultsFilterDrawer';
+import { ModeButton } from '@/components/ui/ModeButton';
+import { formatCourtLabel } from '@/lib/tournament/court';
 
 const SHOW_PLAYER_NAMES_STORAGE_KEY = 'vmito.schedule.showPlayerNames';
 const REFEREE_RETURN_URL_STORAGE_PREFIX = 'vmito.referee.returnUrl.';
@@ -664,7 +664,7 @@ export default function RefereeMatchListPage() {
                 ))
               )}
 
-              <FilterDrawer
+              <ResultsFilterDrawer
                 isOpen={isFilterOpen}
                 onClose={() => setIsFilterOpen(false)}
                 filters={filters}

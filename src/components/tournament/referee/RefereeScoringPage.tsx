@@ -48,7 +48,7 @@ import {
 } from '@/lib/tournament/teamLabel';
 import { getRoundDisplayLabel } from '@/lib/tournament/roundLabel';
 import { defaultRules } from '@/lib/scoring/badminton';
-import { formatCourtLabel } from '@/components/tournament/manage/panels/ResultsPanel';
+import { formatCourtLabel } from '@/lib/tournament/court';
 import ScoreEntryBoard from './ScoreEntryBoard';
 import ForfeitMatchModal from './ForfeitMatchModal';
 import { useAuthStore } from '@/stores/useAuthStore';
