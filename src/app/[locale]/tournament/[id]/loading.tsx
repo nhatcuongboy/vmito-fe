@@ -13,6 +13,7 @@ export default function Loading() {
         showTopBarAuthActions={false}
         disableSidebarOffset
         maxW="full"
+        contentTopOffset="0px"
         px={{ base: '24px', md: 0 }}
         pb={{
           base: 'calc(64px + env(safe-area-inset-bottom) + 24px)',

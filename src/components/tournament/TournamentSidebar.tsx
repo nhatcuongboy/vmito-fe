@@ -1,6 +1,6 @@
 'use client';
 
-import { Box, Skeleton, Text } from '@chakra-ui/react';
+import { Box, Text } from '@chakra-ui/react';
 import { Image } from '@/components/ui/chakra-compat';
 import { LucideIcon, PanelLeftClose, PanelLeftOpen } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
@@ -265,15 +265,35 @@ function TournamentSidebarHeaderSkeleton({
           bg: 'var(--tournament-surface-muted, var(--chakra-colors-gray-800))',
         }}
       >
-        <Skeleton h="100%" w="100%" />
+        <Box
+          h="100%"
+          w="100%"
+          bg="gray.200"
+          _dark={{
+            bg: 'var(--tournament-surface-raised, var(--chakra-colors-gray-700))',
+          }}
+        />
         <SidebarCollapseButton
           isCollapsed={isCollapsed}
           onToggle={onToggleCollapsed}
         />
       </Box>
       <Box px={4} pt={4} pb={2} display={isCollapsed ? 'none' : 'block'}>
-        <Skeleton height="20px" width="80%" mb={2} borderRadius="md" />
-        <Skeleton height="14px" width="55%" borderRadius="md" />
+        <Box
+          height="20px"
+          width="80%"
+          mb={2}
+          borderRadius="md"
+          bg="gray.100"
+          _dark={{ bg: 'gray.700' }}
+        />
+        <Box
+          height="14px"
+          width="55%"
+          borderRadius="md"
+          bg="gray.100"
+          _dark={{ bg: 'gray.700' }}
+        />
       </Box>
     </>
   );

@@ -92,15 +92,15 @@ function TournamentsContent() {
   const getStatusBadgeColor = (status: TournamentStatus) => {
     switch (status) {
       case 'PREPARING':
-        return { bg: 'green.500', color: 'white' };
+        return { bg: 'green.600', color: 'white' };
       case 'IN_PROGRESS':
-        return { bg: 'blue.500', color: 'white' };
+        return { bg: 'blue.600', color: 'white' };
       case 'FINISHED':
-        return { bg: 'gray.700', color: 'white' };
+        return { bg: 'gray.900', color: 'white' };
       case 'CANCELLED':
-        return { bg: 'red.500', color: 'white' };
+        return { bg: 'red.600', color: 'white' };
       default:
-        return { bg: 'gray.500', color: 'white' };
+        return { bg: 'gray.600', color: 'white' };
     }
   };
 
@@ -138,10 +138,16 @@ function TournamentsContent() {
     const venue = getPrimaryVenueDisplay(tournament);
     if (venue) {
       const parts: string[] = [];
-      if (venue.name) parts.push(venue.name);
-      if (venue.address) parts.push(venue.address);
-      if (venue.district) parts.push(venue.district);
-      return parts.join(', ') || null;
+      if (venue.name) {
+        parts.push(venue.name);
+        const district = venue.newDistrict || venue.district;
+        const city = venue.newCity || venue.city;
+        if (district) parts.push(district);
+        if (city && city !== district) parts.push(city);
+      } else if (venue.address) {
+        parts.push(venue.address);
+      }
+      return parts.filter(Boolean).join(', ') || null;
     }
     return null;
   };
@@ -373,10 +379,13 @@ function TournamentsContent() {
                             bg={badgeColor.bg}
                             color={badgeColor.color}
                             fontSize="xs"
-                            fontWeight="semibold"
+                            fontWeight="bold"
                             px={3}
-                            py={1}
+                            py={1.5}
                             borderRadius="md"
+                            shadow="md"
+                            border="1px solid"
+                            borderColor="whiteAlpha.300"
                           >
                             {badgeLabel}
                           </Badge>
@@ -436,74 +445,6 @@ function TournamentsContent() {
                               {locationText}
                             </Text>
                           )}
-
-                          {/* Follow / Share Row */}
-                          <HStack
-                            gap={0}
-                            pt={2}
-                            borderTop="1px solid"
-                            borderColor="border"
-                            mt={1}
-                          >
-                            <HStack
-                              gap={1}
-                              flex={1}
-                              justify="center"
-                              py={1}
-                              borderRadius="md"
-                              _hover={{ bg: 'gray.50' }}
-                              onClick={(e) => {
-                                e.stopPropagation();
-                              }}
-                            >
-                              <FavoriteButton
-                                type="TOURNAMENT"
-                                targetId={tournament.id}
-                                isFavorite={tournament.isFavorite}
-                                size="xs"
-                                variant="ghost"
-                                returnUrl={`/tournament/${tournament.slug ?? tournament.id}`}
-                                onChange={(nextValue) => {
-                                  setTournaments((prev) =>
-                                    prev.map((item) =>
-                                      item.id === tournament.id
-                                        ? { ...item, isFavorite: nextValue }
-                                        : item
-                                    )
-                                  );
-                                }}
-                              />
-                              <Text
-                                fontSize="xs"
-                                color="fg.muted"
-                                fontWeight="medium"
-                              >
-                                {t('follow')}
-                              </Text>
-                            </HStack>
-
-                            <HStack
-                              gap={1}
-                              flex={1}
-                              justify="center"
-                              py={1}
-                              cursor="pointer"
-                              borderRadius="md"
-                              _hover={{ bg: 'gray.50' }}
-                              onClick={(e) => {
-                                e.stopPropagation();
-                              }}
-                            >
-                              <Share2 size={14} color="#6B7280" />
-                              <Text
-                                fontSize="xs"
-                                color="fg.muted"
-                                fontWeight="medium"
-                              >
-                                {t('share')}
-                              </Text>
-                            </HStack>
-                          </HStack>
                         </VStack>
                       </Box>
                     </Box>

@@ -35,7 +35,6 @@ import {
 import { resolveMatchSideLabel } from '@/lib/tournament/bracketSlots';
 import { areMatchParticipantsResolved } from '@/lib/tournament/teamLabel';
 import { usePlayoffSlotLabels } from '@/lib/tournament/usePlayoffSlotLabels';
-import { getMatchDisplayCode } from '@/lib/tournament/codes';
 import { formatTimeByDevicePreference } from '@/utils/time-helpers';
 import MatchFormatBadges from '@/components/tournament/MatchFormatBadges';
 import { useRouter } from '@/i18n/config';
@@ -138,7 +137,8 @@ export default function MatchDetailModal({
           color="gray.500"
           _dark={{ color: 'gray.400' }}
         >
-          {getMatchDisplayCode(match)} · {roundOrGroupLabel}
+          {t('matchNumber', { number: match.matchNumber })}
+          {match.matchCode ? ` (${match.matchCode})` : ''} · {roundOrGroupLabel}
         </Text>
         <Box mt={2}>
           <MatchFormatBadges

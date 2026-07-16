@@ -1844,18 +1844,6 @@
               "description": "Make your tournament viewable by participants and enable game result submissions.",
               "action": "Publish tournament"
             }
-          },
-          "quickActions": {
-            "customizePage": {
-              "title": "Customize your home page",
-              "description": "Make your home page your own by customizing its contents.",
-              "action": "Edit page"
-            },
-            "inviteAdmins": {
-              "title": "Don't do all the work alone!",
-              "description": "Invite admins to help you manage your tournament.",
-              "action": "Invite admins"
-            }
           }
         },
         "formatWizard": {
@@ -2113,7 +2101,8 @@
             "dates": "Tournament Dates",
             "location": "Tournament Location",
             "banner": "Tournament Banner",
-            "managers": "Tournament managers"
+            "managers": "Tournament managers",
+            "delete": "Delete tournament"
           },
           "duplicateModal": {
             "title": "Duplicate tournament",
@@ -2605,6 +2594,17 @@
             }
           },
           "panels": {
+            "delete": {
+              "title": "Delete Tournament",
+              "description": "Permanently delete this tournament and all of its associated data.",
+              "warningTitle": "Warning: Permanent Action",
+              "warningText": "This action cannot be undone. All data, including categories, teams, players, schedules, and match results will be permanently deleted.",
+              "instruction": "To confirm deletion, please type the tournament name exactly: \"{name}\"",
+              "placeholder": "Type tournament name to confirm",
+              "button": "Permanently delete tournament",
+              "success": "Tournament deleted successfully.",
+              "error": "Failed to delete tournament. Please try again."
+            },
             "visibility": {
               "title": "Visibility",
               "description": "Control who can see this tournament.",
@@ -3618,6 +3618,7 @@
         "select": "Select"
       },
       "scoreEntry": {
+        "matchNumber": "Match {number}",
         "title": "Referee — Score Entry",
         "noAssignedMatches": "You have no matches assigned to you yet.",
         "court": "Court",
@@ -3876,6 +3877,7 @@
         }
       },
       "manualScore": {
+        "matchNumber": "Match {number}",
         "showingMatches": "Showing {count} of {total} matches",
         "loadMore": "Load more",
         "title": "Enter score",

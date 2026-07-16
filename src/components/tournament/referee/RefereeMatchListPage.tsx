@@ -657,6 +657,7 @@ export default function RefereeMatchListPage() {
                           category={categoryById.get(match.categoryId)}
                           showPlayerNames={showPlayerNames}
                           domId={getMatchCardDomId(match)}
+                          showMatchCode
                         />
                       ))}
                     </SimpleGrid>

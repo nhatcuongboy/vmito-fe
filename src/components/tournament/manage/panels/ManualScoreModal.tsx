@@ -31,6 +31,7 @@ import {
 } from '@/lib/api/types';
 import {
   getTeamLabel,
+  getRegistrationLabel,
   areMatchParticipantsResolved,
 } from '@/lib/tournament/teamLabel';
 import { getRoundDisplayLabel } from '@/lib/tournament/roundLabel';
@@ -155,6 +156,27 @@ export default function ManualScoreModal({
 
   const team1 = getTeamLabel(match, 1);
   const team2 = getTeamLabel(match, 2);
+
+  /**
+   * For a doubles pair that has a *named* pair (i.e. the primary label is the
+   * pair name rather than player names), return the member names so users can
+   * still identify who is who. Returns null for singles / unnamed pairs.
+   */
+  const getTeamSublabel = (position: 1 | 2): string | null => {
+    const participant = match.participants?.find(
+      (p) => p.position === position
+    );
+    const reg = participant?.categoryRegistration;
+    if (!reg?.pair?.members) return null;
+    // Only show the sub-label when the pair actually has a distinct name;
+    // if the pair has no name, getTeamLabel already shows player names.
+    if (!reg.pair.name) return null;
+    return getRegistrationLabel(reg, { showPlayerNames: true });
+  };
+
+  const team1Sub = getTeamSublabel(1);
+  const team2Sub = getTeamSublabel(2);
+
   const roundLabel = getRoundDisplayLabel(match.round, tRounds);
   const participantsResolved = areMatchParticipantsResolved(match);
 
@@ -396,29 +418,69 @@ export default function ManualScoreModal({
                 _dark={{ bg: 'gray.800', borderColor: 'gray.600' }}
               >
                 <Text flex="0 0 56px" />
-                <Text
+                <Flex
                   flex="1"
-                  textAlign="center"
-                  fontSize="sm"
-                  color="gray.700"
-                  fontWeight="semibold"
-                  _dark={{ color: 'gray.200' }}
-                  truncate
+                  direction="column"
+                  align="center"
+                  gap={0.5}
+                  minW={0}
                 >
-                  {team1}
-                </Text>
+                  <Text
+                    textAlign="center"
+                    fontSize="sm"
+                    color="gray.700"
+                    fontWeight="semibold"
+                    _dark={{ color: 'gray.200' }}
+                    truncate
+                    w="100%"
+                  >
+                    {team1}
+                  </Text>
+                  {team1Sub && (
+                    <Text
+                      textAlign="center"
+                      fontSize="xs"
+                      color="gray.500"
+                      _dark={{ color: 'gray.400' }}
+                      truncate
+                      w="100%"
+                    >
+                      {team1Sub}
+                    </Text>
+                  )}
+                </Flex>
                 <Text flex="0 0 18px" />
-                <Text
+                <Flex
                   flex="1"
-                  textAlign="center"
-                  fontSize="sm"
-                  color="gray.700"
-                  fontWeight="semibold"
-                  _dark={{ color: 'gray.200' }}
-                  truncate
+                  direction="column"
+                  align="center"
+                  gap={0.5}
+                  minW={0}
                 >
-                  {team2}
-                </Text>
+                  <Text
+                    textAlign="center"
+                    fontSize="sm"
+                    color="gray.700"
+                    fontWeight="semibold"
+                    _dark={{ color: 'gray.200' }}
+                    truncate
+                    w="100%"
+                  >
+                    {team2}
+                  </Text>
+                  {team2Sub && (
+                    <Text
+                      textAlign="center"
+                      fontSize="xs"
+                      color="gray.500"
+                      _dark={{ color: 'gray.400' }}
+                      truncate
+                      w="100%"
+                    >
+                      {team2Sub}
+                    </Text>
+                  )}
+                </Flex>
                 <Box flex="0 0 24px" />
               </Flex>
               <Box px={3} pt={3}>
@@ -576,18 +638,36 @@ export default function ManualScoreModal({
               {t('selectWinner')}
             </Text>
             <Flex gap={2}>
-              {([1, 2] as const).map((pos) => (
-                <Button
-                  key={pos}
-                  flex="1"
-                  minH="48px"
-                  variant={forfeitWinner === pos ? 'solid' : 'outline'}
-                  colorPalette={forfeitWinner === pos ? 'green' : 'gray'}
-                  onClick={() => setForfeitWinner(pos)}
-                >
-                  {pos === 1 ? team1 : team2}
-                </Button>
-              ))}
+              {([1, 2] as const).map((pos) => {
+                const label = pos === 1 ? team1 : team2;
+                const sub = pos === 1 ? team1Sub : team2Sub;
+                return (
+                  <Button
+                    key={pos}
+                    flex="1"
+                    minH={sub ? '64px' : '48px'}
+                    variant={forfeitWinner === pos ? 'solid' : 'outline'}
+                    colorPalette={forfeitWinner === pos ? 'green' : 'gray'}
+                    onClick={() => setForfeitWinner(pos)}
+                  >
+                    <Flex direction="column" align="center" gap={0.5}>
+                      <Text fontWeight="semibold" lineHeight="1.2">
+                        {label}
+                      </Text>
+                      {sub && (
+                        <Text
+                          fontSize="xs"
+                          fontWeight="normal"
+                          opacity={0.75}
+                          lineHeight="1.2"
+                        >
+                          {sub}
+                        </Text>
+                      )}
+                    </Flex>
+                  </Button>
+                );
+              })}
             </Flex>
             <Text fontSize="xs" color="gray.500" mt={3}>
               {t('forfeitHint')}
@@ -600,9 +680,22 @@ export default function ManualScoreModal({
             <Flex gap={3}>
               {([1, 2] as const).map((pos) => (
                 <Box key={pos} flex="1">
-                  <Text fontSize="sm" color="gray.500" mb={1} truncate>
+                  <Text
+                    fontSize="sm"
+                    color="gray.700"
+                    fontWeight="semibold"
+                    _dark={{ color: 'gray.200' }}
+                    mb={0}
+                    truncate
+                  >
                     {pos === 1 ? team1 : team2}
                   </Text>
+                  {(pos === 1 ? team1Sub : team2Sub) && (
+                    <Text fontSize="xs" color="gray.500" mb={1} truncate>
+                      {pos === 1 ? team1Sub : team2Sub}
+                    </Text>
+                  )}
+                  {!(pos === 1 ? team1Sub : team2Sub) && <Box mb={1} />}
                   <Input
                     type="number"
                     inputMode="numeric"

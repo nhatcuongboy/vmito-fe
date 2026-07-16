@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Box, useBreakpointValue } from '@chakra-ui/react';
+import { Box, Flex, Spinner, useBreakpointValue } from '@chakra-ui/react';
 import { useTranslations } from 'next-intl';
 import {
   Tournament,
@@ -46,7 +46,8 @@ import LocationPanel from './panels/LocationPanel';
 import BannerPanel from './panels/BannerPanel';
 import VideosPanel from './panels/VideosPanel';
 import ContactPanel from './panels/ContactPanel';
-import { TournamentManageSkeleton } from '@/components/tournament/skeletons';
+import DeletePanel from './panels/DeletePanel';
+
 import DuplicateTournamentModal from './DuplicateTournamentModal';
 
 interface TournamentManageProps {
@@ -411,14 +412,14 @@ export default function TournamentManage({
             onTournamentUpdate={onTournamentUpdate}
           />
         );
+      case 'delete':
+        return <DeletePanel tournament={tournament} />;
       default:
         return null;
     }
   };
 
-  if (loadingCategories) {
-    return <TournamentManageSkeleton />;
-  }
+  const panelLoading = loadingCategories;
 
   const handleManageTabChange = (tab: string) => {
     setActiveManageTab(tab);
@@ -567,7 +568,13 @@ export default function TournamentManage({
             },
           }}
         >
-          {selectedItem && selectedItem !== 'publish' && renderPanel()}
+          {panelLoading ? (
+            <Flex align="center" justify="center" h="200px">
+              <Spinner size="lg" color="green.500" />
+            </Flex>
+          ) : (
+            selectedItem && selectedItem !== 'publish' && renderPanel()
+          )}
         </Box>
       </Tabs>
 
@@ -584,7 +591,13 @@ export default function TournamentManage({
           size="lg"
           hideSecondaryAction
         >
-          {renderPanel()}
+          {panelLoading ? (
+            <Flex align="center" justify="center" h="200px">
+              <Spinner size="lg" color="green.500" />
+            </Flex>
+          ) : (
+            renderPanel()
+          )}
         </VDrawer>
       </Box>
 

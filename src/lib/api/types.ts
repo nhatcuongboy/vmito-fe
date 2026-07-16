@@ -927,6 +927,8 @@ export interface Tournament {
     pairs: number;
     categories: number;
   };
+  /** Matches with a start time or court assigned (tournament detail only). */
+  scheduledMatchesCount?: number;
   isFavorite?: boolean;
 }
 

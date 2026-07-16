@@ -103,7 +103,6 @@ const DEFAULT_EXPORT_COLUMNS: StatsColumnKey[] = [
   'wins',
   'losses',
   'winRate',
-  'averagePointDifferential',
 ];
 
 const getMvpMinMatches = (players: PlayerStatistics[]) => {

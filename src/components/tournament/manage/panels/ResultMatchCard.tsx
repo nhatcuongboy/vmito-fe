@@ -6,7 +6,6 @@ import { useLocale, useTranslations } from 'next-intl';
 import { Activity, Check, CircleSlash, Clock, Flag } from 'lucide-react';
 
 import { Category, CategoryMatch, MatchStatus } from '@/lib/api/types';
-import { getMatchDisplayCode } from '@/lib/tournament/codes';
 import { getRoundDisplayLabel } from '@/lib/tournament/roundLabel';
 import { resolveMatchSideLabel } from '@/lib/tournament/bracketSlots';
 import { usePlayoffSlotLabels } from '@/lib/tournament/usePlayoffSlotLabels';
@@ -48,6 +47,8 @@ interface ResultMatchCardProps {
   showPlayerNames?: boolean;
   /** Optional DOM id for restoring scroll/focus from another route. */
   domId?: string;
+  /** When true, also display the matchCode alongside the matchNumber label. */
+  showMatchCode?: boolean;
 }
 
 function ResultMatchCardComponent({
@@ -61,6 +62,7 @@ function ResultMatchCardComponent({
   category,
   showPlayerNames = false,
   domId,
+  showMatchCode = false,
 }: ResultMatchCardProps) {
   const t = useTranslations('pages.tournaments.manualScore');
   const tRounds = useTranslations('pages.tournaments.manualScore.rounds');
@@ -198,7 +200,8 @@ function ResultMatchCardComponent({
             lineClamp={1}
             minW={0}
           >
-            {getMatchDisplayCode(match)}
+            {t('matchNumber', { number: match.matchNumber })}
+            {showMatchCode && match.matchCode ? ` (${match.matchCode})` : ''}
             {courtLabel ? ` · ${courtLabel}` : ''}
             {timeLabel ? ` · ${timeLabel}` : ''}
           </Text>
@@ -293,7 +296,8 @@ function areResultMatchCardPropsEqual(
     labelContextIsEqual &&
     previous.category === next.category &&
     previous.showPlayerNames === next.showPlayerNames &&
-    previous.domId === next.domId
+    previous.domId === next.domId &&
+    previous.showMatchCode === next.showMatchCode
   );
 }
 
