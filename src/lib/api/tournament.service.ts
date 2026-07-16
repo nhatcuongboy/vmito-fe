@@ -363,7 +363,7 @@ export const TournamentService = {
       | {
           /** Linked mode — points to an existing Venue record. */
           venueId: string;
-          courts?: { courtNumber: number; courtName?: string }[];
+          courts?: { id?: string; courtNumber: number; courtName?: string }[];
         }
       | {
           /** Inline mode — stores address directly without a Venue record. */
@@ -376,7 +376,7 @@ export const TournamentService = {
           lng?: number;
           district?: string;
           city?: string;
-          courts?: { courtNumber: number; courtName?: string }[];
+          courts?: { id?: string; courtNumber: number; courtName?: string }[];
         }
   ): Promise<TournamentVenue> => {
     const response = await api.post<ApiResponse<TournamentVenue>>(

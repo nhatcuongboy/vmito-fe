@@ -289,7 +289,7 @@ const BaseSessionCard = ({
                 <Text as="span" fontWeight="bold" color="green.600">
                   {FeeService.getFeeDisplayText(session.feeConfig)}
                 </Text>
-                {session.feeConfig.feeType === FeeType.FIXED && (
+                {FeeService.shouldShowPerSlot(session.feeConfig) && (
                   <Text as="span" fontSize="sm" color="gray.500" ml={1}>
                     /slot
                   </Text>

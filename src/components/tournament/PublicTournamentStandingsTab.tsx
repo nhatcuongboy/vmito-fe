@@ -665,44 +665,52 @@ export default function PublicTournamentStandingsTab({
           )}
         </Box>
 
-        <HStack
-          gap="2px"
-          p="2px"
-          bg="gray.100"
+        <Flex
+          p={0.5}
+          gap={0.5}
           borderWidth="1px"
-          borderColor="transparent"
+          borderColor="gray.200"
+          borderRadius="lg"
+          bg="white"
+          ml="auto"
+          shadow="sm"
+          h="fit-content"
           _dark={{
-            bg: 'var(--tournament-surface-muted, var(--chakra-colors-gray-800))',
+            bg: 'var(--tournament-surface, var(--chakra-colors-gray-800))',
             borderColor:
               'var(--tournament-border, var(--chakra-colors-gray-700))',
           }}
-          borderRadius="full"
-          w="fit-content"
           flexShrink={0}
         >
           <Button
-            flex="unset"
-            size="xs"
+            size="sm"
             variant={stageView === 'pool' ? 'solid' : 'ghost'}
             colorPalette={stageView === 'pool' ? 'green' : 'gray'}
-            borderRadius="full"
-            px={{ base: 3, sm: 3.5 }}
+            borderRadius="md"
+            h={8}
+            px={3}
             onClick={() => setStageView('pool')}
           >
-            <ListTree size={14} /> {t('poolPlay')}
+            <HStack gap={2}>
+              <ListTree size={15} />
+              <Text>{t('poolPlay')}</Text>
+            </HStack>
           </Button>
           <Button
-            flex="unset"
-            size="xs"
+            size="sm"
             variant={stageView === 'playoffs' ? 'solid' : 'ghost'}
             colorPalette={stageView === 'playoffs' ? 'green' : 'gray'}
-            borderRadius="full"
-            px={{ base: 3, sm: 3.5 }}
+            borderRadius="md"
+            h={8}
+            px={3}
             onClick={() => setStageView('playoffs')}
           >
-            <GitBranch size={14} /> {t('playoffs')}
+            <HStack gap={2}>
+              <GitBranch size={15} />
+              <Text>{t('playoffs')}</Text>
+            </HStack>
           </Button>
-        </HStack>
+        </Flex>
       </Flex>
 
       {error ? (

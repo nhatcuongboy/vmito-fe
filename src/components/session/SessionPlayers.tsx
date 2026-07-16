@@ -27,7 +27,7 @@ import {
   useFilterable,
   ISortConfig,
 } from '@/components/ui/VTable';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { toaster } from '@/components/ui/toaster';
 
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
@@ -49,6 +49,10 @@ import { Columns3, Download } from 'lucide-react';
 import { ISession } from '@/lib/api/types';
 import { getLevelRank } from '@/constants/levels';
 import QRCode from 'qrcode';
+import {
+  arePlayersTiedForRanking,
+  rankPlayerStatistics,
+} from '@/utils/session-player-ranking';
 
 interface SessionPlayersProps {
   sessionId: string;
@@ -75,6 +79,7 @@ type StatsColumnKey =
   | 'wins'
   | 'losses'
   | 'winRate'
+  | 'averagePointDifferential'
   | 'shuttlecock';
 
 const ALL_STATS_COLUMNS: StatsColumnKey[] = [
@@ -86,6 +91,7 @@ const ALL_STATS_COLUMNS: StatsColumnKey[] = [
   'wins',
   'losses',
   'winRate',
+  'averagePointDifferential',
   'shuttlecock',
 ];
 
@@ -97,6 +103,7 @@ const DEFAULT_EXPORT_COLUMNS: StatsColumnKey[] = [
   'wins',
   'losses',
   'winRate',
+  'averagePointDifferential',
 ];
 
 const getMvpMinMatches = (players: PlayerStatistics[]) => {
@@ -108,15 +115,6 @@ const getMvpMinMatches = (players: PlayerStatistics[]) => {
   if (maxMatches <= 0) return 1;
 
   return Math.max(1, Math.min(3, Math.ceil(maxMatches * 0.5)));
-};
-
-const comparePlayerRanking = (a: PlayerStatistics, b: PlayerStatistics) => {
-  if (b.winRate !== a.winRate) return b.winRate - a.winRate;
-  if (b.wins !== a.wins) return b.wins - a.wins;
-  if (b.totalMatches !== a.totalMatches) {
-    return b.totalMatches - a.totalMatches;
-  }
-  return (a.name || '').localeCompare(b.name || '');
 };
 
 const getMvpGroup = (
@@ -136,14 +134,12 @@ const getMvpGroup = (
     return { players: [], minMatches };
   }
 
-  const sorted = [...eligiblePlayers].sort(comparePlayerRanking);
+  const ranking = rankPlayerStatistics(eligiblePlayers);
+  const sorted = ranking.players;
 
   const leader = sorted[0];
-  const tiedPlayers = sorted.filter(
-    (player) =>
-      player.winRate === leader.winRate &&
-      player.wins === leader.wins &&
-      player.totalMatches === leader.totalMatches
+  const tiedPlayers = sorted.filter((player) =>
+    arePlayersTiedForRanking(player, leader, ranking)
   );
 
   return { players: tiedPlayers, minMatches };
@@ -179,6 +175,7 @@ const StatsTable = ({
   onSort?: (config: ISortConfig<keyof PlayerStatistics> | null) => void;
 }) => {
   const { getLevelShortLabel } = useLevelLabel();
+  const locale = useLocale();
   // Use filterable with the stats passed. If externalFilters is provided, it should be used.
   const { filteredData } = useFilterable<PlayerStatistics>(stats);
 
@@ -195,6 +192,19 @@ const StatsTable = ({
   }, [stats, filteredData, exportMode, externalFilters]);
 
   const mvpGroups = useMemo(() => getMvpGroups(displayedData), [displayedData]);
+  const defaultRanking = useMemo(
+    () => rankPlayerStatistics(displayedData),
+    [displayedData]
+  );
+  const pointDifferentialFormatter = useMemo(
+    () =>
+      new Intl.NumberFormat(locale, {
+        minimumFractionDigits: 1,
+        maximumFractionDigits: 1,
+        signDisplay: 'exceptZero',
+      }),
+    [locale]
+  );
 
   const overallMvpIds = useMemo(
     () => new Set(mvpGroups.overall.players.map((player) => player.playerId)),
@@ -229,7 +239,7 @@ const StatsTable = ({
   }, [externalSortConfig]);
 
   const sortedData = useMemo(() => {
-    if (!sortConfig) return [...displayedData].sort(comparePlayerRanking);
+    if (!sortConfig) return defaultRanking.players;
 
     return [...displayedData].sort((a, b) => {
       // Level IDs are stable identifiers, not skill order (e.g. Yếu- = 9 but
@@ -263,7 +273,7 @@ const StatsTable = ({
       const cmp = aStr.localeCompare(bStr);
       return sortConfig.direction === 'asc' ? cmp : -cmp;
     });
-  }, [displayedData, sortConfig]);
+  }, [defaultRanking.players, displayedData, sortConfig]);
 
   const handleSort = useCallback(
     (key: keyof PlayerStatistics) => {
@@ -408,6 +418,19 @@ const StatsTable = ({
                 >
                   <Text as="span">{t('columnWinRate')}</Text>
                 </HStack>
+              </Th>
+            )}
+            {visibleColumnSet.has('averagePointDifferential') && (
+              <Th
+                sortKey={exportMode ? undefined : 'averagePointDifferential'}
+                sortConfig={exportMode ? undefined : sortConfig}
+                onSort={exportMode ? undefined : sortHandler}
+                textAlign="center"
+                title={t('averagePointDifferentialDescription')}
+                minW={exportMode ? '74px' : '112px'}
+                {...thProps}
+              >
+                {t('columnAveragePointDifferential')}
               </Th>
             )}
             {visibleColumnSet.has('shuttlecock') && (
@@ -586,6 +609,34 @@ const StatsTable = ({
                     </Badge>
                   </Td>
                 )}
+                {visibleColumnSet.has('averagePointDifferential') && (
+                  <Td textAlign="center" {...tdProps}>
+                    <VStack gap={0.5} align="center">
+                      <Text fontSize="sm" fontWeight="bold">
+                        {p.averagePointDifferential == null
+                          ? '—'
+                          : pointDifferentialFormatter.format(
+                              p.averagePointDifferential
+                            )}
+                      </Text>
+                      {!exportMode &&
+                        defaultRanking.pointDifferentialTiebreakPlayerIds.has(
+                          p.playerId
+                        ) && (
+                          <Badge
+                            colorPalette="green"
+                            variant="subtle"
+                            size="xs"
+                            fontSize="9px"
+                            px={1}
+                            title={t('pointDifferentialTiebreakTooltip')}
+                          >
+                            {t('pointDifferentialTiebreakBadge')}
+                          </Badge>
+                        )}
+                    </VStack>
+                  </Td>
+                )}
                 {visibleColumnSet.has('shuttlecock') && (
                   <Td textAlign="center" {...tdProps}>
                     <Text fontSize="sm" fontWeight="semibold">
@@ -719,6 +770,7 @@ const SessionPlayers: React.FC<SessionPlayersProps> = ({
       wins: t('columnWins'),
       losses: t('columnLosses'),
       winRate: t('columnWinRate'),
+      averagePointDifferential: t('columnAveragePointDifferential'),
       shuttlecock: t('columnShuttlecock'),
     };
 

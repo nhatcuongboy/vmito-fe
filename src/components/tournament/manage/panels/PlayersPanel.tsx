@@ -39,6 +39,8 @@ import {
 import { TournamentMatchListSkeleton } from '@/components/tournament/skeletons';
 import AppSingleImageUpload from '@/components/session/AppSingleImageUpload';
 import { generateNextTournamentPlayerCode } from '@/lib/tournament/codes';
+import { VALID_LEVELS } from '@/constants/levels';
+import { useLevelLabel } from '@/hooks/useLevelLabel';
 
 interface PlayersPanelProps {
   tournament: Tournament;
@@ -54,12 +56,7 @@ type ApiErrorLike = {
   };
 };
 
-const GENDER_VALUES: GenderType[] = [
-  'MALE',
-  'FEMALE',
-  'OTHER',
-  'PREFER_NOT_TO_SAY',
-];
+const GENDER_VALUES: GenderType[] = ['MALE', 'FEMALE'];
 
 const getErrorMessage = (error: unknown, fallback: string): string => {
   const apiError = error as ApiErrorLike;
@@ -195,6 +192,7 @@ const isImportHeaderRow = (values: string[]): boolean => {
 
 export default function PlayersPanel({ tournament }: PlayersPanelProps) {
   const t = useTranslations('pages.tournaments.detail.manage.panels.players');
+  const { getLevelLabel } = useLevelLabel();
   const [players, setPlayers] = useState<TournamentPlayer[]>([]);
   const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState('');
@@ -789,8 +787,8 @@ export default function PlayersPanel({ tournament }: PlayersPanelProps) {
               )}
               <Flex
                 position="absolute"
-                right={0}
-                bottom={0}
+                right="-2px"
+                bottom="-2px"
                 w="22px"
                 h="22px"
                 borderRadius="full"
@@ -800,6 +798,8 @@ export default function PlayersPanel({ tournament }: PlayersPanelProps) {
                 justify="center"
                 borderWidth="2px"
                 borderColor="white"
+                boxShadow="sm"
+                transform="translate(10%, 10%)"
                 _dark={{ borderColor: 'gray.800' }}
               >
                 <ImagePlus size={12} />
@@ -868,9 +868,9 @@ export default function PlayersPanel({ tournament }: PlayersPanelProps) {
                 onChange={(e) => updateField('level', e.target.value)}
               >
                 <option value="">—</option>
-                {Array.from({ length: 10 }, (_, i) => i + 1).map((n) => (
-                  <option key={n} value={String(n)}>
-                    {n}
+                {VALID_LEVELS.map((level) => (
+                  <option key={level} value={String(level)}>
+                    {getLevelLabel(level)}
                   </option>
                 ))}
               </VSelect>

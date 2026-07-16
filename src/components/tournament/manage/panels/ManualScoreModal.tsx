@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { Box, Flex, Text } from '@chakra-ui/react';
-import { Button, Input } from '@/components/ui/chakra-compat';
+import { Button, IconButton, Input } from '@/components/ui/chakra-compat';
 import {
   Modal,
   ModalHeader,
@@ -165,6 +165,9 @@ export default function ManualScoreModal({
   }));
   const { complete, winnerSide } = isMatchComplete(matchSets, rules);
   const winnerName = winnerSide === 1 ? team1 : winnerSide === 2 ? team2 : null;
+  const hasAnyInput = sets.some(
+    (s) => s.player1Score !== '' || s.player2Score !== ''
+  );
 
   const manual1Num = toNum(manual1);
   const manual2Num = toNum(manual2);
@@ -295,15 +298,15 @@ export default function ManualScoreModal({
   return (
     <Modal isOpen={isOpen} onClose={onClose} size="lg">
       <ModalHeader pb={3}>
-        <Text fontSize="2xl" fontWeight="bold" lineHeight="1.2">
+        <Text fontSize="xl" fontWeight="bold" lineHeight="1.2">
           {t('title')}
         </Text>
-        <Text mt={2} fontSize="sm" color="gray.500" fontWeight="medium">
-          #{match.matchNumber} · {roundLabel}
-        </Text>
-        <Box mt={3}>
-          <MatchFormatBadges match={match} sportType={sportType} />
-        </Box>
+        <Flex mt={1.5} align="center" gap={2} wrap="wrap">
+          <Text fontSize="sm" color="gray.500" fontWeight="medium">
+            #{match.matchNumber} · {roundLabel}
+          </Text>
+          <MatchFormatBadges match={match} sportType={sportType} size="sm" />
+        </Flex>
       </ModalHeader>
       <ModalCloseButton onClose={onClose} />
       <ModalBody p={{ base: 4, md: 5 }}>
@@ -327,23 +330,31 @@ export default function ManualScoreModal({
           </Box>
         )}
         <Flex
-          gap={2}
+          gap={1}
           mb={5}
-          p={1}
-          borderWidth="1px"
-          borderColor="gray.200"
+          p="3px"
           borderRadius="lg"
-          bg="gray.50"
-          _dark={{ bg: 'gray.700', borderColor: 'gray.600' }}
+          bg="gray.100"
+          _dark={{ bg: 'gray.700' }}
         >
           {modes.map((m) => (
             <Button
               key={m}
               size="sm"
               flex="1"
-              variant={mode === m ? 'solid' : 'outline'}
-              colorPalette={mode === m ? 'blue' : 'gray'}
+              variant="ghost"
+              colorPalette="gray"
               onClick={() => setMode(m)}
+              bg={mode === m ? 'white' : 'transparent'}
+              color={mode === m ? 'blue.600' : 'gray.500'}
+              shadow={mode === m ? 'sm' : 'none'}
+              fontWeight={mode === m ? 'semibold' : 'medium'}
+              _hover={{ bg: mode === m ? 'white' : 'gray.200' }}
+              _dark={{
+                bg: mode === m ? 'gray.800' : 'transparent',
+                color: mode === m ? 'blue.300' : 'gray.400',
+                _hover: { bg: mode === m ? 'gray.800' : 'gray.600' },
+              }}
               leftIcon={
                 m === 'score' ? (
                   <Send size={14} />
@@ -367,130 +378,165 @@ export default function ManualScoreModal({
 
         {mode === 'score' && (
           <>
-            <Flex align="center" gap={2} mb={2}>
-              <Text flex="0 0 72px" fontSize="sm" color="gray.500" />
-              <Text
-                flex="1"
-                textAlign="center"
-                fontSize="sm"
-                color="gray.600"
-                fontWeight="semibold"
-                truncate
+            <Box
+              borderWidth="1px"
+              borderColor="gray.200"
+              borderRadius="xl"
+              overflow="hidden"
+              _dark={{ borderColor: 'gray.600' }}
+            >
+              <Flex
+                align="center"
+                gap={2}
+                px={3}
+                py={2}
+                bg="gray.50"
+                borderBottomWidth="1px"
+                borderColor="gray.200"
+                _dark={{ bg: 'gray.800', borderColor: 'gray.600' }}
               >
-                {team1}
-              </Text>
-              <Text flex="0 0 18px" />
-              <Text
-                flex="1"
-                textAlign="center"
-                fontSize="sm"
-                color="gray.600"
-                fontWeight="semibold"
-                truncate
-              >
-                {team2}
-              </Text>
-              <Box flex="0 0 24px" />
-            </Flex>
-            {sets.map((s, i) => {
-              const a = toNum(s.player1Score);
-              const b = toNum(s.player2Score);
-              const hasInput = s.player1Score !== '' || s.player2Score !== '';
-              const setDone = isSetComplete(a, b, rules).complete;
-              return (
-                <Flex key={i} align="center" gap={2} mb={3}>
-                  <Text fontSize="sm" color="gray.500" flex="0 0 72px">
-                    {t('set')} {i + 1}
-                  </Text>
-                  <Input
-                    type="number"
-                    inputMode="numeric"
-                    min={0}
-                    max={maxScore}
-                    placeholder="0"
-                    value={s.player1Score}
-                    onChange={(e) => updateScore(i, 1, e.target.value)}
-                    onFocus={(e) => e.target.select()}
-                    textAlign="center"
-                    h="48px"
-                    fontSize="lg"
-                    fontWeight="semibold"
-                  />
-                  <Text color="gray.400" flex="0 0 18px" textAlign="center">
-                    -
-                  </Text>
-                  <Input
-                    type="number"
-                    inputMode="numeric"
-                    min={0}
-                    max={maxScore}
-                    placeholder="0"
-                    value={s.player2Score}
-                    onChange={(e) => updateScore(i, 2, e.target.value)}
-                    onFocus={(e) => e.target.select()}
-                    textAlign="center"
-                    h="48px"
-                    fontSize="lg"
-                    fontWeight="semibold"
-                  />
-                  <Flex
-                    flex="0 0 24px"
-                    justify="center"
-                    align="center"
-                    color={
-                      setDone
-                        ? 'green.500'
-                        : hasInput
-                          ? 'orange.400'
-                          : 'transparent'
-                    }
-                  >
-                    {setDone ? (
-                      <CheckCircle2 size={20} aria-label={t('setValid')} />
-                    ) : hasInput ? (
-                      <AlertCircle size={20} aria-label={t('setIncomplete')} />
-                    ) : null}
-                  </Flex>
-                </Flex>
-              );
-            })}
+                <Text flex="0 0 56px" />
+                <Text
+                  flex="1"
+                  textAlign="center"
+                  fontSize="sm"
+                  color="gray.700"
+                  fontWeight="semibold"
+                  _dark={{ color: 'gray.200' }}
+                  truncate
+                >
+                  {team1}
+                </Text>
+                <Text flex="0 0 18px" />
+                <Text
+                  flex="1"
+                  textAlign="center"
+                  fontSize="sm"
+                  color="gray.700"
+                  fontWeight="semibold"
+                  _dark={{ color: 'gray.200' }}
+                  truncate
+                >
+                  {team2}
+                </Text>
+                <Box flex="0 0 24px" />
+              </Flex>
+              <Box px={3} pt={3}>
+                {sets.map((s, i) => {
+                  const a = toNum(s.player1Score);
+                  const b = toNum(s.player2Score);
+                  const hasInput =
+                    s.player1Score !== '' || s.player2Score !== '';
+                  const setDone = isSetComplete(a, b, rules).complete;
+                  const removable =
+                    i === sets.length - 1 && sets.length > minSets && !hasInput;
+                  return (
+                    <Flex key={i} align="center" gap={2} mb={3}>
+                      <Text fontSize="sm" color="gray.500" flex="0 0 56px">
+                        {t('set')} {i + 1}
+                      </Text>
+                      <Input
+                        type="number"
+                        inputMode="numeric"
+                        min={0}
+                        max={maxScore}
+                        placeholder="0"
+                        value={s.player1Score}
+                        onChange={(e) => updateScore(i, 1, e.target.value)}
+                        onFocus={(e) => e.target.select()}
+                        textAlign="center"
+                        h="48px"
+                        fontSize="lg"
+                        fontWeight="semibold"
+                      />
+                      <Text color="gray.400" flex="0 0 18px" textAlign="center">
+                        -
+                      </Text>
+                      <Input
+                        type="number"
+                        inputMode="numeric"
+                        min={0}
+                        max={maxScore}
+                        placeholder="0"
+                        value={s.player2Score}
+                        onChange={(e) => updateScore(i, 2, e.target.value)}
+                        onFocus={(e) => e.target.select()}
+                        textAlign="center"
+                        h="48px"
+                        fontSize="lg"
+                        fontWeight="semibold"
+                      />
+                      <Flex
+                        flex="0 0 24px"
+                        justify="center"
+                        align="center"
+                        color={
+                          setDone
+                            ? 'green.500'
+                            : hasInput
+                              ? 'orange.400'
+                              : 'transparent'
+                        }
+                      >
+                        {removable ? (
+                          <IconButton
+                            aria-label={t('removeSet')}
+                            title={t('removeSet')}
+                            size="xs"
+                            variant="ghost"
+                            colorPalette="gray"
+                            color="gray.400"
+                            onClick={removeLatestSet}
+                            icon={<Minus size={16} />}
+                          />
+                        ) : setDone ? (
+                          <CheckCircle2 size={20} aria-label={t('setValid')} />
+                        ) : hasInput ? (
+                          <AlertCircle
+                            size={20}
+                            aria-label={t('setIncomplete')}
+                          />
+                        ) : null}
+                      </Flex>
+                    </Flex>
+                  );
+                })}
+              </Box>
+            </Box>
 
-            <Flex gap={3} mt={2}>
-              <Button
-                flex="1"
-                size="md"
-                variant="outline"
-                colorPalette="green"
-                onClick={addSet}
-                disabled={sets.length >= maxSets}
-                leftIcon={<Plus size={16} />}
-              >
-                {t('addSet')}
-              </Button>
-              <Button
-                flex="1"
-                size="md"
-                variant="outline"
-                colorPalette="gray"
-                onClick={removeLatestSet}
-                disabled={sets.length <= minSets}
-                leftIcon={<Minus size={16} />}
-              >
-                {t('removeSet')}
-              </Button>
-            </Flex>
+            {sets.length < maxSets && (
+              <Flex justify="center" mt={2}>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  colorPalette="green"
+                  onClick={addSet}
+                  leftIcon={<Plus size={14} />}
+                >
+                  {t('addSet')}
+                </Button>
+              </Flex>
+            )}
 
-            <ResultBox tone={complete && winnerName ? 'success' : 'warning'}>
+            <ResultBox
+              tone={
+                complete && winnerName
+                  ? 'success'
+                  : hasAnyInput
+                    ? 'warning'
+                    : 'neutral'
+              }
+            >
               {complete && winnerName ? (
                 <Flex justify="center" align="center" gap={2} wrap="wrap">
-                  <Trophy size={18} />
-                  <Text>
+                  <Trophy size={16} />
+                  <Text fontSize="sm">
                     {t('winner')}:{' '}
                     <Text as="span" fontWeight="bold">
                       {winnerName}
                     </Text>{' '}
-                    <Text as="span" color="gray.500">
-                      ({buildScoreString(matchSets)})
+                    <Text as="span" opacity={0.75}>
+                      · {buildScoreString(matchSets)}
                     </Text>
                   </Text>
                 </Flex>
@@ -618,27 +664,6 @@ export default function ManualScoreModal({
   );
 }
 
-function TeamHeading({
-  label,
-  align,
-}: {
-  label: string;
-  align: 'left' | 'right';
-}) {
-  return (
-    <Box flex="1" minW={0}>
-      <Text
-        fontWeight="bold"
-        fontSize={{ base: 'lg', md: 'xl' }}
-        textAlign={align}
-        lineClamp={2}
-      >
-        {label}
-      </Text>
-    </Box>
-  );
-}
-
 function ResultBox({
   children,
   tone = 'neutral',
@@ -674,7 +699,8 @@ function ResultBox({
   return (
     <Box
       mt={4}
-      p={3}
+      px={3}
+      py={2.5}
       borderWidth="1px"
       borderRadius="lg"
       textAlign="center"

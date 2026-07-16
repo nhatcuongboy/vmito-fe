@@ -90,10 +90,7 @@ const RecommendationCard = ({
         return FeeService.formatFee(maleFee || 0);
       }
 
-      const minFee = Math.min(maleFee || 0, femaleFee || 0);
-      const maxFee = Math.max(maleFee || 0, femaleFee || 0);
-
-      return `${FeeService.formatFee(minFee)}-${FeeService.formatFee(maxFee)}`;
+      return FeeService.formatFeeRange(maleFee || 0, femaleFee || 0);
     }
 
     return tFee('splitEvenly');

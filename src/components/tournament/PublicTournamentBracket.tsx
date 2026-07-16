@@ -444,7 +444,16 @@ function BracketSide({
       >
         {label}
       </Text>
-      {isWinner && <Trophy size={13} color="var(--chakra-colors-green-600)" />}
+      {isWinner && (
+        <Box
+          as="span"
+          flexShrink={0}
+          color="yellow.500"
+          _dark={{ color: 'yellow.400' }}
+        >
+          <Trophy size={16} fill="currentColor" />
+        </Box>
+      )}
     </Flex>
   );
 }

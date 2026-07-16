@@ -757,11 +757,12 @@ export default function SessionInfo({
                 <Text color="green.600" fontWeight="bold">
                   {feeDisplayText}
                 </Text>
-                {canSeeSessionFee && session.feeConfig.feeType === 'FIXED' && (
-                  <Text ml={1} color="gray.500" fontSize="sm">
-                    /slot
-                  </Text>
-                )}
+                {canSeeSessionFee &&
+                  FeeService.shouldShowPerSlot(session.feeConfig) && (
+                    <Text ml={1} color="gray.500" fontSize="sm">
+                      /slot
+                    </Text>
+                  )}
                 {canSeeSessionFee && (
                   <FeeDetailPopover feeConfig={session.feeConfig} />
                 )}

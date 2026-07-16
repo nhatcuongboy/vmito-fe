@@ -692,6 +692,8 @@ export interface PlayerStatistics {
   losses: number;
   winRate: number;
   averageScore: number;
+  scoredMatches: number;
+  averagePointDifferential: number | null;
   totalPlayTime: number;
   totalWaitTime: number;
   totalShuttlecocks?: number | null;
@@ -1146,6 +1148,11 @@ export interface TournamentCourt {
   notes?: string;
   createdAt: Date;
   updatedAt: Date;
+  /** Usage counters (returned by GET /tournaments/:id/venues). */
+  _count?: {
+    matches?: number;
+    courtTimeSlots?: number;
+  };
 }
 
 export interface TournamentVenue {

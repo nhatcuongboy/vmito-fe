@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Badge, Box, Flex, Grid, Heading, Text } from '@chakra-ui/react';
 import { Award, Crown, Medal, RotateCcw } from 'lucide-react';
 import { useTranslations } from 'next-intl';
@@ -22,6 +22,7 @@ import {
 import { Button, LegacySelect, VStack } from '@/components/ui/chakra-compat';
 import { TournamentTableSkeleton } from '@/components/tournament/skeletons';
 import PlayerNamesToggle from '@/components/tournament/PlayerNamesToggle';
+import { useTournamentSocket } from '@/hooks/useTournamentSocket';
 
 interface PublicTournamentWinnersTabProps {
   tournament: Tournament;
@@ -29,6 +30,7 @@ interface PublicTournamentWinnersTabProps {
 }
 
 const ALL_CATEGORIES_VALUE = 'all';
+const REALTIME_REFRESH_DELAY_MS = 500;
 
 const RANK_STYLE: Record<
   PodiumRank,
@@ -85,45 +87,80 @@ export default function PublicTournamentWinnersTab({
   const [showPlayerNames, setShowPlayerNames] = useState(true);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+  const realtimeRefreshTimeoutRef = useRef<ReturnType<
+    typeof setTimeout
+  > | null>(null);
 
-  const load = useCallback(async () => {
-    if (categories.length === 0) {
-      setMatches([]);
-      setStandingsByCategory(new Map());
-      setLoading(false);
-      setError(false);
-      return;
-    }
+  const load = useCallback(
+    async (options?: { silent?: boolean }) => {
+      if (categories.length === 0) {
+        setMatches([]);
+        setStandingsByCategory(new Map());
+        setLoading(false);
+        setError(false);
+        return;
+      }
 
-    try {
-      setLoading(true);
-      setError(false);
-      const [allMatches, standingsList] = await Promise.all([
-        TournamentService.getAllMatches(tournament.id),
-        Promise.all(
-          categories.map(async (category) => ({
-            categoryId: category.id,
-            standings: await CategoryService.getAllStandings(category.id),
-          }))
-        ),
-      ]);
-      setMatches(allMatches);
-      setStandingsByCategory(
-        new Map(standingsList.map((item) => [item.categoryId, item.standings]))
-      );
-    } catch (loadError) {
-      console.error('Error loading tournament winners:', loadError);
-      setError(true);
-      setMatches([]);
-      setStandingsByCategory(new Map());
-    } finally {
-      setLoading(false);
-    }
-  }, [categories, tournament.id]);
+      try {
+        if (!options?.silent) {
+          setLoading(true);
+        }
+        setError(false);
+        const [allMatches, standingsList] = await Promise.all([
+          TournamentService.getAllMatches(tournament.id),
+          Promise.all(
+            categories.map(async (category) => ({
+              categoryId: category.id,
+              standings: await CategoryService.getAllStandings(category.id),
+            }))
+          ),
+        ]);
+        setMatches(allMatches);
+        setStandingsByCategory(
+          new Map(
+            standingsList.map((item) => [item.categoryId, item.standings])
+          )
+        );
+      } catch (loadError) {
+        console.error('Error loading tournament winners:', loadError);
+        setError(true);
+        setMatches([]);
+        setStandingsByCategory(new Map());
+      } finally {
+        setLoading(false);
+      }
+    },
+    [categories, tournament.id]
+  );
 
   useEffect(() => {
     void load();
   }, [load]);
+
+  const scheduleRealtimeRefresh = useCallback(() => {
+    if (realtimeRefreshTimeoutRef.current) {
+      clearTimeout(realtimeRefreshTimeoutRef.current);
+    }
+
+    realtimeRefreshTimeoutRef.current = setTimeout(() => {
+      realtimeRefreshTimeoutRef.current = null;
+      void load({ silent: true });
+    }, REALTIME_REFRESH_DELAY_MS);
+  }, [load]);
+
+  useEffect(() => {
+    return () => {
+      if (realtimeRefreshTimeoutRef.current) {
+        clearTimeout(realtimeRefreshTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  useTournamentSocket(tournament.id, {
+    onMatchEnded: scheduleRealtimeRefresh,
+    onTournamentEnded: scheduleRealtimeRefresh,
+    onReconnect: () => void load({ silent: true }),
+  });
 
   const allPodiums = useMemo(
     () =>

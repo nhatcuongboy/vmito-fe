@@ -747,9 +747,13 @@ export default function SessionOverviewTab({
             <VStack align="stretch" gap={1.5} color="fg.muted" fontSize="sm">
               <Text>{t('playersTab.rankingInfoOrderWinRate')}</Text>
               <Text>{t('playersTab.rankingInfoOrderWins')}</Text>
+              <Text>{t('playersTab.rankingInfoOrderPointDifferential')}</Text>
               <Text>{t('playersTab.rankingInfoOrderMatches')}</Text>
               <Text>{t('playersTab.rankingInfoOrderTie')}</Text>
             </VStack>
+            <Text color="fg.muted" fontSize="xs" mt={2}>
+              {t('playersTab.rankingInfoPointDifferentialDescription')}
+            </Text>
           </Box>
           <Box>
             <Text fontWeight="semibold" mb={2}>

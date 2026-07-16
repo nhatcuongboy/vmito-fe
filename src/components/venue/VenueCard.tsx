@@ -180,24 +180,6 @@ export default function VenueCard({
               }
             />
           </Box>
-
-          {/* Find Sessions Button on Banner */}
-          <Box position="absolute" bottom={3} right={3} zIndex={3}>
-            <Button
-              size="xs"
-              colorPalette="green"
-              fontWeight="bold"
-              px={3}
-              h="32px"
-              fontSize="xs"
-              onClick={handleFindSessions}
-              shadow="md"
-              borderRadius="full"
-              leftIcon={<Search size={14} />}
-            >
-              {t('findSessions')}
-            </Button>
-          </Box>
         </Box>
 
         {/* Content Row below Banner */}
