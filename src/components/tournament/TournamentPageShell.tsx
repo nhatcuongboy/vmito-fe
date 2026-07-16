@@ -956,6 +956,8 @@ export default function TournamentPageShell({
           topBarClassName="tournament-topbar"
           bg="var(--tournament-bg)"
           maxW="full"
+          contentTopOffset="0px"
+          px={{ base: '24px', md: 0 }}
           pb={{
             base: 'calc(64px + env(safe-area-inset-bottom) + 24px)',
             md: 0,
