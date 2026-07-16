@@ -2101,7 +2101,8 @@
             "dates": "Tournament Dates",
             "location": "Tournament Location",
             "banner": "Tournament Banner",
-            "managers": "Tournament managers"
+            "managers": "Tournament managers",
+            "delete": "Delete tournament"
           },
           "duplicateModal": {
             "title": "Duplicate tournament",
@@ -2593,6 +2594,17 @@
             }
           },
           "panels": {
+            "delete": {
+              "title": "Delete Tournament",
+              "description": "Permanently delete this tournament and all of its associated data.",
+              "warningTitle": "Warning: Permanent Action",
+              "warningText": "This action cannot be undone. All data, including categories, teams, players, schedules, and match results will be permanently deleted.",
+              "instruction": "To confirm deletion, please type the tournament name exactly: \"{name}\"",
+              "placeholder": "Type tournament name to confirm",
+              "button": "Permanently delete tournament",
+              "success": "Tournament deleted successfully.",
+              "error": "Failed to delete tournament. Please try again."
+            },
             "visibility": {
               "title": "Visibility",
               "description": "Control who can see this tournament.",

@@ -2110,7 +2110,8 @@
             "dates": "Ngày tổ chức",
             "location": "Địa điểm",
             "banner": "Ảnh banner",
-            "managers": "Quản trị viên"
+            "managers": "Quản trị viên",
+            "delete": "Xóa giải đấu"
           },
           "duplicateModal": {
             "title": "Nhân đôi giải đấu",
@@ -2602,6 +2603,17 @@
             }
           },
           "panels": {
+            "delete": {
+              "title": "Xóa giải đấu",
+              "description": "Xóa vĩnh viễn giải đấu này và tất cả dữ liệu liên quan.",
+              "warningTitle": "Cảnh báo: Hành động không thể hoàn tác",
+              "warningText": "Thao tác này sẽ xóa vĩnh viễn toàn bộ dữ liệu bao gồm các hạng mục thi đấu, danh sách đội, người chơi, lịch trình và kết quả trận đấu.",
+              "instruction": "Để xác nhận xóa, vui lòng nhập chính xác tên giải đấu: \"{name}\"",
+              "placeholder": "Nhập tên giải đấu để xác nhận",
+              "button": "Xóa giải đấu vĩnh viễn",
+              "success": "Đã xóa giải đấu thành công.",
+              "error": "Xóa giải đấu thất bại. Vui lòng thử lại."
+            },
             "visibility": {
               "title": "Hiển thị",
               "description": "Kiểm soát xem ai có thể xem giải đấu này.",

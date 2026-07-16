@@ -2079,7 +2079,8 @@
             "dates": "锦标赛日期",
             "location": "锦标赛地点",
             "banner": "锦标赛横幅",
-            "managers": "管理员"
+            "managers": "管理员",
+            "delete": "删除锦标赛"
           },
           "duplicateModal": {
             "title": "复制锦标赛",
@@ -2571,6 +2572,17 @@
             }
           },
           "panels": {
+            "delete": {
+              "title": "删除锦标赛",
+              "description": "永久删除此锦标赛及其所有相关数据。",
+              "warningTitle": "警告：永久操作",
+              "warningText": "此操作无法撤销。所有数据，包括类别、队伍、选手、赛程和比赛结果，都将被永久删除。",
+              "instruction": "要确认删除，请准确输入锦标赛名称：\"{name}\"",
+              "placeholder": "输入锦标赛名称以确认",
+              "button": "永久删除锦标赛",
+              "success": "锦标赛删除成功。",
+              "error": "删除锦标赛失败。请稍后重试。"
+            },
             "visibility": {
               "title": "可见性",
               "description": "控制谁可以查看此锦标赛。",
