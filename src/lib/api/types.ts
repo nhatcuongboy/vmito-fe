@@ -914,6 +914,7 @@ export interface Tournament {
   };
   venue?: Venue;
   venueId?: string | null;
+  tournamentVenues?: TournamentVenue[];
   categories?: Category[];
   umpires?: TournamentUmpire[];
   scoringDevices?: TournamentScoringDevice[];
@@ -1219,6 +1220,21 @@ export interface CreateTournamentRequest {
   startDate: Date;
   endDate: Date;
   venueId?: string;
+  /**
+   * Raw location picked at creation. The BE links an existing Venue by
+   * placeId or stores it inline on TournamentVenue — it never creates a
+   * new Venue record. Ignored when venueId is provided.
+   */
+  location?: {
+    placeId?: string;
+    name: string;
+    acronym?: string;
+    address?: string;
+    lat?: number;
+    lng?: number;
+    district?: string;
+    city?: string;
+  };
   sportType?: SportType;
 }
 

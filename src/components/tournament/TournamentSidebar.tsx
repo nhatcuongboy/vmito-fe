@@ -7,6 +7,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { Tournament } from '@/lib/api/types';
 import SidebarNav from '@/components/ui/SidebarNav';
 import { useLocale, useTranslations } from 'next-intl';
+import { getPrimaryVenueDisplay } from '@/utils';
 
 interface SidebarTab {
   id: number;
@@ -116,6 +117,11 @@ function TournamentSidebarHeader({
 
   const statusLabel = tournament.isPublished ? publishedLabel : draftLabel;
   const statusColor = tournament.isPublished ? 'green' : 'gray';
+  const primaryVenue = getPrimaryVenueDisplay(tournament);
+  const bannerImage =
+    tournament.coverPhoto ||
+    primaryVenue?.coverPhoto ||
+    primaryVenue?.images?.[0];
 
   return (
     <>
@@ -129,15 +135,9 @@ function TournamentSidebarHeader({
           bg: 'var(--tournament-surface-muted, var(--chakra-colors-gray-800))',
         }}
       >
-        {tournament.coverPhoto ||
-        tournament.venue?.coverPhoto ||
-        tournament.venue?.images?.[0] ? (
+        {bannerImage ? (
           <Image
-            src={
-              tournament.coverPhoto ||
-              tournament.venue?.coverPhoto ||
-              tournament.venue!.images![0]
-            }
+            src={bannerImage}
             alt={tournament.name}
             w="100%"
             h="100%"

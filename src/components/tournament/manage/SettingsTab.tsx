@@ -18,6 +18,7 @@ import { Tournament } from '@/lib/api/types';
 import { useAuthStore } from '@/stores/useAuthStore';
 import ManageMenuItem from './ManageMenuItem';
 import TournamentStatusBanner from './TournamentStatusBanner';
+import { getPrimaryVenueDisplay } from '@/utils';
 
 interface SettingsTabProps {
   tournament: Tournament;
@@ -48,8 +49,9 @@ export default function SettingsTab({
     }
   );
 
-  const location = tournament.venue
-    ? `${tournament.venue.city || tournament.venue.address}${tournament.venue.newCity && tournament.venue.newCity !== tournament.venue.city ? ` (${tournament.venue.newCity})` : ''}`
+  const primaryVenue = getPrimaryVenueDisplay(tournament);
+  const location = primaryVenue
+    ? `${primaryVenue.city || primaryVenue.address}${primaryVenue.newCity && primaryVenue.newCity !== primaryVenue.city ? ` (${primaryVenue.newCity})` : ''}`
     : undefined;
 
   return (

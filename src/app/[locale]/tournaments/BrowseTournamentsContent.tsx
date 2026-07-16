@@ -27,6 +27,7 @@ import { AppSearchBar } from '@/components/common/AppSearchBar';
 import { useRegisterTopBarSearch } from '@/contexts/TopBarSearchContext';
 import AppEmptyState from '@/components/ui/AppEmptyState';
 import { FavoriteButton } from '@/components/favorites/FavoriteButton';
+import { getPrimaryVenueDisplay } from '@/utils';
 import { FavoriteFilterButton } from '@/components/favorites/FavoriteFilterButton';
 
 function isSameCalendarDay(first: Date, second: Date) {
@@ -134,11 +135,12 @@ function TournamentsContent() {
   };
 
   const getLocationText = (tournament: Tournament) => {
-    if (tournament.venue) {
+    const venue = getPrimaryVenueDisplay(tournament);
+    if (venue) {
       const parts: string[] = [];
-      if (tournament.venue.name) parts.push(tournament.venue.name);
-      if (tournament.venue.address) parts.push(tournament.venue.address);
-      if (tournament.venue.district) parts.push(tournament.venue.district);
+      if (venue.name) parts.push(venue.name);
+      if (venue.address) parts.push(venue.address);
+      if (venue.district) parts.push(venue.district);
       return parts.join(', ') || null;
     }
     return null;
@@ -146,9 +148,9 @@ function TournamentsContent() {
 
   const getCoverImage = (tournament: Tournament) => {
     if (tournament.coverPhoto) return tournament.coverPhoto;
-    if (tournament.venue?.coverPhoto) return tournament.venue.coverPhoto;
-    if (tournament.venue?.images && tournament.venue.images.length > 0)
-      return tournament.venue.images[0];
+    const venue = getPrimaryVenueDisplay(tournament);
+    if (venue?.coverPhoto) return venue.coverPhoto;
+    if (venue?.images && venue.images.length > 0) return venue.images[0];
     return BADMINTON_PLACEHOLDER;
   };
 

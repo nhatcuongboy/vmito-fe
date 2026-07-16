@@ -3182,19 +3182,19 @@
             },
             "location": {
               "title": "锦标赛地点",
-              "description": "设置锦标赛场地",
-              "searchLabel": "搜索场地",
-              "searchPlaceholder": "按名称或地址搜索...",
-              "noVenues": "未找到场地",
+              "description": "选择在锦标赛公开页面上显示的主要场地",
               "clearSelection": "清除选择",
               "save": "保存",
               "cancel": "取消",
               "success": "锦标赛地点更新成功",
               "errors": {
-                "searchFailed": "搜索场地失败",
                 "noChanges": "没有更改需要保存",
-                "updateFailed": "更新锦标赛地点失败"
-              }
+                "updateFailed": "更新锦标赛地点失败",
+                "loadFailed": "加载场地列表失败"
+              },
+              "empty": "该锦标赛尚未关联任何场地。请先在比赛场地标签中添加场地。",
+              "goToVenues": "管理场地",
+              "inlineHint": "仅有地址的场地 — 需关联场地目录后才能设为主要场地"
             },
             "banner": {
               "title": "锦标赛封面图片",

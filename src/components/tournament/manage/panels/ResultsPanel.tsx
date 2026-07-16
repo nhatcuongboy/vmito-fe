@@ -38,6 +38,7 @@ import { getRoundDisplayLabel } from '@/lib/tournament/roundLabel';
 import { getTeamLabel } from '@/lib/tournament/teamLabel';
 import { formatCourtLabel, formatCourtWithVenue } from '@/lib/tournament/court';
 import { toaster } from '@/components/ui/toaster';
+import { getPrimaryVenueDisplay } from '@/utils';
 import ManualScoreModal from './ManualScoreModal';
 import MatchDetailModal from './MatchDetailModal';
 import ResetMatchResultConfirmModal from './ResetMatchResultConfirmModal';
@@ -142,8 +143,9 @@ export default function ResultsPanel({
   const [isGeneratingBracket, setIsGeneratingBracket] = useState(false);
   const lastScrolledMatchIdRef = useRef<string | null>(null);
 
+  const primaryVenue = getPrimaryVenueDisplay(tournament);
   const courtAbbreviation =
-    tournament.venue?.acronym ?? tournament.venue?.name ?? undefined;
+    primaryVenue?.acronym ?? primaryVenue?.name ?? undefined;
 
   useEffect(() => {
     setSelected((current) => {

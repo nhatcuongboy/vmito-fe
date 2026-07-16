@@ -3222,19 +3222,19 @@
             },
             "location": {
               "title": "Tournament Location",
-              "description": "Set the venue for your tournament",
-              "searchLabel": "Search Venues",
-              "searchPlaceholder": "Search by name or address...",
-              "noVenues": "No venues found",
+              "description": "Choose the primary venue shown on the public tournament page",
               "clearSelection": "Clear selection",
               "save": "Save",
               "cancel": "Cancel",
               "success": "Tournament location updated successfully",
               "errors": {
-                "searchFailed": "Failed to search venues",
                 "noChanges": "No changes to save",
-                "updateFailed": "Failed to update tournament location"
-              }
+                "updateFailed": "Failed to update tournament location",
+                "loadFailed": "Failed to load venues"
+              },
+              "empty": "No venues linked to this tournament yet. Add venues in the Competition venues tab first.",
+              "goToVenues": "Manage venues",
+              "inlineHint": "Address-only venue — link it to a venue in the directory to set it as primary"
             },
             "banner": {
               "title": "Tournament Cover Photo",

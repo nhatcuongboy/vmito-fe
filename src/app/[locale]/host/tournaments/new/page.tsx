@@ -6,7 +6,6 @@ import { Card, CardBody, Button } from '@/components/ui/chakra-compat';
 import { useTranslations } from 'next-intl';
 import PageLayout from '@/components/layout/PageLayout';
 import { TournamentService } from '@/lib/api/tournament.service';
-import { VenueService } from '@/lib/api/venue.service';
 import { useRouter } from '@/i18n/config';
 import { useState } from 'react';
 import LocationAutocomplete from '@/components/common/LocationAutocomplete';
@@ -43,30 +42,12 @@ export default function NewTournamentPage() {
     try {
       setIsLoading(true);
 
-      let finalVenueId: string | undefined = undefined;
-
-      if (location) {
-        const venuePayload: Parameters<
-          typeof VenueService.findOrCreateVenue
-        >[0] = {
-          placeId: location.placeId,
-          name: location.name,
-          address: location.address,
-          lat: location.lat,
-          lng: location.lng,
-          district: location.district,
-          city: location.city,
-        };
-        const venue = await VenueService.findOrCreateVenue(venuePayload);
-        finalVenueId = venue.id;
-      }
-
       const tournament = await TournamentService.createTournament({
         name,
         startDate: new Date(startDate),
         endDate: new Date(endDate),
         sportType,
-        venueId: finalVenueId,
+        location: location ?? undefined,
       });
 
       router.push(`/tournament/${tournament.slug}`);

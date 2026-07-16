@@ -3231,19 +3231,19 @@
             },
             "location": {
               "title": "Địa điểm",
-              "description": "Thiết lập địa điểm tổ chức giải đấu",
-              "searchLabel": "Tìm kiếm địa điểm",
-              "searchPlaceholder": "Tìm theo tên hoặc địa chỉ...",
-              "noVenues": "Không tìm thấy địa điểm",
+              "description": "Chọn địa điểm chính hiển thị trên trang public của giải đấu",
               "clearSelection": "Xóa lựa chọn",
               "save": "Lưu",
               "cancel": "Hủy",
               "success": "Cập nhật địa điểm thành công",
               "errors": {
-                "searchFailed": "Tìm kiếm địa điểm thất bại",
                 "noChanges": "Không có thay đổi để lưu",
-                "updateFailed": "Cập nhật địa điểm thất bại"
-              }
+                "updateFailed": "Cập nhật địa điểm thất bại",
+                "loadFailed": "Không tải được danh sách địa điểm"
+              },
+              "empty": "Giải đấu chưa có địa điểm nào. Hãy thêm địa điểm trong tab Địa điểm thi đấu trước.",
+              "goToVenues": "Quản lý địa điểm",
+              "inlineHint": "Địa điểm chỉ có địa chỉ — cần liên kết với danh bạ sân để đặt làm địa điểm chính"
             },
             "banner": {
               "title": "Ảnh bìa giải đấu",
