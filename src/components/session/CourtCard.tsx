@@ -20,6 +20,7 @@ import { Clock, Eye, Play, Plus, Shuffle, Square, X } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import BadmintonCourt from '../court/BadmintonCourt';
 import { getMatchRepeatWarning } from '@/utils/match-repeat-warning';
+import { useElapsedMinuteTicker } from '@/hooks/useElapsedMinuteTicker';
 
 interface CourtCardProps {
   court: Court;
@@ -39,7 +40,7 @@ interface CourtCardProps {
   onEndMatch: (match: Match) => void;
 
   // Formatters and utilities
-  elapsedTimeFormatter: (startTime: string) => string;
+  elapsedTimeFormatter: (startTime: string, currentTime?: Date) => string;
   getCourtDisplayName: (
     courtName: string | undefined,
     courtNumber: number
@@ -79,6 +80,16 @@ const CourtCard: React.FC<CourtCardProps> = ({
   const isCourtReady = court.status === 'READY';
   const matchType =
     (court.currentPlayers?.length ?? 0) <= 2 ? 'singles' : 'doubles';
+  const matchStartTime = currentMatch?.startTime
+    ? new Date(currentMatch.startTime)
+    : undefined;
+  const matchStartTimeMs = matchStartTime?.getTime();
+  const now = useElapsedMinuteTicker(
+    currentMatch && court.status === 'IN_USE' ? matchStartTimeMs : undefined
+  );
+  const elapsedTime = matchStartTime
+    ? elapsedTimeFormatter(matchStartTime.toISOString(), new Date(now))
+    : undefined;
   const matchRepeatWarning = React.useMemo(
     () =>
       getMatchRepeatWarning(
@@ -196,11 +207,7 @@ const CourtCard: React.FC<CourtCardProps> = ({
                 style={{ letterSpacing: 0.2 }}
               >
                 <Box as={Clock} boxSize={3} />
-                {currentMatch.startTime
-                  ? elapsedTimeFormatter(
-                      new Date(currentMatch.startTime).toISOString()
-                    )
-                  : '-'}
+                {elapsedTime ?? '-'}
               </Badge>
             )}
             <Badge
@@ -257,13 +264,7 @@ const CourtCard: React.FC<CourtCardProps> = ({
             <BadmintonCourt
               players={court.currentPlayers || []}
               isActive={isActive}
-              elapsedTime={
-                currentMatch
-                  ? elapsedTimeFormatter(
-                      new Date(currentMatch.startTime).toISOString()
-                    )
-                  : t('courtsTab.playing')
-              }
+              elapsedTime={currentMatch ? elapsedTime : t('courtsTab.playing')}
               courtName={getCourtDisplayName(
                 court.courtName,
                 court.courtNumber

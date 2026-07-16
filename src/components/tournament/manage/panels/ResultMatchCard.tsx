@@ -1,6 +1,6 @@
 'use client';
 
-import { memo, useEffect, useState } from 'react';
+import { memo } from 'react';
 import { Badge, Box, Flex, Text } from '@chakra-ui/react';
 import { useLocale, useTranslations } from 'next-intl';
 import { Activity, Check, CircleSlash, Clock, Flag } from 'lucide-react';
@@ -15,6 +15,7 @@ import {
   formatTimeByDevicePreference,
   formatTimeRangeByDevicePreference,
 } from '@/utils/time-helpers';
+import { useElapsedMinuteTicker } from '@/hooks/useElapsedMinuteTicker';
 
 const SCHEDULE_MATCH_CARD_ID_PREFIX = 'schedule-match-card-';
 
@@ -80,11 +81,14 @@ function ResultMatchCardComponent({
   const topLabel =
     roundOrGroupLabel ?? getRoundDisplayLabel(match.round, tRounds);
   const isInProgress = match.status === MatchStatus.IN_PROGRESS;
-  const now = useMinuteTicker(isInProgress && !!match.startTime);
+  const startTimeMs = match.startTime
+    ? new Date(match.startTime).getTime()
+    : undefined;
+  const now = useElapsedMinuteTicker(isInProgress ? startTimeMs : undefined);
   const timeLabel = getMatchTimeLabel(match);
   const elapsedLabel =
     isInProgress && match.startTime
-      ? formatCompactElapsedTime(match.startTime, now, locale)
+      ? formatCompactElapsedTime(match.startTime, now, locale, t('justStarted'))
       : '';
   const courtLabel = match.court
     ? formatCourtWithVenue(match.court, t('court'), courtAbbreviation)
@@ -303,47 +307,33 @@ function getMatchTimeLabel(match: CategoryMatch) {
   return formatTimeByDevicePreference(match.startTime);
 }
 
-function useMinuteTicker(enabled: boolean) {
-  const [now, setNow] = useState(() => Date.now());
-
-  useEffect(() => {
-    if (!enabled) return;
-
-    setNow(Date.now());
-    const intervalId = window.setInterval(() => {
-      setNow(Date.now());
-    }, 60_000);
-
-    return () => window.clearInterval(intervalId);
-  }, [enabled]);
-
-  return now;
-}
-
 function formatCompactElapsedTime(
   startTime: string | Date,
   now: number,
-  locale: string
+  locale: string,
+  justStartedLabel: string
 ) {
   const start = new Date(startTime).getTime();
   if (!Number.isFinite(start)) return '';
 
   const elapsedMinutes = Math.max(0, Math.floor((now - start) / 60_000));
+  if (elapsedMinutes < 1) return justStartedLabel;
+
   const hours = Math.floor(elapsedMinutes / 60);
   const minutes = elapsedMinutes % 60;
 
   if (locale.startsWith('vi')) {
     if (hours > 0) return `${hours}g ${String(minutes).padStart(2, '0')}p`;
-    return elapsedMinutes > 0 ? `${elapsedMinutes}p` : '<1p';
+    return `${elapsedMinutes}p`;
   }
 
   if (locale.startsWith('zh') || locale.startsWith('cn')) {
     if (hours > 0) return `${hours}时${String(minutes).padStart(2, '0')}分`;
-    return elapsedMinutes > 0 ? `${elapsedMinutes}分` : '<1分';
+    return `${elapsedMinutes}分`;
   }
 
   if (hours > 0) return `${hours}h ${String(minutes).padStart(2, '0')}m`;
-  return elapsedMinutes > 0 ? `${elapsedMinutes}m` : '<1m';
+  return `${elapsedMinutes}m`;
 }
 
 function CardTeamRow({
