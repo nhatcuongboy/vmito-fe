@@ -3863,6 +3863,7 @@
         "viewCalendar": "日历",
         "showPlayerNames": "运动员姓名",
         "showPlayerNamesBadge": "显示运动员姓名",
+        "justStarted": "刚刚开始。",
         "calendar": {
           "time": "时间",
           "empty": "暂无同时设置场地和时间的比赛可在日历中显示。"
@@ -4410,9 +4411,9 @@
     "minutesShort": "{minutes} 分钟",
     "waitTimeBadgeHoursMinutes": "{hours}时{minutes}分",
     "waitTimeBadgeMinutes": "{minutes}分",
-    "lessThanMinute": "< 1 分钟",
-    "oneMinute": "1 分钟",
-    "minutes": "{minutes} 分钟",
+    "lessThanMinute": "刚刚开始。",
+    "oneMinute": "1分",
+    "minutes": "{minutes}分",
     "sessionStarted": "场次已开始",
     "sessionEnded": "场次已结束",
     "errorUpdatingSessionStatus": "更新场次状态时出错",

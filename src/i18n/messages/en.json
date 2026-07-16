@@ -3903,6 +3903,7 @@
         "viewCalendar": "Calendar",
         "showPlayerNames": "Player names",
         "showPlayerNamesBadge": "Show player names",
+        "justStarted": "Just started.",
         "calendar": {
           "time": "Time",
           "empty": "No matches have both court and time to show on the calendar yet."
@@ -4450,9 +4451,9 @@
     "minutesShort": "{minutes} min",
     "waitTimeBadgeHoursMinutes": "{hours}h{minutes}m",
     "waitTimeBadgeMinutes": "{minutes}m",
-    "lessThanMinute": "< 1 minute",
-    "oneMinute": "1 minute",
-    "minutes": "{minutes} minutes",
+    "lessThanMinute": "Just started.",
+    "oneMinute": "1m",
+    "minutes": "{minutes}m",
     "sessionStarted": "Session started",
     "sessionEnded": "Session ended",
     "errorUpdatingSessionStatus": "Error updating session status",

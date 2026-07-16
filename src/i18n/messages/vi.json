@@ -3912,6 +3912,7 @@
         "viewCalendar": "Lịch",
         "showPlayerNames": "Tên VĐV",
         "showPlayerNamesBadge": "Hiện tên VĐV",
+        "justStarted": "Vừa bắt đầu.",
         "calendar": {
           "time": "Thời gian",
           "empty": "Chưa có trận nào có lịch sân và giờ để hiển thị trên calendar."
@@ -4459,9 +4460,9 @@
     "minutesShort": "{minutes} phút",
     "waitTimeBadgeHoursMinutes": "{hours}g{minutes}p",
     "waitTimeBadgeMinutes": "{minutes}p",
-    "lessThanMinute": "< 1 phút",
-    "oneMinute": "1 phút",
-    "minutes": "{minutes} phút",
+    "lessThanMinute": "Vừa bắt đầu.",
+    "oneMinute": "1p",
+    "minutes": "{minutes}p",
     "sessionStarted": "Kèo đã bắt đầu",
     "sessionEnded": "Kèo đã kết thúc",
     "errorUpdatingSessionStatus": "Lỗi cập nhật trạng thái kèo",
