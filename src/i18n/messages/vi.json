@@ -3188,7 +3188,12 @@
               "remove": "Xóa",
               "cancel": "Hủy",
               "removeConfirmPrefix": "Xóa",
-              "removeConfirmSuffix": "khỏi giải đấu này?"
+              "removeConfirmSuffix": "khỏi giải đấu này?",
+              "addCourt": "Thêm sân",
+              "newCourt": "Sân mới",
+              "removeCourt": "Xóa sân",
+              "removeCourtConfirm": "Xóa",
+              "removeCourtWarning": "\"{name}\" đang có {count} trận đã phân sân/khung giờ trong lịch. Xóa sân sẽ gỡ các phân sân này khi lưu. Tiếp tục?"
             },
             "schedule": {
               "title": "Lịch thi đấu",

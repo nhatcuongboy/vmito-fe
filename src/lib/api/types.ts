@@ -1148,6 +1148,11 @@ export interface TournamentCourt {
   notes?: string;
   createdAt: Date;
   updatedAt: Date;
+  /** Usage counters (returned by GET /tournaments/:id/venues). */
+  _count?: {
+    matches?: number;
+    courtTimeSlots?: number;
+  };
 }
 
 export interface TournamentVenue {

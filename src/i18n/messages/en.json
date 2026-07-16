@@ -3179,7 +3179,12 @@
               "remove": "Remove",
               "cancel": "Cancel",
               "removeConfirmPrefix": "Remove",
-              "removeConfirmSuffix": "from this tournament?"
+              "removeConfirmSuffix": "from this tournament?",
+              "addCourt": "Add court",
+              "newCourt": "New court",
+              "removeCourt": "Remove court",
+              "removeCourtConfirm": "Remove",
+              "removeCourtWarning": "\"{name}\" has {count} assigned matches/schedule slots. Removing it will drop those assignments when you save. Continue?"
             },
             "schedule": {
               "title": "Schedule",

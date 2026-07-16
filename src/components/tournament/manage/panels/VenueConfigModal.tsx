@@ -1,8 +1,8 @@
 'use client';
 
-import { Box, Flex, Text, Input, HStack } from '@chakra-ui/react';
-import { VStack } from '@/components/ui/chakra-compat';
-import { Minus, Plus } from 'lucide-react';
+import { Box, Flex, Text, Input } from '@chakra-ui/react';
+import { VStack, IconButton, Button } from '@/components/ui/chakra-compat';
+import { Plus, Trash2 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useEffect, useState } from 'react';
 import { TournamentService } from '@/lib/api/tournament.service';
@@ -20,8 +20,13 @@ interface VenueConfigModalProps {
 }
 
 interface CourtInput {
-  courtNumber: number;
+  /** Existing TournamentCourt id; absent for courts added in this session. */
+  id?: string;
+  /** Real court number for existing courts; new courts are numbered on save. */
+  courtNumber?: number;
   courtName: string;
+  /** Assigned matches + schedule slots — used to warn before deletion. */
+  usageCount: number;
 }
 
 interface LocationData {
@@ -52,10 +57,12 @@ export default function VenueConfigModal({
   const [acronym, setAcronym] = useState('');
 
   // Courts config
-  const [courtCount, setCourtCount] = useState(1);
   const [courts, setCourts] = useState<CourtInput[]>([
-    { courtNumber: 1, courtName: '' },
+    { courtName: '', usageCount: 0 },
   ]);
+  const [confirmRemoveIndex, setConfirmRemoveIndex] = useState<number | null>(
+    null
+  );
 
   const [isSaving, setIsSaving] = useState(false);
 
@@ -86,25 +93,26 @@ export default function VenueConfigModal({
         }
         const existingCourts = existingTournamentVenue.courts ?? [];
         if (existingCourts.length > 0) {
-          setCourtCount(existingCourts.length);
           setCourts(
             existingCourts.map((c) => ({
+              id: c.id,
               courtNumber: c.courtNumber,
               courtName: c.courtName ?? '',
+              usageCount:
+                (c._count?.matches ?? 0) + (c._count?.courtTimeSlots ?? 0),
             }))
           );
         } else {
-          setCourtCount(1);
-          setCourts([{ courtNumber: 1, courtName: '' }]);
+          setCourts([{ courtName: '', usageCount: 0 }]);
         }
       } else {
         setSelectedVenue(null);
         setLocation(null);
         setName('');
         setAcronym('');
-        setCourtCount(1);
-        setCourts([{ courtNumber: 1, courtName: '' }]);
+        setCourts([{ courtName: '', usageCount: 0 }]);
       }
+      setConfirmRemoveIndex(null);
     }
   }, [isOpen, existingTournamentVenue]);
 
@@ -115,20 +123,26 @@ export default function VenueConfigModal({
     setAcronym('');
   };
 
-  const handleCourtCountChange = (delta: number) => {
-    const newCount = Math.max(1, courtCount + delta);
-    setCourtCount(newCount);
-    setCourts((prev) => {
-      const updated = [...prev];
-      if (newCount > updated.length) {
-        for (let i = updated.length + 1; i <= newCount; i++) {
-          updated.push({ courtNumber: i, courtName: '' });
-        }
-      } else {
-        updated.splice(newCount);
-      }
-      return updated;
-    });
+  const handleAddCourt = () => {
+    setCourts((prev) => [...prev, { courtName: '', usageCount: 0 }]);
+  };
+
+  const handleRemoveCourt = (index: number) => {
+    if (courts.length <= 1) return;
+    const court = courts[index];
+    // Existing court with assigned matches / schedule slots — confirm first,
+    // since saving will drop those assignments.
+    if (court.id && court.usageCount > 0) {
+      setConfirmRemoveIndex(index);
+      return;
+    }
+    setCourts((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const handleConfirmRemoveCourt = () => {
+    if (confirmRemoveIndex === null) return;
+    setCourts((prev) => prev.filter((_, i) => i !== confirmRemoveIndex));
+    setConfirmRemoveIndex(null);
   };
 
   const handleCourtNameChange = (index: number, value: string) => {
@@ -149,8 +163,12 @@ export default function VenueConfigModal({
       return;
     }
 
+    // New courts need a placeholder courtNumber for the DTO; the server
+    // assigns the real number (next free in the tournament) on create.
+    let nextNumber = Math.max(0, ...courts.map((c) => c.courtNumber ?? 0)) + 1;
     const courtPayload = courts.map((c) => ({
-      courtNumber: c.courtNumber,
+      id: c.id,
+      courtNumber: c.courtNumber ?? nextNumber++,
       courtName: c.courtName || undefined,
     }));
 
@@ -231,20 +249,8 @@ export default function VenueConfigModal({
     },
   } as const;
 
-  const counterBtnProps = {
-    width: '36px',
-    height: '36px',
-    borderRadius: '50%',
-    borderWidth: '1px',
-    borderColor: 'gray.200',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    cursor: 'pointer',
-    bg: 'white',
-    color: 'gray.700',
-    _dark: { bg: 'gray.700', borderColor: 'gray.600', color: 'gray.100' },
-  } as const;
+  const courtPendingRemoval =
+    confirmRemoveIndex !== null ? courts[confirmRemoveIndex] : null;
 
   return (
     <VModal
@@ -292,56 +298,83 @@ export default function VenueConfigModal({
           />
         </Box>
 
-        {/* Court counter */}
+        {/* Courts */}
         <Flex justify="space-between" align="center">
           <Text fontWeight="semibold" fontSize="sm">
             {t('howManyCourts')}
           </Text>
-          <HStack gap={3} align="center">
-            <Box
-              as="button"
-              onClick={() => handleCourtCountChange(-1)}
-              {...counterBtnProps}
-              _hover={{ bg: 'gray.50', _dark: { bg: 'gray.600' } }}
-            >
-              <Minus size={14} />
-            </Box>
-            <Text
-              fontSize="md"
-              fontWeight="semibold"
-              minW="20px"
-              textAlign="center"
-            >
-              {courtCount}
-            </Text>
-            <Box
-              as="button"
-              onClick={() => handleCourtCountChange(1)}
-              {...counterBtnProps}
-              _hover={{ bg: 'gray.50', _dark: { bg: 'gray.600' } }}
-            >
-              <Plus size={14} />
-            </Box>
-          </HStack>
+          <Text fontSize="sm" color="gray.500" _dark={{ color: 'gray.400' }}>
+            {courts.length}
+          </Text>
         </Flex>
 
-        {/* Court name inputs */}
         <VStack gap={3} align="stretch">
           {courts.map((court, index) => (
-            <Input
-              key={index}
-              value={court.courtName}
-              onChange={(e) => handleCourtNameChange(index, e.target.value)}
-              placeholder={`${t('court')} ${index + 1}`}
-              {...inputProps}
-              _focus={{
-                borderColor: '#3182ce',
-                boxShadow: '0 0 0 1px #3182ce',
-              }}
-            />
+            <Flex key={court.id ?? `new-${index}`} gap={2} align="center">
+              <Input
+                value={court.courtName}
+                onChange={(e) => handleCourtNameChange(index, e.target.value)}
+                placeholder={
+                  court.courtNumber !== undefined
+                    ? `${t('court')} ${court.courtNumber}`
+                    : t('newCourt')
+                }
+                {...inputProps}
+                _focus={{
+                  borderColor: '#3182ce',
+                  boxShadow: '0 0 0 1px #3182ce',
+                }}
+              />
+              <IconButton
+                aria-label={t('removeCourt')}
+                variant="ghost"
+                size="sm"
+                flexShrink={0}
+                disabled={courts.length <= 1}
+                onClick={() => handleRemoveCourt(index)}
+              >
+                <Trash2 size={16} />
+              </IconButton>
+            </Flex>
           ))}
+
+          <Button
+            variant="outline"
+            size="sm"
+            alignSelf="flex-start"
+            display="flex"
+            alignItems="center"
+            gap={2}
+            onClick={handleAddCourt}
+          >
+            <Plus size={14} />
+            {t('addCourt')}
+          </Button>
         </VStack>
       </VStack>
+
+      {/* Confirm removing a court that has matches / schedule slots */}
+      <VModal
+        isOpen={confirmRemoveIndex !== null}
+        onClose={() => setConfirmRemoveIndex(null)}
+        title={t('removeCourt')}
+        size="sm"
+        zIndex={1600}
+        primaryActionText={t('removeCourtConfirm')}
+        primaryColorScheme="red"
+        onPrimaryAction={handleConfirmRemoveCourt}
+        secondaryActionText={t('cancel')}
+        isCentered
+      >
+        <Text fontSize="sm" color="gray.600" _dark={{ color: 'gray.300' }}>
+          {t('removeCourtWarning', {
+            name:
+              courtPendingRemoval?.courtName ||
+              `${t('court')} ${courtPendingRemoval?.courtNumber ?? ''}`,
+            count: courtPendingRemoval?.usageCount ?? 0,
+          })}
+        </Text>
+      </VModal>
     </VModal>
   );
 }

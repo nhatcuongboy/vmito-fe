@@ -3139,7 +3139,12 @@
               "remove": "移除",
               "cancel": "取消",
               "removeConfirmPrefix": "从此赛事中移除",
-              "removeConfirmSuffix": "？"
+              "removeConfirmSuffix": "？",
+              "addCourt": "添加场地",
+              "newCourt": "新场地",
+              "removeCourt": "删除场地",
+              "removeCourtConfirm": "删除",
+              "removeCourtWarning": "\"{name}\" 已有 {count} 场已分配的比赛/时段。删除后保存时将取消这些分配。继续吗？"
             },
             "schedule": {
               "title": "赛程",
