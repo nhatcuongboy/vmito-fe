@@ -3618,6 +3618,7 @@
         "select": "Select"
       },
       "scoreEntry": {
+        "matchNumber": "Match {number}",
         "title": "Referee — Score Entry",
         "noAssignedMatches": "You have no matches assigned to you yet.",
         "court": "Court",
@@ -3876,6 +3877,7 @@
         }
       },
       "manualScore": {
+        "matchNumber": "Match {number}",
         "showingMatches": "Showing {count} of {total} matches",
         "loadMore": "Load more",
         "title": "Enter score",

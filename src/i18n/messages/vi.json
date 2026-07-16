@@ -3627,6 +3627,7 @@
         "select": "Chọn"
       },
       "scoreEntry": {
+        "matchNumber": "Trận {number}",
         "title": "Trọng tài — Nhập điểm",
         "noAssignedMatches": "Bạn chưa được phân công trận nào.",
         "court": "Sân",
@@ -3885,6 +3886,7 @@
         }
       },
       "manualScore": {
+        "matchNumber": "Trận {number}",
         "showingMatches": "Đang hiển thị {count} trên {total} trận đấu",
         "loadMore": "Xem thêm",
         "title": "Nhập điểm",

@@ -3578,6 +3578,7 @@
         "select": "选择"
       },
       "scoreEntry": {
+        "matchNumber": "比赛 {number}",
         "title": "裁判 — 录入比分",
         "noAssignedMatches": "您还没有被分配任何比赛。",
         "court": "场地",
@@ -3836,6 +3837,7 @@
         }
       },
       "manualScore": {
+        "matchNumber": "比赛 {number}",
         "showingMatches": "显示 {count} / {total} 场比赛",
         "loadMore": "加载更多",
         "title": "录入比分",

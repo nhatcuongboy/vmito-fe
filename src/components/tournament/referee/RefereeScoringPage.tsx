@@ -359,6 +359,15 @@ export default function RefereeScoringPage() {
                 >
                   {roundLabel}
                 </Badge>
+                <Badge
+                  variant="subtle"
+                  colorPalette="blue"
+                  borderRadius="full"
+                  px={2}
+                >
+                  {t('matchNumber', { number: match.matchNumber })}
+                  {match.matchCode ? ` (${match.matchCode})` : ''}
+                </Badge>
               </Flex>
             </Box>
 
