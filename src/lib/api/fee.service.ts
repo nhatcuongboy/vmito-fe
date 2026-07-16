@@ -100,6 +100,21 @@ export const FeeService = {
     return `${amount.toLocaleString('vi-VN')}đ`;
   },
 
+  // Format a fee range while preserving zero as a numeric endpoint.
+  // For example: 0 and 80,000 should display as "0-80k", not "Miễn phí-80k".
+  formatFeeRange: (firstAmount: number, secondAmount: number): string => {
+    if (firstAmount === secondAmount) {
+      return FeeService.formatFee(firstAmount);
+    }
+
+    const minFee = Math.min(firstAmount, secondAmount);
+    const maxFee = Math.max(firstAmount, secondAmount);
+    const formatEndpoint = (amount: number) =>
+      amount === 0 ? '0' : FeeService.formatFee(amount);
+
+    return `${formatEndpoint(minFee)}-${formatEndpoint(maxFee)}`;
+  },
+
   // Format fee as exact number with vi-VN locale (e.g., "85.000đ")
   formatFeeExact: (amount: number): string => {
     if (amount === 0) return '0đ';
@@ -136,10 +151,15 @@ export const FeeService = {
       return FeeService.formatFee(maleFee);
     }
 
-    const minFee = Math.min(maleFee, femaleFee);
-    const maxFee = Math.max(maleFee, femaleFee);
+    return FeeService.formatFeeRange(maleFee, femaleFee);
+  },
 
-    return `${FeeService.formatFee(minFee)}-${FeeService.formatFee(maxFee)}`;
+  // The per-slot suffix is redundant when a fixed fee is free for everyone.
+  shouldShowPerSlot: (
+    feeConfig: SessionFeeConfig | null | undefined
+  ): boolean => {
+    if (!feeConfig || feeConfig.feeType !== FeeType.FIXED) return false;
+    return (feeConfig.maleFee || 0) > 0 || (feeConfig.femaleFee || 0) > 0;
   },
 
   // Format the club's this-month walk-in (vãng lai) per-session fee — used as
@@ -169,9 +189,7 @@ export const FeeService = {
       return FeeService.formatFee(maleFee);
     }
 
-    const minFee = Math.min(maleFee, femaleFee);
-    const maxFee = Math.max(maleFee, femaleFee);
-    return `${FeeService.formatFee(minFee)}-${FeeService.formatFee(maxFee)}`;
+    return FeeService.formatFeeRange(maleFee, femaleFee);
   },
 
   canViewerSeeSessionFee: (

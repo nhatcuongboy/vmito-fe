@@ -344,7 +344,7 @@ const SessionDetailStickyBar = ({
                   {feeDisplayText}
                 </Text>
                 {canSeeSessionFee &&
-                  session.feeConfig.feeType === FeeType.FIXED && (
+                  FeeService.shouldShowPerSlot(session.feeConfig) && (
                     <Text fontSize="sm" color="gray.500" fontWeight="normal">
                       /slot
                     </Text>
@@ -607,7 +607,7 @@ const SessionDetailStickyBar = ({
                   {feeDisplayText}
                 </Text>
                 {canSeeSessionFee &&
-                  session.feeConfig.feeType === FeeType.FIXED && (
+                  FeeService.shouldShowPerSlot(session.feeConfig) && (
                     <Text
                       fontSize="sm"
                       color="gray.500"

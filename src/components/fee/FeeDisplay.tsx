@@ -51,7 +51,7 @@ export default function FeeDisplay({
       <Text fontSize={fontSize} color="green.600" fontWeight="medium">
         {displayText}
       </Text>
-      {feeConfig.feeType === FeeType.FIXED && (
+      {FeeService.shouldShowPerSlot(feeConfig) && (
         <Text fontSize={fontSize} color="gray.500">
           /{t('perSlot')}
         </Text>
@@ -85,7 +85,7 @@ export function FeeDisplayRow({
         <Text as="span" fontWeight="medium" color="green.600">
           {displayText}
         </Text>
-        {feeConfig.feeType === FeeType.FIXED && (
+        {FeeService.shouldShowPerSlot(feeConfig) && (
           <Text as="span" color="gray.500">
             {' '}
             /{t('perSlot')}

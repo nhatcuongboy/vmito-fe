@@ -683,7 +683,7 @@ const ClassicCleanCard = ({
         </Text>
       </Box>
       <Box bg="#ffffff" borderRadius="24px" p="44px" minH="720px">
-        <Stack gap={8} maxH="440px" overflow="hidden">
+        <Stack gap={5} maxH="520px" overflow="hidden">
           <Heading
             fontSize="42px"
             fontWeight="950"

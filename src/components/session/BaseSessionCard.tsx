@@ -1303,9 +1303,7 @@ const BaseSessionCard = ({
                             {feeDisplayText}
                           </Text>
                           {canSeeSessionFee &&
-                            session.feeConfig.feeType === FeeType.FIXED &&
-                            ((session.feeConfig.maleFee || 0) > 0 ||
-                              (session.feeConfig.femaleFee || 0) > 0) && (
+                            FeeService.shouldShowPerSlot(session.feeConfig) && (
                               <Text
                                 fontSize="xs"
                                 color="gray.500"
@@ -1376,9 +1374,9 @@ const BaseSessionCard = ({
                               {feeDisplayText}
                             </Text>
                             {canSeeSessionFee &&
-                              session.feeConfig.feeType === FeeType.FIXED &&
-                              ((session.feeConfig.maleFee || 0) > 0 ||
-                                (session.feeConfig.femaleFee || 0) > 0) && (
+                              FeeService.shouldShowPerSlot(
+                                session.feeConfig
+                              ) && (
                                 <Text
                                   fontSize="sm"
                                   color="gray.500"
