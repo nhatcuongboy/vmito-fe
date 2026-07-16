@@ -381,7 +381,12 @@ function TournamentsContent() {
                             {badgeLabel}
                           </Badge>
                         )}
-                        <Box position="absolute" top={3} left={3} zIndex={3}>
+                        <Box
+                          position="absolute"
+                          bottom={3}
+                          right={3}
+                          zIndex={3}
+                        >
                           <FavoriteButton
                             type="TOURNAMENT"
                             targetId={tournament.id}
