@@ -1822,18 +1822,6 @@
               "description": "让参与者查看锦标赛并提交比赛结果。",
               "action": "发布锦标赛"
             }
-          },
-          "quickActions": {
-            "customizePage": {
-              "title": "自定义主页",
-              "description": "通过自定义内容让主页更具个性。",
-              "action": "编辑页面"
-            },
-            "inviteAdmins": {
-              "title": "不要独自完成所有工作！",
-              "description": "邀请管理员帮助您管理锦标赛。",
-              "action": "邀请管理员"
-            }
           }
         },
         "formatWizard": {

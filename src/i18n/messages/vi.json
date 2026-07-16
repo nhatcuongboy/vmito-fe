@@ -1853,18 +1853,6 @@
               "description": "Cho phép người tham gia xem giải đấu và gửi kết quả trận đấu.",
               "action": "Xuất bản giải đấu"
             }
-          },
-          "quickActions": {
-            "customizePage": {
-              "title": "Tùy chỉnh trang chủ",
-              "description": "Cá nhân hóa trang chủ với nội dung của riêng bạn.",
-              "action": "Chỉnh sửa trang"
-            },
-            "inviteAdmins": {
-              "title": "Đừng làm một mình!",
-              "description": "Mời quản trị viên giúp bạn quản lý giải đấu.",
-              "action": "Mời quản trị viên"
-            }
           }
         },
         "formatWizard": {

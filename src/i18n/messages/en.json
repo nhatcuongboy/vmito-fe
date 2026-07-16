@@ -1844,18 +1844,6 @@
               "description": "Make your tournament viewable by participants and enable game result submissions.",
               "action": "Publish tournament"
             }
-          },
-          "quickActions": {
-            "customizePage": {
-              "title": "Customize your home page",
-              "description": "Make your home page your own by customizing its contents.",
-              "action": "Edit page"
-            },
-            "inviteAdmins": {
-              "title": "Don't do all the work alone!",
-              "description": "Invite admins to help you manage your tournament.",
-              "action": "Invite admins"
-            }
           }
         },
         "formatWizard": {

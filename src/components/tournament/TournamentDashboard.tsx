@@ -3,14 +3,7 @@
 import { useMemo, useState } from 'react';
 import { Box, Flex, Heading, Text } from '@chakra-ui/react';
 import { Button, VStack } from '@/components/ui/chakra-compat';
-import {
-  ChevronUp,
-  ChevronDown,
-  CheckCircle2,
-  LayoutGrid,
-  House,
-  UserCog,
-} from 'lucide-react';
+import { ChevronUp, ChevronDown, CheckCircle2, LayoutGrid } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Tournament } from '@/lib/api/types';
 import { useRouter } from '@/i18n/config';
@@ -57,19 +50,30 @@ export default function TournamentDashboard({ tournament }: Props) {
 
   // Derive step completion from tournament data
   const completionMap = useMemo((): Record<StepId, boolean> => {
+    const categories = tournament.categories ?? [];
     const hasCategories =
-      (tournament._count?.categories ?? tournament.categories?.length ?? 0) > 0;
-    const hasTeams =
-      (tournament._count?.players ?? 0) + (tournament._count?.pairs ?? 0) > 0;
+      (tournament._count?.categories ?? categories.length) > 0;
+    const teamCount =
+      (tournament._count?.players ?? 0) + (tournament._count?.pairs ?? 0);
+    // Format is configured once the wizard has written a non-empty
+    // formatConfig (same signal FormatPanel uses for its default-format hint)
+    const hasFormat =
+      categories.length > 0 &&
+      categories.every(
+        (c) => c.formatConfig && Object.keys(c.formatConfig).length > 0
+      );
+    const hasRounds =
+      categories.length > 0 &&
+      categories.every((c) => (c._count?.matches ?? 0) > 0);
     const hasVenue = !!getPrimaryVenueDisplay(tournament);
 
     return {
       categories: hasCategories,
-      format: hasCategories,
-      teams: hasTeams,
-      rounds: false, // cannot determine without fetching matches
+      format: hasFormat,
+      teams: teamCount >= 2,
+      rounds: hasRounds,
       venue: hasVenue,
-      schedule: false, // cannot determine without fetching schedule
+      schedule: (tournament.scheduledMatchesCount ?? 0) > 0,
       publish: tournament.isPublished,
     };
   }, [tournament]);
@@ -279,106 +283,6 @@ export default function TournamentDashboard({ tournament }: Props) {
           </Box>
         );
       })}
-
-      {/* Quick action: Customize home page */}
-      <Flex
-        borderWidth="1px"
-        borderColor="gray.200"
-        borderRadius="xl"
-        p={4}
-        gap={4}
-        align="center"
-        bg="white"
-        _dark={{
-          bg: 'var(--tournament-surface-raised, var(--chakra-colors-gray-800))',
-          borderColor:
-            'var(--tournament-border, var(--chakra-colors-gray-700))',
-          boxShadow: 'var(--tournament-shadow-soft)',
-        }}
-      >
-        <Flex
-          w="56px"
-          h="56px"
-          bg="orange.50"
-          borderRadius="lg"
-          align="center"
-          justify="center"
-          flexShrink={0}
-          _dark={{
-            bg: 'rgba(249, 115, 22, 0.14)',
-            borderWidth: '1px',
-            borderColor: 'rgba(251, 146, 60, 0.28)',
-          }}
-        >
-          <House size={26} color="#c05621" />
-        </Flex>
-        <Box flex="1">
-          <Text fontWeight="semibold" fontSize="sm" mb={0.5}>
-            {t('quickActions.customizePage.title')}
-          </Text>
-          <Text
-            color="gray.500"
-            fontSize="sm"
-            mb={3}
-            _dark={{ color: 'gray.400' }}
-          >
-            {t('quickActions.customizePage.description')}
-          </Text>
-          <Button size="sm" variant="solid" colorPalette="green">
-            {t('quickActions.customizePage.action')}
-          </Button>
-        </Box>
-      </Flex>
-
-      {/* Quick action: Invite admins */}
-      <Flex
-        borderWidth="1px"
-        borderColor="gray.200"
-        borderRadius="xl"
-        p={4}
-        gap={4}
-        align="center"
-        bg="white"
-        _dark={{
-          bg: 'var(--tournament-surface-raised, var(--chakra-colors-gray-800))',
-          borderColor:
-            'var(--tournament-border, var(--chakra-colors-gray-700))',
-          boxShadow: 'var(--tournament-shadow-soft)',
-        }}
-      >
-        <Flex
-          w="56px"
-          h="56px"
-          bg="purple.50"
-          borderRadius="lg"
-          align="center"
-          justify="center"
-          flexShrink={0}
-          _dark={{
-            bg: 'rgba(139, 92, 246, 0.14)',
-            borderWidth: '1px',
-            borderColor: 'rgba(167, 139, 250, 0.28)',
-          }}
-        >
-          <UserCog size={26} color="#6b46c1" />
-        </Flex>
-        <Box flex="1">
-          <Text fontWeight="semibold" fontSize="sm" mb={0.5}>
-            {t('quickActions.inviteAdmins.title')}
-          </Text>
-          <Text
-            color="gray.500"
-            fontSize="sm"
-            mb={3}
-            _dark={{ color: 'gray.400' }}
-          >
-            {t('quickActions.inviteAdmins.description')}
-          </Text>
-          <Button size="sm" variant="solid" colorPalette="green">
-            {t('quickActions.inviteAdmins.action')}
-          </Button>
-        </Box>
-      </Flex>
     </VStack>
   );
 }
