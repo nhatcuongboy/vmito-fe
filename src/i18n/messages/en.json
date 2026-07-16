@@ -1091,7 +1091,7 @@
           },
           "schedule": {
             "title": "View match schedule",
-            "description": "Follow the match schedule, group stages, and knockouts in real time."
+            "description": "Follow the match schedule, group stages, and playoffs in real time."
           },
           "standings": {
             "title": "Standings",
@@ -2040,7 +2040,7 @@
             },
             "rrse": {
               "groupStage": "Group Stage",
-              "eliminationRound": "Elimination Round",
+              "eliminationRound": "Playoffs",
               "qualifiersPerGroup": "Qualifiers per group"
             },
             "playoffs": {
@@ -2652,10 +2652,28 @@
               "quickCreatePlayer": "Quickly create a new player",
               "memberAddFailed": "Failed to add player",
               "selectFromList": "Select players",
-              "searchPlayerPlaceholder": "Search players...",
+              "searchPlayerPlaceholder": "Search players…",
               "noAvailablePlayers": "All players are already registered in this category",
               "selectedCount": "{count} selected",
               "draftTeamWarning": "This team is still a draft and cannot be assigned to a pool or scheduled yet.",
+              "teamNameLabel": "Team name",
+              "selectedMembers": "Selected players",
+              "noSelectedMembers": "No players selected.",
+              "addMembersLabel": "Add players",
+              "unknownPlayer": "Unknown player",
+              "memberConflict": "Also assigned to: {teams}",
+              "removeMemberAria": "Remove {name} from the team",
+              "rosterFullHelp": "This team is full. Remove a player before adding another one.",
+              "noRosterCandidates": "No matching players found.",
+              "assignedToTeam": "Assigned to {teams}",
+              "rosterFullStatus": "Team is full",
+              "addToTeam": "Add to team",
+              "newPlayerNameLabel": "New player name",
+              "newPlayerNamePlaceholder": "Enter a player name…",
+              "createAndAdd": "Create & add",
+              "rosterConflictHelp": "Some players are assigned to another team in this category. Remove the conflicting players before saving.",
+              "rosterConflictServer": "Team rosters just changed. Review the conflicting players and save again.",
+              "memberCreateFailedHelp": "Could not create the player. Check the name and try again.",
               "team": {
                 "title": "Teams",
                 "add": "Add team",
@@ -2878,17 +2896,17 @@
                 "invalid": "Invalid values — points 1–99 and the cap must be greater than or equal to the points-to-win.",
                 "stages": {
                   "GROUP": "Group stage",
-                  "KNOCKOUT": "Knockout",
+                  "KNOCKOUT": "Playoffs",
                   "FINAL": "Final"
                 },
                 "stageHints": {
                   "GROUP": "These rules apply to round-robin group-stage matches.",
-                  "KNOCKOUT": "Applied to elimination rounds (R16/QF/SF/3rd place). Inherit = use group-stage rules.",
-                  "FINAL": "Only applied to the final match. Inherit = use knockout rules."
+                  "KNOCKOUT": "Applied to playoff rounds (R16/QF/SF/3rd place). Inherit = use group-stage rules.",
+                  "FINAL": "Only applied to the final match. Inherit = use playoff rules."
                 },
                 "inheritTitle": "Use previous stage's rules",
-                "inheritHintKnockout": "Inherit from the group stage. Turn off to set custom rules for knockout rounds.",
-                "inheritHintFinal": "Inherit from the knockout stage (or group stage). Turn off to set custom rules for the final.",
+                "inheritHintKnockout": "Inherit from the group stage. Turn off to set custom rules for playoff rounds.",
+                "inheritHintFinal": "Inherit from the playoffs stage (or group stage). Turn off to set custom rules for the final.",
                 "inheritOn": "Inherit",
                 "inheritOff": "Customize",
                 "summary": {
@@ -3167,6 +3185,11 @@
               "title": "Schedule",
               "scheduled": "scheduled",
               "unscheduled": "unscheduled"
+            },
+            "categoryRequired": {
+              "emptyTitle": "Create a category first",
+              "emptyDescription": "Categories define who can join and how matches are organized. Add one before setting up this section.",
+              "action": "Go to categories"
             },
             "sponsors": {
               "title": "Sponsors",
@@ -3536,7 +3559,7 @@
         "basicSettings": "Basic Settings",
         "groupDivision": "Group Division",
         "groupStage": "Group Stage",
-        "knockoutStage": "Knockout Stage",
+        "knockoutStage": "Playoffs",
         "availableTeams": "Available Teams",
         "assignToGroup": "Assign to Group",
         "removeFromGroup": "Remove from Group",
