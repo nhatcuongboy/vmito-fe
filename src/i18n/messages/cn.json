@@ -1527,6 +1527,45 @@
         "cancelled": "已取消"
       },
       "noTournamentsFound": "未找到锦标赛",
+      "noResultsDescription": "请尝试其他关键词或调整当前筛选条件。",
+      "filters": {
+        "title": "筛选",
+        "apply": "搜索",
+        "reset": "重置",
+        "invalidDateRange": "开始日期不能晚于结束日期。",
+        "status": {
+          "title": "状态",
+          "PREPARING": "即将开始",
+          "IN_PROGRESS": "进行中",
+          "FINISHED": "已结束",
+          "CANCELLED": "已取消"
+        },
+        "period": {
+          "title": "时间",
+          "all": "全部",
+          "today": "今天",
+          "next7": "未来 7 天",
+          "next30": "未来 30 天",
+          "custom": "自定义",
+          "dateFrom": "开始日期",
+          "dateTo": "结束日期"
+        },
+        "location": {
+          "title": "地区",
+          "district": "区 / 县"
+        },
+        "sport": {
+          "title": "运动项目",
+          "BADMINTON": "羽毛球",
+          "PICKLEBALL": "匹克球"
+        }
+      },
+      "sort": {
+        "startDate": "最早开始",
+        "newest": "最新创建",
+        "nameAsc": "名称 A-Z",
+        "nameDesc": "名称 Z-A"
+      },
       "explore": "探索",
       "searchEvents": "搜索活动",
       "follow": "关注",

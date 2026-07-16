@@ -15,15 +15,36 @@ import {
   GetScoreboardParams,
   DuplicateTournamentRequest,
   DuplicateTournamentResponse,
+  SportType,
 } from './types';
+
+export interface IGetTournamentFilters {
+  keyword?: string;
+  status?: TournamentStatus[];
+  sportType?: SportType[];
+  city?: string;
+  district?: string;
+  dateFrom?: string;
+  dateTo?: string;
+  sortBy?: 'startDate' | 'createdAt' | 'name';
+  sortOrder?: 'asc' | 'desc';
+  favoriteOnly?: boolean;
+  publishedOnly?: boolean;
+}
 
 export const TournamentService = {
   // Get all tournaments (public)
-  getAllTournaments: async (filters?: {
-    favoriteOnly?: boolean;
-  }): Promise<Tournament[]> => {
+  getAllTournaments: async (
+    filters?: IGetTournamentFilters
+  ): Promise<Tournament[]> => {
     const response = await api.get<ApiResponse<Tournament[]>>('/tournaments', {
-      params: filters?.favoriteOnly ? { favoriteOnly: true } : undefined,
+      params: filters
+        ? {
+            ...filters,
+            status: filters.status?.join(','),
+            sportType: filters.sportType?.join(','),
+          }
+        : undefined,
     });
     return (response.data.data || []).filter(
       (tournament) => tournament.isPublished

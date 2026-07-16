@@ -14,7 +14,7 @@
     "home": "Tìm kèo",
     "notAvailable": "—",
     "tournaments": "Giải đấu",
-    "browseTournaments": "Giải đấu",
+    "browseTournaments": "Tìm giải",
     "browse": "Thống kê",
     "statistics": "Thống kê",
     "users": "Người dùng",
@@ -1560,6 +1560,45 @@
         "cancelled": "Đã hủy"
       },
       "noTournamentsFound": "Không tìm thấy giải đấu nào",
+      "noResultsDescription": "Thử từ khóa khác hoặc điều chỉnh bộ lọc đang áp dụng.",
+      "filters": {
+        "title": "Bộ lọc",
+        "apply": "Tìm kiếm",
+        "reset": "Đặt lại",
+        "invalidDateRange": "Ngày bắt đầu không thể sau ngày kết thúc.",
+        "status": {
+          "title": "Trạng thái",
+          "PREPARING": "Sắp diễn ra",
+          "IN_PROGRESS": "Đang diễn ra",
+          "FINISHED": "Đã kết thúc",
+          "CANCELLED": "Đã hủy"
+        },
+        "period": {
+          "title": "Thời gian",
+          "all": "Tất cả",
+          "today": "Hôm nay",
+          "next7": "7 ngày tới",
+          "next30": "30 ngày tới",
+          "custom": "Tùy chọn",
+          "dateFrom": "Từ ngày",
+          "dateTo": "Đến ngày"
+        },
+        "location": {
+          "title": "Khu vực",
+          "district": "Quận / huyện"
+        },
+        "sport": {
+          "title": "Môn thi đấu",
+          "BADMINTON": "Cầu lông",
+          "PICKLEBALL": "Pickleball"
+        }
+      },
+      "sort": {
+        "startDate": "Sắp diễn ra gần nhất",
+        "newest": "Mới tạo",
+        "nameAsc": "Tên A-Z",
+        "nameDesc": "Tên Z-A"
+      },
       "explore": "Khám phá",
       "searchEvents": "Tìm kiếm giải đấu...",
       "follow": "Theo dõi",

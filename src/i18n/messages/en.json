@@ -1551,6 +1551,45 @@
         "cancelled": "Cancelled"
       },
       "noTournamentsFound": "No tournaments found",
+      "noResultsDescription": "Try another keyword or adjust the active filters.",
+      "filters": {
+        "title": "Filters",
+        "apply": "Search",
+        "reset": "Reset",
+        "invalidDateRange": "The start date cannot be after the end date.",
+        "status": {
+          "title": "Status",
+          "PREPARING": "Upcoming",
+          "IN_PROGRESS": "In progress",
+          "FINISHED": "Finished",
+          "CANCELLED": "Cancelled"
+        },
+        "period": {
+          "title": "Time",
+          "all": "All",
+          "today": "Today",
+          "next7": "Next 7 days",
+          "next30": "Next 30 days",
+          "custom": "Custom",
+          "dateFrom": "From date",
+          "dateTo": "To date"
+        },
+        "location": {
+          "title": "Location",
+          "district": "District"
+        },
+        "sport": {
+          "title": "Sport",
+          "BADMINTON": "Badminton",
+          "PICKLEBALL": "Pickleball"
+        }
+      },
+      "sort": {
+        "startDate": "Starting soonest",
+        "newest": "Newest",
+        "nameAsc": "Name A-Z",
+        "nameDesc": "Name Z-A"
+      },
       "explore": "Explore",
       "searchEvents": "Search events",
       "follow": "Follow",
