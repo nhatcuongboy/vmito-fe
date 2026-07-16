@@ -692,6 +692,8 @@ export interface PlayerStatistics {
   losses: number;
   winRate: number;
   averageScore: number;
+  scoredMatches: number;
+  averagePointDifferential: number | null;
   totalPlayTime: number;
   totalWaitTime: number;
   totalShuttlecocks?: number | null;
