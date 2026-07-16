@@ -21,6 +21,7 @@ export function ResultsCalendarView({
   resolveRoundOrGroupLabel,
   courtAbbreviation,
   allMatches,
+  labelContextVersion,
   showPlayerNames,
   getMatchCardDomId,
 }: {
@@ -31,6 +32,7 @@ export function ResultsCalendarView({
   resolveRoundOrGroupLabel: (match: CategoryMatch) => string;
   courtAbbreviation?: string;
   allMatches: CategoryMatch[];
+  labelContextVersion?: string;
   showPlayerNames?: boolean;
   getMatchCardDomId?: (match: CategoryMatch) => string;
 }) {
@@ -200,6 +202,7 @@ export function ResultsCalendarView({
                             roundOrGroupLabel={resolveRoundOrGroupLabel(match)}
                             courtAbbreviation={courtAbbreviation}
                             allMatches={allMatches}
+                            labelContextVersion={labelContextVersion}
                             category={categoryById.get(match.categoryId)}
                             showPlayerNames={showPlayerNames}
                             domId={getMatchCardDomId?.(match)}

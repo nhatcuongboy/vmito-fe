@@ -320,6 +320,14 @@ export default function ResultsPanel({
       });
   }, [matches, filters, user?.id, refereeAccess]);
 
+  // Score events replace only the live match, but the matches array itself is
+  // necessarily new. This fingerprint changes only when data used to resolve
+  // team/playoff labels changes, allowing unchanged cards to stay memoized.
+  const matchLabelContextVersion = useMemo(
+    () => getMatchLabelContextVersion(matches),
+    [matches]
+  );
+
   const activeFilterCount = getActiveFilterCount(filters);
   const bracketReadyCategories = useMemo(() => {
     if (!canEdit) return [];
@@ -446,31 +454,34 @@ export default function ResultsPanel({
   }, [filteredMatches, focusedMatchId, loading, viewMode]);
 
   // Any viewer can open the read-only detail modal; editing is gated inside it.
-  const openMatch = (match: CategoryMatch) => {
-    if (filters.refereeOnly) {
-      const nextParams = buildResultFilterSearchParams(
-        currentQuery,
-        filters,
-        viewMode,
-        showPlayerNames
-      );
-      nextParams.set(FILTER_PARAM_KEYS.refereeOnly, '1');
-      nextParams.set(FILTER_PARAM_KEYS.showPlayerNames, '1');
-      nextParams.set(FILTER_PARAM_KEYS.focusMatch, match.id);
-      const query = nextParams.toString();
-      const returnUrl = `/tournament/${tournament.slug}/schedule${
-        query ? `?${query}` : ''
-      }`;
+  const openMatch = useCallback(
+    (match: CategoryMatch) => {
+      if (filters.refereeOnly) {
+        const nextParams = buildResultFilterSearchParams(
+          currentQuery,
+          filters,
+          viewMode,
+          showPlayerNames
+        );
+        nextParams.set(FILTER_PARAM_KEYS.refereeOnly, '1');
+        nextParams.set(FILTER_PARAM_KEYS.showPlayerNames, '1');
+        nextParams.set(FILTER_PARAM_KEYS.focusMatch, match.id);
+        const query = nextParams.toString();
+        const returnUrl = `/tournament/${tournament.slug}/schedule${
+          query ? `?${query}` : ''
+        }`;
 
-      if (typeof window !== 'undefined') {
-        window.history.replaceState(window.history.state, '', returnUrl);
+        if (typeof window !== 'undefined') {
+          window.history.replaceState(window.history.state, '', returnUrl);
+        }
+
+        router.push(`/tournament/${tournament.slug}/referee/${match.id}`);
+        return;
       }
-
-      router.push(`/tournament/${tournament.slug}/referee/${match.id}`);
-      return;
-    }
-    setDetailMatch(match);
-  };
+      setDetailMatch(match);
+    },
+    [currentQuery, filters, router, showPlayerNames, tournament.slug, viewMode]
+  );
 
   const handleConfirmDelete = useCallback(async () => {
     if (!deletingMatch) return;
@@ -843,6 +854,7 @@ export default function ResultsPanel({
           resolveRoundOrGroupLabel={resolveRoundOrGroupLabel}
           courtAbbreviation={courtAbbreviation}
           allMatches={matches}
+          labelContextVersion={matchLabelContextVersion}
           showPlayerNames={showPlayerNames}
           getMatchCardDomId={getMatchCardDomId}
         />
@@ -882,6 +894,7 @@ export default function ResultsPanel({
                     roundOrGroupLabel={resolveRoundOrGroupLabel(match)}
                     courtAbbreviation={courtAbbreviation}
                     allMatches={matches}
+                    labelContextVersion={matchLabelContextVersion}
                     category={categoryById.get(match.categoryId)}
                     showPlayerNames={showPlayerNames}
                     domId={getMatchCardDomId(match)}
@@ -1065,6 +1078,28 @@ export default function ResultsPanel({
         </VModal>
       )}
     </Box>
+  );
+}
+
+function getMatchLabelContextVersion(matches: CategoryMatch[]) {
+  return JSON.stringify(
+    matches.map((match) => [
+      match.id,
+      match.categoryId,
+      match.groupId,
+      match.round,
+      match.matchNumber,
+      match.participants?.map((participant) => {
+        const registration = participant.categoryRegistration;
+        return [
+          participant.position,
+          participant.categoryRegistrationId,
+          registration?.player?.name,
+          registration?.pair?.name,
+          registration?.pair?.members?.map((member) => member.player?.name),
+        ];
+      }),
+    ])
   );
 }
 

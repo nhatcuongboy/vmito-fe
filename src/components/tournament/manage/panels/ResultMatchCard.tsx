@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { memo, useEffect, useState } from 'react';
 import { Badge, Box, Flex, Text } from '@chakra-ui/react';
 import { useLocale, useTranslations } from 'next-intl';
 import { Activity, Check, CircleSlash, Clock, Flag } from 'lucide-react';
@@ -22,18 +22,7 @@ export function makeScheduleMatchCardDomId(matchId: string) {
   return `${SCHEDULE_MATCH_CARD_ID_PREFIX}${matchId}`;
 }
 
-export function ResultMatchCard({
-  match,
-  categoryName,
-  onSelect,
-  compact = false,
-  roundOrGroupLabel,
-  courtAbbreviation,
-  allMatches,
-  category,
-  showPlayerNames = false,
-  domId,
-}: {
+interface ResultMatchCardProps {
   match: CategoryMatch;
   /** Category name shown as a badge on the card. */
   categoryName?: string;
@@ -47,13 +36,31 @@ export function ResultMatchCard({
   courtAbbreviation?: string;
   /** All category matches, used to resolve empty elimination slots to feeders. */
   allMatches?: CategoryMatch[];
+  /**
+   * Fingerprint of the label-relevant match data. When supplied, memoization
+   * can ignore score-only changes to the allMatches array.
+   */
+  labelContextVersion?: string;
   /** The match's category, used to resolve first-round seed labels. */
   category?: Category;
   /** When true, render the joined player full names instead of pair/team name. */
   showPlayerNames?: boolean;
   /** Optional DOM id for restoring scroll/focus from another route. */
   domId?: string;
-}) {
+}
+
+function ResultMatchCardComponent({
+  match,
+  categoryName,
+  onSelect,
+  compact = false,
+  roundOrGroupLabel,
+  courtAbbreviation,
+  allMatches,
+  category,
+  showPlayerNames = false,
+  domId,
+}: ResultMatchCardProps) {
   const t = useTranslations('pages.tournaments.manualScore');
   const tRounds = useTranslations('pages.tournaments.manualScore.rounds');
   const locale = useLocale();
@@ -252,6 +259,37 @@ export function ResultMatchCard({
         />
       </Box>
     </Box>
+  );
+}
+
+export const ResultMatchCard = memo(
+  ResultMatchCardComponent,
+  areResultMatchCardPropsEqual
+);
+ResultMatchCard.displayName = 'ResultMatchCard';
+
+function areResultMatchCardPropsEqual(
+  previous: ResultMatchCardProps,
+  next: ResultMatchCardProps
+) {
+  const labelContextIsEqual =
+    previous.labelContextVersion !== undefined ||
+    next.labelContextVersion !== undefined
+      ? previous.labelContextVersion === next.labelContextVersion
+      : previous.allMatches === next.allMatches;
+
+  return (
+    previous.match === next.match &&
+    previous.categoryName === next.categoryName &&
+    previous.canEdit === next.canEdit &&
+    previous.onSelect === next.onSelect &&
+    previous.compact === next.compact &&
+    previous.roundOrGroupLabel === next.roundOrGroupLabel &&
+    previous.courtAbbreviation === next.courtAbbreviation &&
+    labelContextIsEqual &&
+    previous.category === next.category &&
+    previous.showPlayerNames === next.showPlayerNames &&
+    previous.domId === next.domId
   );
 }
 
