@@ -1,6 +1,5 @@
 'use client';
 
-import { Button } from '@/components/ui/chakra-compat';
 import { FilterDrawer } from '@/components/ui/FilterDrawer';
 import { Input } from '@/components/ui/Input';
 import { VIETNAM_CITIES } from '@/constants/vietnam-locations';
@@ -130,7 +129,9 @@ export default function TournamentFilterDrawer({
         <Box>
           <HStack gap={2} mb={3}>
             <CalendarDays size={17} />
-            <Text fontWeight="bold">{t('status.title')}</Text>
+            <Text fontSize="sm" fontWeight="bold">
+              {t('status.title')}
+            </Text>
           </HStack>
           <Flex gap={2} flexWrap="wrap">
             {statuses.map((status) => {
@@ -150,6 +151,11 @@ export default function TournamentFilterDrawer({
                       statuses: toggleValue(current.statuses, status),
                     }))
                   }
+                  fontSize="sm"
+                  fontWeight="medium"
+                  transition="all 0.2s"
+                  _hover={{ transform: 'scale(1.05)' }}
+                  borderWidth={isSelected ? '0' : '2px'}
                 >
                   {t(`status.${status}`)}
                 </Badge>
@@ -163,7 +169,9 @@ export default function TournamentFilterDrawer({
         <Box>
           <HStack gap={2} mb={3}>
             <CalendarDays size={17} />
-            <Text fontWeight="bold">{t('period.title')}</Text>
+            <Text fontSize="sm" fontWeight="bold">
+              {t('period.title')}
+            </Text>
           </HStack>
           <Flex gap={2} flexWrap="wrap">
             {periods.map((period) => {
@@ -178,6 +186,11 @@ export default function TournamentFilterDrawer({
                   variant={isSelected ? 'solid' : 'outline'}
                   colorPalette={isSelected ? 'green' : 'gray'}
                   onClick={() => handlePeriodChange(period)}
+                  fontSize="sm"
+                  fontWeight="medium"
+                  transition="all 0.2s"
+                  _hover={{ transform: 'scale(1.05)' }}
+                  borderWidth={isSelected ? '0' : '2px'}
                 >
                   {t(`period.${period}`)}
                 </Badge>
@@ -232,7 +245,9 @@ export default function TournamentFilterDrawer({
         <Box>
           <HStack gap={2} mb={3}>
             <MapPin size={17} />
-            <Text fontWeight="bold">{t('location.title')}</Text>
+            <Text fontSize="sm" fontWeight="bold">
+              {t('location.title')}
+            </Text>
           </HStack>
           <Flex gap={2} flexWrap="wrap">
             {VIETNAM_CITIES.map((city) => {
@@ -247,6 +262,11 @@ export default function TournamentFilterDrawer({
                   variant={isSelected ? 'solid' : 'outline'}
                   colorPalette={isSelected ? 'green' : 'gray'}
                   onClick={() => handleToggleCity(city.code)}
+                  fontSize="sm"
+                  fontWeight="medium"
+                  transition="all 0.2s"
+                  _hover={{ transform: 'scale(1.05)' }}
+                  borderWidth={isSelected ? '0' : '2px'}
                 >
                   {city.name}
                 </Badge>
@@ -255,7 +275,7 @@ export default function TournamentFilterDrawer({
           </Flex>
           {availableDistricts.length > 0 && (
             <Box mt={4}>
-              <Text fontSize="sm" fontWeight="semibold" mb={2}>
+              <Text fontSize="sm" fontWeight="bold" mb={2}>
                 {t('location.district')}
               </Text>
               <Flex gap={2} flexWrap="wrap">
@@ -264,9 +284,12 @@ export default function TournamentFilterDrawer({
                     district.name
                   );
                   return (
-                    <Button
+                    <Badge
                       key={`${district.code}-${district.name}`}
-                      size="xs"
+                      px={3}
+                      py={1.5}
+                      borderRadius="lg"
+                      cursor="pointer"
                       variant={isSelected ? 'solid' : 'outline'}
                       colorPalette={isSelected ? 'green' : 'gray'}
                       onClick={() =>
@@ -278,9 +301,14 @@ export default function TournamentFilterDrawer({
                           ),
                         }))
                       }
+                      fontSize="sm"
+                      fontWeight="medium"
+                      transition="all 0.2s"
+                      _hover={{ transform: 'scale(1.05)' }}
+                      borderWidth={isSelected ? '0' : '2px'}
                     >
                       {district.name}
-                    </Button>
+                    </Badge>
                   );
                 })}
               </Flex>
@@ -293,7 +321,9 @@ export default function TournamentFilterDrawer({
         <Box>
           <HStack gap={2} mb={3}>
             <Trophy size={17} />
-            <Text fontWeight="bold">{t('sport.title')}</Text>
+            <Text fontSize="sm" fontWeight="bold">
+              {t('sport.title')}
+            </Text>
           </HStack>
           <Flex gap={2} flexWrap="wrap">
             {sports.map((sport) => {
@@ -313,6 +343,11 @@ export default function TournamentFilterDrawer({
                       sports: toggleValue(current.sports, sport),
                     }))
                   }
+                  fontSize="sm"
+                  fontWeight="medium"
+                  transition="all 0.2s"
+                  _hover={{ transform: 'scale(1.05)' }}
+                  borderWidth={isSelected ? '0' : '2px'}
                 >
                   {t(`sport.${sport}`)}
                 </Badge>
