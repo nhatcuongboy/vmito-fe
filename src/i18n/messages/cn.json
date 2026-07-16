@@ -2018,7 +2018,7 @@
             },
             "rrse": {
               "groupStage": "小组赛阶段",
-              "eliminationRound": "淘汰赛阶段",
+              "eliminationRound": "淘汰赛",
               "qualifiersPerGroup": "每组晋级人数"
             },
             "playoffs": {
@@ -2630,10 +2630,28 @@
               "quickCreatePlayer": "快速创建新运动员",
               "memberAddFailed": "添加运动员失败",
               "selectFromList": "选择运动员",
-              "searchPlayerPlaceholder": "搜索运动员...",
+              "searchPlayerPlaceholder": "搜索运动员…",
               "noAvailablePlayers": "所有运动员均已报名此项目",
               "selectedCount": "已选择 {count} 名",
               "draftTeamWarning": "该队伍仍为草稿，暂时无法分组或排赛程。",
+              "teamNameLabel": "队伍名称",
+              "selectedMembers": "已选运动员",
+              "noSelectedMembers": "尚未选择运动员。",
+              "addMembersLabel": "添加运动员",
+              "unknownPlayer": "未知运动员",
+              "memberConflict": "同时属于：{teams}",
+              "removeMemberAria": "将 {name} 移出队伍",
+              "rosterFullHelp": "队伍人数已满。请先移除一名运动员再添加其他人。",
+              "noRosterCandidates": "没有匹配的运动员。",
+              "assignedToTeam": "已加入 {teams}",
+              "rosterFullStatus": "队伍人数已满",
+              "addToTeam": "加入队伍",
+              "newPlayerNameLabel": "新运动员姓名",
+              "newPlayerNamePlaceholder": "输入运动员姓名…",
+              "createAndAdd": "创建并添加",
+              "rosterConflictHelp": "部分运动员已加入本项目中的其他队伍。请先移除冲突的运动员再保存。",
+              "rosterConflictServer": "队伍名单刚刚发生变化。请检查冲突的运动员后重新保存。",
+              "memberCreateFailedHelp": "无法创建运动员。请检查姓名后重试。",
               "team": {
                 "title": "队伍",
                 "add": "添加队伍",
@@ -3127,6 +3145,11 @@
               "title": "赛程",
               "scheduled": "已安排",
               "unscheduled": "未安排"
+            },
+            "categoryRequired": {
+              "emptyTitle": "请先创建类别",
+              "emptyDescription": "类别决定参赛对象和比赛组织方式。请先添加一个类别，再设置此部分。",
+              "action": "前往类别"
             },
             "sponsors": {
               "title": "赞助商",
