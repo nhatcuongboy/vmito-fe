@@ -152,6 +152,7 @@ export const ROUTES = {
   // Admin Routes
   ADMIN: {
     USERS: '/admin/users',
+    SESSIONS: '/admin/sessions',
     NOTIFICATIONS: '/admin/notifications',
     FEEDBACK: '/admin/feedback',
     GENERAL: '/admin/general',
@@ -191,6 +192,7 @@ export const ROUTE_GROUPS = {
     ROUTES.PLAYER.SESSIONS.LIST,
     ROUTES.PLAYER.TRANSACTIONS,
     ROUTES.ADMIN.USERS,
+    ROUTES.ADMIN.SESSIONS,
     ROUTES.ADMIN.NOTIFICATIONS,
     ROUTES.ADMIN.FEEDBACK,
     ROUTES.ADMIN.GENERAL,
@@ -229,6 +231,7 @@ export const ROUTE_GROUPS = {
   // Admin-only routes
   ADMIN_ONLY: [
     ROUTES.ADMIN.USERS,
+    ROUTES.ADMIN.SESSIONS,
     ROUTES.ADMIN.NOTIFICATIONS,
     ROUTES.ADMIN.FEEDBACK,
     ROUTES.ADMIN.LEVEL_DESCRIPTIONS,
@@ -339,6 +342,7 @@ export const BREADCRUMB_LABELS: Record<string, string> = {
   [ROUTES.GUIDE]: 'User Guide',
   [ROUTES.FEEDBACK]: 'Contact & Bug Report',
   [ROUTES.ADMIN.USERS]: 'Users',
+  [ROUTES.ADMIN.SESSIONS]: 'Sessions',
   [ROUTES.ADMIN.NOTIFICATIONS]: 'Notifications',
   [ROUTES.ADMIN.FEEDBACK]: 'Feedback',
   [ROUTES.ADMIN.LEVEL_DESCRIPTIONS]: 'Level Descriptions',

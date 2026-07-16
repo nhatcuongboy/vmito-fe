@@ -40,6 +40,7 @@
     "createTournament": "创建锦标赛",
     "generalSettings": "常规设置",
     "levelDescriptions": "等级描述",
+    "sessionsManagement": "管理场次",
     "feedback": "反馈",
     "newsfeed": "动态"
   },
@@ -4884,6 +4885,62 @@
   },
   "admin": {
     "title": "管理员",
+    "sessions": {
+      "title": "管理所有场次",
+      "searchPlaceholder": "按名称、场馆、地点搜索...",
+      "noSessionsFound": "未找到场次",
+      "totalRecords": "总数：{count}",
+      "loadError": "无法加载场次",
+      "deleteSuccess": "场次删除成功",
+      "deleteError": "无法删除场次",
+      "deleteConfirm": "确定要删除场次 {name} 吗？此操作无法撤销。",
+      "statusUpdateSuccess": "状态更新成功",
+      "statusUpdateError": "无法更新状态",
+      "columns": {
+        "name": "名称",
+        "host": "主办人",
+        "venue": "场馆/地点",
+        "dateTime": "时间",
+        "status": "状态",
+        "players": "人数/场地",
+        "actions": "操作"
+      },
+      "status": {
+        "PREPARING": "准备中",
+        "IN_PROGRESS": "进行中",
+        "FINISHED": "已结束",
+        "CANCELLED": "已取消"
+      },
+      "type": {
+        "regular": "常规",
+        "facebook": "Facebook"
+      },
+      "filters": {
+        "status": "状态",
+        "type": "场次类型",
+        "host": "主办人",
+        "city": "城市",
+        "district": "区/县",
+        "dateFrom": "起始日期",
+        "dateTo": "结束日期",
+        "allStatuses": "所有状态",
+        "allTypes": "所有类型",
+        "allHosts": "所有主办人"
+      },
+      "actions": {
+        "view": "查看",
+        "edit": "编辑",
+        "delete": "删除",
+        "start": "开始",
+        "end": "结束",
+        "cancel": "取消场次"
+      },
+      "bulk": {
+        "selected": "已选择 {count}",
+        "delete": "删除所选",
+        "deleteConfirm": "确定要删除所选的 {count} 个场次吗？此操作无法撤销。"
+      }
+    },
     "userManagement": "用户管理",
     "users": "用户",
     "levelDescriptions": "等级描述",

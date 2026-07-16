@@ -48,6 +48,7 @@
     "createTournament": "Create Tournament",
     "generalSettings": "General Settings",
     "levelDescriptions": "Level Descriptions",
+    "sessionsManagement": "Manage Sessions",
     "feedback": "Feedback",
     "newsfeed": "Newsfeed"
   },
@@ -4924,6 +4925,62 @@
   },
   "admin": {
     "title": "Admin",
+    "sessions": {
+      "title": "Manage All Sessions",
+      "searchPlaceholder": "Search by name, venue, location...",
+      "noSessionsFound": "No sessions found",
+      "totalRecords": "Total: {count}",
+      "loadError": "Failed to load sessions",
+      "deleteSuccess": "Session deleted successfully",
+      "deleteError": "Failed to delete session",
+      "deleteConfirm": "Are you sure you want to delete session {name}? This action cannot be undone.",
+      "statusUpdateSuccess": "Status updated successfully",
+      "statusUpdateError": "Failed to update status",
+      "columns": {
+        "name": "Name",
+        "host": "Host",
+        "venue": "Venue/Location",
+        "dateTime": "Date & Time",
+        "status": "Status",
+        "players": "Players/Courts",
+        "actions": "Actions"
+      },
+      "status": {
+        "PREPARING": "Preparing",
+        "IN_PROGRESS": "In Progress",
+        "FINISHED": "Finished",
+        "CANCELLED": "Cancelled"
+      },
+      "type": {
+        "regular": "Regular",
+        "facebook": "Facebook"
+      },
+      "filters": {
+        "status": "Status",
+        "type": "Session Type",
+        "host": "Host",
+        "city": "City",
+        "district": "District",
+        "dateFrom": "From date",
+        "dateTo": "To date",
+        "allStatuses": "All statuses",
+        "allTypes": "All types",
+        "allHosts": "All hosts"
+      },
+      "actions": {
+        "view": "View",
+        "edit": "Edit",
+        "delete": "Delete",
+        "start": "Start",
+        "end": "End",
+        "cancel": "Cancel session"
+      },
+      "bulk": {
+        "selected": "{count} selected",
+        "delete": "Delete selected",
+        "deleteConfirm": "Are you sure you want to delete {count} selected sessions? This action cannot be undone."
+      }
+    },
     "userManagement": "User Management",
     "users": "Users",
     "levelDescriptions": "Level Descriptions",
