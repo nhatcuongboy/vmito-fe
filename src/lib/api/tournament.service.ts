@@ -1,4 +1,5 @@
 import { toaster } from '@/components/ui/toaster';
+import { getToastMessage } from '@/lib/i18n/toastMessages';
 import { api, ApiResponse, dedupGet } from './base';
 import {
   Tournament,
@@ -58,7 +59,9 @@ export const TournamentService = {
       '/tournaments',
       data
     );
-    toaster.success({ title: 'Tournament created successfully' });
+    toaster.success({
+      title: getToastMessage('tournamentCreatedSuccessfully'),
+    });
     return response.data.data!;
   },
 
@@ -81,7 +84,9 @@ export const TournamentService = {
       `/tournaments/${id}`,
       { isPublished: true }
     );
-    toaster.success({ title: 'Tournament published successfully' });
+    toaster.success({
+      title: getToastMessage('tournamentPublishedSuccessfully'),
+    });
     return response.data.data!;
   },
 

@@ -15,6 +15,7 @@ import { useTranslations } from 'next-intl';
 import { Tournament } from '@/lib/api/types';
 import { useRouter } from '@/i18n/config';
 import { useParams } from 'next/navigation';
+import { getPrimaryVenueDisplay } from '@/utils';
 
 interface Props {
   tournament: Tournament;
@@ -60,7 +61,7 @@ export default function TournamentDashboard({ tournament }: Props) {
       (tournament._count?.categories ?? tournament.categories?.length ?? 0) > 0;
     const hasTeams =
       (tournament._count?.players ?? 0) + (tournament._count?.pairs ?? 0) > 0;
-    const hasVenue = !!tournament.venue;
+    const hasVenue = !!getPrimaryVenueDisplay(tournament);
 
     return {
       categories: hasCategories,

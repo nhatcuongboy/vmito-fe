@@ -27,7 +27,7 @@ import {
   WifiOff,
 } from 'lucide-react';
 import { TournamentCourt } from '@/lib/api/types';
-import { formatCourtLabel } from '@/components/tournament/manage/panels/ResultsPanel';
+import { formatCourtLabel } from '@/lib/tournament/court';
 
 interface Props {
   courts: TournamentCourt[];

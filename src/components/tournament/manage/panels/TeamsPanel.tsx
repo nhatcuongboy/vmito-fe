@@ -1,10 +1,28 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { toaster } from '@/components/ui/toaster';
-import { Box, Flex, Heading, Text, Input, Textarea } from '@chakra-ui/react';
+import {
+  Box,
+  Field,
+  Flex,
+  Heading,
+  Input,
+  Text,
+  Textarea,
+} from '@chakra-ui/react';
 import { Button, VStack } from '@/components/ui/chakra-compat';
-import { Plus, Pencil, Trash2, Users, ChevronDown } from 'lucide-react';
+import {
+  AlertCircle,
+  ChevronDown,
+  Pencil,
+  Plus,
+  Search,
+  Trash2,
+  UserPlus,
+  Users,
+  X,
+} from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import {
   Category,
@@ -17,11 +35,18 @@ import { TournamentPlayerService } from '@/lib/api/tournament-player.service';
 import { TournamentPairService } from '@/lib/api/tournament-pair.service';
 import { TournamentMatchListSkeleton } from '@/components/tournament/skeletons';
 import { VModal, useModal } from '@/components/ui/VModal';
+import {
+  buildPlayerTeamAssignments,
+  getOtherTeamAssignments,
+  getRegistrationPlayerIds,
+} from '@/lib/tournament/teamRoster';
+import TournamentManageEmptyState from './TournamentManageEmptyState';
 
 interface TeamsPanelProps {
   categories: Category[];
   selectedCategory: Category | null;
   onSelectCategory: (category: Category) => void;
+  onOpenCategoriesPanel: () => void;
 }
 
 type TAddMode = 'single' | 'select' | 'multiple';
@@ -34,6 +59,7 @@ type BulkProgress = {
 type ApiErrorLike = {
   message?: string;
   response?: {
+    status?: number;
     data?: {
       message?: string | string[];
       error?: string;
@@ -81,10 +107,20 @@ const getErrorMessage = (error: unknown, fallback: string): string => {
   return fallback;
 };
 
+const getRegistrationName = (reg: CategoryRegistration): string =>
+  reg.player?.name ||
+  reg.pair?.name ||
+  reg.pair?.members?.map((member) => member.player?.name).join(' & ') ||
+  'Unknown';
+
+const isConflictError = (error: unknown): boolean =>
+  (error as ApiErrorLike)?.response?.status === 409;
+
 export default function TeamsPanel({
   categories,
   selectedCategory,
   onSelectCategory,
+  onOpenCategoriesPanel,
 }: TeamsPanelProps) {
   const t = useTranslations('pages.tournaments.detail.manage');
   const [registrations, setRegistrations] = useState<CategoryRegistration[]>(
@@ -113,7 +149,11 @@ export default function TeamsPanel({
   );
   const [editName, setEditName] = useState('');
   const [memberIds, setMemberIds] = useState<string[]>([]);
+  const [memberSearch, setMemberSearch] = useState('');
   const [newPlayerName, setNewPlayerName] = useState('');
+  const [isCreatePlayerOpen, setIsCreatePlayerOpen] = useState(false);
+  const [isCreatingMember, setIsCreatingMember] = useState(false);
+  const [editError, setEditError] = useState('');
 
   // Delete modal
   const deleteModal = useModal();
@@ -132,16 +172,46 @@ export default function TeamsPanel({
   const participantCopyScope = isTeamCategory ? 'team' : 'player';
   const tc = (key: string, values?: Record<string, string | number>) =>
     t(`panels.teams.${participantCopyScope}.${key}`, values);
-  const legacyPlaceholderIds = new Set(
-    registrations
-      .filter((registration) => !registration.pair)
-      .map((registration) => registration.tournamentPlayerId)
-      .filter((playerId): playerId is string => Boolean(playerId))
+  const teamSize = activeCategory?.teamSize ?? 2;
+  const assignmentMap = useMemo(
+    () => buildPlayerTeamAssignments(registrations, getRegistrationName),
+    [registrations]
   );
-  const availablePlayers = players.filter(
-    (player) =>
-      !legacyPlaceholderIds.has(player.id) || memberIds.includes(player.id)
+  const memberIdSet = useMemo(() => new Set(memberIds), [memberIds]);
+  const playerNamesById = useMemo(() => {
+    const names = new Map(players.map((player) => [player.id, player.name]));
+
+    for (const registration of registrations) {
+      if (registration.player?.id) {
+        names.set(registration.player.id, registration.player.name);
+      }
+      for (const member of registration.pair?.members ?? []) {
+        if (member.player?.name) {
+          names.set(member.playerId, member.player.name);
+        }
+      }
+    }
+
+    return names;
+  }, [players, registrations]);
+  const normalizedMemberSearch = memberSearch.trim().toLocaleLowerCase();
+  const rosterCandidates = useMemo(
+    () =>
+      players.filter(
+        (player) =>
+          !memberIdSet.has(player.id) &&
+          (normalizedMemberSearch.length === 0 ||
+            player.name.toLocaleLowerCase().includes(normalizedMemberSearch))
+      ),
+    [memberIdSet, normalizedMemberSearch, players]
   );
+  const conflictingMemberIds = memberIds.filter(
+    (playerId) =>
+      getOtherTeamAssignments(assignmentMap, playerId, editingReg?.id).length >
+      0
+  );
+  const hasRosterConflict = conflictingMemberIds.length > 0;
+  const isRosterFull = memberIds.length >= teamSize;
 
   // Players that exist in the tournament but are NOT yet registered in this
   // (individual) category — used by the "select from list" add mode.
@@ -181,12 +251,6 @@ export default function TeamsPanel({
       );
     }
   }, [activeCategory, loadRegistrations]);
-
-  const getRegName = (reg: CategoryRegistration): string =>
-    reg.player?.name ||
-    reg.pair?.name ||
-    reg.pair?.members?.map((m) => m.player?.name).join(' & ') ||
-    'Unknown';
 
   // ── Add Teams ────────────────────────────────────────────────────────────────
   const handleOpenAdd = () => {
@@ -288,16 +352,27 @@ export default function TeamsPanel({
   // ── Edit Team ────────────────────────────────────────────────────────────────
   const handleOpenEdit = (reg: CategoryRegistration) => {
     setEditingReg(reg);
-    setEditName(getRegName(reg));
-    setMemberIds(reg.pair?.members?.map((member) => member.playerId) ?? []);
+    setEditName(getRegistrationName(reg));
+    setMemberIds(getRegistrationPlayerIds(reg));
+    setMemberSearch('');
     setNewPlayerName('');
+    setIsCreatePlayerOpen(false);
+    setEditError('');
     editModal.onOpen();
   };
 
   const handleEdit = async () => {
-    if (!editingReg || !editName.trim()) return;
+    if (
+      !editingReg ||
+      !editName.trim() ||
+      hasRosterConflict ||
+      memberIds.length > teamSize
+    ) {
+      return;
+    }
     try {
       setIsSubmitting(true);
+      setEditError('');
       if (isTeamCategory) {
         if (editingReg.pair) {
           await TournamentPairService.updatePair(editingReg.pair.id, {
@@ -329,12 +404,17 @@ export default function TeamsPanel({
       editModal.onClose();
     } catch (error) {
       console.error('Error editing team:', error);
+      if (isConflictError(error) && activeCategory) {
+        await loadRegistrations(activeCategory.id);
+      }
+      setEditError(
+        isConflictError(error)
+          ? t('panels.teams.rosterConflictServer')
+          : getErrorMessage(error, t('panels.teams.unknownError'))
+      );
       toaster.error({
         title: tc('updateFailed'),
-        description:
-          error instanceof Error
-            ? error.message
-            : t('panels.teams.unknownError'),
+        description: getErrorMessage(error, t('panels.teams.unknownError')),
       });
     } finally {
       setIsSubmitting(false);
@@ -342,8 +422,10 @@ export default function TeamsPanel({
   };
 
   const handleCreateMember = async () => {
-    if (!activeCategory || !newPlayerName.trim()) return;
+    if (!activeCategory || !newPlayerName.trim() || isRosterFull) return;
     try {
+      setIsCreatingMember(true);
+      setEditError('');
       const player = await TournamentPlayerService.createPlayer(
         activeCategory.tournamentId,
         { name: newPlayerName.trim() },
@@ -352,11 +434,17 @@ export default function TeamsPanel({
       setPlayers((current) => [player, ...current]);
       setMemberIds((current) => [...current, player.id]);
       setNewPlayerName('');
+      setIsCreatePlayerOpen(false);
     } catch (error) {
+      setEditError(
+        getErrorMessage(error, t('panels.teams.memberCreateFailedHelp'))
+      );
       toaster.error({
         title: t('panels.teams.memberAddFailed'),
         description: getErrorMessage(error, t('panels.teams.unknownError')),
       });
+    } finally {
+      setIsCreatingMember(false);
     }
   };
 
@@ -493,18 +581,28 @@ export default function TeamsPanel({
             </Box>
           )}
 
-          <Button
-            size="sm"
-            variant="outline"
-            leftIcon={<Plus size={14} />}
-            onClick={handleOpenAdd}
-          >
-            {tc('add')}
-          </Button>
+          {categories.length > 0 && (
+            <Button
+              size="sm"
+              variant="outline"
+              leftIcon={<Plus size={14} />}
+              onClick={handleOpenAdd}
+            >
+              {tc('add')}
+            </Button>
+          )}
         </Flex>
 
         {/* Registrations list */}
-        {loading ? (
+        {categories.length === 0 ? (
+          <TournamentManageEmptyState
+            icon={<Users size={24} />}
+            title={t('panels.categoryRequired.emptyTitle')}
+            description={t('panels.categoryRequired.emptyDescription')}
+            actionLabel={t('panels.categoryRequired.action')}
+            onAction={onOpenCategoriesPanel}
+          />
+        ) : loading ? (
           <TournamentMatchListSkeleton count={4} />
         ) : registrations.length === 0 ? (
           <Flex
@@ -520,7 +618,7 @@ export default function TeamsPanel({
         ) : (
           <VStack gap={0} align="stretch">
             {registrations.map((reg) => {
-              const name = getRegName(reg);
+              const name = getRegistrationName(reg);
               const memberCount = reg.pair?.members?.length ?? 0;
               return (
                 <Flex
@@ -576,31 +674,45 @@ export default function TeamsPanel({
                   <Flex gap={1}>
                     <Box
                       as="button"
+                      {...({ type: 'button' } as Record<string, unknown>)}
+                      aria-label={tc('editTitle')}
                       p={1.5}
                       borderRadius="md"
                       color="gray.400"
                       _hover={{ bg: 'gray.100', color: 'gray.600' }}
+                      _focusVisible={{
+                        outline: '2px solid',
+                        outlineColor: 'green.500',
+                        outlineOffset: '2px',
+                      }}
                       _dark={{
                         color: 'gray.400',
                         _hover: { bg: 'gray.700', color: 'gray.200' },
                       }}
                       onClick={() => handleOpenEdit(reg)}
                     >
-                      <Pencil size={16} />
+                      <Pencil size={16} aria-hidden="true" />
                     </Box>
                     <Box
                       as="button"
+                      {...({ type: 'button' } as Record<string, unknown>)}
+                      aria-label={tc('deleteTitle')}
                       p={1.5}
                       borderRadius="md"
                       color="gray.400"
                       _hover={{ bg: 'red.50', color: 'red.500' }}
+                      _focusVisible={{
+                        outline: '2px solid',
+                        outlineColor: 'red.500',
+                        outlineOffset: '2px',
+                      }}
                       _dark={{
                         color: 'gray.400',
                         _hover: { bg: 'red.900', color: 'red.200' },
                       }}
                       onClick={() => handleOpenDelete(reg)}
                     >
-                      <Trash2 size={16} />
+                      <Trash2 size={16} aria-hidden="true" />
                     </Box>
                   </Flex>
                 </Flex>
@@ -695,7 +807,7 @@ export default function TeamsPanel({
                   color: addMode === mode ? 'gray.50' : 'gray.300',
                 }}
                 boxShadow={addMode === mode ? 'sm' : 'none'}
-                transition="all 0.2s"
+                transition="background-color 0.2s, color 0.2s, box-shadow 0.2s, opacity 0.2s"
                 opacity={isSubmitting ? 0.6 : 1}
                 onClick={() => {
                   if (isSubmitting) return;
@@ -824,90 +936,396 @@ export default function TeamsPanel({
       {/* Edit Team Modal */}
       <VModal
         isOpen={editModal.isOpen}
-        onClose={editModal.onClose}
+        onClose={() => {
+          if (!isSubmitting && !isCreatingMember) editModal.onClose();
+        }}
         title={isTeamCategory ? t('panels.teams.teamDetails') : tc('editTitle')}
         primaryActionText={t('panels.teams.save')}
         onPrimaryAction={handleEdit}
         isPrimaryLoading={isSubmitting}
-        isPrimaryDisabled={!editName.trim()}
+        isPrimaryDisabled={
+          !editName.trim() ||
+          hasRosterConflict ||
+          memberIds.length > teamSize ||
+          isCreatingMember
+        }
+        isSecondaryDisabled={isCreatingMember}
         secondaryActionText={t('panels.teams.cancel')}
+        closeOnOverlayClick={false}
+        size="lg"
+        maxBodyHeight={{ base: '68vh', md: '72vh' }}
       >
         <VStack gap={4} align="stretch">
-          <Input
-            placeholder={tc('namePlaceholder')}
-            value={editName}
-            onChange={(e) => setEditName(e.target.value)}
-          />
+          <Field.Root required>
+            <Field.Label htmlFor="team-roster-name">
+              {t('panels.teams.teamNameLabel')}
+            </Field.Label>
+            <Input
+              id="team-roster-name"
+              name="teamName"
+              autoComplete="off"
+              placeholder={tc('namePlaceholder')}
+              value={editName}
+              disabled={isSubmitting}
+              onChange={(event) => {
+                setEditName(event.target.value);
+                setEditError('');
+              }}
+            />
+          </Field.Root>
           {isTeamCategory && (
             <>
-              <Text
-                fontSize="sm"
-                color="gray.600"
-                _dark={{ color: 'gray.300' }}
-              >
-                {t('panels.teams.members', {
-                  current: memberIds.length,
-                  total: activeCategory?.teamSize ?? 2,
-                })}
-              </Text>
-              <VStack gap={2} align="stretch" maxH="220px" overflowY="auto">
-                {availablePlayers.map((player) => {
-                  const checked = memberIds.includes(player.id);
-                  return (
-                    <Flex
-                      key={player.id}
-                      align="center"
-                      gap={3}
-                      borderWidth="1px"
-                      borderRadius="md"
-                      px={3}
-                      py={2}
+              <Box>
+                <Flex justify="space-between" align="center" gap={3} mb={2}>
+                  <Text fontSize="sm" fontWeight="semibold">
+                    {t('panels.teams.selectedMembers')}
+                  </Text>
+                  <Text
+                    fontSize="sm"
+                    color={
+                      memberIds.length === teamSize ? 'green.600' : 'orange.600'
+                    }
+                    fontVariantNumeric="tabular-nums"
+                    _dark={{
+                      color:
+                        memberIds.length === teamSize
+                          ? 'green.300'
+                          : 'orange.300',
+                    }}
+                  >
+                    {t('panels.teams.members', {
+                      current: memberIds.length,
+                      total: teamSize,
+                    })}
+                  </Text>
+                </Flex>
+
+                {memberIds.length === 0 ? (
+                  <Box
+                    borderWidth="1px"
+                    borderStyle="dashed"
+                    borderRadius="lg"
+                    px={3}
+                    py={4}
+                    textAlign="center"
+                    color="fg.muted"
+                  >
+                    <Text fontSize="sm">
+                      {t('panels.teams.noSelectedMembers')}
+                    </Text>
+                  </Box>
+                ) : (
+                  <VStack gap={2} align="stretch">
+                    {memberIds.map((playerId) => {
+                      const otherAssignments = getOtherTeamAssignments(
+                        assignmentMap,
+                        playerId,
+                        editingReg?.id
+                      );
+                      const hasConflict = otherAssignments.length > 0;
+                      return (
+                        <Flex
+                          key={playerId}
+                          align="center"
+                          gap={3}
+                          borderWidth="1px"
+                          borderColor={hasConflict ? 'red.300' : 'border'}
+                          bg={hasConflict ? 'red.50' : 'bg.subtle'}
+                          borderRadius="lg"
+                          px={3}
+                          py={2.5}
+                          _dark={{
+                            borderColor: hasConflict ? 'red.700' : 'gray.600',
+                            bg: hasConflict ? 'red.950' : 'gray.750',
+                          }}
+                        >
+                          <Flex
+                            w="32px"
+                            h="32px"
+                            borderRadius="full"
+                            bg="bg.muted"
+                            align="center"
+                            justify="center"
+                            flexShrink={0}
+                          >
+                            <Users size={16} aria-hidden="true" />
+                          </Flex>
+                          <Box flex="1" minW={0}>
+                            <Text fontSize="sm" fontWeight="medium" truncate>
+                              {playerNamesById.get(playerId) ??
+                                t('panels.teams.unknownPlayer')}
+                            </Text>
+                            {hasConflict ? (
+                              <Text fontSize="xs" color="red.600">
+                                {t('panels.teams.memberConflict', {
+                                  teams: otherAssignments
+                                    .map(({ teamName }) => teamName)
+                                    .join(', '),
+                                })}
+                              </Text>
+                            ) : null}
+                          </Box>
+                          <Box
+                            as="button"
+                            {...({
+                              type: 'button',
+                              disabled: isSubmitting || isCreatingMember,
+                            } as Record<string, unknown>)}
+                            aria-label={t('panels.teams.removeMemberAria', {
+                              name:
+                                playerNamesById.get(playerId) ??
+                                t('panels.teams.unknownPlayer'),
+                            })}
+                            p={2}
+                            borderRadius="md"
+                            color="red.500"
+                            _hover={{ bg: 'red.100' }}
+                            _focusVisible={{
+                              outline: '2px solid',
+                              outlineColor: 'green.500',
+                              outlineOffset: '2px',
+                            }}
+                            _disabled={{ opacity: 0.5, cursor: 'not-allowed' }}
+                            onClick={() => {
+                              setMemberIds((current) =>
+                                current.filter((id) => id !== playerId)
+                              );
+                              setEditError('');
+                            }}
+                          >
+                            <X size={16} aria-hidden="true" />
+                          </Box>
+                        </Flex>
+                      );
+                    })}
+                  </VStack>
+                )}
+              </Box>
+
+              <Box borderTopWidth="1px" borderColor="border" pt={4}>
+                <Field.Root>
+                  <Field.Label htmlFor="team-member-search">
+                    {t('panels.teams.addMembersLabel')}
+                  </Field.Label>
+                  <Box position="relative">
+                    <Box
+                      position="absolute"
+                      left={3}
+                      top="50%"
+                      transform="translateY(-50%)"
+                      color="fg.muted"
+                      pointerEvents="none"
                     >
-                      <input
-                        type="checkbox"
-                        checked={checked}
-                        disabled={
-                          !checked &&
-                          memberIds.length >= (activeCategory?.teamSize ?? 2)
-                        }
-                        onChange={() =>
-                          setMemberIds((current) =>
-                            checked
-                              ? current.filter((id) => id !== player.id)
-                              : [...current, player.id]
-                          )
-                        }
-                      />
-                      <Text flex="1" fontSize="sm">
-                        {player.name}
-                      </Text>
-                    </Flex>
-                  );
-                })}
-              </VStack>
-              <Flex gap={2}>
-                <Input
-                  placeholder={t('panels.teams.quickCreatePlayer')}
-                  value={newPlayerName}
-                  onChange={(event) => setNewPlayerName(event.target.value)}
-                />
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={handleCreateMember}
-                  disabled={
-                    !newPlayerName.trim() ||
-                    memberIds.length >= (activeCategory?.teamSize ?? 2)
-                  }
+                      <Search size={16} aria-hidden="true" />
+                    </Box>
+                    <Input
+                      id="team-member-search"
+                      name="teamMemberSearch"
+                      autoComplete="off"
+                      pl={9}
+                      placeholder={t('panels.teams.searchPlayerPlaceholder')}
+                      value={memberSearch}
+                      disabled={isSubmitting || isCreatingMember}
+                      onChange={(event) => setMemberSearch(event.target.value)}
+                    />
+                  </Box>
+                </Field.Root>
+
+                {isRosterFull ? (
+                  <Text fontSize="xs" color="orange.600" mt={2}>
+                    {t('panels.teams.rosterFullHelp')}
+                  </Text>
+                ) : null}
+
+                <VStack
+                  gap={2}
+                  align="stretch"
+                  maxH="240px"
+                  overflowY="auto"
+                  overscrollBehavior="contain"
+                  mt={3}
+                  pr={1}
                 >
-                  <Plus size={16} />
-                </Button>
-              </Flex>
-              {memberIds.length < (activeCategory?.teamSize ?? 2) && (
-                <Text fontSize="xs" color="orange.600">
+                  {rosterCandidates.length === 0 ? (
+                    <Box py={5} textAlign="center" color="fg.muted">
+                      <Text fontSize="sm">
+                        {t('panels.teams.noRosterCandidates')}
+                      </Text>
+                    </Box>
+                  ) : (
+                    rosterCandidates.map((player) => {
+                      const otherAssignments = getOtherTeamAssignments(
+                        assignmentMap,
+                        player.id,
+                        editingReg?.id
+                      );
+                      const isAssigned = otherAssignments.length > 0;
+                      const isDisabled =
+                        isAssigned ||
+                        isRosterFull ||
+                        isSubmitting ||
+                        isCreatingMember;
+                      const statusText = isAssigned
+                        ? t('panels.teams.assignedToTeam', {
+                            teams: otherAssignments
+                              .map(({ teamName }) => teamName)
+                              .join(', '),
+                          })
+                        : isRosterFull
+                          ? t('panels.teams.rosterFullStatus')
+                          : t('panels.teams.addToTeam');
+
+                      return (
+                        <Box
+                          key={player.id}
+                          as="button"
+                          {...({
+                            type: 'button',
+                            disabled: isDisabled,
+                          } as Record<string, unknown>)}
+                          w="full"
+                          textAlign="left"
+                          borderWidth="1px"
+                          borderColor="border"
+                          borderRadius="lg"
+                          px={3}
+                          py={2.5}
+                          cursor={isDisabled ? 'not-allowed' : 'pointer'}
+                          opacity={isDisabled ? 0.65 : 1}
+                          _hover={
+                            isDisabled
+                              ? undefined
+                              : { borderColor: 'green.400', bg: 'green.50' }
+                          }
+                          _focusVisible={{
+                            outline: '2px solid',
+                            outlineColor: 'green.500',
+                            outlineOffset: '2px',
+                          }}
+                          _dark={{
+                            borderColor: 'gray.600',
+                            _hover: isDisabled
+                              ? undefined
+                              : { borderColor: 'green.500', bg: 'green.950' },
+                          }}
+                          css={{
+                            contentVisibility: 'auto',
+                            containIntrinsicSize: '0 52px',
+                          }}
+                          onClick={() => {
+                            if (isDisabled) return;
+                            setMemberIds((current) => [...current, player.id]);
+                            setEditError('');
+                          }}
+                        >
+                          <Flex align="center" gap={3}>
+                            <Flex
+                              w="32px"
+                              h="32px"
+                              borderRadius="full"
+                              bg={isAssigned ? 'bg.muted' : 'green.100'}
+                              color={isAssigned ? 'fg.muted' : 'green.700'}
+                              align="center"
+                              justify="center"
+                              flexShrink={0}
+                              _dark={{
+                                bg: isAssigned ? 'gray.700' : 'green.900',
+                                color: isAssigned ? 'gray.400' : 'green.200',
+                              }}
+                            >
+                              <UserPlus size={16} aria-hidden="true" />
+                            </Flex>
+                            <Box flex="1" minW={0}>
+                              <Text fontSize="sm" fontWeight="medium" truncate>
+                                {player.name}
+                              </Text>
+                              <Text
+                                fontSize="xs"
+                                color={isAssigned ? 'orange.600' : 'fg.muted'}
+                                truncate
+                              >
+                                {statusText}
+                              </Text>
+                            </Box>
+                          </Flex>
+                        </Box>
+                      );
+                    })
+                  )}
+                </VStack>
+              </Box>
+
+              <Box borderTopWidth="1px" borderColor="border" pt={4}>
+                {!isCreatePlayerOpen ? (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    leftIcon={<Plus size={16} aria-hidden="true" />}
+                    onClick={() => setIsCreatePlayerOpen(true)}
+                    disabled={isRosterFull || isSubmitting}
+                  >
+                    {t('panels.teams.quickCreatePlayer')}
+                  </Button>
+                ) : (
+                  <Field.Root>
+                    <Field.Label htmlFor="team-new-player-name">
+                      {t('panels.teams.newPlayerNameLabel')}
+                    </Field.Label>
+                    <Flex gap={2} align="flex-start">
+                      <Input
+                        id="team-new-player-name"
+                        name="newPlayerName"
+                        autoComplete="off"
+                        placeholder={t('panels.teams.newPlayerNamePlaceholder')}
+                        value={newPlayerName}
+                        disabled={isCreatingMember || isSubmitting}
+                        onChange={(event) => {
+                          setNewPlayerName(event.target.value);
+                          setEditError('');
+                        }}
+                        onKeyDown={(event) => {
+                          if (event.key === 'Enter') {
+                            event.preventDefault();
+                            handleCreateMember();
+                          }
+                        }}
+                      />
+                      <Button
+                        type="button"
+                        onClick={handleCreateMember}
+                        loading={isCreatingMember}
+                        disabled={
+                          !newPlayerName.trim() || isRosterFull || isSubmitting
+                        }
+                        flexShrink={0}
+                      >
+                        {t('panels.teams.createAndAdd')}
+                      </Button>
+                    </Flex>
+                  </Field.Root>
+                )}
+              </Box>
+
+              {hasRosterConflict ? (
+                <Flex gap={2} align="flex-start" color="red.600" role="alert">
+                  <AlertCircle size={16} aria-hidden="true" />
+                  <Text fontSize="sm" flex="1">
+                    {t('panels.teams.rosterConflictHelp')}
+                  </Text>
+                </Flex>
+              ) : null}
+
+              {editError ? (
+                <Text fontSize="sm" color="red.600" role="alert">
+                  {editError}
+                </Text>
+              ) : null}
+
+              {memberIds.length < teamSize ? (
+                <Text fontSize="xs" color="orange.600" aria-live="polite">
                   {t('panels.teams.draftTeamWarning')}
                 </Text>
-              )}
+              ) : null}
             </>
           )}
         </VStack>
@@ -929,7 +1347,7 @@ export default function TeamsPanel({
         </Text>
         {deletingReg && (
           <Text fontSize="sm" fontWeight="semibold" mt={2}>
-            "{getRegName(deletingReg)}"
+            &quot;{getRegistrationName(deletingReg)}&quot;
           </Text>
         )}
       </VModal>

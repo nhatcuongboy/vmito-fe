@@ -23,6 +23,7 @@ import { TournamentService } from '@/lib/api/tournament.service';
 import { Tournament, TournamentStatus, UserRole } from '@/lib/api/types';
 import { useRouter } from '@/i18n/config';
 import { format } from 'date-fns';
+import { getPrimaryVenueDisplay } from '@/utils';
 import { vi as viLocale, enUS, zhCN } from 'date-fns/locale';
 import { useLocale, useTranslations } from 'next-intl';
 import { AppSearchBar } from '@/components/common/AppSearchBar';
@@ -188,7 +189,7 @@ function TournamentRow({
   isReferee?: boolean;
 }) {
   const theme = STATUS_THEME[tournament.status];
-  const venueName = tournament.venue?.name;
+  const venueName = getPrimaryVenueDisplay(tournament)?.name;
   const categoriesCount = tournament._count?.categories ?? 0;
 
   return (
