@@ -1130,14 +1130,19 @@ export default function NotificationBell({
                             </Text>
 
                             <IconButton
-                              aria-label="Delete"
+                              aria-label={t('delete')}
                               size="xs"
                               variant="ghost"
                               colorPalette="red"
-                              opacity={0}
-                              _groupHover={{ opacity: 1 }}
-                              _focusVisible={{ opacity: 1 }}
-                              _dark={{ color: 'red.300' }}
+                              color="gray.400"
+                              _hover={{ color: 'red.500', bg: 'red.50' }}
+                              _dark={{
+                                color: 'gray.500',
+                                _hover: {
+                                  color: 'red.300',
+                                  bg: 'rgba(248,113,113,0.12)',
+                                },
+                              }}
                               onClick={(e) =>
                                 handleDeleteNotification(e, notification.id)
                               }
