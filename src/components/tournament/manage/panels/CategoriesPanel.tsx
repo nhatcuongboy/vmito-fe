@@ -5,7 +5,7 @@ import { toaster } from '@/components/ui/toaster';
 import { Box, Field, Flex, Heading, Text } from '@chakra-ui/react';
 import { Button, VStack } from '@/components/ui/chakra-compat';
 import { Input } from '@/components/ui/Input';
-import { Plus, Pencil, Trash2 } from 'lucide-react';
+import { Layers, Plus, Pencil, Trash2 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import {
   Category,
@@ -16,6 +16,7 @@ import {
 import { CategoryService } from '@/lib/api/category.service';
 import { VModal, useModal } from '@/components/ui/VModal';
 import { getTournamentSportProfile } from '@/lib/tournament/sports';
+import TournamentManageEmptyState from './TournamentManageEmptyState';
 
 interface CategoriesPanelProps {
   tournamentId: string;
@@ -238,76 +239,86 @@ export default function CategoriesPanel({
         </Flex>
 
         {/* Category list */}
-        <VStack gap={0} align="stretch">
-          {categories.map((cat, idx) => (
-            <Flex
-              key={cat.id}
-              py={3}
-              px={2}
-              align="center"
-              gap={3}
-              borderBottomWidth="1px"
-              borderColor="gray.100"
-              _hover={{ bg: 'gray.50' }}
-              _dark={{
-                borderColor: 'gray.700',
-                _hover: { bg: 'gray.700' },
-              }}
-            >
-              <Box
-                w="10px"
-                h="10px"
-                borderRadius="full"
-                bg={CATEGORY_COLORS[idx % CATEGORY_COLORS.length]}
-                flexShrink={0}
-              />
-              <Text flex="1" fontSize="sm" fontWeight="medium">
-                {cat.name}
-              </Text>
-              <Text
-                fontSize="xs"
-                color="gray.500"
-                _dark={{ color: 'gray.400' }}
+        {categories.length === 0 ? (
+          <TournamentManageEmptyState
+            icon={<Layers size={24} />}
+            title={t('panels.categories.emptyTitle')}
+            description={t('panels.categories.emptyDescription')}
+            actionLabel={t('panels.categories.addCategory')}
+            onAction={handleOpenCreate}
+          />
+        ) : (
+          <VStack gap={0} align="stretch">
+            {categories.map((cat, idx) => (
+              <Flex
+                key={cat.id}
+                py={3}
+                px={2}
+                align="center"
+                gap={3}
+                borderBottomWidth="1px"
+                borderColor="gray.100"
+                _hover={{ bg: 'gray.50' }}
+                _dark={{
+                  borderColor: 'gray.700',
+                  _hover: { bg: 'gray.700' },
+                }}
               >
-                {cat.registrationMode === CategoryRegistrationMode.TEAM
-                  ? t('panels.categories.teamSizeSummary', {
-                      count: cat.teamSize,
-                    })
-                  : t('panels.categories.individual')}
-              </Text>
-              <Flex gap={1}>
                 <Box
-                  as="button"
-                  p={1.5}
-                  borderRadius="md"
-                  color="gray.400"
-                  _hover={{ bg: 'gray.100', color: 'gray.600' }}
-                  _dark={{
-                    color: 'gray.400',
-                    _hover: { bg: 'gray.700', color: 'gray.200' },
-                  }}
-                  onClick={() => handleOpenEdit(cat)}
+                  w="10px"
+                  h="10px"
+                  borderRadius="full"
+                  bg={CATEGORY_COLORS[idx % CATEGORY_COLORS.length]}
+                  flexShrink={0}
+                />
+                <Text flex="1" fontSize="sm" fontWeight="medium">
+                  {cat.name}
+                </Text>
+                <Text
+                  fontSize="xs"
+                  color="gray.500"
+                  _dark={{ color: 'gray.400' }}
                 >
-                  <Pencil size={16} />
-                </Box>
-                <Box
-                  as="button"
-                  p={1.5}
-                  borderRadius="md"
-                  color="gray.400"
-                  _hover={{ bg: 'red.50', color: 'red.500' }}
-                  _dark={{
-                    color: 'gray.400',
-                    _hover: { bg: 'red.900', color: 'red.200' },
-                  }}
-                  onClick={() => handleOpenDelete(cat)}
-                >
-                  <Trash2 size={16} />
-                </Box>
+                  {cat.registrationMode === CategoryRegistrationMode.TEAM
+                    ? t('panels.categories.teamSizeSummary', {
+                        count: cat.teamSize,
+                      })
+                    : t('panels.categories.individual')}
+                </Text>
+                <Flex gap={1}>
+                  <Box
+                    as="button"
+                    p={1.5}
+                    borderRadius="md"
+                    color="gray.400"
+                    _hover={{ bg: 'gray.100', color: 'gray.600' }}
+                    _dark={{
+                      color: 'gray.400',
+                      _hover: { bg: 'gray.700', color: 'gray.200' },
+                    }}
+                    onClick={() => handleOpenEdit(cat)}
+                  >
+                    <Pencil size={16} />
+                  </Box>
+                  <Box
+                    as="button"
+                    p={1.5}
+                    borderRadius="md"
+                    color="gray.400"
+                    _hover={{ bg: 'red.50', color: 'red.500' }}
+                    _dark={{
+                      color: 'gray.400',
+                      _hover: { bg: 'red.900', color: 'red.200' },
+                    }}
+                    onClick={() => handleOpenDelete(cat)}
+                  >
+                    <Trash2 size={16} />
+                  </Box>
+                </Flex>
               </Flex>
-            </Flex>
-          ))}
-        </VStack>
+            ))}
+          </VStack>
+        )}
       </VStack>
 
       {/* Create Modal */}

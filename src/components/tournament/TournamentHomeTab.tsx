@@ -38,7 +38,6 @@ import {
   CategoryType,
   CategoryRegistrationMode,
   TournamentVenue,
-  Venue,
   Sponsor,
   CategoryFormat,
 } from '@/lib/api/types';
@@ -61,7 +60,12 @@ import PublicTournamentWinnersTab from '@/components/tournament/PublicTournament
 import TournamentQrBar from '@/components/tournament/TournamentQrBar';
 import { TournamentTableSkeleton } from '@/components/tournament/skeletons';
 import { useRouter } from '@/i18n/config';
-import { getGoogleMapsUrl } from '@/utils';
+import {
+  getGoogleMapsUrl,
+  getPrimaryVenueDisplay,
+  getTournamentVenueDisplay,
+  VenueDisplay,
+} from '@/utils';
 import { Button } from '@/components/ui/chakra-compat';
 import { toaster } from '@/components/ui/toaster';
 import VenueMapPin from '@/components/venue/VenueMapPin';
@@ -76,7 +80,7 @@ interface ICategoryHomeItem {
 
 interface IHomeVenueItem {
   id: string;
-  venue: Venue;
+  display: VenueDisplay;
 }
 
 interface TournamentHomeTabProps {
@@ -589,21 +593,25 @@ export default function TournamentHomeTab({
     }
   );
 
-  const venue = tournament.venue;
+  const primaryVenue = getPrimaryVenueDisplay(tournament);
   const host = tournament.host;
   const tournamentNote = tournament.description?.trim() ?? '';
   const youtubeEmbeds = (tournament.youtubeVideoUrls ?? [])
     .map((url) => getYouTubeEmbed(url))
     .filter((embed): embed is NonNullable<typeof embed> => !!embed);
   const coverImage =
-    tournament.coverPhoto || venue?.coverPhoto || venue?.images?.[0] || '';
+    tournament.coverPhoto ||
+    primaryVenue?.coverPhoto ||
+    primaryVenue?.images?.[0] ||
+    '';
   const displayVenues = useMemo<IHomeVenueItem[]>(() => {
     if (tournamentVenues.length > 0) return tournamentVenues;
-    if (!venue) return [];
-    return [{ id: venue.id, venue }];
-  }, [tournamentVenues, venue]);
+    if (!primaryVenue) return [];
+    return [{ id: primaryVenue.venueId ?? 'primary', display: primaryVenue }];
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tournamentVenues, tournament.venue, tournament.tournamentVenues]);
   const overviewVenueName = displayVenues
-    .map(({ venue: currentVenue }) => currentVenue.name)
+    .map(({ display }) => display.name)
     .filter(Boolean)
     .join(', ');
 
@@ -614,19 +622,13 @@ export default function TournamentHomeTab({
       .then((data: TournamentVenue[]) => {
         if (!isMounted) return;
 
+        // Inline (address-only) venues have no linked Venue record but must
+        // still be displayed — resolve every row through the display helper.
         setTournamentVenues(
-          data
-            .filter(
-              (
-                tv
-              ): tv is TournamentVenue & {
-                venue: NonNullable<TournamentVenue['venue']>;
-              } => !!tv.venue
-            )
-            .map((tournamentVenue) => ({
-              id: tournamentVenue.id,
-              venue: tournamentVenue.venue,
-            }))
+          data.map((tournamentVenue) => ({
+            id: tournamentVenue.id,
+            display: getTournamentVenueDisplay(tournamentVenue),
+          }))
         );
       })
       .catch((error) => {
@@ -682,7 +684,7 @@ export default function TournamentHomeTab({
     router.push(`/tournament/${slug}/manage?option=${option}`);
   };
 
-  const handleOpenDirections = (selectedVenue: Venue) => {
+  const handleOpenDirections = (selectedVenue: VenueDisplay) => {
     const url = getGoogleMapsUrl({
       address: selectedVenue.address,
       name: selectedVenue.name,
@@ -1108,7 +1110,7 @@ export default function TournamentHomeTab({
           </Flex>
 
           <VStack align="stretch" gap={0}>
-            {displayVenues.map(({ id, venue: currentVenue }, index) => (
+            {displayVenues.map(({ id, display: currentVenue }, index) => (
               <Box key={id}>
                 {index > 0 && (
                   <Box

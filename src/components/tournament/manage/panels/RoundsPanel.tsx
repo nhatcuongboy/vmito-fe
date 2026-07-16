@@ -38,11 +38,13 @@ import SingleEliminationBracketModal from './SingleEliminationBracketModal';
 import DoubleEliminationBracketModal from './DoubleEliminationBracketModal';
 import DoubleEliminationBracketViz from './DoubleEliminationBracketViz';
 import BracketVisualization from './BracketVisualization';
+import TournamentManageEmptyState from './TournamentManageEmptyState';
 
 interface IRoundsPanelProps {
   categories: Category[];
   selectedCategory: Category | null;
   onSelectCategory: (category: Category) => void;
+  onOpenCategoriesPanel: () => void;
 }
 
 const CATEGORY_COLORS = [
@@ -131,6 +133,7 @@ export default function RoundsPanel({
   categories,
   selectedCategory,
   onSelectCategory,
+  onOpenCategoriesPanel,
 }: IRoundsPanelProps) {
   const t = useTranslations('pages.tournaments.detail.manage');
   const [groups, setGroups] = useState<CategoryGroup[]>([]);
@@ -794,6 +797,24 @@ export default function RoundsPanel({
       </Flex>
     );
   };
+
+  if (categories.length === 0) {
+    return (
+      <VStack gap={4} align="stretch">
+        <Flex justify="space-between" align="center">
+          <Heading size="md">{t('panels.rounds.title')}</Heading>
+        </Flex>
+
+        <TournamentManageEmptyState
+          icon={<Layers size={24} />}
+          title={t('panels.categoryRequired.emptyTitle')}
+          description={t('panels.categoryRequired.emptyDescription')}
+          actionLabel={t('panels.categoryRequired.action')}
+          onAction={onOpenCategoriesPanel}
+        />
+      </VStack>
+    );
+  }
 
   // ─── Single / Double Elimination Stepper Layout ────────────────────────────
 

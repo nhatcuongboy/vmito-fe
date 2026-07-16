@@ -5,6 +5,7 @@ import { DEFAULT_COVER_PHOTO } from '@/constants';
 import { TournamentService } from '@/lib/api/tournament.service';
 import { Tournament } from '@/lib/api/types';
 import { defaultOpenGraphImage } from '@/lib/seo/metadata';
+import { getPrimaryVenueDisplay } from '@/utils';
 
 interface PageProps {
   params: Promise<{
@@ -71,7 +72,8 @@ export async function generateMetadata({
   }
 
   const title = tournament.name || 'Giải cầu lông';
-  const venueName = tournament.venue?.name;
+  const primaryVenue = getPrimaryVenueDisplay(tournament);
+  const venueName = primaryVenue?.name;
   const dateRange = formatTournamentDateRange(
     tournament.startDate,
     tournament.endDate,
@@ -89,8 +91,8 @@ export async function generateMetadata({
   const description = descriptionParts.join(' - ');
   const image =
     tournament.coverPhoto ||
-    tournament.venue?.coverPhoto ||
-    tournament.venue?.images?.[0] ||
+    primaryVenue?.coverPhoto ||
+    primaryVenue?.images?.[0] ||
     DEFAULT_COVER_PHOTO;
   const url = `/${locale}/tournament/${tournament.slug || id}`;
 

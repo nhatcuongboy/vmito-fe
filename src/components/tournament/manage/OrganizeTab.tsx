@@ -17,6 +17,7 @@ import { useTranslations } from 'next-intl';
 import { Tournament, Category } from '@/lib/api/types';
 import ManageMenuItem from './ManageMenuItem';
 import PublishStatusBanner from './PublishStatusBanner';
+import { getPrimaryVenueDisplay } from '@/utils';
 
 interface OrganizeTabProps {
   tournament: Tournament;
@@ -110,7 +111,10 @@ export default function OrganizeTab({
       <ManageMenuItem
         icon={MapPin}
         title={t('organize.venues.title')}
-        description={tournament.venue?.name || t('organize.venues.noVenue')}
+        description={
+          getPrimaryVenueDisplay(tournament)?.name ||
+          t('organize.venues.noVenue')
+        }
         isActive={selectedItem === 'venues'}
         onClick={() => onItemClick('venues')}
       />

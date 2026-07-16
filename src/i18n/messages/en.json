@@ -673,6 +673,7 @@
       "title": "Preview & download session image",
       "description": "Choose a social-ready image template before downloading.",
       "templatesLabel": "Templates",
+      "themesLabel": "Theme",
       "aiTemplatesLabel": "AI templates",
       "preview": "Preview",
       "download": "Download image",
@@ -684,6 +685,23 @@
       "cached": "Cached",
       "quotaStatus": "Used {used}/{limit}",
       "quotaRemaining": "{remaining} left",
+      "themes": {
+        "default": {
+          "name": "Default"
+        },
+        "dark": {
+          "name": "Dark"
+        },
+        "premium": {
+          "name": "Premium"
+        },
+        "sport-yellow": {
+          "name": "Sport yellow"
+        },
+        "club-green": {
+          "name": "Club green"
+        }
+      },
       "templates": {
         "legacy-portrait": {
           "name": "Original 2:3",
@@ -1791,6 +1809,11 @@
               "description": "Select and configure the format for each category.",
               "action": "Manage format"
             },
+            "categoryRequired": {
+              "emptyTitle": "Create a category first",
+              "emptyDescription": "Categories define who can join and how matches are organized. Add one before setting up this section.",
+              "action": "Go to categories"
+            },
             "teams": {
               "title": "Add your teams",
               "description": "Provide at least 2 participating teams.",
@@ -2760,6 +2783,8 @@
             },
             "categories": {
               "title": "Categories",
+              "emptyTitle": "No categories yet",
+              "emptyDescription": "Create your first category to start adding teams, configuring formats, and generating matches.",
               "addCategory": "Add category",
               "createCategory": "Create category",
               "editCategory": "Edit category",
@@ -3197,19 +3222,19 @@
             },
             "location": {
               "title": "Tournament Location",
-              "description": "Set the venue for your tournament",
-              "searchLabel": "Search Venues",
-              "searchPlaceholder": "Search by name or address...",
-              "noVenues": "No venues found",
+              "description": "Choose the primary venue shown on the public tournament page",
               "clearSelection": "Clear selection",
               "save": "Save",
               "cancel": "Cancel",
               "success": "Tournament location updated successfully",
               "errors": {
-                "searchFailed": "Failed to search venues",
                 "noChanges": "No changes to save",
-                "updateFailed": "Failed to update tournament location"
-              }
+                "updateFailed": "Failed to update tournament location",
+                "loadFailed": "Failed to load venues"
+              },
+              "empty": "No venues linked to this tournament yet. Add venues in the Competition venues tab first.",
+              "goToVenues": "Manage venues",
+              "inlineHint": "Address-only venue — link it to a venue in the directory to set it as primary"
             },
             "banner": {
               "title": "Tournament Cover Photo",
@@ -4044,6 +4069,8 @@
         "selectAtLeastOne": "Select at least one permission",
         "add": "Add manager",
         "noManagers": "No managers assigned yet.",
+        "emptyTitle": "No managers assigned yet",
+        "emptyDescription": "Add a trusted teammate when you want help with results, schedules, participants, or tournament structure.",
         "edit": "Edit",
         "save": "Save",
         "cancel": "Cancel",
@@ -5392,7 +5419,12 @@
       "postLikedTitle": "New like on your post",
       "postLikedMessage": "{actorName} liked your post.",
       "postCommentedTitle": "New comment on your post",
-      "postCommentedMessage": "{actorName} commented on your post."
+      "postCommentedMessage": "{actorName} commented on your post.",
+      "tournamentCreatedSuccessfully": "Tournament created successfully",
+      "pairUpdatedSuccessfully": "Pair updated successfully",
+      "categoryUpdatedSuccessfully": "Category updated successfully",
+      "matchEndedSuccessfully": "Match ended successfully",
+      "tournamentPublishedSuccessfully": "Tournament published successfully"
     }
   },
   "posts": {

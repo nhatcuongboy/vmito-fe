@@ -47,7 +47,16 @@ export type SessionShareTemplateId =
   | 'social-poster'
   | 'story-vertical'
   | 'square-feed'
-  | 'event-pass';
+  | 'event-pass'
+  | 'ai-neon-stadium'
+  | 'ai-yellow-smash';
+
+export type SessionShareThemeId =
+  | 'default'
+  | 'dark'
+  | 'premium'
+  | 'sport-yellow'
+  | 'club-green';
 
 export interface SessionShareTemplateMeta {
   id: SessionShareTemplateId;
@@ -57,6 +66,106 @@ export interface SessionShareTemplateMeta {
   height: number;
   description: string;
 }
+
+export interface SessionShareThemeMeta {
+  id: SessionShareThemeId;
+  name: string;
+  primary: string;
+  primaryDark: string;
+  accent: string;
+  background: string;
+  surface: string;
+  surfaceAlt: string;
+  text: string;
+  textOnPrimary: string;
+  mutedText: string;
+  border: string;
+  price: string;
+  qr: string;
+}
+
+export const SESSION_SHARE_THEMES: SessionShareThemeMeta[] = [
+  {
+    id: 'default',
+    name: 'Mặc định',
+    primary: '#179a3b',
+    primaryDark: '#0d7f31',
+    accent: '#ffd84d',
+    background: '#f7faf5',
+    surface: '#ffffff',
+    surfaceAlt: '#e7f8ec',
+    text: '#222631',
+    textOnPrimary: '#ffffff',
+    mutedText: '#66706a',
+    border: '#dfe8dd',
+    price: '#e9292f',
+    qr: '#179a3b',
+  },
+  {
+    id: 'dark',
+    name: 'Tối',
+    primary: '#22c55e',
+    primaryDark: '#0f3f25',
+    accent: '#38bdf8',
+    background: '#08111f',
+    surface: '#111827',
+    surfaceAlt: '#1f2937',
+    text: '#f8fafc',
+    textOnPrimary: '#ffffff',
+    mutedText: '#cbd5e1',
+    border: '#334155',
+    price: '#fb7185',
+    qr: '#22c55e',
+  },
+  {
+    id: 'premium',
+    name: 'Premium',
+    primary: '#d4af37',
+    primaryDark: '#172033',
+    accent: '#f6d36b',
+    background: '#0f172a',
+    surface: '#172033',
+    surfaceAlt: '#243047',
+    text: '#f8fafc',
+    textOnPrimary: '#ffffff',
+    mutedText: '#d6deec',
+    border: '#3a465d',
+    price: '#d4af37',
+    qr: '#d4af37',
+  },
+  {
+    id: 'sport-yellow',
+    name: 'Vàng thể thao',
+    primary: '#facc15',
+    primaryDark: '#111111',
+    accent: '#f97316',
+    background: '#111111',
+    surface: '#1f1f1f',
+    surfaceAlt: '#2b250d',
+    text: '#fff7d6',
+    textOnPrimary: '#ffffff',
+    mutedText: '#f8e8a0',
+    border: '#5f4a08',
+    price: '#ef4444',
+    qr: '#facc15',
+  },
+  {
+    id: 'club-green',
+    name: 'Xanh CLB',
+    primary: '#16a34a',
+    primaryDark: '#064e3b',
+    accent: '#86efac',
+    background: '#ecfdf5',
+    surface: '#ffffff',
+    surfaceAlt: '#dcfce7',
+    text: '#173524',
+    textOnPrimary: '#ffffff',
+    mutedText: '#486557',
+    border: '#bbf7d0',
+    price: '#dc2626',
+    qr: '#16a34a',
+  },
+];
 
 export const SESSION_SHARE_TEMPLATES: SessionShareTemplateMeta[] = [
   {
@@ -82,6 +191,22 @@ export const SESSION_SHARE_TEMPLATES: SessionShareTemplateMeta[] = [
     width: 1080,
     height: 1350,
     description: 'Premium, giống vé mời tham gia kèo.',
+  },
+  {
+    id: 'ai-neon-stadium',
+    name: 'Sân neon',
+    ratioLabel: '4:5',
+    width: 1080,
+    height: 1350,
+    description: 'Nền sân đêm, đèn neon xanh vàng, năng lượng cao.',
+  },
+  {
+    id: 'ai-yellow-smash',
+    name: 'Vàng đen năng động',
+    ratioLabel: '4:5',
+    width: 1080,
+    height: 1350,
+    description: 'Nền thể thao vàng đen, nổi bật như poster tuyển người.',
   },
   {
     id: 'classic-clean',
@@ -134,6 +259,7 @@ interface SessionShareCardProps {
   session: ISession;
   mode?: 'portrait' | 'landscape' | 'social';
   templateId?: SessionShareTemplateId;
+  themeId?: SessionShareThemeId;
   captureId?: string | null;
 }
 
@@ -149,6 +275,20 @@ interface ShareCardData {
   shuttlecock?: string;
   fee?: string;
 }
+
+const AI_BACKGROUND_URLS: Record<
+  Extract<SessionShareTemplateId, 'ai-neon-stadium' | 'ai-yellow-smash'>,
+  string
+> = {
+  'ai-neon-stadium':
+    'https://res.cloudinary.com/dzehhkd9m/image/upload/v1783597597/badminton/session-ai-backgrounds/q9ycfvsbpasnzvmizp4v.png',
+  'ai-yellow-smash':
+    'https://res.cloudinary.com/dzehhkd9m/image/upload/v1783597467/badminton/session-ai-backgrounds/aqytyzubk5fbrw5f37ln.png',
+};
+
+const getShareTheme = (themeId?: SessionShareThemeId) =>
+  SESSION_SHARE_THEMES.find((theme) => theme.id === themeId) ||
+  SESSION_SHARE_THEMES[0];
 
 const formatDate = (dateString: string | Date, locale: string): string => {
   const date = dayjs
@@ -252,10 +392,11 @@ const useShareCardData = (session: ISession): ShareCardData => {
 const DetailItem = ({
   icon,
   label,
-  color = '#179a3b',
-  labelColor = '#252833',
+  color,
+  labelColor,
   lineClamp = 2,
   size = 'md',
+  theme = SESSION_SHARE_THEMES[0],
 }: {
   icon: React.ElementType;
   label?: string;
@@ -263,6 +404,7 @@ const DetailItem = ({
   labelColor?: string;
   lineClamp?: number;
   size?: 'sm' | 'md' | 'venue' | 'lg';
+  theme?: SessionShareThemeMeta;
 }) => {
   if (!label) return null;
 
@@ -279,11 +421,16 @@ const DetailItem = ({
 
   return (
     <Flex align="center" gap={size === 'lg' ? 5 : 3} minW={0}>
-      <Icon as={icon} boxSize={`${iconSize}px`} color={color} flexShrink={0} />
+      <Icon
+        as={icon}
+        boxSize={`${iconSize}px`}
+        color={color || theme.primary}
+        flexShrink={0}
+      />
       <Text
         fontSize={fontSize}
         fontWeight="800"
-        color={labelColor}
+        color={labelColor || theme.text}
         lineHeight="1.12"
         lineClamp={lineClamp}
         overflowWrap="break-word"
@@ -316,22 +463,29 @@ const LevelBadges = ({
 
   if (uniqueLevels.length === 0) {
     return (
-      <Badge
-        bg="#eef2f7"
-        color="#27313f"
-        borderRadius="999px"
-        px={px}
-        py={size === 'sm' ? 1 : 2}
-        fontSize={fontSize}
-        fontWeight="900"
-      >
-        {t('allLevels')}
-      </Badge>
+      <Box alignSelf="flex-start" maxW="100%" minW={0}>
+        <Badge
+          bg="#eef2f7"
+          color="#27313f"
+          borderRadius="999px"
+          px={px}
+          py={size === 'sm' ? 1 : 2}
+          fontSize={fontSize}
+          fontWeight="900"
+          w="fit-content"
+          maxW="100%"
+          whiteSpace="normal"
+          textAlign="left"
+          lineHeight="1.1"
+        >
+          {t('allLevels')}
+        </Badge>
+      </Box>
     );
   }
 
   return (
-    <Wrap gap={size === 'lg' ? 3 : 2}>
+    <Wrap gap={size === 'lg' ? 3 : 2} alignSelf="flex-start" maxW="100%">
       {uniqueLevels
         .sort((a, b) =>
           typeof a === 'number' && typeof b === 'number' ? a - b : 0
@@ -367,6 +521,7 @@ const QrBlock = ({
   titleFontSize,
   captionFontSize,
   caption = 'Quét QR để xem kèo',
+  theme = SESSION_SHARE_THEMES[0],
 }: {
   qrDataUrl: string;
   size: number;
@@ -375,6 +530,7 @@ const QrBlock = ({
   titleFontSize?: string;
   captionFontSize?: string;
   caption?: string;
+  theme?: SessionShareThemeMeta;
 }) => (
   <Flex align="center" gap={4}>
     <Box bg="white" p="8px" borderRadius="18px" flexShrink={0}>
@@ -385,7 +541,7 @@ const QrBlock = ({
         <Text
           fontSize={titleFontSize || (size >= 130 ? '27px' : '17px')}
           fontWeight="950"
-          color={dark ? 'white' : '#0e5c23'}
+          color={dark ? 'white' : theme.primaryDark}
           lineHeight="1.05"
         >
           VMITO.COM
@@ -394,7 +550,7 @@ const QrBlock = ({
       <Text
         fontSize={captionFontSize || (size >= 130 ? '20px' : '13px')}
         fontWeight="800"
-        color={dark ? 'whiteAlpha.800' : '#127b2f'}
+        color={dark ? 'whiteAlpha.800' : theme.primary}
         lineHeight="1.15"
         whiteSpace="nowrap"
       >
@@ -449,9 +605,11 @@ const CoverImage = ({
 const PricePill = ({
   fee,
   size = 'md',
+  theme = SESSION_SHARE_THEMES[0],
 }: {
   fee?: string;
   size?: 'md' | 'lg';
+  theme?: SessionShareThemeMeta;
 }) => {
   if (!fee) return null;
 
@@ -459,7 +617,7 @@ const PricePill = ({
     <Flex
       align="center"
       gap={3}
-      bg="#e9292f"
+      bg={theme.price}
       color="white"
       borderRadius="999px"
       px={size === 'lg' ? 8 : 5}
@@ -501,6 +659,7 @@ const CardShell = ({
     position="relative"
     fontFamily="'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
     letterSpacing="0"
+    textAlign="left"
     boxShadow="none"
   >
     {children}
@@ -513,8 +672,9 @@ const ClassicCleanCard = ({
   data,
   qrDataUrl,
   meta,
+  theme,
 }: TemplateProps) => (
-  <CardShell id={id} meta={meta} bg="#0d7f31">
+  <CardShell id={id} meta={meta} bg={theme.primaryDark}>
     <Box p="20px">
       <CoverImage session={session} height="330px" rounded="24px" />
       <Box color="white" textAlign="center" py={7}>
@@ -523,11 +683,11 @@ const ClassicCleanCard = ({
         </Text>
       </Box>
       <Box bg="#ffffff" borderRadius="24px" p="44px" minH="720px">
-        <Stack gap={8}>
+        <Stack gap={8} maxH="440px" overflow="hidden">
           <Heading
             fontSize="42px"
             fontWeight="950"
-            color="#0d7f31"
+            color={theme.primaryDark}
             textAlign="center"
             textTransform="uppercase"
             lineHeight="1.08"
@@ -535,7 +695,13 @@ const ClassicCleanCard = ({
           >
             {session.name}
           </Heading>
-          <DetailItem icon={MapPin} label={data.venue} size="md" />
+          <DetailItem
+            icon={MapPin}
+            label={data.venue}
+            size="md"
+            labelColor="#252833"
+            theme={theme}
+          />
           {data.address && (
             <Text
               pl="54px"
@@ -549,30 +715,68 @@ const ClassicCleanCard = ({
               {data.address}
             </Text>
           )}
-          <DetailItem icon={User} label={`Host: ${data.host}`} size="md" />
+          <DetailItem
+            icon={User}
+            label={`Host: ${data.host}`}
+            size="md"
+            labelColor="#252833"
+            theme={theme}
+          />
           <Grid templateColumns="1fr 1fr" gap={6}>
-            <DetailItem icon={Calendar} label={data.date} size="sm" />
-            <DetailItem icon={Clock} label={data.time} size="sm" />
-            <DetailItem icon={SquareAsterisk} label={data.courts} size="sm" />
-            <DetailItem icon={Users} label={data.maxPlayers} size="sm" />
-            <DetailItem icon={Phone} label={data.phone} size="sm" />
+            <DetailItem
+              icon={Calendar}
+              label={data.date}
+              size="sm"
+              labelColor="#252833"
+              theme={theme}
+            />
+            <DetailItem
+              icon={Clock}
+              label={data.time}
+              size="sm"
+              labelColor="#252833"
+              theme={theme}
+            />
+            <DetailItem
+              icon={SquareAsterisk}
+              label={data.courts}
+              size="sm"
+              labelColor="#252833"
+              theme={theme}
+            />
+            <DetailItem
+              icon={Users}
+              label={data.maxPlayers}
+              size="sm"
+              labelColor="#252833"
+              theme={theme}
+            />
+            <DetailItem
+              icon={Phone}
+              label={data.phone}
+              size="sm"
+              labelColor="#252833"
+              theme={theme}
+            />
             <DetailItem
               icon={SquareAsterisk}
               label={data.shuttlecock}
               size="sm"
+              labelColor="#252833"
+              theme={theme}
             />
           </Grid>
           <Flex align="center" gap={4}>
             <Icon as={Shield} boxSize="34px" color="#c78400" />
             <LevelBadges levels={session.requiredLevels} size="sm" />
           </Flex>
-          <PricePill fee={data.fee} />
+          <PricePill fee={data.fee} theme={theme} />
           {session.description && (
             <Text
-              fontSize="26px"
+              fontSize="23px"
               color="#5c5f6a"
-              lineClamp={3}
-              lineHeight="1.3"
+              lineClamp={2}
+              lineHeight="1.25"
             >
               {session.description}
             </Text>
@@ -590,7 +794,7 @@ const ClassicCleanCard = ({
         >
           <Text
             fontSize="22px"
-            color="#0e5c23"
+            color={theme.primaryDark}
             fontWeight="950"
             lineHeight="1.16"
           >
@@ -598,7 +802,9 @@ const ClassicCleanCard = ({
             <br />
             để tìm thêm nhiều kèo hot hơn
           </Text>
-          {qrDataUrl && <QrBlock qrDataUrl={qrDataUrl} size={88} />}
+          {qrDataUrl && (
+            <QrBlock qrDataUrl={qrDataUrl} size={88} theme={theme} />
+          )}
         </Flex>
       </Box>
     </Box>
@@ -610,6 +816,7 @@ const LegacyPortraitCard = ({
   session,
   qrDataUrl,
   meta,
+  theme,
 }: TemplateProps) => {
   const t = useTranslations('session');
   const tVenue = useTranslations('venue');
@@ -640,7 +847,7 @@ const LegacyPortraitCard = ({
           borderRadius="2xl"
           overflow="hidden"
           borderWidth="6px"
-          borderColor="green.600"
+          borderColor={theme.primaryDark}
           boxShadow="none"
           position="relative"
         >
@@ -655,7 +862,13 @@ const LegacyPortraitCard = ({
             />
           </Box>
 
-          <Box bg="green.600" color="white" py={2} px={5} textAlign="center">
+          <Box
+            bg={theme.primaryDark}
+            color={theme.textOnPrimary}
+            py={2}
+            px={5}
+            textAlign="center"
+          >
             <Heading size="md" fontWeight="bold" textTransform="uppercase">
               {t('shareCardHeader')}
             </Heading>
@@ -679,7 +892,7 @@ const LegacyPortraitCard = ({
                     as={MapPin}
                     boxSize={5}
                     mr={2}
-                    color="green.500"
+                    color={theme.primary}
                     mt={1}
                   />
                   <Box flex="1">
@@ -704,7 +917,7 @@ const LegacyPortraitCard = ({
               )}
 
               <Flex align="center" gap={2}>
-                <Icon as={User} boxSize={5} color="green.500" />
+                <Icon as={User} boxSize={5} color={theme.primary} />
                 <Text fontSize="sm" fontWeight="semibold" color="gray.700">
                   {`Host: ${displayHostName}`}
                 </Text>
@@ -713,13 +926,13 @@ const LegacyPortraitCard = ({
               <Stack gap={1.5}>
                 <Grid templateColumns="1fr 1fr" gap={4}>
                   <Flex align="center" gap={2}>
-                    <Icon as={Calendar} boxSize={5} color="green.500" />
+                    <Icon as={Calendar} boxSize={5} color={theme.primary} />
                     <Text fontSize="sm" fontWeight="medium" color="gray.700">
                       {compactDate}
                     </Text>
                   </Flex>
                   <Flex align="center" gap={2}>
-                    <Icon as={Clock} boxSize={5} color="green.500" />
+                    <Icon as={Clock} boxSize={5} color={theme.primary} />
                     <Text fontSize="sm" fontWeight="medium" color="gray.700">
                       {compactTime}
                     </Text>
@@ -728,7 +941,11 @@ const LegacyPortraitCard = ({
 
                 <Grid templateColumns="1fr 1fr" gap={4}>
                   <Flex align="center" gap={2}>
-                    <Icon as={SquareAsterisk} boxSize={5} color="green.500" />
+                    <Icon
+                      as={SquareAsterisk}
+                      boxSize={5}
+                      color={theme.primary}
+                    />
                     <Text fontSize="sm" fontWeight="medium" color="gray.700">
                       {session.numberOfCourts} {t('courts')}
                       {session.courts && session.courts.length > 0 && (
@@ -745,7 +962,7 @@ const LegacyPortraitCard = ({
                     </Text>
                   </Flex>
                   <Flex align="center" gap={2}>
-                    <Icon as={Users} boxSize={5} color="green.500" />
+                    <Icon as={Users} boxSize={5} color={theme.primary} />
                     <Text fontSize="sm" fontWeight="medium" color="gray.700">
                       {t('maxPlayers', { count: maxPlayers })}
                     </Text>
@@ -756,7 +973,7 @@ const LegacyPortraitCard = ({
                   <Grid templateColumns="1fr 1fr" gap={4}>
                     {session.hostPhone ? (
                       <Flex align="center" gap={2}>
-                        <Icon as={Phone} boxSize={5} color="green.500" />
+                        <Icon as={Phone} boxSize={5} color={theme.primary} />
                         <Text
                           fontSize="sm"
                           fontWeight="medium"
@@ -773,7 +990,7 @@ const LegacyPortraitCard = ({
                         <Icon
                           as={SquareAsterisk}
                           boxSize={5}
-                          color="green.500"
+                          color={theme.primary}
                         />
                         <Text
                           fontSize="sm"
@@ -830,8 +1047,8 @@ const LegacyPortraitCard = ({
               {session.feeConfig && (
                 <Box py={1}>
                   <Flex align="center" gap={2}>
-                    <Icon as={Banknote} boxSize={5} color="red.600" />
-                    <Text fontSize="md" fontWeight="bold" color="red.600">
+                    <Icon as={Banknote} boxSize={5} color={theme.price} />
+                    <Text fontSize="md" fontWeight="bold" color={theme.price}>
                       {session.feeConfig.feeType === 'SPLIT_EVENLY'
                         ? session.feeConfig.splitPerPlayer
                           ? FeeService.formatFee(
@@ -875,7 +1092,7 @@ const LegacyPortraitCard = ({
                 <Text
                   fontSize="11px"
                   fontWeight="bold"
-                  color="green.700"
+                  color={theme.primaryDark}
                   lineHeight="1.28"
                   textAlign="center"
                   whiteSpace="nowrap"
@@ -904,7 +1121,7 @@ const LegacyPortraitCard = ({
   );
 };
 
-const LegacySocialCard = ({ id, session, qrDataUrl }: TemplateProps) => {
+const LegacySocialCard = ({ id, session, qrDataUrl, theme }: TemplateProps) => {
   const t = useTranslations('session');
   const tVenue = useTranslations('venue');
   const tCommon = useTranslations('common');
@@ -929,8 +1146,9 @@ const LegacySocialCard = ({ id, session, qrDataUrl }: TemplateProps) => {
       borderRadius="3xl"
       overflow="hidden"
       borderWidth="16px"
-      borderColor="green.600"
+      borderColor={theme.primaryDark}
       boxShadow="none"
+      textAlign="left"
     >
       <Box position="relative" h="420px" overflow="hidden">
         <Image
@@ -943,7 +1161,13 @@ const LegacySocialCard = ({ id, session, qrDataUrl }: TemplateProps) => {
         />
       </Box>
 
-      <Box bg="green.600" color="white" py={5} px={10} textAlign="center">
+      <Box
+        bg={theme.primaryDark}
+        color={theme.textOnPrimary}
+        py={5}
+        px={10}
+        textAlign="center"
+      >
         <Heading size="4xl" fontWeight="bold" textTransform="uppercase">
           {t('shareCardHeader')}
         </Heading>
@@ -954,7 +1178,7 @@ const LegacySocialCard = ({ id, session, qrDataUrl }: TemplateProps) => {
           <Heading
             size="4xl"
             fontWeight="bold"
-            color="green.600"
+            color={theme.primaryDark}
             textAlign="center"
             textTransform="uppercase"
           >
@@ -963,7 +1187,7 @@ const LegacySocialCard = ({ id, session, qrDataUrl }: TemplateProps) => {
 
           {(session.venue?.name || session.location) && (
             <Flex align="flex-start" gap={6}>
-              <Icon as={MapPin} boxSize={14} color="green.500" mt={1} />
+              <Icon as={MapPin} boxSize={14} color={theme.primary} mt={1} />
               <Box flex="1">
                 <Text fontWeight="semibold" color="gray.700" fontSize="4xl">
                   {session.venue?.name
@@ -987,7 +1211,7 @@ const LegacySocialCard = ({ id, session, qrDataUrl }: TemplateProps) => {
           )}
 
           <Flex align="center" gap={6}>
-            <Icon as={User} boxSize={14} color="green.500" />
+            <Icon as={User} boxSize={14} color={theme.primary} />
             <Text fontSize="4xl" fontWeight="semibold" color="gray.700">
               Host: {displayHostName}
             </Text>
@@ -996,13 +1220,13 @@ const LegacySocialCard = ({ id, session, qrDataUrl }: TemplateProps) => {
           <Stack gap={5}>
             <Grid templateColumns="1fr 1fr" gap={10}>
               <Flex align="center" gap={6}>
-                <Icon as={Calendar} boxSize={14} color="green.500" />
+                <Icon as={Calendar} boxSize={14} color={theme.primary} />
                 <Text fontSize="4xl" fontWeight="medium" color="gray.700">
                   {compactDate}
                 </Text>
               </Flex>
               <Flex align="center" gap={6}>
-                <Icon as={Clock} boxSize={14} color="green.500" />
+                <Icon as={Clock} boxSize={14} color={theme.primary} />
                 <Text fontSize="4xl" fontWeight="medium" color="gray.700">
                   {compactTime}
                 </Text>
@@ -1011,7 +1235,7 @@ const LegacySocialCard = ({ id, session, qrDataUrl }: TemplateProps) => {
 
             <Grid templateColumns="1fr 1fr" gap={10}>
               <Flex align="center" gap={6}>
-                <Icon as={SquareAsterisk} boxSize={14} color="green.500" />
+                <Icon as={SquareAsterisk} boxSize={14} color={theme.primary} />
                 <Text fontSize="4xl" fontWeight="medium" color="gray.700">
                   {session.numberOfCourts} {t('courts')}
                   {session.courts && session.courts.length > 0 && (
@@ -1028,7 +1252,7 @@ const LegacySocialCard = ({ id, session, qrDataUrl }: TemplateProps) => {
                 </Text>
               </Flex>
               <Flex align="center" gap={6}>
-                <Icon as={Users} boxSize={14} color="green.500" />
+                <Icon as={Users} boxSize={14} color={theme.primary} />
                 <Text fontSize="4xl" fontWeight="medium" color="gray.700">
                   {t('maxPlayers', { count: maxPlayers })}
                 </Text>
@@ -1039,7 +1263,7 @@ const LegacySocialCard = ({ id, session, qrDataUrl }: TemplateProps) => {
               <Grid templateColumns="1fr 1fr" gap={10}>
                 {session.hostPhone ? (
                   <Flex align="center" gap={6}>
-                    <Icon as={Phone} boxSize={14} color="green.500" />
+                    <Icon as={Phone} boxSize={14} color={theme.primary} />
                     <Text fontSize="4xl" fontWeight="medium" color="gray.700">
                       {session.hostPhone}
                     </Text>
@@ -1049,7 +1273,11 @@ const LegacySocialCard = ({ id, session, qrDataUrl }: TemplateProps) => {
                 )}
                 {session.shuttlecock && (
                   <Flex align="center" gap={6}>
-                    <Icon as={SquareAsterisk} boxSize={14} color="green.500" />
+                    <Icon
+                      as={SquareAsterisk}
+                      boxSize={14}
+                      color={theme.primary}
+                    />
                     <Text fontSize="4xl" fontWeight="medium" color="gray.700">
                       Cầu {session.shuttlecock}
                     </Text>
@@ -1116,8 +1344,8 @@ const LegacySocialCard = ({ id, session, qrDataUrl }: TemplateProps) => {
               {session.feeConfig && (
                 <Box pt={5}>
                   <Flex align="center" gap={6}>
-                    <Icon as={Banknote} boxSize={14} color="red.600" />
-                    <Text fontSize="4xl" fontWeight="bold" color="red.600">
+                    <Icon as={Banknote} boxSize={14} color={theme.price} />
+                    <Text fontSize="4xl" fontWeight="bold" color={theme.price}>
                       {session.feeConfig.feeType === 'SPLIT_EVENLY'
                         ? session.feeConfig.splitPerPlayer
                           ? FeeService.formatFee(
@@ -1156,7 +1384,7 @@ const LegacySocialCard = ({ id, session, qrDataUrl }: TemplateProps) => {
                   <Text
                     fontSize="xl"
                     fontWeight="bold"
-                    color="green.600"
+                    color={theme.primaryDark}
                     lineHeight="1.3"
                   >
                     Truy cập VMITO.com
@@ -1164,7 +1392,7 @@ const LegacySocialCard = ({ id, session, qrDataUrl }: TemplateProps) => {
                   <Text
                     fontSize="xl"
                     fontWeight="bold"
-                    color="green.600"
+                    color={theme.primaryDark}
                     lineHeight="1.3"
                   >
                     để tìm thêm nhiều kèo
@@ -1185,16 +1413,17 @@ const SocialPosterCard = ({
   data,
   qrDataUrl,
   meta,
+  theme,
 }: TemplateProps) => (
-  <CardShell id={id} meta={meta} bg="#f7faf5">
-    <Box position="absolute" inset={0} bg="#f7faf5" />
+  <CardShell id={id} meta={meta} bg={theme.background}>
+    <Box position="absolute" inset={0} bg={theme.background} />
     <Box
       position="absolute"
       top="-120px"
       right="-180px"
       w="520px"
       h="520px"
-      bg="#ffd84d"
+      bg={theme.accent}
       borderRadius="999px"
     />
     <Box
@@ -1203,7 +1432,7 @@ const SocialPosterCard = ({
       left="-210px"
       w="560px"
       h="560px"
-      bg="#179a3b"
+      bg={theme.primary}
       borderRadius="999px"
     />
     <Box p="48px" position="relative">
@@ -1214,7 +1443,13 @@ const SocialPosterCard = ({
         </Box>
       </Box>
       <Flex mt={9} align="center" gap={4}>
-        <Box bg="#0d7f31" color="white" borderRadius="999px" px={6} py={3}>
+        <Box
+          bg={theme.primaryDark}
+          color={theme.textOnPrimary}
+          borderRadius="999px"
+          px={6}
+          py={3}
+        >
           <Text fontSize="24px" fontWeight="950" textTransform="uppercase">
             Tuyển vãng lai
           </Text>
@@ -1225,31 +1460,36 @@ const SocialPosterCard = ({
         fontSize="64px"
         fontWeight="950"
         lineHeight="1.08"
-        color="#17231b"
+        color={theme.text}
         textTransform="uppercase"
         lineClamp={2}
       >
         {session.name}
       </Heading>
       <Grid templateColumns="1fr 1fr" gap={5} mt={9}>
-        <DetailItem icon={Calendar} label={data.date} size="lg" />
-        <DetailItem icon={Clock} label={data.time} size="lg" />
+        <DetailItem icon={Calendar} label={data.date} size="lg" theme={theme} />
+        <DetailItem icon={Clock} label={data.time} size="lg" theme={theme} />
       </Grid>
       <Box
         mt={8}
-        bg="white"
+        bg={theme.surface}
         borderRadius="30px"
         p={8}
-        border="3px solid #dfe8dd"
+        border={`3px solid ${theme.border}`}
       >
         <Stack gap={6}>
-          <DetailItem icon={MapPin} label={data.venue} size="lg" />
+          <DetailItem
+            icon={MapPin}
+            label={data.venue}
+            size="lg"
+            theme={theme}
+          />
           {data.address && (
             <Text
               pl="72px"
               mt="-16px"
               fontSize="27px"
-              color="#66706a"
+              color={theme.mutedText}
               fontWeight="700"
               lineClamp={2}
             >
@@ -1257,10 +1497,30 @@ const SocialPosterCard = ({
             </Text>
           )}
           <Grid templateColumns="1fr 1fr" gap={5}>
-            <DetailItem icon={User} label={`Host: ${data.host}`} size="md" />
-            <DetailItem icon={Users} label={data.maxPlayers} size="md" />
-            <DetailItem icon={SquareAsterisk} label={data.courts} size="md" />
-            <DetailItem icon={Phone} label={data.phone} size="md" />
+            <DetailItem
+              icon={User}
+              label={`Host: ${data.host}`}
+              size="md"
+              theme={theme}
+            />
+            <DetailItem
+              icon={Users}
+              label={data.maxPlayers}
+              size="md"
+              theme={theme}
+            />
+            <DetailItem
+              icon={SquareAsterisk}
+              label={data.courts}
+              size="md"
+              theme={theme}
+            />
+            <DetailItem
+              icon={Phone}
+              label={data.phone}
+              size="md"
+              theme={theme}
+            />
           </Grid>
           <Flex align="center" gap={5}>
             <Icon as={Shield} boxSize="46px" color="#c78400" />
@@ -1276,11 +1536,13 @@ const SocialPosterCard = ({
         justify="space-between"
         align="center"
       >
-        {qrDataUrl && <QrBlock qrDataUrl={qrDataUrl} size={125} dark />}
+        {qrDataUrl && (
+          <QrBlock qrDataUrl={qrDataUrl} size={125} dark theme={theme} />
+        )}
         <Text
           fontSize="25px"
           fontWeight="950"
-          color="#0e5c23"
+          color={theme.text}
           textAlign="right"
         >
           VMITO
@@ -1298,95 +1560,150 @@ const StoryVerticalCard = ({
   data,
   qrDataUrl,
   meta,
+  theme,
 }: TemplateProps) => (
-  <CardShell id={id} meta={meta} bg="#0b3418">
+  <CardShell id={id} meta={meta} bg={theme.primaryDark}>
     <CoverImage session={session} height="760px" />
     <Box
       position="absolute"
       inset={0}
-      bg="linear-gradient(180deg, rgba(11,52,24,0.05) 0%, rgba(11,52,24,0.82) 48%, #0b3418 100%)"
+      bg={`linear-gradient(180deg, rgba(0,0,0,0.05) 0%, ${theme.primaryDark}cc 48%, ${theme.primaryDark} 100%)`}
     />
     <Box position="absolute" inset={0} p="64px">
-      <Flex justify="space-between" align="center">
-        <Text color="white" fontSize="30px" fontWeight="950">
-          VMITO.COM
-        </Text>
-        <Box bg="#ffd84d" color="#17231b" px={6} py={3} borderRadius="999px">
-          <Text fontSize="24px" fontWeight="950">
-            9:16 STORY
-          </Text>
-        </Box>
-      </Flex>
-      <Box position="absolute" left="64px" right="64px" top="610px">
-        <Text
-          color="#ffd84d"
-          fontSize="34px"
-          fontWeight="950"
-          textTransform="uppercase"
-        >
-          Tuyển vãng lai cầu lông
-        </Text>
-        <Heading
-          mt={4}
-          color="white"
-          fontSize="92px"
-          fontWeight="950"
-          lineHeight="0.96"
-          textTransform="uppercase"
-          lineClamp={3}
-        >
-          {session.name}
-        </Heading>
-        <Flex mt={8} gap={5} wrap="wrap">
-          <PricePill fee={data.fee} size="lg" />
-          <Box bg="whiteAlpha.950" borderRadius="999px" px={8} py={4}>
-            <Text color="#0d7f31" fontSize="36px" fontWeight="950">
-              {data.date}
-            </Text>
-          </Box>
-        </Flex>
-      </Box>
-      <Box
-        position="absolute"
-        left="64px"
-        right="64px"
-        bottom="280px"
-        bg="white"
-        borderRadius="34px"
-        p={9}
-      >
-        <Stack gap={7}>
-          <DetailItem icon={Clock} label={data.time} size="lg" />
-          <DetailItem icon={MapPin} label={data.venue} size="lg" />
-          <Grid templateColumns="1fr 1fr" gap={6}>
-            <DetailItem icon={User} label={data.host} size="md" />
-            <DetailItem icon={Users} label={data.maxPlayers} size="md" />
-            <DetailItem icon={SquareAsterisk} label={data.courts} size="md" />
-            <DetailItem icon={Phone} label={data.phone} size="md" />
-          </Grid>
-          <LevelBadges levels={session.requiredLevels} size="md" />
-        </Stack>
-      </Box>
+      <Text color="white" fontSize="30px" fontWeight="950">
+        VMITO.COM
+      </Text>
       <Flex
         position="absolute"
+        top="550px"
         left="64px"
         right="64px"
-        bottom="70px"
+        bottom="64px"
+        direction="column"
         justify="space-between"
-        align="center"
       >
-        {qrDataUrl && <QrBlock qrDataUrl={qrDataUrl} size={150} dark />}
-        <Text
-          color="white"
-          fontSize="31px"
-          fontWeight="950"
-          textAlign="right"
-          lineHeight="1.08"
-        >
-          Quét mã
-          <br />
-          để đăng ký kèo
-        </Text>
+        <Box>
+          <Text
+            color={theme.accent}
+            fontSize="34px"
+            fontWeight="950"
+            textTransform="uppercase"
+          >
+            Tuyển vãng lai cầu lông
+          </Text>
+          <Heading
+            mt={4}
+            color="white"
+            fontSize="72px"
+            fontWeight="950"
+            lineHeight="1.0"
+            textTransform="uppercase"
+            lineClamp={2}
+          >
+            {session.name}
+          </Heading>
+          <Box mt={7}>
+            <PricePill fee={data.fee} size="lg" theme={theme} />
+          </Box>
+        </Box>
+        <Box bg="white" borderRadius="36px" p={12}>
+          <Stack gap={8}>
+            <Grid templateColumns="1fr 1fr" gap={6}>
+              <DetailItem
+                icon={Calendar}
+                label={data.date}
+                size="lg"
+                labelColor="#252833"
+                theme={theme}
+              />
+              <DetailItem
+                icon={Clock}
+                label={data.time}
+                size="lg"
+                labelColor="#252833"
+                theme={theme}
+              />
+            </Grid>
+            <DetailItem
+              icon={MapPin}
+              label={data.venue}
+              size="lg"
+              labelColor="#252833"
+              theme={theme}
+            />
+            {data.address && (
+              <Text
+                pl="72px"
+                mt="-26px"
+                fontSize="28px"
+                color="#70727d"
+                fontWeight="700"
+                lineHeight="1.22"
+                lineClamp={1}
+              >
+                {data.address}
+              </Text>
+            )}
+            <Grid templateColumns="1fr 1fr" gap={6}>
+              <DetailItem
+                icon={User}
+                label={data.host}
+                size="venue"
+                labelColor="#252833"
+                theme={theme}
+              />
+              <DetailItem
+                icon={Users}
+                label={data.maxPlayers}
+                size="venue"
+                labelColor="#252833"
+                theme={theme}
+              />
+              <DetailItem
+                icon={SquareAsterisk}
+                label={data.courts}
+                size="venue"
+                labelColor="#252833"
+                theme={theme}
+              />
+              <DetailItem
+                icon={Phone}
+                label={data.phone}
+                size="venue"
+                labelColor="#252833"
+                theme={theme}
+              />
+              {data.shuttlecock && (
+                <Box gridColumn="1 / -1">
+                  <DetailItem
+                    icon={Ticket}
+                    label={data.shuttlecock}
+                    size="venue"
+                    labelColor="#252833"
+                    theme={theme}
+                  />
+                </Box>
+              )}
+            </Grid>
+            <LevelBadges levels={session.requiredLevels} size="md" />
+          </Stack>
+        </Box>
+        <Flex justify="space-between" align="center">
+          {qrDataUrl && (
+            <QrBlock qrDataUrl={qrDataUrl} size={150} dark theme={theme} />
+          )}
+          <Text
+            color="white"
+            fontSize="31px"
+            fontWeight="950"
+            textAlign="right"
+            lineHeight="1.08"
+          >
+            Quét mã
+            <br />
+            để đăng ký kèo
+          </Text>
+        </Flex>
       </Flex>
     </Box>
   </CardShell>
@@ -1398,8 +1715,9 @@ const SquareFeedCard = ({
   data,
   qrDataUrl,
   meta,
+  theme,
 }: TemplateProps) => (
-  <CardShell id={id} meta={meta} bg="#ffffff">
+  <CardShell id={id} meta={meta} bg={theme.surface}>
     <Grid templateRows="430px 1fr" h="100%">
       <Box position="relative">
         <CoverImage session={session} height="430px" />
@@ -1407,8 +1725,8 @@ const SquareFeedCard = ({
           position="absolute"
           left="46px"
           bottom="-46px"
-          bg="#ffd84d"
-          color="#17231b"
+          bg={theme.accent}
+          color={theme.textOnPrimary}
           borderRadius="28px"
           px={8}
           py={5}
@@ -1421,39 +1739,88 @@ const SquareFeedCard = ({
           </Text>
         </Box>
       </Box>
-      <Box p="58px" pt="76px">
-        <Text
-          color="#0d7f31"
-          fontSize="27px"
-          fontWeight="950"
-          textTransform="uppercase"
-        >
-          Tuyển vãng lai cầu lông
-        </Text>
-        <Heading
-          mt={3}
-          fontSize="66px"
-          fontWeight="950"
-          lineHeight="0.98"
-          color="#1f2430"
-          textTransform="uppercase"
-          lineClamp={2}
-        >
-          {session.name}
-        </Heading>
-        <Grid templateColumns="1.2fr 0.8fr" gap={8} mt={8}>
-          <Stack gap={5}>
-            <DetailItem icon={MapPin} label={data.venue} size="md" />
-            <DetailItem icon={User} label={`Host: ${data.host}`} size="md" />
-            <DetailItem icon={Users} label={data.maxPlayers} size="md" />
+      <Flex direction="column" justify="space-between" minH={0}>
+        <Box px="58px" pt="52px">
+          <Text
+            color={theme.accent}
+            fontSize="27px"
+            fontWeight="950"
+            textTransform="uppercase"
+          >
+            Tuyển vãng lai cầu lông
+          </Text>
+          <Heading
+            mt={3}
+            fontSize="66px"
+            fontWeight="950"
+            lineHeight="0.98"
+            color={theme.text}
+            textTransform="uppercase"
+            lineClamp={2}
+          >
+            {session.name}
+          </Heading>
+          <Box mt={6}>
+            <PricePill fee={data.fee} theme={theme} />
+          </Box>
+          <Stack gap={5} mt={7}>
+            <DetailItem
+              icon={MapPin}
+              label={data.venue}
+              size="md"
+              theme={theme}
+            />
+            {data.address && (
+              <Text
+                pl="50px"
+                mt="-12px"
+                fontSize="20px"
+                color={theme.mutedText}
+                fontWeight="700"
+                lineHeight="1.22"
+                lineClamp={1}
+              >
+                {data.address}
+              </Text>
+            )}
+            <DetailItem
+              icon={User}
+              label={`Host: ${data.host}`}
+              size="md"
+              theme={theme}
+            />
+            <DetailItem
+              icon={Users}
+              label={data.maxPlayers}
+              size="md"
+              theme={theme}
+            />
             <LevelBadges levels={session.requiredLevels} size="sm" />
           </Stack>
-          <Stack align="flex-end" gap={6}>
-            <PricePill fee={data.fee} />
-            {qrDataUrl && <QrBlock qrDataUrl={qrDataUrl} size={118} />}
-          </Stack>
-        </Grid>
-      </Box>
+        </Box>
+        {qrDataUrl && (
+          <Flex
+            justify="space-between"
+            align="center"
+            bg={theme.primaryDark}
+            px="58px"
+            py="24px"
+          >
+            <QrBlock qrDataUrl={qrDataUrl} size={100} dark theme={theme} />
+            <Text
+              color="white"
+              fontSize="24px"
+              fontWeight="950"
+              textAlign="right"
+              lineHeight="1.1"
+            >
+              Quét mã
+              <br />
+              để đăng ký kèo
+            </Text>
+          </Flex>
+        )}
+      </Flex>
     </Grid>
   </CardShell>
 );
@@ -1464,18 +1831,20 @@ const EventPassCard = ({
   data,
   qrDataUrl,
   meta,
+  theme,
 }: TemplateProps) => (
-  <CardShell id={id} meta={meta} bg="#111827">
+  <CardShell id={id} meta={meta} bg={theme.primaryDark}>
     <Box
       position="absolute"
       inset="32px"
-      border="3px solid #2c3749"
+      border={`3px solid ${theme.accent}`}
       borderRadius="34px"
+      opacity={0.72}
     />
     <Box p="58px" position="relative" h="100%">
       <Flex justify="space-between" align="center">
         <Flex align="center" gap={4}>
-          <Icon as={Trophy} color="#ffd84d" boxSize="46px" />
+          <Icon as={Trophy} color={theme.accent} boxSize="46px" />
           <Text color="white" fontSize="30px" fontWeight="950">
             VMITO PASS
           </Text>
@@ -1490,9 +1859,9 @@ const EventPassCard = ({
         />
       </Box>
       <Flex mt={9} gap={4} align="center">
-        <Icon as={Ticket} color="#ffd84d" boxSize="40px" />
+        <Icon as={Ticket} color={theme.accent} boxSize="40px" />
         <Text
-          color="#ffd84d"
+          color={theme.accent}
           fontSize="30px"
           fontWeight="950"
           textTransform="uppercase"
@@ -1514,22 +1883,24 @@ const EventPassCard = ({
         {session.name}
       </Heading>
       <Grid templateColumns="1fr 1fr" gap={5} mt={6}>
-        <Box bg="#1f2937" borderRadius="26px" p={7}>
+        <Box bg="rgba(0, 0, 0, 0.22)" borderRadius="26px" p={7}>
           <DetailItem
             icon={Calendar}
             label={data.date}
-            color="#ffd84d"
-            labelColor="#ffd84d"
+            color={theme.accent}
+            labelColor={theme.accent}
             size="md"
+            theme={theme}
           />
         </Box>
-        <Box bg="#1f2937" borderRadius="26px" p={7}>
+        <Box bg="rgba(0, 0, 0, 0.22)" borderRadius="26px" p={7}>
           <DetailItem
             icon={Clock}
             label={data.time}
-            color="#ffd84d"
-            labelColor="#ffd84d"
+            color={theme.accent}
+            labelColor={theme.accent}
             size="md"
+            theme={theme}
           />
         </Box>
       </Grid>
@@ -1540,17 +1911,61 @@ const EventPassCard = ({
             label={data.venue}
             size="venue"
             lineClamp={1}
+            color={theme.primary}
+            labelColor="#252833"
+            theme={theme}
           />
+          {data.address && (
+            <Text
+              pl="56px"
+              mt="-12px"
+              fontSize="21px"
+              color="#70727d"
+              fontWeight="700"
+              lineHeight="1.2"
+              lineClamp={1}
+            >
+              {data.address}
+            </Text>
+          )}
           <Grid templateColumns="1fr 1fr" gap={5}>
             <Stack gap={4} minW={0}>
-              <DetailItem icon={User} label={data.host} size="md" />
-              <DetailItem icon={SquareAsterisk} label={data.courts} size="md" />
+              <DetailItem
+                icon={User}
+                label={data.host}
+                size="md"
+                color={theme.primary}
+                labelColor="#252833"
+                theme={theme}
+              />
+              <DetailItem
+                icon={SquareAsterisk}
+                label={data.courts}
+                size="md"
+                color={theme.primary}
+                labelColor="#252833"
+                theme={theme}
+              />
               <LevelBadges levels={session.requiredLevels} size="md" />
             </Stack>
             <Stack gap={4} minW={0} align="flex-start">
-              <DetailItem icon={Users} label={data.maxPlayers} size="md" />
-              <DetailItem icon={Phone} label={data.phone} size="md" />
-              <PricePill fee={data.fee} />
+              <DetailItem
+                icon={Users}
+                label={data.maxPlayers}
+                size="md"
+                color={theme.primary}
+                labelColor="#252833"
+                theme={theme}
+              />
+              <DetailItem
+                icon={Phone}
+                label={data.phone}
+                size="md"
+                color={theme.primary}
+                labelColor="#252833"
+                theme={theme}
+              />
+              <PricePill fee={data.fee} theme={theme} />
             </Stack>
           </Grid>
         </Stack>
@@ -1572,6 +1987,7 @@ const EventPassCard = ({
             titleFontSize="24px"
             captionFontSize="21px"
             caption="Quét QR để xem kèo"
+            theme={theme}
           />
         )}
         <Text
@@ -1590,18 +2006,208 @@ const EventPassCard = ({
   </CardShell>
 );
 
+const AiBackgroundCard = ({
+  id,
+  session,
+  data,
+  qrDataUrl,
+  meta,
+  theme,
+  variant,
+}: TemplateProps & {
+  variant: Extract<
+    SessionShareTemplateId,
+    'ai-neon-stadium' | 'ai-yellow-smash'
+  >;
+}) => {
+  const isYellow = variant === 'ai-yellow-smash';
+  const accent = isYellow ? '#facc15' : theme.accent;
+  const panelBg = isYellow ? 'rgba(17, 17, 17, 0.78)' : 'rgba(8, 17, 31, 0.76)';
+  const panelBorder = isYellow
+    ? 'rgba(250, 204, 21, 0.55)'
+    : 'rgba(56, 189, 248, 0.34)';
+
+  return (
+    <CardShell id={id} meta={meta} bg={isYellow ? '#111111' : '#07111f'}>
+      <Image
+        src={AI_BACKGROUND_URLS[variant]}
+        alt={session.name}
+        position="absolute"
+        inset={0}
+        w="100%"
+        h="100%"
+        objectFit="cover"
+        crossOrigin="anonymous"
+      />
+      <Box
+        position="absolute"
+        inset={0}
+        bg={
+          isYellow
+            ? 'linear-gradient(180deg, rgba(0,0,0,0.18) 0%, rgba(0,0,0,0.56) 45%, rgba(0,0,0,0.84) 100%)'
+            : 'linear-gradient(180deg, rgba(3,7,18,0.16) 0%, rgba(3,7,18,0.44) 48%, rgba(3,7,18,0.88) 100%)'
+        }
+      />
+      <Box position="relative" h="100%" p="58px">
+        <Flex justify="space-between" align="center">
+          <Box
+            bg={isYellow ? '#facc15' : 'rgba(34, 197, 94, 0.9)'}
+            color={isYellow ? '#111111' : 'white'}
+            borderRadius="999px"
+            px={6}
+            py={3}
+          >
+            <Text fontSize="24px" fontWeight="950" textTransform="uppercase">
+              Tuyển vãng lai
+            </Text>
+          </Box>
+          {data.fee && <PricePill fee={data.fee} size="lg" theme={theme} />}
+        </Flex>
+
+        <Box position="absolute" left="58px" right="58px" top="405px">
+          <Text
+            color={accent}
+            fontSize="31px"
+            fontWeight="950"
+            textTransform="uppercase"
+          >
+            {data.date} · {data.time}
+          </Text>
+          <Heading
+            mt={4}
+            color="white"
+            fontSize="74px"
+            fontWeight="950"
+            lineHeight="0.98"
+            textTransform="uppercase"
+            lineClamp={3}
+            overflowWrap="break-word"
+          >
+            {session.name}
+          </Heading>
+        </Box>
+
+        <Box
+          position="absolute"
+          left="58px"
+          right="58px"
+          bottom="210px"
+          bg={panelBg}
+          border={`2px solid ${panelBorder}`}
+          borderRadius="34px"
+          p={8}
+          color="white"
+          backdropFilter="blur(2px)"
+        >
+          <Stack gap={5}>
+            <DetailItem
+              icon={MapPin}
+              label={data.venue}
+              size="venue"
+              color={accent}
+              labelColor="white"
+              lineClamp={1}
+              theme={theme}
+            />
+            {data.address && (
+              <Text
+                pl="56px"
+                mt="-12px"
+                fontSize="21px"
+                color="whiteAlpha.800"
+                fontWeight="700"
+                lineHeight="1.2"
+                lineClamp={1}
+              >
+                {data.address}
+              </Text>
+            )}
+            <Grid templateColumns="1fr 1fr" gap={5}>
+              <DetailItem
+                icon={User}
+                label={data.host}
+                size="md"
+                color={accent}
+                labelColor="white"
+                theme={theme}
+              />
+              <DetailItem
+                icon={Users}
+                label={data.maxPlayers}
+                size="md"
+                color={accent}
+                labelColor="white"
+                theme={theme}
+              />
+              <DetailItem
+                icon={SquareAsterisk}
+                label={data.courts}
+                size="md"
+                color={accent}
+                labelColor="white"
+                theme={theme}
+              />
+              <DetailItem
+                icon={Phone}
+                label={data.phone}
+                size="md"
+                color={accent}
+                labelColor="white"
+                theme={theme}
+              />
+            </Grid>
+            <LevelBadges levels={session.requiredLevels} size="md" />
+          </Stack>
+        </Box>
+
+        <Flex
+          position="absolute"
+          left="58px"
+          right="58px"
+          bottom="54px"
+          justify="space-between"
+          align="center"
+        >
+          {qrDataUrl && (
+            <QrBlock
+              qrDataUrl={qrDataUrl}
+              size={122}
+              dark
+              caption="Quét QR để xem kèo"
+              theme={theme}
+            />
+          )}
+          <Text
+            color="white"
+            fontSize="25px"
+            fontWeight="950"
+            textAlign="right"
+            lineHeight="1.1"
+          >
+            VMITO.COM
+            <br />
+            Tìm kèo cầu lông cực dễ
+          </Text>
+        </Flex>
+      </Box>
+    </CardShell>
+  );
+};
+
 interface TemplateProps {
   id?: string;
   session: ISession;
   data: ShareCardData;
   qrDataUrl: string;
   meta: SessionShareTemplateMeta;
+  theme: SessionShareThemeMeta;
 }
 
 const SessionShareCard = ({
   session,
   mode,
   templateId,
+  themeId,
   captureId,
 }: SessionShareCardProps) => {
   const locale = useLocale();
@@ -1610,6 +2216,7 @@ const SessionShareCard = ({
     SESSION_SHARE_TEMPLATES.find(
       (template) => template.id === resolvedTemplateId
     ) || SESSION_SHARE_TEMPLATES[0];
+  const theme = getShareTheme(themeId);
   const data = useShareCardData(session);
   const [qrDataUrl, setQrDataUrl] = useState('');
   const elementId =
@@ -1631,15 +2238,15 @@ const SessionShareCard = ({
       margin: 0,
       width: qrWidth,
       color: {
-        dark: '#179a3b',
+        dark: theme.qr,
         light: '#FFFFFF',
       },
     })
       .then(setQrDataUrl)
       .catch((err) => console.error('Error generating QR code:', err));
-  }, [locale, resolvedTemplateId, session.id]);
+  }, [locale, resolvedTemplateId, session.id, theme.qr]);
 
-  const props = { id: elementId, session, data, qrDataUrl, meta };
+  const props = { id: elementId, session, data, qrDataUrl, meta, theme };
 
   switch (resolvedTemplateId) {
     case 'legacy-portrait':
@@ -1654,6 +2261,10 @@ const SessionShareCard = ({
       return <SquareFeedCard {...props} />;
     case 'event-pass':
       return <EventPassCard {...props} />;
+    case 'ai-neon-stadium':
+      return <AiBackgroundCard {...props} variant="ai-neon-stadium" />;
+    case 'ai-yellow-smash':
+      return <AiBackgroundCard {...props} variant="ai-yellow-smash" />;
     case 'classic-clean':
     default:
       return <ClassicCleanCard {...props} />;

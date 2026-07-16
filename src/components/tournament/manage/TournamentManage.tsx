@@ -283,6 +283,7 @@ export default function TournamentManage({
             categories={categories}
             selectedCategory={selectedCategory}
             onSelectCategory={handleSelectCategory}
+            onOpenCategoriesPanel={() => handleItemClick('categories')}
           />
         );
       case 'players':
@@ -304,6 +305,7 @@ export default function TournamentManage({
             sportType={tournament.sportType}
             onSelectCategory={handleSelectCategory}
             onSwitchFormat={formatModal.onOpen}
+            onOpenCategoriesPanel={() => handleItemClick('categories')}
             onCategoryUpdated={() => {
               void loadCategories();
             }}
@@ -316,6 +318,7 @@ export default function TournamentManage({
             selectedCategory={selectedCategory}
             onSelectCategory={handleSelectCategory}
             onCategoryUpdated={loadCategories}
+            onOpenCategoriesPanel={() => handleItemClick('categories')}
           />
         );
       case 'rounds':
@@ -324,6 +327,7 @@ export default function TournamentManage({
             categories={categories}
             selectedCategory={selectedCategory}
             onSelectCategory={handleSelectCategory}
+            onOpenCategoriesPanel={() => handleItemClick('categories')}
           />
         );
       case 'venues':
@@ -334,6 +338,7 @@ export default function TournamentManage({
             categories={categories}
             tournament={tournament}
             onOpenRoundsPanel={handleOpenRoundsPanel}
+            onOpenCategoriesPanel={() => handleItemClick('categories')}
           />
         );
       case 'umpires':
@@ -346,6 +351,7 @@ export default function TournamentManage({
             tournament={tournament}
             categories={categories}
             onOpenRoundsPanel={handleOpenRoundsPanel}
+            onOpenCategoriesPanel={() => handleItemClick('categories')}
           />
         );
       case 'sponsors':

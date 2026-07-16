@@ -17,11 +17,13 @@ import { TournamentPlayerService } from '@/lib/api/tournament-player.service';
 import { TournamentPairService } from '@/lib/api/tournament-pair.service';
 import { TournamentMatchListSkeleton } from '@/components/tournament/skeletons';
 import { VModal, useModal } from '@/components/ui/VModal';
+import TournamentManageEmptyState from './TournamentManageEmptyState';
 
 interface TeamsPanelProps {
   categories: Category[];
   selectedCategory: Category | null;
   onSelectCategory: (category: Category) => void;
+  onOpenCategoriesPanel: () => void;
 }
 
 type TAddMode = 'single' | 'select' | 'multiple';
@@ -85,6 +87,7 @@ export default function TeamsPanel({
   categories,
   selectedCategory,
   onSelectCategory,
+  onOpenCategoriesPanel,
 }: TeamsPanelProps) {
   const t = useTranslations('pages.tournaments.detail.manage');
   const [registrations, setRegistrations] = useState<CategoryRegistration[]>(
@@ -493,18 +496,28 @@ export default function TeamsPanel({
             </Box>
           )}
 
-          <Button
-            size="sm"
-            variant="outline"
-            leftIcon={<Plus size={14} />}
-            onClick={handleOpenAdd}
-          >
-            {tc('add')}
-          </Button>
+          {categories.length > 0 && (
+            <Button
+              size="sm"
+              variant="outline"
+              leftIcon={<Plus size={14} />}
+              onClick={handleOpenAdd}
+            >
+              {tc('add')}
+            </Button>
+          )}
         </Flex>
 
         {/* Registrations list */}
-        {loading ? (
+        {categories.length === 0 ? (
+          <TournamentManageEmptyState
+            icon={<Users size={24} />}
+            title={t('panels.categoryRequired.emptyTitle')}
+            description={t('panels.categoryRequired.emptyDescription')}
+            actionLabel={t('panels.categoryRequired.action')}
+            onAction={onOpenCategoriesPanel}
+          />
+        ) : loading ? (
           <TournamentMatchListSkeleton count={4} />
         ) : registrations.length === 0 ? (
           <Flex

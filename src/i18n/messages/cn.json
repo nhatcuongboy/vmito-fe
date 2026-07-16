@@ -653,6 +653,7 @@
       "title": "预览并下载活动图片",
       "description": "下载前选择适合社交平台分享的图片模板。",
       "templatesLabel": "模板",
+      "themesLabel": "主题",
       "aiTemplatesLabel": "AI 模板",
       "preview": "预览",
       "download": "下载图片",
@@ -664,6 +665,23 @@
       "cached": "已缓存",
       "quotaStatus": "已用 {used}/{limit}",
       "quotaRemaining": "剩余 {remaining} 次",
+      "themes": {
+        "default": {
+          "name": "默认"
+        },
+        "dark": {
+          "name": "深色"
+        },
+        "premium": {
+          "name": "高级"
+        },
+        "sport-yellow": {
+          "name": "运动黄"
+        },
+        "club-green": {
+          "name": "俱乐部绿"
+        }
+      },
       "templates": {
         "legacy-portrait": {
           "name": "原版 2:3",
@@ -1769,6 +1787,11 @@
               "description": "为每个组别选择并配置赛制。",
               "action": "管理赛制"
             },
+            "categoryRequired": {
+              "emptyTitle": "请先创建类别",
+              "emptyDescription": "类别决定参赛对象和比赛组织方式。请先添加一个类别，再设置此部分。",
+              "action": "前往类别"
+            },
             "teams": {
               "title": "添加队伍",
               "description": "提供至少 2 支参赛队伍。",
@@ -2738,6 +2761,8 @@
             },
             "categories": {
               "title": "类别",
+              "emptyTitle": "暂无类别",
+              "emptyDescription": "创建第一个类别后，即可添加队伍、配置赛制并生成比赛。",
               "addCategory": "添加类别",
               "createCategory": "创建类别",
               "editCategory": "编辑类别",
@@ -3157,19 +3182,19 @@
             },
             "location": {
               "title": "锦标赛地点",
-              "description": "设置锦标赛场地",
-              "searchLabel": "搜索场地",
-              "searchPlaceholder": "按名称或地址搜索...",
-              "noVenues": "未找到场地",
+              "description": "选择在锦标赛公开页面上显示的主要场地",
               "clearSelection": "清除选择",
               "save": "保存",
               "cancel": "取消",
               "success": "锦标赛地点更新成功",
               "errors": {
-                "searchFailed": "搜索场地失败",
                 "noChanges": "没有更改需要保存",
-                "updateFailed": "更新锦标赛地点失败"
-              }
+                "updateFailed": "更新锦标赛地点失败",
+                "loadFailed": "加载场地列表失败"
+              },
+              "empty": "该锦标赛尚未关联任何场地。请先在比赛场地标签中添加场地。",
+              "goToVenues": "管理场地",
+              "inlineHint": "仅有地址的场地 — 需关联场地目录后才能设为主要场地"
             },
             "banner": {
               "title": "锦标赛封面图片",
@@ -4004,6 +4029,8 @@
         "selectAtLeastOne": "请至少选择一项权限",
         "add": "添加管理员",
         "noManagers": "尚未指派管理员。",
+        "emptyTitle": "尚未指派管理员",
+        "emptyDescription": "当您需要他人协助管理成绩、赛程、参赛者或赛事结构时，可添加可信的协作者。",
         "edit": "编辑",
         "save": "保存",
         "cancel": "取消",
@@ -5351,7 +5378,12 @@
       "postLikedTitle": "你的动态获得点赞",
       "postLikedMessage": "{actorName} 赞了你的动态。",
       "postCommentedTitle": "你的动态有新评论",
-      "postCommentedMessage": "{actorName} 评论了你的动态。"
+      "postCommentedMessage": "{actorName} 评论了你的动态。",
+      "tournamentCreatedSuccessfully": "锦标赛创建成功",
+      "pairUpdatedSuccessfully": "组合已成功更新",
+      "categoryUpdatedSuccessfully": "类别已成功更新",
+      "matchEndedSuccessfully": "比赛已成功结束",
+      "tournamentPublishedSuccessfully": "锦标赛已成功发布"
     }
   },
   "posts": {

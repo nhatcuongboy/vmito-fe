@@ -10,7 +10,7 @@ import {
 } from '@/components/ui/chakra-compat';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useTranslations } from 'next-intl';
-import { Plus, Trash2, Pencil, X, Check } from 'lucide-react';
+import { Plus, Trash2, Pencil, X, Check, ShieldCheck } from 'lucide-react';
 
 import { TournamentManagerService } from '@/lib/api/tournament-manager.service';
 import { UserService, UserOption } from '@/lib/api/user.service';
@@ -22,6 +22,7 @@ import {
 } from '@/lib/api/types';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { TournamentMatchListSkeleton } from '@/components/tournament/skeletons';
+import TournamentManageEmptyState from './TournamentManageEmptyState';
 
 interface Props {
   tournament: Tournament;
@@ -300,9 +301,11 @@ export default function ManagersPanel({ tournament }: Props) {
       {/* Current managers */}
       <VStack align="stretch" gap={2}>
         {managers.length === 0 ? (
-          <Text color="gray.500" fontSize="sm">
-            {t('noManagers')}
-          </Text>
+          <TournamentManageEmptyState
+            icon={<ShieldCheck size={24} />}
+            title={t('emptyTitle')}
+            description={t('emptyDescription')}
+          />
         ) : (
           managers.map((manager) => {
             const isEditing = editingUserId === manager.userId;

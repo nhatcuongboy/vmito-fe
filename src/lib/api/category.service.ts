@@ -1,4 +1,5 @@
 import { toaster } from '@/components/ui/toaster';
+import { getToastMessage } from '@/lib/i18n/toastMessages';
 import { api, ApiResponse, dedupGet } from './base';
 import {
   Category,
@@ -78,7 +79,9 @@ export const CategoryService = {
       data
     );
     if (options?.showToast !== false) {
-      toaster.success({ title: 'Category updated successfully' });
+      toaster.success({
+        title: getToastMessage('categoryUpdatedSuccessfully'),
+      });
     }
     return response.data.data!;
   },
@@ -235,7 +238,7 @@ export const CategoryService = {
       `/category-matches/${id}/end`,
       data
     );
-    toaster.success({ title: 'Match ended successfully' });
+    toaster.success({ title: getToastMessage('matchEndedSuccessfully') });
     return response.data.data!;
   },
 
