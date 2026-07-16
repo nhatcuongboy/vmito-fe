@@ -463,22 +463,29 @@ const LevelBadges = ({
 
   if (uniqueLevels.length === 0) {
     return (
-      <Badge
-        bg="#eef2f7"
-        color="#27313f"
-        borderRadius="999px"
-        px={px}
-        py={size === 'sm' ? 1 : 2}
-        fontSize={fontSize}
-        fontWeight="900"
-      >
-        {t('allLevels')}
-      </Badge>
+      <Box alignSelf="flex-start" maxW="100%" minW={0}>
+        <Badge
+          bg="#eef2f7"
+          color="#27313f"
+          borderRadius="999px"
+          px={px}
+          py={size === 'sm' ? 1 : 2}
+          fontSize={fontSize}
+          fontWeight="900"
+          w="fit-content"
+          maxW="100%"
+          whiteSpace="normal"
+          textAlign="left"
+          lineHeight="1.1"
+        >
+          {t('allLevels')}
+        </Badge>
+      </Box>
     );
   }
 
   return (
-    <Wrap gap={size === 'lg' ? 3 : 2}>
+    <Wrap gap={size === 'lg' ? 3 : 2} alignSelf="flex-start" maxW="100%">
       {uniqueLevels
         .sort((a, b) =>
           typeof a === 'number' && typeof b === 'number' ? a - b : 0
@@ -652,6 +659,7 @@ const CardShell = ({
     position="relative"
     fontFamily="'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
     letterSpacing="0"
+    textAlign="left"
     boxShadow="none"
   >
     {children}
@@ -675,7 +683,7 @@ const ClassicCleanCard = ({
         </Text>
       </Box>
       <Box bg="#ffffff" borderRadius="24px" p="44px" minH="720px">
-        <Stack gap={8}>
+        <Stack gap={8} maxH="440px" overflow="hidden">
           <Heading
             fontSize="42px"
             fontWeight="950"
@@ -765,10 +773,10 @@ const ClassicCleanCard = ({
           <PricePill fee={data.fee} theme={theme} />
           {session.description && (
             <Text
-              fontSize="26px"
+              fontSize="23px"
               color="#5c5f6a"
-              lineClamp={3}
-              lineHeight="1.3"
+              lineClamp={2}
+              lineHeight="1.25"
             >
               {session.description}
             </Text>
@@ -1140,6 +1148,7 @@ const LegacySocialCard = ({ id, session, qrDataUrl, theme }: TemplateProps) => {
       borderWidth="16px"
       borderColor={theme.primaryDark}
       boxShadow="none"
+      textAlign="left"
     >
       <Box position="relative" h="420px" overflow="hidden">
         <Image
@@ -1622,6 +1631,19 @@ const StoryVerticalCard = ({
               labelColor="#252833"
               theme={theme}
             />
+            {data.address && (
+              <Text
+                pl="72px"
+                mt="-26px"
+                fontSize="28px"
+                color="#70727d"
+                fontWeight="700"
+                lineHeight="1.22"
+                lineClamp={1}
+              >
+                {data.address}
+              </Text>
+            )}
             <Grid templateColumns="1fr 1fr" gap={6}>
               <DetailItem
                 icon={User}
@@ -1748,6 +1770,19 @@ const SquareFeedCard = ({
               size="md"
               theme={theme}
             />
+            {data.address && (
+              <Text
+                pl="50px"
+                mt="-12px"
+                fontSize="20px"
+                color={theme.mutedText}
+                fontWeight="700"
+                lineHeight="1.22"
+                lineClamp={1}
+              >
+                {data.address}
+              </Text>
+            )}
             <DetailItem
               icon={User}
               label={`Host: ${data.host}`}
@@ -1880,6 +1915,19 @@ const EventPassCard = ({
             labelColor="#252833"
             theme={theme}
           />
+          {data.address && (
+            <Text
+              pl="56px"
+              mt="-12px"
+              fontSize="21px"
+              color="#70727d"
+              fontWeight="700"
+              lineHeight="1.2"
+              lineClamp={1}
+            >
+              {data.address}
+            </Text>
+          )}
           <Grid templateColumns="1fr 1fr" gap={5}>
             <Stack gap={4} minW={0}>
               <DetailItem
@@ -2061,6 +2109,19 @@ const AiBackgroundCard = ({
               lineClamp={1}
               theme={theme}
             />
+            {data.address && (
+              <Text
+                pl="56px"
+                mt="-12px"
+                fontSize="21px"
+                color="whiteAlpha.800"
+                fontWeight="700"
+                lineHeight="1.2"
+                lineClamp={1}
+              >
+                {data.address}
+              </Text>
+            )}
             <Grid templateColumns="1fr 1fr" gap={5}>
               <DetailItem
                 icon={User}
