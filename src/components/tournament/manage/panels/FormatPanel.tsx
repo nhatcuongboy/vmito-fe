@@ -3,10 +3,11 @@
 import { useState } from 'react';
 import { Box, Flex, Heading, Text } from '@chakra-ui/react';
 import { Button } from '@/components/ui/chakra-compat';
-import { ChevronDown, RefreshCw, GitBranch, Info } from 'lucide-react';
+import { ChevronDown, RefreshCw, GitBranch, Info, Layers } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Category, CategoryFormat, SportType } from '@/lib/api/types';
 import ScoringRulesCard from './ScoringRulesCard';
+import TournamentManageEmptyState from './TournamentManageEmptyState';
 
 interface FormatPanelProps {
   categories: Category[];
@@ -14,6 +15,7 @@ interface FormatPanelProps {
   sportType?: SportType | null;
   onSelectCategory: (category: Category) => void;
   onSwitchFormat: () => void;
+  onOpenCategoriesPanel: () => void;
   onCategoryUpdated?: (category: Category) => void;
 }
 
@@ -63,6 +65,7 @@ export default function FormatPanel({
   sportType,
   onSelectCategory,
   onSwitchFormat,
+  onOpenCategoriesPanel,
   onCategoryUpdated,
 }: FormatPanelProps) {
   const t = useTranslations('pages.tournaments.detail.manage');
@@ -83,13 +86,25 @@ export default function FormatPanel({
       {/* Header */}
       <Flex justify="space-between" align="center" mb={4}>
         <Heading size="md">{t('panels.format.title')}</Heading>
-        <Button size="sm" variant="outline" onClick={onSwitchFormat}>
-          {t('panels.format.switchFormat')}
-        </Button>
+        {categories.length > 0 && (
+          <Button size="sm" variant="outline" onClick={onSwitchFormat}>
+            {t('panels.format.switchFormat')}
+          </Button>
+        )}
       </Flex>
 
+      {categories.length === 0 && (
+        <TournamentManageEmptyState
+          icon={<Layers size={24} />}
+          title={t('panels.categoryRequired.emptyTitle')}
+          description={t('panels.categoryRequired.emptyDescription')}
+          actionLabel={t('panels.categoryRequired.action')}
+          onAction={onOpenCategoriesPanel}
+        />
+      )}
+
       {/* Default format hint */}
-      {isDefaultFormat && activeCategory && (
+      {categories.length > 0 && isDefaultFormat && activeCategory && (
         <Flex
           align="flex-start"
           gap={3}
@@ -213,7 +228,7 @@ export default function FormatPanel({
         </Box>
       )}
 
-      {formatInfo && (
+      {categories.length > 0 && formatInfo && (
         <>
           {/* Format visualization */}
           <Box

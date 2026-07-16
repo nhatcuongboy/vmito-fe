@@ -1,4 +1,5 @@
 import { toaster } from '@/components/ui/toaster';
+import { getToastMessage } from '@/lib/i18n/toastMessages';
 import { api, ApiResponse } from './base';
 import { TournamentPair, CategoryType } from './types';
 
@@ -51,7 +52,7 @@ export const TournamentPairService = {
       `/tournament-pairs/${id}`,
       data
     );
-    toaster.success({ title: 'Pair updated successfully' });
+    toaster.success({ title: getToastMessage('pairUpdatedSuccessfully') });
     return response.data.data!;
   },
 

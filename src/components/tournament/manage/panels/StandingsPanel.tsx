@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { Box, Flex, Heading, Text } from '@chakra-ui/react';
 import { Button, VStack } from '@/components/ui/chakra-compat';
-import { ChevronDown } from 'lucide-react';
+import { ChevronDown, Layers } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useModal } from '@/components/ui/VModal';
 import { Category } from '@/lib/api/types';
@@ -21,12 +21,14 @@ import type {
   RoundRobinConfig,
 } from '@/components/tournament/format-wizard/types';
 import ManageStandingsModal from './ManageStandingsModal';
+import TournamentManageEmptyState from './TournamentManageEmptyState';
 
 interface StandingsPanelProps {
   categories: Category[];
   selectedCategory: Category | null;
   onSelectCategory: (category: Category) => void;
   onCategoryUpdated?: () => void;
+  onOpenCategoriesPanel: () => void;
 }
 
 const CATEGORY_COLORS = [
@@ -45,6 +47,7 @@ export default function StandingsPanel({
   selectedCategory,
   onSelectCategory,
   onCategoryUpdated,
+  onOpenCategoriesPanel,
 }: StandingsPanelProps) {
   const t = useTranslations('pages.tournaments.detail.manage');
   const tConfig = useTranslations(
@@ -113,10 +116,22 @@ export default function StandingsPanel({
       {/* Header */}
       <Flex justify="space-between" align="center">
         <Heading size="md">{t('panels.standings.title')}</Heading>
-        <Button size="sm" variant="outline" onClick={modal.onOpen}>
-          {t('panels.standings.manageStandings')}
-        </Button>
+        {categories.length > 0 && (
+          <Button size="sm" variant="outline" onClick={modal.onOpen}>
+            {t('panels.standings.manageStandings')}
+          </Button>
+        )}
       </Flex>
+
+      {categories.length === 0 && (
+        <TournamentManageEmptyState
+          icon={<Layers size={24} />}
+          title={t('panels.categoryRequired.emptyTitle')}
+          description={t('panels.categoryRequired.emptyDescription')}
+          actionLabel={t('panels.categoryRequired.action')}
+          onAction={onOpenCategoriesPanel}
+        />
+      )}
 
       {/* Category selector */}
       {categories.length > 1 && (
@@ -211,118 +226,193 @@ export default function StandingsPanel({
         </Box>
       )}
 
-      {/* Points */}
-      <Box>
-        <Heading size="sm" mb={2}>
-          {t('panels.standings.points')}
-        </Heading>
-        <VStack gap={1} align="stretch" pl={2}>
-          <Text fontSize="sm" color="gray.600" _dark={{ color: 'gray.300' }}>
-            • {winPoints} {t('panels.standings.pointsPerWin')}
-          </Text>
-          {lossPoints > 0 && (
-            <Text fontSize="sm" color="gray.600" _dark={{ color: 'gray.300' }}>
-              • {lossPoints} {t('panels.standings.pointsPerLoss')}
-            </Text>
-          )}
-          {tiePoints > 0 && (
-            <Text fontSize="sm" color="gray.600" _dark={{ color: 'gray.300' }}>
-              • {tiePoints} {t('panels.standings.pointsPerTie')}
-            </Text>
-          )}
-          {gameWinPoints > 0 && (
-            <Text fontSize="sm" color="gray.600" _dark={{ color: 'gray.300' }}>
-              • {gameWinPoints} {t('panels.standings.pointsPerGameWin')}
-            </Text>
-          )}
-          {gameLossPoints > 0 && (
-            <Text fontSize="sm" color="gray.600" _dark={{ color: 'gray.300' }}>
-              • {gameLossPoints} {t('panels.standings.pointsPerGameLoss')}
-            </Text>
-          )}
-          {forfeitWinPoints > 0 && (
-            <Text fontSize="sm" color="gray.600" _dark={{ color: 'gray.300' }}>
-              • {forfeitWinPoints} {t('panels.standings.pointsPerForfeitWin')}
-            </Text>
-          )}
-          {forfeitLossPoints > 0 && (
-            <Text fontSize="sm" color="gray.600" _dark={{ color: 'gray.300' }}>
-              • {forfeitLossPoints} {t('panels.standings.pointsPerForfeitLoss')}
-            </Text>
-          )}
-        </VStack>
-      </Box>
-
-      {/* Tiebreakers */}
-      <Box>
-        <Heading size="sm" mb={2}>
-          {tConfig('tiebreakers')}
-        </Heading>
-        <VStack gap={2} align="stretch">
-          {tiebreakers.map((tb, idx) => (
-            <Flex key={tb.id} align="center" gap={3}>
-              <Flex
-                w="24px"
-                h="24px"
-                bg="blue.50"
-                _dark={{ bg: 'blue.900' }}
-                borderRadius="md"
-                align="center"
-                justify="center"
-                flexShrink={0}
+      {categories.length > 0 && (
+        <>
+          {/* Points */}
+          <Box>
+            <Heading size="sm" mb={2}>
+              {t('panels.standings.points')}
+            </Heading>
+            <VStack gap={1} align="stretch" pl={2}>
+              <Text
+                fontSize="sm"
+                color="gray.600"
+                _dark={{ color: 'gray.300' }}
               >
-                <Text fontSize="xs" fontWeight="bold" color="blue.600">
-                  {idx + 1}
-                </Text>
-              </Flex>
-              <Box>
-                <Text fontSize="sm" fontWeight="medium">
-                  {tConfig(`tiebreakerItems.${tb.label}`)}
-                </Text>
-                <Text
-                  fontSize="xs"
-                  color="gray.500"
-                  _dark={{ color: 'gray.400' }}
-                >
-                  {tConfig(`tiebreakerItems.${tb.description}`)}
-                </Text>
-              </Box>
-            </Flex>
-          ))}
-        </VStack>
-      </Box>
-
-      {/* Statistics */}
-      <Box>
-        <Heading size="sm" mb={2}>
-          {tConfig('teamStatistics')}
-        </Heading>
-        <VStack gap={2} align="stretch">
-          {statistics.map((stat) => (
-            <Flex key={stat.id} align="center" gap={3}>
-              <Flex
-                w="24px"
-                h="24px"
-                bg="gray.100"
-                _dark={{ bg: 'gray.700' }}
-                borderRadius="md"
-                align="center"
-                justify="center"
-                flexShrink={0}
-              >
-                <Text
-                  fontSize="xs"
-                  fontWeight="bold"
-                  color="gray.600"
-                  _dark={{ color: 'gray.200' }}
-                >
-                  {stat.abbreviation}
-                </Text>
-              </Flex>
-              <Text fontSize="sm" fontWeight="medium" flex="1">
-                {tConfig(`statisticItems.${stat.label}`)}
+                • {winPoints} {t('panels.standings.pointsPerWin')}
               </Text>
-              {stat.required && (
+              {lossPoints > 0 && (
+                <Text
+                  fontSize="sm"
+                  color="gray.600"
+                  _dark={{ color: 'gray.300' }}
+                >
+                  • {lossPoints} {t('panels.standings.pointsPerLoss')}
+                </Text>
+              )}
+              {tiePoints > 0 && (
+                <Text
+                  fontSize="sm"
+                  color="gray.600"
+                  _dark={{ color: 'gray.300' }}
+                >
+                  • {tiePoints} {t('panels.standings.pointsPerTie')}
+                </Text>
+              )}
+              {gameWinPoints > 0 && (
+                <Text
+                  fontSize="sm"
+                  color="gray.600"
+                  _dark={{ color: 'gray.300' }}
+                >
+                  • {gameWinPoints} {t('panels.standings.pointsPerGameWin')}
+                </Text>
+              )}
+              {gameLossPoints > 0 && (
+                <Text
+                  fontSize="sm"
+                  color="gray.600"
+                  _dark={{ color: 'gray.300' }}
+                >
+                  • {gameLossPoints} {t('panels.standings.pointsPerGameLoss')}
+                </Text>
+              )}
+              {forfeitWinPoints > 0 && (
+                <Text
+                  fontSize="sm"
+                  color="gray.600"
+                  _dark={{ color: 'gray.300' }}
+                >
+                  • {forfeitWinPoints}{' '}
+                  {t('panels.standings.pointsPerForfeitWin')}
+                </Text>
+              )}
+              {forfeitLossPoints > 0 && (
+                <Text
+                  fontSize="sm"
+                  color="gray.600"
+                  _dark={{ color: 'gray.300' }}
+                >
+                  • {forfeitLossPoints}{' '}
+                  {t('panels.standings.pointsPerForfeitLoss')}
+                </Text>
+              )}
+            </VStack>
+          </Box>
+
+          {/* Tiebreakers */}
+          <Box>
+            <Heading size="sm" mb={2}>
+              {tConfig('tiebreakers')}
+            </Heading>
+            <VStack gap={2} align="stretch">
+              {tiebreakers.map((tb, idx) => (
+                <Flex key={tb.id} align="center" gap={3}>
+                  <Flex
+                    w="24px"
+                    h="24px"
+                    bg="blue.50"
+                    _dark={{ bg: 'blue.900' }}
+                    borderRadius="md"
+                    align="center"
+                    justify="center"
+                    flexShrink={0}
+                  >
+                    <Text fontSize="xs" fontWeight="bold" color="blue.600">
+                      {idx + 1}
+                    </Text>
+                  </Flex>
+                  <Box>
+                    <Text fontSize="sm" fontWeight="medium">
+                      {tConfig(`tiebreakerItems.${tb.label}`)}
+                    </Text>
+                    <Text
+                      fontSize="xs"
+                      color="gray.500"
+                      _dark={{ color: 'gray.400' }}
+                    >
+                      {tConfig(`tiebreakerItems.${tb.description}`)}
+                    </Text>
+                  </Box>
+                </Flex>
+              ))}
+            </VStack>
+          </Box>
+
+          {/* Statistics */}
+          <Box>
+            <Heading size="sm" mb={2}>
+              {tConfig('teamStatistics')}
+            </Heading>
+            <VStack gap={2} align="stretch">
+              {statistics.map((stat) => (
+                <Flex key={stat.id} align="center" gap={3}>
+                  <Flex
+                    w="24px"
+                    h="24px"
+                    bg="gray.100"
+                    _dark={{ bg: 'gray.700' }}
+                    borderRadius="md"
+                    align="center"
+                    justify="center"
+                    flexShrink={0}
+                  >
+                    <Text
+                      fontSize="xs"
+                      fontWeight="bold"
+                      color="gray.600"
+                      _dark={{ color: 'gray.200' }}
+                    >
+                      {stat.abbreviation}
+                    </Text>
+                  </Flex>
+                  <Text fontSize="sm" fontWeight="medium" flex="1">
+                    {tConfig(`statisticItems.${stat.label}`)}
+                  </Text>
+                  {stat.required && (
+                    <Box
+                      bg="gray.100"
+                      px={2}
+                      py={0.5}
+                      borderRadius="md"
+                      fontSize="2xs"
+                      fontWeight="bold"
+                      color="gray.500"
+                      _dark={{ bg: 'gray.700', color: 'gray.300' }}
+                    >
+                      {t('panels.standings.required')}
+                    </Box>
+                  )}
+                </Flex>
+              ))}
+            </VStack>
+          </Box>
+
+          {/* Standings columns */}
+          <Box>
+            <Heading size="sm" mb={2}>
+              {tConfig('standings')}
+            </Heading>
+            <VStack gap={2} align="stretch">
+              {/* Points is always first and required */}
+              <Flex align="center" gap={3}>
+                <Flex
+                  w="24px"
+                  h="24px"
+                  bg="blue.50"
+                  _dark={{ bg: 'blue.900' }}
+                  borderRadius="md"
+                  align="center"
+                  justify="center"
+                  flexShrink={0}
+                >
+                  <Text fontSize="xs" fontWeight="bold" color="blue.600">
+                    PTS
+                  </Text>
+                </Flex>
+                <Text fontSize="sm" fontWeight="medium" flex="1">
+                  Points
+                </Text>
                 <Box
                   bg="gray.100"
                   px={2}
@@ -335,86 +425,47 @@ export default function StandingsPanel({
                 >
                   {t('panels.standings.required')}
                 </Box>
-              )}
-            </Flex>
-          ))}
-        </VStack>
-      </Box>
-
-      {/* Standings columns */}
-      <Box>
-        <Heading size="sm" mb={2}>
-          {tConfig('standings')}
-        </Heading>
-        <VStack gap={2} align="stretch">
-          {/* Points is always first and required */}
-          <Flex align="center" gap={3}>
-            <Flex
-              w="24px"
-              h="24px"
-              bg="blue.50"
-              _dark={{ bg: 'blue.900' }}
-              borderRadius="md"
-              align="center"
-              justify="center"
-              flexShrink={0}
-            >
-              <Text fontSize="xs" fontWeight="bold" color="blue.600">
-                PTS
-              </Text>
-            </Flex>
-            <Text fontSize="sm" fontWeight="medium" flex="1">
-              Points
-            </Text>
-            <Box
-              bg="gray.100"
-              px={2}
-              py={0.5}
-              borderRadius="md"
-              fontSize="2xs"
-              fontWeight="bold"
-              color="gray.500"
-              _dark={{ bg: 'gray.700', color: 'gray.300' }}
-            >
-              {t('panels.standings.required')}
-            </Box>
-          </Flex>
-          {standingsColumns.map((col) => (
-            <Flex key={col.id} align="center" gap={3}>
-              <Flex
-                w="24px"
-                h="24px"
-                bg="gray.100"
-                _dark={{ bg: 'gray.700' }}
-                borderRadius="md"
-                align="center"
-                justify="center"
-                flexShrink={0}
-              >
-                <Text
-                  fontSize="2xs"
-                  fontWeight="bold"
-                  color="gray.600"
-                  _dark={{ color: 'gray.200' }}
-                >
-                  {col.abbreviation}
-                </Text>
               </Flex>
-              <Text fontSize="sm" fontWeight="medium">
-                {tConfig(`standingsItems.${col.label}`)}
-              </Text>
-            </Flex>
-          ))}
-        </VStack>
-      </Box>
+              {standingsColumns.map((col) => (
+                <Flex key={col.id} align="center" gap={3}>
+                  <Flex
+                    w="24px"
+                    h="24px"
+                    bg="gray.100"
+                    _dark={{ bg: 'gray.700' }}
+                    borderRadius="md"
+                    align="center"
+                    justify="center"
+                    flexShrink={0}
+                  >
+                    <Text
+                      fontSize="2xs"
+                      fontWeight="bold"
+                      color="gray.600"
+                      _dark={{ color: 'gray.200' }}
+                    >
+                      {col.abbreviation}
+                    </Text>
+                  </Flex>
+                  <Text fontSize="sm" fontWeight="medium">
+                    {tConfig(`standingsItems.${col.label}`)}
+                  </Text>
+                </Flex>
+              ))}
+            </VStack>
+          </Box>
+        </>
+      )}
 
       {/* Manage Standings Modal */}
-      <ManageStandingsModal
-        isOpen={modal.isOpen}
-        onClose={modal.onClose}
-        category={activeCategory}
-        onSave={handleSave}
-      />
+      {activeCategory && (
+        <ManageStandingsModal
+          isOpen={modal.isOpen}
+          onClose={modal.onClose}
+          category={activeCategory}
+          onSave={handleSave}
+        />
+      )}
     </VStack>
   );
 }

@@ -16,6 +16,7 @@ import { VModal } from '@/components/ui/VModal';
 import { useLocale, useTranslations } from 'next-intl';
 import {
   CalendarDays,
+  Layers,
   List,
   MonitorPlay,
   RotateCcw,
@@ -65,6 +66,7 @@ import {
 } from './useResultsUrlState';
 import { useResultsData } from './useResultsData';
 import { useRouter } from '@/i18n/config';
+import TournamentManageEmptyState from './TournamentManageEmptyState';
 
 interface Props {
   tournament: Tournament;
@@ -79,6 +81,7 @@ interface Props {
   description?: string;
   /** Optional navigation hook to the Rounds setup panel. */
   onOpenRoundsPanel?: (categoryId: string) => void;
+  onOpenCategoriesPanel?: () => void;
 }
 
 export default function ResultsPanel({
@@ -88,6 +91,7 @@ export default function ResultsPanel({
   heading,
   hideHeadingOnMobile = false,
   description,
+  onOpenCategoriesPanel,
 }: Props) {
   const t = useTranslations('pages.tournaments.manualScore');
   const tManage = useTranslations('pages.tournaments.detail.manage');
@@ -588,6 +592,40 @@ export default function ResultsPanel({
 
   if (loading) {
     return <TournamentMatchListSkeleton count={6} />;
+  }
+
+  if (categories.length === 0) {
+    return (
+      <Box>
+        <Flex direction="column" gap={3} mb={5}>
+          <Heading
+            size="md"
+            display={
+              hideHeadingOnMobile ? { base: 'none', md: 'block' } : undefined
+            }
+          >
+            {heading ?? t('panelTitle')}
+          </Heading>
+          {description && (
+            <Text fontSize="sm" color="gray.500">
+              {description}
+            </Text>
+          )}
+        </Flex>
+
+        <TournamentManageEmptyState
+          icon={<Layers size={24} />}
+          title={tManage('panels.categoryRequired.emptyTitle')}
+          description={tManage('panels.categoryRequired.emptyDescription')}
+          actionLabel={
+            onOpenCategoriesPanel
+              ? tManage('panels.categoryRequired.action')
+              : undefined
+          }
+          onAction={onOpenCategoriesPanel}
+        />
+      </Box>
+    );
   }
 
   const canShowRefereeFilter =

@@ -1809,6 +1809,11 @@
               "description": "Select and configure the format for each category.",
               "action": "Manage format"
             },
+            "categoryRequired": {
+              "emptyTitle": "Create a category first",
+              "emptyDescription": "Categories define who can join and how matches are organized. Add one before setting up this section.",
+              "action": "Go to categories"
+            },
             "teams": {
               "title": "Add your teams",
               "description": "Provide at least 2 participating teams.",
@@ -2778,6 +2783,8 @@
             },
             "categories": {
               "title": "Categories",
+              "emptyTitle": "No categories yet",
+              "emptyDescription": "Create your first category to start adding teams, configuring formats, and generating matches.",
               "addCategory": "Add category",
               "createCategory": "Create category",
               "editCategory": "Edit category",
@@ -4062,6 +4069,8 @@
         "selectAtLeastOne": "Select at least one permission",
         "add": "Add manager",
         "noManagers": "No managers assigned yet.",
+        "emptyTitle": "No managers assigned yet",
+        "emptyDescription": "Add a trusted teammate when you want help with results, schedules, participants, or tournament structure.",
         "edit": "Edit",
         "save": "Save",
         "cancel": "Cancel",
@@ -5410,7 +5419,12 @@
       "postLikedTitle": "New like on your post",
       "postLikedMessage": "{actorName} liked your post.",
       "postCommentedTitle": "New comment on your post",
-      "postCommentedMessage": "{actorName} commented on your post."
+      "postCommentedMessage": "{actorName} commented on your post.",
+      "tournamentCreatedSuccessfully": "Tournament created successfully",
+      "pairUpdatedSuccessfully": "Pair updated successfully",
+      "categoryUpdatedSuccessfully": "Category updated successfully",
+      "matchEndedSuccessfully": "Match ended successfully",
+      "tournamentPublishedSuccessfully": "Tournament published successfully"
     }
   },
   "posts": {

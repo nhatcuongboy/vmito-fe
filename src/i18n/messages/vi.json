@@ -1818,6 +1818,11 @@
               "description": "Chọn và cấu hình thể thức cho từng hạng mục.",
               "action": "Quản lý thể thức"
             },
+            "categoryRequired": {
+              "emptyTitle": "Tạo hạng mục trước",
+              "emptyDescription": "Hạng mục xác định ai tham gia và cách tổ chức trận đấu. Hãy thêm một hạng mục trước khi thiết lập phần này.",
+              "action": "Đến Hạng mục"
+            },
             "teams": {
               "title": "Thêm đội tham gia",
               "description": "Cung cấp ít nhất 2 đội tham gia.",
@@ -2787,6 +2792,8 @@
             },
             "categories": {
               "title": "Hạng mục",
+              "emptyTitle": "Chưa có hạng mục nào",
+              "emptyDescription": "Tạo hạng mục đầu tiên để bắt đầu thêm đội, cấu hình thể thức và tạo trận đấu.",
               "addCategory": "Thêm hạng mục",
               "createCategory": "Tạo hạng mục",
               "editCategory": "Sửa hạng mục",
@@ -4071,6 +4078,8 @@
         "selectAtLeastOne": "Chọn ít nhất một quyền",
         "add": "Thêm quản trị viên",
         "noManagers": "Chưa có quản trị viên nào.",
+        "emptyTitle": "Chưa có quản trị viên nào",
+        "emptyDescription": "Thêm người đồng hành đáng tin cậy khi bạn cần hỗ trợ kết quả, lịch thi đấu, người tham gia hoặc cấu trúc giải.",
         "edit": "Sửa",
         "save": "Lưu",
         "cancel": "Hủy",
@@ -5427,7 +5436,12 @@
       "postLikedTitle": "Có người thích bài viết của bạn",
       "postLikedMessage": "{actorName} đã thích bài viết của bạn.",
       "postCommentedTitle": "Bình luận mới về bài viết của bạn",
-      "postCommentedMessage": "{actorName} đã bình luận về bài viết của bạn."
+      "postCommentedMessage": "{actorName} đã bình luận về bài viết của bạn.",
+      "tournamentCreatedSuccessfully": "Giải đấu đã được tạo thành công",
+      "pairUpdatedSuccessfully": "Cặp đấu đã được cập nhật thành công",
+      "categoryUpdatedSuccessfully": "Hạng mục đã được cập nhật thành công",
+      "matchEndedSuccessfully": "Trận đấu đã kết thúc thành công",
+      "tournamentPublishedSuccessfully": "Giải đấu đã được công khai thành công"
     }
   },
   "posts": {

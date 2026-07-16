@@ -6,7 +6,7 @@ import { VStack, Button } from '@/components/ui/chakra-compat';
 import { useTranslations } from 'next-intl';
 import { useModal, VModal } from '@/components/ui/VModal';
 import { toaster } from '@/components/ui/toaster';
-import { ArrowLeftRight, Settings, Trash2, Trophy } from 'lucide-react';
+import { ArrowLeftRight, Layers, Settings, Trash2, Trophy } from 'lucide-react';
 import {
   Category,
   CategoryFormat,
@@ -21,17 +21,20 @@ import { CategoryService } from '@/lib/api/category.service';
 import ScheduleTypeModal from './schedule/ScheduleTypeModal';
 import ManageScheduleModal from './schedule/ManageScheduleModal';
 import NextAvailableCourtModal from './schedule/NextAvailableCourtModal';
+import TournamentManageEmptyState from './TournamentManageEmptyState';
 
 interface SchedulePanelProps {
   categories: Category[];
   tournament: Tournament;
   onOpenRoundsPanel?: (categoryId: string) => void;
+  onOpenCategoriesPanel: () => void;
 }
 
 export default function SchedulePanel({
   categories,
   tournament,
   onOpenRoundsPanel,
+  onOpenCategoriesPanel,
 }: SchedulePanelProps) {
   const t = useTranslations('pages.tournaments.detail.manage');
 
@@ -213,252 +216,273 @@ export default function SchedulePanel({
     <VStack gap={4} align="stretch">
       <Heading size="md">{t('organize.schedule.title')}</Heading>
 
-      {/* Schedule type */}
-      <Flex
-        align="center"
-        justify="space-between"
-        p={3}
-        bg="gray.50"
-        borderRadius="lg"
-        _dark={{ bg: 'gray.800' }}
-      >
-        <Box>
-          <Text fontSize="xs" color="gray.500" _dark={{ color: 'gray.400' }}>
-            {t('organize.schedule.scheduleType.label')}
-          </Text>
-          <Badge colorScheme="gray" mt={1}>
-            {scheduleTypeLabel}
-          </Badge>
-        </Box>
-        <Button variant="ghost" size="sm" onClick={typeModal.onOpen}>
-          <ArrowLeftRight size={14} />
-          {t('organize.schedule.switchType')}
-        </Button>
-      </Flex>
-
-      {/* Circular progress */}
-      <Flex direction="column" align="center" py={4} gap={3}>
-        <Box position="relative" w="100px" h="100px">
-          <svg width="100" height="100" viewBox="0 0 100 100">
-            <circle
-              cx="50"
-              cy="50"
-              r="44"
-              fill="none"
-              stroke="#E2E8F0"
-              strokeWidth="6"
-            />
-            <circle
-              cx="50"
-              cy="50"
-              r="44"
-              fill="none"
-              stroke="#38A169"
-              strokeWidth="6"
-              strokeDasharray={circumference}
-              strokeDashoffset={dashOffset}
-              strokeLinecap="round"
-              transform="rotate(-90 50 50)"
-              style={{ transition: 'stroke-dashoffset 0.3s' }}
-            />
-          </svg>
+      {categories.length === 0 ? (
+        <TournamentManageEmptyState
+          icon={<Layers size={24} />}
+          title={t('panels.categoryRequired.emptyTitle')}
+          description={t('panels.categoryRequired.emptyDescription')}
+          actionLabel={t('panels.categoryRequired.action')}
+          onAction={onOpenCategoriesPanel}
+        />
+      ) : (
+        <>
+          {/* Schedule type */}
           <Flex
-            position="absolute"
-            top={0}
-            left={0}
-            right={0}
-            bottom={0}
             align="center"
-            justify="center"
+            justify="space-between"
+            p={3}
+            bg="gray.50"
+            borderRadius="lg"
+            _dark={{ bg: 'gray.800' }}
           >
-            <Text fontSize="lg" fontWeight="bold" color="green.600">
-              {completedCount} / {totalMatches}
-            </Text>
-          </Flex>
-        </Box>
-      </Flex>
-
-      {/* Stats */}
-      <VStack gap={2} align="stretch">
-        {isQueueMode ? (
-          <>
-            <Flex align="center" gap={2}>
-              <Box w="8px" h="8px" borderRadius="full" bg="green.400" />
-              <Text fontSize="sm">
-                {finishedMatches} {t('organize.schedule.finishedMatches')}
-              </Text>
-            </Flex>
-            <Flex align="center" gap={2}>
-              <Box w="8px" h="8px" borderRadius="full" bg="orange.400" />
-              <Text fontSize="sm">
-                {onCourtMatches} {t('organize.schedule.onCourtMatches')}
-              </Text>
-            </Flex>
-            <Flex align="center" gap={2}>
-              <Box w="8px" h="8px" borderRadius="full" bg="gray.300" />
+            <Box>
               <Text
-                fontSize="sm"
+                fontSize="xs"
                 color="gray.500"
                 _dark={{ color: 'gray.400' }}
               >
-                {waitingMatches} {t('organize.schedule.waitingMatches')}
+                {t('organize.schedule.scheduleType.label')}
               </Text>
-            </Flex>
-          </>
-        ) : (
-          <>
-            <Flex align="center" gap={2}>
-              <Box w="8px" h="8px" borderRadius="full" bg="green.400" />
-              <Text fontSize="sm">
-                {scheduledMatches} {t('organize.schedule.scheduledMatches')}
-              </Text>
-            </Flex>
-            <Flex align="center" gap={2}>
-              <Box w="8px" h="8px" borderRadius="full" bg="gray.300" />
-              <Text
-                fontSize="sm"
-                color="gray.500"
-                _dark={{ color: 'gray.400' }}
-              >
-                {unscheduledMatches} {t('organize.schedule.unscheduledMatches')}
-              </Text>
-            </Flex>
-          </>
-        )}
-      </VStack>
-
-      {/* Manage schedule button — routes by schedule type */}
-      <Button
-        bg="gray.800"
-        color="white"
-        w="100%"
-        onClick={
-          scheduleType === ScheduleType.NEXT_AVAILABLE
-            ? liveQueueModal.onOpen
-            : manageModal.onOpen
-        }
-      >
-        <Settings size={16} />
-        {t('organize.schedule.manageSchedule')}
-      </Button>
-
-      {/* Clear all assignments belongs to the ASSIGNED flow. In queue
-          mode these operate on the live queue and would wipe it, so hide them. */}
-      {!isQueueMode && (
-        <Button
-          variant="outline"
-          colorScheme="red"
-          color="red.600"
-          borderColor="red.200"
-          w="100%"
-          onClick={clearModal.onOpen}
-          disabled={scheduledMatches === 0}
-        >
-          <Trash2 size={16} />
-          {t('organize.schedule.clearAll')}
-        </Button>
-      )}
-
-      {/* Schedule Type Modal */}
-      <ScheduleTypeModal
-        isOpen={typeModal.isOpen}
-        onClose={typeModal.onClose}
-        currentType={scheduleType}
-        onConfirm={handleTypeChange}
-      />
-
-      {/* Manage Schedule Modal (ASSIGNED mode) */}
-      <ManageScheduleModal
-        isOpen={manageModal.isOpen}
-        onClose={manageModal.onClose}
-        tournament={tournament}
-        categories={categories}
-        onScheduleSaved={handleScheduleSaved}
-        onOpenRoundsPanel={onOpenRoundsPanel}
-      />
-
-      {/* Live court assignment (NEXT_AVAILABLE mode) */}
-      <NextAvailableCourtModal
-        isOpen={liveQueueModal.isOpen}
-        onClose={() => {
-          liveQueueModal.onClose();
-          handleScheduleSaved();
-        }}
-        tournament={tournament}
-        categories={categories}
-      />
-
-      {/* Clear All Schedule Confirmation Modal */}
-      <VModal
-        isOpen={clearModal.isOpen}
-        onClose={clearModal.onClose}
-        title={t('organize.schedule.clearAllConfirmTitle')}
-        size="sm"
-        primaryActionText={t('organize.schedule.clearAllConfirm')}
-        primaryColorScheme="red"
-        onPrimaryAction={handleClearSchedule}
-        isPrimaryLoading={isClearing}
-        isSecondaryDisabled={isClearing}
-      >
-        <Text fontSize="sm" color="gray.700">
-          {t('organize.schedule.clearAllConfirmDesc')}
-        </Text>
-      </VModal>
-
-      <VModal
-        isOpen={isCompletionModalOpen}
-        onClose={closeCompletionModal}
-        title={t('panels.rounds.scheduleBracketReadyTitle')}
-        size="sm"
-        primaryActionText={t('panels.rounds.goToRounds')}
-        primaryColorScheme="green"
-        onPrimaryAction={handleOpenReadyRounds}
-        hideSecondaryAction
-      >
-        <VStack gap={3} align="stretch">
-          <Flex
-            align="center"
-            justify="center"
-            w="44px"
-            h="44px"
-            borderRadius="full"
-            bg="green.50"
-            color="green.600"
-            _dark={{ bg: 'green.950', color: 'green.200' }}
-          >
-            <Trophy size={22} />
+              <Badge colorScheme="gray" mt={1}>
+                {scheduleTypeLabel}
+              </Badge>
+            </Box>
+            <Button variant="ghost" size="sm" onClick={typeModal.onOpen}>
+              <ArrowLeftRight size={14} />
+              {t('organize.schedule.switchType')}
+            </Button>
           </Flex>
-          <Text fontSize="sm" color="gray.700" _dark={{ color: 'gray.200' }}>
-            {t('panels.rounds.bracketReadyGenerateDescription')}
-          </Text>
-          {readyCompletions.length > 0 && (
-            <VStack gap={2} align="stretch">
-              {readyCompletions.map((item) => (
-                <Flex
-                  key={item.categoryId}
-                  align="center"
-                  justify="space-between"
-                  gap={3}
-                  px={3}
-                  py={2}
-                  borderWidth="1px"
-                  borderColor="green.100"
-                  borderRadius="md"
-                  bg="green.50"
-                  _dark={{ bg: 'green.950', borderColor: 'green.800' }}
-                >
-                  <Text fontSize="sm" fontWeight="medium" minW={0}>
-                    {item.categoryName}
+
+          {/* Circular progress */}
+          <Flex direction="column" align="center" py={4} gap={3}>
+            <Box position="relative" w="100px" h="100px">
+              <svg width="100" height="100" viewBox="0 0 100 100">
+                <circle
+                  cx="50"
+                  cy="50"
+                  r="44"
+                  fill="none"
+                  stroke="#E2E8F0"
+                  strokeWidth="6"
+                />
+                <circle
+                  cx="50"
+                  cy="50"
+                  r="44"
+                  fill="none"
+                  stroke="#38A169"
+                  strokeWidth="6"
+                  strokeDasharray={circumference}
+                  strokeDashoffset={dashOffset}
+                  strokeLinecap="round"
+                  transform="rotate(-90 50 50)"
+                  style={{ transition: 'stroke-dashoffset 0.3s' }}
+                />
+              </svg>
+              <Flex
+                position="absolute"
+                top={0}
+                left={0}
+                right={0}
+                bottom={0}
+                align="center"
+                justify="center"
+              >
+                <Text fontSize="lg" fontWeight="bold" color="green.600">
+                  {completedCount} / {totalMatches}
+                </Text>
+              </Flex>
+            </Box>
+          </Flex>
+
+          {/* Stats */}
+          <VStack gap={2} align="stretch">
+            {isQueueMode ? (
+              <>
+                <Flex align="center" gap={2}>
+                  <Box w="8px" h="8px" borderRadius="full" bg="green.400" />
+                  <Text fontSize="sm">
+                    {finishedMatches} {t('organize.schedule.finishedMatches')}
                   </Text>
-                  <Badge colorPalette="green" flexShrink={0}>
-                    {item.finishedGroupMatches}/{item.totalGroupMatches}
-                  </Badge>
                 </Flex>
-              ))}
-            </VStack>
+                <Flex align="center" gap={2}>
+                  <Box w="8px" h="8px" borderRadius="full" bg="orange.400" />
+                  <Text fontSize="sm">
+                    {onCourtMatches} {t('organize.schedule.onCourtMatches')}
+                  </Text>
+                </Flex>
+                <Flex align="center" gap={2}>
+                  <Box w="8px" h="8px" borderRadius="full" bg="gray.300" />
+                  <Text
+                    fontSize="sm"
+                    color="gray.500"
+                    _dark={{ color: 'gray.400' }}
+                  >
+                    {waitingMatches} {t('organize.schedule.waitingMatches')}
+                  </Text>
+                </Flex>
+              </>
+            ) : (
+              <>
+                <Flex align="center" gap={2}>
+                  <Box w="8px" h="8px" borderRadius="full" bg="green.400" />
+                  <Text fontSize="sm">
+                    {scheduledMatches} {t('organize.schedule.scheduledMatches')}
+                  </Text>
+                </Flex>
+                <Flex align="center" gap={2}>
+                  <Box w="8px" h="8px" borderRadius="full" bg="gray.300" />
+                  <Text
+                    fontSize="sm"
+                    color="gray.500"
+                    _dark={{ color: 'gray.400' }}
+                  >
+                    {unscheduledMatches}{' '}
+                    {t('organize.schedule.unscheduledMatches')}
+                  </Text>
+                </Flex>
+              </>
+            )}
+          </VStack>
+
+          {/* Manage schedule button — routes by schedule type */}
+          <Button
+            bg="gray.800"
+            color="white"
+            w="100%"
+            onClick={
+              scheduleType === ScheduleType.NEXT_AVAILABLE
+                ? liveQueueModal.onOpen
+                : manageModal.onOpen
+            }
+          >
+            <Settings size={16} />
+            {t('organize.schedule.manageSchedule')}
+          </Button>
+
+          {/* Clear all assignments belongs to the ASSIGNED flow. In queue
+          mode these operate on the live queue and would wipe it, so hide them. */}
+          {!isQueueMode && (
+            <Button
+              variant="outline"
+              colorScheme="red"
+              color="red.600"
+              borderColor="red.200"
+              w="100%"
+              onClick={clearModal.onOpen}
+              disabled={scheduledMatches === 0}
+            >
+              <Trash2 size={16} />
+              {t('organize.schedule.clearAll')}
+            </Button>
           )}
-        </VStack>
-      </VModal>
+
+          {/* Schedule Type Modal */}
+          <ScheduleTypeModal
+            isOpen={typeModal.isOpen}
+            onClose={typeModal.onClose}
+            currentType={scheduleType}
+            onConfirm={handleTypeChange}
+          />
+
+          {/* Manage Schedule Modal (ASSIGNED mode) */}
+          <ManageScheduleModal
+            isOpen={manageModal.isOpen}
+            onClose={manageModal.onClose}
+            tournament={tournament}
+            categories={categories}
+            onScheduleSaved={handleScheduleSaved}
+            onOpenRoundsPanel={onOpenRoundsPanel}
+          />
+
+          {/* Live court assignment (NEXT_AVAILABLE mode) */}
+          <NextAvailableCourtModal
+            isOpen={liveQueueModal.isOpen}
+            onClose={() => {
+              liveQueueModal.onClose();
+              handleScheduleSaved();
+            }}
+            tournament={tournament}
+            categories={categories}
+          />
+
+          {/* Clear All Schedule Confirmation Modal */}
+          <VModal
+            isOpen={clearModal.isOpen}
+            onClose={clearModal.onClose}
+            title={t('organize.schedule.clearAllConfirmTitle')}
+            size="sm"
+            primaryActionText={t('organize.schedule.clearAllConfirm')}
+            primaryColorScheme="red"
+            onPrimaryAction={handleClearSchedule}
+            isPrimaryLoading={isClearing}
+            isSecondaryDisabled={isClearing}
+          >
+            <Text fontSize="sm" color="gray.700">
+              {t('organize.schedule.clearAllConfirmDesc')}
+            </Text>
+          </VModal>
+
+          <VModal
+            isOpen={isCompletionModalOpen}
+            onClose={closeCompletionModal}
+            title={t('panels.rounds.scheduleBracketReadyTitle')}
+            size="sm"
+            primaryActionText={t('panels.rounds.goToRounds')}
+            primaryColorScheme="green"
+            onPrimaryAction={handleOpenReadyRounds}
+            hideSecondaryAction
+          >
+            <VStack gap={3} align="stretch">
+              <Flex
+                align="center"
+                justify="center"
+                w="44px"
+                h="44px"
+                borderRadius="full"
+                bg="green.50"
+                color="green.600"
+                _dark={{ bg: 'green.950', color: 'green.200' }}
+              >
+                <Trophy size={22} />
+              </Flex>
+              <Text
+                fontSize="sm"
+                color="gray.700"
+                _dark={{ color: 'gray.200' }}
+              >
+                {t('panels.rounds.bracketReadyGenerateDescription')}
+              </Text>
+              {readyCompletions.length > 0 && (
+                <VStack gap={2} align="stretch">
+                  {readyCompletions.map((item) => (
+                    <Flex
+                      key={item.categoryId}
+                      align="center"
+                      justify="space-between"
+                      gap={3}
+                      px={3}
+                      py={2}
+                      borderWidth="1px"
+                      borderColor="green.100"
+                      borderRadius="md"
+                      bg="green.50"
+                      _dark={{ bg: 'green.950', borderColor: 'green.800' }}
+                    >
+                      <Text fontSize="sm" fontWeight="medium" minW={0}>
+                        {item.categoryName}
+                      </Text>
+                      <Badge colorPalette="green" flexShrink={0}>
+                        {item.finishedGroupMatches}/{item.totalGroupMatches}
+                      </Badge>
+                    </Flex>
+                  ))}
+                </VStack>
+              )}
+            </VStack>
+          </VModal>
+        </>
+      )}
     </VStack>
   );
 }
