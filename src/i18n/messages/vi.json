@@ -50,7 +50,8 @@
     "generalSettings": "Cài đặt chung",
     "levelDescriptions": "Mô tả trình độ",
     "feedback": "Liên hệ & Báo lỗi",
-    "newsfeed": "Bảng tin"
+    "newsfeed": "Bảng tin",
+    "sessionsManagement": "Quản lý kèo"
   },
   "search": {
     "title": "Tìm kiếm",
@@ -4939,6 +4940,62 @@
   },
   "admin": {
     "title": "Quản trị",
+    "sessions": {
+      "title": "Quản lý tất cả kèo",
+      "searchPlaceholder": "Tìm theo tên, sân, địa điểm...",
+      "noSessionsFound": "Không tìm thấy kèo nào",
+      "totalRecords": "Tổng số: {count}",
+      "loadError": "Không thể tải danh sách kèo",
+      "deleteSuccess": "Xóa kèo thành công",
+      "deleteError": "Không thể xóa kèo",
+      "deleteConfirm": "Bạn có chắc chắn muốn xóa kèo {name}? Hành động này không thể hoàn tác.",
+      "statusUpdateSuccess": "Cập nhật trạng thái thành công",
+      "statusUpdateError": "Không thể cập nhật trạng thái",
+      "columns": {
+        "name": "Tên kèo",
+        "host": "Chủ kèo",
+        "venue": "Sân/Địa điểm",
+        "dateTime": "Thời gian",
+        "status": "Trạng thái",
+        "players": "Người chơi/Sân",
+        "actions": "Hành động"
+      },
+      "status": {
+        "PREPARING": "Chuẩn bị",
+        "IN_PROGRESS": "Đang diễn ra",
+        "FINISHED": "Đã kết thúc",
+        "CANCELLED": "Đã hủy"
+      },
+      "type": {
+        "regular": "Thường",
+        "facebook": "Facebook"
+      },
+      "filters": {
+        "status": "Trạng thái",
+        "type": "Loại kèo",
+        "host": "Chủ kèo",
+        "city": "Tỉnh/Thành phố",
+        "district": "Quận/Huyện",
+        "dateFrom": "Từ ngày",
+        "dateTo": "Đến ngày",
+        "allStatuses": "Tất cả trạng thái",
+        "allTypes": "Tất cả loại",
+        "allHosts": "Tất cả chủ kèo"
+      },
+      "actions": {
+        "view": "Xem",
+        "edit": "Chỉnh sửa",
+        "delete": "Xóa",
+        "start": "Bắt đầu",
+        "end": "Kết thúc",
+        "cancel": "Hủy kèo"
+      },
+      "bulk": {
+        "selected": "Đã chọn {count}",
+        "delete": "Xóa đã chọn",
+        "deleteConfirm": "Bạn có chắc chắn muốn xóa {count} kèo đã chọn? Hành động này không thể hoàn tác."
+      }
+    },
     "userManagement": "Quản lý người dùng",
     "users": "Người dùng",
     "levelDescriptions": "Mô tả trình độ",

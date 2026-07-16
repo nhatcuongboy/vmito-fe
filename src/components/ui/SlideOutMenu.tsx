@@ -1015,6 +1015,54 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
                         </VTooltip>
 
                         <VTooltip
+                          content={nav('sessionsManagement')}
+                          positioning={{
+                            placement: 'right',
+                            offset: { mainAxis: 12 },
+                          }}
+                          disabled={!isCollapsed}
+                          showArrow
+                          openDelay={200}
+                        >
+                          <NextLinkButton
+                            href={ROUTES.ADMIN.SESSIONS}
+                            variant="ghost"
+                            justifyContent={{
+                              base: 'flex-start',
+                              md: isCollapsed ? 'center' : 'flex-start',
+                            }}
+                            onClick={onClose}
+                            w="full"
+                            px={{ base: 4, md: isCollapsed ? 0 : 4 }}
+                            {...getActiveProps(ROUTES.ADMIN.SESSIONS)}
+                          >
+                            <Flex
+                              align="center"
+                              gap={3}
+                              w="full"
+                              justifyContent={{
+                                base: 'flex-start',
+                                md: isCollapsed ? 'center' : 'flex-start',
+                              }}
+                            >
+                              <CalendarDays
+                                size={18}
+                                color={
+                                  pathname.startsWith(ROUTES.ADMIN.SESSIONS)
+                                    ? 'var(--chakra-colors-green-500)'
+                                    : 'currentColor'
+                                }
+                              />
+                              {!isCollapsed && (
+                                <Text display={{ base: 'block', md: 'block' }}>
+                                  {nav('sessionsManagement')}
+                                </Text>
+                              )}
+                            </Flex>
+                          </NextLinkButton>
+                        </VTooltip>
+
+                        <VTooltip
                           content={nav('notifications')}
                           positioning={{
                             placement: 'right',

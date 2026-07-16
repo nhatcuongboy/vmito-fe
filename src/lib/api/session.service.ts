@@ -85,6 +85,10 @@ export const SessionService = {
     excludeStatuses?: string[];
     endTimeBefore?: string;
     endTimeAfter?: string;
+    startTimeFrom?: string;
+    startTimeTo?: string;
+    city?: string;
+    district?: string;
     sessionType?: 'all' | 'regular' | 'facebook';
     favoriteOnly?: boolean;
   }): Promise<{
@@ -110,6 +114,11 @@ export const SessionService = {
       params.append('endTimeBefore', filters.endTimeBefore);
     if (filters?.endTimeAfter)
       params.append('endTimeAfter', filters.endTimeAfter);
+    if (filters?.startTimeFrom)
+      params.append('startTimeFrom', filters.startTimeFrom);
+    if (filters?.startTimeTo) params.append('startTimeTo', filters.startTimeTo);
+    if (filters?.city) params.append('city', filters.city);
+    if (filters?.district) params.append('district', filters.district);
     if (filters?.sessionType && filters.sessionType !== 'all')
       params.append('sessionType', filters.sessionType);
     if (filters?.favoriteOnly) params.append('favoriteOnly', 'true');
