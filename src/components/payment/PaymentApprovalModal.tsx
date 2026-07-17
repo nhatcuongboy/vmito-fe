@@ -9,16 +9,18 @@ import {
   Textarea,
   Avatar,
   Flex,
-  SimpleGrid,
 } from '@chakra-ui/react';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { useState, ChangeEvent } from 'react';
 import { VModal } from '@/components/ui/VModal';
 import { Button } from '@/components/ui/chakra-compat';
 import { Input } from '@/components/ui/Input';
 import { VSelect } from '@/components/ui/VSelect';
-import { PaymentRecord, PaymentMethod } from '@/lib/api/types';
-import { Check, X, User } from 'lucide-react';
+import AppLightbox from '@/components/ui/AppLightbox';
+import dayjs, { getDayjsLocale } from '@/lib/dayjs';
+import { PaymentRecord, PaymentMethod, PaymentStatus } from '@/lib/api/types';
+import { FeeService } from '@/lib/api/fee.service';
+import { Check, X, User, ZoomIn } from 'lucide-react';
 import PaymentStatusBadge from './PaymentStatusBadge';
 
 interface PaymentApprovalModalProps {
@@ -44,6 +46,8 @@ export default function PaymentApprovalModal({
 }: PaymentApprovalModalProps) {
   const t = useTranslations('payment');
   const tCommon = useTranslations('common');
+  const locale = useLocale();
+  const dayjsLocale = getDayjsLocale(locale);
 
   const [hostNotes, setHostNotes] = useState(paymentRecord.hostNotes || '');
   const [customAmount, setCustomAmount] = useState(
@@ -54,6 +58,10 @@ export default function PaymentApprovalModal({
   >(paymentRecord.paymentMethod ?? '');
   const [isApproving, setIsApproving] = useState(false);
   const [isRejecting, setIsRejecting] = useState(false);
+  const [isProofLightboxOpen, setIsProofLightboxOpen] = useState(false);
+
+  const isAmountModified =
+    Number(customAmount || 0) !== Number(paymentRecord.amount);
 
   const handleApprove = async () => {
     setIsApproving(true);
@@ -87,6 +95,17 @@ export default function PaymentApprovalModal({
   const player = paymentRecord.player;
   const isLoading = isApproving || isRejecting;
 
+  const sessionContext = [
+    paymentRecord.session?.name,
+    paymentRecord.session?.startTime
+      ? dayjs(paymentRecord.session.startTime)
+          .locale(dayjsLocale)
+          .format('DD/MM/YYYY')
+      : undefined,
+  ]
+    .filter(Boolean)
+    .join(' · ');
+
   const getGenderText = (gender?: string) => {
     switch (gender) {
       case 'MALE':
@@ -107,32 +126,33 @@ export default function PaymentApprovalModal({
       isOpen={isOpen}
       onClose={onClose}
       title={t('reviewPayment')}
+      description={sessionContext || undefined}
       size="md"
       hideSecondaryAction
       footer={
-        <VStack gap={2} w="full" align="stretch">
-          <SimpleGrid columns={2} gap={2}>
-            <Button
-              colorPalette="green"
-              onClick={handleApprove}
-              loading={isApproving}
-              disabled={isRejecting}
-            >
-              <Check size={16} />
-              <Text ml={1}>{t('approvePayment')}</Text>
-            </Button>
-            <Button
-              colorPalette="red"
-              variant="outline"
-              onClick={handleReject}
-              loading={isRejecting}
-              disabled={isApproving}
-            >
-              <X size={16} />
-              <Text ml={1}>{t('rejectPayment')}</Text>
-            </Button>
-          </SimpleGrid>
-        </VStack>
+        <HStack gap={2} w="full">
+          <Button
+            colorPalette="red"
+            variant="outline"
+            flex={1}
+            onClick={handleReject}
+            loading={isRejecting}
+            disabled={isApproving}
+          >
+            <X size={16} />
+            <Text ml={1}>{t('rejectPayment')}</Text>
+          </Button>
+          <Button
+            colorPalette="green"
+            flex={2}
+            onClick={handleApprove}
+            loading={isApproving}
+            disabled={isRejecting}
+          >
+            <Check size={16} />
+            <Text ml={1}>{t('approvePayment')}</Text>
+          </Button>
+        </HStack>
       }
     >
       <VStack gap={3.5} align="stretch">
@@ -189,15 +209,20 @@ export default function PaymentApprovalModal({
               gap={2.5}
             >
               <Box flex={1}>
-                <Text
-                  fontSize="sm"
-                  color="green.700"
-                  _dark={{ color: 'green.200' }}
-                  fontWeight="semibold"
-                  mb={1.5}
-                >
-                  {t('customAmount')}
-                </Text>
+                <HStack justify="space-between" mb={1.5}>
+                  <Text
+                    fontSize="sm"
+                    color="green.700"
+                    _dark={{ color: 'green.200' }}
+                    fontWeight="semibold"
+                  >
+                    {t('customAmount')}
+                  </Text>
+                  <Text fontSize="xs" color="fg.muted">
+                    {t('originalAmount')}:{' '}
+                    {FeeService.formatPaymentAmount(paymentRecord.amount)}
+                  </Text>
+                </HStack>
                 <Input
                   type="text"
                   inputMode="numeric"
@@ -211,14 +236,22 @@ export default function PaymentApprovalModal({
                   textAlign="right"
                   bg="white"
                   _dark={{ bg: 'gray.800' }}
+                  borderColor={isAmountModified ? 'orange.400' : undefined}
                   disabled={isLoading}
                 />
+                <Text
+                  fontSize="xs"
+                  color={isAmountModified ? 'orange.500' : 'fg.muted'}
+                  mt={1}
+                >
+                  {t('customAmountHint')}
+                </Text>
               </Box>
             </Flex>
 
             <Box>
               <Text fontSize="xs" color="gray.600" mb={1.5}>
-                {t('selectPaymentMethod')}
+                {t('receiveMethod')}
               </Text>
               <VSelect
                 size="sm"
@@ -227,10 +260,10 @@ export default function PaymentApprovalModal({
                   setSelectedPaymentMethod(e.target.value as PaymentMethod | '')
                 }
                 disabled={isLoading}
-                placeholder={t('selectPaymentMethod')}
+                placeholder={t('selectPlaceholder')}
                 width="100%"
               >
-                <option value="">{t('selectPaymentMethod')}</option>
+                <option value="">{t('selectPlaceholder')}</option>
                 <option value={PaymentMethod.BANK_TRANSFER}>
                   {t('method.bankTransfer')}
                 </option>
@@ -252,7 +285,9 @@ export default function PaymentApprovalModal({
                   {t('submittedAt')}
                 </Text>
                 <Text fontSize="xs" fontWeight="medium" textAlign="right">
-                  {new Date(paymentRecord.submittedAt).toLocaleString()}
+                  {dayjs(paymentRecord.submittedAt)
+                    .locale(dayjsLocale)
+                    .format('DD/MM/YYYY HH:mm')}
                 </Text>
               </Flex>
             )}
@@ -287,14 +322,36 @@ export default function PaymentApprovalModal({
                 <Text fontSize="sm" fontWeight="medium" mb={2}>
                   {t('paymentProof')}
                 </Text>
-                <Image
-                  src={paymentRecord.proofImageUrl}
-                  alt="Payment proof"
-                  maxH="220px"
-                  borderRadius="md"
-                  border="1px solid"
-                  borderColor="gray.200"
-                />
+                <Box
+                  position="relative"
+                  display="inline-block"
+                  cursor="zoom-in"
+                  onClick={() => setIsProofLightboxOpen(true)}
+                  _hover={{ opacity: 0.9 }}
+                >
+                  <Image
+                    src={paymentRecord.proofImageUrl}
+                    alt="Payment proof"
+                    maxH="220px"
+                    borderRadius="md"
+                    border="1px solid"
+                    borderColor="gray.200"
+                  />
+                  <Flex
+                    position="absolute"
+                    bottom={2}
+                    right={2}
+                    align="center"
+                    justify="center"
+                    w="28px"
+                    h="28px"
+                    borderRadius="full"
+                    bg="blackAlpha.600"
+                    color="white"
+                  >
+                    <ZoomIn size={14} />
+                  </Flex>
+                </Box>
               </Box>
             )}
           </Box>
@@ -310,6 +367,24 @@ export default function PaymentApprovalModal({
           <Text fontSize="sm" fontWeight="medium" mb={1}>
             {t('hostNotes')}
           </Text>
+          {paymentRecord.status === PaymentStatus.REJECTED &&
+            paymentRecord.hostNotes && (
+              <Box
+                mb={2}
+                p={2}
+                bg="red.50"
+                _dark={{ bg: 'red.950' }}
+                borderRadius="md"
+              >
+                <Text
+                  fontSize="xs"
+                  color="red.600"
+                  _dark={{ color: 'red.300' }}
+                >
+                  {t('previousHostNote')}: “{paymentRecord.hostNotes}”
+                </Text>
+              </Box>
+            )}
           <Textarea
             placeholder={t('hostNotesPlaceholder')}
             value={hostNotes}
@@ -322,6 +397,14 @@ export default function PaymentApprovalModal({
           />
         </Box>
       </VStack>
+
+      {isProofLightboxOpen && paymentRecord.proofImageUrl && (
+        <AppLightbox
+          images={[paymentRecord.proofImageUrl]}
+          onClose={() => setIsProofLightboxOpen(false)}
+          alt="Payment proof"
+        />
+      )}
     </VModal>
   );
 }
