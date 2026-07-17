@@ -49,7 +49,7 @@ function StepCircle({ done, label }: { done: boolean; label: string }) {
       w="26px"
       h="26px"
       borderRadius="full"
-      bg={done ? 'gray.900' : 'gray.100'}
+      bg={done ? 'green.500' : 'gray.100'}
       color={done ? 'white' : 'gray.600'}
       align="center"
       justify="center"
@@ -57,8 +57,8 @@ function StepCircle({ done, label }: { done: boolean; label: string }) {
       fontWeight="semibold"
       flexShrink={0}
       _dark={{
-        bg: done ? 'gray.100' : 'gray.700',
-        color: done ? 'gray.900' : 'gray.300',
+        bg: done ? 'green.500' : 'gray.700',
+        color: done ? 'white' : 'gray.300',
       }}
     >
       {done ? <Check size={14} strokeWidth={3} /> : label}
@@ -274,11 +274,21 @@ export default function TournamentGuideWidget({
           py={2.5}
           cursor="pointer"
           onClick={() => toggleStep(options.id)}
-          _hover={{ bg: 'gray.50' }}
-          _dark={{ _hover: { bg: 'gray.700' } }}
+          _hover={{ bg: options.done ? 'green.50' : 'gray.50' }}
+          _dark={{
+            _hover: {
+              bg: options.done ? 'rgba(34, 197, 94, 0.14)' : 'gray.700',
+            },
+          }}
         >
           <StepCircle done={options.done} label={String(options.index + 1)} />
-          <Text fontWeight="semibold" fontSize="sm" flex="1">
+          <Text
+            fontWeight="semibold"
+            fontSize="sm"
+            flex="1"
+            color={options.done ? 'green.700' : 'gray.800'}
+            _dark={{ color: options.done ? 'green.100' : 'gray.100' }}
+          >
             {options.title}
           </Text>
           {isExpanded ? (
@@ -324,12 +334,18 @@ export default function TournamentGuideWidget({
         display={{ base: 'none', md: 'block' }}
         borderRadius="2xl"
         overflow="hidden"
-        boxShadow="0 12px 40px rgba(0, 0, 0, 0.22)"
+        borderWidth="1px"
+        borderColor="gray.200"
+        boxShadow="0 12px 40px rgba(0, 0, 0, 0.18)"
         bg="white"
-        _dark={{ bg: 'gray.800' }}
+        _dark={{
+          bg: 'var(--tournament-surface-raised, var(--chakra-colors-gray-800))',
+          borderColor:
+            'var(--tournament-border, var(--chakra-colors-gray-700))',
+        }}
       >
-        {/* Dark header */}
-        <Box bg="gray.900" px={4} pt={3} pb={3} _dark={{ bg: 'gray.950' }}>
+        {/* Green header (matches the dashboard setup banner) */}
+        <Box bg="green.600" px={4} pt={3} pb={3} _dark={{ bg: 'green.700' }}>
           <Flex align="center" gap={2}>
             <Text
               color="white"
@@ -388,11 +404,9 @@ export default function TournamentGuideWidget({
           </Flex>
           <Box
             mt={2}
-            h="6px"
+            h="5px"
             borderRadius="full"
-            borderWidth="1px"
-            borderColor="whiteAlpha.500"
-            bg="transparent"
+            bg="whiteAlpha.300"
             overflow="hidden"
           >
             <Box
@@ -407,21 +421,22 @@ export default function TournamentGuideWidget({
 
         {/* Body */}
         {!collapsed && (
-          <Box maxH="55vh" overflowY="auto">
+          <>
             <Text
               px={4}
-              pt={3}
-              pb={1}
+              pt={2.5}
+              pb={1.5}
               fontSize="sm"
-              color="gray.600"
-              _dark={{ color: 'gray.300' }}
+              bg="green.50"
+              color="gray.700"
+              _dark={{ bg: 'rgba(34, 197, 94, 0.14)', color: 'green.100' }}
             >
               {t('guide.progress', {
                 completed: progressCompleted,
                 total: progressTotal,
               })}
             </Text>
-            <Box pb={2}>
+            <Box maxH="50vh" overflowY="auto" pt={1} pb={2}>
               {phase === 'setup'
                 ? SETUP_STEP_IDS.map((id, index) =>
                     renderStepRow({
@@ -476,7 +491,7 @@ export default function TournamentGuideWidget({
                     })
                   )}
             </Box>
-          </Box>
+          </>
         )}
       </Box>
 
