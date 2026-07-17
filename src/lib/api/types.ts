@@ -437,6 +437,8 @@ export interface Venue {
 export enum VenueRequestType {
   CREATE = 'CREATE',
   UPDATE = 'UPDATE',
+  PRICE_CORRECTION = 'PRICE_CORRECTION',
+  IMAGE_CORRECTION = 'IMAGE_CORRECTION',
 }
 
 export enum VenueRequestStatus {
@@ -458,6 +460,10 @@ export interface VenueRequestPayload {
   website?: string;
   locatedWithin?: string;
   bookingPolicy?: string;
+  description?: string;
+  priceImageUrl?: string;
+  priceImagePublicId?: string;
+  suggestedImages?: { url: string; publicId?: string }[];
   note?: string;
 }
 

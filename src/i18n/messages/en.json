@@ -20,7 +20,7 @@
     "mySessions": "My Sessions",
     "joined": "Registered",
     "transactions": "Transactions",
-    "paymentSettings": "Payment Settings",
+    "paymentSettings": "Payment",
     "myHostedSessions": "Manage Sessions",
     "notifications": "Notifications",
     "venues": "Venues",
@@ -30,6 +30,7 @@
     "manageGroups": "Manage Groups",
     "joinedGroups": "Joined Groups",
     "clubs": "Clubs",
+    "clubsAdmin": "Club Approval",
     "notAvailable": "—",
     "createClub": "Create Group",
     "pendingJoinRequests": "Join Requests",
@@ -48,7 +49,7 @@
     "createTournament": "Create Tournament",
     "generalSettings": "General Settings",
     "levelDescriptions": "Level Descriptions",
-    "sessionsManagement": "Manage Sessions",
+    "sessionsManagement": "Manage Sessions (Admin)",
     "feedback": "Feedback",
     "newsfeed": "Newsfeed"
   },
@@ -104,6 +105,7 @@
     "tournaments": "Tournaments",
     "finance": "Finance",
     "admin": "Management",
+    "adminSection": "Admin",
     "roleHost": "Host",
     "roleAdmin": "Admin",
     "discovery": "Discovery",
@@ -6099,6 +6101,8 @@
       "noDescription": "No description for this venue yet.",
       "courtLayout": "Court layout",
       "updatePricing": "Update pricing",
+      "suggestPriceEdit": "Suggest price edit",
+      "suggestImageEdit": "Suggest photo edit",
       "tableDay": "Day",
       "tableTime": "Time",
       "tableFixed": "Fixed",
@@ -6184,9 +6188,22 @@
     "currentValue": "Current",
     "requestedValue": "Requested",
     "adminNote": "Admin note",
+    "priceTitle": "Suggest price edit",
+    "priceDescription": "Upload a photo of the venue's real price board. An admin will review and update the pricing.",
+    "imageTitle": "Suggest photo edit",
+    "imageDescription": "Upload new venue photos. An admin will curate and add them to the gallery.",
+    "priceHint": "A clear photo of the price board makes updates faster and more accurate.",
+    "priceImageRequired": "Please upload a price board photo",
+    "imageRequired": "Please select at least one photo",
+    "reviewAndApply": "Review & apply",
+    "imageReviewHint": "Open the detail view to curate photos before applying.",
+    "imageSelectHint": "Select the photos to add to the venue gallery.",
+    "configurePricing": "Configure pricing",
     "types": {
       "CREATE": "New venue",
-      "UPDATE": "Venue update"
+      "UPDATE": "Venue update",
+      "PRICE_CORRECTION": "Price edit",
+      "IMAGE_CORRECTION": "Photo edit"
     },
     "statuses": {
       "PENDING": "Pending",
@@ -6206,6 +6223,9 @@
       "website": "Website",
       "locatedWithin": "Located within",
       "bookingPolicy": "Booking policy",
+      "description": "About this venue",
+      "priceImage": "Price board photo",
+      "suggestedImages": "Suggested photos",
       "note": "Note"
     },
     "placeholders": {
@@ -6213,7 +6233,10 @@
       "district": "Select district",
       "openingHours": "Example: 6:00 - 22:00",
       "createNote": "Add details that help admins verify the venue...",
-      "updateNote": "Describe the source or reason for the update..."
+      "updateNote": "Describe the source or reason for the update...",
+      "description": "Add more details about the venue...",
+      "priceNote": "Add extra notes about the pricing (optional)...",
+      "imageNote": "Add extra notes about the photos (optional)..."
     },
     "validation": {
       "required": "Please enter the required information"

@@ -16,6 +16,7 @@ export const VENUE_REQUEST_FIELDS: Array<{
   { key: 'website' },
   { key: 'locatedWithin' },
   { key: 'bookingPolicy' },
+  { key: 'description' },
   { key: 'note' },
 ];
 

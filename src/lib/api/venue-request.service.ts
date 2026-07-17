@@ -56,9 +56,13 @@ export const VenueRequestService = {
     return response.data.data!;
   },
 
-  approve: async (id: string): Promise<VenueRequest> => {
+  approve: async (
+    id: string,
+    body?: { applyImagePublicIds?: string[] }
+  ): Promise<VenueRequest> => {
     const response = await api.post<ApiResponse<VenueRequest>>(
-      `/venue-requests/${id}/approve`
+      `/venue-requests/${id}/approve`,
+      body ?? {}
     );
     return response.data.data!;
   },

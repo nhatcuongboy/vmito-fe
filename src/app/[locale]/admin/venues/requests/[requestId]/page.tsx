@@ -4,6 +4,8 @@ import { Suspense, useCallback, useEffect, useState } from 'react';
 import {
   Badge,
   Box,
+  Flex,
+  Image,
   SimpleGrid,
   Text,
   Textarea,
@@ -13,6 +15,7 @@ import { isAxiosError } from 'axios';
 import { useTranslations } from 'next-intl';
 import {
   LuCalendarClock,
+  LuCheck,
   LuExternalLink,
   LuMapPin,
   LuUser,
@@ -84,6 +87,7 @@ const VenueRequestDetailContent = () => {
   const [isActioned, setIsActioned] = useState(false);
   const [isRejectModalOpen, setIsRejectModalOpen] = useState(false);
   const [rejectReason, setRejectReason] = useState('');
+  const [selectedImageIds, setSelectedImageIds] = useState<string[]>([]);
 
   const fetchRequest = useCallback(async () => {
     try {
@@ -105,10 +109,38 @@ const VenueRequestDetailContent = () => {
     fetchRequest();
   }, [fetchRequest]);
 
+  useEffect(() => {
+    if (request?.type === VenueRequestType.IMAGE_CORRECTION) {
+      setSelectedImageIds(
+        (request.payload.suggestedImages || []).map(
+          (image) => image.publicId || image.url
+        )
+      );
+    }
+  }, [request]);
+
+  const toggleImage = (id: string) => {
+    setSelectedImageIds((prev) =>
+      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
+    );
+  };
+
   const handleApprove = async () => {
+    if (
+      request?.type === VenueRequestType.IMAGE_CORRECTION &&
+      selectedImageIds.length === 0
+    ) {
+      toaster.error({ title: tVenueRequests('imageRequired') });
+      return;
+    }
+
     try {
       setActionLoading('APPROVED');
-      await VenueRequestService.approve(requestId);
+      const body =
+        request?.type === VenueRequestType.IMAGE_CORRECTION
+          ? { applyImagePublicIds: selectedImageIds }
+          : undefined;
+      await VenueRequestService.approve(requestId, body);
       toaster.success({ title: tVenueRequests('approveSuccess') });
       router.replace(ROUTES.ADMIN.VENUE_REQUESTS);
     } catch {
@@ -228,46 +260,141 @@ const VenueRequestDetailContent = () => {
           <Text fontSize="sm" fontWeight="semibold">
             {t('approvalVenueInfo')}
           </Text>
-          <SimpleGrid columns={{ base: 1, md: 2 }} gap={3}>
-            {VENUE_REQUEST_FIELDS.map(({ key, venueKey }) => {
-              const requested = request.payload[key];
-              const current =
-                key === 'note'
-                  ? undefined
-                  : request.venue?.[(venueKey || key) as keyof Venue];
-              if (requested === undefined && current === undefined) return null;
 
-              return (
-                <Box
-                  key={key}
-                  borderWidth="1px"
-                  borderColor="gray.100"
-                  _dark={{ borderColor: 'gray.700' }}
+          {request.type === VenueRequestType.PRICE_CORRECTION ? (
+            <VStack align="stretch" gap={3}>
+              {request.payload.priceImageUrl && (
+                <Image
+                  src={request.payload.priceImageUrl}
+                  alt={tVenueRequests('fields.priceImage')}
+                  maxH="420px"
+                  objectFit="contain"
                   borderRadius="md"
-                  p={3}
+                  borderWidth="1px"
+                  borderColor="gray.200"
+                  _dark={{ borderColor: 'gray.700' }}
+                />
+              )}
+              {request.payload.note && (
+                <Text fontSize="sm" whiteSpace="pre-wrap">
+                  {request.payload.note}
+                </Text>
+              )}
+              {request.venue && (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  colorPalette="green"
+                  alignSelf="flex-start"
+                  onClick={() =>
+                    router.push(`/admin/venues/${request.venue!.id}/pricing`)
+                  }
                 >
-                  <Text fontSize="xs" color="gray.500" mb={1}>
-                    {tVenueRequests(`fields.${key}`)}
-                  </Text>
-                  {isUpdate && key !== 'note' && (
-                    <Text fontSize="sm" color="gray.500" lineClamp={2}>
-                      {tVenueRequests('currentValue')}:{' '}
-                      {formatVenueRequestValue(current)}
-                    </Text>
-                  )}
-                  <Text
-                    fontSize="sm"
-                    fontWeight="semibold"
-                    whiteSpace="pre-wrap"
+                  {tVenueRequests('configurePricing')}
+                </Button>
+              )}
+            </VStack>
+          ) : request.type === VenueRequestType.IMAGE_CORRECTION ? (
+            <VStack align="stretch" gap={3}>
+              <Text fontSize="xs" color="gray.500">
+                {tVenueRequests('imageSelectHint')}
+              </Text>
+              <SimpleGrid columns={{ base: 2, md: 3 }} gap={3}>
+                {(request.payload.suggestedImages || []).map((image, index) => {
+                  const id = image.publicId || image.url;
+                  const selected = selectedImageIds.includes(id);
+                  return (
+                    <Box
+                      key={id}
+                      position="relative"
+                      cursor="pointer"
+                      onClick={() => toggleImage(id)}
+                      borderWidth="2px"
+                      borderColor={selected ? 'green.500' : 'gray.200'}
+                      _dark={{
+                        borderColor: selected ? 'green.400' : 'gray.700',
+                      }}
+                      borderRadius="md"
+                      overflow="hidden"
+                      opacity={selected ? 1 : 0.55}
+                      transition="all 0.15s"
+                    >
+                      <Image
+                        src={image.url}
+                        alt={`${index + 1}`}
+                        aspectRatio={1}
+                        objectFit="cover"
+                        w="full"
+                      />
+                      {selected && (
+                        <Flex
+                          position="absolute"
+                          top={1}
+                          right={1}
+                          bg="green.500"
+                          color="white"
+                          borderRadius="full"
+                          w={6}
+                          h={6}
+                          align="center"
+                          justify="center"
+                        >
+                          <LuCheck size={14} />
+                        </Flex>
+                      )}
+                    </Box>
+                  );
+                })}
+              </SimpleGrid>
+              {request.payload.note && (
+                <Text fontSize="sm" whiteSpace="pre-wrap">
+                  {request.payload.note}
+                </Text>
+              )}
+            </VStack>
+          ) : (
+            <SimpleGrid columns={{ base: 1, md: 2 }} gap={3}>
+              {VENUE_REQUEST_FIELDS.map(({ key, venueKey }) => {
+                const requested = request.payload[key];
+                const current =
+                  key === 'note'
+                    ? undefined
+                    : request.venue?.[(venueKey || key) as keyof Venue];
+                if (requested === undefined && current === undefined)
+                  return null;
+
+                return (
+                  <Box
+                    key={key}
+                    borderWidth="1px"
+                    borderColor="gray.100"
+                    _dark={{ borderColor: 'gray.700' }}
+                    borderRadius="md"
+                    p={3}
                   >
-                    {isUpdate && key !== 'note'
-                      ? `${tVenueRequests('requestedValue')}: ${formatVenueRequestValue(requested)}`
-                      : formatVenueRequestValue(requested)}
-                  </Text>
-                </Box>
-              );
-            })}
-          </SimpleGrid>
+                    <Text fontSize="xs" color="gray.500" mb={1}>
+                      {tVenueRequests(`fields.${key}`)}
+                    </Text>
+                    {isUpdate && key !== 'note' && (
+                      <Text fontSize="sm" color="gray.500" lineClamp={2}>
+                        {tVenueRequests('currentValue')}:{' '}
+                        {formatVenueRequestValue(current)}
+                      </Text>
+                    )}
+                    <Text
+                      fontSize="sm"
+                      fontWeight="semibold"
+                      whiteSpace="pre-wrap"
+                    >
+                      {isUpdate && key !== 'note'
+                        ? `${tVenueRequests('requestedValue')}: ${formatVenueRequestValue(requested)}`
+                        : formatVenueRequestValue(requested)}
+                    </Text>
+                  </Box>
+                );
+              })}
+            </SimpleGrid>
+          )}
         </VStack>
 
         {/* Admin note (when already rejected) */}

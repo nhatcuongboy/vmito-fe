@@ -8,6 +8,7 @@ import {
   Flex,
   Heading,
   HStack,
+  Image,
   SimpleGrid,
   Spinner,
   Text,
@@ -132,8 +133,105 @@ export default function AdminVenueRequestsPage() {
     }
   };
 
+  const renderPayloadBody = (request: VenueRequest) => {
+    if (request.type === VenueRequestType.PRICE_CORRECTION) {
+      return (
+        <VStack align="stretch" gap={3}>
+          {request.payload.priceImageUrl && (
+            <Image
+              src={request.payload.priceImageUrl}
+              alt={t('fields.priceImage')}
+              maxH="360px"
+              objectFit="contain"
+              borderRadius="md"
+              borderWidth="1px"
+              borderColor="gray.200"
+              _dark={{ borderColor: 'gray.700' }}
+            />
+          )}
+          {request.payload.note && (
+            <Text fontSize="sm" whiteSpace="pre-wrap">
+              {request.payload.note}
+            </Text>
+          )}
+        </VStack>
+      );
+    }
+
+    if (request.type === VenueRequestType.IMAGE_CORRECTION) {
+      const images = request.payload.suggestedImages || [];
+      return (
+        <VStack align="stretch" gap={3}>
+          <SimpleGrid columns={{ base: 2, md: 4 }} gap={2}>
+            {images.map((image, index) => (
+              <Image
+                key={image.publicId || index}
+                src={image.url}
+                alt={`${index + 1}`}
+                aspectRatio={1}
+                objectFit="cover"
+                borderRadius="md"
+                borderWidth="1px"
+                borderColor="gray.200"
+                _dark={{ borderColor: 'gray.700' }}
+              />
+            ))}
+          </SimpleGrid>
+          <Text fontSize="xs" color="gray.500">
+            {t('imageReviewHint')}
+          </Text>
+          {request.payload.note && (
+            <Text fontSize="sm" whiteSpace="pre-wrap">
+              {request.payload.note}
+            </Text>
+          )}
+        </VStack>
+      );
+    }
+
+    return (
+      <SimpleGrid columns={{ base: 1, lg: 2 }} gap={3}>
+        {VENUE_REQUEST_FIELDS.map(({ key, venueKey }) => {
+          const requested = request.payload[key];
+          const current =
+            key === 'note'
+              ? undefined
+              : request.venue?.[(venueKey || key) as keyof Venue];
+          if (requested === undefined && current === undefined) return null;
+
+          return (
+            <Box
+              key={key}
+              borderWidth="1px"
+              borderColor="gray.100"
+              _dark={{ borderColor: 'gray.700' }}
+              borderRadius="md"
+              p={3}
+            >
+              <Text fontSize="xs" fontWeight="semibold" color="gray.500" mb={2}>
+                {t(`fields.${key}`)}
+              </Text>
+              {request.type === VenueRequestType.UPDATE && key !== 'note' && (
+                <Text fontSize="sm" color="gray.500" lineClamp={2}>
+                  {t('currentValue')}: {formatVenueRequestValue(current)}
+                </Text>
+              )}
+              <Text fontSize="sm" fontWeight="semibold" whiteSpace="pre-wrap">
+                {request.type === VenueRequestType.UPDATE && key !== 'note'
+                  ? `${t('requestedValue')}: ${formatVenueRequestValue(requested)}`
+                  : formatVenueRequestValue(requested)}
+              </Text>
+            </Box>
+          );
+        })}
+      </SimpleGrid>
+    );
+  };
+
   const renderRequest = (request: VenueRequest) => {
     const isPending = request.status === VenueRequestStatus.PENDING;
+    const isImageCorrection =
+      request.type === VenueRequestType.IMAGE_CORRECTION;
 
     return (
       <Box
@@ -193,15 +291,28 @@ export default function AdminVenueRequestsPage() {
             )}
             {isPending && (
               <>
-                <Button
-                  size="sm"
-                  colorPalette="green"
-                  loading={processingId === request.id}
-                  onClick={() => handleApprove(request)}
-                >
-                  <Check size={14} />
-                  {t('approve')}
-                </Button>
+                {isImageCorrection ? (
+                  <Button
+                    size="sm"
+                    colorPalette="green"
+                    onClick={() =>
+                      router.push(`/admin/venues/requests/${request.id}`)
+                    }
+                  >
+                    <Check size={14} />
+                    {t('reviewAndApply')}
+                  </Button>
+                ) : (
+                  <Button
+                    size="sm"
+                    colorPalette="green"
+                    loading={processingId === request.id}
+                    onClick={() => handleApprove(request)}
+                  >
+                    <Check size={14} />
+                    {t('approve')}
+                  </Button>
+                )}
                 <Button
                   size="sm"
                   colorPalette="red"
@@ -217,46 +328,7 @@ export default function AdminVenueRequestsPage() {
           </HStack>
         </Flex>
 
-        <SimpleGrid columns={{ base: 1, lg: 2 }} gap={3}>
-          {VENUE_REQUEST_FIELDS.map(({ key, venueKey }) => {
-            const requested = request.payload[key];
-            const current =
-              key === 'note'
-                ? undefined
-                : request.venue?.[(venueKey || key) as keyof Venue];
-            if (requested === undefined && current === undefined) return null;
-
-            return (
-              <Box
-                key={key}
-                borderWidth="1px"
-                borderColor="gray.100"
-                _dark={{ borderColor: 'gray.700' }}
-                borderRadius="md"
-                p={3}
-              >
-                <Text
-                  fontSize="xs"
-                  fontWeight="semibold"
-                  color="gray.500"
-                  mb={2}
-                >
-                  {t(`fields.${key}`)}
-                </Text>
-                {request.type === VenueRequestType.UPDATE && key !== 'note' && (
-                  <Text fontSize="sm" color="gray.500" lineClamp={2}>
-                    {t('currentValue')}: {formatVenueRequestValue(current)}
-                  </Text>
-                )}
-                <Text fontSize="sm" fontWeight="semibold" whiteSpace="pre-wrap">
-                  {request.type === VenueRequestType.UPDATE && key !== 'note'
-                    ? `${t('requestedValue')}: ${formatVenueRequestValue(requested)}`
-                    : formatVenueRequestValue(requested)}
-                </Text>
-              </Box>
-            );
-          })}
-        </SimpleGrid>
+        {renderPayloadBody(request)}
 
         {request.adminNote && (
           <Box mt={3} p={3} borderRadius="md" bg="red.50" color="red.700">
