@@ -12,7 +12,13 @@ import {
 import { useTranslations } from 'next-intl';
 import { TransactionSummary, HostTransactionSummary } from '@/lib/api/types';
 import { FeeService } from '@/lib/api/fee.service';
-import { ChevronRight, Calendar, TrendingUp } from 'lucide-react';
+import {
+  ChevronRight,
+  Calendar,
+  CheckCircle2,
+  Receipt,
+  TrendingUp,
+} from 'lucide-react';
 import { StarRatingDisplay } from '@/components/rating';
 import { getAvatarBgColor } from '@/lib/utils/avatarColor';
 import { normalizeImageUrl } from '@/lib/images/normalizeImageUrl';
@@ -25,6 +31,7 @@ interface TransactionSummaryListProps {
     summary: TransactionSummary | HostTransactionSummary
   ) => void;
   isLoading?: boolean;
+  hasActiveFilters?: boolean;
 }
 
 export default function TransactionSummaryList({
@@ -32,6 +39,7 @@ export default function TransactionSummaryList({
   viewType,
   onSelectSummary,
   isLoading = false,
+  hasActiveFilters = false,
 }: TransactionSummaryListProps) {
   const t = useTranslations('payment');
 
@@ -39,6 +47,9 @@ export default function TransactionSummaryList({
   const totalAmount = summaries.reduce((sum, s) => sum + s.totalAmount, 0);
   const paidAmount = summaries.reduce((sum, s) => sum + s.paidAmount, 0);
   const pendingAmount = summaries.reduce((sum, s) => sum + s.pendingAmount, 0);
+  const totalSessions = summaries.reduce((sum, s) => sum + s.totalSessions, 0);
+  const collectedPercent =
+    totalAmount > 0 ? Math.round((paidAmount / totalAmount) * 100) : 0;
 
   if (isLoading) {
     return <TransactionSummarySkeleton />;
@@ -46,8 +57,29 @@ export default function TransactionSummaryList({
 
   if (summaries.length === 0) {
     return (
-      <Box textAlign="center" py={8}>
-        <Text color="gray.500">{t('noTransactions')}</Text>
+      <Box textAlign="center" py={12}>
+        <Flex
+          w="64px"
+          h="64px"
+          mx="auto"
+          mb={4}
+          align="center"
+          justify="center"
+          borderRadius="full"
+          bg="gray.100"
+          _dark={{ bg: 'gray.800' }}
+          color="fg.muted"
+        >
+          <Receipt size={28} />
+        </Flex>
+        <Text fontWeight="medium" mb={1}>
+          {t('noTransactions')}
+        </Text>
+        <Text fontSize="sm" color="fg.muted">
+          {hasActiveFilters
+            ? t('noTransactionsFilterHint')
+            : t('noTransactionsHint')}
+        </Text>
       </Box>
     );
   }
@@ -57,19 +89,58 @@ export default function TransactionSummaryList({
       {/* Overall Summary */}
       <Box
         bg="white"
+        _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
         border="1px solid"
         borderColor="gray.200"
         borderRadius="lg"
         p={4}
       >
-        <HStack mb={3}>
-          <TrendingUp size={18} color="#179a3b" />
-          <Text fontWeight="semibold">{t('overallSummary')}</Text>
+        <HStack mb={2} justify="space-between" wrap="wrap">
+          <HStack>
+            <Box color="green.600" _dark={{ color: 'green.400' }}>
+              <TrendingUp size={18} />
+            </Box>
+            <Text fontWeight="semibold">{t('overallSummary')}</Text>
+          </HStack>
+          <Text fontSize="xs" color="fg.muted">
+            {t('playerCount', { count: summaries.length })} · {totalSessions}{' '}
+            {t('sessions')}
+          </Text>
         </HStack>
+
+        {/* Collection progress */}
+        <Box mb={3}>
+          <Box
+            h="8px"
+            bg="gray.100"
+            _dark={{ bg: 'gray.700' }}
+            borderRadius="full"
+            overflow="hidden"
+          >
+            <Box
+              h="full"
+              w={`${collectedPercent}%`}
+              bgGradient="to-r"
+              gradientFrom="green.400"
+              gradientTo="green.600"
+              borderRadius="full"
+              transition="width 0.4s ease"
+            />
+          </Box>
+          <Text
+            fontSize="xs"
+            color="green.600"
+            _dark={{ color: 'green.400' }}
+            fontWeight="medium"
+            mt={1}
+          >
+            {t('percentCollected', { percent: collectedPercent })}
+          </Text>
+        </Box>
 
         <Flex gap={4} wrap="wrap">
           <Box flex={1} minW="100px">
-            <Text fontSize="xs" color="gray.500" textTransform="uppercase">
+            <Text fontSize="xs" color="fg.muted" textTransform="uppercase">
               {t('total')}
             </Text>
             <Text fontSize="lg" fontWeight="bold">
@@ -77,18 +148,28 @@ export default function TransactionSummaryList({
             </Text>
           </Box>
           <Box flex={1} minW="100px">
-            <Text fontSize="xs" color="gray.500" textTransform="uppercase">
+            <Text fontSize="xs" color="fg.muted" textTransform="uppercase">
               {t('paid')}
             </Text>
-            <Text fontSize="lg" fontWeight="bold" color="green.600">
+            <Text
+              fontSize="lg"
+              fontWeight="bold"
+              color="green.600"
+              _dark={{ color: 'green.400' }}
+            >
               {FeeService.formatPaymentAmount(paidAmount)}
             </Text>
           </Box>
           <Box flex={1} minW="100px">
-            <Text fontSize="xs" color="gray.500" textTransform="uppercase">
+            <Text fontSize="xs" color="fg.muted" textTransform="uppercase">
               {t('pending')}
             </Text>
-            <Text fontSize="lg" fontWeight="bold" color="yellow.600">
+            <Text
+              fontSize="lg"
+              fontWeight="bold"
+              color="yellow.600"
+              _dark={{ color: 'yellow.400' }}
+            >
               {FeeService.formatPaymentAmount(pendingAmount)}
             </Text>
           </Box>
@@ -105,6 +186,7 @@ export default function TransactionSummaryList({
           const image = !isPlayerView
             ? (summary as HostTransactionSummary).userImage
             : undefined;
+          const hasPending = summary.pendingAmount > 0;
 
           return (
             <Box
@@ -114,8 +196,14 @@ export default function TransactionSummaryList({
                   : (summary as HostTransactionSummary).userId
               }
               bg="white"
+              _dark={{
+                bg: 'gray.800',
+                borderColor: hasPending ? 'gray.700' : 'green.800',
+              }}
               border="1px solid"
-              borderColor="gray.200"
+              borderColor={hasPending ? 'gray.200' : 'green.100'}
+              borderLeft="4px solid"
+              borderLeftColor={hasPending ? 'orange.400' : 'green.400'}
               borderRadius="lg"
               p={4}
               cursor="pointer"
@@ -134,9 +222,9 @@ export default function TransactionSummaryList({
                   </Avatar.Root>
                   <Box>
                     <Text fontWeight="medium">{name}</Text>
-                    <HStack gap={2} mt={1}>
-                      <Calendar size={12} color="#718096" />
-                      <Text fontSize="xs" color="gray.500">
+                    <HStack gap={2} mt={1} color="fg.muted">
+                      <Calendar size={12} />
+                      <Text fontSize="xs">
                         {summary.totalSessions} {t('sessions')}
                       </Text>
                     </HStack>
@@ -165,11 +253,14 @@ export default function TransactionSummaryList({
                       </Badge>
                     ) : (
                       <Badge colorPalette="green" fontSize="xs">
+                        <CheckCircle2 size={10} />
                         {t('fullyPaid')}
                       </Badge>
                     )}
                   </VStack>
-                  <ChevronRight size={20} color="#A0AEC0" />
+                  <Box color="fg.muted">
+                    <ChevronRight size={20} />
+                  </Box>
                 </HStack>
               </HStack>
             </Box>

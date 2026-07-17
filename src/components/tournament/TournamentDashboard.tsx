@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { Box, Flex, Heading, Text } from '@chakra-ui/react';
 import { Button, VStack } from '@/components/ui/chakra-compat';
 import { ChevronUp, ChevronDown, CheckCircle2, LayoutGrid } from 'lucide-react';
@@ -8,39 +8,16 @@ import { useTranslations } from 'next-intl';
 import { Tournament } from '@/lib/api/types';
 import { useRouter } from '@/i18n/config';
 import { useParams } from 'next/navigation';
-import { getPrimaryVenueDisplay } from '@/utils';
+import {
+  SETUP_STEP_IDS as STEP_IDS,
+  SETUP_STEP_MANAGE_OPTION as STEP_MANAGE_OPTION,
+  SetupStepId as StepId,
+  useTournamentSetupSteps,
+} from './guide/useTournamentSetupSteps';
 
 interface Props {
   tournament: Tournament;
 }
-
-type StepId =
-  | 'categories'
-  | 'format'
-  | 'teams'
-  | 'rounds'
-  | 'venue'
-  | 'schedule'
-  | 'publish';
-
-const STEP_IDS: StepId[] = [
-  'categories',
-  'format',
-  'teams',
-  'rounds',
-  'venue',
-  'schedule',
-  'publish',
-];
-
-const STEP_MANAGE_OPTION: Partial<Record<StepId, string>> = {
-  categories: 'categories',
-  format: 'format',
-  teams: 'teams',
-  rounds: 'rounds',
-  venue: 'venues',
-  schedule: 'schedule',
-};
 
 export default function TournamentDashboard({ tournament }: Props) {
   const t = useTranslations('pages.tournaments.detail.dashboard');
@@ -48,41 +25,8 @@ export default function TournamentDashboard({ tournament }: Props) {
   const params = useParams();
   const slug = params.id as string;
 
-  // Derive step completion from tournament data
-  const completionMap = useMemo((): Record<StepId, boolean> => {
-    const categories = tournament.categories ?? [];
-    const hasCategories =
-      (tournament._count?.categories ?? categories.length) > 0;
-    const teamCount =
-      (tournament._count?.players ?? 0) + (tournament._count?.pairs ?? 0);
-    // Format is configured once the wizard has written a non-empty
-    // formatConfig (same signal FormatPanel uses for its default-format hint)
-    const hasFormat =
-      categories.length > 0 &&
-      categories.every(
-        (c) => c.formatConfig && Object.keys(c.formatConfig).length > 0
-      );
-    const hasRounds =
-      categories.length > 0 &&
-      categories.every((c) => (c._count?.matches ?? 0) > 0);
-    const hasVenue = !!getPrimaryVenueDisplay(tournament);
-
-    return {
-      categories: hasCategories,
-      format: hasFormat,
-      teams: teamCount >= 2,
-      rounds: hasRounds,
-      venue: hasVenue,
-      schedule: (tournament.scheduledMatchesCount ?? 0) > 0,
-      publish: tournament.isPublished,
-    };
-  }, [tournament]);
-
-  const completedCount = useMemo(
-    () => STEP_IDS.filter((id) => completionMap[id]).length,
-    [completionMap]
-  );
-  const totalCount = STEP_IDS.length;
+  const { completionMap, completedCount, totalCount } =
+    useTournamentSetupSteps(tournament);
   const progressPercent = (completedCount / totalCount) * 100;
 
   // Completed steps are collapsed by default; incomplete steps are expanded

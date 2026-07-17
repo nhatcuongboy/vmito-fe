@@ -14,7 +14,7 @@
     "home": "Tìm kèo",
     "notAvailable": "—",
     "tournaments": "Giải đấu",
-    "browseTournaments": "Giải đấu",
+    "browseTournaments": "Tìm giải",
     "browse": "Thống kê",
     "statistics": "Thống kê",
     "users": "Người dùng",
@@ -1560,6 +1560,45 @@
         "cancelled": "Đã hủy"
       },
       "noTournamentsFound": "Không tìm thấy giải đấu nào",
+      "noResultsDescription": "Thử từ khóa khác hoặc điều chỉnh bộ lọc đang áp dụng.",
+      "filters": {
+        "title": "Bộ lọc",
+        "apply": "Tìm kiếm",
+        "reset": "Đặt lại",
+        "invalidDateRange": "Ngày bắt đầu không thể sau ngày kết thúc.",
+        "status": {
+          "title": "Trạng thái",
+          "PREPARING": "Sắp diễn ra",
+          "IN_PROGRESS": "Đang diễn ra",
+          "FINISHED": "Đã kết thúc",
+          "CANCELLED": "Đã hủy"
+        },
+        "period": {
+          "title": "Thời gian",
+          "all": "Tất cả",
+          "today": "Hôm nay",
+          "next7": "7 ngày tới",
+          "next30": "30 ngày tới",
+          "custom": "Tùy chọn",
+          "dateFrom": "Từ ngày",
+          "dateTo": "Đến ngày"
+        },
+        "location": {
+          "title": "Khu vực",
+          "district": "Quận / huyện"
+        },
+        "sport": {
+          "title": "Môn thi đấu",
+          "BADMINTON": "Cầu lông",
+          "PICKLEBALL": "Pickleball"
+        }
+      },
+      "sort": {
+        "startDate": "Sắp diễn ra gần nhất",
+        "newest": "Mới tạo",
+        "nameAsc": "Tên A-Z",
+        "nameDesc": "Tên Z-A"
+      },
       "explore": "Khám phá",
       "searchEvents": "Tìm kiếm giải đấu...",
       "follow": "Theo dõi",
@@ -1853,6 +1892,38 @@
               "title": "Xuất bản giải đấu",
               "description": "Cho phép người tham gia xem giải đấu và gửi kết quả trận đấu.",
               "action": "Xuất bản giải đấu"
+            }
+          },
+          "guide": {
+            "headerSetup": "Hướng dẫn thiết lập giải đấu",
+            "headerFinished": "Giải đấu đã kết thúc!",
+            "progress": "Hoàn thành {completed}/{total} bước",
+            "menu": {
+              "dismiss": "Ẩn hướng dẫn"
+            },
+            "collapse": "Thu gọn hướng dẫn",
+            "expand": "Mở rộng hướng dẫn",
+            "moreActions": "Tùy chọn hướng dẫn",
+            "categoryMatches": "{finished}/{total}",
+            "steps": {
+              "poolPlay": {
+                "title": "Đấu bảng",
+                "description": "Nhập kết quả cho các trận vòng bảng."
+              },
+              "startPlayoffs": {
+                "title": "Bắt đầu playoffs",
+                "description": "Tạo nhánh loại trực tiếp sau khi hoàn tất vòng bảng.",
+                "action": "Đến vòng đấu"
+              },
+              "playoffs": {
+                "title": "Playoffs",
+                "description": "Thi đấu nhánh loại trực tiếp đến khi hoàn tất mọi trận."
+              },
+              "finish": {
+                "title": "Kết thúc giải đấu",
+                "description": "Đánh dấu giải đấu đã kết thúc.",
+                "action": "Kết thúc giải"
+              }
             }
           }
         },
@@ -5358,7 +5429,26 @@
     "settingsSwitched": "Đã chuyển cài đặt thanh toán",
     "switchSettingsFailed": "Không thể chuyển cài đặt thanh toán",
     "customAmount": "Số tiền thực nhận",
-    "selectPaymentMethod": "Phương thức thanh toán"
+    "selectPaymentMethod": "Phương thức thanh toán",
+    "dateFilterLabel": "Thời gian",
+    "sortByLabel": "Sắp xếp",
+    "clearFilters": "Xoá bộ lọc",
+    "percentCollected": "{percent}% đã thu",
+    "noTransactionsFilterHint": "Thử điều chỉnh bộ lọc hoặc từ khóa tìm kiếm",
+    "noTransactionsHint": "Giao dịch sẽ xuất hiện khi người chơi tham gia kèo của bạn",
+    "paymentCount": "{count} khoản thanh toán",
+    "approveNow": "Duyệt ngay",
+    "waitingForProof": "Chờ nộp chứng từ",
+    "freeLabel": "Miễn phí",
+    "approveAllSubmitted": "Duyệt {count} khoản đã nộp",
+    "approveAllSubmittedSuccess": "Đã duyệt {count} khoản thanh toán của {name}",
+    "paymentApprovedToast": "Đã duyệt thanh toán {amount} của {name}",
+    "paymentRejectedToast": "Đã từ chối thanh toán của {name}",
+    "originalAmount": "Số tiền gốc",
+    "customAmountHint": "Chỉ sửa nếu số tiền thực tế khác",
+    "receiveMethod": "Phương thức nhận tiền",
+    "selectPlaceholder": "-- Chọn --",
+    "previousHostNote": "Ghi chú trước"
   },
   "rating": {
     "loading": "Đang tải...",
@@ -5666,6 +5756,16 @@
     "viewMoreMembers": "Xem thêm thành viên",
     "recentAnnouncements": "Thông báo mới nhất",
     "noAnnouncements": "Chưa có thông báo nào",
+    "createAnnouncement": "Tạo thông báo",
+    "editAnnouncement": "Sửa thông báo",
+    "deleteAnnouncement": "Xóa thông báo",
+    "confirmDeleteAnnouncement": "Bạn có chắc muốn xóa thông báo này? Hành động này không thể hoàn tác.",
+    "announcementTitle": "Tiêu đề",
+    "announcementContent": "Nội dung",
+    "pinUntil": "Ghim đến ngày (tùy chọn)",
+    "announcementCreated": "Đã tạo thông báo",
+    "announcementUpdated": "Đã cập nhật thông báo",
+    "announcementDeleted": "Đã xóa thông báo",
     "noDescription": "Chưa có mô tả",
     "joinPolicy": {
       "title": "Quy định tham gia",
@@ -5719,7 +5819,7 @@
     "clubUpdatedSuccess": "Cập nhật nhóm thành công",
     "failedToUpdateClub": "Không thể cập nhật nhóm",
     "failedToLoadClub": "Không thể tải thông tin nhóm",
-    "addClubMember": "Thêm thành viên nhóm",
+    "addClubMember": "Thêm thành viên",
     "searchUserPlaceholder": "Tìm theo tên hoặc email...",
     "alreadyMember": "Đã là thành viên",
     "noUsersFound": "Không tìm thấy người dùng",

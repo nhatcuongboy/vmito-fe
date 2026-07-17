@@ -1002,6 +1002,28 @@ export interface Category {
   };
 }
 
+/** Per-category completion roll-up from GET /tournaments/:id/progress. */
+export interface TournamentCategoryProgress {
+  categoryId: string;
+  categoryName: string;
+  categoryType: CategoryType;
+  format: CategoryFormat;
+  hasGroupStage: boolean;
+  groupTotal: number;
+  groupFinished: number;
+  hasEliminationStage: boolean;
+  /** Bracket exists and (for ROUND_ROBIN_TO_SE) has been seeded. */
+  elimGenerated: boolean;
+  /** Elimination matches excluding auto-finished BYEs. */
+  elimTotal: number;
+  elimFinished: number;
+}
+
+export interface TournamentProgress {
+  tournamentStatus: TournamentStatus;
+  categories: TournamentCategoryProgress[];
+}
+
 export interface CategoryGroupStageCompletion {
   categoryId: string;
   categoryName: string;

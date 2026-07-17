@@ -1527,6 +1527,45 @@
         "cancelled": "已取消"
       },
       "noTournamentsFound": "未找到锦标赛",
+      "noResultsDescription": "请尝试其他关键词或调整当前筛选条件。",
+      "filters": {
+        "title": "筛选",
+        "apply": "搜索",
+        "reset": "重置",
+        "invalidDateRange": "开始日期不能晚于结束日期。",
+        "status": {
+          "title": "状态",
+          "PREPARING": "即将开始",
+          "IN_PROGRESS": "进行中",
+          "FINISHED": "已结束",
+          "CANCELLED": "已取消"
+        },
+        "period": {
+          "title": "时间",
+          "all": "全部",
+          "today": "今天",
+          "next7": "未来 7 天",
+          "next30": "未来 30 天",
+          "custom": "自定义",
+          "dateFrom": "开始日期",
+          "dateTo": "结束日期"
+        },
+        "location": {
+          "title": "地区",
+          "district": "区 / 县"
+        },
+        "sport": {
+          "title": "运动项目",
+          "BADMINTON": "羽毛球",
+          "PICKLEBALL": "匹克球"
+        }
+      },
+      "sort": {
+        "startDate": "最早开始",
+        "newest": "最新创建",
+        "nameAsc": "名称 A-Z",
+        "nameDesc": "名称 Z-A"
+      },
       "explore": "探索",
       "searchEvents": "搜索活动",
       "follow": "关注",
@@ -1822,6 +1861,38 @@
               "title": "发布锦标赛",
               "description": "让参与者查看锦标赛并提交比赛结果。",
               "action": "发布锦标赛"
+            }
+          },
+          "guide": {
+            "headerSetup": "赛事设置指南",
+            "headerFinished": "赛事已结束！",
+            "progress": "已完成 {completed}/{total} 步",
+            "menu": {
+              "dismiss": "隐藏指南"
+            },
+            "collapse": "收起指南",
+            "expand": "展开指南",
+            "moreActions": "指南选项",
+            "categoryMatches": "{finished}/{total}",
+            "steps": {
+              "poolPlay": {
+                "title": "小组赛",
+                "description": "录入小组赛比赛结果。"
+              },
+              "startPlayoffs": {
+                "title": "开始淘汰赛",
+                "description": "小组赛结束后生成淘汰赛对阵。",
+                "action": "前往轮次"
+              },
+              "playoffs": {
+                "title": "淘汰赛",
+                "description": "完成淘汰赛所有比赛。"
+              },
+              "finish": {
+                "title": "结束赛事",
+                "description": "将赛事标记为已结束。",
+                "action": "结束赛事"
+              }
             }
           }
         },
@@ -5300,7 +5371,26 @@
     "settingsSwitched": "已切换支付设置",
     "switchSettingsFailed": "切换支付设置失败",
     "customAmount": "实收金额",
-    "selectPaymentMethod": "付款方式"
+    "selectPaymentMethod": "付款方式",
+    "dateFilterLabel": "时间",
+    "sortByLabel": "排序",
+    "clearFilters": "清除筛选",
+    "percentCollected": "已收{percent}%",
+    "noTransactionsFilterHint": "请尝试调整筛选条件或搜索关键词",
+    "noTransactionsHint": "当球员加入您的球局后交易将显示在此",
+    "paymentCount": "{count}笔付款",
+    "approveNow": "立即审批",
+    "waitingForProof": "等待提交凭证",
+    "freeLabel": "免费",
+    "approveAllSubmitted": "审批{count}笔已提交",
+    "approveAllSubmittedSuccess": "已审批{name}的{count}笔付款",
+    "paymentApprovedToast": "已审批{name}的{amount}付款",
+    "paymentRejectedToast": "已拒绝{name}的付款",
+    "originalAmount": "原始金额",
+    "customAmountHint": "仅在实际金额不同时修改",
+    "receiveMethod": "收款方式",
+    "selectPlaceholder": "-- 请选择 --",
+    "previousHostNote": "先前备注"
   },
   "rating": {
     "loading": "加载中...",
@@ -5608,6 +5698,16 @@
     "viewMoreMembers": "查看更多成员",
     "recentAnnouncements": "最新公告",
     "noAnnouncements": "暂无公告",
+    "createAnnouncement": "发布公告",
+    "editAnnouncement": "编辑公告",
+    "deleteAnnouncement": "删除公告",
+    "confirmDeleteAnnouncement": "确定要删除此公告吗？此操作无法撤销。",
+    "announcementTitle": "标题",
+    "announcementContent": "内容",
+    "pinUntil": "置顶至（可选）",
+    "announcementCreated": "公告已创建",
+    "announcementUpdated": "公告已更新",
+    "announcementDeleted": "公告已删除",
     "noDescription": "暂无描述",
     "joinPolicy": {
       "title": "加入政策",

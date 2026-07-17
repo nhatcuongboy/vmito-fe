@@ -41,6 +41,7 @@ import {
   Search,
 } from 'lucide-react';
 import TournamentDashboard from '@/components/tournament/TournamentDashboard';
+import TournamentGuideWidget from '@/components/tournament/guide/TournamentGuideWidget';
 import TournamentHomeTab from '@/components/tournament/TournamentHomeTab';
 import TournamentManage from '@/components/tournament/manage/TournamentManage';
 import TournamentSidebar from '@/components/tournament/TournamentSidebar';
@@ -1316,6 +1317,14 @@ export default function TournamentPageShell({
         {/* Mobile: content only */}
         <Box display={{ base: 'block', md: 'none' }}>{renderContent()}</Box>
       </PageLayout>
+
+      {/* Desktop-only floating guide stepper for hosts/admins */}
+      {tournament && isHostOrAdmin && (
+        <TournamentGuideWidget
+          tournament={tournament}
+          onTournamentUpdate={(updated) => setTournament(updated)}
+        />
+      )}
 
       {/* Bottom tabs: mobile only */}
       <BottomNavigationBar

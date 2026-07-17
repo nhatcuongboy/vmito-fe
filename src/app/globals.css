@@ -86,6 +86,17 @@
     font-family: var(--font-geist-sans);
   }
 
+  html,
+  body {
+    /* A single element overflowing horizontally widens the layout viewport
+       on mobile browsers, which pushes `position: fixed` elements (bottom
+       nav, floating widgets) below the visible screen until the page is
+       scrolled sideways. Clip at the root so any future overflow is a
+       visual/scroll issue on the offending element, not a viewport bug. */
+    overflow-x: hidden;
+    max-width: 100vw;
+  }
+
   body {
     background: linear-gradient(
       135deg,

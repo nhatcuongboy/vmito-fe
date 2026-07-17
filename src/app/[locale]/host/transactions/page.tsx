@@ -6,15 +6,25 @@ import {
   Badge,
   Container,
   Heading,
+  IconButton,
   Input,
   Text,
-  Spinner,
+  Skeleton,
   HStack,
   SimpleGrid,
   VStack,
 } from '@chakra-ui/react';
-import { useTranslations } from 'next-intl';
-import { Calendar, Receipt, Search } from 'lucide-react';
+import { useLocale, useTranslations } from 'next-intl';
+import {
+  Banknote,
+  Calendar,
+  Check,
+  CheckCheck,
+  Landmark,
+  Receipt,
+  Search,
+  X,
+} from 'lucide-react';
 import ProtectedRouteGuard from '@/components/guards/ProtectedRouteGuard';
 import PageLayout from '@/components/layout/PageLayout';
 import {
@@ -25,7 +35,7 @@ import {
 import { Button } from '@/components/ui/chakra-compat';
 import { VModal } from '@/components/ui/VModal';
 import { VSelect } from '@/components/ui/VSelect';
-import dayjs from '@/lib/dayjs';
+import dayjs, { getDayjsLocale } from '@/lib/dayjs';
 import { FeeService } from '@/lib/api/fee.service';
 import { PaymentService } from '@/lib/api/payment.service';
 import {
@@ -57,6 +67,24 @@ function latestPaymentAt(payments: PaymentRecord[] | undefined): number {
   if (!payments || payments.length === 0) return 0;
   return Math.max(...payments.map((p) => paymentDate(p).getTime()));
 }
+
+const capitalizeFirst = (value: string) =>
+  value.charAt(0).toUpperCase() + value.slice(1);
+
+const paymentAccentColor = (status: PaymentStatus): string => {
+  switch (status) {
+    case PaymentStatus.SUBMITTED:
+      return 'orange.400';
+    case PaymentStatus.PENDING:
+      return 'yellow.300';
+    case PaymentStatus.APPROVED:
+      return 'green.300';
+    case PaymentStatus.REJECTED:
+      return 'red.300';
+    default:
+      return 'gray.200';
+  }
+};
 
 function isBillablePaymentRecord(payment: PaymentRecord) {
   if (payment.session?.status === SessionStatus.CANCELLED) return false;
@@ -103,6 +131,8 @@ function summarizeUserPayments(
 function HostTransactionsContent() {
   const t = useTranslations('payment');
   const tCommon = useTranslations('common');
+  const locale = useLocale();
+  const dayjsLocale = getDayjsLocale(locale);
 
   const [summaries, setSummaries] = useState<HostTransactionSummary[]>([]);
   const [paymentDetailsByUser, setPaymentDetailsByUser] = useState<
@@ -116,6 +146,7 @@ function HostTransactionsContent() {
   );
   const [isLoading, setIsLoading] = useState(true);
   const [isDetailLoading, setIsDetailLoading] = useState(false);
+  const [isBulkApproving, setIsBulkApproving] = useState(false);
 
   // Filter state
   const [searchQuery, setSearchQuery] = useState('');
@@ -124,6 +155,16 @@ function HostTransactionsContent() {
   );
   const [dateFilter, setDateFilter] = useState<DateFilter>('all');
   const [sortBy, setSortBy] = useState<SortBy>('totalAmount');
+
+  const hasActiveFilters =
+    searchQuery.trim() !== '' || statusFilter !== 'all' || dateFilter !== 'all';
+
+  const handleClearFilters = () => {
+    setSearchQuery('');
+    setStatusFilter('all');
+    setDateFilter('all');
+    setSortBy('totalAmount');
+  };
 
   // Recompute each summary's totals from the already-loaded per-user payments,
   // scoped to the selected date range. Users without a cached detail list
@@ -317,6 +358,67 @@ function HostTransactionsContent() {
     setSelectedPayment(null);
   };
 
+  const submittedPayments = useMemo(
+    () =>
+      selectedPayments.filter(
+        (payment) => payment.status === PaymentStatus.SUBMITTED
+      ),
+    [selectedPayments]
+  );
+
+  // Group payments by month (newest first) for the detail modal
+  const groupedPayments = useMemo(() => {
+    const sorted = [...selectedPayments].sort(
+      (a, b) => paymentDate(b).getTime() - paymentDate(a).getTime()
+    );
+    const groups: {
+      key: string;
+      label: string;
+      payments: PaymentRecord[];
+    }[] = [];
+    for (const payment of sorted) {
+      const date = dayjs(paymentDate(payment)).locale(dayjsLocale);
+      const key = date.format('YYYY-MM');
+      const lastGroup = groups[groups.length - 1];
+      if (lastGroup && lastGroup.key === key) {
+        lastGroup.payments.push(payment);
+      } else {
+        groups.push({
+          key,
+          label: capitalizeFirst(date.format('MMMM YYYY')),
+          payments: [payment],
+        });
+      }
+    }
+    return groups;
+  }, [selectedPayments, dayjsLocale]);
+
+  const handleBulkApprove = async () => {
+    if (!selectedSummary || submittedPayments.length === 0) return;
+
+    setIsBulkApproving(true);
+    try {
+      for (const payment of submittedPayments) {
+        await PaymentService.approvePayment(payment.id, {});
+      }
+      await refreshSelectedUser(selectedSummary);
+      toaster.success({
+        title: t('approveAllSubmittedSuccess', {
+          count: submittedPayments.length,
+          name: selectedSummary.userName,
+        }),
+      });
+    } catch (error) {
+      console.error('Failed to bulk approve payments:', error);
+      toaster.error({
+        title: tCommon('error'),
+        description: t('bulkApprovePaymentsFailed'),
+      });
+    } finally {
+      setIsBulkApproving(false);
+    }
+  };
+
   const handleApprovePayment = async (
     notes?: string,
     amount?: number,
@@ -331,6 +433,14 @@ function HostTransactionsContent() {
         paymentMethod,
       });
       await refreshSelectedUser(selectedSummary);
+      toaster.success({
+        title: t('paymentApprovedToast', {
+          amount: FeeService.formatPaymentAmount(
+            amount ?? selectedPayment.amount
+          ),
+          name: selectedSummary.userName,
+        }),
+      });
       setSelectedPayment(null);
     } catch (error) {
       console.error('Failed to approve payment:', error);
@@ -350,6 +460,11 @@ function HostTransactionsContent() {
         hostNotes: notes || t('rejectReason'),
       });
       await refreshSelectedUser(selectedSummary);
+      toaster.success({
+        title: t('paymentRejectedToast', {
+          name: selectedSummary.userName,
+        }),
+      });
       setSelectedPayment(null);
     } catch (error) {
       console.error('Failed to reject payment:', error);
@@ -364,7 +479,9 @@ function HostTransactionsContent() {
   return (
     <Container maxW="container.md">
       <HStack mb={6}>
-        <Receipt size={24} color="#179a3b" />
+        <Box color="green.600" _dark={{ color: 'green.400' }}>
+          <Receipt size={24} />
+        </Box>
         <Heading size="lg">{t('transactionHistory')}</Heading>
       </HStack>
 
@@ -373,8 +490,8 @@ function HostTransactionsContent() {
       </Text>
 
       {/* Filter bar */}
-      <HStack mb={6} gap={3} wrap="wrap">
-        <Box flex={1} minW="180px" position="relative">
+      <VStack mb={6} gap={3} align="stretch">
+        <Box position="relative">
           <Box
             position="absolute"
             left={3}
@@ -396,75 +513,126 @@ function HostTransactionsContent() {
             _dark={{ bg: 'gray.800' }}
           />
         </Box>
-        <Box minW="150px">
-          <VSelect
-            value={statusFilter}
-            onChange={(e) =>
-              setStatusFilter(e.target.value as 'all' | 'pending' | 'paid')
-            }
-            size="sm"
-          >
-            <option value="all">{t('filterAll')}</option>
-            <option value="pending">{t('filterHasPending')}</option>
-            <option value="paid">{t('filterAllPaid')}</option>
-          </VSelect>
-        </Box>
-        <Box minW="150px">
-          <VSelect
-            value={dateFilter}
-            onChange={(e) => setDateFilter(e.target.value as DateFilter)}
-            size="sm"
-          >
-            <option value="all">{t('dateFilterAll')}</option>
-            <option value="today">{t('dateFilterToday')}</option>
-            <option value="week">{t('dateFilterWeek')}</option>
-            <option value="month">{t('dateFilterMonth')}</option>
-            <option value="year">{t('dateFilterYear')}</option>
-          </VSelect>
-        </Box>
-        <Box minW="160px">
-          <VSelect
-            value={sortBy}
-            onChange={(e) => setSortBy(e.target.value as SortBy)}
-            size="sm"
-          >
-            <option value="totalAmount">{t('sortTotalAmount')}</option>
-            <option value="pendingAmount">{t('sortPendingAmount')}</option>
-            <option value="latest">{t('sortLatest')}</option>
-            <option value="name">{t('sortNameAZ')}</option>
-            <option value="sessions">{t('sortMostSessions')}</option>
-          </VSelect>
-        </Box>
-      </HStack>
+        <SimpleGrid columns={{ base: 1, sm: 3 }} gap={3}>
+          <Box>
+            <Text fontSize="xs" color="fg.muted" fontWeight="medium" mb={1}>
+              {t('filterStatus')}
+            </Text>
+            <VSelect
+              value={statusFilter}
+              onChange={(e) =>
+                setStatusFilter(e.target.value as 'all' | 'pending' | 'paid')
+              }
+              size="sm"
+            >
+              <option value="all">{t('filterAll')}</option>
+              <option value="pending">{t('filterHasPending')}</option>
+              <option value="paid">{t('filterAllPaid')}</option>
+            </VSelect>
+          </Box>
+          <Box>
+            <Text fontSize="xs" color="fg.muted" fontWeight="medium" mb={1}>
+              {t('dateFilterLabel')}
+            </Text>
+            <VSelect
+              value={dateFilter}
+              onChange={(e) => setDateFilter(e.target.value as DateFilter)}
+              size="sm"
+            >
+              <option value="all">{t('dateFilterAll')}</option>
+              <option value="today">{t('dateFilterToday')}</option>
+              <option value="week">{t('dateFilterWeek')}</option>
+              <option value="month">{t('dateFilterMonth')}</option>
+              <option value="year">{t('dateFilterYear')}</option>
+            </VSelect>
+          </Box>
+          <Box>
+            <Text fontSize="xs" color="fg.muted" fontWeight="medium" mb={1}>
+              {t('sortByLabel')}
+            </Text>
+            <VSelect
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value as SortBy)}
+              size="sm"
+            >
+              <option value="totalAmount">{t('sortTotalAmount')}</option>
+              <option value="pendingAmount">{t('sortPendingAmount')}</option>
+              <option value="latest">{t('sortLatest')}</option>
+              <option value="name">{t('sortNameAZ')}</option>
+              <option value="sessions">{t('sortMostSessions')}</option>
+            </VSelect>
+          </Box>
+        </SimpleGrid>
+        {hasActiveFilters && (
+          <Box>
+            <Button size="xs" variant="ghost" onClick={handleClearFilters}>
+              <X size={14} />
+              <Text ml={1}>{t('clearFilters')}</Text>
+            </Button>
+          </Box>
+        )}
+      </VStack>
 
       <TransactionSummaryList
         summaries={filteredSummaries}
         viewType="host"
         onSelectSummary={handleSelectSummary}
         isLoading={isLoading}
+        hasActiveFilters={hasActiveFilters}
       />
 
       <VModal
         isOpen={Boolean(selectedSummary)}
         onClose={handleCloseDetail}
         title={selectedSummary?.userName || t('paymentDetails')}
-        description={t('paymentDetails')}
+        description={
+          selectedSummary
+            ? `${t('total')}: ${FeeService.formatPaymentAmount(
+                selectedSummary.totalAmount
+              )} · ${t('pending')}: ${FeeService.formatPaymentAmount(
+                selectedSummary.pendingAmount
+              )}`
+            : t('paymentDetails')
+        }
+        headerRightContent={
+          selectedSummary ? (
+            <Badge
+              colorPalette={
+                selectedSummary.pendingAmount > 0 ? 'orange' : 'green'
+              }
+              fontSize="xs"
+            >
+              {selectedSummary.pendingAmount > 0
+                ? t('filterHasPending')
+                : t('fullyPaid')}
+            </Badge>
+          ) : undefined
+        }
         size="lg"
         hideSecondaryAction
         maxBodyHeight={{ base: '70vh', md: '75vh' }}
       >
         {isDetailLoading ? (
-          <Box textAlign="center" py={8}>
-            <Spinner />
-            <Text mt={3} color="fg.muted">
-              {tCommon('loading')}
-            </Text>
-          </Box>
+          <VStack align="stretch" gap={3}>
+            <SimpleGrid columns={{ base: 3 }} gap={2}>
+              {Array.from({ length: 3 }).map((_, i) => (
+                <Skeleton key={i} height="64px" borderRadius="md" />
+              ))}
+            </SimpleGrid>
+            {Array.from({ length: 4 }).map((_, i) => (
+              <Skeleton key={i} height="72px" borderRadius="lg" />
+            ))}
+          </VStack>
         ) : (
           <VStack align="stretch" gap={3}>
             {selectedSummary && (
               <SimpleGrid columns={{ base: 3 }} gap={2}>
-                <Box p={3} bg="gray.50" borderRadius="md">
+                <Box
+                  p={3}
+                  bg="gray.50"
+                  _dark={{ bg: 'gray.800' }}
+                  borderRadius="md"
+                >
                   <Text fontSize="xs" color="fg.muted">
                     {t('total')}
                   </Text>
@@ -474,19 +642,45 @@ function HostTransactionsContent() {
                     )}
                   </Text>
                 </Box>
-                <Box p={3} bg="green.50" borderRadius="md">
-                  <Text fontSize="xs" color="green.700">
+                <Box
+                  p={3}
+                  bg="green.50"
+                  _dark={{ bg: 'green.950' }}
+                  borderRadius="md"
+                >
+                  <Text
+                    fontSize="xs"
+                    color="green.700"
+                    _dark={{ color: 'green.300' }}
+                  >
                     {t('paid')}
                   </Text>
-                  <Text fontWeight="bold" color="green.700">
+                  <Text
+                    fontWeight="bold"
+                    color="green.700"
+                    _dark={{ color: 'green.300' }}
+                  >
                     {FeeService.formatPaymentAmount(selectedSummary.paidAmount)}
                   </Text>
                 </Box>
-                <Box p={3} bg="yellow.50" borderRadius="md">
-                  <Text fontSize="xs" color="yellow.700">
+                <Box
+                  p={3}
+                  bg="yellow.50"
+                  _dark={{ bg: 'yellow.950' }}
+                  borderRadius="md"
+                >
+                  <Text
+                    fontSize="xs"
+                    color="yellow.700"
+                    _dark={{ color: 'yellow.300' }}
+                  >
                     {t('pending')}
                   </Text>
-                  <Text fontWeight="bold" color="yellow.700">
+                  <Text
+                    fontWeight="bold"
+                    color="yellow.700"
+                    _dark={{ color: 'yellow.300' }}
+                  >
                     {FeeService.formatPaymentAmount(
                       selectedSummary.pendingAmount
                     )}
@@ -495,59 +689,165 @@ function HostTransactionsContent() {
               </SimpleGrid>
             )}
 
+            {selectedPayments.length > 0 && (
+              <HStack justify="space-between" wrap="wrap" gap={2}>
+                <Text fontSize="sm" color="fg.muted">
+                  {t('paymentCount', { count: selectedPayments.length })}
+                </Text>
+                {submittedPayments.length > 0 && (
+                  <Button
+                    size="xs"
+                    colorPalette="green"
+                    onClick={handleBulkApprove}
+                    loading={isBulkApproving}
+                  >
+                    <CheckCheck size={14} />
+                    <Text ml={1}>
+                      {t('approveAllSubmitted', {
+                        count: submittedPayments.length,
+                      })}
+                    </Text>
+                  </Button>
+                )}
+              </HStack>
+            )}
+
             {selectedPayments.length === 0 ? (
               <Box textAlign="center" py={8}>
+                <Box color="fg.muted" display="inline-block" mb={2}>
+                  <Receipt size={28} />
+                </Box>
                 <Text color="fg.muted">{t('noPayments')}</Text>
               </Box>
             ) : (
-              selectedPayments.map((payment) => (
-                <Box
-                  key={payment.id}
-                  p={3}
-                  border="1px solid"
-                  borderColor="gray.200"
-                  borderRadius="lg"
-                  bg="white"
-                >
-                  <HStack justify="space-between" align="flex-start" gap={3}>
-                    <Box flex={1} minW={0}>
-                      <HStack gap={2} mb={1} wrap="wrap">
-                        <Text fontWeight="semibold" lineClamp={1}>
-                          {payment.session?.name || t('transactions')}
-                        </Text>
-                        <PaymentStatusBadge status={payment.status} size="sm" />
-                      </HStack>
-                      <HStack gap={2} color="fg.muted" fontSize="sm">
-                        <Calendar size={14} />
-                        <Text>
-                          {payment.session?.startTime
-                            ? new Date(
-                                payment.session.startTime
-                              ).toLocaleDateString('vi-VN')
-                            : t('sessions')}
-                        </Text>
-                        {payment.paymentMethod && (
-                          <Badge colorPalette="gray" fontSize="xs">
-                            {payment.paymentMethod === PaymentMethod.CASH
-                              ? t('method.cash')
-                              : t('method.bankTransfer')}
-                          </Badge>
-                        )}
-                      </HStack>
-                    </Box>
-                    <VStack align="flex-end" gap={2}>
-                      <Text fontWeight="bold">
-                        {FeeService.formatPaymentAmount(payment.amount)}
-                      </Text>
-                      <Button
-                        size="xs"
-                        variant="outline"
-                        onClick={() => setSelectedPayment(payment)}
+              groupedPayments.map((group) => (
+                <Box key={group.key}>
+                  <Text
+                    fontSize="xs"
+                    fontWeight="semibold"
+                    color="fg.muted"
+                    textTransform="uppercase"
+                    mb={2}
+                  >
+                    {group.label}
+                  </Text>
+                  <VStack align="stretch" gap={2}>
+                    {group.payments.map((payment) => (
+                      <Box
+                        key={payment.id}
+                        p={3}
+                        border="1px solid"
+                        borderColor="gray.200"
+                        borderLeft="3px solid"
+                        borderLeftColor={paymentAccentColor(payment.status)}
+                        borderRadius="lg"
+                        bg="white"
+                        _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
                       >
-                        {t('viewDetails')}
-                      </Button>
-                    </VStack>
-                  </HStack>
+                        <HStack
+                          justify="space-between"
+                          align="flex-start"
+                          gap={3}
+                        >
+                          <Box flex={1} minW={0}>
+                            <HStack gap={2} mb={1} wrap="wrap">
+                              <Text fontWeight="semibold" lineClamp={1}>
+                                {payment.session?.name || t('transactions')}
+                              </Text>
+                              <PaymentStatusBadge
+                                status={payment.status}
+                                size="sm"
+                              />
+                              {payment.amount === 0 && (
+                                <Badge colorPalette="blue" fontSize="xs">
+                                  {t('freeLabel')}
+                                </Badge>
+                              )}
+                            </HStack>
+                            <HStack
+                              gap={2}
+                              color="fg.muted"
+                              fontSize="sm"
+                              wrap="wrap"
+                            >
+                              <HStack gap={1}>
+                                <Calendar size={14} />
+                                <Text>
+                                  {payment.session?.startTime
+                                    ? dayjs(payment.session.startTime)
+                                        .locale(dayjsLocale)
+                                        .format('DD/MM/YYYY')
+                                    : t('sessions')}
+                                </Text>
+                              </HStack>
+                              {payment.paymentMethod && (
+                                <HStack
+                                  gap={1}
+                                  px={2}
+                                  py={0.5}
+                                  borderRadius="full"
+                                  bg="gray.100"
+                                  _dark={{ bg: 'gray.700' }}
+                                  fontSize="xs"
+                                >
+                                  {payment.paymentMethod ===
+                                  PaymentMethod.CASH ? (
+                                    <Banknote size={12} />
+                                  ) : (
+                                    <Landmark size={12} />
+                                  )}
+                                  <Text>
+                                    {payment.paymentMethod ===
+                                    PaymentMethod.CASH
+                                      ? t('method.cash')
+                                      : t('method.bankTransfer')}
+                                  </Text>
+                                </HStack>
+                              )}
+                            </HStack>
+                          </Box>
+                          <VStack align="flex-end" gap={2}>
+                            <Text fontWeight="bold">
+                              {FeeService.formatPaymentAmount(payment.amount)}
+                            </Text>
+                            {payment.status === PaymentStatus.SUBMITTED ? (
+                              <Button
+                                size="xs"
+                                colorPalette="green"
+                                onClick={() => setSelectedPayment(payment)}
+                              >
+                                <Check size={14} />
+                                <Text ml={1}>{t('approveNow')}</Text>
+                              </Button>
+                            ) : payment.status === PaymentStatus.APPROVED ? (
+                              <IconButton
+                                size="xs"
+                                variant="ghost"
+                                colorPalette="green"
+                                aria-label={t('viewDetails')}
+                                onClick={() => setSelectedPayment(payment)}
+                              >
+                                <Check size={14} />
+                              </IconButton>
+                            ) : (
+                              <Button
+                                size="xs"
+                                variant="outline"
+                                colorPalette={
+                                  payment.status === PaymentStatus.REJECTED
+                                    ? 'red'
+                                    : 'gray'
+                                }
+                                onClick={() => setSelectedPayment(payment)}
+                              >
+                                {t('viewDetails')}
+                              </Button>
+                            )}
+                          </VStack>
+                        </HStack>
+                      </Box>
+                    ))}
+                  </VStack>
                 </Box>
               ))
             )}
