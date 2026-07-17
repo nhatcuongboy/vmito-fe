@@ -1884,6 +1884,38 @@
               "description": "Make your tournament viewable by participants and enable game result submissions.",
               "action": "Publish tournament"
             }
+          },
+          "guide": {
+            "headerSetup": "Tournament setup guide",
+            "headerFinished": "Tournament finished!",
+            "progress": "{completed} of {total} complete",
+            "menu": {
+              "dismiss": "Dismiss guide"
+            },
+            "collapse": "Collapse guide",
+            "expand": "Expand guide",
+            "moreActions": "Guide options",
+            "categoryMatches": "{finished}/{total}",
+            "steps": {
+              "poolPlay": {
+                "title": "Pool Play",
+                "description": "Enter the results for your group-stage matches."
+              },
+              "startPlayoffs": {
+                "title": "Start the playoffs",
+                "description": "Generate the elimination bracket once pool play is done.",
+                "action": "Go to rounds"
+              },
+              "playoffs": {
+                "title": "Playoffs",
+                "description": "Play out the bracket until every match is finished."
+              },
+              "finish": {
+                "title": "Finish tournament",
+                "description": "Mark the tournament as finished.",
+                "action": "Finish tournament"
+              }
+            }
           }
         },
         "formatWizard": {

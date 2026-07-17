@@ -1862,6 +1862,38 @@
               "description": "让参与者查看锦标赛并提交比赛结果。",
               "action": "发布锦标赛"
             }
+          },
+          "guide": {
+            "headerSetup": "赛事设置指南",
+            "headerFinished": "赛事已结束！",
+            "progress": "已完成 {completed}/{total} 步",
+            "menu": {
+              "dismiss": "隐藏指南"
+            },
+            "collapse": "收起指南",
+            "expand": "展开指南",
+            "moreActions": "指南选项",
+            "categoryMatches": "{finished}/{total}",
+            "steps": {
+              "poolPlay": {
+                "title": "小组赛",
+                "description": "录入小组赛比赛结果。"
+              },
+              "startPlayoffs": {
+                "title": "开始淘汰赛",
+                "description": "小组赛结束后生成淘汰赛对阵。",
+                "action": "前往轮次"
+              },
+              "playoffs": {
+                "title": "淘汰赛",
+                "description": "完成淘汰赛所有比赛。"
+              },
+              "finish": {
+                "title": "结束赛事",
+                "description": "将赛事标记为已结束。",
+                "action": "结束赛事"
+              }
+            }
           }
         },
         "formatWizard": {

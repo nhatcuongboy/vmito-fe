@@ -1893,6 +1893,38 @@
               "description": "Cho phép người tham gia xem giải đấu và gửi kết quả trận đấu.",
               "action": "Xuất bản giải đấu"
             }
+          },
+          "guide": {
+            "headerSetup": "Hướng dẫn thiết lập giải đấu",
+            "headerFinished": "Giải đấu đã kết thúc!",
+            "progress": "Hoàn thành {completed}/{total} bước",
+            "menu": {
+              "dismiss": "Ẩn hướng dẫn"
+            },
+            "collapse": "Thu gọn hướng dẫn",
+            "expand": "Mở rộng hướng dẫn",
+            "moreActions": "Tùy chọn hướng dẫn",
+            "categoryMatches": "{finished}/{total}",
+            "steps": {
+              "poolPlay": {
+                "title": "Đấu bảng",
+                "description": "Nhập kết quả cho các trận vòng bảng."
+              },
+              "startPlayoffs": {
+                "title": "Bắt đầu playoffs",
+                "description": "Tạo nhánh loại trực tiếp sau khi hoàn tất vòng bảng.",
+                "action": "Đến vòng đấu"
+              },
+              "playoffs": {
+                "title": "Playoffs",
+                "description": "Thi đấu nhánh loại trực tiếp đến khi hoàn tất mọi trận."
+              },
+              "finish": {
+                "title": "Kết thúc giải đấu",
+                "description": "Đánh dấu giải đấu đã kết thúc.",
+                "action": "Kết thúc giải"
+              }
+            }
           }
         },
         "formatWizard": {

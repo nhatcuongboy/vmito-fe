@@ -16,6 +16,7 @@ import {
   DuplicateTournamentRequest,
   DuplicateTournamentResponse,
   SportType,
+  TournamentProgress,
 } from './types';
 
 export interface IGetTournamentFilters {
@@ -324,6 +325,14 @@ export const TournamentService = {
       `/tournaments/${tournamentId}/all-matches`
     );
     return response.data.data || [];
+  },
+
+  // Per-category completion roll-up for the tournament guide stepper
+  getProgress: async (tournamentId: string): Promise<TournamentProgress> => {
+    const response = await dedupGet<ApiResponse<TournamentProgress>>(
+      `/tournaments/${tournamentId}/progress`
+    );
+    return response.data.data!;
   },
 
   // Clear all schedule assignments (court, startTime, duration) for every match

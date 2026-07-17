@@ -30,6 +30,7 @@ import { TournamentMatchListSkeleton } from '@/components/tournament/skeletons';
 import { CategoryService } from '@/lib/api/category.service';
 import { TournamentService } from '@/lib/api/tournament.service';
 import { toaster } from '@/components/ui/toaster';
+import { notifyTournamentProgressChanged } from '@/components/tournament/guide/progressEvents';
 import { VModal } from '@/components/ui/VModal';
 import SetupPoolsModal, { TSetupStep } from './SetupPoolsModal';
 import AdvancingTeamsModal from './AdvancingTeamsModal';
@@ -318,6 +319,7 @@ export default function RoundsPanel({
       });
       setIsRegenerateConfirmOpen(false);
       setGenerationPreview(null);
+      notifyTournamentProgressChanged();
       await loadGroupsAndMatches(activeCategory.id);
     } catch (error: unknown) {
       const message =
@@ -370,6 +372,7 @@ export default function RoundsPanel({
       await CategoryService.generateEliminationShells(activeCategory.id, {
         showToast: false,
       });
+      notifyTournamentProgressChanged();
       await loadGroupsAndMatches(activeCategory.id);
       toaster.success({
         title: t('panels.rounds.eliminationGamesGenerated'),
@@ -412,6 +415,7 @@ export default function RoundsPanel({
         }),
       });
       setIsDeleteAllMatchesOpen(false);
+      notifyTournamentProgressChanged();
       await loadGroupsAndMatches(activeCategory.id);
     } catch (error: unknown) {
       const message =
@@ -431,6 +435,7 @@ export default function RoundsPanel({
       await CategoryService.completeGroupStage(activeCategory.id, {
         showToast: false,
       });
+      notifyTournamentProgressChanged();
       setIsGenerateConfirmOpen(false);
       const refreshed = await handleRefreshCategory();
       const refreshedCategory = refreshed?.category ?? activeCategory;
