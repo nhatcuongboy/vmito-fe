@@ -39,6 +39,7 @@ import {
   LayoutList,
   UsersRound,
   Search,
+  LayoutGrid,
 } from 'lucide-react';
 import TournamentDashboard from '@/components/tournament/TournamentDashboard';
 import TournamentGuideWidget from '@/components/tournament/guide/TournamentGuideWidget';
@@ -48,10 +49,8 @@ import TournamentSidebar from '@/components/tournament/TournamentSidebar';
 import PublicTournamentStandingsTab from '@/components/tournament/PublicTournamentStandingsTab';
 import ResultsPanel from '@/components/tournament/manage/panels/ResultsPanel';
 import { useTournamentBottomNav } from '@/hooks/useTournamentBottomNav';
-import {
-  readTournamentNavCache,
-  writeTournamentNavCache,
-} from '@/lib/tournamentNavCache';
+import { useTournamentNavCache } from '@/hooks/useTournamentNavCache';
+import { writeTournamentNavCache } from '@/lib/tournamentNavCache';
 import TournamentTopBarMenu from '@/components/tournament/TournamentTopBarMenu';
 import {
   getTournamentPlayerCode,
@@ -416,6 +415,11 @@ export default function TournamentPageShell({
   const slug = params.id as string;
   const [tournament, setTournament] = useState<Tournament | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
   const [loadingTeams, setLoadingTeams] = useState(true);
   const [teamCategoryBlocks, setTeamCategoryBlocks] = useState<
     ITeamCategoryBlock[]
@@ -485,13 +489,12 @@ export default function TournamentPageShell({
   // detection) and the manager-access check have both resolved. Until then we
   // optimistically reuse the per-session cache so a host/admin/manager keeps
   // their Manage/Dashboard tabs across tab navigations instead of flickering
-  // back to the 4 public tabs. The cache is scoped by userId and disabled for
-  // logged-out users, so guests never see management menus.
+  // back to the 4 public tabs. The cache is read in a layout effect (not during
+  // render) so the hydration render matches the server HTML; the bottom bar is
+  // hidden until `navCacheReady` so it appears exactly once with the right tabs.
   const accessResolved = !!tournament && myAccessChecked;
-  const cachedAccess = useMemo(
-    () => readTournamentNavCache(user?.id ?? null, slug),
-    [user?.id, slug]
-  );
+  const { access: cachedAccess, ready: navCacheReady } =
+    useTournamentNavCache(slug);
 
   const canManage = accessResolved
     ? realCanManage
@@ -502,22 +505,21 @@ export default function TournamentPageShell({
 
   useEffect(() => {
     if (!accessResolved) return;
-    writeTournamentNavCache(user?.id ?? null, slug, {
+    writeTournamentNavCache(slug, {
       canManage: realCanManage,
       isHostOrAdmin: realIsHostOrAdmin,
     });
-  }, [accessResolved, realCanManage, realIsHostOrAdmin, user?.id, slug]);
+  }, [accessResolved, realCanManage, realIsHostOrAdmin, slug]);
 
   const activeTab = SEGMENT_TO_TAB[activeSegment];
 
-  const { tabs, handleTabChange } = useTournamentBottomNav({
-    slug,
-    activeTabId: activeTab,
-    canManage,
-    isHostOrAdmin,
-  });
-
-  const bottomNavTabs = tabs;
+  const { tabs, bottomNavTabs, handleTabChange, isMobile } =
+    useTournamentBottomNav({
+      slug,
+      activeTabId: activeTab,
+      canManage,
+      isHostOrAdmin,
+    });
 
   const appRootHref = '/';
   const topBarIcon = (
@@ -977,12 +979,15 @@ export default function TournamentPageShell({
           </Box>
         </PageLayout>
 
-        {/* Bottom tabs render normally during loading */}
-        <BottomNavigationBar
-          tabs={bottomNavTabs}
-          activeTab={activeTab}
-          onTabChange={handleTabChange}
-        />
+        {/* Bottom tabs render once the cached access state is known, so the
+            menu never swaps between guest and host tab sets */}
+        {navCacheReady && (
+          <BottomNavigationBar
+            tabs={bottomNavTabs}
+            activeTab={activeTab}
+            onTabChange={handleTabChange}
+          />
+        )}
       </>
     );
   }
@@ -1326,12 +1331,43 @@ export default function TournamentPageShell({
         />
       )}
 
+      {/* Mobile Floating Action Button (FAB) for Dashboard */}
+      {isMounted &&
+        isMobile &&
+        isHostOrAdmin &&
+        activeSegment !== 'dashboard' && (
+          <Box
+            position="fixed"
+            bottom="calc(80px + env(safe-area-inset-bottom))"
+            right="20px"
+            zIndex={1100}
+          >
+            <Button
+              variant="solid"
+              colorPalette="green"
+              borderRadius="full"
+              boxShadow="0 4px 16px rgba(34, 197, 94, 0.4)"
+              size="lg"
+              h="50px"
+              w="50px"
+              p={0}
+              onClick={() => router.push(`/tournament/${slug}/dashboard`)}
+              _active={{ transform: 'scale(0.96)' }}
+              transition="all 0.2s"
+            >
+              <LayoutGrid size={22} />
+            </Button>
+          </Box>
+        )}
+
       {/* Bottom tabs: mobile only */}
-      <BottomNavigationBar
-        tabs={bottomNavTabs}
-        activeTab={activeTab}
-        onTabChange={handleTabChange}
-      />
+      {navCacheReady && (
+        <BottomNavigationBar
+          tabs={bottomNavTabs}
+          activeTab={activeTab}
+          onTabChange={handleTabChange}
+        />
+      )}
     </>
   );
 }

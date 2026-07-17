@@ -16,13 +16,16 @@ import {
 } from '@chakra-ui/react';
 import { useLocale, useTranslations } from 'next-intl';
 import {
+  ArrowUpDown,
   Banknote,
   Calendar,
   Check,
   CheckCheck,
   Landmark,
+  ListFilter,
   Receipt,
   Search,
+  SlidersHorizontal,
   X,
 } from 'lucide-react';
 import ProtectedRouteGuard from '@/components/guards/ProtectedRouteGuard';
@@ -155,9 +158,14 @@ function HostTransactionsContent() {
   );
   const [dateFilter, setDateFilter] = useState<DateFilter>('all');
   const [sortBy, setSortBy] = useState<SortBy>('totalAmount');
+  const [showFilters, setShowFilters] = useState(false);
 
   const hasActiveFilters =
     searchQuery.trim() !== '' || statusFilter !== 'all' || dateFilter !== 'all';
+  const activeFilterCount =
+    (statusFilter !== 'all' ? 1 : 0) +
+    (dateFilter !== 'all' ? 1 : 0) +
+    (sortBy !== 'totalAmount' ? 1 : 0);
 
   const handleClearFilters = () => {
     setSearchQuery('');
@@ -490,54 +498,80 @@ function HostTransactionsContent() {
       </Text>
 
       {/* Filter bar */}
-      <VStack mb={6} gap={3} align="stretch">
-        <Box position="relative">
-          <Box
-            position="absolute"
-            left={3}
-            top="50%"
-            transform="translateY(-50%)"
-            color="fg.muted"
-            pointerEvents="none"
-            zIndex={1}
-          >
-            <Search size={15} />
+      <VStack mb={6} gap={2} align="stretch">
+        <HStack gap={2}>
+          <Box position="relative" flex={1}>
+            <Box
+              position="absolute"
+              left={3}
+              top="50%"
+              transform="translateY(-50%)"
+              color="fg.muted"
+              pointerEvents="none"
+              zIndex={1}
+            >
+              <Search size={15} />
+            </Box>
+            <Input
+              pl={9}
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder={t('searchByPlayer')}
+              size="sm"
+              bg="white"
+              _dark={{ bg: 'gray.800' }}
+            />
           </Box>
-          <Input
-            pl={9}
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder={t('searchByPlayer')}
-            size="sm"
-            bg="white"
-            _dark={{ bg: 'gray.800' }}
-          />
-        </Box>
-        <SimpleGrid columns={{ base: 1, sm: 3 }} gap={3}>
-          <Box>
-            <Text fontSize="xs" color="fg.muted" fontWeight="medium" mb={1}>
-              {t('filterStatus')}
-            </Text>
+          <Box position="relative">
+            <IconButton
+              size="sm"
+              variant={showFilters ? 'solid' : 'outline'}
+              colorPalette={activeFilterCount > 0 ? 'green' : 'gray'}
+              aria-label={t('toggleFilters')}
+              onClick={() => setShowFilters((prev) => !prev)}
+            >
+              <SlidersHorizontal size={16} />
+            </IconButton>
+            {activeFilterCount > 0 && (
+              <Badge
+                position="absolute"
+                top="-6px"
+                right="-6px"
+                borderRadius="full"
+                colorPalette="green"
+                fontSize="10px"
+                minW="16px"
+                h="16px"
+                px={0}
+                display="flex"
+                alignItems="center"
+                justifyContent="center"
+              >
+                {activeFilterCount}
+              </Badge>
+            )}
+          </Box>
+        </HStack>
+
+        {showFilters && (
+          <SimpleGrid columns={{ base: 1, sm: 3 }} gap={2}>
             <VSelect
               value={statusFilter}
               onChange={(e) =>
                 setStatusFilter(e.target.value as 'all' | 'pending' | 'paid')
               }
               size="sm"
+              leftElement={<ListFilter size={14} />}
             >
               <option value="all">{t('filterAll')}</option>
               <option value="pending">{t('filterHasPending')}</option>
               <option value="paid">{t('filterAllPaid')}</option>
             </VSelect>
-          </Box>
-          <Box>
-            <Text fontSize="xs" color="fg.muted" fontWeight="medium" mb={1}>
-              {t('dateFilterLabel')}
-            </Text>
             <VSelect
               value={dateFilter}
               onChange={(e) => setDateFilter(e.target.value as DateFilter)}
               size="sm"
+              leftElement={<Calendar size={14} />}
             >
               <option value="all">{t('dateFilterAll')}</option>
               <option value="today">{t('dateFilterToday')}</option>
@@ -545,15 +579,11 @@ function HostTransactionsContent() {
               <option value="month">{t('dateFilterMonth')}</option>
               <option value="year">{t('dateFilterYear')}</option>
             </VSelect>
-          </Box>
-          <Box>
-            <Text fontSize="xs" color="fg.muted" fontWeight="medium" mb={1}>
-              {t('sortByLabel')}
-            </Text>
             <VSelect
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value as SortBy)}
               size="sm"
+              leftElement={<ArrowUpDown size={14} />}
             >
               <option value="totalAmount">{t('sortTotalAmount')}</option>
               <option value="pendingAmount">{t('sortPendingAmount')}</option>
@@ -561,8 +591,9 @@ function HostTransactionsContent() {
               <option value="name">{t('sortNameAZ')}</option>
               <option value="sessions">{t('sortMostSessions')}</option>
             </VSelect>
-          </Box>
-        </SimpleGrid>
+          </SimpleGrid>
+        )}
+
         {hasActiveFilters && (
           <Box>
             <Button size="xs" variant="ghost" onClick={handleClearFilters}>

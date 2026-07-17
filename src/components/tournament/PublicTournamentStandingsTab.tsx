@@ -633,11 +633,13 @@ export default function PublicTournamentStandingsTab({
               </LegacySelect>
             </Box>
           )}
-          <PlayerNamesToggle
-            active={showPlayerNames}
-            onToggle={() => setShowPlayerNames((prev) => !prev)}
-            title={t('showPlayerNames')}
-          />
+          <Box display={{ base: 'none', md: 'block' }}>
+            <PlayerNamesToggle
+              active={showPlayerNames}
+              onToggle={() => setShowPlayerNames((prev) => !prev)}
+              title={t('showPlayerNames')}
+            />
+          </Box>
         </HStack>
       </Flex>
 
@@ -758,20 +760,29 @@ export default function PublicTournamentStandingsTab({
         ) : (
           <VStack align="stretch" gap={6}>
             {visiblePlayoffCategories.map(
-              ({
-                category,
-                groupStageMatchCount,
-                matches: categoryMatches,
-              }) => (
+              (
+                { category, groupStageMatchCount, matches: categoryMatches },
+                categoryIndex
+              ) => (
                 <Box key={category.id}>
-                  <Heading
-                    size="sm"
-                    mb={3}
-                    color="gray.600"
-                    _dark={{ color: 'gray.300' }}
-                  >
-                    {getCategoryLabel(category)}
-                  </Heading>
+                  <Flex align="center" justify="space-between" mb={3}>
+                    <Heading
+                      size="sm"
+                      color="gray.600"
+                      _dark={{ color: 'gray.300' }}
+                    >
+                      {getCategoryLabel(category)}
+                    </Heading>
+                    {categoryIndex === 0 && (
+                      <Box display={{ base: 'block', md: 'none' }}>
+                        <PlayerNamesToggle
+                          active={showPlayerNames}
+                          onToggle={() => setShowPlayerNames((prev) => !prev)}
+                          title={t('showPlayerNames')}
+                        />
+                      </Box>
+                    )}
+                  </Flex>
                   {category.format === CategoryFormat.DOUBLE_ELIMINATION ? (
                     <PublicDoubleEliminationBracket
                       category={category}
@@ -803,16 +814,26 @@ export default function PublicTournamentStandingsTab({
         </Text>
       ) : standingView === 'overall' ? (
         <VStack align="stretch" gap={6}>
-          {visibleOverallRows.map((block) => (
+          {visibleOverallRows.map((block, blockIndex) => (
             <Box key={block.category.id}>
-              <Heading
-                size="sm"
-                mb={3}
-                color="gray.600"
-                _dark={{ color: 'gray.300' }}
-              >
-                {getCategoryLabel(block.category)}
-              </Heading>
+              <Flex align="center" justify="space-between" mb={3}>
+                <Heading
+                  size="sm"
+                  color="gray.600"
+                  _dark={{ color: 'gray.300' }}
+                >
+                  {getCategoryLabel(block.category)}
+                </Heading>
+                {blockIndex === 0 && (
+                  <Box display={{ base: 'block', md: 'none' }}>
+                    <PlayerNamesToggle
+                      active={showPlayerNames}
+                      onToggle={() => setShowPlayerNames((prev) => !prev)}
+                      title={t('showPlayerNames')}
+                    />
+                  </Box>
+                )}
+              </Flex>
 
               {block.rows.length === 0 ? (
                 <Text
@@ -838,16 +859,26 @@ export default function PublicTournamentStandingsTab({
         </VStack>
       ) : (
         <VStack align="stretch" gap={6}>
-          {visibleBlocks.map((block) => (
+          {visibleBlocks.map((block, blockIndex) => (
             <Box key={block.category.id}>
-              <Heading
-                size="sm"
-                mb={3}
-                color="gray.600"
-                _dark={{ color: 'gray.300' }}
-              >
-                {getCategoryLabel(block.category)}
-              </Heading>
+              <Flex align="center" justify="space-between" mb={3}>
+                <Heading
+                  size="sm"
+                  color="gray.600"
+                  _dark={{ color: 'gray.300' }}
+                >
+                  {getCategoryLabel(block.category)}
+                </Heading>
+                {blockIndex === 0 && (
+                  <Box display={{ base: 'block', md: 'none' }}>
+                    <PlayerNamesToggle
+                      active={showPlayerNames}
+                      onToggle={() => setShowPlayerNames((prev) => !prev)}
+                      title={t('showPlayerNames')}
+                    />
+                  </Box>
+                )}
+              </Flex>
 
               {block.groups.length === 0 ? (
                 <Text

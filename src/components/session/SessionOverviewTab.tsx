@@ -739,6 +739,9 @@ export default function SessionOverviewTab({
             <Text color="fg.muted" fontSize="sm">
               {t('playersTab.rankingInfoEligibility')}
             </Text>
+            <Text color="orange.600" fontSize="xs" mt={1.5} fontStyle="italic">
+              {t('playersTab.rankingInfoEligibilityExample')}
+            </Text>
           </Box>
           <Box>
             <Text fontWeight="semibold" mb={2}>

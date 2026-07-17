@@ -210,7 +210,7 @@ export function PostCard({
   };
 
   const actionButtonBase =
-    'flex flex-1 items-center justify-center gap-2.5 rounded-lg py-2.5 text-[15px] font-medium transition-colors active:scale-[0.98]';
+    'flex flex-1 cursor-pointer items-center justify-center gap-2.5 rounded-lg py-2.5 text-[15px] font-medium transition-colors active:scale-[0.98]';
 
   return (
     <Box
@@ -255,10 +255,11 @@ export function PostCard({
           />
         </Link>
         <div className="min-w-0 flex-1">
-          <div className="truncate text-[15px] font-bold leading-5 text-gray-900 dark:text-gray-50">
+          <div className="truncate text-[16px] leading-5 text-gray-900 dark:text-gray-50">
             <Link
               href={ROUTES.USER.PROFILE(localPost.authorId)}
               className="hover:underline"
+              style={{ fontWeight: 700 }}
             >
               {localPost.author.name}
             </Link>
@@ -289,15 +290,16 @@ export function PostCard({
               <MoreHorizontal size={20} />
             </button>
             {showMenu && (
-              <div className="absolute right-0 z-10 mt-1 min-w-[180px] origin-top-right overflow-hidden rounded-lg border border-gray-100 bg-white py-1 shadow-lg dark:border-white/10 dark:bg-gray-800">
+              <div className="absolute right-0 z-10 mt-1 min-w-[150px] origin-top-right rounded-lg border border-gray-100 bg-white p-1 shadow-lg dark:border-white/10 dark:bg-gray-800">
                 <button
                   onClick={() => {
                     setShowDeleteConfirm(true);
                     setShowMenu(false);
                   }}
-                  className="flex w-full items-center gap-3 px-4 py-2.5 text-left text-sm font-medium text-red-500 transition hover:bg-red-50 dark:hover:bg-red-950/30"
+                  className="flex w-full cursor-pointer items-center gap-3 rounded-md text-left text-[15px] font-medium text-red-500 transition hover:bg-red-50 dark:hover:bg-red-950/30"
+                  style={{ padding: '8px 12px' }}
                 >
-                  <Trash2 size={16} />
+                  <Trash2 size={18} />
                   {t('delete')}
                 </button>
               </div>
@@ -312,10 +314,10 @@ export function PostCard({
           px={4}
           pt={2.5}
           whiteSpace="pre-wrap"
-          fontSize="15px"
-          lineHeight="relaxed"
-          color="gray.800"
-          _dark={{ color: 'gray.100' }}
+          fontSize="16px"
+          lineHeight="1.6"
+          color="gray.900"
+          _dark={{ color: 'gray.50' }}
         >
           {extractHashtags(localPost.content)}
         </Box>
@@ -446,6 +448,7 @@ export function PostCard({
       {/* Action bar */}
       <Box
         mx={4}
+        mt={!hasEngagement ? 3 : 0}
         borderTopWidth="1px"
         borderColor="gray.100"
         _dark={{ borderColor: 'whiteAlpha.100' }}

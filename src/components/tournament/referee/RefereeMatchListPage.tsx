@@ -215,7 +215,7 @@ export default function RefereeMatchListPage() {
   const isAdmin = user?.role === UserRole.ADMIN;
 
   const {
-    tabs: bottomNavTabs,
+    bottomNavTabs,
     activeTab: bottomNavActiveTab,
     handleTabChange: handleBottomNavTabChange,
   } = useTournamentBottomNav({

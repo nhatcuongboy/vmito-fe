@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useMemo } from 'react';
+import { useCallback, useMemo, useEffect, useState } from 'react';
 import {
   Home,
   Users,
@@ -34,9 +34,16 @@ interface UseTournamentBottomNavOptions {
 }
 
 interface UseTournamentBottomNavResult {
+  /** Full tab set for the desktop sidebar (includes Dashboard for hosts). */
   tabs: NavigationTab[];
+  /** Tabs for the mobile bottom bar — never includes Dashboard, which is
+   * reached via the floating action button on mobile. Keeping the set free of
+   * viewport checks means it never changes after mount, so the bar doesn't
+   * flicker on reload. */
+  bottomNavTabs: NavigationTab[];
   activeTab: number;
   handleTabChange: (tabId: number) => void;
+  isMobile: boolean;
 }
 
 /**
@@ -52,6 +59,16 @@ export function useTournamentBottomNav({
 }: UseTournamentBottomNavOptions): UseTournamentBottomNavResult {
   const t = useTranslations('pages.tournaments.detail');
   const router = useRouter();
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const media = window.matchMedia('(max-width: 767px)');
+    setIsMobile(media.matches);
+    const listener = (e: MediaQueryListEvent) => setIsMobile(e.matches);
+    media.addEventListener('change', listener);
+    return () => media.removeEventListener('change', listener);
+  }, []);
 
   const tabs = useMemo<NavigationTab[]>(() => {
     const allTabs: NavigationTab[] = [
@@ -69,6 +86,11 @@ export function useTournamentBottomNav({
     });
   }, [canManage, isHostOrAdmin, t]);
 
+  const bottomNavTabs = useMemo<NavigationTab[]>(
+    () => tabs.filter((tab) => tab.id !== 5),
+    [tabs]
+  );
+
   const handleTabChange = useCallback(
     (tabId: number) => {
       const route = TAB_ROUTES[tabId];
@@ -81,5 +103,11 @@ export function useTournamentBottomNav({
     [router, slug]
   );
 
-  return { tabs, activeTab: activeTabId, handleTabChange };
+  return {
+    tabs,
+    bottomNavTabs,
+    activeTab: activeTabId,
+    handleTabChange,
+    isMobile,
+  };
 }

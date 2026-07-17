@@ -14,6 +14,7 @@ import { PostAvatar } from './PostAvatar';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { Link } from '@/i18n/config';
 import { ROUTES } from '@/constants/routes';
+import { Box, Flex } from '@chakra-ui/react';
 
 const localeMap: Record<string, Locale> = { vi, en: enUS, cn: zhCN };
 
@@ -134,52 +135,82 @@ export function CommentSection({
   };
 
   return (
-    <div className="border-t border-gray-200 bg-white px-4 py-5 dark:border-white/10 dark:bg-gray-800 sm:px-5 sm:py-6">
-      <form onSubmit={handleSubmit} className="mb-8">
-        <div className="flex items-center gap-3 px-3">
+    <Box
+      borderTopWidth="1px"
+      borderColor={{ base: 'gray.200', _dark: 'whiteAlpha.100' }}
+      bg={{ base: 'gray.50', _dark: 'gray.900' }}
+      px={{ base: 3, sm: 4 }}
+      py={{ base: 2, sm: 2.5 }}
+    >
+      <form onSubmit={handleSubmit}>
+        <Flex align="center" gap={2.5} px={1} mb={2.5}>
           {currentUser && (
-            <PostAvatar
-              name={currentUser.name || currentUser.email || 'User'}
-              image={currentUser.image}
-              size={32}
-              className="shrink-0"
-            />
+            <Box className="shrink-0">
+              <PostAvatar
+                name={currentUser.name || currentUser.email || 'User'}
+                image={currentUser.image}
+                size={28}
+              />
+            </Box>
           )}
-          <div className="flex min-w-0 flex-1 items-center gap-2 rounded-full border border-gray-200 bg-white pl-5 pr-2 transition focus-within:border-green-500/60 focus-within:ring-1 focus-within:ring-green-500/60 dark:border-white/10 dark:bg-gray-700">
+          <Flex
+            minW={0}
+            flex={1}
+            align="center"
+            gap={2}
+            borderRadius="full"
+            borderWidth="1px"
+            borderColor={{ base: 'gray.300', _dark: 'whiteAlpha.300' }}
+            bg={{ base: 'white', _dark: 'gray.700' }}
+            pl={4}
+            pr={2}
+            h="36px"
+            transition="all 0.2s"
+            _focusWithin={{
+              borderColor: 'green.500',
+              boxShadow: '0 0 0 1px rgba(34, 197, 94, 0.6)',
+            }}
+          >
             <input
               type="text"
               value={newComment}
               onChange={(e) => setNewComment(e.target.value)}
               placeholder={t('writeComment')}
               aria-label={t('writeComment')}
-              className="h-10 min-w-0 flex-1 bg-transparent text-sm text-gray-800 placeholder:text-gray-500 focus:outline-none dark:text-gray-100 dark:placeholder:text-gray-400"
+              className="h-full min-w-0 flex-1 bg-transparent text-sm text-gray-800 placeholder:text-gray-500 focus:outline-none dark:text-gray-100 dark:placeholder:text-gray-400"
               disabled={isSubmitting}
             />
             <button
               type="submit"
               disabled={isSubmitting || !newComment.trim()}
               aria-label={t('sendComment')}
-              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-gray-700 transition hover:bg-gray-100 disabled:text-gray-400 disabled:hover:bg-transparent dark:text-gray-200 dark:hover:bg-white/10 dark:disabled:text-gray-500"
+              className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full transition ${
+                !newComment.trim()
+                  ? 'text-gray-400 dark:text-gray-500 cursor-not-allowed'
+                  : 'text-green-600 hover:bg-green-50 active:scale-95 dark:text-green-400 dark:hover:bg-white/10'
+              }`}
             >
               <Send size={18} />
             </button>
-          </div>
-        </div>
+          </Flex>
+        </Flex>
       </form>
 
       {isLoading && comments.length === 0 ? (
-        <LoadingSpinner py={4} spinnerProps={{ size: 'md' }} />
+        <LoadingSpinner py={3} spinnerProps={{ size: 'sm' }} />
       ) : comments.length === 0 ? (
-        <div className="py-6 text-center text-[13px] text-gray-500 dark:text-gray-400">
+        <Box
+          py={4}
+          textAlign="center"
+          fontSize="13px"
+          color={{ base: 'gray.500', _dark: 'gray.400' }}
+        >
           {t('noComments')}
-        </div>
+        </Box>
       ) : (
-        <div className="space-y-4">
+        <Flex direction="column" gap={1.5} px={1}>
           {comments.map((comment) => (
-            <div
-              key={comment.id}
-              className="group flex gap-3 rounded-xl px-3 py-2"
-            >
+            <Flex key={comment.id} className="group" gap={2} borderRadius="xl">
               <Link
                 href={ROUTES.USER.PROFILE(comment.userId)}
                 className="shrink-0 transition hover:opacity-90"
@@ -188,25 +219,47 @@ export function CommentSection({
                 <PostAvatar
                   name={comment.user.name}
                   image={comment.user.image}
-                  size={32}
-                  className="ring-2 ring-white dark:ring-gray-800"
+                  size={28}
                 />
               </Link>
-              <div className="min-w-0 flex-1">
-                <div className="w-full rounded-2xl bg-gray-100 px-4 py-3 dark:bg-gray-700">
-                  <div className="mb-0.5 text-[13px] font-bold text-gray-900 dark:text-gray-50">
+              <Box minW={0} flex={1}>
+                <Box
+                  w="full"
+                  borderRadius="xl"
+                  bg={{ base: 'gray.100', _dark: 'gray.700' }}
+                  px={3}
+                  py={1.5}
+                >
+                  <Box
+                    fontSize="13px"
+                    fontWeight="semibold"
+                    color={{ base: 'gray.900', _dark: 'gray.50' }}
+                  >
                     <Link
                       href={ROUTES.USER.PROFILE(comment.userId)}
                       className="hover:underline"
                     >
                       {comment.user.name}
                     </Link>
-                  </div>
-                  <div className="whitespace-pre-wrap break-words text-sm leading-snug text-gray-800 dark:text-gray-100">
+                  </Box>
+                  <Box
+                    whiteSpace="pre-wrap"
+                    wordBreak="break-word"
+                    fontSize="14px"
+                    lineHeight="1.4"
+                    color={{ base: 'gray.800', _dark: 'gray.100' }}
+                  >
                     {comment.content}
-                  </div>
-                </div>
-                <div className="mt-2 flex items-center gap-3 pl-4 text-xs text-gray-500 dark:text-gray-400">
+                  </Box>
+                </Box>
+                <Flex
+                  mt={0.5}
+                  align="center"
+                  gap={2}
+                  pl={3}
+                  fontSize="11px"
+                  color={{ base: 'gray.500', _dark: 'gray.400' }}
+                >
                   <span>
                     {formatDistanceToNow(new Date(comment.createdAt), {
                       addSuffix: true,
@@ -217,17 +270,17 @@ export function CommentSection({
                     <button
                       onClick={() => handleDelete(comment.id)}
                       aria-label={t('deleteComment')}
-                      className="flex items-center gap-1 font-medium text-red-500 transition hover:text-red-700 sm:opacity-0 sm:group-hover:opacity-100"
+                      className="flex cursor-pointer items-center gap-1 rounded-md px-2 py-1 -ml-2 font-medium text-red-500 transition hover:bg-red-50 hover:text-red-700 sm:opacity-0 sm:group-hover:opacity-100 dark:hover:bg-red-900/30"
                     >
                       <Trash2 size={12} />
                       {t('delete')}
                     </button>
                   )}
-                </div>
-              </div>
-            </div>
+                </Flex>
+              </Box>
+            </Flex>
           ))}
-        </div>
+        </Flex>
       )}
 
       {hasMore && (
@@ -239,6 +292,6 @@ export function CommentSection({
           {isLoading ? t('loading') : t('loadMoreComments')}
         </button>
       )}
-    </div>
+    </Box>
   );
 }

@@ -90,3 +90,10 @@
 ## State Management
 
 - Use `zustand` for state management.
+
+## Data Mutations (CRUD)
+
+- After a create/update/delete succeeds, never do a full page reload (`location.reload()`, forced remount, `router.refresh()` as a blanket fix, etc.) to reflect the change.
+- Update local/Zustand state directly instead: optimistic update, or patch the API response into state, for single-item changes.
+- If the mutation affects a list or several related items, refetch only the specific resource(s) affected — not the whole page.
+- Needing a full reload to see fresh data is a sign the state layer is out of sync; fix that instead of reloading.

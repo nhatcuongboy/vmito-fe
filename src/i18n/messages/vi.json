@@ -4713,6 +4713,7 @@
       "rankingInfoClose": "Đã hiểu",
       "rankingInfoEligibilityTitle": "Điều kiện xét MVP",
       "rankingInfoEligibility": "Người chơi cần có ít nhất 50% số trận của người chơi thi đấu nhiều nhất trong buổi, tối đa yêu cầu 3 trận. Người chưa có trận thắng sẽ không được xét MVP.",
+      "rankingInfoEligibilityExample": "Ví dụ: Nếu người chơi nhiều trận nhất có 4 trận → ngưỡng tối thiểu = ⌈4 × 50%⌉ = 2 trận. Người chỉ chơi 1 trận sẽ không đủ điều kiện tranh MVP dù có tỷ lệ thắng 100%.",
       "rankingInfoOrderTitle": "Thứ tự xếp hạng",
       "rankingInfoOrderWinRate": "1. Ưu tiên tỷ lệ thắng cao hơn.",
       "rankingInfoOrderWins": "2. Nếu cùng tỷ lệ thắng, ưu tiên số trận thắng nhiều hơn.",
@@ -4859,6 +4860,11 @@
     "averagePointDifferentialDescription": "Trung bình (điểm được - điểm mất) trên mỗi trận có đủ tỷ số",
     "pointDifferentialTiebreakBadge": "Phá hòa",
     "pointDifferentialTiebreakTooltip": "Hiệu số điểm trung bình đang được dùng để phân hạng nhóm người chơi này.",
+    "pointDiffPopoverTitle": "Hiệu điểm TB/trận",
+    "pointDiffPopoverFormula": "Công thức: (Điểm được − Điểm mất) / Số trận có tỷ số",
+    "pointDiffPopoverScoredMatches": "Trận có tỷ số",
+    "pointDiffPopoverOf": "/{total} trận",
+    "pointDiffPopoverNoScore": "Chưa có trận nào có đủ tỷ số",
     "columnAvgScore": "Điểm TB",
     "columnTotalPlayTime": "Thời gian chơi",
     "columnTotalWaitTime": "Thời gian chờ",
@@ -4901,7 +4907,10 @@
     "exportColumnsDescription": "Chọn cột sẽ hiển thị trong ảnh xuất.",
     "playerCount": "{count} người chơi",
     "playerCountSingular": "{count} người chơi",
-    "exportImage": "Xuất ảnh"
+    "exportImage": "Xuất ảnh",
+    "mvpBadgeTooltipWinRate": "Tỷ lệ thắng: {winRate}%",
+    "mvpBadgeTooltipWins": "Số trận thắng: {wins}/{totalMatches}",
+    "mvpBadgeTooltipMinMatches": "Đủ điều kiện: chơi ≥ {minMatches} trận"
   },
   "auth": {
     "signin": {
@@ -5357,6 +5366,7 @@
     "qrCodeUploaded": "Đã tải lên mã QR",
     "loadTransactionsFailed": "Không thể tải lịch sử giao dịch",
     "searchByPlayer": "Tìm theo tên người chơi...",
+    "toggleFilters": "Bộ lọc",
     "filterStatus": "Trạng thái",
     "filterAll": "Tất cả",
     "filterHasPending": "Còn nợ",
