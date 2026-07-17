@@ -8,7 +8,8 @@ import GlobalAiButton from '../../components/layout/GlobalAiButton';
 import ThemeColorSync from '../../components/layout/ThemeColorSync';
 import AppNavigationSplash from '../../components/ui/AppNavigationSplash';
 import AppStartupSplash from '../../components/ui/AppStartupSplash';
-import { Locale, SUPPORTED_LOCALES } from '@/i18n/locales';
+import { SUPPORTED_LOCALES } from '@/i18n/locales';
+import { getGlobalMessages, loadMessages } from '@/i18n/scopedMessages';
 import StructuredData from '../../components/seo/StructuredData';
 import {
   generateWebsiteSchema,
@@ -39,27 +40,9 @@ export default async function LocaleLayout({
 }) {
   const { locale } = await params;
 
-  // Load messages directly
-  let messages = {};
-  try {
-    if (SUPPORTED_LOCALES.includes(locale as Locale)) {
-      messages = (await import(`../../i18n/messages/${locale}.json`)).default;
-    } else {
-      // Fallback to English
-      messages = (await import(`../../i18n/messages/${Locale.EN}.json`))
-        .default;
-    }
-  } catch (error) {
-    console.error('Error loading messages:', error);
-    // Fallback to English
-    try {
-      messages = (await import(`../../i18n/messages/${Locale.EN}.json`))
-        .default;
-    } catch (fallbackError) {
-      console.error('Error loading fallback messages:', fallbackError);
-      messages = {};
-    }
-  }
+  // Only global namespaces go to the client here; route-scoped ones
+  // (pages.tournaments, ...) are provided by their route layouts.
+  const messages = getGlobalMessages(await loadMessages(locale));
 
   // Generate structured data for SEO
   const websiteSchema = generateWebsiteSchema(locale);
