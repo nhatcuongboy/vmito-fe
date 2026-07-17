@@ -21,7 +21,7 @@
     "mySessions": "Kèo của tôi",
     "joined": "Kèo tham gia",
     "transactions": "Giao dịch",
-    "paymentSettings": "Cài đặt thanh toán",
+    "paymentSettings": "Thanh toán",
     "myHostedSessions": "Quản lý kèo",
     "notifications": "Thông báo",
     "venues": "Sân bãi",
@@ -51,7 +51,7 @@
     "levelDescriptions": "Mô tả trình độ",
     "feedback": "Liên hệ & Báo lỗi",
     "newsfeed": "Bảng tin",
-    "sessionsManagement": "Quản lý kèo"
+    "sessionsManagement": "Quản lý kèo (Admin)"
   },
   "search": {
     "title": "Tìm kiếm",
@@ -105,6 +105,7 @@
     "tournaments": "Giải đấu",
     "finance": "Tài chính",
     "admin": "Quản lý",
+    "adminSection": "Admin",
     "roleHost": "Host",
     "roleAdmin": "Admin",
     "discovery": "Khám phá",
