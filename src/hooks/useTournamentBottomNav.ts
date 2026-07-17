@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useMemo } from 'react';
+import { useCallback, useMemo, useEffect, useState } from 'react';
 import {
   Home,
   Users,
@@ -37,6 +37,7 @@ interface UseTournamentBottomNavResult {
   tabs: NavigationTab[];
   activeTab: number;
   handleTabChange: (tabId: number) => void;
+  isMobile: boolean;
 }
 
 /**
@@ -52,6 +53,18 @@ export function useTournamentBottomNav({
 }: UseTournamentBottomNavOptions): UseTournamentBottomNavResult {
   const t = useTranslations('pages.tournaments.detail');
   const router = useRouter();
+  const [isMounted, setIsMounted] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+    if (typeof window === 'undefined') return;
+    const media = window.matchMedia('(max-width: 767px)');
+    setIsMobile(media.matches);
+    const listener = (e: MediaQueryListEvent) => setIsMobile(e.matches);
+    media.addEventListener('change', listener);
+    return () => media.removeEventListener('change', listener);
+  }, []);
 
   const tabs = useMemo<NavigationTab[]>(() => {
     const allTabs: NavigationTab[] = [
@@ -64,10 +77,10 @@ export function useTournamentBottomNav({
     ];
     return allTabs.filter((tab) => {
       if (tab.id === 4) return canManage;
-      if (tab.id === 5) return isHostOrAdmin;
+      if (tab.id === 5) return isHostOrAdmin && (!isMounted || !isMobile);
       return true;
     });
-  }, [canManage, isHostOrAdmin, t]);
+  }, [canManage, isHostOrAdmin, isMounted, isMobile, t]);
 
   const handleTabChange = useCallback(
     (tabId: number) => {
@@ -81,5 +94,5 @@ export function useTournamentBottomNav({
     [router, slug]
   );
 
-  return { tabs, activeTab: activeTabId, handleTabChange };
+  return { tabs, activeTab: activeTabId, handleTabChange, isMobile };
 }

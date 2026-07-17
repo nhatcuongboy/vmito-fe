@@ -201,19 +201,29 @@ export default function PublicTournamentWinnersTab({
         align={{ base: 'stretch', md: 'center' }}
         justify="space-between"
         direction={{ base: 'column', md: 'row' }}
-        gap={{ base: 2, md: 3 }}
+        gap={{ base: 2.5, md: 3 }}
         p={4}
         pb={3}
       >
-        <Box>
-          <Heading size="md" mb={1}>
-            {t('title')}
-          </Heading>
-        </Box>
+        <Flex
+          align="center"
+          justify="space-between"
+          w={{ base: '100%', md: 'auto' }}
+        >
+          <Heading size="md">{t('title')}</Heading>
+          {/* Mobile-only toggle on the right of title */}
+          <Box display={{ base: 'block', md: 'none' }}>
+            <PlayerNamesToggle
+              active={showPlayerNames}
+              onToggle={() => setShowPlayerNames((prev) => !prev)}
+              title={t('showPlayerNames')}
+            />
+          </Box>
+        </Flex>
 
         <Flex
           align="center"
-          justify="flex-end"
+          justify={{ base: 'stretch', md: 'flex-end' }}
           direction="row"
           gap={2}
           w={{ base: '100%', md: 'auto' }}
@@ -237,11 +247,14 @@ export default function PublicTournamentWinnersTab({
               </LegacySelect>
             </Box>
           )}
-          <PlayerNamesToggle
-            active={showPlayerNames}
-            onToggle={() => setShowPlayerNames((prev) => !prev)}
-            title={t('showPlayerNames')}
-          />
+          {/* Desktop-only toggle */}
+          <Box display={{ base: 'none', md: 'block' }}>
+            <PlayerNamesToggle
+              active={showPlayerNames}
+              onToggle={() => setShowPlayerNames((prev) => !prev)}
+              title={t('showPlayerNames')}
+            />
+          </Box>
         </Flex>
       </Flex>
 

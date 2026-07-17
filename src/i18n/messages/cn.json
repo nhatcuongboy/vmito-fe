@@ -4658,6 +4658,7 @@
       "rankingInfoClose": "知道了",
       "rankingInfoEligibilityTitle": "MVP 资格",
       "rankingInfoEligibility": "玩家需要至少完成本场最活跃玩家比赛数的 50%，最多要求 3 场。没有胜场的玩家不会参与 MVP 评选。",
+      "rankingInfoEligibilityExample": "示例：若最多场玩家打了 4 场 → 最低闹唃 = ⌄4 × 50%⌉ = 2 场。仅打 1 场的玩家即便胜率 100% 也不具备 MVP 资格。",
       "rankingInfoOrderTitle": "排名顺序",
       "rankingInfoOrderWinRate": "1. 胜率更高者优先。",
       "rankingInfoOrderWins": "2. 胜率相同，胜场更多者优先。",
@@ -4804,6 +4805,11 @@
     "averagePointDifferentialDescription": "每场有完整比分的比赛中，得分减去失分的平均值",
     "pointDifferentialTiebreakBadge": "破平",
     "pointDifferentialTiebreakTooltip": "当前并列组正在使用场均分差进行排名。",
+    "pointDiffPopoverTitle": "场均分差",
+    "pointDiffPopoverFormula": "公式：(得分 − 失分) / 有分场数",
+    "pointDiffPopoverScoredMatches": "有分场数",
+    "pointDiffPopoverOf": "/{total} 场",
+    "pointDiffPopoverNoScore": "尚无完整比分的比赛",
     "columnAvgScore": "平均得分",
     "columnTotalPlayTime": "总游戏时间",
     "columnTotalWaitTime": "总等待时间",
@@ -4846,7 +4852,10 @@
     "exportColumnsDescription": "选择导出图片中显示的列。",
     "playerCount": "{count} 位球员",
     "playerCountSingular": "{count} 位球员",
-    "exportImage": "导出图片"
+    "exportImage": "导出图片",
+    "mvpBadgeTooltipWinRate": "胜率：{winRate}%",
+    "mvpBadgeTooltipWins": "胜场：{wins}/{totalMatches}",
+    "mvpBadgeTooltipMinMatches": "资格：已玩 ≥ {minMatches} 场"
   },
   "auth": {
     "signin": {
@@ -5299,6 +5308,7 @@
     "qrCodeUploaded": "已上传二维码",
     "loadTransactionsFailed": "加载交易记录失败",
     "searchByPlayer": "按玩家姓名搜索...",
+    "toggleFilters": "筛选",
     "filterStatus": "状态",
     "filterAll": "全部",
     "filterHasPending": "有未付款",

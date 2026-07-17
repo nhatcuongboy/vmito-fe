@@ -150,6 +150,42 @@ const getMvpGroups = (players: PlayerStatistics[]): MvpGroups => ({
   female: getMvpGroup(players, 'FEMALE'),
 });
 
+/** Shared MVP popover content — renders win stats + eligibility threshold */
+const MvpTooltipContent = ({
+  player,
+  minMatches,
+  t,
+}: {
+  player: PlayerStatistics;
+  minMatches: number;
+  t: ReturnType<typeof useTranslations<'SessionPlayers'>>;
+}) => (
+  <VStack align="stretch" gap={1.5}>
+    <HStack justify="space-between">
+      <Text fontSize="xs" color="fg.muted">
+        {t('mvpBadgeTooltipWinRate', { winRate: player.winRate })}
+      </Text>
+    </HStack>
+    <HStack justify="space-between">
+      <Text fontSize="xs" color="fg.muted">
+        {t('mvpBadgeTooltipWins', {
+          wins: player.wins,
+          totalMatches: player.totalMatches,
+        })}
+      </Text>
+    </HStack>
+    <Text
+      fontSize="2xs"
+      color="green.600"
+      borderTopWidth="1px"
+      borderColor="gray.100"
+      pt={1}
+    >
+      {t('mvpBadgeTooltipMinMatches', { minMatches })}
+    </Text>
+  </VStack>
+);
+
 /** Sortable + filterable statistics table using VTable */
 const StatsTable = ({
   stats,
@@ -191,10 +227,28 @@ const StatsTable = ({
   }, [stats, filteredData, exportMode, externalFilters]);
 
   const mvpGroups = useMemo(() => getMvpGroups(displayedData), [displayedData]);
-  const defaultRanking = useMemo(
-    () => rankPlayerStatistics(displayedData),
-    [displayedData]
-  );
+
+  // Default display order: MVP-eligible players first (ranked), then ineligible
+  // players (ranked separately). This ensures MVP always appears near the top
+  // regardless of players who played fewer matches with a higher win rate.
+  const defaultRanking = useMemo(() => {
+    const minMatches = getMvpMinMatches(displayedData);
+    const eligible = displayedData.filter(
+      (p) => p.totalMatches >= minMatches && p.wins > 0
+    );
+    const ineligible = displayedData.filter(
+      (p) => p.totalMatches < minMatches || p.wins === 0
+    );
+    const eligibleRanking = rankPlayerStatistics(eligible);
+    const ineligibleRanking = rankPlayerStatistics(ineligible);
+    return {
+      players: [...eligibleRanking.players, ...ineligibleRanking.players],
+      pointDifferentialEligibleGroups:
+        eligibleRanking.pointDifferentialEligibleGroups,
+      pointDifferentialTiebreakPlayerIds:
+        eligibleRanking.pointDifferentialTiebreakPlayerIds,
+    };
+  }, [displayedData]);
   const pointDifferentialFormatter = useMemo(
     () =>
       new Intl.NumberFormat(locale, {
@@ -480,45 +534,104 @@ const StatsTable = ({
                         {p.name || t('unnamed')}
                       </Text>
                       {isOverallMvp && (
-                        <Badge
-                          colorPalette="yellow"
-                          variant="solid"
-                          size="xs"
-                          fontSize="9px"
-                          px={1}
-                          borderRadius="sm"
-                          whiteSpace="nowrap"
+                        <PopoverRoot
+                          positioning={{ placement: 'top' }}
+                          lazyMount
+                          unmountOnExit
                         >
-                          {isSharedOverallMvp ? t('sharedMvp') : t('mvp')}
-                        </Badge>
+                          <PopoverTrigger asChild>
+                            <Badge
+                              colorPalette="yellow"
+                              variant="solid"
+                              size="xs"
+                              fontSize="9px"
+                              px={1}
+                              borderRadius="sm"
+                              whiteSpace="nowrap"
+                              cursor="pointer"
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              {isSharedOverallMvp ? t('sharedMvp') : t('mvp')}
+                            </Badge>
+                          </PopoverTrigger>
+                          <PopoverContent w="190px" zIndex={2000}>
+                            <PopoverBody p={3}>
+                              <MvpTooltipContent
+                                player={p}
+                                minMatches={mvpGroups.overall.minMatches}
+                                t={t}
+                              />
+                            </PopoverBody>
+                          </PopoverContent>
+                        </PopoverRoot>
                       )}
                       {isMaleMvp && (
-                        <Badge
-                          colorPalette="blue"
-                          variant="subtle"
-                          size="xs"
-                          fontSize="9px"
-                          px={1}
-                          borderRadius="sm"
-                          whiteSpace="nowrap"
+                        <PopoverRoot
+                          positioning={{ placement: 'top' }}
+                          lazyMount
+                          unmountOnExit
                         >
-                          {isSharedMaleMvp ? t('sharedMaleMvp') : t('maleMvp')}
-                        </Badge>
+                          <PopoverTrigger asChild>
+                            <Badge
+                              colorPalette="blue"
+                              variant="subtle"
+                              size="xs"
+                              fontSize="9px"
+                              px={1}
+                              borderRadius="sm"
+                              whiteSpace="nowrap"
+                              cursor="pointer"
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              {isSharedMaleMvp
+                                ? t('sharedMaleMvp')
+                                : t('maleMvp')}
+                            </Badge>
+                          </PopoverTrigger>
+                          <PopoverContent w="190px" zIndex={2000}>
+                            <PopoverBody p={3}>
+                              <MvpTooltipContent
+                                player={p}
+                                minMatches={mvpGroups.male.minMatches}
+                                t={t}
+                              />
+                            </PopoverBody>
+                          </PopoverContent>
+                        </PopoverRoot>
                       )}
                       {isFemaleMvp && (
-                        <Badge
-                          colorPalette="pink"
-                          variant="subtle"
-                          size="xs"
-                          fontSize="9px"
-                          px={1}
-                          borderRadius="sm"
-                          whiteSpace="nowrap"
+                        <PopoverRoot
+                          positioning={{ placement: 'top' }}
+                          lazyMount
+                          unmountOnExit
                         >
-                          {isSharedFemaleMvp
-                            ? t('sharedFemaleMvp')
-                            : t('femaleMvp')}
-                        </Badge>
+                          <PopoverTrigger asChild>
+                            <Badge
+                              colorPalette="pink"
+                              variant="subtle"
+                              size="xs"
+                              fontSize="9px"
+                              px={1}
+                              borderRadius="sm"
+                              whiteSpace="nowrap"
+                              cursor="pointer"
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              {isSharedFemaleMvp
+                                ? t('sharedFemaleMvp')
+                                : t('femaleMvp')}
+                            </Badge>
+                          </PopoverTrigger>
+                          <PopoverContent w="190px" zIndex={2000}>
+                            <PopoverBody p={3}>
+                              <MvpTooltipContent
+                                player={p}
+                                minMatches={mvpGroups.female.minMatches}
+                                t={t}
+                              />
+                            </PopoverBody>
+                          </PopoverContent>
+                        </PopoverRoot>
                       )}
                     </HStack>
                   </Td>
@@ -610,30 +723,123 @@ const StatsTable = ({
                 )}
                 {visibleColumnSet.has('averagePointDifferential') && (
                   <Td textAlign="center" {...tdProps}>
-                    <VStack gap={0.5} align="center">
-                      <Text fontSize="sm" fontWeight="bold">
-                        {p.averagePointDifferential == null
-                          ? '—'
-                          : pointDifferentialFormatter.format(
-                              p.averagePointDifferential
-                            )}
+                    {p.averagePointDifferential == null &&
+                    p.scoredMatches === 0 ? (
+                      <Text fontSize="sm" color="fg.muted">
+                        —
                       </Text>
-                      {!exportMode &&
-                        defaultRanking.pointDifferentialTiebreakPlayerIds.has(
-                          p.playerId
-                        ) && (
-                          <Badge
-                            colorPalette="green"
-                            variant="subtle"
-                            size="xs"
-                            fontSize="9px"
-                            px={1}
-                            title={t('pointDifferentialTiebreakTooltip')}
+                    ) : (
+                      <PopoverRoot
+                        positioning={{ placement: 'top' }}
+                        lazyMount
+                        unmountOnExit
+                      >
+                        <PopoverTrigger asChild>
+                          <Box
+                            position="relative"
+                            display="flex"
+                            alignItems="center"
+                            justifyContent="center"
+                            cursor="pointer"
+                            _hover={{ opacity: 0.75 }}
+                            transition="opacity 0.15s"
+                            title={t('averagePointDifferentialDescription')}
+                            onClick={(e) => e.stopPropagation()}
+                            px={
+                              !exportMode &&
+                              defaultRanking.pointDifferentialTiebreakPlayerIds.has(
+                                p.playerId
+                              )
+                                ? '28px'
+                                : undefined
+                            }
                           >
-                            {t('pointDifferentialTiebreakBadge')}
-                          </Badge>
-                        )}
-                    </VStack>
+                            <Text fontSize="sm" fontWeight="bold">
+                              {p.averagePointDifferential == null
+                                ? '—'
+                                : pointDifferentialFormatter.format(
+                                    p.averagePointDifferential
+                                  )}
+                            </Text>
+                            {!exportMode &&
+                              defaultRanking.pointDifferentialTiebreakPlayerIds.has(
+                                p.playerId
+                              ) && (
+                                <Badge
+                                  position="absolute"
+                                  right={0}
+                                  colorPalette="green"
+                                  variant="subtle"
+                                  size="xs"
+                                  fontSize="9px"
+                                  px={1}
+                                  whiteSpace="nowrap"
+                                >
+                                  {t('pointDifferentialTiebreakBadge')}
+                                </Badge>
+                              )}
+                          </Box>
+                        </PopoverTrigger>
+                        <PopoverContent w="220px" zIndex={2000}>
+                          <PopoverBody p={3}>
+                            <VStack align="stretch" gap={2}>
+                              <Text
+                                fontSize="xs"
+                                fontWeight="bold"
+                                color="green.600"
+                              >
+                                {t('pointDiffPopoverTitle')}
+                              </Text>
+                              <Box
+                                bg="gray.50"
+                                borderRadius="md"
+                                px={2.5}
+                                py={1.5}
+                              >
+                                <Text
+                                  fontSize="2xl"
+                                  fontWeight="extrabold"
+                                  textAlign="center"
+                                  color={
+                                    p.averagePointDifferential == null
+                                      ? 'fg.muted'
+                                      : p.averagePointDifferential >= 0
+                                        ? 'green.600'
+                                        : 'red.500'
+                                  }
+                                >
+                                  {p.averagePointDifferential == null
+                                    ? '—'
+                                    : pointDifferentialFormatter.format(
+                                        p.averagePointDifferential
+                                      )}
+                                </Text>
+                              </Box>
+                              <HStack justify="space-between">
+                                <Text fontSize="xs" color="fg.muted">
+                                  {t('pointDiffPopoverScoredMatches')}
+                                </Text>
+                                <Text fontSize="xs" fontWeight="semibold">
+                                  {p.scoredMatches}
+                                  {t('pointDiffPopoverOf', {
+                                    total: p.totalMatches,
+                                  })}
+                                </Text>
+                              </HStack>
+                              <Text
+                                fontSize="2xs"
+                                color="fg.muted"
+                                borderTopWidth="1px"
+                                borderColor="gray.100"
+                                pt={1.5}
+                              >
+                                {t('pointDiffPopoverFormula')}
+                              </Text>
+                            </VStack>
+                          </PopoverBody>
+                        </PopoverContent>
+                      </PopoverRoot>
+                    )}
                   </Td>
                 )}
                 {visibleColumnSet.has('shuttlecock') && (

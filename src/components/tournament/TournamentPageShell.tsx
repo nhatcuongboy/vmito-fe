@@ -39,6 +39,7 @@ import {
   LayoutList,
   UsersRound,
   Search,
+  LayoutGrid,
 } from 'lucide-react';
 import TournamentDashboard from '@/components/tournament/TournamentDashboard';
 import TournamentGuideWidget from '@/components/tournament/guide/TournamentGuideWidget';
@@ -416,6 +417,11 @@ export default function TournamentPageShell({
   const slug = params.id as string;
   const [tournament, setTournament] = useState<Tournament | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
   const [loadingTeams, setLoadingTeams] = useState(true);
   const [teamCategoryBlocks, setTeamCategoryBlocks] = useState<
     ITeamCategoryBlock[]
@@ -510,7 +516,7 @@ export default function TournamentPageShell({
 
   const activeTab = SEGMENT_TO_TAB[activeSegment];
 
-  const { tabs, handleTabChange } = useTournamentBottomNav({
+  const { tabs, handleTabChange, isMobile } = useTournamentBottomNav({
     slug,
     activeTabId: activeTab,
     canManage,
@@ -1325,6 +1331,39 @@ export default function TournamentPageShell({
           onTournamentUpdate={(updated) => setTournament(updated)}
         />
       )}
+
+      {/* Mobile Floating Action Button (FAB) for Dashboard */}
+      {isMounted &&
+        isMobile &&
+        isHostOrAdmin &&
+        activeSegment !== 'dashboard' && (
+          <Box
+            position="fixed"
+            bottom="calc(80px + env(safe-area-inset-bottom))"
+            right="20px"
+            zIndex={1100}
+          >
+            <Button
+              variant="solid"
+              colorPalette="green"
+              borderRadius="full"
+              boxShadow="0 4px 16px rgba(34, 197, 94, 0.4)"
+              size="lg"
+              h="50px"
+              px={4.5}
+              onClick={() => router.push(`/tournament/${slug}/dashboard`)}
+              _active={{ transform: 'scale(0.96)' }}
+              transition="all 0.2s"
+            >
+              <HStack gap={2}>
+                <LayoutGrid size={18} />
+                <Text fontSize="sm" fontWeight="bold">
+                  {t('tabs.dashboard')}
+                </Text>
+              </HStack>
+            </Button>
+          </Box>
+        )}
 
       {/* Bottom tabs: mobile only */}
       <BottomNavigationBar

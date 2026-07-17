@@ -4698,6 +4698,7 @@
       "rankingInfoClose": "Got it",
       "rankingInfoEligibilityTitle": "MVP eligibility",
       "rankingInfoEligibility": "A player must play at least 50% of the matches played by the most active player in the session, capped at 3 required matches. Players without a win are not eligible for MVP.",
+      "rankingInfoEligibilityExample": "Example: If the busiest player has 4 matches → minimum threshold = ⌈4 × 50%⌉ = 2 matches. A player with only 1 match is ineligible for MVP even with a 100% win rate.",
       "rankingInfoOrderTitle": "Ranking order",
       "rankingInfoOrderWinRate": "1. Higher win rate ranks first.",
       "rankingInfoOrderWins": "2. If win rate is tied, more wins rank first.",
@@ -4844,6 +4845,11 @@
     "averagePointDifferentialDescription": "Average points for minus points against per match with a complete score",
     "pointDifferentialTiebreakBadge": "Tiebreak",
     "pointDifferentialTiebreakTooltip": "Average point differential is being used to rank this tied group.",
+    "pointDiffPopoverTitle": "Avg Diff/Match",
+    "pointDiffPopoverFormula": "Formula: (Points For − Points Against) / Scored Matches",
+    "pointDiffPopoverScoredMatches": "Scored matches",
+    "pointDiffPopoverOf": "/{total} matches",
+    "pointDiffPopoverNoScore": "No matches with complete scores yet",
     "columnAvgScore": "Avg Score",
     "columnTotalPlayTime": "Total Play Time",
     "columnTotalWaitTime": "Total Wait Time",
@@ -4886,7 +4892,10 @@
     "exportColumnsDescription": "Choose columns to show in the exported image.",
     "playerCount": "{count} players",
     "playerCountSingular": "{count} player",
-    "exportImage": "Export Image"
+    "exportImage": "Export Image",
+    "mvpBadgeTooltipWinRate": "Win rate: {winRate}%",
+    "mvpBadgeTooltipWins": "Wins: {wins}/{totalMatches}",
+    "mvpBadgeTooltipMinMatches": "Eligible: played ≥ {minMatches} matches"
   },
   "auth": {
     "signin": {
@@ -5340,6 +5349,7 @@
     "qrCodeUploaded": "QR code uploaded",
     "loadTransactionsFailed": "Failed to load transactions",
     "searchByPlayer": "Search by player name...",
+    "toggleFilters": "Filters",
     "filterStatus": "Status",
     "filterAll": "All",
     "filterHasPending": "Has pending",
