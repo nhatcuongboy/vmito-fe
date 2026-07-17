@@ -6061,6 +6061,8 @@
       "noDescription": "暂无场馆描述。",
       "courtLayout": "场地平面图",
       "updatePricing": "更新价目表",
+      "suggestPriceEdit": "建议修改价目表",
+      "suggestImageEdit": "建议修改图片",
       "tableDay": "星期",
       "tableTime": "时间段",
       "tableFixed": "固定",
@@ -6146,9 +6148,22 @@
     "currentValue": "当前",
     "requestedValue": "建议",
     "adminNote": "管理员备注",
+    "priceTitle": "建议修改价目表",
+    "priceDescription": "上传场地真实价目表的照片。管理员将审核并更新价格配置。",
+    "imageTitle": "建议修改场地图片",
+    "imageDescription": "上传新的场地图片。管理员将筛选并添加到图库。",
+    "priceHint": "清晰的价目表照片有助于更快、更准确地更新。",
+    "priceImageRequired": "请上传价目表照片",
+    "imageRequired": "请至少选择一张图片",
+    "reviewAndApply": "查看并应用",
+    "imageReviewHint": "打开详情以在应用前筛选图片。",
+    "imageSelectHint": "选择要添加到场地图库的图片。",
+    "configurePricing": "配置价目表",
     "types": {
       "CREATE": "新增场地",
-      "UPDATE": "更新场地"
+      "UPDATE": "更新场地",
+      "PRICE_CORRECTION": "修改价目表",
+      "IMAGE_CORRECTION": "修改场地图片"
     },
     "statuses": {
       "PENDING": "待审核",
@@ -6168,6 +6183,9 @@
       "website": "网站",
       "locatedWithin": "位于",
       "bookingPolicy": "预订政策",
+      "description": "场地介绍",
+      "priceImage": "价目表照片",
+      "suggestedImages": "建议图片",
       "note": "备注"
     },
     "placeholders": {
@@ -6175,7 +6193,10 @@
       "district": "选择区/县",
       "openingHours": "例如：6:00 - 22:00",
       "createNote": "添加有助于管理员核实场地的信息...",
-      "updateNote": "说明来源或需要更新的原因..."
+      "updateNote": "说明来源或需要更新的原因...",
+      "description": "补充场地的更多信息...",
+      "priceNote": "补充价目表的备注（可选）...",
+      "imageNote": "补充图片的备注（可选）..."
     },
     "validation": {
       "required": "请输入必填信息"

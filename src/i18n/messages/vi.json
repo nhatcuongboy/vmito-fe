@@ -6120,6 +6120,8 @@
       "noDescription": "Chưa có mô tả về sân này.",
       "courtLayout": "Sơ đồ sân",
       "updatePricing": "Cập nhật bảng giá",
+      "suggestPriceEdit": "Đề xuất sửa bảng giá",
+      "suggestImageEdit": "Đề xuất sửa ảnh",
       "tableDay": "Thứ",
       "tableTime": "Khung giờ",
       "tableFixed": "Cố định",
@@ -6205,9 +6207,22 @@
     "currentValue": "Hiện tại",
     "requestedValue": "Đề xuất",
     "adminNote": "Ghi chú quản trị viên",
+    "priceTitle": "Đề xuất sửa bảng giá",
+    "priceDescription": "Tải ảnh bảng giá thật của sân. Quản trị viên sẽ duyệt và cập nhật cấu hình giá.",
+    "imageTitle": "Đề xuất sửa ảnh sân",
+    "imageDescription": "Tải các ảnh mới của sân. Quản trị viên sẽ chọn lọc và thêm vào thư viện.",
+    "priceHint": "Ảnh chụp rõ bảng giá giúp cập nhật nhanh và chính xác hơn.",
+    "priceImageRequired": "Vui lòng tải ảnh bảng giá",
+    "imageRequired": "Vui lòng chọn ít nhất 1 ảnh",
+    "reviewAndApply": "Xem & duyệt",
+    "imageReviewHint": "Mở chi tiết để chọn lọc ảnh trước khi áp dụng.",
+    "imageSelectHint": "Chọn những ảnh muốn thêm vào thư viện của sân.",
+    "configurePricing": "Cấu hình bảng giá",
     "types": {
       "CREATE": "Tạo sân mới",
-      "UPDATE": "Cập nhật sân"
+      "UPDATE": "Cập nhật sân",
+      "PRICE_CORRECTION": "Sửa bảng giá",
+      "IMAGE_CORRECTION": "Sửa ảnh sân"
     },
     "statuses": {
       "PENDING": "Chờ duyệt",
@@ -6227,6 +6242,9 @@
       "website": "Website",
       "locatedWithin": "Nằm trong",
       "bookingPolicy": "Chính sách đặt sân",
+      "description": "Giới thiệu về sân",
+      "priceImage": "Ảnh bảng giá",
+      "suggestedImages": "Ảnh đề xuất",
       "note": "Ghi chú"
     },
     "placeholders": {
@@ -6234,7 +6252,10 @@
       "district": "Chọn quận/huyện",
       "openingHours": "VD: 6:00 - 22:00",
       "createNote": "Thêm thông tin giúp admin xác minh sân...",
-      "updateNote": "Mô tả nguồn hoặc lý do cần cập nhật..."
+      "updateNote": "Mô tả nguồn hoặc lý do cần cập nhật...",
+      "description": "Mô tả thêm về sân...",
+      "priceNote": "Ghi chú thêm về bảng giá (nếu có)...",
+      "imageNote": "Ghi chú thêm về ảnh (nếu có)..."
     },
     "validation": {
       "required": "Vui lòng nhập thông tin bắt buộc"

@@ -43,6 +43,7 @@ const venueRequestSchema = z.object({
   website: z.string().max(500).optional(),
   locatedWithin: z.string().max(200).optional(),
   bookingPolicy: z.string().max(2000).optional(),
+  description: z.string().max(5000).optional(),
   note: z.string().max(2000).optional(),
 });
 
@@ -76,6 +77,7 @@ const toPayload = (values: VenueRequestFormValues): VenueRequestPayload => ({
   website: values.website?.trim() || undefined,
   locatedWithin: values.locatedWithin?.trim() || undefined,
   bookingPolicy: values.bookingPolicy?.trim() || undefined,
+  description: values.description?.trim() || undefined,
   note: values.note?.trim() || undefined,
 });
 
@@ -108,6 +110,7 @@ export default function VenueRequestModal({
       website: venue?.website || '',
       locatedWithin: venue?.locatedWithin || '',
       bookingPolicy: venue?.bookingPolicy || '',
+      description: venue?.description || '',
       note: '',
     }),
     [defaultKeyword, venue]
@@ -445,6 +448,20 @@ export default function VenueRequestModal({
           render={({ field }) => (
             <Field label={t('fields.bookingPolicy')}>
               <Textarea {...field} rows={3} />
+            </Field>
+          )}
+        />
+
+        <Controller
+          control={form.control}
+          name="description"
+          render={({ field }) => (
+            <Field label={t('fields.description')}>
+              <Textarea
+                {...field}
+                rows={4}
+                placeholder={t('placeholders.description')}
+              />
             </Field>
           )}
         />

@@ -63,6 +63,8 @@ import { formatVenueFullName, getGoogleMapsUrl } from '@/utils';
 import { useTranslations } from 'next-intl';
 import VenueMapPin from '@/components/venue/VenueMapPin';
 import VenueRequestModal from '@/components/venue/VenueRequestModal';
+import VenuePriceRequestModal from '@/components/venue/VenuePriceRequestModal';
+import VenueImageRequestModal from '@/components/venue/VenueImageRequestModal';
 import DetailViewCountFooter from '@/components/common/DetailViewCountFooter';
 import dynamic from 'next/dynamic';
 
@@ -230,6 +232,8 @@ export default function VenueDetailClient({
   const [loading, setLoading] = useState(!initialVenue);
   const [activeTab, setActiveTab] = useState('about');
   const [isUpdateRequestOpen, setIsUpdateRequestOpen] = useState(false);
+  const [isPriceRequestOpen, setIsPriceRequestOpen] = useState(false);
+  const [isImageRequestOpen, setIsImageRequestOpen] = useState(false);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [priceBooks, setPriceBooks] = useState<VenuePriceBook[]>([]);
 
@@ -310,6 +314,22 @@ export default function VenueDetailClient({
       return;
     }
     setIsUpdateRequestOpen(true);
+  };
+
+  const handleOpenPriceRequest = () => {
+    if (!user) {
+      setIsLoginModalOpen(true);
+      return;
+    }
+    setIsPriceRequestOpen(true);
+  };
+
+  const handleOpenImageRequest = () => {
+    if (!user) {
+      setIsLoginModalOpen(true);
+      return;
+    }
+    setIsImageRequestOpen(true);
   };
 
   if (loading) {
@@ -723,19 +743,30 @@ export default function VenueDetailClient({
                           {t('detail.pricing')}
                         </Heading>
                       </Flex>
-                      {isAdmin && !hasPricingRows && (
+                      <HStack gap={2}>
+                        {isAdmin && !hasPricingRows && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            colorPalette="green"
+                            onClick={() =>
+                              router.push(`/admin/venues/${venue.id}/pricing`)
+                            }
+                          >
+                            <Banknote size={14} />
+                            {t('detail.updatePricing')}
+                          </Button>
+                        )}
                         <Button
-                          variant="outline"
+                          variant="ghost"
                           size="sm"
                           colorPalette="green"
-                          onClick={() =>
-                            router.push(`/admin/venues/${venue.id}/pricing`)
-                          }
+                          onClick={handleOpenPriceRequest}
                         >
-                          <Banknote size={14} />
-                          {t('detail.updatePricing')}
+                          <PencilLine size={14} />
+                          {t('detail.suggestPriceEdit')}
                         </Button>
-                      )}
+                      </HStack>
                     </Flex>
 
                     {hasPricingRows ? (
@@ -1039,9 +1070,20 @@ export default function VenueDetailClient({
                   borderColor="gray.100"
                   shadow="sm"
                 >
-                  <Heading size="md" mb={5} fontWeight="bold">
-                    {t('detail.photosHeading')}
-                  </Heading>
+                  <Flex align="center" justify="space-between" gap={3} mb={5}>
+                    <Heading size="md" fontWeight="bold">
+                      {t('detail.photosHeading')}
+                    </Heading>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      colorPalette="green"
+                      onClick={handleOpenImageRequest}
+                    >
+                      <PencilLine size={14} />
+                      {t('detail.suggestImageEdit')}
+                    </Button>
+                  </Flex>
                   {venue.images && venue.images.length > 0 ? (
                     <SimpleGrid columns={{ base: 2, md: 3 }} gap={4}>
                       {venue.images.map((imgUrl, idx) => (
@@ -1462,6 +1504,16 @@ export default function VenueDetailClient({
         onClose={() => setIsUpdateRequestOpen(false)}
         type={VenueRequestType.UPDATE}
         venue={venue}
+      />
+      <VenuePriceRequestModal
+        isOpen={isPriceRequestOpen}
+        onClose={() => setIsPriceRequestOpen(false)}
+        venueId={venue.id}
+      />
+      <VenueImageRequestModal
+        isOpen={isImageRequestOpen}
+        onClose={() => setIsImageRequestOpen(false)}
+        venueId={venue.id}
       />
       {isLoginModalOpen && (
         <LoginPromptModal
