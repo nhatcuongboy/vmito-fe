@@ -642,15 +642,15 @@ export default function PublicTournamentStandingsTab({
       </Flex>
 
       <Flex
-        align="center"
+        align={{ base: 'stretch', md: 'center' }}
         justify="space-between"
-        direction="row"
-        gap={3}
+        direction={{ base: 'column', md: 'row' }}
+        gap={2}
         mb={{ base: 3, md: 4 }}
       >
-        <Box flexShrink={0}>
+        <Box flexShrink={0} order={{ base: 2, md: 1 }}>
           {stageView === 'pool' && (
-            <Box w="fit-content" minW="120px">
+            <Box w={{ base: 'full', md: 'fit-content' }} minW={{ md: '120px' }}>
               <LegacySelect
                 value={standingView}
                 onChange={(event) =>
@@ -668,11 +668,12 @@ export default function PublicTournamentStandingsTab({
         <Flex
           p={0.5}
           gap={0.5}
+          w={{ base: 'full', md: 'fit-content' }}
           borderWidth="1px"
           borderColor="gray.200"
           borderRadius="lg"
           bg="white"
-          ml="auto"
+          ml={{ base: 0, md: 'auto' }}
           shadow="sm"
           h="fit-content"
           _dark={{
@@ -681,8 +682,10 @@ export default function PublicTournamentStandingsTab({
               'var(--tournament-border, var(--chakra-colors-gray-700))',
           }}
           flexShrink={0}
+          order={{ base: 1, md: 2 }}
         >
           <Button
+            flex={{ base: 1, md: 'initial' }}
             size="sm"
             variant={stageView === 'pool' ? 'solid' : 'ghost'}
             colorPalette={stageView === 'pool' ? 'green' : 'gray'}
@@ -691,12 +694,13 @@ export default function PublicTournamentStandingsTab({
             px={3}
             onClick={() => setStageView('pool')}
           >
-            <HStack gap={2}>
+            <HStack gap={2} justify="center">
               <ListTree size={15} />
               <Text>{t('poolPlay')}</Text>
             </HStack>
           </Button>
           <Button
+            flex={{ base: 1, md: 'initial' }}
             size="sm"
             variant={stageView === 'playoffs' ? 'solid' : 'ghost'}
             colorPalette={stageView === 'playoffs' ? 'green' : 'gray'}
@@ -705,7 +709,7 @@ export default function PublicTournamentStandingsTab({
             px={3}
             onClick={() => setStageView('playoffs')}
           >
-            <HStack gap={2}>
+            <HStack gap={2} justify="center">
               <GitBranch size={15} />
               <Text>{t('playoffs')}</Text>
             </HStack>
