@@ -130,6 +130,14 @@ export interface IClubAnnouncement {
   };
 }
 
+export interface ICreateClubAnnouncementDto {
+  title: string;
+  content: string;
+  pinnedUntil?: string;
+}
+
+export type IUpdateClubAnnouncementDto = Partial<ICreateClubAnnouncementDto>;
+
 export interface IClub {
   id: string;
   slug?: string;

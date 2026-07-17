@@ -14,6 +14,9 @@ import {
   ICreateClubFeeDto,
   IClubUserSearchResult,
   EMemberRole,
+  IClubAnnouncement,
+  ICreateClubAnnouncementDto,
+  IUpdateClubAnnouncementDto,
 } from '@/types/club';
 import { ApiResponse } from './base';
 
@@ -356,6 +359,61 @@ export const ClubsService = {
     // Backend: @Delete(':id/fees/:feeId') deleteClubFee(@Param('feeId') feeId: string, @CurrentUser() user: JwtUser)
     // Wait, the backend @Delete(':id/fees/:feeId') has TWO params, but the handler only uses feeId and user.
     // So /clubs/anything/fees/:feeId should work.
+  },
+
+  // ==========================================
+  // Announcements
+  // ==========================================
+
+  /**
+   * Get all announcements for a club
+   */
+  getClubAnnouncements: async (
+    clubId: string
+  ): Promise<IClubAnnouncement[]> => {
+    const response = await api.get<ApiResponse<IClubAnnouncement[]>>(
+      `/clubs/${clubId}/announcements`
+    );
+    return response.data.data || [];
+  },
+
+  /**
+   * Create a new announcement
+   */
+  createAnnouncement: async (
+    clubId: string,
+    data: ICreateClubAnnouncementDto
+  ): Promise<IClubAnnouncement> => {
+    const response = await api.post<ApiResponse<IClubAnnouncement>>(
+      `/clubs/${clubId}/announcements`,
+      data
+    );
+    return response.data.data!;
+  },
+
+  /**
+   * Update an announcement
+   */
+  updateAnnouncement: async (
+    clubId: string,
+    announcementId: string,
+    data: IUpdateClubAnnouncementDto
+  ): Promise<IClubAnnouncement> => {
+    const response = await api.put<ApiResponse<IClubAnnouncement>>(
+      `/clubs/${clubId}/announcements/${announcementId}`,
+      data
+    );
+    return response.data.data!;
+  },
+
+  /**
+   * Delete an announcement
+   */
+  deleteAnnouncement: async (
+    clubId: string,
+    announcementId: string
+  ): Promise<void> => {
+    await api.delete(`/clubs/${clubId}/announcements/${announcementId}`);
   },
 
   /**

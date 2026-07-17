@@ -244,7 +244,10 @@ export default function ClubDetailClient({
 
               <ClubScheduleTab schedules={club.schedules} />
 
-              <ClubAnnouncementsTab announcements={club.announcements} />
+              <ClubAnnouncementsTab
+                clubId={club.id}
+                isUserAdmin={Boolean(isUserAdmin)}
+              />
               <ClubPhotosTab clubName={club.name} images={club.images} />
             </Box>
 
