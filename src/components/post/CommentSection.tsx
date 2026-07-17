@@ -139,17 +139,17 @@ export function CommentSection({
       borderTopWidth="1px"
       borderColor={{ base: 'gray.200', _dark: 'whiteAlpha.100' }}
       bg={{ base: 'gray.50', _dark: 'gray.900' }}
-      px={{ base: 4, sm: 4 }}
-      py={{ base: 3, sm: 4 }}
+      px={{ base: 3, sm: 4 }}
+      py={{ base: 2, sm: 2.5 }}
     >
       <form onSubmit={handleSubmit}>
-        <Flex align="center" gap={3} px={1} mb={4}>
+        <Flex align="center" gap={2.5} px={1} mb={2.5}>
           {currentUser && (
             <Box className="shrink-0">
               <PostAvatar
                 name={currentUser.name || currentUser.email || 'User'}
                 image={currentUser.image}
-                size={32}
+                size={28}
               />
             </Box>
           )}
@@ -164,7 +164,7 @@ export function CommentSection({
             bg={{ base: 'white', _dark: 'gray.700' }}
             pl={4}
             pr={2}
-            h="40px"
+            h="36px"
             transition="all 0.2s"
             _focusWithin={{
               borderColor: 'green.500',
@@ -197,10 +197,10 @@ export function CommentSection({
       </form>
 
       {isLoading && comments.length === 0 ? (
-        <LoadingSpinner py={4} spinnerProps={{ size: 'md' }} />
+        <LoadingSpinner py={3} spinnerProps={{ size: 'sm' }} />
       ) : comments.length === 0 ? (
         <Box
-          py={6}
+          py={4}
           textAlign="center"
           fontSize="13px"
           color={{ base: 'gray.500', _dark: 'gray.400' }}
@@ -208,15 +208,9 @@ export function CommentSection({
           {t('noComments')}
         </Box>
       ) : (
-        <Flex direction="column" gap={3} px={1}>
+        <Flex direction="column" gap={1.5} px={1}>
           {comments.map((comment) => (
-            <Flex
-              key={comment.id}
-              className="group"
-              gap={3}
-              borderRadius="xl"
-              py={0.5}
-            >
+            <Flex key={comment.id} className="group" gap={2} borderRadius="xl">
               <Link
                 href={ROUTES.USER.PROFILE(comment.userId)}
                 className="shrink-0 transition hover:opacity-90"
@@ -225,21 +219,19 @@ export function CommentSection({
                 <PostAvatar
                   name={comment.user.name}
                   image={comment.user.image}
-                  size={32}
-                  className="ring-2 ring-white dark:ring-gray-800"
+                  size={28}
                 />
               </Link>
               <Box minW={0} flex={1}>
                 <Box
                   w="full"
-                  borderRadius="2xl"
+                  borderRadius="xl"
                   bg={{ base: 'gray.100', _dark: 'gray.700' }}
-                  px={3.5}
-                  pt={2}
-                  pb={2.5}
+                  px={3}
+                  py={1.5}
                 >
                   <Box
-                    fontSize="14px"
+                    fontSize="13px"
                     fontWeight="semibold"
                     color={{ base: 'gray.900', _dark: 'gray.50' }}
                   >
@@ -253,19 +245,19 @@ export function CommentSection({
                   <Box
                     whiteSpace="pre-wrap"
                     wordBreak="break-word"
-                    fontSize="15px"
-                    lineHeight="1.5"
+                    fontSize="14px"
+                    lineHeight="1.4"
                     color={{ base: 'gray.800', _dark: 'gray.100' }}
                   >
                     {comment.content}
                   </Box>
                 </Box>
                 <Flex
-                  mt={2}
+                  mt={0.5}
                   align="center"
-                  gap={3}
-                  pl={4}
-                  fontSize="xs"
+                  gap={2}
+                  pl={3}
+                  fontSize="11px"
                   color={{ base: 'gray.500', _dark: 'gray.400' }}
                 >
                   <span>

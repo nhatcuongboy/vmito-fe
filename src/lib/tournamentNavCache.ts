@@ -18,16 +18,14 @@ export interface TournamentNavAccess {
   isHostOrAdmin: boolean;
 }
 
-const buildKey = (userId: string, slug: string): string =>
-  `vmito.canManage.${userId}.${slug}`;
+const buildKey = (slug: string): string => `vmito.canManage.${slug}`;
 
 export const readTournamentNavCache = (
-  userId: string | null | undefined,
   slug: string
 ): TournamentNavAccess | null => {
-  if (!userId || !slug || typeof window === 'undefined') return null;
+  if (!slug || typeof window === 'undefined') return null;
   try {
-    const raw = window.sessionStorage.getItem(buildKey(userId, slug));
+    const raw = window.sessionStorage.getItem(buildKey(slug));
     if (!raw) return null;
     const parsed = JSON.parse(raw) as Partial<TournamentNavAccess>;
     return {
@@ -40,17 +38,22 @@ export const readTournamentNavCache = (
 };
 
 export const writeTournamentNavCache = (
-  userId: string | null | undefined,
   slug: string,
   access: TournamentNavAccess
 ): void => {
-  if (!userId || !slug || typeof window === 'undefined') return;
+  if (!slug || typeof window === 'undefined') return;
   try {
-    window.sessionStorage.setItem(
-      buildKey(userId, slug),
-      JSON.stringify(access)
-    );
+    window.sessionStorage.setItem(buildKey(slug), JSON.stringify(access));
   } catch {
     // Ignore quota / serialization errors — the cache is best-effort.
+  }
+};
+
+export const clearTournamentNavCache = (slug: string): void => {
+  if (!slug || typeof window === 'undefined') return;
+  try {
+    window.sessionStorage.removeItem(buildKey(slug));
+  } catch {
+    // ignore
   }
 };

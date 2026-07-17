@@ -34,7 +34,13 @@ interface UseTournamentBottomNavOptions {
 }
 
 interface UseTournamentBottomNavResult {
+  /** Full tab set for the desktop sidebar (includes Dashboard for hosts). */
   tabs: NavigationTab[];
+  /** Tabs for the mobile bottom bar — never includes Dashboard, which is
+   * reached via the floating action button on mobile. Keeping the set free of
+   * viewport checks means it never changes after mount, so the bar doesn't
+   * flicker on reload. */
+  bottomNavTabs: NavigationTab[];
   activeTab: number;
   handleTabChange: (tabId: number) => void;
   isMobile: boolean;
@@ -53,11 +59,9 @@ export function useTournamentBottomNav({
 }: UseTournamentBottomNavOptions): UseTournamentBottomNavResult {
   const t = useTranslations('pages.tournaments.detail');
   const router = useRouter();
-  const [isMounted, setIsMounted] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
-    setIsMounted(true);
     if (typeof window === 'undefined') return;
     const media = window.matchMedia('(max-width: 767px)');
     setIsMobile(media.matches);
@@ -77,10 +81,15 @@ export function useTournamentBottomNav({
     ];
     return allTabs.filter((tab) => {
       if (tab.id === 4) return canManage;
-      if (tab.id === 5) return isHostOrAdmin && (!isMounted || !isMobile);
+      if (tab.id === 5) return isHostOrAdmin;
       return true;
     });
-  }, [canManage, isHostOrAdmin, isMounted, isMobile, t]);
+  }, [canManage, isHostOrAdmin, t]);
+
+  const bottomNavTabs = useMemo<NavigationTab[]>(
+    () => tabs.filter((tab) => tab.id !== 5),
+    [tabs]
+  );
 
   const handleTabChange = useCallback(
     (tabId: number) => {
@@ -94,5 +103,11 @@ export function useTournamentBottomNav({
     [router, slug]
   );
 
-  return { tabs, activeTab: activeTabId, handleTabChange, isMobile };
+  return {
+    tabs,
+    bottomNavTabs,
+    activeTab: activeTabId,
+    handleTabChange,
+    isMobile,
+  };
 }
