@@ -1,0 +1,241 @@
+import {
+  Award,
+  Bell,
+  BookOpen,
+  CalendarDays,
+  CreditCard,
+  Info,
+  MapPin,
+  MessageCircle,
+  Newspaper,
+  Receipt,
+  Search,
+  SlidersHorizontal,
+  Swords,
+  Trophy,
+  Users,
+  UserSearch,
+  type LucideIcon,
+} from 'lucide-react';
+import type { ComponentType } from 'react';
+import { ROUTES } from '@/constants';
+import { UserRole } from '@/lib/api/types';
+import type { User } from '@/types/auth';
+import SessionsMenu from './SessionsMenu';
+
+/** Everything a visibility/href/active predicate may depend on. */
+export interface NavContext {
+  user: User | null;
+  isAuthenticated: boolean;
+  canAccessHostFeatures: boolean;
+}
+
+type Translator = (key: string) => string;
+
+export interface NavTranslators {
+  nav: Translator;
+  common: Translator;
+}
+
+export interface NavItemComponentProps {
+  isCollapsed: boolean;
+  onClose: () => void;
+}
+
+interface NavItemBase {
+  key: string;
+  /** Defaults to always visible. */
+  isVisible?: (ctx: NavContext) => boolean;
+}
+
+/** A standard link item rendered by SidebarNavItem. */
+export interface NavLinkConfig extends NavItemBase {
+  icon: LucideIcon;
+  label: (t: NavTranslators) => string;
+  getHref: (ctx: NavContext) => string;
+  /** Defaults to exact match for '/', startsWith for other hrefs. */
+  isActive?: (pathname: string, ctx: NavContext) => boolean;
+}
+
+/** An item with its own rendering (e.g. a submenu). */
+export interface NavComponentConfig extends NavItemBase {
+  component: ComponentType<NavItemComponentProps>;
+}
+
+export type NavItemConfig = NavLinkConfig | NavComponentConfig;
+
+export interface NavSectionConfig {
+  key: string;
+  title: (t: NavTranslators) => string;
+  isVisible?: (ctx: NavContext) => boolean;
+  items: NavItemConfig[];
+}
+
+export function isNavLinkActive(
+  item: NavLinkConfig,
+  pathname: string,
+  ctx: NavContext
+): boolean {
+  if (item.isActive) {
+    return item.isActive(pathname, ctx);
+  }
+  const href = item.getHref(ctx);
+  // Exact match for home, startsWith for others
+  return href === '/' ? pathname === '/' : pathname.startsWith(href);
+}
+
+const isAdmin = (ctx: NavContext) => ctx.user?.role === UserRole.ADMIN;
+
+export const NAV_SECTIONS: NavSectionConfig[] = [
+  {
+    key: 'discovery',
+    title: (t) => t.common('discovery'),
+    items: [
+      {
+        key: 'home',
+        icon: Search,
+        label: (t) => t.nav('home'),
+        getHref: () => ROUTES.HOME,
+      },
+      {
+        key: 'browseVenues',
+        icon: MapPin,
+        label: (t) => t.nav('browseVenues'),
+        getHref: () => ROUTES.BROWSE.VENUES.LIST,
+      },
+      {
+        key: 'browseClubs',
+        icon: UserSearch,
+        label: (t) => t.nav('browseClubs'),
+        getHref: () => ROUTES.CLUBS.BROWSE,
+      },
+      {
+        key: 'browseTournaments',
+        icon: Trophy,
+        label: (t) => t.nav('browseTournaments'),
+        getHref: () => ROUTES.BROWSE.TOURNAMENTS.LIST,
+      },
+      {
+        key: 'newsfeed',
+        icon: Newspaper,
+        label: (t) => t.nav('newsfeed'),
+        getHref: () => ROUTES.NEWSFEED,
+        isVisible: (ctx) => ctx.isAuthenticated,
+      },
+    ],
+  },
+  {
+    key: 'management',
+    title: (t) => t.common('admin'),
+    isVisible: (ctx) => ctx.isAuthenticated,
+    items: [
+      {
+        key: 'sessions',
+        component: SessionsMenu,
+      },
+      {
+        key: 'myClubs',
+        icon: Users,
+        label: (t) => t.nav('myClubs'),
+        getHref: () => ROUTES.CLUBS.MY_CLUBS,
+      },
+      {
+        key: 'tournaments',
+        icon: Swords,
+        label: (t) => t.nav('tournaments'),
+        getHref: () => ROUTES.HOST.TOURNAMENTS.LIST,
+        isVisible: (ctx) =>
+          (ctx.canAccessHostFeatures || ctx.user?.role === UserRole.REFEREE) &&
+          (ctx.user?.role === UserRole.ADMIN ||
+            ctx.user?.role === UserRole.HOST ||
+            ctx.user?.role === UserRole.REFEREE),
+      },
+      {
+        key: 'transactions',
+        icon: Receipt,
+        label: (t) => t.nav('transactions'),
+        getHref: (ctx) =>
+          ctx.canAccessHostFeatures
+            ? ROUTES.HOST.TRANSACTIONS
+            : ROUTES.PLAYER.TRANSACTIONS,
+        isActive: (pathname) =>
+          pathname.startsWith(ROUTES.HOST.TRANSACTIONS) ||
+          pathname.startsWith(ROUTES.PLAYER.TRANSACTIONS),
+      },
+      {
+        key: 'paymentSettings',
+        icon: CreditCard,
+        label: (t) => t.nav('paymentSettings'),
+        getHref: () => ROUTES.HOST.PAYMENT_SETTINGS,
+        isVisible: (ctx) => ctx.canAccessHostFeatures,
+      },
+      {
+        key: 'adminUsers',
+        icon: Users,
+        label: (t) => t.nav('users'),
+        getHref: () => ROUTES.ADMIN.USERS,
+        isVisible: isAdmin,
+      },
+      {
+        key: 'adminSessions',
+        icon: CalendarDays,
+        label: (t) => t.nav('sessionsManagement'),
+        getHref: () => ROUTES.ADMIN.SESSIONS,
+        isVisible: isAdmin,
+      },
+      {
+        key: 'adminNotifications',
+        icon: Bell,
+        label: (t) => t.nav('notifications'),
+        getHref: () => ROUTES.ADMIN.NOTIFICATIONS,
+        isVisible: isAdmin,
+      },
+      {
+        key: 'adminFeedback',
+        icon: MessageCircle,
+        label: (t) => t.nav('feedback'),
+        getHref: () => ROUTES.ADMIN.FEEDBACK,
+        isVisible: isAdmin,
+      },
+      {
+        key: 'adminGeneralSettings',
+        icon: SlidersHorizontal,
+        label: (t) => t.nav('generalSettings'),
+        getHref: () => ROUTES.ADMIN.GENERAL,
+        isVisible: isAdmin,
+      },
+      {
+        key: 'adminLevelDescriptions',
+        icon: Award,
+        label: (t) => t.nav('levelDescriptions'),
+        getHref: () => ROUTES.ADMIN.LEVEL_DESCRIPTIONS,
+        isVisible: isAdmin,
+      },
+      {
+        key: 'adminVenues',
+        icon: MapPin,
+        label: (t) => t.nav('venues'),
+        getHref: () => ROUTES.ADMIN.VENUES,
+        isVisible: isAdmin,
+      },
+    ],
+  },
+  {
+    key: 'other',
+    title: (t) => t.common('otherSection'),
+    items: [
+      {
+        key: 'about',
+        icon: Info,
+        label: (t) => t.common('about'),
+        getHref: () => ROUTES.ABOUT,
+      },
+      {
+        key: 'guide',
+        icon: BookOpen,
+        label: (t) => t.common('guide'),
+        getHref: () => ROUTES.GUIDE,
+      },
+    ],
+  },
+];
