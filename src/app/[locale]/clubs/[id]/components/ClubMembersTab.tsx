@@ -46,7 +46,7 @@ import {
 interface IClubMembersTabProps {
   club: IClub;
   isUserAdmin: boolean;
-  onClubChanged: () => Promise<void>;
+  onClubChanged: (silent?: boolean) => Promise<void>;
 }
 
 interface IMemberInfoRowProps {
@@ -153,7 +153,7 @@ export const ClubMembersTab = ({
       setMemberSearchResults((previousResults) =>
         previousResults.filter((user) => user.id !== userId)
       );
-      await onClubChanged();
+      await onClubChanged(true);
     } catch (error) {
       console.error('Failed to add club member:', error);
       toaster.error({ title: t('clubs.failedToAddClubMember') });
@@ -172,7 +172,7 @@ export const ClubMembersTab = ({
       toaster.success({ title: t('clubs.clubMemberRemovedSuccess') });
       setMemberToRemove(null);
       setSelectedMember(null);
-      await onClubChanged();
+      await onClubChanged(true);
     } catch (error) {
       console.error('Failed to remove club member:', error);
       toaster.error({ title: t('clubs.failedToRemoveClubMember') });

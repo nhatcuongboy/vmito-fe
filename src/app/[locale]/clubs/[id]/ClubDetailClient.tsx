@@ -81,25 +81,28 @@ export default function ClubDetailClient({
   const [isJoining, setIsJoining] = useState(false);
   const [hasPendingRequest, setHasPendingRequest] = useState(false);
 
-  const loadClubDetails = useCallback(async () => {
-    try {
-      setIsLoading(true);
-      const [data, myRequests] = await Promise.all([
-        ClubsService.getClubDetails(clubId),
-        ClubsService.getMyJoinRequests().catch(() => []),
-      ]);
-      setClub(data);
-      const pending = myRequests.some(
-        (r) => r.clubId === clubId && r.status === EJoinRequestStatus.PENDING
-      );
-      setHasPendingRequest(pending);
-    } catch (error) {
-      console.error('Failed to load club details:', error);
-      toaster.error({ title: t('common.error') });
-    } finally {
-      setIsLoading(false);
-    }
-  }, [clubId, t]);
+  const loadClubDetails = useCallback(
+    async (silent?: boolean) => {
+      try {
+        if (!silent) setIsLoading(true);
+        const [data, myRequests] = await Promise.all([
+          ClubsService.getClubDetails(clubId),
+          ClubsService.getMyJoinRequests().catch(() => []),
+        ]);
+        setClub(data);
+        const pending = myRequests.some(
+          (r) => r.clubId === clubId && r.status === EJoinRequestStatus.PENDING
+        );
+        setHasPendingRequest(pending);
+      } catch (error) {
+        console.error('Failed to load club details:', error);
+        toaster.error({ title: t('common.error') });
+      } finally {
+        if (!silent) setIsLoading(false);
+      }
+    },
+    [clubId, t]
+  );
 
   useEffect(() => {
     if (initialClub) return;
