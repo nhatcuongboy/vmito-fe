@@ -133,9 +133,16 @@ const SessionCardCompact = ({
         borderColor="whiteAlpha.200"
         backdropFilter="blur(4px)"
         gap={1}
+        px={{ base: 1.5, md: 2 }}
       >
-        <Icon as={Facebook} boxSize={3} />
-        {t('crawledBadge')}
+        <Icon as={Facebook} boxSize={3} flexShrink={0} />
+        {/* Full label only fits once the cover is full-card-width (md+ —
+            the mobile row layout's 112px thumbnail is too narrow for
+            "Bài đăng Facebook" and it gets clipped by the cover's
+            overflow:hidden); the body line below spells it out anyway. */}
+        <Box as="span" display={{ base: 'none', md: 'inline' }}>
+          {t('crawledBadge')}
+        </Box>
       </Badge>
     );
   } else if (!isExpired) {
@@ -336,15 +343,16 @@ const SessionCardCompact = ({
           {/* Session source right under the title: host for app sessions,
               Facebook attribution for crawled ones */}
           {isCrawled ? (
-            <Flex align="center" gap={1}>
+            <Flex align="center" gap={1} minW={0}>
               <Icon as={Facebook} boxSize={3} color="blue.500" flexShrink={0} />
               <Text
                 fontSize="2xs"
                 color="gray.500"
                 _dark={{ color: 'fg.subtle' }}
                 lineClamp={1}
+                minW={0}
               >
-                {t('crawledSourcePrefix')}
+                {session.externalSource || t('crawledSourcePrefix')}
               </Text>
             </Flex>
           ) : (
