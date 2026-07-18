@@ -636,6 +636,19 @@
       "or": "或",
       "description": "粘贴招募球友的帖子，AI 会预填活动草稿，发布前您可以先检查。",
       "inputLabel": "帖子内容",
+      "templateLabel": "选择内容模板",
+      "templateHint": "选择模板即可自动填充内容，发送给 AI 前仍可编辑。",
+      "templateAction": "插入模板",
+      "templateApplied": "已插入模板",
+      "templateInserted": "内容模板已插入到输入框中",
+      "unresolvedPlaceholdersWarning": "内容中仍有尚未替换的模板信息。AI 将继续分析，您可以在下一步补充缺失字段。",
+      "templates": {
+        "standard": {
+          "name": "标准球局模板",
+          "description": "包含组织者、场馆、时间、水平要求和费用等基本信息。",
+          "content": "球局名称：[球局名称]\n描述：[球局简短描述]\n组织者：[组织者姓名]\n电话：[组织者电话]\n场馆名称：[场馆名称]\n地址：[场馆地址]\n日期：[活动日期]\n时间：[开始时间] - [结束时间]\n场地数量：[场地数量]\n每片场地最多人数：[最多人数]\n水平要求：[水平要求]\n用球：[用球类型]\n费用：[参加费用]"
+        }
+      },
       "placeholder": "例如：\n今晚在 HCM 第一区 ABC 球场招募 2 名羽毛球手。\n时间：{date} 18:00-20:00。\n费用：80,000 越南盾/人。\n等级：中级-高级。\n联系人 Minh：0912345678。",
       "generate": "用 AI 创建",
       "generating": "分析中...",

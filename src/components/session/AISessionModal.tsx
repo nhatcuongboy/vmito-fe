@@ -1,17 +1,21 @@
 'use client';
 
 import React, { useEffect, useId, useState } from 'react';
-import { Box, Field, Text, Textarea } from '@chakra-ui/react';
+import { Box, Field, Flex, Text, Textarea } from '@chakra-ui/react';
 import { useLocale, useTranslations } from 'next-intl';
-import { Sparkles, SquarePen } from 'lucide-react';
+import { FileText, Sparkles, SquarePen } from 'lucide-react';
 import { VModal } from '@/components/ui/VModal';
 import { AIService, ExtractedSessionData } from '@/lib/api/ai.service';
 import { toaster } from '@/components/ui/toaster';
 import { Locale } from '@/i18n/locales';
 import { useRouter } from '@/i18n/config';
 import { ROUTES } from '@/constants';
-import { Flex } from '@chakra-ui/react';
 import { Button } from '@/components/ui/chakra-compat';
+import {
+  AI_SESSION_CONTENT_TEMPLATES,
+  AiSessionContentTemplateId,
+  hasUnresolvedTemplatePlaceholders,
+} from './aiSessionContentTemplates';
 
 export interface AISessionModalProps {
   isOpen: boolean;
@@ -51,6 +55,11 @@ export const AISessionModal: React.FC<AISessionModalProps> = ({
       return;
     }
 
+    if (hasUnresolvedTemplatePlaceholders(articleContent)) {
+      toaster.warning({ title: t('aiModal.unresolvedPlaceholdersWarning') });
+      return;
+    }
+
     setIsLoading(true);
     try {
       const extracted = await AIService.extractSessionFromArticle(
@@ -82,6 +91,17 @@ export const AISessionModal: React.FC<AISessionModalProps> = ({
       onClose();
       router.push(ROUTES.SESSIONS.NEW);
     }
+  };
+
+  const handleTemplateSelect = (templateId: AiSessionContentTemplateId) => {
+    const template = AI_SESSION_CONTENT_TEMPLATES.find(
+      (item) => item.id === templateId
+    );
+
+    if (!template) return;
+
+    setArticleContent(t(template.contentKey));
+    toaster.success({ title: t('aiModal.templateInserted') });
   };
 
   return (
@@ -140,10 +160,36 @@ export const AISessionModal: React.FC<AISessionModalProps> = ({
         </Flex>
       }
     >
-      <Box>
+      <Box display="flex" flexDirection="column" gap={4}>
         <Field.Root>
-          <Field.Label htmlFor={articleContentId}>
-            {t('aiModal.inputLabel')}
+          <Field.Label
+            htmlFor={articleContentId}
+            display="flex"
+            alignItems="center"
+            justifyContent="space-between"
+            gap={3}
+            width="full"
+          >
+            <Text flex="1">{t('aiModal.inputLabel')}</Text>
+            {articleContent.trim() === '' ? (
+              <Flex justify="flex-end" marginStart="auto">
+                {AI_SESSION_CONTENT_TEMPLATES.map((template) => (
+                  <Button
+                    key={template.id}
+                    type="button"
+                    size="xs"
+                    variant="outline"
+                    colorPalette="purple"
+                    disabled={isLoading}
+                    aria-pressed="false"
+                    onClick={() => handleTemplateSelect(template.id)}
+                  >
+                    <FileText size={14} />
+                    {t('aiModal.templateAction')}
+                  </Button>
+                ))}
+              </Flex>
+            ) : null}
           </Field.Label>
           <Textarea
             id={articleContentId}

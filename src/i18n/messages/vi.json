@@ -655,6 +655,19 @@
       "or": "hoặc",
       "description": "Dán bài tuyển vãng lai, AI sẽ điền sẵn thông tin kèo để bạn kiểm tra trước khi đăng.",
       "inputLabel": "Nội dung",
+      "templateLabel": "Chọn mẫu nội dung",
+      "templateHint": "Chọn mẫu để điền nhanh nội dung. Bạn có thể chỉnh sửa trước khi gửi cho AI.",
+      "templateAction": "Chèn mẫu",
+      "templateApplied": "Đã chèn mẫu",
+      "templateInserted": "Đã chèn mẫu nội dung vào ô nhập",
+      "unresolvedPlaceholdersWarning": "Nội dung vẫn còn thông tin mẫu chưa được thay thế. AI sẽ tiếp tục phân tích và bạn có thể bổ sung các trường còn thiếu ở bước tiếp theo.",
+      "templates": {
+        "standard": {
+          "name": "Mẫu tạo kèo tiêu chuẩn",
+          "description": "Đầy đủ thông tin cơ bản về chủ kèo, sân, lịch chơi, trình độ và chi phí.",
+          "content": "Tên kèo: [Tên kèo]\nMô tả: [Mô tả ngắn về kèo]\nHost: [Tên host]\nSĐT: [SĐT của host]\nTên sân: [Tên sân]\nĐịa chỉ: [Địa chỉ sân]\nNgày: [Ngày chơi]\nThời gian: [Giờ bắt đầu] - [Giờ kết thúc]\nSố lượng sân: [Số lượng]\nSố người tối đa mỗi sân: [Số người tối đa]\nTrình độ: [Trình độ yêu cầu]\nCầu: [Loại cầu sử dụng]\nPhí: [Phí tham gia kèo]"
+        }
+      },
       "placeholder": "Ví dụ:\nTuyển 2 bạn đánh cầu lông tối nay tại sân ABC, Quận 1, HCM.\nThời gian: 18:00-20:00, ngày {date}.\nPhí: 80.000đ/người.\nTrình độ: trung bình-khá.\nLiên hệ Minh: 0912345678.",
       "generate": "Tạo bằng AI",
       "generating": "Đang phân tích...",

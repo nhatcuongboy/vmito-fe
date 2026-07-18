@@ -654,6 +654,19 @@
       "or": "or",
       "description": "Paste a player recruitment post and AI will prefill a draft for you to review before posting.",
       "inputLabel": "Post content",
+      "templateLabel": "Choose a content template",
+      "templateHint": "Choose a template to prefill the content. You can edit it before sending it to AI.",
+      "templateAction": "Insert template",
+      "templateApplied": "Template inserted",
+      "templateInserted": "The content template has been inserted",
+      "unresolvedPlaceholdersWarning": "Some template information has not been replaced. AI will continue analyzing it, and you can complete any missing fields in the next step.",
+      "templates": {
+        "standard": {
+          "name": "Standard session template",
+          "description": "Includes the essential host, venue, schedule, skill level, and fee information.",
+          "content": "Session name: [Session name]\nDescription: [Short session description]\nHost: [Host name]\nPhone: [Host phone number]\nVenue name: [Venue name]\nAddress: [Venue address]\nDate: [Play date]\nTime: [Start time] - [End time]\nNumber of courts: [Court count]\nMaximum players per court: [Maximum players]\nSkill level: [Required skill level]\nShuttlecock: [Shuttlecock type]\nFee: [Participation fee]"
+        }
+      },
       "placeholder": "Example:\nLooking for 2 badminton players tonight at ABC Court, District 1, HCM.\nTime: 18:00-20:00, {date}.\nFee: 80,000 VND/person.\nLevel: intermediate-advanced.\nContact Minh: 0912345678.",
       "generate": "Create by AI",
       "generating": "Analyzing...",
