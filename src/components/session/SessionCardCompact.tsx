@@ -27,18 +27,14 @@ import {
   sortLevelsByRank,
 } from '@/constants/levels';
 import { normalizeImageUrl } from '@/lib/images/normalizeImageUrl';
+import { COMPACT_COVER_TRANSFORM } from '@/lib/images/coverTransforms';
 import { DEFAULT_COVER_PHOTO } from '@/constants';
-import { formatCompactSessionDate } from '@/utils/session-helpers';
+import {
+  formatCompactSessionDate,
+  formatExternalSourceName,
+} from '@/utils/session-helpers';
 import { formatTimeRangeByDevicePreference } from '@/utils/time-helpers';
 import { formatVenueName } from '@/utils/venue-helpers';
-
-// 600x450 = 4:3 at 2x DPR for the widest render (~280px at lg 4-col).
-// Must stay byte-identical to the view=list LCP preload in
-// src/app/[locale]/page.tsx.
-export const COMPACT_COVER_TRANSFORM = {
-  cloudinaryWidth: 600,
-  cloudinaryHeight: 450,
-} as const;
 
 interface SessionCardCompactProps {
   session: ISession;
@@ -100,8 +96,9 @@ const SessionCardCompact = ({
     new Date(session.endTime) < new Date();
 
   // Single overlay badge, first match wins: the viewer's own registration
-  // state beats generic availability; crawled sessions have no managed
-  // slots so a slot badge would be wrong; expired sessions get none.
+  // state beats generic availability; crawled sessions get the Facebook
+  // attribution instead of a slot badge, since they have no managed slots;
+  // expired sessions get none.
   let overlayBadge: React.ReactNode = null;
   if (userRegistrationStatus) {
     overlayBadge = (
@@ -134,16 +131,14 @@ const SessionCardCompact = ({
         borderColor="whiteAlpha.200"
         backdropFilter="blur(4px)"
         gap={1}
-        px={{ base: 1.5, md: 2 }}
+        px={1.5}
+        whiteSpace="nowrap"
       >
         <Icon as={Facebook} boxSize={3} flexShrink={0} />
-        {/* Full label only fits once the cover is full-card-width (md+ —
-            the mobile row layout's 112px thumbnail is too narrow for
-            "Bài đăng Facebook" and it gets clipped by the cover's
-            overflow:hidden); the body line below spells it out anyway. */}
-        <Box as="span" display={{ base: 'none', md: 'inline' }}>
-          {t('crawledBadge')}
-        </Box>
+        {/* Short label on purpose: the mobile row's 120px thumbnail can't fit
+            "Bài đăng Facebook", and the cover's overflow:hidden would clip it
+            rather than wrap it. */}
+        {t('crawledBadge')}
       </Badge>
     );
   } else if (!isExpired) {
@@ -223,7 +218,9 @@ const SessionCardCompact = ({
   const isLevelRange = !isAllLevels && uniqueLevels.length > 1 && isContiguous;
   // Discrete (non-contiguous) multi-level selection: list actual picks
   // instead of implying a span. Cap so the row can't overflow the card.
-  const DISCRETE_LEVEL_CAP = 3;
+  // Two, not three: at three the chips are all the same green and read as one
+  // undifferentiated block next to the price rather than as distinct levels.
+  const DISCRETE_LEVEL_CAP = 2;
   const isDiscreteLevels =
     !isAllLevels && uniqueLevels.length > 1 && !isContiguous;
   const shownDiscreteLevels = isDiscreteLevels
@@ -232,6 +229,10 @@ const SessionCardCompact = ({
   const extraDiscreteLevelCount = isDiscreteLevels
     ? uniqueLevels.length - shownDiscreteLevels.length
     : 0;
+  const hiddenDiscreteLevelLabels = uniqueLevels
+    .slice(DISCRETE_LEVEL_CAP)
+    .map(getLevelShortLabel)
+    .join(', ');
 
   const displayHostName = session.hostName || session.host?.name || '';
 
@@ -247,6 +248,10 @@ const SessionCardCompact = ({
       <Box
         position="relative"
         borderWidth="1px"
+        // Shadow carries the card's separation; the border is only there to
+        // keep the edge defined in dark mode, so keep it faint rather than
+        // stacking two full-strength layers of chrome.
+        borderColor="border.subtle"
         borderRadius="xl"
         overflow="hidden"
         bg="white"
@@ -254,8 +259,10 @@ const SessionCardCompact = ({
         boxShadow="0 2px 8px rgba(0, 0, 0, 0.06), 0 1px 3px rgba(0, 0, 0, 0.04)"
         transition="box-shadow 0.2s ease, border-color 0.2s ease"
         _hover={{
+          // brand green (#179a3b), not Tailwind's emerald — the glow has to
+          // match the greens the card already uses for price and slot badge
           boxShadow:
-            '0 8px 16px rgba(16, 185, 129, 0.12), 0 4px 12px rgba(0, 0, 0, 0.08)',
+            '0 8px 16px rgba(23, 154, 59, 0.12), 0 4px 12px rgba(0, 0, 0, 0.08)',
           borderColor: 'green.200',
         }}
         display="flex"
@@ -278,13 +285,13 @@ const SessionCardCompact = ({
           }}
         />
 
-        {/* Cover: square thumbnail stretching to row height on mobile,
-            4:3 on md+. Single overlay badge; heart sits at card level. */}
+        {/* Cover: thumbnail stretching to row height on mobile, 4:3 on md+.
+            Single overlay badge; heart sits at card level. */}
         <Box
           position="relative"
           overflow="hidden"
           flexShrink={0}
-          w={{ base: '112px', md: 'auto' }}
+          w={{ base: '120px', md: 'auto' }}
           aspectRatio={{ base: 'auto', md: 4 / 3 }}
         >
           <Image
@@ -298,6 +305,9 @@ const SessionCardCompact = ({
             w="100%"
             h="100%"
             objectFit="cover"
+            // Landscape cover photos get cropped hard by the tall mobile row;
+            // bias upward, where the court and players usually sit.
+            objectPosition="center 40%"
             loading={imagePriority ? 'eager' : 'lazy'}
             fetchPriority={imagePriority ? 'high' : 'low'}
             decoding="async"
@@ -317,26 +327,33 @@ const SessionCardCompact = ({
         </Box>
 
         {/* Top-right of the card: over the cover on md+, over the body on
-            the mobile row layout (title reserves space via pr) */}
+            the mobile row layout (title reserves space via pr). Hence the
+            responsive variant — the overlay chrome (white pill + shadow) is
+            for sitting on a photo; on the white body it reads as a shadowed
+            white dot on white. */}
         <Box position="absolute" top={2} right={2} zIndex={3}>
           <FavoriteButton
             type="SESSION"
             targetId={session.id}
             isFavorite={session.isFavorite}
-            size="xs"
+            size="sm"
+            variant={{ base: 'ghost', md: 'overlay' }}
             returnUrl={cardHref}
           />
         </Box>
 
         {/* Body: title / host / time / venue / levels + price */}
         <Stack p={2.5} gap={1} flex="1" minW={0}>
+          {/* Two lines: the name is the main decision signal and a single
+              truncated line cut most of it ("Cầu lông tối thứ 7 - Gia Định B…").
+              On md+ it also evens out card heights across the grid row. */}
           <Text
             fontWeight="semibold"
-            fontSize="sm"
+            fontSize={{ base: 'md', md: 'sm' }}
             lineHeight={1.35}
-            truncate
+            lineClamp={2}
             minW={0}
-            pr={{ base: 8, md: 0 }}
+            pr={{ base: 10, md: 0 }}
           >
             {session.name}
           </Text>
@@ -347,13 +364,16 @@ const SessionCardCompact = ({
             <Flex align="center" gap={1} minW={0}>
               <Icon as={Facebook} boxSize={3} color="blue.500" flexShrink={0} />
               <Text
-                fontSize="2xs"
+                fontSize="xs"
                 color="gray.500"
                 _dark={{ color: 'fg.subtle' }}
                 lineClamp={1}
                 minW={0}
+                title={session.externalSource || undefined}
               >
-                {session.externalSource || t('crawledSourcePrefix')}
+                {session.externalSource
+                  ? formatExternalSourceName(session.externalSource)
+                  : t('crawledSourcePrefix')}
               </Text>
             </Flex>
           ) : (
@@ -481,6 +501,10 @@ const SessionCardCompact = ({
                       variant="subtle"
                       fontSize="xs"
                       px={1.5}
+                      // The capped levels aren't lost, just not shown — name
+                      // them so "+2" is answerable without opening the card
+                      title={hiddenDiscreteLevelLabels}
+                      aria-label={hiddenDiscreteLevelLabels}
                     >
                       +{extraDiscreteLevelCount}
                     </Badge>
@@ -500,8 +524,9 @@ const SessionCardCompact = ({
                     <>
                       <Icon
                         as={ArrowRight}
-                        boxSize={2.5}
+                        boxSize={3}
                         color="gray.400"
+                        _dark={{ color: 'gray.500' }}
                         flexShrink={0}
                       />
                       <Badge
@@ -522,7 +547,9 @@ const SessionCardCompact = ({
 
             {feeDisplayText && (
               <Text
-                fontSize="md"
+                // Bold + brand green already make the price stand out; at md
+                // it also out-sized the title and pulled the eye first
+                fontSize="sm"
                 fontWeight="bold"
                 color="green.600"
                 _dark={{ color: 'green.300' }}

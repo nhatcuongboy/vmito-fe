@@ -69,13 +69,15 @@ export const SessionCardCompactSkeleton: React.FC<{
   >
     <Skeleton
       flexShrink={0}
-      w={{ base: '112px', md: '100%' }}
-      minH={{ base: '112px', md: 'auto' }}
+      w={{ base: '120px', md: '100%' }}
+      minH={{ base: '120px', md: 'auto' }}
       aspectRatio={{ base: 'auto', md: 4 / 3 }}
     />
     <Stack p={2.5} gap={1.5} flex={1}>
-      <Skeleton height="16px" width="90%" borderRadius="sm" />
-      <Skeleton height="16px" width="60%" borderRadius="sm" />
+      {/* Two title lines + the source line below, matching the real card */}
+      <Skeleton height="18px" width="90%" borderRadius="sm" />
+      <Skeleton height="18px" width="55%" borderRadius="sm" />
+      <Skeleton height="14px" width="60%" borderRadius="sm" />
       <Skeleton height="12px" width="70%" borderRadius="sm" />
       <Skeleton height="12px" width="80%" borderRadius="sm" />
       <Flex justify="space-between" align="center" mt="auto" pt={1}>

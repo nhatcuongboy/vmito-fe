@@ -9,6 +9,10 @@ import type { ISession } from '@/lib/api/types';
 import { normalizeImageUrl } from '@/lib/images/normalizeImageUrl';
 import { DEFAULT_COVER_PHOTO } from '@/constants';
 import { isValidViewMode, type ViewMode } from '@/lib/view-mode';
+import {
+  COMPACT_COVER_TRANSFORM,
+  GRID_COVER_TRANSFORM,
+} from '@/lib/images/coverTransforms';
 
 // The home content tree reads useSearchParams (mode switch + URL filters).
 // Under static/ISR rendering Next bails out to the Suspense fallback, so the
@@ -118,16 +122,15 @@ export default async function HomePage({ searchParams }: PageProps) {
     urlView && isValidViewMode(urlView) ? urlView : (savedViewMode ?? 'list');
 
   // The first card's cover photo is the LCP element — tell the browser to
-  // start fetching it before it parses down to the <img> in the body.
-  // Must mirror the URL the card builds for the cover photo:
-  // BaseSessionCard (grid, 800x380) / SessionCardCompact
-  // COMPACT_COVER_TRANSFORM (list, 600x450).
+  // start fetching it before it parses down to the <img> in the body. The URL
+  // must match what the card builds byte for byte or the preload is wasted,
+  // so the list transform is imported rather than restated here.
   const lcpImage = initialSessions.length
     ? normalizeImageUrl(
         initialSessions[0].coverPhoto,
         effectiveViewMode === 'grid'
-          ? { cloudinaryWidth: 800, cloudinaryHeight: 380 }
-          : { cloudinaryWidth: 600, cloudinaryHeight: 450 }
+          ? GRID_COVER_TRANSFORM
+          : COMPACT_COVER_TRANSFORM
       ) || DEFAULT_COVER_PHOTO
     : null;
 

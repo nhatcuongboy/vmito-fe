@@ -133,6 +133,15 @@ export function formatTime(dateString: string | Date): string {
   return formatTimeByDevicePreference(dateString);
 }
 
+// Crawled group names carry a long parenthetical qualifier
+// ("Hội Giao Lưu Cầu Lông (Tuyển Văng Lai - Tập Hợp Anh Em)") that pushes them
+// well past a card's width, so every row ends in an ellipsis. Dropping the
+// parenthetical lets the group name render in full; callers keep the original
+// in a title attribute.
+export function formatExternalSourceName(source: string): string {
+  return source.replace(/\s*\([^)]*\)?\s*/g, ' ').trim() || source.trim();
+}
+
 // Function to calculate duration between two timestamps
 export function formatDuration(start: string, end: string): string {
   const startTime = new Date(start).getTime();
