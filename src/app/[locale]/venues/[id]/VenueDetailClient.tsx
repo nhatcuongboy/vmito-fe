@@ -1458,12 +1458,19 @@ export default function VenueDetailClient({
 
                 <Flex justify="center" w="full" pt={1}>
                   <Button
-                    variant="outline"
-                    colorPalette="green"
+                    variant="ghost"
+                    colorPalette="gray"
+                    color="gray.500"
+                    _dark={{ color: 'gray.400' }}
+                    _hover={{
+                      color: 'green.600',
+                      bg: 'green.50',
+                      _dark: { color: 'green.400', bg: 'green.950/30' },
+                    }}
+                    size="sm"
                     onClick={handleOpenUpdateRequest}
-                    w="full"
                   >
-                    <PencilLine size={16} />
+                    <PencilLine size={14} />
                     {t('requestUpdate')}
                   </Button>
                 </Flex>
