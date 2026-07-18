@@ -489,6 +489,7 @@
     "findSession": "查找场次",
     "date": "日期",
     "allLevels": "所有等级",
+    "allLevelsShort": "不限水平",
     "levelsLabel": "等级",
     "levels": {
       "1": "新手",

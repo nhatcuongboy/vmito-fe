@@ -502,6 +502,7 @@
     "findSession": "Find Session",
     "date": "Date",
     "allLevels": "All Levels",
+    "allLevelsShort": "All levels",
     "levelsLabel": "Levels",
     "levels": {
       "1": "Beginner",

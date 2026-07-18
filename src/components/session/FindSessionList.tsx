@@ -74,7 +74,11 @@ const LoginPromptModal = dynamic(() => import('../auth/LoginPromptModal'), {
 });
 
 import FindSessionCard from './FindSessionCard';
-import { SessionCardSkeleton } from './SessionCardSkeleton';
+import SessionCardCompact from './SessionCardCompact';
+import {
+  SessionCardSkeleton,
+  SessionCardCompactSkeleton,
+} from './SessionCardSkeleton';
 import SessionSearchBar from './SessionSearchBar';
 import ResultsHeader from './ResultsHeader';
 import { useRegisterTopBarSearch } from '@/contexts/TopBarSearchContext';
@@ -177,8 +181,9 @@ export default function FindSessionList({
   const sortByDistance = urlFilters.near;
   const sortBy = urlFilters.sort as SessionSortBy;
 
-  // Use URL-synced view mode
-  const [viewMode, setViewMode] = useViewMode('sessions');
+  // Use URL-synced view mode — defaults to the compact list card on first
+  // visit (no ?view= param, no saved preference yet)
+  const [viewMode, setViewMode] = useViewMode('sessions', 'list');
 
   // Keep userLocation in the Zustand store (non-URL state)
   const { userLocation, setUserLocation } = useSessionFilterStore();
@@ -1006,37 +1011,34 @@ export default function FindSessionList({
           templateColumns={
             viewMode === 'list'
               ? {
-                  base: '1fr',
-                  sm: 'repeat(2, 1fr)',
-                  md: 'repeat(3, 1fr)',
-                  lg: 'repeat(4, 1fr)',
+                  // 1 col of horizontal cards on mobile; minmax(0, 1fr) so
+                  // nowrap text can't widen the tracks past the viewport
+                  base: 'minmax(0, 1fr)',
+                  md: 'repeat(3, minmax(0, 1fr))',
+                  lg: 'repeat(4, minmax(0, 1fr))',
                 }
               : {
-                  base: '1fr',
+                  base: 'minmax(0, 1fr)',
                   md: 'repeat(2, 1fr)',
                   lg: 'repeat(3, 1fr)',
                 }
           }
-          gap={viewMode === 'list' ? 4 : 6}
+          gap={viewMode === 'list' ? { base: 2, md: 3 } : 6}
         >
-          {/* Mobile: 2 skeletons, Tablet: 4 skeletons, Desktop: 6 skeletons */}
-          {Array.from({
-            length: viewMode === 'list' ? 4 : 6,
-          }).map((_, index) => (
-            <SessionCardSkeleton
-              key={index}
-              variant={viewMode}
-              display={
-                viewMode === 'list'
-                  ? {
-                      base: index < 2 ? 'flex' : 'none',
-                      sm: index < 4 ? 'flex' : 'none',
-                      md: 'flex',
-                    }
-                  : { base: index < 2 ? 'flex' : 'none', md: 'flex' }
-              }
-            />
-          ))}
+          {/* Grid mode: tall cards, so mobile only needs 2 to fill the
+              viewport. List mode is a single column of short ~140px rows on
+              mobile, so it needs more rows to avoid a big empty gap below. */}
+          {Array.from({ length: 6 }).map((_, index) =>
+            viewMode === 'list' ? (
+              <SessionCardCompactSkeleton key={index} display="flex" />
+            ) : (
+              <SessionCardSkeleton
+                key={index}
+                variant={viewMode}
+                display={{ base: index < 2 ? 'flex' : 'none', md: 'flex' }}
+              />
+            )
+          )}
         </Grid>
       ) : error ? (
         <Box
@@ -1070,61 +1072,78 @@ export default function FindSessionList({
             templateColumns={
               viewMode === 'list'
                 ? {
-                    base: '1fr',
-                    sm: 'repeat(2, 1fr)',
-                    md: 'repeat(3, 1fr)',
-                    lg: 'repeat(4, 1fr)',
+                    // 1 col of horizontal cards on mobile; minmax(0, 1fr) so
+                    // nowrap text can't widen the tracks past the viewport
+                    base: 'minmax(0, 1fr)',
+                    md: 'repeat(3, minmax(0, 1fr))',
+                    lg: 'repeat(4, minmax(0, 1fr))',
                   }
                 : {
-                    base: '1fr',
+                    base: 'minmax(0, 1fr)',
                     md: 'repeat(2, 1fr)',
                     lg: 'repeat(3, 1fr)',
                   }
             }
-            gap={viewMode === 'list' ? 4 : 6}
+            gap={viewMode === 'list' ? { base: 2, md: 3 } : 6}
           >
-            {sortedSessions.map((session, index) => (
-              <FindSessionCard
-                key={session.id}
-                session={session}
-                variant={viewMode}
-                // Only the first card is the LCP candidate on mobile —
-                // more high-priority images just compete for bandwidth
-                imagePriority={index === 0}
-                onJoin={handleJoinClick}
-                onAddGuest={handleAddGuestClick}
-                isJoined={joinedSessionIds.has(session.id)}
-                userRegistrationStatus={
-                  registrationStatusMap[session.id] || null
-                }
-                onRegistrationUpdate={handleRegistrationUpdate}
-                distance={session.distance}
-                onHostClick={handleHostClick}
-              />
-            ))}
+            {sortedSessions.map((session, index) =>
+              viewMode === 'list' ? (
+                // Compact marketplace-style card — no action buttons, the
+                // whole card links to the session detail page
+                <SessionCardCompact
+                  key={session.id}
+                  session={session}
+                  userRegistrationStatus={
+                    registrationStatusMap[session.id] || null
+                  }
+                  distance={session.distance}
+                  imagePriority={index === 0}
+                />
+              ) : (
+                <FindSessionCard
+                  key={session.id}
+                  session={session}
+                  variant={viewMode}
+                  // Only the first card is the LCP candidate on mobile —
+                  // more high-priority images just compete for bandwidth
+                  imagePriority={index === 0}
+                  onJoin={handleJoinClick}
+                  onAddGuest={handleAddGuestClick}
+                  isJoined={joinedSessionIds.has(session.id)}
+                  userRegistrationStatus={
+                    registrationStatusMap[session.id] || null
+                  }
+                  onRegistrationUpdate={handleRegistrationUpdate}
+                  distance={session.distance}
+                  onHostClick={handleHostClick}
+                />
+              )
+            )}
 
             {/* Load-more skeletons: same grid so they fill the remaining
                 slots of a partial last row instead of starting a new one */}
             {hasMore &&
-              Array.from({ length: 3 }).map((_, index) => (
-                <SessionCardSkeleton
-                  key={`load-more-${index}`}
-                  variant={viewMode}
-                  display={
-                    viewMode === 'list'
-                      ? {
-                          base: index < 1 ? 'flex' : 'none',
-                          sm: index < 2 ? 'flex' : 'none',
-                          md: 'flex',
-                        }
-                      : {
-                          base: index < 1 ? 'flex' : 'none',
-                          md: index < 2 ? 'flex' : 'none',
-                          lg: 'flex',
-                        }
-                  }
-                />
-              ))}
+              Array.from({ length: 3 }).map((_, index) =>
+                viewMode === 'list' ? (
+                  <SessionCardCompactSkeleton
+                    key={`load-more-${index}`}
+                    display={{
+                      base: index < 2 ? 'flex' : 'none',
+                      md: 'flex',
+                    }}
+                  />
+                ) : (
+                  <SessionCardSkeleton
+                    key={`load-more-${index}`}
+                    variant={viewMode}
+                    display={{
+                      base: index < 1 ? 'flex' : 'none',
+                      md: index < 2 ? 'flex' : 'none',
+                      lg: 'flex',
+                    }}
+                  />
+                )
+              )}
           </Grid>
 
           {/* Infinite Scroll Trigger */}

@@ -21,9 +21,11 @@ const MIGRATION_MAP: Record<string, ViewMode> = {
 /**
  * Custom hook for managing view mode with URL synchronization
  *
- * Priority chain: URL param → localStorage → default ('grid')
+ * Priority chain: URL param → localStorage → defaultMode
  *
  * @param scope - Unique identifier for the page (e.g., 'sessions', 'venues', 'clubs')
+ * @param defaultMode - View mode to fall back to when there's no URL param or
+ * localStorage value yet (first-ever visit for that scope). Defaults to 'grid'.
  * @returns [viewMode, setViewMode] - Current view mode and setter function
  *
  * @example
@@ -31,11 +33,12 @@ const MIGRATION_MAP: Record<string, ViewMode> = {
  * const [viewMode, setViewMode] = useViewMode('sessions');
  * // URL: ?view=list → viewMode = 'list'
  * // No URL param + localStorage has 'grid' → viewMode = 'grid'
- * // No URL param + no localStorage → viewMode = 'grid'
+ * // No URL param + no localStorage → viewMode = 'grid' (the default)
  * ```
  */
 export function useViewMode(
-  scope: string
+  scope: string,
+  defaultMode: ViewMode = 'grid'
 ): readonly [ViewMode, (mode: ViewMode) => void] {
   const router = useRouter();
   const pathname = usePathname();
@@ -65,16 +68,18 @@ export function useViewMode(
       }
     }
 
-    // 3. Default to grid
-    return 'grid';
-  }, [searchParams, scope]);
+    // 3. Fall back to the caller's default
+    return defaultMode;
+  }, [searchParams, scope, defaultMode]);
 
   // Update view mode in both URL and localStorage
   const setViewMode = useCallback(
     (mode: ViewMode) => {
       if (!isValidViewMode(mode)) {
-        console.warn(`Invalid view mode: ${mode}. Using 'grid' instead.`);
-        mode = 'grid';
+        console.warn(
+          `Invalid view mode: ${mode}. Using '${defaultMode}' instead.`
+        );
+        mode = defaultMode;
       }
 
       // Update URL with router.replace (no history entry)
@@ -91,7 +96,7 @@ export function useViewMode(
         }
       }
     },
-    [router, pathname, searchParams, scope]
+    [router, pathname, searchParams, scope, defaultMode]
   );
 
   return [viewMode, setViewMode] as const;

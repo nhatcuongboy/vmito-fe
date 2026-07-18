@@ -44,6 +44,7 @@ async function getInitialSessions(): Promise<ISession[]> {
 
 interface PageProps {
   params: Promise<{ locale: string }>;
+  searchParams?: Promise<{ view?: string }>;
 }
 
 const localeDescriptions: Record<string, string> = {
@@ -97,17 +98,31 @@ export async function generateMetadata({
   };
 }
 
-export default async function HomePage() {
-  const initialSessions = await getInitialSessions();
+export default async function HomePage({ searchParams }: PageProps) {
+  const [initialSessions, resolvedSearchParams] = await Promise.all([
+    getInitialSessions(),
+    searchParams,
+  ]);
+
+  // List is the default view (FindSessionList's useViewMode('sessions',
+  // 'list')) when there's no ?view= param, so treat "not explicitly grid" as
+  // list here too. Only the explicit param is visible server-side; when the
+  // stored preference (localStorage) differs from the param-less default,
+  // the wrong transform gets preloaded — an acceptable miss.
+  const isListView = resolvedSearchParams?.view !== 'grid';
 
   // The first card's cover photo is the LCP element — tell the browser to
   // start fetching it before it parses down to the <img> in the body.
-  // Must mirror the URL BaseSessionCard builds for the cover photo.
+  // Must mirror the URL the card builds for the cover photo:
+  // BaseSessionCard (grid, 800x380) / SessionCardCompact
+  // COMPACT_COVER_TRANSFORM (list, 600x450).
   const lcpImage = initialSessions.length
-    ? normalizeImageUrl(initialSessions[0].coverPhoto, {
-        cloudinaryWidth: 800,
-        cloudinaryHeight: 380,
-      }) || DEFAULT_COVER_PHOTO
+    ? normalizeImageUrl(
+        initialSessions[0].coverPhoto,
+        isListView
+          ? { cloudinaryWidth: 600, cloudinaryHeight: 450 }
+          : { cloudinaryWidth: 800, cloudinaryHeight: 380 }
+      ) || DEFAULT_COVER_PHOTO
     : null;
 
   return (

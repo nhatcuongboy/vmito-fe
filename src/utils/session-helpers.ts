@@ -1,5 +1,56 @@
 // Session-related utility functions
+import dayjs, { getDayjsLocale } from '@/lib/dayjs';
+import { Locale } from '@/i18n/locales';
 import { formatTimeByDevicePreference } from './time-helpers';
+
+// Compact date label for session cards, e.g. "Hôm nay, 18/07" / "Thứ tư, 22/07".
+// today/tomorrow labels are passed in because translations live in the component layer.
+// `minimal` (2-column cards, ~160px wide): today/tomorrow keep just the label
+// ("Hôm nay"), other days use the short day name + date ("T4 22/07").
+export function formatCompactSessionDate(
+  dateString: string | Date,
+  locale: string,
+  labels: { today: string; tomorrow: string },
+  opts?: { showYear?: boolean; alwaysShowDayName?: boolean; minimal?: boolean }
+): string {
+  const date = dayjs(dateString)
+    .tz('Asia/Ho_Chi_Minh')
+    .locale(getDayjsLocale(locale));
+  const today = dayjs.tz().startOf('day');
+  const tomorrow = today.add(1, 'day');
+  const dateToCompare = date.startOf('day');
+
+  const dateFormat = opts?.showYear
+    ? locale === Locale.VI
+      ? 'DD/MM/YY'
+      : 'MM/DD/YY'
+    : locale === Locale.VI
+      ? 'DD/MM'
+      : 'MM/DD';
+
+  let dateLabel = '';
+  if (!opts?.alwaysShowDayName && dateToCompare.isSame(today)) {
+    dateLabel = labels.today;
+    if (opts?.minimal) return dateLabel;
+  } else if (!opts?.alwaysShowDayName && dateToCompare.isSame(tomorrow)) {
+    dateLabel = labels.tomorrow;
+    if (opts?.minimal) return dateLabel;
+  } else {
+    // vi 'dd' = "T4"/"CN"; zh weekdaysMin are bare characters, keep 'ddd' ("周三")
+    const dayNameFormat = opts?.minimal
+      ? locale === Locale.VI
+        ? 'dd'
+        : 'ddd'
+      : locale === Locale.VI
+        ? 'dddd'
+        : 'ddd';
+    dateLabel = date.format(dayNameFormat);
+    dateLabel = dateLabel.charAt(0).toUpperCase() + dateLabel.slice(1);
+    if (opts?.minimal) return `${dateLabel} ${date.format(dateFormat)}`;
+  }
+
+  return `${dateLabel}, ${date.format(dateFormat)}`;
+}
 
 // Function to create court name from order number
 export function generateCourtName(courtNumber: number): string {

@@ -57,7 +57,13 @@ export const SessionDetailSkeleton = () => {
             {/* Time & Date */}
             <Flex gap={2} mb={3} align="center">
               <Skeleton height="20px" width="120px" borderRadius="md" />
-              <Box color="gray.350">|</Box>
+              <Box
+                boxSize="4px"
+                borderRadius="full"
+                bg="gray.200"
+                _dark={{ bg: 'gray.600' }}
+                flexShrink={0}
+              />
               <Skeleton height="20px" width="150px" borderRadius="md" />
             </Flex>
 

@@ -51,6 +51,44 @@ const AiSkeletonAccent = ({ size = 16 }: { size?: number }) => (
   </Flex>
 );
 
+// Skeleton matching SessionCardCompact (find-session list view): horizontal
+// row with a square photo on mobile, vertical 4:3-cover card on md+.
+export const SessionCardCompactSkeleton: React.FC<{
+  display?: any; // Chakra responsive display prop
+}> = ({ display }) => (
+  <Flex
+    direction={{ base: 'row', md: 'column' }}
+    h="100%"
+    borderWidth="1px"
+    borderRadius="xl"
+    overflow="hidden"
+    bg="bg"
+    _dark={{ bg: 'gray.800' }}
+    borderColor="border"
+    display={display}
+  >
+    <Skeleton
+      flexShrink={0}
+      w={{ base: '112px', md: '100%' }}
+      minH={{ base: '112px', md: 'auto' }}
+      aspectRatio={{ base: 'auto', md: 4 / 3 }}
+    />
+    <Stack p={2.5} gap={1.5} flex={1}>
+      <Skeleton height="16px" width="90%" borderRadius="sm" />
+      <Skeleton height="16px" width="60%" borderRadius="sm" />
+      <Skeleton height="12px" width="70%" borderRadius="sm" />
+      <Skeleton height="12px" width="80%" borderRadius="sm" />
+      <Flex justify="space-between" align="center" mt="auto" pt={1}>
+        <Flex gap={1}>
+          <Skeleton height="16px" width="36px" borderRadius="full" />
+          <Skeleton height="16px" width="36px" borderRadius="full" />
+        </Flex>
+        <Skeleton height="18px" width="56px" borderRadius="sm" />
+      </Flex>
+    </Stack>
+  </Flex>
+);
+
 export const SessionCardSkeleton: React.FC<SessionCardSkeletonProps> = ({
   showOnlyOne = false,
   variant = 'grid',

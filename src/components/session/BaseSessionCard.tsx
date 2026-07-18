@@ -7,7 +7,8 @@ import {
   formatTimeByDevicePreference,
   formatTimeRangeByDevicePreference,
 } from '@/utils/time-helpers';
-import dayjs, { getDayjsLocale } from '@/lib/dayjs';
+import dayjs from '@/lib/dayjs';
+import { formatCompactSessionDate } from '@/utils/session-helpers';
 import {
   Avatar,
   Badge,
@@ -625,34 +626,13 @@ const BaseSessionCard = ({
   const skillLevelColor = getSkillLevelColor(session.requiredLevels);
 
   // Format date and time for compact display
-  const formatCompactDate = (dateString: string | Date): string => {
-    const date = dayjs(dateString)
-      .tz('Asia/Ho_Chi_Minh')
-      .locale(getDayjsLocale(locale));
-    const today = dayjs.tz().startOf('day');
-    const tomorrow = today.add(1, 'day');
-    const dateToCompare = date.startOf('day');
-
-    let dateLabel = '';
-    if (!alwaysShowDayName && dateToCompare.isSame(today)) {
-      dateLabel = t('today');
-    } else if (!alwaysShowDayName && dateToCompare.isSame(tomorrow)) {
-      dateLabel = t('tomorrow');
-    } else {
-      dateLabel =
-        locale === Locale.VI ? date.format('dddd') : date.format('ddd');
-      dateLabel = dateLabel.charAt(0).toUpperCase() + dateLabel.slice(1);
-    }
-
-    const dateFormat = showYearInDate
-      ? locale === Locale.VI
-        ? 'DD/MM/YY'
-        : 'MM/DD/YY'
-      : locale === Locale.VI
-        ? 'DD/MM'
-        : 'MM/DD';
-    return `${dateLabel}, ${date.format(dateFormat)}`;
-  };
+  const formatCompactDate = (dateString: string | Date): string =>
+    formatCompactSessionDate(
+      dateString,
+      locale,
+      { today: t('today'), tomorrow: t('tomorrow') },
+      { showYear: showYearInDate, alwaysShowDayName }
+    );
 
   const compactDate = session.startTime
     ? formatCompactDate(session.startTime)

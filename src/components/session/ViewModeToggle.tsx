@@ -19,7 +19,7 @@ export default function ViewModeToggle({
 }: ViewModeToggleProps) {
   useEffect(() => {
     if (!showMap && viewMode === 'map') {
-      setViewMode('grid');
+      setViewMode('list');
     }
   }, [showMap, viewMode, setViewMode]);
 
@@ -38,22 +38,22 @@ export default function ViewModeToggle({
         size="xs"
         h="32px"
         w="32px"
-        variant={viewMode === 'grid' ? 'solid' : 'ghost'}
+        variant={viewMode === 'list' ? 'solid' : 'ghost'}
         colorPalette="green"
-        aria-label="Grid view"
-        icon={<LayoutGrid size={16} />}
-        onClick={() => setViewMode('grid')}
+        aria-label="List view"
+        icon={<List size={16} />}
+        onClick={() => setViewMode('list')}
         borderRadius="md"
       />
       <IconButton
         size="xs"
         h="32px"
         w="32px"
-        variant={viewMode === 'list' ? 'solid' : 'ghost'}
+        variant={viewMode === 'grid' ? 'solid' : 'ghost'}
         colorPalette="green"
-        aria-label="List view"
-        icon={<List size={16} />}
-        onClick={() => setViewMode('list')}
+        aria-label="Grid view"
+        icon={<LayoutGrid size={16} />}
+        onClick={() => setViewMode('grid')}
         borderRadius="md"
       />
       {showMap && (
