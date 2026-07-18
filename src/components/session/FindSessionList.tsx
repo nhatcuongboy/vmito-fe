@@ -34,7 +34,7 @@ import {
   numberArrayField,
   booleanField,
 } from '@/hooks/useUrlFilters';
-import { useViewMode } from '@/hooks/useViewMode';
+import { useViewMode, type ViewMode } from '@/hooks/useViewMode';
 import {
   Badge,
   Box,
@@ -126,12 +126,16 @@ interface FindSessionListProps {
   initialSessions?: ISession[];
   mode: 'browse' | 'auto';
   onModeChange: (mode: 'browse' | 'auto') => void;
+  /** Saved view-mode preference from the request cookie (read server-side)
+   * so SSR renders the same card layout the client resolves — no flash. */
+  serverViewMode?: ViewMode;
 }
 
 export default function FindSessionList({
   initialSessions = [],
   mode,
   onModeChange,
+  serverViewMode,
 }: FindSessionListProps) {
   const [sessions, setSessions] = useState<ISession[]>(initialSessions);
   const [totalCount, setTotalCount] = useState(0);
@@ -183,7 +187,11 @@ export default function FindSessionList({
 
   // Use URL-synced view mode — defaults to the compact list card on first
   // visit (no ?view= param, no saved preference yet)
-  const [viewMode, setViewMode] = useViewMode('sessions', 'list');
+  const [viewMode, setViewMode] = useViewMode(
+    'sessions',
+    'list',
+    serverViewMode
+  );
 
   // Keep userLocation in the Zustand store (non-URL state)
   const { userLocation, setUserLocation } = useSessionFilterStore();

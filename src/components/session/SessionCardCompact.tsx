@@ -17,6 +17,7 @@ import { useLocale, useTranslations } from 'next-intl';
 import { ISession } from '@/lib/api/types';
 import { Link } from '@/i18n/config';
 import { FavoriteButton } from '@/components/favorites/FavoriteButton';
+import { AppPlayerRating } from '@/components/rating';
 import { FeeService } from '@/lib/api/fee.service';
 import { useLevelLabel } from '@/hooks/useLevelLabel';
 import { getSkillLevelColor } from '@/lib/utils/skillLevel.utils';
@@ -357,7 +358,7 @@ const SessionCardCompact = ({
             </Flex>
           ) : (
             displayHostName && (
-              <Flex align="center" gap={1.5}>
+              <Flex align="center" gap={1.5} minW={0}>
                 <Avatar.Root size="2xs" bg="brand.500" flexShrink={0}>
                   <Avatar.Fallback name={displayHostName}>
                     {displayHostName.charAt(0).toUpperCase()}
@@ -376,9 +377,11 @@ const SessionCardCompact = ({
                   color="gray.600"
                   _dark={{ color: 'gray.400' }}
                   lineClamp={1}
+                  minW={0}
                 >
                   {displayHostName}
                 </Text>
+                <AppPlayerRating userId={session.hostId} size="xs" />
               </Flex>
             )
           )}

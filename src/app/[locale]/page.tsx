@@ -1,4 +1,5 @@
 import { Metadata } from 'next';
+import { cookies } from 'next/headers';
 import {
   defaultOpenGraphImage,
   defaultSeoDescription,
@@ -7,6 +8,7 @@ import HomePageContent from './HomePageContent';
 import type { ISession } from '@/lib/api/types';
 import { normalizeImageUrl } from '@/lib/images/normalizeImageUrl';
 import { DEFAULT_COVER_PHOTO } from '@/constants';
+import { isValidViewMode, type ViewMode } from '@/lib/view-mode';
 
 // The home content tree reads useSearchParams (mode switch + URL filters).
 // Under static/ISR rendering Next bails out to the Suspense fallback, so the
@@ -99,17 +101,21 @@ export async function generateMetadata({
 }
 
 export default async function HomePage({ searchParams }: PageProps) {
-  const [initialSessions, resolvedSearchParams] = await Promise.all([
-    getInitialSessions(),
-    searchParams,
-  ]);
+  const [initialSessions, resolvedSearchParams, cookieStore] =
+    await Promise.all([getInitialSessions(), searchParams, cookies()]);
 
-  // List is the default view (FindSessionList's useViewMode('sessions',
-  // 'list')) when there's no ?view= param, so treat "not explicitly grid" as
-  // list here too. Only the explicit param is visible server-side; when the
-  // stored preference (localStorage) differs from the param-less default,
-  // the wrong transform gets preloaded — an acceptable miss.
-  const isListView = resolvedSearchParams?.view !== 'grid';
+  // The user's saved view-mode preference, persisted as a cookie by
+  // useViewMode precisely so this server render can resolve the SAME mode
+  // the client will (URL param → cookie → default 'list'). Without it the
+  // first HTML used the default and hydration swapped the layout to the
+  // saved mode — a visible flash on every card.
+  const cookieView = cookieStore.get('view-mode-sessions')?.value;
+  const savedViewMode: ViewMode | undefined =
+    cookieView && isValidViewMode(cookieView) ? cookieView : undefined;
+
+  const urlView = resolvedSearchParams?.view;
+  const effectiveViewMode: ViewMode =
+    urlView && isValidViewMode(urlView) ? urlView : (savedViewMode ?? 'list');
 
   // The first card's cover photo is the LCP element — tell the browser to
   // start fetching it before it parses down to the <img> in the body.
@@ -119,9 +125,9 @@ export default async function HomePage({ searchParams }: PageProps) {
   const lcpImage = initialSessions.length
     ? normalizeImageUrl(
         initialSessions[0].coverPhoto,
-        isListView
-          ? { cloudinaryWidth: 600, cloudinaryHeight: 450 }
-          : { cloudinaryWidth: 800, cloudinaryHeight: 380 }
+        effectiveViewMode === 'grid'
+          ? { cloudinaryWidth: 800, cloudinaryHeight: 380 }
+          : { cloudinaryWidth: 600, cloudinaryHeight: 450 }
       ) || DEFAULT_COVER_PHOTO
     : null;
 
@@ -137,7 +143,10 @@ export default async function HomePage({ searchParams }: PageProps) {
           fetchPriority="high"
         />
       )}
-      <HomePageContent initialSessions={initialSessions} />
+      <HomePageContent
+        initialSessions={initialSessions}
+        serverViewMode={savedViewMode}
+      />
     </>
   );
 }

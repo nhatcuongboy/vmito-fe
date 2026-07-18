@@ -24,14 +24,18 @@ import { useAuthStore } from '@/stores/useAuthStore';
 import { useTranslations } from 'next-intl';
 import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 import type { ISession } from '@/lib/api/types';
+import type { ViewMode } from '@/hooks/useViewMode';
 
 type HomeMode = 'browse' | 'auto';
 
 interface HomeContentProps {
   initialSessions?: ISession[];
+  /** Saved view-mode preference read from the request cookie — lets the
+   * server render the same card layout the client resolves (no flash). */
+  serverViewMode?: ViewMode;
 }
 
-function HomeContent({ initialSessions }: HomeContentProps) {
+function HomeContent({ initialSessions, serverViewMode }: HomeContentProps) {
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
@@ -79,6 +83,7 @@ function HomeContent({ initialSessions }: HomeContentProps) {
           initialSessions={initialSessions}
           mode={mode}
           onModeChange={handleModeChange}
+          serverViewMode={serverViewMode}
         />
       ) : (
         <SuggestionsList mode={mode} onModeChange={handleModeChange} />
@@ -87,7 +92,10 @@ function HomeContent({ initialSessions }: HomeContentProps) {
   );
 }
 
-export default function HomePageContent({ initialSessions }: HomeContentProps) {
+export default function HomePageContent({
+  initialSessions,
+  serverViewMode,
+}: HomeContentProps) {
   return (
     <Suspense
       fallback={
@@ -96,7 +104,10 @@ export default function HomePageContent({ initialSessions }: HomeContentProps) {
         </Flex>
       }
     >
-      <HomeContent initialSessions={initialSessions} />
+      <HomeContent
+        initialSessions={initialSessions}
+        serverViewMode={serverViewMode}
+      />
     </Suspense>
   );
 }
