@@ -1193,6 +1193,7 @@ export default function VenueSearchList() {
                 key={venue.id}
                 venue={venue}
                 variant={viewMode === 'list' ? 'list' : 'grid'}
+                showVerifiedBadge={false}
                 onFavoriteChange={(venueId, isFavorite) => {
                   setVenues((prev) =>
                     prev

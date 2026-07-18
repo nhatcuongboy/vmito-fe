@@ -45,6 +45,7 @@ interface VenueCardProps {
   venue: Venue;
   variant?: 'grid' | 'list';
   onFavoriteChange?: (venueId: string, isFavorite: boolean) => void;
+  showVerifiedBadge?: boolean;
 }
 
 function formatPrice(amount?: number) {
@@ -56,12 +57,14 @@ export default function VenueCard({
   venue,
   variant = 'grid',
   onFavoriteChange,
+  showVerifiedBadge = true,
 }: VenueCardProps) {
   const router = useRouter();
   const t = useTranslations('venue');
   const userRole = useAuthStore((state) => state.user?.role);
   const [isLoading, setIsLoading] = useState(false);
-  const showVerifiedBadge = userRole === UserRole.ADMIN && venue.isVerified;
+  const showAdminVerifiedBadge =
+    showVerifiedBadge && userRole === UserRole.ADMIN && venue.isVerified;
 
   const displayName = formatVenueName(
     venue.name,
@@ -129,7 +132,7 @@ export default function VenueCard({
           {/* Badges Overlay */}
           <Box position="absolute" top={3} left={3}>
             <HStack gap={2}>
-              {showVerifiedBadge && (
+              {showAdminVerifiedBadge && (
                 <Box
                   bg="green.400"
                   color="white"
@@ -307,7 +310,7 @@ export default function VenueCard({
         {/* Badges Overlay */}
         <Box position="absolute" top={3} left={3}>
           <HStack gap={2}>
-            {showVerifiedBadge && (
+            {showAdminVerifiedBadge && (
               <Badge
                 colorPalette="green"
                 variant="solid"

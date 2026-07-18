@@ -454,12 +454,13 @@ export interface VenueRequestPayload {
   district?: string;
   numberOfCourts?: number;
   openingHours?: string;
-  hourlyRateFixed?: number;
-  hourlyRateWalkIn?: number;
   phone?: string;
   website?: string;
   locatedWithin?: string;
   bookingPolicy?: string;
+  wifiName?: string;
+  wifiPassword?: string;
+  closureStatus?: ClosureStatus;
   description?: string;
   priceImageUrl?: string;
   priceImagePublicId?: string;

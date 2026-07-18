@@ -150,7 +150,11 @@
       "shortLabel": "Favorites",
       "featureName": "favorites",
       "addFailed": "Could not add to favorites",
-      "removeFailed": "Could not remove from favorites"
+      "removeFailed": "Could not remove from favorites",
+      "saved": "Saved to Favorites",
+      "removed": "Removed from Favorites",
+      "viewList": "View list",
+      "undo": "Undo"
     },
     "levels": {
       "1": "Weak",
@@ -6169,6 +6173,7 @@
     "similarVenuesTitle": "This venue may already exist",
     "similarVenuesHint": "If none of these matches, submit again to continue suggesting a new venue.",
     "viewVenue": "View venue",
+    "otherRequestsHint": "Want to suggest just the price board or photos?",
     "adminTitle": "Venue Requests",
     "loadError": "Failed to load venue requests",
     "approveSuccess": "Request approved",
@@ -6217,16 +6222,22 @@
       "district": "District",
       "numberOfCourts": "Number of courts",
       "openingHours": "Opening hours",
-      "hourlyRateFixed": "Fixed rate",
-      "hourlyRateWalkIn": "Walk-in rate",
       "phone": "Phone",
       "website": "Website",
       "locatedWithin": "Located within",
       "bookingPolicy": "Booking policy",
+      "wifiName": "WiFi name",
+      "wifiPassword": "WiFi password",
+      "closureStatus": "Closure status",
       "description": "About this venue",
       "priceImage": "Price board photo",
       "suggestedImages": "Suggested photos",
       "note": "Note"
+    },
+    "closureStatusOptions": {
+      "OPERATING": "Operating",
+      "TEMPORARILY_CLOSED": "Temporarily closed",
+      "PERMANENTLY_CLOSED": "Permanently closed"
     },
     "placeholders": {
       "city": "Select city",

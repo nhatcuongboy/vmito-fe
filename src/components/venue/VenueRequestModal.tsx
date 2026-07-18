@@ -8,16 +8,17 @@ import {
   Box,
   Flex,
   HStack,
+  NativeSelectField,
+  NativeSelectRoot,
   SimpleGrid,
   Text,
   Textarea,
   VStack,
 } from '@chakra-ui/react';
-import { AlertTriangle, ExternalLink, MapPin } from 'lucide-react';
+import { AlertTriangle, ExternalLink, MapPin, PencilLine } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Field } from '@/components/ui/Field';
 import { Input } from '@/components/ui/Input';
-import { MoneyInput } from '@/components/ui/MoneyInput';
 import { SearchableSelect } from '@/components/ui/SearchableSelect';
 import VModal from '@/components/ui/VModal';
 import { Button } from '@/components/ui/chakra-compat';
@@ -25,7 +26,12 @@ import { toaster } from '@/components/ui/toaster';
 import { useRouter } from '@/i18n/config';
 import { VenueRequestService } from '@/lib/api/venue-request.service';
 import { VenueService } from '@/lib/api/venue.service';
-import { Venue, VenueRequestPayload, VenueRequestType } from '@/lib/api/types';
+import {
+  ClosureStatus,
+  Venue,
+  VenueRequestPayload,
+  VenueRequestType,
+} from '@/lib/api/types';
 import { getDistrictsByCity, VIETNAM_CITIES } from '@/lib/vietnam-locations';
 import { trimPhone } from '@/utils/phone-utils';
 import { formatVenueName } from '@/utils';
@@ -37,12 +43,12 @@ const venueRequestSchema = z.object({
   district: z.string().min(1).max(120),
   numberOfCourts: z.number().int().min(1).optional(),
   openingHours: z.string().max(200).optional(),
-  hourlyRateFixed: z.number().int().min(0).optional(),
-  hourlyRateWalkIn: z.number().int().min(0).optional(),
   phone: z.string().max(40).optional(),
   website: z.string().max(500).optional(),
   locatedWithin: z.string().max(200).optional(),
-  bookingPolicy: z.string().max(2000).optional(),
+  wifiName: z.string().max(200).optional(),
+  wifiPassword: z.string().max(200).optional(),
+  closureStatus: z.nativeEnum(ClosureStatus).optional(),
   description: z.string().max(5000).optional(),
   note: z.string().max(2000).optional(),
 });
@@ -56,6 +62,8 @@ interface VenueRequestModalProps {
   venue?: Venue | null;
   defaultKeyword?: string;
   onSubmitted?: () => void;
+  onOpenPriceCorrection?: () => void;
+  onOpenImageCorrection?: () => void;
 }
 
 const toOptionalNumber = (value: string) => {
@@ -71,12 +79,12 @@ const toPayload = (values: VenueRequestFormValues): VenueRequestPayload => ({
   district: values.district.trim(),
   numberOfCourts: values.numberOfCourts,
   openingHours: values.openingHours?.trim() || undefined,
-  hourlyRateFixed: values.hourlyRateFixed,
-  hourlyRateWalkIn: values.hourlyRateWalkIn,
   phone: trimPhone(values.phone),
   website: values.website?.trim() || undefined,
   locatedWithin: values.locatedWithin?.trim() || undefined,
-  bookingPolicy: values.bookingPolicy?.trim() || undefined,
+  wifiName: values.wifiName?.trim() || undefined,
+  wifiPassword: values.wifiPassword?.trim() || undefined,
+  closureStatus: values.closureStatus,
   description: values.description?.trim() || undefined,
   note: values.note?.trim() || undefined,
 });
@@ -88,6 +96,8 @@ export default function VenueRequestModal({
   venue,
   defaultKeyword = '',
   onSubmitted,
+  onOpenPriceCorrection,
+  onOpenImageCorrection,
 }: VenueRequestModalProps) {
   const t = useTranslations('venueRequests');
   const tVenue = useTranslations('venue');
@@ -104,13 +114,13 @@ export default function VenueRequestModal({
       district: venue?.district || '',
       numberOfCourts: venue?.numberOfCourts,
       openingHours: venue?.openingHours || '',
-      hourlyRateFixed: venue?.hourlyRateFixed,
-      hourlyRateWalkIn: venue?.hourlyRateWalkIn,
       phone: venue?.phone || '',
       website: venue?.website || '',
       locatedWithin: venue?.locatedWithin || '',
-      bookingPolicy: venue?.bookingPolicy || '',
-      description: venue?.description || '',
+      wifiName: venue?.wifiName || '',
+      wifiPassword: venue?.wifiPassword || '',
+      closureStatus: venue?.closureStatus ?? ClosureStatus.OPERATING,
+      description: '',
       note: '',
     }),
     [defaultKeyword, venue]
@@ -382,34 +392,6 @@ export default function VenueRequestModal({
 
           <Controller
             control={form.control}
-            name="hourlyRateFixed"
-            render={({ field }) => (
-              <Field label={t('fields.hourlyRateFixed')}>
-                <MoneyInput
-                  value={field.value}
-                  onValueChange={field.onChange}
-                />
-              </Field>
-            )}
-          />
-
-          <Controller
-            control={form.control}
-            name="hourlyRateWalkIn"
-            render={({ field }) => (
-              <Field label={t('fields.hourlyRateWalkIn')}>
-                <MoneyInput
-                  value={field.value}
-                  onValueChange={field.onChange}
-                />
-              </Field>
-            )}
-          />
-        </SimpleGrid>
-
-        <SimpleGrid columns={{ base: 1, md: 3 }} gap={4}>
-          <Controller
-            control={form.control}
             name="openingHours"
             render={({ field }) => (
               <Field label={t('fields.openingHours')}>
@@ -421,6 +403,33 @@ export default function VenueRequestModal({
             )}
           />
 
+          <Controller
+            control={form.control}
+            name="closureStatus"
+            render={({ field }) => (
+              <Field label={t('fields.closureStatus')}>
+                <NativeSelectRoot>
+                  <NativeSelectField
+                    {...field}
+                    value={field.value ?? ClosureStatus.OPERATING}
+                  >
+                    <option value={ClosureStatus.OPERATING}>
+                      {t('closureStatusOptions.OPERATING')}
+                    </option>
+                    <option value={ClosureStatus.TEMPORARILY_CLOSED}>
+                      {t('closureStatusOptions.TEMPORARILY_CLOSED')}
+                    </option>
+                    <option value={ClosureStatus.PERMANENTLY_CLOSED}>
+                      {t('closureStatusOptions.PERMANENTLY_CLOSED')}
+                    </option>
+                  </NativeSelectField>
+                </NativeSelectRoot>
+              </Field>
+            )}
+          />
+        </SimpleGrid>
+
+        <SimpleGrid columns={{ base: 1, md: 2 }} gap={4}>
           <Controller
             control={form.control}
             name="phone"
@@ -442,15 +451,27 @@ export default function VenueRequestModal({
           />
         </SimpleGrid>
 
-        <Controller
-          control={form.control}
-          name="bookingPolicy"
-          render={({ field }) => (
-            <Field label={t('fields.bookingPolicy')}>
-              <Textarea {...field} rows={3} />
-            </Field>
-          )}
-        />
+        <SimpleGrid columns={{ base: 1, md: 2 }} gap={4}>
+          <Controller
+            control={form.control}
+            name="wifiName"
+            render={({ field }) => (
+              <Field label={t('fields.wifiName')}>
+                <Input {...field} />
+              </Field>
+            )}
+          />
+
+          <Controller
+            control={form.control}
+            name="wifiPassword"
+            render={({ field }) => (
+              <Field label={t('fields.wifiPassword')}>
+                <Input {...field} />
+              </Field>
+            )}
+          />
+        </SimpleGrid>
 
         <Controller
           control={form.control}
@@ -483,6 +504,45 @@ export default function VenueRequestModal({
             </Field>
           )}
         />
+
+        {!isCreate && (onOpenPriceCorrection || onOpenImageCorrection) && (
+          <Box
+            p={3}
+            borderRadius="lg"
+            borderWidth="1px"
+            borderColor="gray.100"
+            bg="gray.50"
+            _dark={{ bg: 'gray.900/40', borderColor: 'gray.700' }}
+          >
+            <HStack gap={4} flexWrap="wrap">
+              <Text fontSize="sm" color="gray.500">
+                {t('otherRequestsHint')}
+              </Text>
+              {onOpenPriceCorrection && (
+                <Button
+                  variant="ghost"
+                  size="xs"
+                  colorPalette="green"
+                  onClick={onOpenPriceCorrection}
+                >
+                  <PencilLine size={13} />
+                  {tVenue('detail.suggestPriceEdit')}
+                </Button>
+              )}
+              {onOpenImageCorrection && (
+                <Button
+                  variant="ghost"
+                  size="xs"
+                  colorPalette="green"
+                  onClick={onOpenImageCorrection}
+                >
+                  <PencilLine size={13} />
+                  {tVenue('detail.suggestImageEdit')}
+                </Button>
+              )}
+            </HStack>
+          </Box>
+        )}
       </VStack>
     </VModal>
   );

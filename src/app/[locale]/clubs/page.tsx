@@ -37,7 +37,7 @@ import {
   BOTTOM_TAB_HEIGHT,
 } from '@/constants';
 import { getUserLocation } from '@/lib/utils/geolocation.utils';
-import { useRouter } from '@/i18n/config';
+import { usePathname, useRouter } from '@/i18n/config';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { ClubsService } from '@/lib/api/clubs.service';
 import ClubCard from '@/components/clubs/ClubCard';
@@ -52,6 +52,7 @@ import { useDebounce } from '@/hooks/useDebounce';
 import { AppSearchBar } from '@/components/common/AppSearchBar';
 import { useRegisterTopBarSearch } from '@/contexts/TopBarSearchContext';
 import { FavoriteFilterButton } from '@/components/favorites/FavoriteFilterButton';
+import { useSearchParams } from 'next/navigation';
 
 const LoginPromptModal = dynamic(
   () => import('@/components/auth/LoginPromptModal'),
@@ -102,6 +103,8 @@ const CLUB_SORT_OPTIONS: IClubSortOption[] = [
 function BrowseClubsContent() {
   const t = useTranslations();
   const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
   const { user } = useAuthStore();
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
 
@@ -142,6 +145,7 @@ function BrowseClubsContent() {
   const { isOpen: showFilters, onToggle: toggleFilters } = useDisclosure(false);
   const debouncedSearch = useDebounce(search, 500);
   const loadingMoreRef = useRef(false);
+  const favoriteFromUrl = searchParams.get('favorite') === '1';
 
   const { ref, inView } = useInView({
     threshold: 0.1,
@@ -157,6 +161,26 @@ function BrowseClubsContent() {
       setPendingUserLocation(userLocation);
     }
   }, [showFilters, cities, districts, sortByDistance, userLocation]);
+
+  useEffect(() => {
+    setFavoriteOnly(favoriteFromUrl);
+  }, [favoriteFromUrl]);
+
+  const updateFavoriteFilter = (nextValue: boolean) => {
+    setFavoriteOnly(nextValue);
+
+    const params = new URLSearchParams(searchParams.toString());
+    if (nextValue) {
+      params.set('favorite', '1');
+    } else {
+      params.delete('favorite');
+    }
+
+    const query = params.toString();
+    router.replace(query ? `${pathname}?${query}` : pathname, {
+      scroll: false,
+    });
+  };
 
   useEffect(() => {
     if (sort === 'distance' && !userLocation) {
@@ -390,7 +414,7 @@ function BrowseClubsContent() {
     setCities([]);
     setDistricts([]);
     setSortByDistance(false);
-    setFavoriteOnly(false);
+    updateFavoriteFilter(false);
     setUserLocation(null);
     toggleFilters();
   };
@@ -536,7 +560,7 @@ function BrowseClubsContent() {
             <Flex align="center" gap={2} ml="auto">
               <FavoriteFilterButton
                 isActive={favoriteOnly}
-                onToggle={() => setFavoriteOnly((value) => !value)}
+                onToggle={() => updateFavoriteFilter(!favoriteOnly)}
               />
 
               <Box position="relative" ref={sortDropdownRef}>
@@ -1040,7 +1064,7 @@ function BrowseClubsContent() {
                   setCities([]);
                   setDistricts([]);
                   setSortByDistance(false);
-                  setFavoriteOnly(false);
+                  updateFavoriteFilter(false);
                   setUserLocation(null);
                 }}
               >

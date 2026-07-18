@@ -933,7 +933,7 @@ export default function PublicTournamentStandingsTab({
                                     )
                                   }
                                 >
-                                  <RefreshCw size={13} /> {t('recalculate')}
+                                  <RefreshCw size={13} />
                                 </Button>
                               ) : null
                             }
@@ -1361,7 +1361,22 @@ function StandingsTable({
               position="sticky"
               left={{ base: '16px', md: '20px' }}
               zIndex={2}
+              bg="gray.50"
+              _dark={{
+                bg: 'var(--tournament-surface-muted, var(--chakra-colors-gray-800))',
+              }}
             >
+              <Box
+                position="absolute"
+                top={0}
+                bottom={0}
+                left={{ base: '-16px', md: '-20px' }}
+                w={{ base: '16px', md: '20px' }}
+                bg="gray.50"
+                _dark={{
+                  bg: 'var(--tournament-surface-muted, var(--chakra-colors-gray-800))',
+                }}
+              />
               <StandingHeaderCell label={t('columns.rank')} align="center" />
             </Box>
             <Box
@@ -1370,6 +1385,10 @@ function StandingsTable({
               zIndex={2}
               pr={{ base: 3, md: 4 }}
               mr={{ base: -3, md: -4 }}
+              bg="gray.50"
+              _dark={{
+                bg: 'var(--tournament-surface-muted, var(--chakra-colors-gray-800))',
+              }}
             >
               <StandingHeaderCell
                 label={t('columns.teamShort')}
@@ -1412,6 +1431,7 @@ function StandingsTable({
               return (
                 <Box
                   key={`${standing.categoryRegistrationId}-${rankKey}`}
+                  className="group"
                   display="grid"
                   gridTemplateColumns={gridTemplate}
                   alignItems="center"
@@ -1438,7 +1458,30 @@ function StandingsTable({
                     position="sticky"
                     left={{ base: '16px', md: '20px' }}
                     zIndex={1}
+                    bg="white"
+                    _groupHover={{ bg: 'gray.50' }}
+                    _dark={{
+                      bg: 'var(--tournament-surface-raised, var(--chakra-colors-gray-900))',
+                      _groupHover: {
+                        bg: 'var(--tournament-accent-soft, rgba(34, 197, 94, 0.14))',
+                      },
+                    }}
                   >
+                    <Box
+                      position="absolute"
+                      top={0}
+                      bottom={0}
+                      left={{ base: '-16px', md: '-20px' }}
+                      w={{ base: '16px', md: '20px' }}
+                      bg="white"
+                      _groupHover={{ bg: 'gray.50' }}
+                      _dark={{
+                        bg: 'var(--tournament-surface-raised, var(--chakra-colors-gray-900))',
+                        _groupHover: {
+                          bg: 'var(--tournament-accent-soft, rgba(34, 197, 94, 0.14))',
+                        },
+                      }}
+                    />
                     <Flex
                       w={{ base: 8, md: 8 }}
                       h={{ base: 8, md: 8 }}
@@ -1469,6 +1512,14 @@ function StandingsTable({
                     minW={0}
                     pr={{ base: 3, md: 4 }}
                     mr={{ base: -3, md: -4 }}
+                    bg="white"
+                    _groupHover={{ bg: 'gray.50' }}
+                    _dark={{
+                      bg: 'var(--tournament-surface-raised, var(--chakra-colors-gray-900))',
+                      _groupHover: {
+                        bg: 'var(--tournament-accent-soft, rgba(34, 197, 94, 0.14))',
+                      },
+                    }}
                   >
                     <HStack gap={1.5} minW={0}>
                       <Link

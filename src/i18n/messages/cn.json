@@ -141,7 +141,11 @@
       "shortLabel": "收藏",
       "featureName": "收藏",
       "addFailed": "无法添加到收藏",
-      "removeFailed": "无法取消收藏"
+      "removeFailed": "无法取消收藏",
+      "saved": "已保存到收藏",
+      "removed": "已从收藏中移除",
+      "viewList": "查看列表",
+      "undo": "撤销"
     },
     "levels": {
       "1": "新手",
@@ -6130,6 +6134,7 @@
     "similarVenuesTitle": "这个场地可能已存在",
     "similarVenuesHint": "如果以上都不匹配，可以再次提交以继续建议新增场地。",
     "viewVenue": "查看场地",
+    "otherRequestsHint": "只想单独反馈价目表或照片吗？",
     "adminTitle": "场地请求",
     "loadError": "加载场地请求失败",
     "approveSuccess": "请求已批准",
@@ -6178,16 +6183,22 @@
       "district": "区/县",
       "numberOfCourts": "场地数量",
       "openingHours": "营业时间",
-      "hourlyRateFixed": "固定价格",
-      "hourlyRateWalkIn": "散客价格",
       "phone": "电话",
       "website": "网站",
       "locatedWithin": "位于",
       "bookingPolicy": "预订政策",
+      "wifiName": "WiFi名称",
+      "wifiPassword": "WiFi密码",
+      "closureStatus": "营业状态",
       "description": "场地介绍",
       "priceImage": "价目表照片",
       "suggestedImages": "建议图片",
       "note": "备注"
+    },
+    "closureStatusOptions": {
+      "OPERATING": "正常营业",
+      "TEMPORARILY_CLOSED": "暂时停业",
+      "PERMANENTLY_CLOSED": "永久停业"
     },
     "placeholders": {
       "city": "选择城市",

@@ -150,7 +150,11 @@
       "shortLabel": "Yêu thích",
       "featureName": "yêu thích",
       "addFailed": "Không thể thêm vào yêu thích",
-      "removeFailed": "Không thể bỏ yêu thích"
+      "removeFailed": "Không thể bỏ yêu thích",
+      "saved": "Đã lưu vào Yêu thích",
+      "removed": "Đã xóa khỏi Yêu thích",
+      "viewList": "Xem danh sách",
+      "undo": "Hoàn tác"
     },
     "levels": {
       "1": "Yếu",
@@ -6189,6 +6193,7 @@
     "similarVenuesTitle": "Có thể sân này đã tồn tại",
     "similarVenuesHint": "Nếu các sân trên không đúng, bạn có thể bấm gửi lần nữa để tiếp tục đề xuất sân mới.",
     "viewVenue": "Xem sân",
+    "otherRequestsHint": "Muốn báo sửa riêng bảng giá hoặc ảnh sân?",
     "adminTitle": "Yêu cầu cập nhật sân",
     "loadError": "Không thể tải danh sách yêu cầu",
     "approveSuccess": "Đã duyệt yêu cầu",
@@ -6235,18 +6240,24 @@
       "address": "Địa chỉ",
       "city": "Thành phố",
       "district": "Quận/Huyện",
-      "numberOfCourts": "Số sân",
+      "numberOfCourts": "Số lượng sân",
       "openingHours": "Giờ mở cửa",
-      "hourlyRateFixed": "Giá cố định",
-      "hourlyRateWalkIn": "Giá vãng lai",
       "phone": "Số điện thoại",
       "website": "Website",
       "locatedWithin": "Nằm trong",
       "bookingPolicy": "Chính sách đặt sân",
+      "wifiName": "Tên WiFi",
+      "wifiPassword": "Mật khẩu WiFi",
+      "closureStatus": "Tình trạng đóng cửa",
       "description": "Giới thiệu về sân",
       "priceImage": "Ảnh bảng giá",
       "suggestedImages": "Ảnh đề xuất",
       "note": "Ghi chú"
+    },
+    "closureStatusOptions": {
+      "OPERATING": "Đang hoạt động",
+      "TEMPORARILY_CLOSED": "Tạm đóng cửa",
+      "PERMANENTLY_CLOSED": "Đóng cửa vĩnh viễn"
     },
     "placeholders": {
       "city": "Chọn thành phố",

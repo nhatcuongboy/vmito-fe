@@ -8,8 +8,12 @@ import {
   Toast,
   createToaster,
   Box,
+  HStack,
+  Text,
 } from '@chakra-ui/react';
-import { X } from 'lucide-react';
+import { Check, X } from 'lucide-react';
+
+export const FAVORITE_TOAST_ID = 'favorite-toast';
 
 export const toaster = createToaster({
   placement: 'top-end',
@@ -22,6 +26,8 @@ export const Toaster = () => {
     <Portal>
       <ChakraToaster toaster={toaster} insetInline={{ mdDown: '4' }}>
         {(toast) => {
+          const isFavoriteToast = toast.id === FAVORITE_TOAST_ID;
+
           let indicatorColor = 'white';
           switch (toast.type) {
             case 'success':
@@ -39,6 +45,94 @@ export const Toaster = () => {
             case 'loading':
               indicatorColor = 'purple.400';
               break;
+          }
+
+          if (isFavoriteToast) {
+            return (
+              <Toast.Root
+                width={{ base: 'calc(100vw - 40px)', md: 'min(440px, 88vw)' }}
+                maxWidth={{ base: 'calc(100vw - 40px)', md: '440px' }}
+                minH={{ base: '48px', md: '52px' }}
+                px={{ base: 3, md: 3.5 }}
+                py={{ base: 2.5, md: 3 }}
+                bg="#151515"
+                color="white"
+                borderRadius={{ base: '14px', md: '16px' }}
+                border="1px solid"
+                borderColor="whiteAlpha.100"
+                boxShadow="0 12px 30px rgba(0, 0, 0, 0.3)"
+                _dark={{
+                  bg: '#151515',
+                  borderColor: 'whiteAlpha.100',
+                }}
+              >
+                <HStack
+                  gap={{ base: 2, md: 2.5 }}
+                  align="center"
+                  width="full"
+                  pr={{ base: 5, md: 6 }}
+                >
+                  <Box
+                    flexShrink={0}
+                    boxSize={{ base: 6, md: 6.5 }}
+                    borderRadius="full"
+                    bg="#2FC56D"
+                    color="#111"
+                    display="flex"
+                    alignItems="center"
+                    justifyContent="center"
+                  >
+                    <Check size={15} strokeWidth={3} />
+                  </Box>
+                  <Text
+                    flex="1"
+                    minW={0}
+                    fontSize={{ base: 'sm', md: 'md' }}
+                    lineHeight="1.25"
+                    fontWeight="semibold"
+                    whiteSpace="normal"
+                    overflow="hidden"
+                    textOverflow="ellipsis"
+                    lineClamp={2}
+                  >
+                    {toast.title}
+                  </Text>
+                  {toast.action && (
+                    <Toast.ActionTrigger
+                      flexShrink={0}
+                      alignSelf="center"
+                      color="#F5C542"
+                      fontSize={{ base: 'sm', md: 'md' }}
+                      lineHeight="1.2"
+                      fontWeight="semibold"
+                      textDecoration="underline"
+                      textUnderlineOffset="3px"
+                      whiteSpace="nowrap"
+                      _hover={{ color: '#FFD769' }}
+                      _focusVisible={{
+                        outline: '2px solid #F5C542',
+                        outlineOffset: '3px',
+                        borderRadius: 'md',
+                      }}
+                    >
+                      {toast.action.label}
+                    </Toast.ActionTrigger>
+                  )}
+                </HStack>
+                <Toast.CloseTrigger
+                  position="absolute"
+                  top={{ base: 1.5, md: 2 }}
+                  right={{ base: 1.5, md: 2 }}
+                  p="0.5"
+                  borderRadius="full"
+                  color="gray.500"
+                  _hover={{ bg: 'whiteAlpha.100', color: 'white' }}
+                  _dark={{ _hover: { bg: 'whiteAlpha.100', color: 'white' } }}
+                >
+                  <X size={14} />
+                </Toast.CloseTrigger>
+              </Toast.Root>
+            );
           }
 
           return (

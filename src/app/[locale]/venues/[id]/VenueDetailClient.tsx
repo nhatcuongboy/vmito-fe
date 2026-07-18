@@ -743,8 +743,8 @@ export default function VenueDetailClient({
                           {t('detail.pricing')}
                         </Heading>
                       </Flex>
-                      <HStack gap={2}>
-                        {isAdmin && !hasPricingRows && (
+                      {isAdmin && !hasPricingRows && (
+                        <HStack gap={2}>
                           <Button
                             variant="outline"
                             size="sm"
@@ -756,17 +756,8 @@ export default function VenueDetailClient({
                             <Banknote size={14} />
                             {t('detail.updatePricing')}
                           </Button>
-                        )}
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          colorPalette="green"
-                          onClick={handleOpenPriceRequest}
-                        >
-                          <PencilLine size={14} />
-                          {t('detail.suggestPriceEdit')}
-                        </Button>
-                      </HStack>
+                        </HStack>
+                      )}
                     </Flex>
 
                     {hasPricingRows ? (
@@ -1070,20 +1061,9 @@ export default function VenueDetailClient({
                   borderColor="gray.100"
                   shadow="sm"
                 >
-                  <Flex align="center" justify="space-between" gap={3} mb={5}>
-                    <Heading size="md" fontWeight="bold">
-                      {t('detail.photosHeading')}
-                    </Heading>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      colorPalette="green"
-                      onClick={handleOpenImageRequest}
-                    >
-                      <PencilLine size={14} />
-                      {t('detail.suggestImageEdit')}
-                    </Button>
-                  </Flex>
+                  <Heading size="md" fontWeight="bold" mb={5}>
+                    {t('detail.photosHeading')}
+                  </Heading>
                   {venue.images && venue.images.length > 0 ? (
                     <SimpleGrid columns={{ base: 2, md: 3 }} gap={4}>
                       {venue.images.map((imgUrl, idx) => (
@@ -1504,6 +1484,14 @@ export default function VenueDetailClient({
         onClose={() => setIsUpdateRequestOpen(false)}
         type={VenueRequestType.UPDATE}
         venue={venue}
+        onOpenPriceCorrection={() => {
+          setIsUpdateRequestOpen(false);
+          handleOpenPriceRequest();
+        }}
+        onOpenImageCorrection={() => {
+          setIsUpdateRequestOpen(false);
+          handleOpenImageRequest();
+        }}
       />
       <VenuePriceRequestModal
         isOpen={isPriceRequestOpen}
