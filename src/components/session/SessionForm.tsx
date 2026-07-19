@@ -46,7 +46,16 @@ import {
   BulkCreationMode,
   SpecificDatesConfig,
   RecurringWeekdaysConfig,
+  VenueRequestType,
 } from '@/lib/api/types';
+import dynamic from 'next/dynamic';
+import { useDisclosure } from '@/components/ui/ChakraHooks';
+import VenueRequestModal from '@/components/venue/VenueRequestModal';
+
+const LoginPromptModal = dynamic(
+  () => import('@/components/auth/LoginPromptModal'),
+  { ssr: false }
+);
 
 interface SessionFormProps {
   mode: 'create' | 'edit';
@@ -76,7 +85,8 @@ export default function SessionForm({
   const t = useTranslations('session');
   const tc = useTranslations('common');
   const tVenue = useTranslations('venue');
-  const { user } = useAuthStore();
+  const tVenueRequests = useTranslations('venueRequests');
+  const { user, isAuthenticated } = useAuthStore();
   const { canAccessHostFeatures } = useCanAccessHostFeatures();
   const isEditMode = mode === 'edit';
 
@@ -133,6 +143,27 @@ export default function SessionForm({
   // State for modal / navigation
   const [isAIModalOpen, setIsAIModalOpen] = useState(false);
   const [isNavigating, setIsNavigating] = useState(false);
+
+  // Venue request modal state
+  const {
+    isOpen: isVenueRequestOpen,
+    onOpen: openVenueRequest,
+    onClose: closeVenueRequest,
+  } = useDisclosure(false);
+  const {
+    isOpen: isVenueLoginModalOpen,
+    onOpen: openVenueLoginModal,
+    onClose: closeVenueLoginModal,
+  } = useDisclosure(false);
+  const [venueRequestKeyword, setVenueRequestKeyword] = useState('');
+
+  const handleSuggestNewVenue = () => {
+    if (!isAuthenticated) {
+      openVenueLoginModal();
+      return;
+    }
+    openVenueRequest();
+  };
 
   const {
     venues,
@@ -576,10 +607,17 @@ export default function SessionForm({
               control={control}
               canEditVenue={canEditVenue}
               venues={venues}
-              setSelectedVenueObj={setSelectedVenueObj}
+              setSelectedVenueObj={(venue) => {
+                setSelectedVenueObj(venue);
+                if (venue) setVenueRequestKeyword('');
+              }}
               venueOptions={venueOptions}
-              handleVenueSearch={handleVenueSearch}
+              handleVenueSearch={(kw) => {
+                setVenueRequestKeyword(kw);
+                handleVenueSearch(kw);
+              }}
               isVenueLoading={isVenueLoading}
+              onSuggestNewVenue={handleSuggestNewVenue}
             />
 
             {/* Host Info Section */}
@@ -724,6 +762,23 @@ export default function SessionForm({
             'Bạn có chắc chắn muốn xóa sân này? Hành động này không thể hoàn tác.'}
         </Text>
       </VModal>
+
+      {/* Suggest New Venue Modal */}
+      <VenueRequestModal
+        isOpen={isVenueRequestOpen}
+        onClose={closeVenueRequest}
+        type={VenueRequestType.CREATE}
+        defaultKeyword={venueRequestKeyword}
+      />
+
+      {/* Login prompt when unauthenticated user tries to suggest a venue */}
+      {isVenueLoginModalOpen && (
+        <LoginPromptModal
+          isOpen={isVenueLoginModalOpen}
+          onClose={closeVenueLoginModal}
+          featureName={tVenueRequests('suggestNewVenue')}
+        />
+      )}
     </Box>
   );
 }

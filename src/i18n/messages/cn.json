@@ -424,6 +424,7 @@
     "generalSettings": {
       "selectVenue": "选择场地...",
       "searchVenue": "搜索场地...",
+      "noVenueFound": "未找到场地",
       "sessionName": "场次名称",
       "enterSessionName": "输入场次名称",
       "description": "描述",

@@ -437,6 +437,7 @@
     "generalSettings": {
       "selectVenue": "Select a venue...",
       "searchVenue": "Search for a venue...",
+      "noVenueFound": "No venues found",
       "sessionName": "Session Name",
       "enterSessionName": "Enter session name",
       "description": "Description",

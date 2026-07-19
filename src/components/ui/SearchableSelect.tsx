@@ -126,6 +126,14 @@ export interface SearchableVSelectProps {
    * Show loading indicator in the dropdown (for async search)
    */
   isLoading?: boolean;
+  /**
+   * Optional action shown below the "no options" message.
+   * Only rendered when there are no filtered options and a search query is active.
+   */
+  onNoOptionsAction?: {
+    label: string;
+    onClick: () => void;
+  };
 }
 
 /**
@@ -144,6 +152,7 @@ export const SearchableSelect: React.FC<SearchableVSelectProps> = ({
   isInvalid = false,
   onSearchChange,
   isLoading = false,
+  onNoOptionsAction,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -452,6 +461,33 @@ export const SearchableSelect: React.FC<SearchableVSelectProps> = ({
               ) : filteredOptions.length === 0 ? (
                 <Box p="3" textAlign="center" color="fg.muted" fontSize="sm">
                   {noOptionsMessage}
+                  {onNoOptionsAction && searchQuery.trim() && (
+                    <Box
+                      as="button"
+                      {...({ type: 'button' } as Record<string, unknown>)}
+                      onClick={(e: React.MouseEvent) => {
+                        e.stopPropagation();
+                        closeDropdown();
+                        onNoOptionsAction.onClick();
+                      }}
+                      mt="2"
+                      display="inline-flex"
+                      alignItems="center"
+                      gap="1"
+                      fontSize="xs"
+                      fontWeight="medium"
+                      color="brand.500"
+                      _hover={{
+                        color: 'brand.600',
+                        textDecoration: 'underline',
+                      }}
+                      cursor="pointer"
+                      width="full"
+                      justifyContent="center"
+                    >
+                      + {onNoOptionsAction.label}
+                    </Box>
+                  )}
                 </Box>
               ) : (
                 <VStack gap="0" align="stretch">

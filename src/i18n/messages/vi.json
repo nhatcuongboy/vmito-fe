@@ -438,6 +438,7 @@
     "generalSettings": {
       "selectVenue": "Chọn địa điểm...",
       "searchVenue": "Tìm địa điểm...",
+      "noVenueFound": "Không tìm thấy sân nào",
       "sessionName": "Tên kèo",
       "enterSessionName": "Nhập tên kèo",
       "description": "Mô tả",

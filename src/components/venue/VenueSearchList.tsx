@@ -1163,7 +1163,7 @@ export default function VenueSearchList() {
                   onClick={handleOpenCreateRequest}
                   leftIcon={<Plus size={16} />}
                 >
-                  {t('venue.requestUpdate')}
+                  {t('venueRequests.suggestNewVenue')}
                 </Button>
               )}
               {activeFilterCount > 0 && (
@@ -1241,7 +1241,7 @@ export default function VenueSearchList() {
         <LoginPromptModal
           isOpen={isLoginModalOpen}
           onClose={closeLoginModal}
-          featureName={t('venue.requestUpdate')}
+          featureName={t('venueRequests.suggestNewVenue')}
           returnUrl={getCreateRequestReturnUrl()}
         />
       )}

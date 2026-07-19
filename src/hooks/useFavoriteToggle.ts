@@ -20,7 +20,7 @@ interface UseFavoriteToggleOptions {
 const getFavoriteListHref = (type: FavoriteType) => {
   switch (type) {
     case 'SESSION':
-      return `${ROUTES.JOIN.ENTRY}?favorite=1`;
+      return `${ROUTES.HOME}?favorite=1`;
     case 'VENUE':
       return `${ROUTES.BROWSE.VENUES.LIST}?favorite=1`;
     case 'CLUB':
