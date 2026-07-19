@@ -7,6 +7,8 @@ import {
   ViewTargetType,
   ViewTrackingService,
 } from '@/lib/api/view-tracking.service';
+import { useAuthStore } from '@/stores/useAuthStore';
+import { UserRole } from '@/lib/api/types';
 
 interface DetailViewCountFooterProps {
   targetType: ViewTargetType;
@@ -44,6 +46,7 @@ export default function DetailViewCountFooter({
   initialCount,
 }: DetailViewCountFooterProps) {
   const t = useTranslations('common');
+  const { user } = useAuthStore();
   const [viewCount, setViewCount] = useState<number | null>(
     typeof initialCount === 'number' ? initialCount : null
   );
@@ -96,6 +99,7 @@ export default function DetailViewCountFooter({
   }, [initialCount, targetId, targetType]);
 
   if (typeof viewCount !== 'number') return null;
+  if (user?.role !== UserRole.ADMIN) return null;
 
   return (
     <Text fontSize="xs" color="gray.500" textAlign="center">

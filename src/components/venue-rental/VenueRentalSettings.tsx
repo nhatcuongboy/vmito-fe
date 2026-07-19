@@ -20,6 +20,80 @@ import {
 import { useAuthStore } from '@/stores/useAuthStore';
 import VenueCourtManagement from './VenueCourtManagement';
 
+const DEFAULT_TIMEZONE = 'Asia/Ho_Chi_Minh';
+
+const FALLBACK_TIMEZONES = [
+  'Asia/Ho_Chi_Minh',
+  'Asia/Bangkok',
+  'Asia/Singapore',
+  'Asia/Kuala_Lumpur',
+  'Asia/Jakarta',
+  'Asia/Manila',
+  'Asia/Hong_Kong',
+  'Asia/Taipei',
+  'Asia/Tokyo',
+  'Asia/Seoul',
+  'Asia/Shanghai',
+  'Asia/Dubai',
+  'Asia/Kolkata',
+  'Australia/Sydney',
+  'Europe/London',
+  'Europe/Paris',
+  'Europe/Berlin',
+  'America/New_York',
+  'America/Chicago',
+  'America/Denver',
+  'America/Los_Angeles',
+  'UTC',
+];
+
+const getSupportedTimeZones = () => {
+  const intlWithSupportedValues = Intl as typeof Intl & {
+    supportedValuesOf?: (key: string) => string[];
+  };
+
+  try {
+    const timeZones = intlWithSupportedValues.supportedValuesOf?.('timeZone');
+    return timeZones?.length ? timeZones : FALLBACK_TIMEZONES;
+  } catch {
+    return FALLBACK_TIMEZONES;
+  }
+};
+
+const getTimeZoneOffsetLabel = (timeZone: string) => {
+  try {
+    return new Intl.DateTimeFormat('en-US', {
+      timeZone,
+      timeZoneName: 'shortOffset',
+      hour: '2-digit',
+    })
+      .formatToParts(new Date())
+      .find((part) => part.type === 'timeZoneName')?.value;
+  } catch {
+    return undefined;
+  }
+};
+
+const getTimeZoneLabel = (timeZone: string) =>
+  timeZone.replaceAll('_', ' ').replace('/', ' / ');
+
+const getTimeZoneOptions = (currentTimeZone: string) => {
+  const timeZones = new Set(getSupportedTimeZones());
+  if (currentTimeZone) {
+    timeZones.add(currentTimeZone);
+  }
+
+  return [...timeZones].sort().map((timeZone) => {
+    const offset = getTimeZoneOffsetLabel(timeZone);
+
+    return {
+      value: timeZone,
+      label: getTimeZoneLabel(timeZone),
+      sublabel: offset ? `${timeZone} · ${offset}` : timeZone,
+    };
+  });
+};
+
 export default function VenueRentalSettings({
   venue,
   onUpdated,
@@ -36,9 +110,7 @@ export default function VenueRentalSettings({
   >([]);
   const [selectedUserId, setSelectedUserId] = useState('');
   const [newRole, setNewRole] = useState(VenueManagerRole.MANAGER);
-  const [timezone, setTimezone] = useState(
-    venue.timezone || 'Asia/Ho_Chi_Minh'
-  );
+  const [timezone, setTimezone] = useState(venue.timezone || DEFAULT_TIMEZONE);
   const [enabled, setEnabled] = useState(!!venue.rentalEnabled);
   const [visualEnabled, setVisualEnabled] = useState(
     !!venue.courtSelectionEnabled
@@ -84,6 +156,10 @@ export default function VenueRentalSettings({
         sublabel: item.email,
       })),
     [candidates]
+  );
+  const timezoneOptions = useMemo(
+    () => getTimeZoneOptions(timezone),
+    [timezone]
   );
   const addManager = async () => {
     if (!selectedUserId) return;
@@ -135,9 +211,10 @@ export default function VenueRentalSettings({
           />
         </HStack>
         <Field label={t('timezone')}>
-          <Input
+          <SearchableSelect
             value={timezone}
-            onChange={(event) => setTimezone(event.target.value)}
+            onChange={setTimezone}
+            options={timezoneOptions}
           />
         </Field>
         <HStack justify="space-between">

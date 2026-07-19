@@ -15,11 +15,18 @@ import {
   Textarea,
   VStack,
 } from '@chakra-ui/react';
-import { AlertTriangle, ExternalLink, MapPin, PencilLine } from 'lucide-react';
+import {
+  AlertTriangle,
+  ExternalLink,
+  Info,
+  MapPin,
+  PencilLine,
+} from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Field } from '@/components/ui/Field';
 import { Input } from '@/components/ui/Input';
 import { SearchableSelect } from '@/components/ui/SearchableSelect';
+import { VDateTimeInput } from '@/components/ui/VDateTimeInput';
 import VModal from '@/components/ui/VModal';
 import { Button } from '@/components/ui/chakra-compat';
 import { toaster } from '@/components/ui/toaster';
@@ -35,6 +42,7 @@ import {
 import { getDistrictsByCity, VIETNAM_CITIES } from '@/lib/vietnam-locations';
 import { trimPhone } from '@/utils/phone-utils';
 import { formatVenueName } from '@/utils';
+import { formatOpeningHours, parseOpeningHours } from '@/utils/time-helpers';
 
 const venueRequestSchema = z.object({
   name: z.string().min(2).max(200),
@@ -43,6 +51,8 @@ const venueRequestSchema = z.object({
   district: z.string().min(1).max(120),
   numberOfCourts: z.number().int().min(1).optional(),
   openingHours: z.string().max(200).optional(),
+  openTime: z.string().optional(),
+  closeTime: z.string().optional(),
   phone: z.string().max(40).optional(),
   website: z.string().max(500).optional(),
   locatedWithin: z.string().max(200).optional(),
@@ -62,6 +72,7 @@ interface VenueRequestModalProps {
   venue?: Venue | null;
   defaultKeyword?: string;
   onSubmitted?: () => void;
+  onOpenCreateRequest?: () => void;
   onOpenPriceCorrection?: () => void;
   onOpenImageCorrection?: () => void;
 }
@@ -78,7 +89,8 @@ const toPayload = (values: VenueRequestFormValues): VenueRequestPayload => ({
   city: values.city.trim(),
   district: values.district.trim(),
   numberOfCourts: values.numberOfCourts,
-  openingHours: values.openingHours?.trim() || undefined,
+  openingHours:
+    formatOpeningHours(values.openTime, values.closeTime) || undefined,
   phone: trimPhone(values.phone),
   website: values.website?.trim() || undefined,
   locatedWithin: values.locatedWithin?.trim() || undefined,
@@ -96,6 +108,7 @@ export default function VenueRequestModal({
   venue,
   defaultKeyword = '',
   onSubmitted,
+  onOpenCreateRequest,
   onOpenPriceCorrection,
   onOpenImageCorrection,
 }: VenueRequestModalProps) {
@@ -106,14 +119,18 @@ export default function VenueRequestModal({
   const [hasReviewedSimilar, setHasReviewedSimilar] = useState(false);
   const [isCheckingSimilar, setIsCheckingSimilar] = useState(false);
 
-  const defaultValues = useMemo<VenueRequestFormValues>(
-    () => ({
+  const defaultValues = useMemo<VenueRequestFormValues>(() => {
+    const openingHours = parseOpeningHours(venue?.openingHours);
+
+    return {
       name: venue?.name || defaultKeyword,
       address: venue?.address || '',
       city: venue?.city || '',
       district: venue?.district || '',
       numberOfCourts: venue?.numberOfCourts,
       openingHours: venue?.openingHours || '',
+      openTime: openingHours.openTime,
+      closeTime: openingHours.closeTime,
       phone: venue?.phone || '',
       website: venue?.website || '',
       locatedWithin: venue?.locatedWithin || '',
@@ -122,9 +139,8 @@ export default function VenueRequestModal({
       closureStatus: venue?.closureStatus ?? ClosureStatus.OPERATING,
       description: '',
       note: '',
-    }),
-    [defaultKeyword, venue]
-  );
+    };
+  }, [defaultKeyword, venue]);
 
   const form = useForm<VenueRequestFormValues>({
     resolver: zodResolver(venueRequestSchema),
@@ -183,6 +199,16 @@ export default function VenueRequestModal({
       console.error('Failed to submit venue request:', error);
       toaster.error({ title: t('submitError') });
     }
+  };
+
+  const handleRedirectToCreate = () => {
+    onClose();
+    if (onOpenCreateRequest) {
+      onOpenCreateRequest();
+      return;
+    }
+
+    router.push('/venues?action=openVenueCreateRequest');
   };
 
   const primaryActionText =
@@ -390,18 +416,32 @@ export default function VenueRequestModal({
             )}
           />
 
-          <Controller
-            control={form.control}
-            name="openingHours"
-            render={({ field }) => (
-              <Field label={t('fields.openingHours')}>
-                <Input
-                  {...field}
-                  placeholder={t('placeholders.openingHours')}
-                />
-              </Field>
-            )}
-          />
+          <Field label={t('fields.openingHours')}>
+            <HStack width="full" gap={3}>
+              <Controller
+                control={form.control}
+                name="openTime"
+                render={({ field }) => (
+                  <VDateTimeInput
+                    {...field}
+                    type="time"
+                    placeholder={t('placeholders.openTime')}
+                  />
+                )}
+              />
+              <Controller
+                control={form.control}
+                name="closeTime"
+                render={({ field }) => (
+                  <VDateTimeInput
+                    {...field}
+                    type="time"
+                    placeholder={t('placeholders.closeTime')}
+                  />
+                )}
+              />
+            </HStack>
+          </Field>
 
           <Controller
             control={form.control}
@@ -542,6 +582,40 @@ export default function VenueRequestModal({
               )}
             </HStack>
           </Box>
+        )}
+
+        {!isCreate && (
+          <Flex
+            p={3}
+            borderRadius="md"
+            bg="blue.50"
+            borderWidth="1px"
+            borderColor="blue.200"
+            _dark={{ bg: 'blue.950/30', borderColor: 'blue.800' }}
+            fontSize="sm"
+            gap={2.5}
+            align="flex-start"
+            mt={2}
+          >
+            <Info
+              size={16}
+              color="var(--chakra-colors-blue-500)"
+              style={{ marginTop: '2px', flexShrink: 0 }}
+            />
+            <Text color="blue.800" _dark={{ color: 'blue.200' }} flex={1}>
+              {t('suggestNewVenueInsteadHint')}{' '}
+              <Text
+                as="span"
+                color="brand.500"
+                fontWeight="semibold"
+                cursor="pointer"
+                _hover={{ textDecoration: 'underline', color: 'brand.600' }}
+                onClick={handleRedirectToCreate}
+              >
+                {t('suggestNewVenueLink')}
+              </Text>
+            </Text>
+          </Flex>
         )}
       </VStack>
     </VModal>

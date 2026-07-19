@@ -113,6 +113,24 @@ export const getNotificationTranslationParams = (
   };
 };
 
+const USER_RELATED_ACTIONS = new Set(['post_liked', 'post_commented']);
+
+export const getNotificationRelatedUser = (
+  notification: INotification
+): { name: string; image: string | null } | null => {
+  const action = notification.data?.action as string | undefined;
+  if (!action || !USER_RELATED_ACTIONS.has(action)) return null;
+
+  const actorName = notification.data?.actorName;
+  if (typeof actorName !== 'string' || !actorName) return null;
+
+  const actorAvatar = notification.data?.actorAvatar;
+  return {
+    name: actorName,
+    image: typeof actorAvatar === 'string' ? actorAvatar : null,
+  };
+};
+
 export const getNotificationDisplayText = (
   notification: INotification,
   translate: NotificationTranslator

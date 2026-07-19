@@ -22,7 +22,6 @@ import {
   LuShield,
   LuMail,
   LuCreditCard,
-  LuUserCheck,
   LuUsers,
   LuMapPin,
   LuHeart,
@@ -37,6 +36,7 @@ import {
   PopoverBody,
 } from '@/components/ui/popover';
 import { NotificationSkeleton } from '../notification/NotificationSkeleton';
+import { PostAvatar } from '@/components/post/PostAvatar';
 import { useNotificationStore } from '@/stores/useNotificationStore';
 import { useAuthStore } from '@/stores/useAuthStore';
 import {
@@ -57,7 +57,10 @@ import { useTranslations } from 'next-intl';
 import { toaster } from '@/components/ui/toaster';
 import { useRouter } from '@/i18n/config';
 import dayjs from '@/lib/dayjs';
-import { getNotificationDisplayText } from '@/lib/notifications/content';
+import {
+  getNotificationDisplayText,
+  getNotificationRelatedUser,
+} from '@/lib/notifications/content';
 import { getNotificationTargetRoute } from '@/lib/notifications/routing';
 import { ROUTES } from '@/constants/routes';
 import { formatTimeByDevicePreference } from '@/utils/time-helpers';
@@ -637,22 +640,13 @@ export default function NotificationBell({
                         />
 
                         <HStack gap={3} align="start">
-                          {/* Icon */}
-                          <Box
-                            w="36px"
-                            h="36px"
-                            borderRadius="xl"
-                            bg="orange.100"
-                            _dark={{ bg: 'rgba(251,146,60,0.25)' }}
-                            display="flex"
-                            alignItems="center"
-                            justifyContent="center"
-                            color="orange.500"
-                            flexShrink={0}
-                            mt="1px"
-                          >
-                            <LuUserCheck size={17} />
-                          </Box>
+                          {/* Requester avatar */}
+                          <PostAvatar
+                            name={request.name || request.user?.name || '?'}
+                            image={request.user?.image}
+                            size={36}
+                            className="mt-px"
+                          />
 
                           {/* Content — same 3-row structure as regular notifications */}
                           <VStack align="start" gap={0.5} flex={1} minW={0}>
@@ -778,21 +772,12 @@ export default function NotificationBell({
                         />
 
                         <HStack gap={3} align="start">
-                          <Box
-                            w="36px"
-                            h="36px"
-                            borderRadius="xl"
-                            bg="blue.100"
-                            _dark={{ bg: 'rgba(59,130,246,0.25)' }}
-                            display="flex"
-                            alignItems="center"
-                            justifyContent="center"
-                            color="blue.500"
-                            flexShrink={0}
-                            mt="1px"
-                          >
-                            <LuUsers size={17} />
-                          </Box>
+                          <PostAvatar
+                            name={request.user.name}
+                            image={request.user.image}
+                            size={36}
+                            className="mt-px"
+                          />
 
                           <VStack align="start" gap={0.5} flex={1} minW={0}>
                             <HStack gap={1.5} w="100%" align="center">
@@ -919,21 +904,30 @@ export default function NotificationBell({
                         />
 
                         <HStack gap={3} align="start">
-                          <Box
-                            w="36px"
-                            h="36px"
-                            borderRadius="xl"
-                            bg="purple.100"
-                            _dark={{ bg: 'rgba(168,85,247,0.25)' }}
-                            display="flex"
-                            alignItems="center"
-                            justifyContent="center"
-                            color="purple.500"
-                            flexShrink={0}
-                            mt="1px"
-                          >
-                            <LuMapPin size={17} />
-                          </Box>
+                          {request.submittedBy ? (
+                            <PostAvatar
+                              name={request.submittedBy.name}
+                              image={request.submittedBy.image}
+                              size={36}
+                              className="mt-px"
+                            />
+                          ) : (
+                            <Box
+                              w="36px"
+                              h="36px"
+                              borderRadius="xl"
+                              bg="purple.100"
+                              _dark={{ bg: 'rgba(168,85,247,0.25)' }}
+                              display="flex"
+                              alignItems="center"
+                              justifyContent="center"
+                              color="purple.500"
+                              flexShrink={0}
+                              mt="1px"
+                            >
+                              <LuMapPin size={17} />
+                            </Box>
+                          )}
 
                           <VStack align="start" gap={0.5} flex={1} minW={0}>
                             <HStack gap={1.5} w="100%" align="center">
@@ -1006,6 +1000,7 @@ export default function NotificationBell({
                   const isUnread = !notification.isRead;
                   const { displayTitle, displayMessage } =
                     getNotificationDisplay(notification);
+                  const relatedUser = getNotificationRelatedUser(notification);
 
                   return (
                     <Box
@@ -1048,25 +1043,34 @@ export default function NotificationBell({
                       )}
 
                       <HStack gap={3} align="start">
-                        {/* Type icon */}
-                        <Box
-                          w="36px"
-                          h="36px"
-                          borderRadius="xl"
-                          bg={isUnread ? 'white' : 'green.50'}
-                          _dark={{
-                            bg: isUnread ? 'green.800' : 'green.900/30',
-                          }}
-                          display="flex"
-                          alignItems="center"
-                          justifyContent="center"
-                          color={isUnread ? 'green.600' : 'green.500'}
-                          boxShadow={isUnread ? 'sm' : 'none'}
-                          flexShrink={0}
-                          mt="1px"
-                        >
-                          <Icon size={17} strokeWidth={isUnread ? 2.5 : 2} />
-                        </Box>
+                        {/* Related user avatar, or type icon as fallback */}
+                        {relatedUser ? (
+                          <PostAvatar
+                            name={relatedUser.name}
+                            image={relatedUser.image}
+                            size={36}
+                            className="mt-px"
+                          />
+                        ) : (
+                          <Box
+                            w="36px"
+                            h="36px"
+                            borderRadius="xl"
+                            bg={isUnread ? 'white' : 'green.50'}
+                            _dark={{
+                              bg: isUnread ? 'green.800' : 'green.900/30',
+                            }}
+                            display="flex"
+                            alignItems="center"
+                            justifyContent="center"
+                            color={isUnread ? 'green.600' : 'green.500'}
+                            boxShadow={isUnread ? 'sm' : 'none'}
+                            flexShrink={0}
+                            mt="1px"
+                          >
+                            <Icon size={17} strokeWidth={isUnread ? 2.5 : 2} />
+                          </Box>
+                        )}
 
                         <VStack align="start" gap={0.5} flex={1} minW={0}>
                           {/* Title row */}

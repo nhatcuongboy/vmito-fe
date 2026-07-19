@@ -233,6 +233,7 @@ export default function VenueDetailClient({
   const [loading, setLoading] = useState(!initialVenue);
   const [activeTab, setActiveTab] = useState('about');
   const [isUpdateRequestOpen, setIsUpdateRequestOpen] = useState(false);
+  const [isCreateRequestOpen, setIsCreateRequestOpen] = useState(false);
   const [isPriceRequestOpen, setIsPriceRequestOpen] = useState(false);
   const [isImageRequestOpen, setIsImageRequestOpen] = useState(false);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
@@ -309,6 +310,16 @@ export default function VenueDetailClient({
     router.push(`/?venueId=${venue.id}`);
   };
 
+  const handleRentCourt = () => {
+    if (!venue) return;
+    const target = `/venues/${venue.slug || venue.id}/rent`;
+    router.push(
+      isAuthenticated
+        ? target
+        : `/auth/signin?returnUrl=${encodeURIComponent(target)}`
+    );
+  };
+
   const handleOpenUpdateRequest = () => {
     if (!user) {
       setIsLoginModalOpen(true);
@@ -331,6 +342,14 @@ export default function VenueDetailClient({
       return;
     }
     setIsImageRequestOpen(true);
+  };
+
+  const handleOpenCreateRequest = () => {
+    if (!user) {
+      setIsLoginModalOpen(true);
+      return;
+    }
+    setIsCreateRequestOpen(true);
   };
 
   if (loading) {
@@ -543,25 +562,6 @@ export default function VenueDetailClient({
             )}
           </Flex>
         </Box>
-        {venue.rentalEnabled && (
-          <Button
-            w="full"
-            mt={3}
-            size="lg"
-            colorPalette="green"
-            onClick={() => {
-              const target = `/venues/${venue.slug || venue.id}/rent`;
-              router.push(
-                isAuthenticated
-                  ? target
-                  : `/auth/signin?returnUrl=${encodeURIComponent(target)}`
-              );
-            }}
-          >
-            <CalendarPlus size={18} />
-            {t('detail.rentCourt')}
-          </Button>
-        )}
       </Container>
 
       {/* Navigation Tabs & Content */}
@@ -1258,7 +1258,7 @@ export default function VenueDetailClient({
                   </VStack>
                 </Box>
 
-                {/* Tìm kèo */}
+                {/* Chơi tại sân này: Đặt sân + Tìm kèo */}
                 <Box
                   bg="green.50"
                   _dark={{ bg: 'green.900/20', borderColor: 'green.800' }}
@@ -1274,14 +1274,23 @@ export default function VenueDetailClient({
                   <Text fontSize="xs" color="green.600" mb={3}>
                     {t('detail.findSessionsHereDesc')}
                   </Text>
-                  <Button
-                    w="full"
-                    colorPalette="green"
-                    onClick={handleFindSessions}
-                  >
-                    <Search size={16} />
-                    {t('findSessions')}
-                  </Button>
+                  <VStack gap={2} align="stretch">
+                    {venue.rentalEnabled && (
+                      <Button colorPalette="green" onClick={handleRentCourt}>
+                        <CalendarPlus size={16} />
+                        {t('detail.rentCourt')}
+                      </Button>
+                    )}
+                    <Button
+                      w="full"
+                      variant={venue.rentalEnabled ? 'outline' : 'solid'}
+                      colorPalette="green"
+                      onClick={handleFindSessions}
+                    >
+                      <Search size={16} />
+                      {t('findSessions')}
+                    </Button>
+                  </VStack>
                 </Box>
 
                 {/* Location */}
@@ -1511,6 +1520,10 @@ export default function VenueDetailClient({
         onClose={() => setIsUpdateRequestOpen(false)}
         type={VenueRequestType.UPDATE}
         venue={venue}
+        onOpenCreateRequest={() => {
+          setIsUpdateRequestOpen(false);
+          handleOpenCreateRequest();
+        }}
         onOpenPriceCorrection={() => {
           setIsUpdateRequestOpen(false);
           handleOpenPriceRequest();
@@ -1519,6 +1532,11 @@ export default function VenueDetailClient({
           setIsUpdateRequestOpen(false);
           handleOpenImageRequest();
         }}
+      />
+      <VenueRequestModal
+        isOpen={isCreateRequestOpen}
+        onClose={() => setIsCreateRequestOpen(false)}
+        type={VenueRequestType.CREATE}
       />
       <VenuePriceRequestModal
         isOpen={isPriceRequestOpen}

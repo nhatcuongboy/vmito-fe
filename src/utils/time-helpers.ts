@@ -8,6 +8,39 @@ export interface CourtElapsedTimeTranslations {
   minutes: string;
 }
 
+export const formatToHHMM = (timeStr?: string): string => {
+  if (!timeStr) return '';
+
+  const match = timeStr.trim().match(/^(\d{1,2}):(\d{2})$/);
+  if (!match) return '';
+
+  const [, h, m] = match;
+  return `${h.padStart(2, '0')}:${m}`;
+};
+
+export const parseOpeningHours = (
+  openingHours?: string
+): { openTime: string; closeTime: string } => {
+  if (!openingHours) return { openTime: '', closeTime: '' };
+
+  const parts = openingHours.split('-').map((part) => part.trim());
+  if (parts.length !== 2) return { openTime: '', closeTime: '' };
+
+  return {
+    openTime: formatToHHMM(parts[0]),
+    closeTime: formatToHHMM(parts[1]),
+  };
+};
+
+export const formatOpeningHours = (
+  openTime?: string,
+  closeTime?: string
+): string => {
+  if (!openTime && !closeTime) return '';
+
+  return `${openTime || '00:00'} - ${closeTime || '23:59'}`;
+};
+
 /**
  * Format elapsed time for court display (more readable)
  * @param startTime - The start time as string or Date
