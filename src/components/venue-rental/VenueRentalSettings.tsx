@@ -117,7 +117,7 @@ export default function VenueRentalSettings({
   };
 
   return (
-    <Box borderTopWidth="1px" mt={8} pt={6}>
+    <Box>
       <Text fontSize="lg" fontWeight="bold" mb={4}>
         {t('title')}
       </Text>

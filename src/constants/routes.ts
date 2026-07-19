@@ -158,6 +158,9 @@ export const ROUTES = {
     GENERAL: '/admin/general',
     LEVEL_DESCRIPTIONS: '/admin/level-descriptions',
     VENUES: '/admin/venues',
+    VENUE_PRICING: (venueId: string) => `/admin/venues/${venueId}/pricing`,
+    VENUE_RENTAL_SETTINGS: (venueId: string) =>
+      `/admin/venues/${venueId}/rental-settings`,
     VENUE_REQUESTS: '/admin/venues/requests',
     VENUE_REQUEST_DETAIL: (requestId: string) =>
       `/admin/venues/requests/${requestId}`,

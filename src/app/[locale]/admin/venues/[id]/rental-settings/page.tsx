@@ -1,35 +1,30 @@
 'use client';
 
-import { Suspense, use, useCallback, useEffect, useState } from 'react';
+import { use, useCallback, useEffect, useState } from 'react';
 import { Box, Flex, Skeleton, Text, VStack } from '@chakra-ui/react';
+import { Banknote } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import PageLayout from '@/components/layout/PageLayout';
-import VenuePricingManager from '@/components/venue/VenuePricingManager';
+import VenueRentalSettings from '@/components/venue-rental/VenueRentalSettings';
 import { VButton } from '@/components/ui/VButton';
 import { toaster } from '@/components/ui/toaster';
 import { ROUTES } from '@/constants/routes';
-import { useRouter } from '@/i18n/config';
+import { Link, useRouter } from '@/i18n/config';
 import { VenueService } from '@/lib/api/venue.service';
-import { UserRole, Venue, VenuePriceBook } from '@/lib/api/types';
+import { UserRole, Venue } from '@/lib/api/types';
 import { useAuthStore } from '@/stores/useAuthStore';
 
-function PricingPageSkeleton() {
+function RentalSettingsSkeleton() {
   return (
-    <VStack align="stretch" gap={5} aria-label="Loading">
-      <Flex justify="space-between" gap={4}>
-        <Box flex={1}>
-          <Skeleton height="24px" maxW="240px" />
-          <Skeleton height="16px" maxW="420px" mt={2} />
-        </Box>
-        <Skeleton height="40px" width="180px" />
-      </Flex>
+    <VStack align="stretch" gap={4} aria-label="Loading">
+      <Skeleton height="44px" maxW="280px" />
       <Skeleton height="180px" borderRadius="xl" />
       <Skeleton height="320px" borderRadius="xl" />
     </VStack>
   );
 }
 
-export default function VenuePricingPage({
+export default function VenueRentalSettingsPage({
   params,
 }: {
   params: Promise<{ id: string }>;
@@ -40,20 +35,14 @@ export default function VenuePricingPage({
   const router = useRouter();
   const { user, isAuthenticated, isHydrated } = useAuthStore();
   const [venue, setVenue] = useState<Venue | null>(null);
-  const [priceBooks, setPriceBooks] = useState<VenuePriceBook[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState(false);
 
-  const loadPageData = useCallback(async () => {
+  const loadVenue = useCallback(async () => {
     setIsLoading(true);
     setLoadError(false);
     try {
-      const [venueData, bookData] = await Promise.all([
-        VenueService.getVenue(id),
-        VenueService.getPriceBooks(id),
-      ]);
-      setVenue(venueData);
-      setPriceBooks(bookData);
+      setVenue(await VenueService.getVenue(id));
     } catch {
       setLoadError(true);
     } finally {
@@ -72,20 +61,20 @@ export default function VenuePricingPage({
       router.replace(ROUTES.DASHBOARD);
       return;
     }
-    loadPageData();
-  }, [isAuthenticated, isHydrated, loadPageData, router, tAdmin, user?.role]);
+    loadVenue();
+  }, [isAuthenticated, isHydrated, loadVenue, router, tAdmin, user?.role]);
 
   const title = venue
-    ? t('pageTitleWithVenue', { name: venue.name })
-    : t('pageTitle');
+    ? t('rentalSettingsTitleWithVenue', { name: venue.name })
+    : t('rentalSettingsTitle');
 
   return (
     <PageLayout title={title} showBackButton backHref={ROUTES.ADMIN.VENUES}>
-      <Box maxW="container.xl" mx="auto" w="full">
+      <Box maxW="container.lg" mx="auto" w="full">
         {!isHydrated || !isAuthenticated || user?.role !== UserRole.ADMIN ? (
-          <PricingPageSkeleton />
+          <RentalSettingsSkeleton />
         ) : isLoading ? (
-          <PricingPageSkeleton />
+          <RentalSettingsSkeleton />
         ) : loadError || !venue ? (
           <VStack
             bg={{ base: 'white', _dark: 'gray.900' }}
@@ -96,18 +85,37 @@ export default function VenuePricingPage({
             textAlign="center"
             gap={3}
           >
-            <Text fontWeight="semibold">{t('loadErrorTitle')}</Text>
+            <Text fontWeight="semibold">{t('loadVenueErrorTitle')}</Text>
             <Text fontSize="sm" color="gray.500">
-              {t('loadErrorDescription')}
+              {t('loadVenueErrorDescription')}
             </Text>
-            <VButton type="button" mt={2} onClick={loadPageData}>
+            <VButton type="button" mt={2} onClick={loadVenue}>
               {t('retry')}
             </VButton>
           </VStack>
         ) : (
-          <Suspense fallback={<PricingPageSkeleton />}>
-            <VenuePricingManager venue={venue} initialPriceBooks={priceBooks} />
-          </Suspense>
+          <VStack align="stretch" gap={5}>
+            <Flex justify="flex-end">
+              <VButton
+                as={Link}
+                href={ROUTES.ADMIN.VENUE_PRICING(venue.id)}
+                variant="outline"
+                leftIcon={<Banknote size={16} aria-hidden="true" />}
+              >
+                {t('backToPricing')}
+              </VButton>
+            </Flex>
+            <Box
+              bg={{ base: 'white', _dark: 'gray.900' }}
+              p={{ base: 4, md: 6 }}
+              borderRadius="xl"
+              shadow="sm"
+              borderWidth="1px"
+              borderColor={{ base: 'gray.200', _dark: 'gray.700' }}
+            >
+              <VenueRentalSettings venue={venue} onUpdated={setVenue} />
+            </Box>
+          </VStack>
         )}
       </Box>
     </PageLayout>
