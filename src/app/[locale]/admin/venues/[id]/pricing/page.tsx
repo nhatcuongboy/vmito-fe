@@ -7,6 +7,7 @@ import VenuePricingManager from '@/components/venue/VenuePricingManager';
 import { toaster } from '@/components/ui/toaster';
 import { VenueService } from '@/lib/api/venue.service';
 import { Venue } from '@/lib/api/types';
+import VenueRentalSettings from '@/components/venue-rental/VenueRentalSettings';
 
 export default function VenuePricingPage({
   params,
@@ -73,6 +74,7 @@ export default function VenuePricingPage({
           legacyFixed={venue?.hourlyRateFixed}
           legacyWalkIn={venue?.hourlyRateWalkIn}
         />
+        {venue && <VenueRentalSettings venue={venue} onUpdated={setVenue} />}
       </Box>
     </PageLayout>
   );

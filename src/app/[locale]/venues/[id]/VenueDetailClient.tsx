@@ -22,6 +22,7 @@ import {
   BadgeCheck,
   Banknote,
   Bell,
+  CalendarPlus,
   Car,
   Clock,
   ExternalLink,
@@ -225,7 +226,7 @@ export default function VenueDetailClient({
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const t = useTranslations('venue');
-  const { user } = useAuthStore();
+  const { user, isAuthenticated } = useAuthStore();
   const isAdmin = user?.role === 'ADMIN';
 
   const [venue, setVenue] = useState<Venue | null>(initialVenue);
@@ -542,6 +543,25 @@ export default function VenueDetailClient({
             )}
           </Flex>
         </Box>
+        {venue.rentalEnabled && (
+          <Button
+            w="full"
+            mt={3}
+            size="lg"
+            colorPalette="green"
+            onClick={() => {
+              const target = `/venues/${venue.slug || venue.id}/rent`;
+              router.push(
+                isAuthenticated
+                  ? target
+                  : `/auth/signin?returnUrl=${encodeURIComponent(target)}`
+              );
+            }}
+          >
+            <CalendarPlus size={18} />
+            {t('detail.rentCourt')}
+          </Button>
+        )}
       </Container>
 
       {/* Navigation Tabs & Content */}

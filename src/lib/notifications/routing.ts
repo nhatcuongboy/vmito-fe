@@ -26,6 +26,13 @@ export const getNotificationTargetRoute = (
   const sessionSlug = getStringData(data, ['slug', 'sessionSlug']);
   const clubId = getStringData(data, ['clubSlug', 'clubId']);
   const postId = getStringData(data, ['postId']);
+  const rentalRequestId = getStringData(data, ['rentalRequestId']);
+
+  if (type === 'VENUE_RENTAL' && rentalRequestId) {
+    return data?.manage === true
+      ? `/manage/venues/rentals/${rentalRequestId}`
+      : `/my/rentals/${rentalRequestId}`;
+  }
 
   if (type === 'POST' && postId) {
     return ROUTES.NEWSFEED_POST(postId);

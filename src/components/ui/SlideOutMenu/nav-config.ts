@@ -3,6 +3,7 @@ import {
   Bell,
   BookOpen,
   CalendarDays,
+  CalendarCheck,
   CreditCard,
   Info,
   MapPin,
@@ -29,6 +30,7 @@ export interface NavContext {
   user: User | null;
   isAuthenticated: boolean;
   canAccessHostFeatures: boolean;
+  hasManagedVenues: boolean;
 }
 
 type Translator = (key: string) => string;
@@ -139,6 +141,19 @@ export const NAV_SECTIONS: NavSectionConfig[] = [
         icon: Users,
         label: (t) => t.nav('myClubs'),
         getHref: () => ROUTES.CLUBS.MY_CLUBS,
+      },
+      {
+        key: 'myRentals',
+        icon: CalendarCheck,
+        label: (t) => t.nav('myRentals'),
+        getHref: () => '/my/rentals',
+      },
+      {
+        key: 'managedVenueRentals',
+        icon: CalendarDays,
+        label: (t) => t.nav('managedVenueRentals'),
+        getHref: () => '/manage/venues',
+        isVisible: (ctx) => ctx.hasManagedVenues,
       },
       {
         key: 'tournaments',
