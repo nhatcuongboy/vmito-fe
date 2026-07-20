@@ -54,28 +54,15 @@ export function DiscoveryTabNav() {
     })?.id || ROUTES.HOME;
 
   // Check favorite status based on active page
-  const isFavoriteActive =
-    activeId === ROUTES.HOME
-      ? searchParams.get('favorite') === 'true'
-      : searchParams.get('favorite') === '1';
+  const isFavoriteActive = searchParams.get('favorite') === '1';
 
   const handleFavoriteToggle = () => {
     const params = new URLSearchParams(searchParams.toString());
 
-    if (activeId === ROUTES.HOME) {
-      // Sessions page uses 'true'
-      if (isFavoriteActive) {
-        params.delete('favorite');
-      } else {
-        params.set('favorite', 'true');
-      }
+    if (isFavoriteActive) {
+      params.delete('favorite');
     } else {
-      // Other pages use '1'
-      if (isFavoriteActive) {
-        params.delete('favorite');
-      } else {
-        params.set('favorite', '1');
-      }
+      params.set('favorite', '1');
     }
 
     const queryString = params.toString();
