@@ -51,7 +51,6 @@ import PageLayout from '@/components/layout/PageLayout';
 import { useDebounce } from '@/hooks/useDebounce';
 import { AppSearchBar } from '@/components/common/AppSearchBar';
 import { useRegisterTopBarSearch } from '@/contexts/TopBarSearchContext';
-import { FavoriteFilterButton } from '@/components/favorites/FavoriteFilterButton';
 import { useSearchParams } from 'next/navigation';
 
 const LoginPromptModal = dynamic(
@@ -108,7 +107,7 @@ function BrowseClubsContent() {
   const { user } = useAuthStore();
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
 
-  const [viewMode] = useViewMode('clubs');
+  const [viewMode] = useViewMode('clubs', 'list');
 
   const [clubs, setClubs] = useState<IClubListItem[]>([]);
   const [fullClubs, setFullClubs] = useState<IClub[]>([]);
@@ -468,10 +467,8 @@ function BrowseClubsContent() {
   }, [pendingCities]);
 
   const activeFilterCount =
-    cities.length +
-    districts.length +
-    (sortByDistance ? 1 : 0) +
-    (favoriteOnly ? 1 : 0);
+    cities.length + districts.length + (sortByDistance ? 1 : 0);
+  // favoriteOnly is excluded from filter count as it's now in the tab nav
   const activeSortOption =
     CLUB_SORT_OPTIONS.find((option) => option.value === sort) ??
     CLUB_SORT_OPTIONS[0];
@@ -558,11 +555,6 @@ function BrowseClubsContent() {
             )}
 
             <Flex align="center" gap={2} ml="auto">
-              <FavoriteFilterButton
-                isActive={favoriteOnly}
-                onToggle={() => updateFavoriteFilter(!favoriteOnly)}
-              />
-
               <Box position="relative" ref={sortDropdownRef}>
                 <Button
                   size="sm"
@@ -658,11 +650,15 @@ function BrowseClubsContent() {
                 )}
               </Box>
 
-              <AppViewModeToggle scope="clubs" />
+              <AppViewModeToggle
+                scope="clubs"
+                defaultMode="list"
+                listFirst={true}
+              />
             </Flex>
           </Flex>
 
-          {activeFilterCount - (favoriteOnly ? 1 : 0) > 0 && (
+          {activeFilterCount > 0 && (
             <Flex align="center" flexWrap="wrap" gap={2}>
               {sortByDistance && (
                 <Badge

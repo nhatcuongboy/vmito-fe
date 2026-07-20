@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Box, Flex, Heading, Text, Portal } from '@chakra-ui/react';
+import { Box, Drawer, Flex, Portal } from '@chakra-ui/react';
 import { X } from 'lucide-react';
 import { Button } from './chakra-compat';
 
@@ -9,88 +9,40 @@ export type DrawerPlacement = 'left' | 'right';
 export type DrawerSize = 'sm' | 'md' | 'lg' | 'xl' | 'full';
 
 export interface VDrawerProps {
-  /** Controls drawer visibility */
   isOpen: boolean;
-  /** Callback when drawer is closed */
   onClose: () => void;
-  /** Drawer title */
   title?: React.ReactNode;
-  /** Drawer body content */
   children: React.ReactNode;
-  /** Drawer size */
   size?: DrawerSize;
-  /** Override drawer width on mobile */
   mobileWidth?: string;
-  /** Drawer placement */
   placement?: DrawerPlacement;
-  /** Show close button in header */
   showCloseButton?: boolean;
-  /** Close drawer when clicking overlay */
   closeOnOverlayClick?: boolean;
-  /** Footer content - can be custom ReactNode or use footer action props */
   footer?: React.ReactNode;
-  /** Primary action button text */
   primaryActionText?: string;
-  /** Primary action callback */
   onPrimaryAction?: () => void | Promise<void>;
-  /** Primary action loading state */
   isPrimaryLoading?: boolean;
-  /** Primary action disabled state */
   isPrimaryDisabled?: boolean;
-  /** Primary action color scheme */
   primaryColorScheme?: string;
-  /** Secondary action button text (default: Cancel) */
   secondaryActionText?: string;
-  /** Secondary action callback (defaults to onClose) */
   onSecondaryAction?: () => void;
-  /** Hide secondary action button */
   hideSecondaryAction?: boolean;
-  /** Additional header content (right side) */
   headerRightContent?: React.ReactNode;
-  /** Description text below title */
   description?: string;
-  /** Custom z-index */
   zIndex?: number;
-  /** Show header divider */
   showHeaderDivider?: boolean;
-  /** Show footer divider */
   showFooterDivider?: boolean;
+  closeButtonAriaLabel?: string;
 }
 
 const sizeConfig: Record<DrawerSize, Record<string, string>> = {
-  sm: { base: 'calc(100% - 48px)', sm: '320px' },
-  md: { base: 'calc(100% - 48px)', sm: '400px' },
-  lg: { base: 'calc(100% - 48px)', sm: '650px' },
-  xl: { base: 'calc(100% - 48px)', sm: '600px' },
+  sm: { base: '100%', sm: '320px' },
+  md: { base: '100%', sm: '400px' },
+  lg: { base: '100%', sm: '650px' },
+  xl: { base: '100%', sm: '760px' },
   full: { base: '100%', sm: '100%' },
 };
 
-/**
- * VDrawer - A reusable drawer/side panel component
- *
- * @example
- * // Basic right drawer
- * <VDrawer
- *   isOpen={isOpen}
- *   onClose={onClose}
- *   title="Settings"
- *   placement="right"
- * >
- *   <Text>Drawer content</Text>
- * </VDrawer>
- *
- * @example
- * // With footer actions
- * <VDrawer
- *   isOpen={isOpen}
- *   onClose={onClose}
- *   title="Edit"
- *   primaryActionText="Save"
- *   onPrimaryAction={handleSave}
- * >
- *   <FormContent />
- * </VDrawer>
- */
 export const VDrawer: React.FC<VDrawerProps> = ({
   isOpen,
   onClose,
@@ -106,7 +58,7 @@ export const VDrawer: React.FC<VDrawerProps> = ({
   onPrimaryAction,
   isPrimaryLoading = false,
   isPrimaryDisabled = false,
-  primaryColorScheme: _primaryColorScheme = 'green',
+  primaryColorScheme = 'green',
   secondaryActionText,
   onSecondaryAction,
   hideSecondaryAction = false,
@@ -115,236 +67,145 @@ export const VDrawer: React.FC<VDrawerProps> = ({
   zIndex = 1400,
   showHeaderDivider = true,
   showFooterDivider = true,
+  closeButtonAriaLabel = 'Close drawer',
 }) => {
-  // Two-phase mount for smooth transitions
-  const [isMounted, setIsMounted] = React.useState(false);
-  const [isVisible, setIsVisible] = React.useState(false);
-
-  React.useEffect(() => {
-    if (isOpen) {
-      setIsMounted(true);
-      // Trigger enter transition on next frame
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          setIsVisible(true);
-        });
-      });
-    } else {
-      // Trigger exit transition
-      setIsVisible(false);
-      const timer = setTimeout(() => setIsMounted(false), 300);
-      return () => clearTimeout(timer);
-    }
-  }, [isOpen]);
-
-  // Handle escape key
-  React.useEffect(() => {
-    const handleEscape = (event: KeyboardEvent) => {
-      if (event.key === 'Escape' && isOpen) {
-        onClose();
-      }
-    };
-
-    if (isOpen) {
-      document.addEventListener('keydown', handleEscape);
-    }
-
-    return () => {
-      document.removeEventListener('keydown', handleEscape);
-    };
-  }, [isOpen, onClose]);
-
-  if (!isMounted) return null;
-
-  const handleOverlayClick = () => {
-    if (closeOnOverlayClick) {
-      onClose();
-    }
-  };
-
   const handleSecondaryClick = () => {
-    if (onSecondaryAction) {
-      onSecondaryAction();
-    } else {
-      onClose();
-    }
+    if (onSecondaryAction) onSecondaryAction();
+    else onClose();
   };
-
-  const hasFooterActions = primaryActionText || !hideSecondaryAction;
+  const hasFooterActions = Boolean(primaryActionText) || !hideSecondaryAction;
   const showFooter = footer !== undefined || hasFooterActions;
-  const hasTitle = title !== undefined;
-
-  const isRight = placement === 'right';
 
   return (
-    <Portal>
-      {/* Overlay */}
-      <Box
-        position="fixed"
-        top={0}
-        left={0}
-        right={0}
-        bottom={0}
-        bg="blackAlpha.600"
-        zIndex={zIndex}
-        onClick={handleOverlayClick}
-        opacity={isVisible ? 1 : 0}
-        transition="opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
-      />
-
-      {/* Drawer panel */}
-      <Box
-        position="fixed"
-        top={0}
-        bottom={0}
-        {...(isRight ? { right: 0 } : { left: 0 })}
-        w={
-          mobileWidth
-            ? { base: mobileWidth, sm: sizeConfig[size].sm }
-            : sizeConfig[size]
-        }
-        maxW="100vw"
-        bg={{ base: 'white', _dark: 'gray.800' }}
-        boxShadow="xl"
-        zIndex={zIndex + 1}
-        display="flex"
-        flexDirection="column"
-        transform={
-          isVisible
-            ? 'translateX(0)'
-            : isRight
-              ? 'translateX(100%)'
-              : 'translateX(-100%)'
-        }
-        transition="transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
-        borderLeftRadius={{ base: 'xl', sm: 'none' }}
-      >
-        {/* Header */}
-        {(hasTitle || showCloseButton || headerRightContent) && (
-          <Flex
-            justify="space-between"
-            align="center"
-            p={4}
-            borderBottom={showHeaderDivider ? '1px' : 'none'}
-            borderColor="border"
-            flexShrink={0}
+    <Drawer.Root
+      open={isOpen}
+      onOpenChange={(details) => {
+        if (!details.open) onClose();
+      }}
+      placement={placement === 'right' ? 'end' : 'start'}
+      closeOnInteractOutside={closeOnOverlayClick}
+      lazyMount
+      unmountOnExit
+    >
+      <Portal>
+        <Drawer.Backdrop zIndex={zIndex} />
+        <Drawer.Positioner zIndex={zIndex + 1}>
+          <Drawer.Content
+            w={
+              mobileWidth
+                ? { base: mobileWidth, sm: sizeConfig[size].sm }
+                : sizeConfig[size]
+            }
+            maxW="100vw"
+            maxH="100dvh"
+            borderRadius={0}
+            css={{
+              '@media (prefers-reduced-motion: reduce)': {
+                animationDuration: '0.01ms !important',
+                transitionDuration: '0.01ms !important',
+              },
+            }}
           >
-            <Box flex={1}>
-              {title && (
-                <Heading size="md" color="fg">
-                  {title}
-                </Heading>
-              )}
-              {description && (
-                <Text fontSize="sm" color="fg.muted" mt={1}>
-                  {description}
-                </Text>
-              )}
-            </Box>
-            <Flex align="center" gap={2}>
-              {headerRightContent}
-              {showCloseButton && (
-                <Box
-                  as="button"
-                  {...({ type: 'button' } as Record<string, unknown>)}
-                  onClick={onClose}
-                  p={1}
-                  borderRadius="md"
-                  color="fg.muted"
-                  _hover={{ bg: 'bg.muted', color: 'fg' }}
-                  transition="all 0.2s"
-                  aria-label="Close drawer"
-                >
-                  <Box as={X} boxSize={5} />
-                </Box>
-              )}
-            </Flex>
-          </Flex>
-        )}
-
-        {/* Body */}
-        <Box
-          p={4}
-          flex={1}
-          overflowY="auto"
-          css={{
-            '&::-webkit-scrollbar': {
-              width: '6px',
-            },
-            '&::-webkit-scrollbar-track': {
-              background: 'transparent',
-            },
-            '&::-webkit-scrollbar-thumb': {
-              background: 'var(--chakra-colors-border)',
-              borderRadius: '3px',
-            },
-            '&::-webkit-scrollbar-thumb:hover': {
-              background: 'var(--chakra-colors-gray-400)',
-            },
-          }}
-        >
-          {children}
-        </Box>
-
-        {/* Footer */}
-        {showFooter && (
-          <Flex
-            justify="flex-end"
-            gap={3}
-            p={4}
-            borderTop={showFooterDivider ? '1px' : 'none'}
-            borderColor="border"
-            flexShrink={0}
-          >
-            {footer !== undefined ? (
-              footer
-            ) : (
-              <>
-                {!hideSecondaryAction && (
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={handleSecondaryClick}
-                    disabled={isPrimaryLoading}
-                  >
-                    {secondaryActionText || 'Cancel'}
-                  </Button>
-                )}
-                {primaryActionText && (
-                  <Button
-                    type="button"
-                    onClick={onPrimaryAction}
-                    loading={isPrimaryLoading}
-                    disabled={isPrimaryDisabled || isPrimaryLoading}
-                  >
-                    {primaryActionText}
-                  </Button>
-                )}
-              </>
+            {(title ||
+              description ||
+              showCloseButton ||
+              headerRightContent) && (
+              <Drawer.Header
+                borderBottomWidth={showHeaderDivider ? '1px' : '0'}
+                borderColor="border"
+                pt="calc(16px + env(safe-area-inset-top))"
+              >
+                <Flex justify="space-between" align="flex-start" gap={3}>
+                  <Box flex={1} minW={0}>
+                    {title && <Drawer.Title>{title}</Drawer.Title>}
+                    {description && (
+                      <Drawer.Description mt={1}>
+                        {description}
+                      </Drawer.Description>
+                    )}
+                  </Box>
+                  <Flex align="center" gap={2} flexShrink={0}>
+                    {headerRightContent}
+                    {showCloseButton && (
+                      <Drawer.CloseTrigger asChild>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          aria-label={closeButtonAriaLabel}
+                          p={2}
+                          minW="40px"
+                          minH="40px"
+                          _focusVisible={{
+                            outline: '2px solid',
+                            outlineColor: 'green.500',
+                            outlineOffset: '2px',
+                          }}
+                        >
+                          <X size={18} aria-hidden="true" />
+                        </Button>
+                      </Drawer.CloseTrigger>
+                    )}
+                  </Flex>
+                </Flex>
+              </Drawer.Header>
             )}
-          </Flex>
-        )}
-      </Box>
-    </Portal>
+
+            <Drawer.Body overscrollBehavior="contain" px={{ base: 4, md: 6 }}>
+              {children}
+            </Drawer.Body>
+
+            {showFooter && (
+              <Drawer.Footer
+                borderTopWidth={showFooterDivider ? '1px' : '0'}
+                borderColor="border"
+                pb="calc(16px + env(safe-area-inset-bottom))"
+              >
+                {footer !== undefined ? (
+                  footer
+                ) : (
+                  <Flex justify="flex-end" gap={3} w="full">
+                    {!hideSecondaryAction && (
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={handleSecondaryClick}
+                        disabled={isPrimaryLoading}
+                      >
+                        {secondaryActionText || 'Cancel'}
+                      </Button>
+                    )}
+                    {primaryActionText && (
+                      <Button
+                        type="button"
+                        colorPalette={primaryColorScheme}
+                        onClick={onPrimaryAction}
+                        loading={isPrimaryLoading}
+                        disabled={isPrimaryDisabled || isPrimaryLoading}
+                      >
+                        {primaryActionText}
+                      </Button>
+                    )}
+                  </Flex>
+                )}
+              </Drawer.Footer>
+            )}
+          </Drawer.Content>
+        </Drawer.Positioner>
+      </Portal>
+    </Drawer.Root>
   );
 };
 
-/**
- * Hook for managing drawer state
- */
 export const useDrawer = (defaultOpen = false) => {
   const [isOpen, setIsOpen] = React.useState(defaultOpen);
-
   const onOpen = React.useCallback(() => setIsOpen(true), []);
   const onClose = React.useCallback(() => setIsOpen(false), []);
-  const onToggle = React.useCallback(() => setIsOpen((prev) => !prev), []);
-
-  return {
-    isOpen,
-    onOpen,
-    onClose,
-    onToggle,
-  };
+  const onToggle = React.useCallback(
+    () => setIsOpen((current) => !current),
+    []
+  );
+  return { isOpen, onOpen, onClose, onToggle };
 };
 
 export default VDrawer;

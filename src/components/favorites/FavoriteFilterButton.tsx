@@ -41,9 +41,7 @@ export function FavoriteFilterButton({
       }}
     >
       <Icon as={Heart} boxSize={4} fill={isActive ? 'currentColor' : 'none'} />
-      <Text as="span" display={{ base: 'none', md: 'inline' }}>
-        {t('shortLabel')}
-      </Text>
+      <Text as="span">{t('shortLabel')}</Text>
     </Button>
   );
 }

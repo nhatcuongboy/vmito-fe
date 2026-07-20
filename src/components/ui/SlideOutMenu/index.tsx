@@ -10,7 +10,7 @@ import {
 } from '@chakra-ui/react';
 import { LogIn, UserPlus } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { Fragment, Suspense, type ReactNode } from 'react';
+import { Fragment, Suspense, useEffect, useState, type ReactNode } from 'react';
 import LanguageSwitcher from '@/components/ui/LanguageSwitcher';
 import { NextLinkButton } from '@/components/ui/NextLinkButton';
 import ThemeSwitcher from '@/components/ui/ThemeSwitcher';
@@ -26,6 +26,7 @@ import { useSidebar } from '@/contexts/SidebarContext';
 import { useCanAccessHostFeatures } from '@/hooks/useCanAccessHostFeatures';
 import { usePathname } from '@/i18n/config';
 import { useAuthStore } from '@/stores/useAuthStore';
+import { VenueRentalService } from '@/lib/api/venue-rental.service';
 import {
   isNavLinkActive,
   NAV_SECTIONS,
@@ -155,8 +156,24 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
   const isCollapsed =
     useBreakpointValue({ base: false, md: isSidebarCollapsed }) ?? false;
   const pathname = usePathname();
+  const [hasManagedVenues, setHasManagedVenues] = useState(false);
 
-  const ctx: NavContext = { user, isAuthenticated, canAccessHostFeatures };
+  useEffect(() => {
+    if (!isAuthenticated || user?.role === 'GUEST') {
+      setHasManagedVenues(false);
+      return;
+    }
+    VenueRentalService.getManagedVenues()
+      .then((venues) => setHasManagedVenues(venues.length > 0))
+      .catch(() => setHasManagedVenues(false));
+  }, [isAuthenticated, user?.id, user?.role]);
+
+  const ctx: NavContext = {
+    user,
+    isAuthenticated,
+    canAccessHostFeatures,
+    hasManagedVenues,
+  };
   const t: NavTranslators = { nav, common };
 
   const showAuthActions =

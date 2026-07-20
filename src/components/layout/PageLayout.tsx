@@ -1,6 +1,6 @@
 'use client';
 
-import { ReactNode } from 'react';
+import { ReactNode, Suspense } from 'react';
 import { Box, Container, ContainerProps } from '@chakra-ui/react';
 import PageWrapper from './PageWrapper';
 import TopBar from '../ui/TopBar';
@@ -140,7 +140,11 @@ export default function PageLayout({
         desktopSearchContent={topBarSearchContent}
       />
       {isDiscoveryPage && <CityOnboardingModal />}
-      {isDiscoveryPage && <DiscoveryTabNav />}
+      {isDiscoveryPage && (
+        <Suspense fallback={null}>
+          <DiscoveryTabNav />
+        </Suspense>
+      )}
       {!isDiscoveryPage && subHeader && (
         <Box
           pt={{

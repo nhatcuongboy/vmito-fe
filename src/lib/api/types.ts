@@ -384,10 +384,243 @@ export interface VenueRentalPriceBreakdown {
 }
 
 export interface VenueRentalPriceCalculation {
+  version?: number;
   totalAmount: number;
   priceBookId: string | null;
   currency: string;
+  timezone?: string;
   breakdown: VenueRentalPriceBreakdown[];
+}
+
+export enum VenueManagerRole {
+  OWNER = 'OWNER',
+  MANAGER = 'MANAGER',
+}
+
+export enum VenueRentalStatus {
+  PENDING = 'PENDING',
+  COUNTER_OFFERED = 'COUNTER_OFFERED',
+  CONFIRMED = 'CONFIRMED',
+  REJECTED = 'REJECTED',
+  CANCELLED = 'CANCELLED',
+  COMPLETED = 'COMPLETED',
+}
+
+export enum VenueRentalProposalStatus {
+  PENDING = 'PENDING',
+  ACCEPTED = 'ACCEPTED',
+  DECLINED = 'DECLINED',
+  SUPERSEDED = 'SUPERSEDED',
+  EXPIRED = 'EXPIRED',
+}
+
+export enum VenueRentalSelectionMode {
+  AUTO_ASSIGN = 'AUTO_ASSIGN',
+  SELECT_COURTS = 'SELECT_COURTS',
+}
+
+export enum VenueCourtStatus {
+  ACTIVE = 'ACTIVE',
+  MAINTENANCE = 'MAINTENANCE',
+  INACTIVE = 'INACTIVE',
+}
+
+export enum VenueCourtBlockType {
+  MAINTENANCE = 'MAINTENANCE',
+  CLOSED = 'CLOSED',
+  PRIVATE_EVENT = 'PRIVATE_EVENT',
+  MANUAL_HOLD = 'MANUAL_HOLD',
+}
+
+export interface VenueCourt {
+  id: string;
+  venueId: string;
+  name: string;
+  code: string;
+  status: VenueCourtStatus;
+  displayOrder: number;
+  notes?: string | null;
+}
+
+export interface VenueOperatingPeriod {
+  id?: string;
+  venueId?: string;
+  dayOfWeek: number;
+  startMinute: number;
+  endMinute: number;
+}
+
+export interface VenueCourtBlock {
+  id: string;
+  venueId: string;
+  courtId?: string | null;
+  type: VenueCourtBlockType;
+  startTime: string;
+  endTime: string;
+  reason?: string | null;
+  court?: Pick<VenueCourt, 'id' | 'name' | 'code'> | null;
+  createdBy?: { id: string; name: string };
+}
+
+export type PublicCourtSlotStatus = 'AVAILABLE' | 'UNAVAILABLE';
+export type ManagerCourtSlotStatus =
+  | 'AVAILABLE'
+  | 'HELD'
+  | 'BOOKED'
+  | 'PENDING_REQUEST'
+  | 'MAINTENANCE'
+  | 'CLOSED';
+
+export interface VenueCourtScheduleSlot {
+  startMinute: number;
+  endMinute: number;
+  status: PublicCourtSlotStatus | ManagerCourtSlotStatus;
+  requestId?: string;
+  contactName?: string;
+  contactPhone?: string;
+  blockId?: string;
+  blockReason?: string;
+}
+
+export interface VenueCourtSchedule {
+  venueId: string;
+  timezone: string;
+  courtSelectionEnabled?: boolean;
+  slotMinutes: number;
+  operatingWindow: { startMinute: number; endMinute: number };
+  slots: Array<{
+    startMinute: number;
+    endMinute: number;
+    pricePerHour?: number | null;
+  }>;
+  courts: Array<
+    Pick<VenueCourt, 'id' | 'name' | 'code'> & {
+      displayOrder?: number;
+      slots: VenueCourtScheduleSlot[];
+    }
+  >;
+}
+
+export interface VenueManager {
+  id: string;
+  venueId: string;
+  userId: string;
+  role: VenueManagerRole;
+  user?: {
+    id: string;
+    name: string;
+    email: string;
+    image?: string;
+    role: UserRole;
+  };
+}
+
+export interface VenueRentalQuote {
+  id: string;
+  venueId: string;
+  requesterId: string;
+  startTime: string;
+  endTime: string;
+  numberOfCourts: number;
+  customerType: VenueCustomerType;
+  currency: string;
+  totalAmount: number;
+  priceBookId?: string | null;
+  breakdown: { version: number; items: VenueRentalPriceBreakdown[] };
+  expiresAt: string;
+  consumedAt?: string | null;
+  selectionMode: VenueRentalSelectionMode;
+  requestedCourtIds: string[];
+  createdAt: string;
+}
+
+export interface VenueRentalProposal {
+  id: string;
+  requestId: string;
+  proposedById: string;
+  startTime: string;
+  endTime: string;
+  numberOfCourts: number;
+  customerType: VenueCustomerType;
+  currency: string;
+  totalAmount: number;
+  breakdown: { version: number; items: VenueRentalPriceBreakdown[] };
+  status: VenueRentalProposalStatus;
+  expiresAt: string;
+  respondedAt?: string | null;
+  createdAt: string;
+  proposedBy?: { id: string; name: string; image?: string };
+  selectionMode: VenueRentalSelectionMode;
+  requestedCourtIds: string[];
+}
+
+export interface VenueRentalEvent {
+  id: string;
+  type: string;
+  fromStatus?: VenueRentalStatus | null;
+  toStatus?: VenueRentalStatus | null;
+  payload?: Record<string, unknown> | null;
+  createdAt: string;
+  actor?: { id: string; name: string; image?: string } | null;
+}
+
+export interface VenueRentalRequest {
+  id: string;
+  venueId: string;
+  requesterId?: string | null;
+  status: VenueRentalStatus;
+  contactName: string;
+  contactPhone: string;
+  notes?: string | null;
+  rejectionReason?: string | null;
+  cancellationReason?: string | null;
+  confirmedStartTime?: string | null;
+  confirmedEndTime?: string | null;
+  confirmedNumberOfCourts?: number | null;
+  confirmedCustomerType?: VenueCustomerType | null;
+  confirmedAmount?: number | null;
+  confirmedCurrency?: string | null;
+  quote?: VenueRentalQuote | null;
+  source?: 'ONLINE' | 'MANUAL';
+  selectionMode: VenueRentalSelectionMode;
+  requestedCourtIds: string[];
+  courtAllocations?: Array<{
+    id: string;
+    courtId: string;
+    court: Pick<VenueCourt, 'id' | 'name' | 'code'>;
+  }>;
+  proposals: VenueRentalProposal[];
+  events: VenueRentalEvent[];
+  venue: Pick<Venue, 'id' | 'slug' | 'name' | 'address' | 'timezone'>;
+  session?: {
+    id: string;
+    slug?: string;
+    name: string;
+    startTime?: string;
+    endTime?: string;
+  } | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface VenueRentalAvailability {
+  venueId: string;
+  rentalEnabled: boolean;
+  capacity: number;
+  reservedCourts: number;
+  availableCourts: number;
+  startTime: string;
+  endTime: string;
+}
+
+export interface VenueRentalPage {
+  data: VenueRentalRequest[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
 }
 
 export interface Venue {
@@ -414,6 +647,11 @@ export interface Venue {
   website?: string;
   hourlyRateFixed?: number;
   hourlyRateWalkIn?: number;
+  timezone?: string;
+  rentalEnabled?: boolean;
+  courtSelectionEnabled?: boolean;
+  scheduleNeedsReview?: boolean;
+  managers?: VenueManager[];
   hasCarParking?: boolean;
   hasCanteen?: boolean;
   wifiName?: string;
@@ -1591,6 +1829,7 @@ export enum NotificationType {
   PAYMENT = 'PAYMENT', // Payment-related notifications
   CLUB = 'CLUB', // Club-related notifications
   POST = 'POST', // Post interactions (like, comment)
+  VENUE_RENTAL = 'VENUE_RENTAL', // Venue rental workflow updates
 }
 
 export interface INotification {

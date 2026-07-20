@@ -18,6 +18,7 @@ interface UnderlineTabsProps {
   top?: string | number | Record<string, string | number>;
   zIndex?: number;
   boxShadow?: string;
+  rightContent?: React.ReactNode;
 }
 
 export function UnderlineTabs({
@@ -29,6 +30,7 @@ export function UnderlineTabs({
   top,
   zIndex = 1099,
   boxShadow,
+  rightContent,
 }: UnderlineTabsProps) {
   return (
     <Box
@@ -51,48 +53,55 @@ export function UnderlineTabs({
       borderColor="border.subtle"
       boxShadow={boxShadow}
     >
-      <Flex gap={6} minW="max-content">
-        {items.map((tab) => {
-          const active = activeId === tab.id;
-          return (
-            <Flex
-              key={tab.id}
-              as="button"
-              onClick={() => onTabClick(tab.id)}
-              pt={2.5}
-              pb={2.5}
-              borderBottomWidth="2px"
-              borderColor={active ? 'brand.500' : 'transparent'}
-              color={active ? 'brand.600' : 'fg.muted'}
-              transition="color 0.2s, border-color 0.2s"
-              _hover={{ color: active ? 'brand.700' : 'fg' }}
-              whiteSpace="nowrap"
-              fontWeight={active ? '600' : '500'}
-              fontSize="sm"
-              mb="-1px"
-            >
-              <Text as="span">{tab.label}</Text>
-              {tab.badge !== undefined && tab.badge !== null && (
-                <Badge
-                  ml={1.5}
-                  borderRadius="full"
-                  bg="red.500"
-                  color="white"
-                  fontSize="xs"
-                  px={1.5}
-                  minW="18px"
-                  textAlign="center"
-                  _dark={{
-                    bg: 'red.600',
-                    color: 'white',
-                  }}
-                >
-                  {tab.badge}
-                </Badge>
-              )}
-            </Flex>
-          );
-        })}
+      <Flex gap={6} minW="max-content" justify="space-between" align="center">
+        <Flex gap={6} minW="max-content">
+          {items.map((tab) => {
+            const active = activeId === tab.id;
+            return (
+              <Flex
+                key={tab.id}
+                as="button"
+                onClick={() => onTabClick(tab.id)}
+                pt={2.5}
+                pb={2.5}
+                borderBottomWidth="2px"
+                borderColor={active ? 'brand.500' : 'transparent'}
+                color={active ? 'brand.600' : 'fg.muted'}
+                transition="color 0.2s, border-color 0.2s"
+                _hover={{ color: active ? 'brand.700' : 'fg' }}
+                whiteSpace="nowrap"
+                fontWeight={active ? '600' : '500'}
+                fontSize="sm"
+                mb="-1px"
+              >
+                <Text as="span">{tab.label}</Text>
+                {tab.badge !== undefined && tab.badge !== null && (
+                  <Badge
+                    ml={1.5}
+                    borderRadius="full"
+                    bg="red.500"
+                    color="white"
+                    fontSize="xs"
+                    px={1.5}
+                    minW="18px"
+                    textAlign="center"
+                    _dark={{
+                      bg: 'red.600',
+                      color: 'white',
+                    }}
+                  >
+                    {tab.badge}
+                  </Badge>
+                )}
+              </Flex>
+            );
+          })}
+        </Flex>
+        {rightContent && (
+          <Box flexShrink={0} ml={2}>
+            {rightContent}
+          </Box>
+        )}
       </Flex>
     </Box>
   );

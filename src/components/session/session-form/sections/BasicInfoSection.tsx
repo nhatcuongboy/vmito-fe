@@ -14,6 +14,7 @@ import { Sparkles } from 'lucide-react';
 import { Controller } from 'react-hook-form';
 import type { Control, FieldErrors, UseFormRegister } from 'react-hook-form';
 import type { useTranslations } from 'next-intl';
+import { useTranslations as useNextIntlTranslations } from 'next-intl';
 
 import { Venue } from '@/lib/api/types';
 import { SessionFormData } from '@/components/session/session-form/sessionFormSchema';
@@ -39,6 +40,7 @@ export function BasicInfoSection({
   venueOptions,
   handleVenueSearch,
   isVenueLoading,
+  onSuggestNewVenue,
 }: {
   t: Translator;
   isEditMode: boolean;
@@ -52,7 +54,10 @@ export function BasicInfoSection({
   venueOptions: VenueOption[];
   handleVenueSearch: (keyword: string) => void;
   isVenueLoading: boolean;
+  /** Called when user clicks "Suggest new venue" in the empty-state of the venue dropdown */
+  onSuggestNewVenue?: () => void;
 }) {
+  const tVenueRequests = useNextIntlTranslations('venueRequests');
   return (
     <Box
       bg={{ base: 'white', _dark: 'gray.800' }}
@@ -139,9 +144,18 @@ export function BasicInfoSection({
                   options={venueOptions}
                   placeholder={t('generalSettings.selectVenue')}
                   searchPlaceholder={t('generalSettings.searchVenue')}
+                  noOptionsMessage={t('generalSettings.noVenueFound')}
                   onSearchChange={handleVenueSearch}
                   isLoading={isVenueLoading}
                   isDisabled={!canEditVenue}
+                  onNoOptionsAction={
+                    onSuggestNewVenue
+                      ? {
+                          label: tVenueRequests('suggestNewVenue'),
+                          onClick: onSuggestNewVenue,
+                        }
+                      : undefined
+                  }
                 />
               )}
             />

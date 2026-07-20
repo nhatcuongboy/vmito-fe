@@ -2,16 +2,49 @@ import { api, ApiResponse } from './base';
 
 export type FavoriteType = 'SESSION' | 'VENUE' | 'CLUB' | 'TOURNAMENT';
 
-export interface FavoriteItem<T = unknown> {
+/**
+ * GET /favorites does not wrap the target in a `target` field - the backend
+ * spreads the favorited Session/Venue/Club/Tournament fields directly and
+ * adds `isFavorite`/`favoritedAt` on top, since Favorite is polymorphic
+ * (joined manually via type+targetId, no FK relation).
+ */
+export interface FavoriteTargetSummary {
   id: string;
-  type: FavoriteType;
-  targetId: string;
-  createdAt: string;
-  target?: T;
+  name: string;
+  slug?: string;
+  image?: string;
+  images?: string[];
+  coverPhoto?: string;
+  address?: string;
+  city?: string;
+  district?: string;
+  host?: { id: string; name: string; image?: string };
+  venue?: {
+    id: string;
+    name: string;
+    address?: string;
+    city?: string;
+    district?: string;
+  };
+  defaultVenue?: {
+    id: string;
+    name: string;
+    address?: string;
+    city?: string;
+    district?: string;
+  };
+  _count?: {
+    players?: number;
+    pairs?: number;
+    categories?: number;
+    members?: number;
+  };
+  isFavorite: true;
+  favoritedAt: string;
 }
 
-export interface FavoriteListResponse<T = unknown> {
-  data: FavoriteItem<T>[];
+export interface FavoriteListResponse {
+  data: FavoriteTargetSummary[];
   pagination: {
     page: number;
     limit: number;
@@ -20,12 +53,20 @@ export interface FavoriteListResponse<T = unknown> {
   };
 }
 
+export interface FavoriteRecord {
+  id: string;
+  userId: string;
+  type: FavoriteType;
+  targetId: string;
+  createdAt: string;
+}
+
 export const FavoriteService = {
   addFavorite: async (
     type: FavoriteType,
     targetId: string
-  ): Promise<FavoriteItem> => {
-    const response = await api.post<ApiResponse<FavoriteItem>>('/favorites', {
+  ): Promise<FavoriteRecord> => {
+    const response = await api.post<ApiResponse<FavoriteRecord>>('/favorites', {
       type,
       targetId,
     });
@@ -39,12 +80,12 @@ export const FavoriteService = {
     await api.delete<ApiResponse<void>>(`/favorites/${type}/${targetId}`);
   },
 
-  getFavorites: async <T = unknown>(filters?: {
-    type?: FavoriteType;
+  getFavorites: async (filters: {
+    type: FavoriteType;
     page?: number;
     limit?: number;
-  }): Promise<FavoriteListResponse<T>> => {
-    const response = await api.get<ApiResponse<FavoriteListResponse<T>>>(
+  }): Promise<FavoriteListResponse> => {
+    const response = await api.get<ApiResponse<FavoriteListResponse>>(
       '/favorites',
       { params: filters }
     );

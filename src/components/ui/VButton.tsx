@@ -54,8 +54,8 @@ export const VButton = ({
   if (as && typeof as !== 'string' && href) {
     const LinkComponent = as;
     return (
-      <LinkComponent href={href} style={{ textDecoration: 'none' }}>
-        <Button colorPalette={colorPalette} {...props}>
+      <Button asChild colorPalette={colorPalette} {...props}>
+        <LinkComponent href={href} style={{ textDecoration: 'none' }}>
           {leftIcon && (
             <Box mr="1" display="inline-block">
               {leftIcon}
@@ -67,8 +67,8 @@ export const VButton = ({
               {rightIcon}
             </Box>
           )}
-        </Button>
-      </LinkComponent>
+        </LinkComponent>
+      </Button>
     );
   }
 

@@ -7,6 +7,7 @@ import { MoneyInput } from '@/components/ui/MoneyInput';
 import { Field } from '@/components/ui/Field';
 import { RichTextEditor } from '@/components/ui/RichTextEditor';
 import { SearchableSelect } from '@/components/ui/SearchableSelect';
+import { VDateTimeInput } from '@/components/ui/VDateTimeInput';
 import { VButton } from '@/components/ui/VButton';
 import { VSwitch } from '@/components/ui/VSwitch';
 import { toaster } from '@/components/ui/toaster';
@@ -20,6 +21,7 @@ import {
 } from '@/lib/api/types';
 import { VIETNAM_CITIES, getDistrictsByCity } from '@/lib/vietnam-locations';
 import { trimPhone } from '@/utils/phone-utils';
+import { formatOpeningHours, parseOpeningHours } from '@/utils/time-helpers';
 import AppMultiImageUpload, {
   ISessionImage,
 } from '@/components/session/AppMultiImageUpload';
@@ -50,6 +52,8 @@ const venueSchema = z.object({
   phone: z.string().optional(),
   website: z.string().optional(),
   openingHours: z.string().optional(),
+  openTime: z.string().optional(),
+  closeTime: z.string().optional(),
   numberOfCourts: z.number().int().min(1).optional(),
   hourlyRateFixed: z.number().int().min(0).optional(),
   hourlyRateWalkIn: z.number().int().min(0).optional(),
@@ -106,6 +110,8 @@ export default function EditVenuePage({
       phone: '',
       website: '',
       openingHours: '',
+      openTime: '',
+      closeTime: '',
       numberOfCourts: undefined,
       hourlyRateFixed: undefined,
       hourlyRateWalkIn: undefined,
@@ -128,6 +134,7 @@ export default function EditVenuePage({
         setIsLoading(true);
         const data = await VenueService.getVenue(id);
         setVenue(data);
+        const openingHours = parseOpeningHours(data.openingHours);
 
         form.reset({
           name: data.name,
@@ -146,6 +153,8 @@ export default function EditVenuePage({
           isVerified: data.isVerified ?? false,
           description: data.description || '',
           openingHours: data.openingHours || '',
+          openTime: openingHours.openTime,
+          closeTime: openingHours.closeTime,
           numberOfCourts: data.numberOfCourts ?? undefined,
           status: data.status || 'ACTIVE',
           closureStatus: data.closureStatus || 'OPERATING',
@@ -211,9 +220,11 @@ export default function EditVenuePage({
       const imagePublicIds = venueImages.map((img) => img.publicId);
       const coverPhoto = venueImages[venueBannerIndex]?.url;
       const coverPhotoPublicId = venueImages[venueBannerIndex]?.publicId;
+      const { openTime, closeTime, ...venueData } = data;
 
       const payload = {
-        ...data,
+        ...venueData,
+        openingHours: formatOpeningHours(openTime, closeTime) || undefined,
         coverPhoto,
         coverPhotoPublicId,
         images,
@@ -517,15 +528,32 @@ export default function EditVenuePage({
           <VStack gap={4} align="stretch">
             <SectionLabel title="Thông tin sân" />
 
-            <Controller
-              control={form.control}
-              name="openingHours"
-              render={({ field }) => (
-                <Field label="Giờ hoạt động">
-                  <Input {...field} placeholder="VD: 6:00 - 22:00" />
-                </Field>
-              )}
-            />
+            <Field label="Giờ hoạt động">
+              <HStack width="full" gap={4}>
+                <Controller
+                  control={form.control}
+                  name="openTime"
+                  render={({ field }) => (
+                    <VDateTimeInput
+                      {...field}
+                      type="time"
+                      placeholder="Bắt đầu"
+                    />
+                  )}
+                />
+                <Controller
+                  control={form.control}
+                  name="closeTime"
+                  render={({ field }) => (
+                    <VDateTimeInput
+                      {...field}
+                      type="time"
+                      placeholder="Kết thúc"
+                    />
+                  )}
+                />
+              </HStack>
+            </Field>
 
             <HStack width="full" gap={4}>
               <Controller
