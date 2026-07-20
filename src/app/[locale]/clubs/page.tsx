@@ -107,7 +107,7 @@ function BrowseClubsContent() {
   const { user } = useAuthStore();
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
 
-  const [viewMode] = useViewMode('clubs');
+  const [viewMode] = useViewMode('clubs', 'list');
 
   const [clubs, setClubs] = useState<IClubListItem[]>([]);
   const [fullClubs, setFullClubs] = useState<IClub[]>([]);
@@ -650,7 +650,11 @@ function BrowseClubsContent() {
                 )}
               </Box>
 
-              <AppViewModeToggle scope="clubs" />
+              <AppViewModeToggle
+                scope="clubs"
+                defaultMode="list"
+                listFirst={true}
+              />
             </Flex>
           </Flex>
 
