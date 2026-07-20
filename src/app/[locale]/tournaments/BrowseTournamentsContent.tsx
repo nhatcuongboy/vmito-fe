@@ -2,7 +2,6 @@
 
 import { AppSearchBar } from '@/components/common/AppSearchBar';
 import { FavoriteButton } from '@/components/favorites/FavoriteButton';
-import { FavoriteFilterButton } from '@/components/favorites/FavoriteFilterButton';
 import PageLayout from '@/components/layout/PageLayout';
 import { TournamentCardsGridSkeleton } from '@/components/tournament/skeletons';
 import TournamentFilterDrawer, {
@@ -141,8 +140,8 @@ function TournamentsContent() {
     (period !== 'all' ? 1 : 0) +
     filters.city.length +
     filters.district.length +
-    sports.length +
-    (filters.favorite ? 1 : 0);
+    sports.length;
+  // favoriteOnly is excluded from filter count as it's now in the tab nav
 
   useRegisterTopBarSearch({
     placeholder: t('searchEvents'),
@@ -409,10 +408,6 @@ function TournamentsContent() {
         </Flex>
 
         <Flex justify="flex-end" align="center" gap={2} minH="32px">
-          <FavoriteFilterButton
-            isActive={filters.favorite}
-            onToggle={() => setFilters({ favorite: !filters.favorite })}
-          />
           <Box position="relative" ref={sortRef}>
             <Button
               variant="outline"
@@ -472,7 +467,7 @@ function TournamentsContent() {
           </Box>
         </Flex>
 
-        {activeFilterCount > (filters.favorite ? 1 : 0) && (
+        {activeFilterCount > 0 && (
           <Flex gap={2} flexWrap="wrap">
             {statuses.map((status) => (
               <FilterChip

@@ -105,16 +105,8 @@ export default function VenueRentalSettingsPage({
                 {t('backToPricing')}
               </VButton>
             </Flex>
-            <Box
-              bg={{ base: 'white', _dark: 'gray.900' }}
-              p={{ base: 4, md: 6 }}
-              borderRadius="xl"
-              shadow="sm"
-              borderWidth="1px"
-              borderColor={{ base: 'gray.200', _dark: 'gray.700' }}
-            >
-              <VenueRentalSettings venue={venue} onUpdated={setVenue} />
-            </Box>
+            {/* Each settings section renders its own card. */}
+            <VenueRentalSettings venue={venue} onUpdated={setVenue} />
           </VStack>
         )}
       </Box>

@@ -17,7 +17,7 @@ interface UseFavoriteToggleOptions {
   onChange?: (isFavorite: boolean) => void;
 }
 
-const getFavoriteListHref = (type: FavoriteType) => {
+export const getFavoriteListHref = (type: FavoriteType) => {
   switch (type) {
     case 'SESSION':
       return `${ROUTES.HOME}?favorite=1`;

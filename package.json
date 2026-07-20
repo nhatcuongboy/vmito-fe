@@ -16,6 +16,7 @@
     "i18n:sync": "node scripts/i18n-sync.js",
     "test:ranking": "node --no-warnings --experimental-strip-types --test src/utils/session-player-ranking.test.js",
     "test:venue-pricing": "node --no-warnings --experimental-transform-types --test src/components/venue/pricing/pricing-utils.test.ts",
+    "test:venue-schedule": "node --no-warnings --experimental-transform-types --test src/components/venue-rental/schedule-validation.test.ts",
     "prepare": "husky"
   },
   "dependencies": {

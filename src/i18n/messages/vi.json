@@ -5532,7 +5532,17 @@
     "hostedClubs": "Nhóm đang quản lý",
     "memberClubs": "Nhóm đang tham gia",
     "noHostedClubs": "Chưa quản lý nhóm nào",
-    "noMemberClubs": "Chưa tham gia nhóm nào"
+    "noMemberClubs": "Chưa tham gia nhóm nào",
+    "favorites": "Yêu thích",
+    "favoriteSessions": "Kèo",
+    "favoriteVenues": "Sân",
+    "favoriteClubs": "Nhóm",
+    "favoriteTournaments": "Giải đấu",
+    "noFavoriteSessions": "Chưa có kèo yêu thích nào",
+    "noFavoriteVenues": "Chưa có sân yêu thích nào",
+    "noFavoriteClubs": "Chưa có nhóm yêu thích nào",
+    "noFavoriteTournaments": "Chưa có giải đấu yêu thích nào",
+    "viewAllFavorites": "Xem tất cả"
   },
   "notification": {
     "notifications": "Thông báo",
@@ -6430,13 +6440,18 @@
       "created": "Đã gửi yêu cầu thuê sân",
       "updated": "Đã cập nhật yêu cầu thuê sân"
     },
-    "card": { "courts": "{count} sân" },
+    "card": {
+      "courts": "{count} sân"
+    },
     "filters": {
       "allStatuses": "Tất cả trạng thái",
       "allVenues": "Tất cả sân",
       "selectVenue": "Chọn một sân để xem lịch"
     },
-    "views": { "requests": "Yêu cầu", "schedule": "Lịch sân" },
+    "views": {
+      "requests": "Yêu cầu",
+      "schedule": "Lịch sân"
+    },
     "selectionMode": {
       "AUTO_ASSIGN": "Hệ thống chọn",
       "SELECT_COURTS": "Tự chọn sân"
@@ -6464,8 +6479,12 @@
       "session": "Kèo liên kết",
       "allocatedCourts": "Sân đã phân bổ"
     },
-    "proposal": { "title": "Đề xuất mới từ sân" },
-    "timeline": { "title": "Lịch sử yêu cầu" },
+    "proposal": {
+      "title": "Đề xuất mới từ sân"
+    },
+    "timeline": {
+      "title": "Lịch sử yêu cầu"
+    },
     "event": {
       "CREATED": "Đã gửi yêu cầu",
       "APPROVED": "Sân đã xác nhận",
@@ -6506,7 +6525,34 @@
       "add": "Thêm",
       "remove": "Xóa người quản lý",
       "managerAdded": "Đã thêm người quản lý",
-      "role": { "OWNER": "Chủ sân", "MANAGER": "Quản lý" }
+      "role": {
+        "OWNER": "Chủ sân",
+        "MANAGER": "Quản lý"
+      },
+      "generalSection": "Cấu hình chung",
+      "cannotDemoteSelf": "Bạn không thể tự hạ quyền của mình",
+      "confirmRemoveManagerTitle": "Xóa người quản lý?",
+      "confirmRemoveManagerBody": "{name} sẽ mất quyền quản lý sân này.",
+      "confirmRoleTitle": "Đổi vai trò?",
+      "confirmRoleBody": "Đổi vai trò của {name} thành {role}?",
+      "managersLoadError": "Không thể tải danh sách người quản lý",
+      "retry": "Thử lại",
+      "noManagers": "Chưa có người quản lý nào",
+      "unsavedBadge": "Chưa lưu",
+      "unsavedWarning": "Bạn có thay đổi chưa lưu.",
+      "confirm": "Xác nhận",
+      "cancel": "Hủy",
+      "roleUpdated": "Đã cập nhật vai trò",
+      "managerRemoved": "Đã xóa người quản lý",
+      "changeRole": "Đổi",
+      "roleLabel": "Vai trò",
+      "newManagerLabel": "Người quản lý mới",
+      "searchMinChars": "Gõ ít nhất 2 ký tự để tìm",
+      "noCandidates": "Không tìm thấy tài khoản phù hợp",
+      "roleHelp": {
+        "OWNER": "Toàn quyền: đổi cấu hình, quản lý thành viên",
+        "MANAGER": "Duyệt booking, không đổi được cấu hình"
+      }
     },
     "courts": {
       "inventoryTitle": "Danh sách sân vật lý",
@@ -6557,7 +6603,35 @@
       "to": "Đến giờ",
       "reason": "Lý do",
       "addBlock": "Tạo block",
-      "removeBlock": "Xóa block"
+      "removeBlock": "Xóa block",
+      "confirmRemoveCourtTitle": "Xóa sân?",
+      "confirmRemoveCourtBody": "Sân {name} sẽ bị xóa khỏi danh sách.",
+      "confirmRemoveBlockTitle": "Xóa block?",
+      "confirmRemoveBlockBody": "Block này sẽ được gỡ bỏ.",
+      "confirmCopyMondayTitle": "Sao chép thứ Hai?",
+      "confirmCopyMondayBody": "Giờ hoạt động của 6 ngày còn lại sẽ bị ghi đè.",
+      "delete": "Xóa",
+      "cancel": "Hủy",
+      "noCourts": "Chưa có sân nào",
+      "noBlocks": "Chưa có block nào",
+      "columnActions": "Thao tác",
+      "needsReviewBadge": "Cần rà soát",
+      "reviewedBadge": "Đã rà soát",
+      "unsavedBadge": "Chưa lưu",
+      "courtSaved": "Đã lưu sân",
+      "courtRemoved": "Đã xóa sân",
+      "blockCreated": "Đã tạo block",
+      "blockRemoved": "Đã xóa block",
+      "blocksListTitle": "Danh sách block",
+      "retry": "Thử lại",
+      "errors": {
+        "endBeforeStart": "Giờ kết thúc phải sau giờ bắt đầu",
+        "notAligned": "Chỉ chọn mốc 00 hoặc 30 phút",
+        "overlap": "Khoảng giờ bị trùng",
+        "emptyDay": "Cần ít nhất một khoảng giờ",
+        "fixBeforeSave": "Sửa lỗi ở: {days}"
+      },
+      "statusLabel": "Trạng thái"
     },
     "managerSchedule": {
       "refresh": "Làm mới",

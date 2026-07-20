@@ -82,7 +82,6 @@ import {
 import SessionSearchBar from './SessionSearchBar';
 import ResultsHeader from './ResultsHeader';
 import { useRegisterTopBarSearch } from '@/contexts/TopBarSearchContext';
-import { FavoriteFilterButton } from '@/components/favorites/FavoriteFilterButton';
 
 // Map view pulls in @react-google-maps/api (~150KB) — load it only when the
 // user switches to map mode instead of shipping it with the initial page
@@ -561,8 +560,8 @@ export default function FindSessionList({
     (filters.minFee > 0 || filters.maxFee < 200000 ? 1 : 0) +
     (filters.splitEvenly ? 1 : 0) +
     (filters.sessionType !== 'all' ? 1 : 0) +
-    (sortByDistance ? 1 : 0) +
-    (urlFilters.favorite ? 1 : 0);
+    (sortByDistance ? 1 : 0);
+  // favoriteOnly is excluded from filter count as it's now in the tab nav
 
   // Count of non-search filters for showing the clear-all button
   const nonSearchFilterCount = activeFilterCount;
@@ -704,15 +703,8 @@ export default function FindSessionList({
         onSortChange={(value) => setUrlFilters({ sort: value })}
         viewMode={viewMode}
         setViewMode={setViewMode}
-        favoriteButton={
-          <FavoriteFilterButton
-            isActive={urlFilters.favorite}
-            onToggle={() => setUrlFilters({ favorite: !urlFilters.favorite })}
-          />
-        }
       >
-        {(filters.venueId ||
-          nonSearchFilterCount - (urlFilters.favorite ? 1 : 0) > 0) && (
+        {(filters.venueId || nonSearchFilterCount > 0) && (
           <HStack gap={2} wrap="wrap">
             {/* Venue */}
             {filters.venueId && (

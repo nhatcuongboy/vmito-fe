@@ -19,6 +19,15 @@ import {
   VenueOperatingPeriod,
 } from './types';
 
+/**
+ * Per-request opt-outs. `skipGlobalError` suppresses the global error modal so
+ * a caller that already renders the failure inline (e.g. inside a confirmation
+ * dialog) does not stack a second error on top of it.
+ */
+export interface RequestOptions {
+  skipGlobalError?: boolean;
+}
+
 export interface RentalTimeInput {
   startTime: string;
   endTime: string;
@@ -208,8 +217,12 @@ export const VenueRentalService = {
     return response.data.data!;
   },
 
-  async removeCourt(venueId: string, courtId: string) {
-    await api.delete(`/venues/${venueId}/courts/${courtId}`);
+  async removeCourt(
+    venueId: string,
+    courtId: string,
+    options?: RequestOptions
+  ) {
+    await api.delete(`/venues/${venueId}/courts/${courtId}`, options);
   },
 
   async getOperatingPeriods(venueId: string) {
@@ -260,8 +273,12 @@ export const VenueRentalService = {
     return response.data.data!;
   },
 
-  async removeCourtBlock(venueId: string, blockId: string) {
-    await api.delete(`/venues/${venueId}/court-blocks/${blockId}`);
+  async removeCourtBlock(
+    venueId: string,
+    blockId: string,
+    options?: RequestOptions
+  ) {
+    await api.delete(`/venues/${venueId}/court-blocks/${blockId}`, options);
   },
 
   async createManualRental(
@@ -326,17 +343,23 @@ export const VenueRentalService = {
   async updateManager(
     venueId: string,
     managerId: string,
-    role: VenueManagerRole
+    role: VenueManagerRole,
+    options?: RequestOptions
   ) {
     const response = await api.patch<ApiResponse<VenueManager>>(
       `/venues/${venueId}/managers/${managerId}`,
-      { role }
+      { role },
+      options
     );
     return response.data.data!;
   },
 
-  async removeManager(venueId: string, managerId: string) {
-    await api.delete(`/venues/${venueId}/managers/${managerId}`);
+  async removeManager(
+    venueId: string,
+    managerId: string,
+    options?: RequestOptions
+  ) {
+    await api.delete(`/venues/${venueId}/managers/${managerId}`, options);
   },
 
   async updateRentalSettings(

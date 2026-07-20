@@ -61,7 +61,6 @@ import { useAuthStore } from '@/stores/useAuthStore';
 import { usePreferenceStore } from '@/stores/usePreferenceStore';
 import { usePathname, useRouter } from '@/i18n/config';
 import { useRegisterTopBarSearch } from '@/contexts/TopBarSearchContext';
-import { FavoriteFilterButton } from '@/components/favorites/FavoriteFilterButton';
 
 const LoginPromptModal = dynamic(
   () => import('@/components/auth/LoginPromptModal'),
@@ -505,10 +504,8 @@ export default function VenueSearchList() {
   };
 
   const activeFilterCount =
-    filters.city.length +
-    filters.district.length +
-    (filters.near ? 1 : 0) +
-    (filters.favorite ? 1 : 0);
+    filters.city.length + filters.district.length + (filters.near ? 1 : 0);
+  // favoriteOnly is excluded from filter count as it's now in the tab nav
   const hasVenueSearch = filters.q.trim().length > 0;
 
   // Register desktop search bar in the top bar
@@ -648,10 +645,6 @@ export default function VenueSearchList() {
           )}
 
           <Flex align="center" gap={2}>
-            <FavoriteFilterButton
-              isActive={filters.favorite}
-              onToggle={() => setFilters({ favorite: !filters.favorite })}
-            />
             {/* Sort dropdown */}
             <Box position="relative" ref={sortDropdownRef}>
               <Button

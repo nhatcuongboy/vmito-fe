@@ -5516,7 +5516,17 @@
     "hostedClubs": "Hosted Clubs",
     "memberClubs": "Member Clubs",
     "noHostedClubs": "No hosted clubs",
-    "noMemberClubs": "No member clubs"
+    "noMemberClubs": "No member clubs",
+    "favorites": "Favorites",
+    "favoriteSessions": "Sessions",
+    "favoriteVenues": "Venues",
+    "favoriteClubs": "Clubs",
+    "favoriteTournaments": "Tournaments",
+    "noFavoriteSessions": "No favorite sessions yet",
+    "noFavoriteVenues": "No favorite venues yet",
+    "noFavoriteClubs": "No favorite clubs yet",
+    "noFavoriteTournaments": "No favorite tournaments yet",
+    "viewAllFavorites": "View all"
   },
   "notification": {
     "notifications": "Notifications",
@@ -6410,13 +6420,18 @@
       "created": "Rental request sent",
       "updated": "Rental request updated"
     },
-    "card": { "courts": "{count} courts" },
+    "card": {
+      "courts": "{count} courts"
+    },
     "filters": {
       "allStatuses": "All statuses",
       "allVenues": "All venues",
       "selectVenue": "Select a venue to view its schedule"
     },
-    "views": { "requests": "Requests", "schedule": "Court schedule" },
+    "views": {
+      "requests": "Requests",
+      "schedule": "Court schedule"
+    },
     "selectionMode": {
       "AUTO_ASSIGN": "System selects",
       "SELECT_COURTS": "Choose courts"
@@ -6444,8 +6459,12 @@
       "session": "Linked session",
       "allocatedCourts": "Allocated courts"
     },
-    "proposal": { "title": "New proposal from the venue" },
-    "timeline": { "title": "Request history" },
+    "proposal": {
+      "title": "New proposal from the venue"
+    },
+    "timeline": {
+      "title": "Request history"
+    },
     "event": {
       "CREATED": "Request submitted",
       "APPROVED": "Venue confirmed the rental",
@@ -6486,7 +6505,34 @@
       "add": "Add",
       "remove": "Remove manager",
       "managerAdded": "Manager added",
-      "role": { "OWNER": "Owner", "MANAGER": "Manager" }
+      "role": {
+        "OWNER": "Owner",
+        "MANAGER": "Manager"
+      },
+      "generalSection": "General settings",
+      "cannotDemoteSelf": "You cannot lower your own role",
+      "confirmRemoveManagerTitle": "Remove manager?",
+      "confirmRemoveManagerBody": "{name} will lose access to manage this venue.",
+      "confirmRoleTitle": "Change role?",
+      "confirmRoleBody": "Change {name}’s role to {role}?",
+      "managersLoadError": "Could not load the manager list",
+      "retry": "Retry",
+      "noManagers": "No managers yet",
+      "unsavedBadge": "Unsaved",
+      "unsavedWarning": "You have unsaved changes.",
+      "confirm": "Confirm",
+      "cancel": "Cancel",
+      "roleUpdated": "Role updated",
+      "managerRemoved": "Manager removed",
+      "changeRole": "Change",
+      "roleLabel": "Role",
+      "newManagerLabel": "New manager",
+      "searchMinChars": "Type at least 2 characters to search",
+      "noCandidates": "No matching account found",
+      "roleHelp": {
+        "OWNER": "Full access: settings and members",
+        "MANAGER": "Handles bookings, cannot change settings"
+      }
     },
     "courts": {
       "inventoryTitle": "Physical court inventory",
@@ -6537,7 +6583,35 @@
       "to": "To",
       "reason": "Reason",
       "addBlock": "Create block",
-      "removeBlock": "Remove block"
+      "removeBlock": "Remove block",
+      "confirmRemoveCourtTitle": "Delete court?",
+      "confirmRemoveCourtBody": "Court {name} will be removed from the list.",
+      "confirmRemoveBlockTitle": "Delete block?",
+      "confirmRemoveBlockBody": "This block will be removed.",
+      "confirmCopyMondayTitle": "Copy Monday?",
+      "confirmCopyMondayBody": "Operating hours for the other 6 days will be overwritten.",
+      "delete": "Delete",
+      "cancel": "Cancel",
+      "noCourts": "No courts yet",
+      "noBlocks": "No blocks yet",
+      "columnActions": "Actions",
+      "needsReviewBadge": "Needs review",
+      "reviewedBadge": "Reviewed",
+      "unsavedBadge": "Unsaved",
+      "courtSaved": "Court saved",
+      "courtRemoved": "Court deleted",
+      "blockCreated": "Block created",
+      "blockRemoved": "Block deleted",
+      "blocksListTitle": "Block list",
+      "retry": "Retry",
+      "errors": {
+        "endBeforeStart": "End time must be after start time",
+        "notAligned": "Pick times on the hour or half hour",
+        "overlap": "These time ranges overlap",
+        "emptyDay": "At least one time range is required",
+        "fixBeforeSave": "Fix errors on: {days}"
+      },
+      "statusLabel": "Status"
     },
     "managerSchedule": {
       "refresh": "Refresh",

@@ -97,3 +97,89 @@
 - Update local/Zustand state directly instead: optimistic update, or patch the API response into state, for single-item changes.
 - If the mutation affects a list or several related items, refetch only the specific resource(s) affected — not the whole page.
 - Needing a full reload to see fresh data is a sign the state layer is out of sync; fix that instead of reloading.
+
+## File Size Guidelines
+
+### Context: Gradual Refactoring Approach
+
+**Current State:** The codebase contains many large files (500-1000+ lines) that need gradual refactoring. These existing files are **legacy code** and will be improved over time.
+
+**Going Forward:** New code and modifications should follow stricter guidelines to prevent the problem from growing.
+
+### Rules for NEW Code and Major Modifications
+
+When **creating new files** or **substantially refactoring existing ones** (50%+ changes):
+
+**Frontend (React/Next.js):**
+
+- Components: 150-300 lines (max 400)
+- Page components: 100-200 lines (max 300)
+- Hooks: 50-150 lines (max 200)
+- Utils/Helpers: 100-200 lines (max 300)
+- Services: 200-300 lines (max 400)
+
+**Key Principle:** If you're writing a new component/file from scratch, keep it under 400 lines. If you can't, it's a sign of poor design.
+
+### Rules for EXISTING Large Files
+
+For files that already exceed 500 lines:
+
+**When making SMALL changes** (bug fixes, minor features):
+
+- ✅ Make the change without refactoring the whole file
+- ✅ Try to keep the new code clean and modular
+- ⚠️ If adding 100+ lines to an already large file, consider extracting the new logic to a separate file instead
+
+**When making MEDIUM changes** (new feature in existing component):
+
+- 🎯 **Opportunistic refactoring**: If you're touching a large section, extract it to a smaller component/hook
+- Extract only what you're modifying — don't refactor unrelated code
+- Example: If adding a new form section to a 600-line component, extract that section to a separate component
+
+**When making LARGE changes** (major feature, major bug fix):
+
+- 🎯 **Mandatory refactoring**: Break down the file as part of your work
+- Split by responsibility, feature, or UI section
+- Aim to get the file under 500 lines if feasible
+
+### Progressive Refactoring Strategy
+
+**Priority Levels:**
+
+1. **Critical** (refactor when touched): Files > 800 lines
+2. **High** (refactor during medium/large changes): Files 600-800 lines
+3. **Medium** (refactor opportunistically): Files 500-600 lines
+4. **Low** (leave alone unless major changes): Files 400-500 lines
+
+**When NOT to Refactor:**
+
+- Emergency hotfixes
+- Code freeze periods
+- Files that rarely change and work well
+- When deadline pressure is high (but plan to refactor later)
+
+### Signs a File Needs Refactoring
+
+- More than 500 lines
+- Too many responsibilities (violates Single Responsibility Principle)
+- Difficult to locate specific functions/methods
+- More than 20-30 import statements
+- Requires excessive scrolling to understand logic
+- Multiple developers struggle to work on it simultaneously
+
+### Refactoring Strategies
+
+- **Extract smaller components/hooks** — break down complex components
+- **Use composition patterns** — combine smaller pieces instead of monoliths
+- **Separate business logic** — move logic to custom hooks or services
+- **Organize by concerns/features** — group related functionality
+- **Create sub-components in same directory** — e.g., `SessionForm/`, `SessionForm/index.tsx`, `SessionForm/BasicInfoSection.tsx`
+
+### Commit Message Convention
+
+When refactoring for file size:
+
+- `refactor: split SessionForm into smaller components`
+- `refactor(session): extract useSessionValidation hook from SessionForm`
+
+This helps track refactoring progress over time.

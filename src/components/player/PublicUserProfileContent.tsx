@@ -52,6 +52,7 @@ import { VModal, useModal } from '@/components/ui/VModal';
 import { StarRatingDisplay } from '@/components/rating/StarRatingDisplay';
 import PublicHostedSessionCard from '@/components/player/PublicHostedSessionCard';
 import PublicUserProfileSkeleton from '@/components/player/PublicUserProfileSkeleton';
+import PublicUserFavoritesSection from '@/components/player/PublicUserFavoritesSection';
 
 interface IPublicUserProfileContentProps {
   userId: string;
@@ -790,6 +791,8 @@ export default function PublicUserProfileContent({
               </Box>
             );
           })()}
+
+          {isOwner && <PublicUserFavoritesSection />}
 
           <Box
             bg="white"

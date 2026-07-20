@@ -132,8 +132,9 @@ export default function ResultsHeader({
             {`${count} ${tCommon('sessions')}`}
           </Text>
 
-          {/* Mode Toggle Button (On/Off) */}
-          {mode && onModeChange && isAuthenticated && (
+          {/* Mode Toggle Button (On/Off) - Hidden on root page */}
+          {/* Temporarily hidden as per user request */}
+          {/* {mode && onModeChange && isAuthenticated && (
             <Button
               size="sm"
               variant={mode === 'auto' ? 'solid' : 'outline'}
@@ -165,13 +166,11 @@ export default function ResultsHeader({
                 {tSuggestions('modeAuto')}
               </Text>
             </Button>
-          )}
+          )} */}
         </HStack>
 
-        {/* Right: Favorite + Sort + View mode toggle */}
+        {/* Right: Sort + View mode toggle */}
         <HStack gap={2} flexShrink={0} ms="auto">
-          {favoriteButton}
-
           {/* Sort Dropdown */}
           <Box position="relative" ref={dropdownRef}>
             <Button

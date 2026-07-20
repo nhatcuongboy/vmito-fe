@@ -5477,7 +5477,17 @@
     "hostedClubs": "管理的俱乐部",
     "memberClubs": "参加的俱乐部",
     "noHostedClubs": "暂无管理的俱乐部",
-    "noMemberClubs": "暂无参加的俱乐部"
+    "noMemberClubs": "暂无参加的俱乐部",
+    "favorites": "收藏",
+    "favoriteSessions": "场次",
+    "favoriteVenues": "场地",
+    "favoriteClubs": "俱乐部",
+    "favoriteTournaments": "赛事",
+    "noFavoriteSessions": "暂无收藏的场次",
+    "noFavoriteVenues": "暂无收藏的场地",
+    "noFavoriteClubs": "暂无收藏的俱乐部",
+    "noFavoriteTournaments": "暂无收藏的赛事",
+    "viewAllFavorites": "查看全部"
   },
   "notification": {
     "notifications": "通知",
@@ -6367,15 +6377,26 @@
       "schedule": "无法加载场地日程",
       "selectCourt": "请至少选择一个场地"
     },
-    "messages": { "created": "租赁申请已发送", "updated": "租赁申请已更新" },
-    "card": { "courts": "{count} 个场地" },
+    "messages": {
+      "created": "租赁申请已发送",
+      "updated": "租赁申请已更新"
+    },
+    "card": {
+      "courts": "{count} 个场地"
+    },
     "filters": {
       "allStatuses": "所有状态",
       "allVenues": "所有场地",
       "selectVenue": "请选择场馆查看日程"
     },
-    "views": { "requests": "申请", "schedule": "场地日程" },
-    "selectionMode": { "AUTO_ASSIGN": "系统分配", "SELECT_COURTS": "自选场地" },
+    "views": {
+      "requests": "申请",
+      "schedule": "场地日程"
+    },
+    "selectionMode": {
+      "AUTO_ASSIGN": "系统分配",
+      "SELECT_COURTS": "自选场地"
+    },
     "schedule": {
       "loading": "正在加载场地日程...",
       "availableCourts": "可用场地",
@@ -6399,8 +6420,12 @@
       "session": "关联活动",
       "allocatedCourts": "已分配场地"
     },
-    "proposal": { "title": "场地的新方案" },
-    "timeline": { "title": "申请记录" },
+    "proposal": {
+      "title": "场地的新方案"
+    },
+    "timeline": {
+      "title": "申请记录"
+    },
     "event": {
       "CREATED": "申请已提交",
       "APPROVED": "场地已确认租赁",
@@ -6441,7 +6466,34 @@
       "add": "添加",
       "remove": "移除管理员",
       "managerAdded": "管理员已添加",
-      "role": { "OWNER": "场地主", "MANAGER": "管理员" }
+      "role": {
+        "OWNER": "场地主",
+        "MANAGER": "管理员"
+      },
+      "generalSection": "常规设置",
+      "cannotDemoteSelf": "您无法降低自己的角色权限",
+      "confirmRemoveManagerTitle": "移除管理员？",
+      "confirmRemoveManagerBody": "{name} 将失去此场馆的管理权限。",
+      "confirmRoleTitle": "更改角色？",
+      "confirmRoleBody": "将 {name} 的角色更改为{role}？",
+      "managersLoadError": "无法加载管理员列表",
+      "retry": "重试",
+      "noManagers": "暂无管理员",
+      "unsavedBadge": "未保存",
+      "unsavedWarning": "您有未保存的更改。",
+      "confirm": "确认",
+      "cancel": "取消",
+      "roleUpdated": "已更新角色",
+      "managerRemoved": "已移除管理员",
+      "changeRole": "更改",
+      "roleLabel": "角色",
+      "newManagerLabel": "新管理员",
+      "searchMinChars": "请输入至少 2 个字符搜索",
+      "noCandidates": "未找到匹配的账号",
+      "roleHelp": {
+        "OWNER": "完全权限：设置与成员管理",
+        "MANAGER": "处理预订，无法更改设置"
+      }
     },
     "courts": {
       "inventoryTitle": "实体场地列表",
@@ -6455,7 +6507,11 @@
       "moveUp": "上移",
       "moveDown": "下移",
       "addCourt": "添加场地",
-      "status": { "ACTIVE": "启用", "MAINTENANCE": "维护", "INACTIVE": "停用" },
+      "status": {
+        "ACTIVE": "启用",
+        "MAINTENANCE": "维护",
+        "INACTIVE": "停用"
+      },
       "hoursTitle": "每周营业时间",
       "copyMonday": "复制星期一",
       "reviewRequired": "默认日程需要场地主审核。",
@@ -6488,7 +6544,35 @@
       "to": "到",
       "reason": "原因",
       "addBlock": "创建占用",
-      "removeBlock": "删除占用"
+      "removeBlock": "删除占用",
+      "confirmRemoveCourtTitle": "删除场地？",
+      "confirmRemoveCourtBody": "场地 {name} 将从列表中移除。",
+      "confirmRemoveBlockTitle": "删除封锁？",
+      "confirmRemoveBlockBody": "此封锁记录将被移除。",
+      "confirmCopyMondayTitle": "复制周一？",
+      "confirmCopyMondayBody": "其余 6 天的营业时间将被覆盖。",
+      "delete": "删除",
+      "cancel": "取消",
+      "noCourts": "暂无场地",
+      "noBlocks": "暂无封锁记录",
+      "columnActions": "操作",
+      "needsReviewBadge": "待核对",
+      "reviewedBadge": "已核对",
+      "unsavedBadge": "未保存",
+      "courtSaved": "已保存场地",
+      "courtRemoved": "已删除场地",
+      "blockCreated": "已创建封锁",
+      "blockRemoved": "已删除封锁",
+      "blocksListTitle": "封锁列表",
+      "retry": "重试",
+      "errors": {
+        "endBeforeStart": "结束时间必须晚于开始时间",
+        "notAligned": "只能选择整点或半点",
+        "overlap": "时间段重叠",
+        "emptyDay": "至少需要一个时间段",
+        "fixBeforeSave": "请修正：{days}"
+      },
+      "statusLabel": "状态"
     },
     "managerSchedule": {
       "refresh": "刷新",
