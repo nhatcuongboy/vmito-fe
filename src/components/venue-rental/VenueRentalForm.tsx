@@ -31,6 +31,7 @@ import {
 import { useAuthStore } from '@/stores/useAuthStore';
 import { venueDateTimeToIso, venueDateValue } from './date-time';
 import VenueCourtScheduleGrid from './VenueCourtScheduleGrid';
+import { SESSION_LINK_ENABLED } from './feature-flags';
 
 const pad = (value: number) => String(value).padStart(2, '0');
 
@@ -266,7 +267,10 @@ export default function VenueRentalForm({ venue }: { venue: Venue }) {
           <CalendarClock size={19} />
           <Text fontWeight="semibold">{t('form.schedule')}</Text>
         </HStack>
-        <SimpleGrid columns={{ base: 1, md: 3 }} gap={4}>
+        <SimpleGrid
+          columns={{ base: 1, md: SESSION_LINK_ENABLED ? 3 : 2 }}
+          gap={4}
+        >
           <Field label={t('form.date')}>
             <Input
               type="date"
@@ -285,13 +289,15 @@ export default function VenueRentalForm({ venue }: { venue: Venue }) {
               }))}
             />
           </Field>
-          <Field label={t('form.session')}>
-            <SearchableSelect
-              value={sessionId}
-              onChange={setSessionId}
-              options={sessionOptions}
-            />
-          </Field>
+          {SESSION_LINK_ENABLED && (
+            <Field label={t('form.session')}>
+              <SearchableSelect
+                value={sessionId}
+                onChange={setSessionId}
+                options={sessionOptions}
+              />
+            </Field>
+          )}
         </SimpleGrid>
         {venue.courtSelectionEnabled && (
           <HStack

@@ -168,7 +168,7 @@ export default function VenueSearchList() {
     useUrlFilters(VENUE_FILTERS_SCHEMA);
 
   // Use URL-synced view mode
-  const [viewMode, _setViewMode] = useViewMode('venues');
+  const [viewMode, _setViewMode] = useViewMode('venues', 'list');
 
   // Local keyword state drives the search input; synced to URL with debounce.
   const [keyword, setKeyword] = useState(filters.q);
@@ -750,7 +750,7 @@ export default function VenueSearchList() {
             </Box>
 
             {/* View Mode Toggle */}
-            <AppViewModeToggle scope="venues" />
+            <AppViewModeToggle scope="venues" defaultMode="list" listFirst />
           </Flex>
         </Flex>
       )}

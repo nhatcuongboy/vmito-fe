@@ -38,6 +38,7 @@ import {
   VenueRentalStatus,
 } from '@/lib/api/types';
 import { useAuthStore } from '@/stores/useAuthStore';
+import { SESSION_LINK_ENABLED } from './feature-flags';
 import {
   venueDateTimeToIso,
   venueDateValue,
@@ -308,28 +309,30 @@ export default function VenueRentalDetail({
         </Box>
       ) : null}
 
-      {!manage && request.status === VenueRentalStatus.CONFIRMED && (
-        <Box
-          borderWidth="1px"
-          borderRadius="md"
-          p={{ base: 4, md: 5 }}
-          bg={{ base: 'white', _dark: 'gray.900' }}
-        >
-          <Text fontWeight="semibold">{t('detail.session')}</Text>
-          {request.session ? (
-            <Text mt={2}>{request.session.name}</Text>
-          ) : (
-            <Button
-              mt={3}
-              variant="outline"
-              loading={sessionsLoading}
-              onClick={openSessionLink}
-            >
-              {t('actions.linkSession')}
-            </Button>
-          )}
-        </Box>
-      )}
+      {SESSION_LINK_ENABLED &&
+        !manage &&
+        request.status === VenueRentalStatus.CONFIRMED && (
+          <Box
+            borderWidth="1px"
+            borderRadius="md"
+            p={{ base: 4, md: 5 }}
+            bg={{ base: 'white', _dark: 'gray.900' }}
+          >
+            <Text fontWeight="semibold">{t('detail.session')}</Text>
+            {request.session ? (
+              <Text mt={2}>{request.session.name}</Text>
+            ) : (
+              <Button
+                mt={3}
+                variant="outline"
+                loading={sessionsLoading}
+                onClick={openSessionLink}
+              >
+                {t('actions.linkSession')}
+              </Button>
+            )}
+          </Box>
+        )}
 
       <Box
         borderWidth="1px"
