@@ -197,7 +197,7 @@ export default function AdminVenueRequestsPage() {
             key === 'note'
               ? undefined
               : request.venue?.[(venueKey || key) as keyof Venue];
-          if (requested === undefined && current === undefined) return null;
+          if (requested === undefined) return null;
 
           return (
             <Box

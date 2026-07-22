@@ -221,6 +221,9 @@ export default function CreateVenuePage() {
           {/* Thông tin địa chỉ */}
           <VStack gap={4} align="stretch">
             <SectionLabel title="Thông tin địa chỉ" />
+            <Text fontSize="xs" color="gray.500">
+              {t('legacyAddressHelper')}
+            </Text>
 
             <Controller
               control={form.control}
@@ -347,7 +350,10 @@ export default function CreateVenuePage() {
             </HStack>
 
             <Text fontWeight="medium" fontSize="xs" color="blue.500">
-              Địa chỉ mới (Nghị quyết 60) — để trống để hệ thống tự điền
+              {t('newAddressSection')}
+            </Text>
+            <Text fontSize="xs" color="gray.500">
+              {t('newAddressHelper')}
             </Text>
 
             <Controller
@@ -355,10 +361,7 @@ export default function CreateVenuePage() {
               name="newAddress"
               render={({ field }) => (
                 <Field label="Địa chỉ mới">
-                  <Input
-                    {...field}
-                    placeholder="VD: Phường Cầu Kiệu, TP Hồ Chí Minh"
-                  />
+                  <Input {...field} placeholder={t('newAddressPlaceholder')} />
                 </Field>
               )}
             />
@@ -369,7 +372,10 @@ export default function CreateVenuePage() {
                 name="newDistrict"
                 render={({ field }) => (
                   <Field flex={1} label="Phường/Xã mới">
-                    <Input {...field} placeholder="VD: Cầu Kiệu" />
+                    <Input
+                      {...field}
+                      placeholder={t('newDistrictPlaceholder')}
+                    />
                   </Field>
                 )}
               />
@@ -378,7 +384,7 @@ export default function CreateVenuePage() {
                 name="newCity"
                 render={({ field }) => (
                   <Field flex={1} label="Tỉnh/Thành phố mới">
-                    <Input {...field} placeholder="VD: TP Hồ Chí Minh" />
+                    <Input {...field} placeholder={t('newCityPlaceholder')} />
                   </Field>
                 )}
               />

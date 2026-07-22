@@ -25,7 +25,6 @@ import {
 import { useTranslations } from 'next-intl';
 import { Field } from '@/components/ui/Field';
 import { Input } from '@/components/ui/Input';
-import { SearchableSelect } from '@/components/ui/SearchableSelect';
 import { VDateTimeInput } from '@/components/ui/VDateTimeInput';
 import VModal from '@/components/ui/VModal';
 import { Button } from '@/components/ui/chakra-compat';
@@ -39,16 +38,15 @@ import {
   VenueRequestPayload,
   VenueRequestType,
 } from '@/lib/api/types';
-import { getDistrictsByCity, VIETNAM_CITIES } from '@/lib/vietnam-locations';
 import { trimPhone } from '@/utils/phone-utils';
 import { formatVenueName } from '@/utils';
 import { formatOpeningHours, parseOpeningHours } from '@/utils/time-helpers';
 
 const venueRequestSchema = z.object({
   name: z.string().min(2).max(200),
-  address: z.string().min(5).max(500),
-  city: z.string().min(1).max(120),
-  district: z.string().min(1).max(120),
+  newAddress: z.string().min(5).max(500),
+  newCity: z.string().min(1).max(120),
+  newDistrict: z.string().min(1).max(120),
   numberOfCourts: z.number().int().min(1).optional(),
   openingHours: z.string().max(200).optional(),
   openTime: z.string().optional(),
@@ -85,9 +83,9 @@ const toOptionalNumber = (value: string) => {
 
 const toPayload = (values: VenueRequestFormValues): VenueRequestPayload => ({
   name: values.name.trim(),
-  address: values.address.trim(),
-  city: values.city.trim(),
-  district: values.district.trim(),
+  newAddress: values.newAddress.trim(),
+  newCity: values.newCity.trim(),
+  newDistrict: values.newDistrict.trim(),
   numberOfCourts: values.numberOfCourts,
   openingHours:
     formatOpeningHours(values.openTime, values.closeTime) || undefined,
@@ -124,9 +122,9 @@ export default function VenueRequestModal({
 
     return {
       name: venue?.name || defaultKeyword,
-      address: venue?.address || '',
-      city: venue?.city || '',
-      district: venue?.district || '',
+      newAddress: venue?.newAddress || venue?.address || '',
+      newCity: venue?.newCity || venue?.city || '',
+      newDistrict: venue?.newDistrict || venue?.district || '',
       numberOfCourts: venue?.numberOfCourts,
       openingHours: venue?.openingHours || '',
       openTime: openingHours.openTime,
@@ -147,8 +145,6 @@ export default function VenueRequestModal({
     defaultValues,
   });
 
-  const selectedCity = form.watch('city');
-  const districtOptions = getDistrictsByCity(selectedCity);
   const isCreate = type === VenueRequestType.CREATE;
 
   useEffect(() => {
@@ -327,16 +323,18 @@ export default function VenueRequestModal({
 
         <Controller
           control={form.control}
-          name="address"
+          name="newAddress"
           render={({ field, fieldState }) => (
             <Field
-              label={t('fields.address')}
+              label={t('fields.newAddress')}
               required
               invalid={!!fieldState.error}
               errorText={t('validation.required')}
+              helperText={t('helpers.newAddress')}
             >
               <Input
                 {...field}
+                placeholder={t('placeholders.newAddress')}
                 onChange={(event) => {
                   resetSimilarWarning();
                   field.onChange(event);
@@ -349,24 +347,21 @@ export default function VenueRequestModal({
         <SimpleGrid columns={{ base: 1, md: 2 }} gap={4}>
           <Controller
             control={form.control}
-            name="city"
+            name="newCity"
             render={({ field, fieldState }) => (
               <Field
-                label={t('fields.city')}
+                label={t('fields.newCity')}
                 required
                 invalid={!!fieldState.error}
                 errorText={t('validation.required')}
               >
-                <SearchableSelect
-                  options={VIETNAM_CITIES}
-                  value={field.value}
-                  onChange={(value) => {
+                <Input
+                  {...field}
+                  placeholder={t('placeholders.newCity')}
+                  onChange={(event) => {
                     resetSimilarWarning();
-                    field.onChange(value);
-                    form.setValue('district', '');
+                    field.onChange(event);
                   }}
-                  placeholder={t('placeholders.city')}
-                  isInvalid={!!fieldState.error}
                 />
               </Field>
             )}
@@ -374,24 +369,22 @@ export default function VenueRequestModal({
 
           <Controller
             control={form.control}
-            name="district"
+            name="newDistrict"
             render={({ field, fieldState }) => (
               <Field
-                label={t('fields.district')}
+                label={t('fields.newDistrict')}
                 required
                 invalid={!!fieldState.error}
                 errorText={t('validation.required')}
+                helperText={t('helpers.newDistrict')}
               >
-                <SearchableSelect
-                  options={districtOptions}
-                  value={field.value}
-                  onChange={(value) => {
+                <Input
+                  {...field}
+                  placeholder={t('placeholders.newDistrict')}
+                  onChange={(event) => {
                     resetSimilarWarning();
-                    field.onChange(value);
+                    field.onChange(event);
                   }}
-                  placeholder={t('placeholders.district')}
-                  isDisabled={!selectedCity}
-                  isInvalid={!!fieldState.error}
                 />
               </Field>
             )}

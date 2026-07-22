@@ -67,7 +67,7 @@ export default function BulkCreateVenueModal({
   onClose,
   onSuccess,
 }: Props) {
-  const t = useTranslations('admin.venues.bulk');
+  const t = useTranslations('admin');
   const tc = useTranslations('common');
   const [tab, setTab] = useState<string>('manual');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -165,7 +165,7 @@ export default function BulkCreateVenueModal({
       },
       error: (error: Error) => {
         toaster.error({
-          title: t('csvParseError'),
+          title: t('bulkCsvParseError'),
           description: error.message,
         });
       },
@@ -181,7 +181,7 @@ export default function BulkCreateVenueModal({
 
   const onSubmitCsv = async () => {
     if (csvErrors.length > 0) {
-      toaster.error({ title: t('fixValidationErrors') });
+      toaster.error({ title: t('bulkFixValidationErrors') });
       return;
     }
     if (csvData.length === 0) return;
@@ -194,8 +194,8 @@ export default function BulkCreateVenueModal({
     try {
       const res = await VenueService.createBulkVenues(venuesData);
       toaster.success({
-        title: t('createSuccess'),
-        description: `${res.count} ${t('venuesProcessed')}`,
+        title: t('bulkCreateSuccess'),
+        description: `${res.count} ${t('bulkVenuesProcessed')}`,
       });
       onSuccess();
       handleClose();
@@ -204,7 +204,7 @@ export default function BulkCreateVenueModal({
         title: tc('error'),
         description:
           (error as { response?: { data?: { message?: string } } }).response
-            ?.data?.message || t('createError'),
+            ?.data?.message || t('bulkCreateError'),
       });
     } finally {
       setIsSubmitting(false);
@@ -222,7 +222,7 @@ export default function BulkCreateVenueModal({
     <VModal
       isOpen={isOpen}
       onClose={handleClose}
-      title="Tạo địa điểm hàng loạt"
+      title={t('bulkCreateTitle')}
       size="xl"
     >
       <Tabs.Root
@@ -232,8 +232,8 @@ export default function BulkCreateVenueModal({
         size="md"
       >
         <Tabs.List mb={4}>
-          <Tabs.Trigger value="manual">Nhập tay nhiều sân</Tabs.Trigger>
-          <Tabs.Trigger value="csv">Import bằng CSV</Tabs.Trigger>
+          <Tabs.Trigger value="manual">{t('bulkManualTab')}</Tabs.Trigger>
+          <Tabs.Trigger value="csv">{t('bulkCsvTab')}</Tabs.Trigger>
         </Tabs.List>
 
         <Tabs.Content value="manual">
@@ -256,7 +256,9 @@ export default function BulkCreateVenueModal({
                   mb={3}
                 >
                   <HStack justify="space-between" mb={3}>
-                    <Text fontWeight="bold">Địa điểm #{index + 1}</Text>
+                    <Text fontWeight="bold">
+                      {t('bulkVenueTitle', { index: index + 1 })}
+                    </Text>
                     {fields.length > 1 && (
                       <IconButton
                         aria-label="Thu hồi"
@@ -345,7 +347,6 @@ export default function BulkCreateVenueModal({
                     </Box>
                   </Flex>
 
-                  {/* Địa chỉ mới — optional, backend auto-fills if empty */}
                   <Box
                     mt={3}
                     p={3}
@@ -360,32 +361,35 @@ export default function BulkCreateVenueModal({
                       _dark={{ color: 'blue.300' }}
                       mb={2}
                     >
-                      Địa chỉ mới (Nghị quyết 60) — để trống để hệ thống tự điền
+                      {t('newAddressSection')}
+                    </Text>
+                    <Text fontSize="xs" color="gray.600" mb={3}>
+                      {t('newAddressHelper')}
                     </Text>
                     <Flex gap={3}>
                       <Box flex={2}>
-                        <Field label="Địa chỉ mới">
+                        <Field label={t('newAddress')}>
                           <Input
                             {...register(`venues.${index}.newAddress`)}
-                            placeholder="VD: Phường Cầu Kiệu, TP Hồ Chí Minh"
+                            placeholder={t('newAddressPlaceholder')}
                             size="sm"
                           />
                         </Field>
                       </Box>
                       <Box flex={1}>
-                        <Field label="Phường/Xã mới">
+                        <Field label={t('newDistrict')}>
                           <Input
                             {...register(`venues.${index}.newDistrict`)}
-                            placeholder="VD: Cầu Kiệu"
+                            placeholder={t('newDistrictPlaceholder')}
                             size="sm"
                           />
                         </Field>
                       </Box>
                       <Box flex={1}>
-                        <Field label="Tỉnh/TP mới">
+                        <Field label={t('newCity')}>
                           <Input
                             {...register(`venues.${index}.newCity`)}
-                            placeholder="VD: TP Hồ Chí Minh"
+                            placeholder={t('newCityPlaceholder')}
                             size="sm"
                           />
                         </Field>
@@ -415,7 +419,7 @@ export default function BulkCreateVenueModal({
                 mt={2}
               >
                 <Plus size={16} style={{ marginRight: 8 }} />
-                Thêm sân khác
+                {t('bulkAddAnother')}
               </Button>
             </VStack>
           </form>
@@ -429,7 +433,7 @@ export default function BulkCreateVenueModal({
               form="bulk-manual-form"
               loading={isSubmitting}
             >
-              Tạo hàng loạt
+              {t('bulkSubmitManual')}
             </Button>
           </Flex>
         </Tabs.Content>
@@ -446,14 +450,15 @@ export default function BulkCreateVenueModal({
               bg="gray.50"
             >
               <VStack align="start" gap={1}>
-                <Text fontWeight="bold">Tải lên File CSV</Text>
+                <Text fontWeight="bold">{t('bulkCsvUploadTitle')}</Text>
                 <Text fontSize="sm" color="gray.500">
-                  Đảm bảo header của file khớp với template chuẩn.
+                  {t('bulkCsvUploadHint')}
                 </Text>
               </VStack>
               <HStack>
                 <Button variant="ghost" onClick={handleDownloadTemplate}>
-                  <Download size={16} style={{ marginRight: 8 }} /> Mẫu CSV
+                  <Download size={16} style={{ marginRight: 8 }} />
+                  {t('bulkCsvTemplate')}
                 </Button>
                 <input
                   type="file"
@@ -463,7 +468,8 @@ export default function BulkCreateVenueModal({
                   style={{ display: 'none' }}
                 />
                 <VButton onClick={() => fileInputRef.current?.click()}>
-                  <UploadCloud size={16} style={{ marginRight: 8 }} /> Chọn File
+                  <UploadCloud size={16} style={{ marginRight: 8 }} />
+                  {t('bulkChooseFile')}
                 </VButton>
               </HStack>
             </Flex>
@@ -471,7 +477,7 @@ export default function BulkCreateVenueModal({
             {csvData.length > 0 && (
               <Box maxH="40vh" overflowY="auto">
                 <Text fontWeight="bold" mb={2}>
-                  Dữ liệu xem trước ({csvData.length} bản ghi)
+                  {t('bulkPreviewTitle', { count: csvData.length })}
                 </Text>
                 {csvErrors.length > 0 && (
                   <HStack
@@ -483,8 +489,9 @@ export default function BulkCreateVenueModal({
                   >
                     <AlertCircle size={16} />
                     <Text fontSize="sm">
-                      Có {csvErrors.length} dòng bị thiếu hoặc sai dữ liệu bắt
-                      buộc (thường do Place ID, Tên, Địa chỉ).
+                      {t('bulkCsvValidationError', {
+                        count: csvErrors.length,
+                      })}
                     </Text>
                   </HStack>
                 )}
@@ -547,7 +554,7 @@ export default function BulkCreateVenueModal({
                 loading={isSubmitting}
                 disabled={csvData.length === 0 || csvErrors.length > 0}
               >
-                Tạo tất cả bằng CSV
+                {t('bulkCreateCsv')}
               </VButton>
             </Flex>
           </VStack>

@@ -207,6 +207,7 @@ export function QuickVenueEditModal({
                 {t('address') || 'Địa chỉ'} <Field.RequiredIndicator />
               </Field.Label>
               <Input {...field} />
+              <Field.HelperText>{t('legacyAddressHelper')}</Field.HelperText>
               <Field.ErrorText>{fieldState.error?.message}</Field.ErrorText>
             </Field.Root>
           )}
@@ -320,9 +321,11 @@ export function QuickVenueEditModal({
           />
         </HStack>
 
-        {/* === New Address (Nghị quyết 60) === */}
         <Text fontWeight="semibold" w="full" color="blue.500" fontSize="sm">
           {t('newAddressSection') || 'New Admin Address'}
+        </Text>
+        <Text fontSize="xs" color="gray.500" w="full">
+          {t('newAddressHelper')}
         </Text>
 
         <Controller
@@ -331,10 +334,7 @@ export function QuickVenueEditModal({
           render={({ field }) => (
             <Field.Root>
               <Field.Label>{t('newAddress') || 'New Address'}</Field.Label>
-              <Input
-                {...field}
-                placeholder="e.g. Phường Cầu Kiệu, TP Hồ Chí Minh"
-              />
+              <Input {...field} placeholder={t('newAddressPlaceholder')} />
             </Field.Root>
           )}
         />
@@ -348,7 +348,7 @@ export function QuickVenueEditModal({
                 <Field.Label>
                   {t('newDistrict') || 'New Ward/District'}
                 </Field.Label>
-                <Input {...field} placeholder="e.g. Cầu Kiệu" />
+                <Input {...field} placeholder={t('newDistrictPlaceholder')} />
               </Field.Root>
             )}
           />
@@ -358,7 +358,7 @@ export function QuickVenueEditModal({
             render={({ field }) => (
               <Field.Root flex={1}>
                 <Field.Label>{t('newCity') || 'New City'}</Field.Label>
-                <Input {...field} placeholder="e.g. TP Hồ Chí Minh" />
+                <Input {...field} placeholder={t('newCityPlaceholder')} />
               </Field.Root>
             )}
           />

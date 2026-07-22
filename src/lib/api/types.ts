@@ -690,6 +690,9 @@ export interface VenueRequestPayload {
   address?: string;
   city?: string;
   district?: string;
+  newAddress?: string;
+  newDistrict?: string;
+  newCity?: string;
   numberOfCourts?: number;
   openingHours?: string;
   phone?: string;
