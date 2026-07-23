@@ -666,6 +666,8 @@ export interface Venue {
   coverPhotoPublicId?: string;
   courtLayoutImage?: string;
   courtLayoutImagePublicId?: string;
+  logo?: string;
+  logoPublicId?: string;
   images?: string[];
   imagePublicIds?: string[];
   viewCount?: number;

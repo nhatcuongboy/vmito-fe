@@ -66,6 +66,8 @@ const venueSchema = z.object({
   bookingPolicy: z.string().optional(),
   courtLayoutImage: z.string().optional(),
   courtLayoutImagePublicId: z.string().optional(),
+  logo: z.string().optional(),
+  logoPublicId: z.string().optional(),
 });
 
 type VenueFormValues = z.infer<typeof venueSchema>;
@@ -117,6 +119,8 @@ export default function CreateVenuePage() {
       bookingPolicy: '',
       courtLayoutImage: '',
       courtLayoutImagePublicId: '',
+      logo: '',
+      logoPublicId: '',
     },
   });
 
@@ -143,11 +147,11 @@ export default function CreateVenuePage() {
       const result = await VenueService.createVenue(
         payload as Omit<Venue, 'id'>
       );
-      toaster.success({ title: t('venues.createSuccess') });
+      toaster.success({ title: t('venueCreatedSuccess') });
       router.push(`/venues/${result.slug || result.id}`);
     } catch (_error) {
       console.error('Failed to create venue:', _error);
-      toaster.error({ title: t('venues.createError') });
+      toaster.error({ title: t('failedToCreateVenue') });
     }
   };
 
@@ -682,6 +686,30 @@ export default function CreateVenuePage() {
                     category={EImageCategory.OTHER}
                     alt="Sơ đồ sân"
                     urlPlaceholder="Nhập URL hình ảnh sơ đồ sân..."
+                  />
+                </Field>
+              )}
+            />
+
+            <Controller
+              control={form.control}
+              name="logo"
+              render={({ field }) => (
+                <Field label="Logo sân">
+                  <AppSingleImageUpload
+                    value={field.value}
+                    publicId={form.watch('logoPublicId')}
+                    onChange={(image) => {
+                      field.onChange(image.url);
+                      form.setValue('logoPublicId', image.publicId || '');
+                    }}
+                    onClear={() => {
+                      field.onChange('');
+                      form.setValue('logoPublicId', '');
+                    }}
+                    category={EImageCategory.OTHER}
+                    alt="Logo sân"
+                    urlPlaceholder="Nhập URL logo sân..."
                   />
                 </Field>
               )}

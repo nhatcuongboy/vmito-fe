@@ -201,7 +201,7 @@ export default function VenueCard({
             shadow="md"
           >
             <Image
-              src={venue.coverPhoto || DEFAULT_COVER_PHOTO}
+              src={venue.logo || venue.coverPhoto || DEFAULT_COVER_PHOTO}
               alt={displayName}
               w="100%"
               h="100%"
