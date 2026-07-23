@@ -19,9 +19,13 @@ export const ClubDetailHero = ({
     <Container maxW="container.xl" px={0}>
       <Box
         position="relative"
-        w="full"
-        h={{ base: '180px', md: '300px' }}
-        borderRadius="2xl"
+        // Full-bleed hero on mobile: cancel the PageLayout's 24px side
+        // gutter so the cover photo runs edge-to-edge (matches venue
+        // detail). Desktop keeps the rounded card inside the container.
+        w={{ base: 'calc(100% + 48px)', md: 'full' }}
+        h={{ base: 'clamp(180px, 30vh, 240px)', md: '300px' }}
+        mx={{ base: '-24px', md: 0 }}
+        borderRadius={{ base: 0, md: '2xl' }}
         overflow="hidden"
         mb={4}
       >
@@ -73,7 +77,7 @@ export const ClubDetailHero = ({
             borderColor="gray.100"
           >
             <Image
-              src={clubDisplayImage}
+              src={club.logo || clubDisplayImage}
               alt={club.name}
               objectFit="cover"
               w="full"
@@ -85,7 +89,7 @@ export const ClubDetailHero = ({
               size={{ base: 'lg', md: 'xl' }}
               mb={0}
               letterSpacing="tight"
-              lineClamp={1}
+              lineClamp={2}
             >
               {club.name}
             </Heading>

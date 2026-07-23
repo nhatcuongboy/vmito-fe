@@ -148,6 +148,8 @@ export interface IClub {
   color?: string;
   image?: string;
   imagePublicId?: string;
+  logo?: string;
+  logoPublicId?: string;
   images?: string[];
   imagePublicIds?: string[];
   location?: string;
@@ -180,6 +182,7 @@ export interface IClubListItem {
   description?: string;
   color?: string;
   image?: string;
+  logo?: string;
   images?: string[];
   location?: string;
   joinPolicy: EClubJoinPolicy;
@@ -259,6 +262,8 @@ export interface ICreateClubDto {
   defaultVenueId?: string;
   image?: string;
   imagePublicId?: string;
+  logo?: string;
+  logoPublicId?: string;
   images?: string[];
   imagePublicIds?: string[];
   schedules?: IClubScheduleDto[];
@@ -276,6 +281,8 @@ export interface IUpdateClubDto {
   defaultVenueId?: string;
   image?: string;
   imagePublicId?: string;
+  logo?: string;
+  logoPublicId?: string;
   images?: string[];
   imagePublicIds?: string[];
   schedules?: IClubScheduleDto[];

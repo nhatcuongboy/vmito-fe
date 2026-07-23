@@ -194,7 +194,7 @@ export default function ClubCard({
             shadow="md"
           >
             <Image
-              src={club.image || DEFAULT_COVER_PHOTO}
+              src={club.logo || club.image || DEFAULT_COVER_PHOTO}
               alt={club.name}
               w="100%"
               h="100%"

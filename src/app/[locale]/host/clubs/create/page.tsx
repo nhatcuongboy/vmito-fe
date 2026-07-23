@@ -35,6 +35,7 @@ import { EImageCategory, UserRole, Venue } from '@/lib/api/types';
 import AppMultiImageUpload, {
   ISessionImage,
 } from '@/components/session/AppMultiImageUpload';
+import AppSingleImageUpload from '@/components/session/AppSingleImageUpload';
 import ClubLevelRequirements from '@/components/club/ClubLevelRequirements';
 import { useAuthStore } from '@/stores';
 
@@ -47,6 +48,8 @@ const schema = z.object({
     .optional(),
   image: z.string().optional(),
   imagePublicId: z.string().optional(),
+  logo: z.string().optional(),
+  logoPublicId: z.string().optional(),
   images: z.array(z.string()).optional(),
   imagePublicIds: z.array(z.string()).optional(),
   requiredLevels: z.array(z.number()).optional(),
@@ -419,6 +422,24 @@ const CreateClubPage = () => {
               maxImages={10}
               category={EImageCategory.CLUB}
               label={null}
+            />
+          </Field>
+
+          <Field label="Logo nhóm">
+            <AppSingleImageUpload
+              value={watch('logo')}
+              publicId={watch('logoPublicId')}
+              onChange={(image) => {
+                setValue('logo', image.url);
+                setValue('logoPublicId', image.publicId || '');
+              }}
+              onClear={() => {
+                setValue('logo', '');
+                setValue('logoPublicId', '');
+              }}
+              category={EImageCategory.CLUB}
+              alt="Logo nhóm"
+              urlPlaceholder="Nhập URL logo nhóm..."
             />
           </Field>
 

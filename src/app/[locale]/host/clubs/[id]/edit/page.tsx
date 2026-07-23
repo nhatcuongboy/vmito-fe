@@ -36,6 +36,7 @@ import { EImageCategory, UserRole } from '@/lib/api/types';
 import AppMultiImageUpload, {
   ISessionImage,
 } from '@/components/session/AppMultiImageUpload';
+import AppSingleImageUpload from '@/components/session/AppSingleImageUpload';
 import { useAuthStore } from '@/stores';
 import ClubLevelRequirements from '@/components/club/ClubLevelRequirements';
 
@@ -48,6 +49,8 @@ const schema = z.object({
     .optional(),
   image: z.string().optional(),
   imagePublicId: z.string().optional(),
+  logo: z.string().optional(),
+  logoPublicId: z.string().optional(),
   images: z.array(z.string()).optional(),
   imagePublicIds: z.array(z.string()).optional(),
   requiredLevels: z.array(z.number()).optional(),
@@ -207,6 +210,8 @@ const EditClubPage = () => {
         setValue('description', group.description || '');
         setValue('image', group.image || undefined);
         setValue('imagePublicId', group.imagePublicId || undefined);
+        setValue('logo', group.logo || undefined);
+        setValue('logoPublicId', group.logoPublicId || undefined);
         setValue('images', group.images || []);
         setValue('imagePublicIds', group.imagePublicIds || []);
         setValue('requiredLevels', group.requiredLevels || []);
@@ -598,6 +603,24 @@ const EditClubPage = () => {
               maxImages={10}
               category={EImageCategory.CLUB}
               label={null}
+            />
+          </Field>
+
+          <Field label="Logo nhóm">
+            <AppSingleImageUpload
+              value={watch('logo')}
+              publicId={watch('logoPublicId')}
+              onChange={(image) => {
+                setValue('logo', image.url);
+                setValue('logoPublicId', image.publicId || '');
+              }}
+              onClear={() => {
+                setValue('logo', '');
+                setValue('logoPublicId', '');
+              }}
+              category={EImageCategory.CLUB}
+              alt="Logo nhóm"
+              urlPlaceholder="Nhập URL logo nhóm..."
             />
           </Field>
 

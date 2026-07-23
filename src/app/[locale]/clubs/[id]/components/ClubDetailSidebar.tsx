@@ -103,98 +103,103 @@ export const ClubDetailSidebar = ({
           ? [club.location]
           : [];
 
+  const levelRangeText = getLevelRange();
+  const hasQuickInfo = !!levelRangeText || displayVenues.length > 0;
+
   return (
     <>
       <Box>
         <VStack gap={6} align="stretch" position="sticky" top="80px">
-          <Box
-            bg="white"
-            _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
-            borderRadius="2xl"
-            p={5}
-            shadow="sm"
-            borderWidth="1px"
-            borderColor="gray.100"
-          >
-            <Heading size="sm" mb={4}>
-              {t('clubs.quickInfo')}
-            </Heading>
-            <VStack gap={4} align="stretch">
-              <HStack gap={3}>
-                <Flex
-                  w="40px"
-                  h="40px"
-                  borderRadius="lg"
-                  bg="green.100"
-                  _dark={{ bg: 'green.900' }}
-                  align="center"
-                  justify="center"
-                  flexShrink={0}
-                >
-                  <TrendingUp
-                    size={20}
-                    color="var(--chakra-colors-green-600)"
-                  />
-                </Flex>
-                <Box flex="1">
-                  <Text
-                    fontSize="xs"
-                    color="gray.500"
-                    _dark={{ color: 'gray.400' }}
-                    textTransform="capitalize"
+          {hasQuickInfo && (
+            <Box
+              bg="white"
+              _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
+              borderRadius="2xl"
+              p={5}
+              shadow="sm"
+              borderWidth="1px"
+              borderColor="gray.100"
+            >
+              <Heading size="sm" mb={4}>
+                {t('clubs.quickInfo')}
+              </Heading>
+              <VStack gap={4} align="stretch">
+                <HStack gap={3}>
+                  <Flex
+                    w="40px"
+                    h="40px"
+                    borderRadius="lg"
+                    bg="green.100"
+                    _dark={{ bg: 'green.900' }}
+                    align="center"
+                    justify="center"
+                    flexShrink={0}
                   >
-                    {t('clubs.levelRange')}
-                  </Text>
-                  <Text fontWeight="semibold" fontSize="sm">
-                    {getLevelRange() || t('clubs.noLevelInfo')}
-                  </Text>
-                </Box>
-              </HStack>
-
-              <HStack gap={3} align="start">
-                <Flex
-                  w="40px"
-                  h="40px"
-                  borderRadius="lg"
-                  bg="blue.100"
-                  _dark={{ bg: 'blue.900' }}
-                  align="center"
-                  justify="center"
-                  flexShrink={0}
-                >
-                  <MapPin size={20} color="var(--chakra-colors-blue-600)" />
-                </Flex>
-                <Box flex="1">
-                  <Text
-                    fontSize="xs"
-                    color="gray.500"
-                    _dark={{ color: 'gray.400' }}
-                    textTransform="capitalize"
-                  >
-                    Sân Sinh Hoạt
-                  </Text>
-                  {displayVenues.length > 0 ? (
-                    <VStack gap={0.5} align="start">
-                      {displayVenues.map((venue, index) => (
-                        <Text
-                          key={index}
-                          fontWeight="semibold"
-                          fontSize="sm"
-                          lineClamp={2}
-                        >
-                          {venue}
-                        </Text>
-                      ))}
-                    </VStack>
-                  ) : (
-                    <Text fontWeight="semibold" fontSize="sm">
-                      {t('clubs.notUpdated')}
+                    <TrendingUp
+                      size={20}
+                      color="var(--chakra-colors-green-600)"
+                    />
+                  </Flex>
+                  <Box flex="1">
+                    <Text
+                      fontSize="xs"
+                      color="gray.500"
+                      _dark={{ color: 'gray.400' }}
+                      textTransform="capitalize"
+                    >
+                      {t('clubs.levelRange')}
                     </Text>
-                  )}
-                </Box>
-              </HStack>
-            </VStack>
-          </Box>
+                    <Text fontWeight="semibold" fontSize="sm">
+                      {levelRangeText || t('clubs.noLevelInfo')}
+                    </Text>
+                  </Box>
+                </HStack>
+
+                <HStack gap={3} align="start">
+                  <Flex
+                    w="40px"
+                    h="40px"
+                    borderRadius="lg"
+                    bg="blue.100"
+                    _dark={{ bg: 'blue.900' }}
+                    align="center"
+                    justify="center"
+                    flexShrink={0}
+                  >
+                    <MapPin size={20} color="var(--chakra-colors-blue-600)" />
+                  </Flex>
+                  <Box flex="1">
+                    <Text
+                      fontSize="xs"
+                      color="gray.500"
+                      _dark={{ color: 'gray.400' }}
+                      textTransform="capitalize"
+                    >
+                      Sân Sinh Hoạt
+                    </Text>
+                    {displayVenues.length > 0 ? (
+                      <VStack gap={0.5} align="start">
+                        {displayVenues.map((venue, index) => (
+                          <Text
+                            key={index}
+                            fontWeight="semibold"
+                            fontSize="sm"
+                            lineClamp={2}
+                          >
+                            {venue}
+                          </Text>
+                        ))}
+                      </VStack>
+                    ) : (
+                      <Text fontWeight="semibold" fontSize="sm">
+                        {t('clubs.notUpdated')}
+                      </Text>
+                    )}
+                  </Box>
+                </HStack>
+              </VStack>
+            </Box>
+          )}
 
           <Box
             bg="white"
@@ -263,36 +268,41 @@ export const ClubDetailSidebar = ({
           )}
 
           {isUserAdmin && (
-            <VStack gap={3} mb={4}>
-              <Button
-                colorPalette="green"
-                variant="surface"
-                size="xl"
-                w="full"
-                onClick={() => router.push(ROUTES.HOST.CLUBS.FEES(club.id))}
-                borderRadius="2xl"
-                shadow="sm"
-                _hover={{ shadow: 'md', transform: 'translateY(-2px)' }}
-                transition="all 0.2s"
-              >
-                <DollarSign size={20} />
-                {t('clubs.feeConfiguration')}
-              </Button>
-              <Button
-                colorPalette="green"
-                variant="surface"
-                size="xl"
-                w="full"
-                onClick={() => router.push(ROUTES.HOST.CLUBS.EDIT(club.id))}
-                borderRadius="2xl"
-                shadow="sm"
-                _hover={{ shadow: 'md', transform: 'translateY(-2px)' }}
-                transition="all 0.2s"
-              >
-                <Settings size={20} />
-                {t('common.edit')}
-              </Button>
-            </VStack>
+            <Box
+              bg="white"
+              _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
+              borderRadius="2xl"
+              p={5}
+              shadow="sm"
+              borderWidth="1px"
+              borderColor="gray.100"
+            >
+              <Heading size="sm" mb={4}>
+                {t('clubs.manageThisClub')}
+              </Heading>
+              <Flex gap={2}>
+                <Button
+                  flex={1}
+                  variant="outline"
+                  size="sm"
+                  colorPalette="green"
+                  onClick={() => router.push(ROUTES.HOST.CLUBS.FEES(club.id))}
+                >
+                  <DollarSign size={14} />
+                  {t('clubs.feeConfiguration')}
+                </Button>
+                <Button
+                  flex={1}
+                  variant="outline"
+                  size="sm"
+                  colorPalette="gray"
+                  onClick={() => router.push(ROUTES.HOST.CLUBS.EDIT(club.id))}
+                >
+                  <Settings size={14} />
+                  {t('common.edit')}
+                </Button>
+              </Flex>
+            </Box>
           )}
 
           {!isUserMember && !isUserAdmin && !hasPendingRequest && (
