@@ -1,13 +1,13 @@
 'use client';
 
+import { LocationFilterFields } from '@/components/common/LocationFilterFields';
 import { FilterDrawer } from '@/components/ui/FilterDrawer';
 import { Input } from '@/components/ui/Input';
-import { VIETNAM_CITIES } from '@/constants/vietnam-locations';
 import { SportType, TournamentStatus } from '@/lib/api/types';
 import { Badge, Box, Flex, HStack, Text, VStack } from '@chakra-ui/react';
-import { CalendarDays, MapPin, Trophy } from 'lucide-react';
+import { CalendarDays, Trophy } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 export type TTournamentPeriod = 'all' | 'today' | 'next7' | 'next30' | 'custom';
 
@@ -52,30 +52,6 @@ export default function TournamentFilterDrawer({
       setDateError('');
     }
   }, [filters, isOpen]);
-
-  const availableDistricts = useMemo(
-    () =>
-      VIETNAM_CITIES.filter((city) =>
-        pendingFilters.cities.includes(city.code)
-      ).flatMap((city) => city.districts),
-    [pendingFilters.cities]
-  );
-
-  const handleToggleCity = (cityCode: string) => {
-    const nextCities = toggleValue(pendingFilters.cities, cityCode);
-    const validDistrictNames = new Set(
-      VIETNAM_CITIES.filter((city) => nextCities.includes(city.code)).flatMap(
-        (city) => city.districts.map((district) => district.name)
-      )
-    );
-    setPendingFilters((current) => ({
-      ...current,
-      cities: nextCities,
-      districts: current.districts.filter((district) =>
-        validDistrictNames.has(district)
-      ),
-    }));
-  };
 
   const handlePeriodChange = (period: TTournamentPeriod) => {
     setDateError('');
@@ -242,79 +218,17 @@ export default function TournamentFilterDrawer({
 
         <Box h="1px" bg="border" />
 
-        <Box>
-          <HStack gap={2} mb={3}>
-            <MapPin size={17} />
-            <Text fontSize="sm" fontWeight="bold">
-              {t('location.title')}
-            </Text>
-          </HStack>
-          <Flex gap={2} flexWrap="wrap">
-            {VIETNAM_CITIES.map((city) => {
-              const isSelected = pendingFilters.cities.includes(city.code);
-              return (
-                <Badge
-                  key={city.code}
-                  px={4}
-                  py={2}
-                  borderRadius="lg"
-                  cursor="pointer"
-                  variant={isSelected ? 'solid' : 'outline'}
-                  colorPalette={isSelected ? 'green' : 'gray'}
-                  onClick={() => handleToggleCity(city.code)}
-                  fontSize="sm"
-                  fontWeight="medium"
-                  transition="all 0.2s"
-                  _hover={{ transform: 'scale(1.05)' }}
-                  borderWidth={isSelected ? '0' : '2px'}
-                >
-                  {city.name}
-                </Badge>
-              );
-            })}
-          </Flex>
-          {availableDistricts.length > 0 && (
-            <Box mt={4}>
-              <Text fontSize="sm" fontWeight="bold" mb={2}>
-                {t('location.district')}
-              </Text>
-              <Flex gap={2} flexWrap="wrap">
-                {availableDistricts.map((district) => {
-                  const isSelected = pendingFilters.districts.includes(
-                    district.name
-                  );
-                  return (
-                    <Badge
-                      key={`${district.code}-${district.name}`}
-                      px={3}
-                      py={1.5}
-                      borderRadius="lg"
-                      cursor="pointer"
-                      variant={isSelected ? 'solid' : 'outline'}
-                      colorPalette={isSelected ? 'green' : 'gray'}
-                      onClick={() =>
-                        setPendingFilters((current) => ({
-                          ...current,
-                          districts: toggleValue(
-                            current.districts,
-                            district.name
-                          ),
-                        }))
-                      }
-                      fontSize="sm"
-                      fontWeight="medium"
-                      transition="all 0.2s"
-                      _hover={{ transform: 'scale(1.05)' }}
-                      borderWidth={isSelected ? '0' : '2px'}
-                    >
-                      {district.name}
-                    </Badge>
-                  );
-                })}
-              </Flex>
-            </Box>
-          )}
-        </Box>
+        <LocationFilterFields
+          title={t('location.title')}
+          selectedCities={pendingFilters.cities}
+          selectedDistricts={pendingFilters.districts}
+          onCitiesChange={(cities) =>
+            setPendingFilters((current) => ({ ...current, cities }))
+          }
+          onDistrictsChange={(districts) =>
+            setPendingFilters((current) => ({ ...current, districts }))
+          }
+        />
 
         <Box h="1px" bg="border" />
 

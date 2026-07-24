@@ -16,6 +16,8 @@ import { Check, Info } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useRouter } from '@/i18n/config';
 import { Tournament, Venue } from '@/lib/api/types';
+import { getVenueSearchSublabel } from '@/utils/venue-helpers';
+import { useAppSettings } from '@/contexts/AppSettingsContext';
 import { TournamentService } from '@/lib/api/tournament.service';
 import { VenueService } from '@/lib/api/venue.service';
 import { SearchableSelect } from '@/components/ui/SearchableSelect';
@@ -79,6 +81,7 @@ export default function DuplicateTournamentModal({
   const defaultStartDate = formatDateForInput(tournament.startDate);
   const defaultEndDate = formatDateForInput(tournament.endDate);
 
+  const { showNewAddress } = useAppSettings();
   const [name, setName] = useState(defaultName);
   const [startDate, setStartDate] = useState(defaultStartDate);
   const [endDate, setEndDate] = useState(defaultEndDate);
@@ -138,7 +141,7 @@ export default function DuplicateTournamentModal({
         venue.name,
         tVenue('nameFormat', { name: '{name}' })
       ),
-      sublabel: venue.address,
+      sublabel: getVenueSearchSublabel(venue, showNewAddress),
     }));
 
     if (
@@ -151,12 +154,12 @@ export default function DuplicateTournamentModal({
           selectedVenue.name,
           tVenue('nameFormat', { name: '{name}' })
         ),
-        sublabel: selectedVenue.address,
+        sublabel: getVenueSearchSublabel(selectedVenue, showNewAddress),
       });
     }
 
     return options;
-  }, [selectedVenue, tVenue, venues]);
+  }, [selectedVenue, tVenue, venues, showNewAddress]);
 
   const validationError = useMemo(() => {
     if (!name.trim()) return t('errors.nameRequired');

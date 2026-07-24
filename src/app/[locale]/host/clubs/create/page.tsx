@@ -24,6 +24,8 @@ import { ROUTES } from '@/constants/routes';
 import { Field } from '@/components/ui/Field';
 import PageLayout from '@/components/layout/PageLayout';
 import { UserRole, Venue } from '@/lib/api/types';
+import { getVenueSearchSublabel } from '@/utils/venue-helpers';
+import { useAppSettings } from '@/contexts/AppSettingsContext';
 import { ISessionImage } from '@/components/session/AppMultiImageUpload';
 import ClubLevelRequirements from '@/components/club/ClubLevelRequirements';
 import ClubMediaEditor from '@/components/club/ClubMediaEditor';
@@ -61,6 +63,7 @@ const CreateClubPage = () => {
   const router = useRouter();
   const { user } = useAuthStore();
   const isAdmin = user?.role === UserRole.ADMIN;
+  const { showNewAddress } = useAppSettings();
 
   const [venues, setVenues] = useState<Venue[]>([]);
   const [pinnedVenues, setPinnedVenues] = useState<Map<string, Venue>>(
@@ -164,9 +167,9 @@ const CreateClubPage = () => {
     return Array.from(merged.values()).map((v) => ({
       value: v.id,
       label: v.name,
-      sublabel: v.address,
+      sublabel: getVenueSearchSublabel(v, showNewAddress),
     }));
-  }, [venues, pinnedVenues]);
+  }, [venues, pinnedVenues, showNewAddress]);
 
   const hostUserOptions = useMemo(
     () =>

@@ -1,5 +1,6 @@
 'use client';
 
+import { LocationFilterFields } from '@/components/common/LocationFilterFields';
 import { Button, IconButton } from '@/components/ui/chakra-compat';
 import { useDisclosure } from '@/components/ui/ChakraHooks';
 import AppEmptyState from '@/components/ui/AppEmptyState';
@@ -39,7 +40,7 @@ import {
   X,
   Star,
 } from 'lucide-react';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useInView } from 'react-intersection-observer';
 import { useTranslations } from 'next-intl';
 import { useSearchParams } from 'next/navigation';
@@ -413,24 +414,6 @@ export default function VenueSearchList() {
     }
   };
 
-  // Pending filter helpers
-  const togglePendingCity = (cityCode: string) => {
-    setPendingCities((prev) =>
-      prev.includes(cityCode)
-        ? prev.filter((c) => c !== cityCode)
-        : [...prev, cityCode]
-    );
-    setPendingDistricts([]);
-  };
-
-  const togglePendingDistrict = (districtName: string) => {
-    setPendingDistricts((prev) =>
-      prev.includes(districtName)
-        ? prev.filter((d) => d !== districtName)
-        : [...prev, districtName]
-    );
-  };
-
   const handleSubmitFilters = () => {
     setFilters({
       city: pendingCities,
@@ -576,13 +559,6 @@ export default function VenueSearchList() {
     if (isSortOpen) document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [isSortOpen]);
-
-  const availableDistricts = useMemo(() => {
-    if (pendingCities.length === 0) return [];
-    return VIETNAM_CITIES.filter((city) =>
-      pendingCities.includes(city.code)
-    ).flatMap((city) => city.districts);
-  }, [pendingCities]);
 
   return (
     <Box>
@@ -945,144 +921,13 @@ export default function VenueSearchList() {
 
             <Box h="1px" bg="gray.200" _dark={{ bg: 'gray.700' }} />
 
-            {/* City Selection */}
-            <Box>
-              <Flex justify="space-between" align="center" mb={3}>
-                <HStack gap={2}>
-                  <Text
-                    fontSize="sm"
-                    fontWeight="bold"
-                    color="gray.700"
-                    _dark={{ color: 'gray.200' }}
-                  >
-                    Khu vực
-                  </Text>
-                  {pendingCities.length > 0 && (
-                    <Badge
-                      size="sm"
-                      colorPalette="green"
-                      variant="solid"
-                      borderRadius="full"
-                      px={2}
-                    >
-                      {pendingCities.length}
-                    </Badge>
-                  )}
-                </HStack>
-                {pendingCities.length > 0 && (
-                  <Button
-                    size="xs"
-                    variant="ghost"
-                    onClick={() => {
-                      setPendingCities([]);
-                      setPendingDistricts([]);
-                    }}
-                    colorPalette="red"
-                    fontWeight="semibold"
-                  >
-                    <X size={14} /> <Text ml={1}>Xóa</Text>
-                  </Button>
-                )}
-              </Flex>
-              <Flex gap={2} flexWrap="wrap">
-                {VIETNAM_CITIES.map((city) => (
-                  <Badge
-                    key={city.code}
-                    px={4}
-                    py={2}
-                    borderRadius="lg"
-                    cursor="pointer"
-                    variant={
-                      pendingCities.includes(city.code) ? 'solid' : 'outline'
-                    }
-                    colorPalette={
-                      pendingCities.includes(city.code) ? 'green' : 'gray'
-                    }
-                    onClick={() => togglePendingCity(city.code)}
-                    fontSize="sm"
-                    fontWeight="medium"
-                    transition="all 0.2s"
-                    _hover={{ transform: 'scale(1.05)' }}
-                    borderWidth={
-                      pendingCities.includes(city.code) ? '0' : '2px'
-                    }
-                  >
-                    {city.name}
-                  </Badge>
-                ))}
-              </Flex>
-            </Box>
-
-            {/* District Selection */}
-            {pendingCities.length > 0 && availableDistricts.length > 0 && (
-              <Box>
-                <Flex justify="space-between" align="center" mb={3}>
-                  <HStack gap={2}>
-                    <Text
-                      fontSize="sm"
-                      fontWeight="bold"
-                      color="gray.700"
-                      _dark={{ color: 'gray.200' }}
-                    >
-                      Quận / Huyện
-                    </Text>
-                    {pendingDistricts.length > 0 && (
-                      <Badge
-                        size="sm"
-                        colorPalette="green"
-                        variant="solid"
-                        borderRadius="full"
-                        px={2}
-                      >
-                        {pendingDistricts.length}
-                      </Badge>
-                    )}
-                  </HStack>
-                  {pendingDistricts.length > 0 && (
-                    <Button
-                      size="xs"
-                      variant="ghost"
-                      onClick={() => setPendingDistricts([])}
-                      colorPalette="red"
-                      fontWeight="semibold"
-                    >
-                      <X size={14} /> <Text ml={1}>Xóa</Text>
-                    </Button>
-                  )}
-                </Flex>
-                <Flex gap={2} flexWrap="wrap">
-                  {availableDistricts.map((district) => (
-                    <Badge
-                      key={district.code}
-                      px={3}
-                      py={1.5}
-                      borderRadius="lg"
-                      cursor="pointer"
-                      variant={
-                        pendingDistricts.includes(district.name)
-                          ? 'solid'
-                          : 'outline'
-                      }
-                      colorPalette={
-                        pendingDistricts.includes(district.name)
-                          ? 'green'
-                          : 'gray'
-                      }
-                      onClick={() => togglePendingDistrict(district.name)}
-                      fontSize="sm"
-                      fontWeight="medium"
-                      transition="all 0.2s"
-                      _hover={{ transform: 'scale(1.05)' }}
-                      borderWidth={
-                        pendingDistricts.includes(district.name) ? '0' : '2px'
-                      }
-                    >
-                      {district.name}
-                    </Badge>
-                  ))}
-                </Flex>
-              </Box>
-            )}
+            {/* City + District / Ward Selection */}
+            <LocationFilterFields
+              selectedCities={pendingCities}
+              selectedDistricts={pendingDistricts}
+              onCitiesChange={setPendingCities}
+              onDistrictsChange={setPendingDistricts}
+            />
           </VStack>
         </Box>
 

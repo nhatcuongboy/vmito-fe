@@ -90,6 +90,34 @@ export const composeNewAddress = (
 ): string => [streetAddress, newDistrict, newCity].filter(Boolean).join(', ');
 
 /**
+ * Subtitle for venue search/select dropdowns (e.g. picking a venue when
+ * creating a session/club/tournament). `address` alone often already embeds
+ * the old ward as free text, but not reliably — some rows have no ward
+ * marker at all — and never includes the city, which matters for
+ * disambiguating same-named venues/streets across different provinces.
+ *
+ * Respects the "Hiển thị địa chỉ mới" toggle (`showNewAddress`, same setting
+ * `AppAddressDisplay`/`LocationFilterFields` use): when on, prefers the
+ * new-era `newAddress` (already fully composed server-side); falls back to
+ * the legacy composition when the venue hasn't been migrated yet or the
+ * toggle is off.
+ */
+export const getVenueSearchSublabel = (
+  venue: {
+    address?: string;
+    district?: string;
+    city?: string;
+    newAddress?: string;
+  },
+  showNewAddress?: boolean
+): string => {
+  if (showNewAddress && venue.newAddress) {
+    return venue.newAddress;
+  }
+  return [venue.address, venue.district, venue.city].filter(Boolean).join(', ');
+};
+
+/**
  * Uniform venue display shape for tournaments, resolved from either a linked
  * Venue record or a TournamentVenue's inline address fields.
  */

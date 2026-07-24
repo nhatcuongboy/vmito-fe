@@ -1,3 +1,4 @@
+import { Dispatch, SetStateAction } from 'react';
 import { SessionFilters } from '@/stores/useSessionFilterStore';
 
 export type SessionFilterState = SessionFilters;
@@ -6,7 +7,7 @@ export interface SessionFilterDrawerProps {
   isOpen: boolean;
   onClose: () => void;
   filters: SessionFilters;
-  setFilters: (filters: SessionFilters) => void;
+  setFilters: Dispatch<SetStateAction<SessionFilters>>;
   sortByDistance: boolean;
   setSortByDistance: (value: boolean) => void;
   onSubmit: () => void;

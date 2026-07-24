@@ -292,6 +292,27 @@ export function AdvancedSection({
               </Box>
             </Grid>
 
+            {/* Reference Video URL */}
+            <Box>
+              <Field.Root invalid={!!errors.referenceVideoUrl}>
+                <Field.Label>
+                  <Heading size="sm">{t('referenceVideoUrl')}</Heading>
+                </Field.Label>
+                <Input
+                  {...register('referenceVideoUrl')}
+                  placeholder={t('referenceVideoUrlPlaceholder')}
+                  type="url"
+                  inputMode="url"
+                />
+                <Text fontSize="xs" color="fg.muted" mt={1}>
+                  {t('referenceVideoUrlHelper')}
+                </Text>
+                <Field.ErrorText color="fg.error">
+                  {errors.referenceVideoUrl?.message}
+                </Field.ErrorText>
+              </Field.Root>
+            </Box>
+
             {/* Default Club */}
             {canAccessHostFeatures && (
               <Field.Root>

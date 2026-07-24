@@ -1,10 +1,16 @@
 'use client';
 
-import { VIETNAM_CITIES } from '@/constants/vietnam-locations';
+import {
+  VIETNAM_CITIES,
+  normalizeCityForApi,
+} from '@/constants/vietnam-locations';
+import { useAppSettings } from '@/contexts/AppSettingsContext';
+import { useNewAdminUnits } from '@/hooks/useNewAdminUnits';
+import { removeVietnameseTones } from '@/lib/utils';
 import { usePreferenceStore } from '@/stores/usePreferenceStore';
-import { Box, Flex, Portal, Text } from '@chakra-ui/react';
-import { Check, ChevronDown, MapPin } from 'lucide-react';
-import { useEffect, useRef, useState } from 'react';
+import { Box, Flex, Input, Portal, Text } from '@chakra-ui/react';
+import { Check, ChevronDown, MapPin, Search } from 'lucide-react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
 export default function CitySelector({
   hideIcon = false,
@@ -13,8 +19,11 @@ export default function CitySelector({
 }) {
   const preferredCity = usePreferenceStore((s) => s.preferredCity);
   const setPreferredCity = usePreferenceStore((s) => s.setPreferredCity);
+  const { showNewAddress } = useAppSettings();
+  const { cityOptions } = useNewAdminUnits();
 
   const [isOpen, setIsOpen] = useState(false);
+  const [search, setSearch] = useState('');
   const [dropdownPos, setDropdownPos] = useState<{
     top: number;
     left: number;
@@ -23,7 +32,40 @@ export default function CitySelector({
   const buttonRef = useRef<HTMLDivElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
 
-  const selectedCity = VIETNAM_CITIES.find((c) => c.code === preferredCity);
+  const legacyCity = VIETNAM_CITIES.find((c) => c.code === preferredCity);
+
+  // Display-only: hide the "Tỉnh"/"Thành phố" prefix on new-era province names.
+  // The stored/sent value keeps the full name unchanged.
+  const formatCity = (name: string) =>
+    showNewAddress ? normalizeCityForApi(name) : name;
+
+  // Option list + selected label depend on the address mode. Legacy stores a
+  // VIETNAM_CITIES code; new-address mode stores the full new-era province name.
+  const items = useMemo(
+    () =>
+      showNewAddress
+        ? cityOptions.map((o) => ({ value: o.value, label: o.label }))
+        : VIETNAM_CITIES.map((c) => ({ value: c.code, label: c.name })),
+    [showNewAddress, cityOptions]
+  );
+
+  const visibleItems = useMemo(() => {
+    if (!showNewAddress || !search.trim()) return items;
+    const q = removeVietnameseTones(search).toLowerCase();
+    return items.filter((i) =>
+      removeVietnameseTones(i.label).toLowerCase().includes(q)
+    );
+  }, [showNewAddress, search, items]);
+
+  // Display name (falls back to a legacy code stored before a mode switch).
+  const displayName = formatCity(
+    showNewAddress
+      ? (legacyCity?.name ?? preferredCity ?? '')
+      : (legacyCity?.name ?? '')
+  );
+  const displayShort = showNewAddress
+    ? displayName
+    : (legacyCity?.shortName ?? legacyCity?.name ?? '');
 
   useEffect(() => {
     if (!isOpen) return;
@@ -41,6 +83,8 @@ export default function CitySelector({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [isOpen]);
 
+  const menuWidth = showNewAddress ? 260 : 190;
+
   const handleToggle = () => {
     if (isOpen) {
       setIsOpen(false);
@@ -48,7 +92,6 @@ export default function CitySelector({
     }
     if (buttonRef.current) {
       const rect = buttonRef.current.getBoundingClientRect();
-      const menuWidth = 190;
       const padding = 16;
       let left = rect.left;
       if (left + menuWidth > window.innerWidth - padding) {
@@ -56,11 +99,12 @@ export default function CitySelector({
       }
       setDropdownPos({ top: rect.bottom + 6, left });
     }
+    setSearch('');
     setIsOpen(true);
   };
 
-  const handleSelect = (code: string) => {
-    setPreferredCity(code);
+  const handleSelect = (value: string) => {
+    setPreferredCity(value);
     setIsOpen(false);
   };
 
@@ -110,7 +154,7 @@ export default function CitySelector({
           whiteSpace="nowrap"
           textOverflow="ellipsis"
         >
-          {selectedCity?.shortName ?? selectedCity?.name ?? 'Chọn TP'}
+          {displayShort || 'Chọn TP'}
         </Text>
 
         {/* Full text for desktop */}
@@ -123,7 +167,7 @@ export default function CitySelector({
           whiteSpace="nowrap"
           textOverflow="ellipsis"
         >
-          {selectedCity?.name ?? 'Chọn thành phố'}
+          {displayName || 'Chọn thành phố'}
         </Text>
         <Box display="block">
           <ChevronDown
@@ -149,43 +193,87 @@ export default function CitySelector({
             border="1px solid"
             borderColor="border"
             boxShadow="lg"
-            minW="190px"
+            width={`${menuWidth}px`}
             py={1}
             overflow="hidden"
           >
-            {VIETNAM_CITIES.map((city) => {
-              const isSelected = city.code === preferredCity;
-              return (
-                <Flex
-                  key={city.code}
-                  align="center"
-                  justify="space-between"
-                  px={4}
-                  py={2.5}
-                  cursor="pointer"
-                  bg={isSelected ? 'green.50' : 'transparent'}
-                  _hover={{ bg: isSelected ? 'green.50' : 'bg.muted' }}
-                  _dark={{
-                    bg: isSelected ? 'green.950' : 'transparent',
-                    _hover: { bg: isSelected ? 'green.950' : 'whiteAlpha.100' },
-                  }}
-                  onClick={() => handleSelect(city.code)}
-                  transition="background 0.1s"
-                >
-                  <Text
-                    fontSize="sm"
-                    fontWeight={isSelected ? '600' : '400'}
-                    color={isSelected ? 'green.700' : 'fg'}
-                    _dark={{ color: isSelected ? 'green.300' : 'fg' }}
+            {showNewAddress && (
+              <Box px={2} pt={1} pb={2}>
+                <Box position="relative">
+                  <Box
+                    position="absolute"
+                    left={2.5}
+                    top="50%"
+                    transform="translateY(-50%)"
+                    color="fg.muted"
+                    pointerEvents="none"
                   >
-                    {city.name}
-                  </Text>
-                  {isSelected && (
-                    <Check size={14} color="var(--chakra-colors-green-500)" />
-                  )}
-                </Flex>
-              );
-            })}
+                    <Search size={14} />
+                  </Box>
+                  <Input
+                    autoFocus
+                    id="city-selector-search"
+                    name="city-selector-search"
+                    autoComplete="off"
+                    size="sm"
+                    pl={8}
+                    borderRadius="md"
+                    placeholder="Tìm tỉnh / thành phố..."
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                  />
+                </Box>
+              </Box>
+            )}
+            <Box maxH="300px" overflowY="auto">
+              {visibleItems.length === 0 ? (
+                <Text px={4} py={3} fontSize="sm" color="fg.muted">
+                  Không tìm thấy kết quả
+                </Text>
+              ) : (
+                visibleItems.map((item) => {
+                  const isSelected = item.value === preferredCity;
+                  return (
+                    <Flex
+                      key={item.value}
+                      align="center"
+                      justify="space-between"
+                      gap={2}
+                      px={4}
+                      py={2.5}
+                      cursor="pointer"
+                      bg={isSelected ? 'green.50' : 'transparent'}
+                      _hover={{ bg: isSelected ? 'green.50' : 'bg.muted' }}
+                      _dark={{
+                        bg: isSelected ? 'green.950' : 'transparent',
+                        _hover: {
+                          bg: isSelected ? 'green.950' : 'whiteAlpha.100',
+                        },
+                      }}
+                      onClick={() => handleSelect(item.value)}
+                      transition="background 0.1s"
+                    >
+                      <Text
+                        fontSize="sm"
+                        fontWeight={isSelected ? '600' : '400'}
+                        color={isSelected ? 'green.700' : 'fg'}
+                        _dark={{ color: isSelected ? 'green.300' : 'fg' }}
+                        truncate
+                      >
+                        {formatCity(item.label)}
+                      </Text>
+                      {isSelected && (
+                        <Check
+                          size={14}
+                          color="var(--chakra-colors-green-500)"
+                          style={{ flexShrink: 0 }}
+                        />
+                      )}
+                    </Flex>
+                  );
+                })
+              )}
+            </Box>
           </Box>
         </Portal>
       )}
