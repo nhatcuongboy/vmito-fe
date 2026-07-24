@@ -134,6 +134,10 @@ export interface SearchableVSelectProps {
     label: string;
     onClick: () => void;
   };
+  /**
+   * Accessible name for the select trigger.
+   */
+  ariaLabel?: string;
 }
 
 /**
@@ -144,8 +148,8 @@ export const SearchableSelect: React.FC<SearchableVSelectProps> = ({
   options,
   value,
   onChange,
-  placeholder = 'Select...',
-  searchPlaceholder = 'Search...',
+  placeholder = 'Select…',
+  searchPlaceholder = 'Search…',
   noOptionsMessage = 'No options found',
   isDisabled = false,
   size = 'md',
@@ -153,6 +157,7 @@ export const SearchableSelect: React.FC<SearchableVSelectProps> = ({
   onSearchChange,
   isLoading = false,
   onNoOptionsAction,
+  ariaLabel,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -332,6 +337,9 @@ export const SearchableSelect: React.FC<SearchableVSelectProps> = ({
         as="button"
         {...({ type: 'button' } as Record<string, unknown>)}
         onClick={() => !isDisabled && setIsOpen(!isOpen)}
+        aria-label={ariaLabel || placeholder}
+        aria-invalid={isInvalid || undefined}
+        aria-expanded={isOpen}
         width="100%"
         textAlign="left"
         bg={{ base: 'white', _dark: 'gray.800' }}
@@ -358,7 +366,8 @@ export const SearchableSelect: React.FC<SearchableVSelectProps> = ({
             ? '0 0 0 1px var(--chakra-colors-border-error)'
             : '0 0 0 1px var(--chakra-colors-brand-500)',
         }}
-        transition="all 0.2s"
+        transitionProperty="background-color, border-color, box-shadow"
+        transitionDuration="0.2s"
         display="flex"
         alignItems="center"
       >
@@ -376,7 +385,7 @@ export const SearchableSelect: React.FC<SearchableVSelectProps> = ({
             transform: `translateY(-50%) rotate(${isOpen ? 180 : 0}deg)`,
           }}
         >
-          <ChevronDown size={16} />
+          <ChevronDown size={16} aria-hidden="true" />
         </Box>
       </Box>
 
@@ -431,10 +440,11 @@ export const SearchableSelect: React.FC<SearchableVSelectProps> = ({
                   alignItems="center"
                   justifyContent="center"
                 >
-                  <Search size={16} />
+                  <Search size={16} aria-hidden="true" />
                 </Box>
                 <Input
                   ref={searchInputRef}
+                  aria-label={searchPlaceholder}
                   placeholder={searchPlaceholder}
                   value={searchQuery}
                   onChange={(e) => handleSearchChange(e.target.value)}
@@ -456,7 +466,7 @@ export const SearchableSelect: React.FC<SearchableVSelectProps> = ({
             <Box maxH="250px" overflowY="auto" p="1">
               {isLoading ? (
                 <Box p="3" textAlign="center" color="fg.muted" fontSize="sm">
-                  ...
+                  …
                 </Box>
               ) : filteredOptions.length === 0 ? (
                 <Box p="3" textAlign="center" color="fg.muted" fontSize="sm">

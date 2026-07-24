@@ -130,7 +130,7 @@ const SortableImageItem = ({
           {...attributes}
           {...listeners}
         >
-          <GripVertical size={14} color="white" />
+          <GripVertical size={14} color="white" aria-hidden="true" />
         </Box>
       )}
 
@@ -144,7 +144,7 @@ const SortableImageItem = ({
           colorPalette="green"
           fontSize="2xs"
         >
-          <Star size={10} /> {t('currentBanner')}
+          <Star size={10} aria-hidden="true" /> {t('currentBanner')}
         </Badge>
       )}
 
@@ -161,7 +161,7 @@ const SortableImageItem = ({
               title={t('setAsBanner')}
               type="button"
             >
-              <Star size={12} />
+              <Star size={12} aria-hidden="true" />
             </IconButton>
           )}
           <IconButton
@@ -172,7 +172,7 @@ const SortableImageItem = ({
             onClick={() => onRemove(index)}
             type="button"
           >
-            <X size={12} />
+            <X size={12} aria-hidden="true" />
           </IconButton>
         </Flex>
       )}
@@ -432,7 +432,8 @@ const AppMultiImageUpload = ({
                     color="green.700"
                     cursor={isBusy ? 'not-allowed' : 'pointer'}
                     opacity={isBusy ? 0.6 : 1}
-                    transition="all 0.2s"
+                    transitionProperty="background-color, border-color, color, opacity"
+                    transitionDuration="0.2s"
                     _hover={
                       isBusy
                         ? undefined
@@ -449,7 +450,7 @@ const AppMultiImageUpload = ({
                     {isDirectUploading ? (
                       <Spinner size="sm" />
                     ) : (
-                      <ImagePlus size={compact ? 18 : 24} />
+                      <ImagePlus size={compact ? 18 : 24} aria-hidden="true" />
                     )}
                     <Text fontSize="xs" fontWeight="semibold">
                       {isDirectUploading ? tc('uploading') : t('uploadNew')}
@@ -486,7 +487,8 @@ const AppMultiImageUpload = ({
             px={compact ? 3 : 4}
             py={compact ? 3 : 6}
             textAlign="center"
-            transition="all 0.2s"
+            transitionProperty="background-color, border-color"
+            transitionDuration="0.2s"
             onDragOver={handleDragOver}
             onDragLeave={handleDragLeave}
             onDrop={handleDrop}
@@ -501,18 +503,25 @@ const AppMultiImageUpload = ({
               color={{ base: 'green.700', _dark: 'green.200' }}
               mb={compact ? 2 : 3}
             >
-              <ImagePlus size={compact ? 18 : 24} />
+              <ImagePlus size={compact ? 18 : 24} aria-hidden="true" />
             </Flex>
-            <Text color="gray.700" fontSize="sm" fontWeight="semibold">
+            <Text
+              color="gray.700"
+              _dark={{ color: 'gray.200' }}
+              fontSize="sm"
+              fontWeight="semibold"
+            >
               {t('noImagesYet')}
             </Text>
-            <Text mt={0.5} color="gray.500" fontSize="xs">
-              {t('orDropItHere')}
-            </Text>
+            {!compact && (
+              <Text mt={0.5} color="gray.500" fontSize="xs">
+                {t('orDropItHere')}
+              </Text>
+            )}
             <Flex
               direction="row"
               gap={2}
-              mt={compact ? 3 : 4}
+              mt={compact ? 2 : 4}
               w="full"
               maxW="360px"
               justify="center"
@@ -529,7 +538,7 @@ const AppMultiImageUpload = ({
                   isDirectUploading ? (
                     <Spinner size="sm" />
                   ) : (
-                    <Upload size={16} />
+                    <Upload size={16} aria-hidden="true" />
                   )
                 }
               >
@@ -574,7 +583,7 @@ const AppMultiImageUpload = ({
               colorPalette="green"
               onClick={handleOpenGallery}
               disabled={isBusy}
-              leftIcon={<Plus size={16} />}
+              leftIcon={<Plus size={16} aria-hidden="true" />}
             >
               {t('selectFromGallery')}
             </Button>

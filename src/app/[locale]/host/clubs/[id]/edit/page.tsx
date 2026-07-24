@@ -8,15 +8,9 @@ import React, {
   useRef,
 } from 'react';
 import { useTranslations } from 'next-intl';
-import { Box, Flex, Text } from '@chakra-ui/react';
-import {
-  Button,
-  VStack,
-  Input,
-  IconButton,
-} from '@/components/ui/chakra-compat';
+import { Box, Flex } from '@chakra-ui/react';
+import { Button, VStack, Input } from '@/components/ui/chakra-compat';
 import { RichTextEditor } from '@/components/ui/RichTextEditor';
-import { LegacySelect } from '@/components/ui/VSelect';
 import { SearchableSelect } from '@/components/ui/SearchableSelect';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -31,14 +25,22 @@ import { Field } from '@/components/ui/Field';
 import LoadingSpinner from '@/components/ui/loading-spinner';
 import { ROUTES } from '@/constants/routes';
 import PageLayout from '@/components/layout/PageLayout';
-import { Plus, Trash2 } from 'lucide-react';
-import { EImageCategory, UserRole } from '@/lib/api/types';
-import AppMultiImageUpload, {
-  ISessionImage,
-} from '@/components/session/AppMultiImageUpload';
-import AppSingleImageUpload from '@/components/session/AppSingleImageUpload';
+import { UserRole } from '@/lib/api/types';
+import { ISessionImage } from '@/components/session/AppMultiImageUpload';
 import { useAuthStore } from '@/stores';
 import ClubLevelRequirements from '@/components/club/ClubLevelRequirements';
+import ClubMediaEditor from '@/components/club/ClubMediaEditor';
+import ClubVenueScheduleEditor, {
+  ClubVenueScheduleEditorHandle,
+} from '@/components/club/ClubVenueScheduleEditor';
+import {
+  ClubScheduleDraft,
+  ClubVenueGroupDraft,
+  ClubVenueScheduleValidation,
+  createClubScheduleDraft,
+  createClubVenueGroupDraft,
+  validateClubVenueSchedule,
+} from '@/components/club/club-venue-schedule';
 
 const schema = z.object({
   name: z.string().min(1, 'Tên nhóm là bắt buộc'),
@@ -58,17 +60,6 @@ const schema = z.object({
 });
 
 type FormData = z.infer<typeof schema>;
-
-interface ScheduleEntry {
-  dayOfWeek: number;
-  startTime: string;
-  endTime: string;
-}
-
-interface VenueGroup {
-  venueId: string;
-  schedules: ScheduleEntry[];
-}
 
 type TVenueOption = {
   id: string;
@@ -91,7 +82,10 @@ const EditClubPage = () => {
     new Map()
   );
   const [venueSearchLoading, setVenueSearchLoading] = useState(false);
-  const [venueGroups, setVenueGroups] = useState<VenueGroup[]>([]);
+  const [venueGroups, setVenueGroups] = useState<ClubVenueGroupDraft[]>([]);
+  const [venueValidation, setVenueValidation] =
+    useState<ClubVenueScheduleValidation>(() => validateClubVenueSchedule([]));
+  const [hasValidatedVenues, setHasValidatedVenues] = useState(false);
   const [isLoadingClub, setIsLoadingClub] = useState(true);
 
   const [clubImages, setClubImages] = useState<ISessionImage[]>([]);
@@ -107,6 +101,7 @@ const EditClubPage = () => {
   const hostUserSearchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(
     null
   );
+  const venueEditorRef = useRef<ClubVenueScheduleEditorHandle>(null);
 
   const {
     control,
@@ -334,7 +329,7 @@ const EditClubPage = () => {
 
           const noteGroups = new Map<
             string,
-            { venueId: string; schedules: ScheduleEntry[] }
+            { venueId: string; schedules: ClubScheduleDraft[] }
           >();
 
           group.schedules.forEach((s) => {
@@ -351,23 +346,27 @@ const EditClubPage = () => {
                 schedules: [],
               });
             }
-            noteGroups.get(key)!.schedules.push({
-              dayOfWeek: s.dayOfWeek,
-              startTime: s.startTime,
-              endTime: s.endTime,
-            });
+            noteGroups.get(key)!.schedules.push(
+              createClubScheduleDraft({
+                dayOfWeek: s.dayOfWeek,
+                startTime: s.startTime,
+                endTime: s.endTime,
+              })
+            );
           });
 
-          setVenueGroups(Array.from(noteGroups.values()));
+          setVenueGroups(
+            Array.from(noteGroups.values()).map((group) =>
+              createClubVenueGroupDraft(
+                { venueId: group.venueId },
+                group.schedules
+              )
+            )
+          );
         } else if (group.defaultVenue) {
           // No schedules but has a venue — create an empty group
           setVenueGroups([
-            {
-              venueId: group.defaultVenue.id,
-              schedules: [
-                { dayOfWeek: 1, startTime: '19:00', endTime: '21:00' },
-              ],
-            },
+            createClubVenueGroupDraft({ venueId: group.defaultVenue.id }, []),
           ]);
         }
       } catch (error) {
@@ -382,90 +381,58 @@ const EditClubPage = () => {
     loadGroup();
   }, [groupId, setValue, router, t, isAdmin]);
 
-  // --- VenueGroup helpers (identical to create page) ---
-  const addVenueGroup = () =>
-    setVenueGroups((prev) => [
-      ...prev,
-      {
-        venueId: '',
-        schedules: [{ dayOfWeek: 1, startTime: '19:00', endTime: '21:00' }],
-      },
-    ]);
+  const handleVenueSelected = useCallback(
+    (venueId: string) => {
+      const found = venues.find((venue) => venue.id === venueId);
+      if (!found) return;
 
-  const removeVenueGroup = (idx: number) =>
-    setVenueGroups((prev) => prev.filter((_, i) => i !== idx));
+      setPinnedVenues((current) => {
+        const next = new Map(current);
+        next.set(venueId, found);
+        return next;
+      });
+    },
+    [venues]
+  );
 
-  const updateVenueId = (idx: number, venueId: string) => {
-    setVenueGroups((prev) =>
-      prev.map((g, i) => (i === idx ? { ...g, venueId } : g))
-    );
-    // Pin the selected venue so it always shows in options after a search refresh
-    if (venueId) {
-      const found = venues.find((v) => v.id === venueId);
-      if (found) {
-        setPinnedVenues((prev) => {
-          const next = new Map(prev);
-          next.set(venueId, found);
-          return next;
-        });
+  const handleVenueGroupsChange = useCallback(
+    (groups: ClubVenueGroupDraft[]) => {
+      setVenueGroups(groups);
+      if (hasValidatedVenues) {
+        setVenueValidation(validateClubVenueSchedule(groups));
       }
-    }
-  };
-
-  const addSchedule = (groupIdx: number) =>
-    setVenueGroups((prev) =>
-      prev.map((g, i) =>
-        i === groupIdx
-          ? {
-              ...g,
-              schedules: [
-                ...g.schedules,
-                { dayOfWeek: 1, startTime: '19:00', endTime: '21:00' },
-              ],
-            }
-          : g
-      )
-    );
-
-  const removeSchedule = (groupIdx: number, schedIdx: number) =>
-    setVenueGroups((prev) =>
-      prev.map((g, i) =>
-        i === groupIdx
-          ? { ...g, schedules: g.schedules.filter((_, si) => si !== schedIdx) }
-          : g
-      )
-    );
-
-  const updateSchedule = (
-    groupIdx: number,
-    schedIdx: number,
-    field: keyof ScheduleEntry,
-    value: string | number
-  ) =>
-    setVenueGroups((prev) =>
-      prev.map((g, i) =>
-        i === groupIdx
-          ? {
-              ...g,
-              schedules: g.schedules.map((s, si) =>
-                si === schedIdx ? { ...s, [field]: value } : s
-              ),
-            }
-          : g
-      )
-    );
-
-  const dayOptions = Array.from({ length: 7 }, (_, i) => ({
-    value: i,
-    label: t(`dayNames.${i as 0 | 1 | 2 | 3 | 4 | 5 | 6}`),
-  }));
+    },
+    [hasValidatedVenues]
+  );
 
   const onSubmit = async (data: FormData) => {
+    const nextVenueValidation = validateClubVenueSchedule(venueGroups);
+    setVenueValidation(nextVenueValidation);
+    setHasValidatedVenues(true);
+
+    if (!nextVenueValidation.isValid) {
+      toaster.error({ title: t('venueEditor.validationSummary') });
+      venueEditorRef.current?.focusFirstError();
+      return;
+    }
+
     try {
-      const schedules = venueGroups.flatMap((g) => {
-        const venue = venues.find((v) => v.id === g.venueId);
+      const selectedVenues = new Map(
+        [...venues, ...Array.from(pinnedVenues.values())].map((venue) => [
+          venue.id,
+          venue,
+        ])
+      );
+      const schedules = venueGroups.flatMap((group) => {
+        const venue = selectedVenues.get(group.venueId);
         const venueInfo = venue ? `${venue.name} | ${venue.address}` : '';
-        return g.schedules.map((s) => ({ ...s, notes: venueInfo }));
+
+        return group.schedules.map((schedule) => ({
+          dayOfWeek: schedule.dayOfWeek,
+          startTime: schedule.startTime,
+          endTime: schedule.endTime,
+          notes: venueInfo,
+        }));
       });
 
       // Map clubImages to form data
@@ -593,164 +560,33 @@ const EditClubPage = () => {
             />
           </Field>
 
-          {/* Club Image(s) */}
-          <Field label={t('clubImage')}>
-            <AppMultiImageUpload
-              images={clubImages}
-              bannerIndex={bannerIndex}
-              onImagesChange={setClubImages}
-              onBannerChange={setBannerIndex}
-              maxImages={10}
-              category={EImageCategory.CLUB}
-              label={null}
-            />
-          </Field>
+          <ClubMediaEditor
+            images={clubImages}
+            bannerIndex={bannerIndex}
+            logo={watch('logo')}
+            logoPublicId={watch('logoPublicId')}
+            onImagesChange={setClubImages}
+            onBannerChange={setBannerIndex}
+            onLogoChange={(image) => {
+              setValue('logo', image.url);
+              setValue('logoPublicId', image.publicId || '');
+            }}
+            onLogoClear={() => {
+              setValue('logo', '');
+              setValue('logoPublicId', '');
+            }}
+          />
 
-          <Field label="Logo nhóm">
-            <AppSingleImageUpload
-              value={watch('logo')}
-              publicId={watch('logoPublicId')}
-              onChange={(image) => {
-                setValue('logo', image.url);
-                setValue('logoPublicId', image.publicId || '');
-              }}
-              onClear={() => {
-                setValue('logo', '');
-                setValue('logoPublicId', '');
-              }}
-              category={EImageCategory.CLUB}
-              alt="Logo nhóm"
-              urlPlaceholder="Nhập URL logo nhóm..."
-            />
-          </Field>
-
-          {/* Multi-Venue + Schedule */}
-          <Field label="Sân hoạt động">
-            <VStack spacing={3} align="stretch">
-              {venueGroups.map((group, groupIdx) => (
-                <Box
-                  key={groupIdx}
-                  borderWidth="1px"
-                  borderRadius="md"
-                  borderColor={{ base: 'gray.200', _dark: 'gray.600' }}
-                  p={3}
-                >
-                  <Flex gap={2} align="center" mb={2}>
-                    <Box flex="1" minW={0} overflow="hidden">
-                      <SearchableSelect
-                        options={venueOptions}
-                        value={group.venueId}
-                        onChange={(val) => updateVenueId(groupIdx, val)}
-                        placeholder={t('searchVenue')}
-                        searchPlaceholder={t('searchVenue')}
-                        noOptionsMessage={t('noVenueSelected')}
-                        onSearchChange={handleVenueSearch}
-                        isLoading={venueSearchLoading}
-                      />
-                    </Box>
-                    <IconButton
-                      size="sm"
-                      variant="ghost"
-                      colorPalette="red"
-                      onClick={() => removeVenueGroup(groupIdx)}
-                      aria-label="Xóa sân"
-                    >
-                      <Trash2 size={16} />
-                    </IconButton>
-                  </Flex>
-
-                  <VStack spacing={1.5} align="stretch">
-                    {group.schedules.map((sched, schedIdx) => (
-                      <Flex key={schedIdx} gap={1} align="center">
-                        <Box flex="1" minW={{ base: '90px', md: '110px' }}>
-                          <LegacySelect
-                            size="sm"
-                            value={String(sched.dayOfWeek)}
-                            onChange={(
-                              e: React.ChangeEvent<HTMLSelectElement>
-                            ) =>
-                              updateSchedule(
-                                groupIdx,
-                                schedIdx,
-                                'dayOfWeek',
-                                Number(e.target.value)
-                              )
-                            }
-                          >
-                            {dayOptions.map((d) => (
-                              <option key={d.value} value={d.value}>
-                                {d.label}
-                              </option>
-                            ))}
-                          </LegacySelect>
-                        </Box>
-                        <Input
-                          type="time"
-                          size="sm"
-                          value={sched.startTime}
-                          onChange={(e) =>
-                            updateSchedule(
-                              groupIdx,
-                              schedIdx,
-                              'startTime',
-                              e.target.value
-                            )
-                          }
-                          w={{ base: '90px', md: '110px' }}
-                          px={1}
-                        />
-                        <Text fontSize="xs" color="gray.500">
-                          -
-                        </Text>
-                        <Input
-                          type="time"
-                          size="sm"
-                          value={sched.endTime}
-                          onChange={(e) =>
-                            updateSchedule(
-                              groupIdx,
-                              schedIdx,
-                              'endTime',
-                              e.target.value
-                            )
-                          }
-                          w={{ base: '90px', md: '110px' }}
-                          px={1}
-                        />
-                        <IconButton
-                          size="sm"
-                          variant="ghost"
-                          colorPalette="red"
-                          onClick={() => removeSchedule(groupIdx, schedIdx)}
-                          aria-label={t('removeSchedule')}
-                        >
-                          <Trash2 size={16} />
-                        </IconButton>
-                      </Flex>
-                    ))}
-                    <Button
-                      size="xs"
-                      variant="ghost"
-                      onClick={() => addSchedule(groupIdx)}
-                      w="fit-content"
-                    >
-                      <Plus size={14} />
-                      {t('addSchedule')}
-                    </Button>
-                  </VStack>
-                </Box>
-              ))}
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={addVenueGroup}
-                w="fit-content"
-              >
-                <Plus size={16} />
-                Thêm sân
-              </Button>
-            </VStack>
-          </Field>
+          <ClubVenueScheduleEditor
+            ref={venueEditorRef}
+            value={venueGroups}
+            venueOptions={venueOptions}
+            onChange={handleVenueGroupsChange}
+            onVenueSelected={handleVenueSelected}
+            onSearchChange={handleVenueSearch}
+            isLoading={venueSearchLoading}
+            validation={venueValidation}
+          />
 
           <Flex
             justify={{ base: 'space-between', md: 'flex-end' }}
