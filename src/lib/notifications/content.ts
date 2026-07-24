@@ -88,6 +88,14 @@ export const NOTIFICATION_ACTION_TO_KEYS: Record<
     titleKey: 'messages.postCommentedTitle',
     messageKey: 'messages.postCommentedMessage',
   },
+  venue_request_approved: {
+    titleKey: 'messages.venueRequestApprovedTitle',
+    messageKey: 'messages.venueRequestApprovedMessage',
+  },
+  venue_request_rejected: {
+    titleKey: 'messages.venueRequestRejectedTitle',
+    messageKey: 'messages.venueRequestRejectedMessage',
+  },
 };
 
 export const getNotificationTranslationParams = (
@@ -95,8 +103,10 @@ export const getNotificationTranslationParams = (
 ): NotificationTranslationParams => {
   const sessionName = notification.data?.sessionName;
   const clubName = notification.data?.clubName;
+  const venueName = notification.data?.venueName ?? notification.data?.name;
   const actorName = notification.data?.actorName;
-  const rejectionReason = notification.data?.rejectionReason;
+  const rejectionReason =
+    notification.data?.rejectionReason ?? notification.data?.adminNote;
   const courtName =
     notification.data?.courtName ??
     notification.data?.courtDisplayName ??
@@ -107,8 +117,11 @@ export const getNotificationTranslationParams = (
       ? { sessionName }
       : { sessionName: '' }),
     ...(typeof clubName === 'string' ? { clubName } : {}),
+    ...(typeof venueName === 'string' ? { venueName, venue: venueName } : {}),
     ...(typeof actorName === 'string' ? { actorName } : {}),
-    ...(typeof rejectionReason === 'string' ? { rejectionReason } : {}),
+    ...(typeof rejectionReason === 'string'
+      ? { rejectionReason, adminNote: rejectionReason }
+      : {}),
     ...(typeof courtName === 'string' ? { courtName, court: courtName } : {}),
   };
 };

@@ -13,6 +13,7 @@ import {
   LuUsers,
   LuHeart,
   LuMessageCircle,
+  LuMapPin,
 } from 'react-icons/lu';
 import { INotification, NotificationType } from '@/lib/api/types';
 import { useTranslations } from 'next-intl';
@@ -58,6 +59,9 @@ const getNotificationIcon = (type: NotificationType, action?: string) => {
       return LuUsers;
     case NotificationType.POST:
       return action === 'post_commented' ? LuMessageCircle : LuHeart;
+    case NotificationType.VENUE_REQUEST:
+    case NotificationType.VENUE_RENTAL:
+      return LuMapPin;
     default:
       return LuBell;
   }
