@@ -172,25 +172,38 @@ export default function CitySelector({
             `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json&accept-language=vi`
           );
           const data = await res.json();
-          const stateRaw: string =
-            data?.address?.state ?? data?.address?.city ?? '';
-          if (!stateRaw) {
+          // Nominatim no longer exposes a clean province-level `state` for
+          // reformed units (e.g. HCM returns city="Thành phố Thủ Đức" with the
+          // province only present inside `display_name`). Search across every
+          // address component plus the full display name so province-level
+          // names are still detected.
+          const address = data?.address ?? {};
+          const haystacks = [
+            address.state,
+            address.region,
+            address.province,
+            address.city,
+            address.county,
+            data?.display_name,
+          ]
+            .filter(Boolean)
+            .map((value: string) =>
+              removeVietnameseTones(String(value)).toLowerCase()
+            );
+          if (haystacks.length === 0) {
             setGeoError(true);
             return;
           }
-          const stateNorm = removeVietnameseTones(stateRaw).toLowerCase();
-          const matched = items.find((item) => {
-            const labelNorm = removeVietnameseTones(
-              normalizeCityForApi(item.label)
-            ).toLowerCase();
-            const fullNorm = removeVietnameseTones(item.label).toLowerCase();
-            return (
-              labelNorm === stateNorm ||
-              fullNorm === stateNorm ||
-              stateNorm.includes(labelNorm) ||
-              labelNorm.includes(stateNorm)
-            );
-          });
+          // Prefer the longest label so province-level names (e.g.
+          // "Hồ Chí Minh") win over granular parts (e.g. "Thủ Đức").
+          const matched = [...items]
+            .sort((a, b) => b.label.length - a.label.length)
+            .find((item) => {
+              const labelNorm = removeVietnameseTones(
+                normalizeCityForApi(item.label)
+              ).toLowerCase();
+              return haystacks.some((h: string) => h.includes(labelNorm));
+            });
           if (matched) {
             handleSelect(matched.value);
           } else {
