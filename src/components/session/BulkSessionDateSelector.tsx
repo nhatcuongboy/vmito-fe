@@ -21,6 +21,7 @@ import { VSwitch } from '@/components/ui/VSwitch';
 import { X, Plus, CalendarRange, ChevronDown, ChevronUp } from 'lucide-react';
 import dayjs from '@/lib/dayjs';
 import { useTranslations } from 'next-intl';
+import { CLONE_SESSION_MAX_MONTHS_AHEAD } from '@/constants';
 import {
   BulkCreationMode,
   SpecificDatesConfig,
@@ -71,6 +72,16 @@ export function BulkSessionDateSelector({
     }
   }, [enabled]);
 
+  // Clone can only target dates up to CLONE_SESSION_MAX_MONTHS_AHEAD months
+  // from today. Caps both the specific-date picker and the recurring
+  // number-of-weeks input.
+  const cloneMaxDate = dayjs().add(CLONE_SESSION_MAX_MONTHS_AHEAD, 'month');
+  const recurringStart = baseStartTime ? dayjs(baseStartTime) : dayjs();
+  const maxNumberOfWeeks = Math.max(
+    1,
+    cloneMaxDate.diff(recurringStart, 'week')
+  );
+
   const handleEnabledChange = (newEnabled: boolean) => {
     onEnabledChange(newEnabled);
     if (newEnabled) {
@@ -97,6 +108,12 @@ export function BulkSessionDateSelector({
     if (!tempDate) return;
     const date = new Date(tempDate);
     if (isNaN(date.getTime())) return;
+
+    // Reject dates beyond the allowed clone window.
+    if (dayjs(date).isAfter(cloneMaxDate, 'day')) {
+      setTempDate('');
+      return;
+    }
 
     const dateString = dayjs(date).format('YYYY-MM-DD');
     const isAlreadySelected = selectedDates.some(
@@ -141,7 +158,7 @@ export function BulkSessionDateSelector({
   };
 
   const handleWeeksChange = (weeks: number) => {
-    const validWeeks = Math.max(1, Math.min(52, weeks));
+    const validWeeks = Math.max(1, Math.min(maxNumberOfWeeks, weeks));
     setNumberOfWeeks(validWeeks);
     if (selectedWeekdays.length > 0) {
       onRecurringWeekdaysChange({
@@ -268,6 +285,7 @@ export function BulkSessionDateSelector({
                             onChange={(e) => setTempDate(e.target.value)}
                             size="sm"
                             min={dayjs().format('YYYY-MM-DD')}
+                            max={cloneMaxDate.format('YYYY-MM-DD')}
                             placeholder={t('addDate') || 'Add date'}
                           />
                           <Button
@@ -380,7 +398,7 @@ export function BulkSessionDateSelector({
                             <Input
                               type="number"
                               min={1}
-                              max={52}
+                              max={maxNumberOfWeeks}
                               value={numberOfWeeks}
                               onChange={(e) =>
                                 handleWeeksChange(parseInt(e.target.value) || 1)
