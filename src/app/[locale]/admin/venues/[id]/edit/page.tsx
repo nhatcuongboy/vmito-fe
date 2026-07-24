@@ -67,6 +67,8 @@ const venueSchema = z.object({
   bookingPolicy: z.string().optional(),
   courtLayoutImage: z.string().optional(),
   courtLayoutImagePublicId: z.string().optional(),
+  logo: z.string().optional(),
+  logoPublicId: z.string().optional(),
 });
 
 type VenueFormValues = z.infer<typeof venueSchema>;
@@ -125,6 +127,8 @@ export default function EditVenuePage({
       bookingPolicy: '',
       courtLayoutImage: '',
       courtLayoutImagePublicId: '',
+      logo: '',
+      logoPublicId: '',
     },
   });
 
@@ -167,6 +171,8 @@ export default function EditVenuePage({
           bookingPolicy: data.bookingPolicy || '',
           courtLayoutImage: data.courtLayoutImage || '',
           courtLayoutImagePublicId: data.courtLayoutImagePublicId || '',
+          logo: data.logo || '',
+          logoPublicId: data.logoPublicId || '',
         });
 
         // Initialize venueImages from venue data
@@ -201,9 +207,9 @@ export default function EditVenuePage({
           (error as { response?: { status?: number } })?.response?.status ===
           404
         ) {
-          toaster.error({ title: t('venues.notFound') });
+          toaster.error({ title: t('noVenuesFound') });
         } else {
-          toaster.error({ title: t('venues.loadError') });
+          toaster.error({ title: t('failedToLoadVenues') });
         }
         router.push('/admin/venues');
       } finally {
@@ -238,11 +244,11 @@ export default function EditVenuePage({
         id,
         payload as Partial<Venue>
       );
-      toaster.success({ title: t('venues.updateSuccess') });
+      toaster.success({ title: t('venueUpdatedSuccess') });
       router.push(`/venues/${result.slug || result.id}`);
     } catch (_error) {
       console.error('Failed to update venue:', _error);
-      toaster.error({ title: t('venues.updateError') });
+      toaster.error({ title: t('failedToUpdateVenue') });
     }
   };
 
@@ -330,6 +336,9 @@ export default function EditVenuePage({
           {/* Location Details */}
           <VStack gap={4} align="stretch">
             <SectionLabel title="Thông tin địa chỉ" />
+            <Text fontSize="xs" color="gray.500">
+              {t('legacyAddressHelper')}
+            </Text>
 
             <Controller
               control={form.control}
@@ -456,7 +465,10 @@ export default function EditVenuePage({
             </HStack>
 
             <Text fontWeight="medium" fontSize="xs" color="blue.500">
-              Địa chỉ mới (Nghị quyết 60) — để trống để hệ thống tự điền
+              {t('newAddressSection')}
+            </Text>
+            <Text fontSize="xs" color="gray.500">
+              {t('newAddressHelper')}
             </Text>
 
             <Controller
@@ -464,10 +476,7 @@ export default function EditVenuePage({
               name="newAddress"
               render={({ field }) => (
                 <Field label="Địa chỉ mới">
-                  <Input
-                    {...field}
-                    placeholder="VD: Phường Cầu Kiệu, TP Hồ Chí Minh"
-                  />
+                  <Input {...field} placeholder={t('newAddressPlaceholder')} />
                 </Field>
               )}
             />
@@ -478,7 +487,10 @@ export default function EditVenuePage({
                 name="newDistrict"
                 render={({ field }) => (
                   <Field flex={1} label="Phường/Xã mới">
-                    <Input {...field} placeholder="VD: Cầu Kiệu" />
+                    <Input
+                      {...field}
+                      placeholder={t('newDistrictPlaceholder')}
+                    />
                   </Field>
                 )}
               />
@@ -487,7 +499,7 @@ export default function EditVenuePage({
                 name="newCity"
                 render={({ field }) => (
                   <Field flex={1} label="Tỉnh/Thành phố mới">
-                    <Input {...field} placeholder="VD: TP Hồ Chí Minh" />
+                    <Input {...field} placeholder={t('newCityPlaceholder')} />
                   </Field>
                 )}
               />
@@ -785,6 +797,30 @@ export default function EditVenuePage({
                     category={EImageCategory.OTHER}
                     alt="Sơ đồ sân"
                     urlPlaceholder="Nhập URL hình ảnh sơ đồ sân..."
+                  />
+                </Field>
+              )}
+            />
+
+            <Controller
+              control={form.control}
+              name="logo"
+              render={({ field }) => (
+                <Field label="Logo sân">
+                  <AppSingleImageUpload
+                    value={field.value}
+                    publicId={form.watch('logoPublicId')}
+                    onChange={(image) => {
+                      field.onChange(image.url);
+                      form.setValue('logoPublicId', image.publicId || '');
+                    }}
+                    onClear={() => {
+                      field.onChange('');
+                      form.setValue('logoPublicId', '');
+                    }}
+                    category={EImageCategory.OTHER}
+                    alt="Logo sân"
+                    urlPlaceholder="Nhập URL logo sân..."
                   />
                 </Field>
               )}

@@ -267,7 +267,7 @@ const SessionCardCompact = ({
         }}
         display="flex"
         // mobile: horizontal row (square photo left, info right, 1-col list);
-        // md+: vertical card (4:3 cover on top) for the 3–4 column grid
+        // md+: vertical card (3:2 cover on top) for the 3–4 column grid
         flexDirection={{ base: 'row', md: 'column' }}
         height="100%"
         cursor="pointer"
@@ -285,14 +285,14 @@ const SessionCardCompact = ({
           }}
         />
 
-        {/* Cover: thumbnail stretching to row height on mobile, 4:3 on md+.
+        {/* Cover: thumbnail stretching to row height on mobile, 3:2 on md+.
             Single overlay badge; heart sits at card level. */}
         <Box
           position="relative"
           overflow="hidden"
           flexShrink={0}
           w={{ base: '120px', md: 'auto' }}
-          aspectRatio={{ base: 'auto', md: 4 / 3 }}
+          aspectRatio={{ base: 'auto', md: 3 / 2 }}
         >
           <Image
             src={
@@ -343,13 +343,18 @@ const SessionCardCompact = ({
         </Box>
 
         {/* Body: title / host / time / venue / levels + price */}
-        <Stack p={2.5} gap={1} flex="1" minW={0}>
+        <Stack
+          p={{ base: 2.5, md: 3 }}
+          gap={{ base: 1, md: 1.5 }}
+          flex="1"
+          minW={0}
+        >
           {/* Two lines: the name is the main decision signal and a single
               truncated line cut most of it ("Cầu lông tối thứ 7 - Gia Định B…").
               On md+ it also evens out card heights across the grid row. */}
           <Text
             fontWeight="semibold"
-            fontSize={{ base: 'md', md: 'sm' }}
+            fontSize="md"
             lineHeight={1.35}
             lineClamp={2}
             minW={0}
@@ -362,11 +367,15 @@ const SessionCardCompact = ({
               Facebook attribution for crawled ones */}
           {isCrawled ? (
             <Flex align="center" gap={1} minW={0}>
-              <Icon as={Facebook} boxSize={3} color="blue.500" flexShrink={0} />
+              <Icon
+                as={Facebook}
+                boxSize={{ base: 3, md: 3.5 }}
+                color="blue.500"
+                flexShrink={0}
+              />
               <Text
-                fontSize="xs"
-                color="gray.500"
-                _dark={{ color: 'fg.subtle' }}
+                fontSize={{ base: 'xs', md: 'sm' }}
+                color="fg.muted"
                 lineClamp={1}
                 minW={0}
                 title={session.externalSource || undefined}
@@ -392,10 +401,9 @@ const SessionCardCompact = ({
                   )}
                 </Avatar.Root>
                 <Text
-                  fontSize="xs"
+                  fontSize={{ base: 'xs', md: 'sm' }}
                   fontWeight="normal"
-                  color="gray.600"
-                  _dark={{ color: 'gray.400' }}
+                  color="fg.muted"
                   lineClamp={1}
                   minW={0}
                 >
@@ -406,17 +414,12 @@ const SessionCardCompact = ({
             )
           )}
 
-          <Flex
-            align="center"
-            gap={1}
-            color="gray.500"
-            _dark={{ color: 'fg.subtle' }}
-          >
-            <Icon as={Clock} boxSize={3} flexShrink={0} />
+          <Flex align="center" gap={1} color="fg.muted">
+            <Icon as={Clock} boxSize={{ base: 3, md: 3.5 }} flexShrink={0} />
             {/* Play time is a primary signal — darker/bolder than the other
                 meta lines, with an orange accent on today/tomorrow */}
             <Text
-              fontSize="xs"
+              fontSize={{ base: 'xs', md: 'sm' }}
               fontWeight="semibold"
               color="gray.700"
               _dark={{ color: 'gray.200' }}
@@ -440,20 +443,20 @@ const SessionCardCompact = ({
           </Flex>
 
           {(venueName || venueSuffix) && (
-            <Flex
-              align="center"
-              gap={1}
-              color="gray.500"
-              _dark={{ color: 'fg.subtle' }}
-            >
-              <Icon as={MapPin} boxSize={3} flexShrink={0} />
+            <Flex align="center" gap={1} color="fg.muted">
+              <Icon as={MapPin} boxSize={{ base: 3, md: 3.5 }} flexShrink={0} />
               {venueName && (
-                <Text fontSize="xs" truncate minW={0}>
+                <Text fontSize={{ base: 'xs', md: 'sm' }} truncate minW={0}>
                   {venueName}
                 </Text>
               )}
               {venueSuffix && (
-                <Text fontSize="xs" truncate flexShrink={0} maxW="75%">
+                <Text
+                  fontSize={{ base: 'xs', md: 'sm' }}
+                  truncate
+                  flexShrink={0}
+                  maxW="75%"
+                >
                   {venueName ? `• ${venueSuffix}` : venueSuffix}
                 </Text>
               )}
@@ -547,9 +550,9 @@ const SessionCardCompact = ({
 
             {feeDisplayText && (
               <Text
-                // Bold + brand green already make the price stand out; at md
-                // it also out-sized the title and pulled the eye first
-                fontSize="sm"
+                // Match the title's desktop scale while color and weight keep
+                // the price easy to scan without overpowering the hierarchy.
+                fontSize={{ base: 'sm', md: 'md' }}
                 fontWeight="bold"
                 color="green.600"
                 _dark={{ color: 'green.300' }}

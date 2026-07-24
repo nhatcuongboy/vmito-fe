@@ -33,6 +33,8 @@ interface AppSingleImageUploadProps {
   dropText?: string;
   urlPlaceholder?: string;
   galleryZIndex?: number;
+  showUrlInput?: boolean;
+  compact?: boolean;
 }
 
 const AppSingleImageUpload = ({
@@ -48,6 +50,8 @@ const AppSingleImageUpload = ({
   dropText = 'hoặc kéo ảnh vào đây',
   urlPlaceholder = 'Dán URL hình ảnh...',
   galleryZIndex,
+  showUrlInput = true,
+  compact = false,
 }: AppSingleImageUploadProps) => {
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
@@ -128,6 +132,181 @@ const AppSingleImageUpload = ({
     await uploadFiles(Array.from(event.dataTransfer.files ?? []));
   };
 
+  if (compact) {
+    return (
+      <VStack align="stretch" gap={3} width="full">
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/*"
+          onChange={handleFileChange}
+          style={{ display: 'none' }}
+          disabled={isUploading}
+        />
+
+        <Flex direction="row" align="center" gap={3} w="full">
+          <Box
+            position="relative"
+            aspectRatio={1}
+            w={{ base: '112px', sm: '128px' }}
+            flexShrink={0}
+            borderRadius="xl"
+            overflow="hidden"
+            borderWidth={2}
+            borderStyle={value ? 'solid' : 'dashed'}
+            borderColor={isDragActive ? 'green.400' : 'gray.300'}
+            bg={isDragActive ? 'green.50' : 'white'}
+            _dark={{
+              bg: isDragActive ? 'green.950' : 'gray.800',
+              borderColor: isDragActive ? 'green.500' : 'gray.600',
+            }}
+            transitionProperty="background-color, border-color"
+            transitionDuration="0.2s"
+            onDragOver={handleDragOver}
+            onDragLeave={handleDragLeave}
+            onDrop={handleDrop}
+          >
+            {value ? (
+              <>
+                <ChakraImage
+                  src={value}
+                  alt={alt}
+                  width="100%"
+                  height="100%"
+                  objectFit="cover"
+                />
+                <IconButton
+                  aria-label="Xóa ảnh"
+                  position="absolute"
+                  top={2}
+                  right={2}
+                  size="sm"
+                  colorPalette="red"
+                  onClick={clearImage}
+                  type="button"
+                >
+                  <X size={14} aria-hidden="true" />
+                </IconButton>
+              </>
+            ) : (
+              <Flex
+                direction="column"
+                align="center"
+                justify="center"
+                h="full"
+                px={2}
+                textAlign="center"
+              >
+                <Flex
+                  w={9}
+                  h={9}
+                  align="center"
+                  justify="center"
+                  borderRadius="full"
+                  bg={{ base: 'green.100', _dark: 'green.900' }}
+                  color={{ base: 'green.700', _dark: 'green.200' }}
+                  mb={2}
+                >
+                  <ImagePlus size={18} aria-hidden="true" />
+                </Flex>
+                <Text
+                  color="gray.700"
+                  _dark={{ color: 'gray.200' }}
+                  fontSize="xs"
+                  fontWeight="semibold"
+                  textWrap="balance"
+                >
+                  {emptyTitle}
+                </Text>
+              </Flex>
+            )}
+          </Box>
+
+          <Flex direction="column" gap={2} w="full" minW={0} flex={1}>
+            <Button
+              type="button"
+              size="sm"
+              colorPalette="green"
+              onClick={() => fileInputRef.current?.click()}
+              disabled={isUploading}
+              w="full"
+              leftIcon={
+                isUploading ? (
+                  <Spinner size="sm" />
+                ) : (
+                  <Upload size={16} aria-hidden="true" />
+                )
+              }
+            >
+              {isUploading ? 'Đang tải…' : uploadText}
+            </Button>
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              colorPalette="green"
+              onClick={() => setIsGalleryOpen(true)}
+              disabled={isUploading}
+              w="full"
+            >
+              {galleryText}
+            </Button>
+          </Flex>
+        </Flex>
+
+        {showUrlInput && (
+          <Flex gap={2} align="center">
+            <Input
+              value={urlInput}
+              placeholder={urlPlaceholder}
+              onChange={(event) => setUrlInput(event.target.value)}
+              onBlur={applyUrlInput}
+              onKeyDown={(event) => {
+                if (event.key === 'Enter') {
+                  event.preventDefault();
+                  applyUrlInput();
+                }
+              }}
+            />
+            <IconButton
+              aria-label="Áp dụng URL"
+              type="button"
+              variant="outline"
+              colorPalette="green"
+              onClick={applyUrlInput}
+            >
+              <Link size={16} aria-hidden="true" />
+            </IconButton>
+          </Flex>
+        )}
+
+        <AppImageGalleryPicker
+          isOpen={isGalleryOpen}
+          onClose={() => setIsGalleryOpen(false)}
+          maxSelect={1}
+          category={category}
+          zIndex={galleryZIndex}
+          selectedImages={
+            value && publicId
+              ? [
+                  {
+                    url: value,
+                    publicId,
+                  },
+                ]
+              : []
+          }
+          onSelect={(images) => {
+            if (images[0]) {
+              onChange(images[0]);
+            }
+            setIsGalleryOpen(false);
+          }}
+        />
+      </VStack>
+    );
+  }
+
   return (
     <VStack align="stretch" gap={3} width="full">
       <input
@@ -164,7 +343,7 @@ const AppSingleImageUpload = ({
               onClick={clearImage}
               type="button"
             >
-              <X size={14} />
+              <X size={14} aria-hidden="true" />
             </IconButton>
             <IconButton
               aria-label="Tải ảnh mới"
@@ -174,7 +353,11 @@ const AppSingleImageUpload = ({
               disabled={isUploading}
               type="button"
             >
-              {isUploading ? <Spinner size="xs" /> : <Upload size={14} />}
+              {isUploading ? (
+                <Spinner size="xs" />
+              ) : (
+                <Upload size={14} aria-hidden="true" />
+              )}
             </IconButton>
             <IconButton
               aria-label="Chọn từ thư viện"
@@ -186,7 +369,7 @@ const AppSingleImageUpload = ({
               disabled={isUploading}
               type="button"
             >
-              <ImagePlus size={14} />
+              <ImagePlus size={14} aria-hidden="true" />
             </IconButton>
           </Flex>
         </Box>
@@ -208,7 +391,8 @@ const AppSingleImageUpload = ({
           px={4}
           py={6}
           textAlign="center"
-          transition="all 0.2s"
+          transitionProperty="background-color, border-color"
+          transitionDuration="0.2s"
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
           onDrop={handleDrop}
@@ -223,9 +407,14 @@ const AppSingleImageUpload = ({
             color={{ base: 'green.700', _dark: 'green.200' }}
             mb={3}
           >
-            <ImagePlus size={24} />
+            <ImagePlus size={24} aria-hidden="true" />
           </Flex>
-          <Text color="gray.700" fontSize="sm" fontWeight="semibold">
+          <Text
+            color="gray.700"
+            _dark={{ color: 'gray.200' }}
+            fontSize="sm"
+            fontWeight="semibold"
+          >
             {emptyTitle}
           </Text>
           <Text mt={1} color="gray.500" fontSize="sm">
@@ -244,10 +433,14 @@ const AppSingleImageUpload = ({
               onClick={() => fileInputRef.current?.click()}
               disabled={isUploading}
               leftIcon={
-                isUploading ? <Spinner size="sm" /> : <Upload size={16} />
+                isUploading ? (
+                  <Spinner size="sm" />
+                ) : (
+                  <Upload size={16} aria-hidden="true" />
+                )
               }
             >
-              {isUploading ? 'Đang tải...' : uploadText}
+              {isUploading ? 'Đang tải…' : uploadText}
             </Button>
             <Button
               type="button"
@@ -263,29 +456,31 @@ const AppSingleImageUpload = ({
         </Flex>
       )}
 
-      <Flex gap={2} align="center">
-        <Input
-          value={urlInput}
-          placeholder={urlPlaceholder}
-          onChange={(event) => setUrlInput(event.target.value)}
-          onBlur={applyUrlInput}
-          onKeyDown={(event) => {
-            if (event.key === 'Enter') {
-              event.preventDefault();
-              applyUrlInput();
-            }
-          }}
-        />
-        <IconButton
-          aria-label="Áp dụng URL"
-          type="button"
-          variant="outline"
-          colorPalette="green"
-          onClick={applyUrlInput}
-        >
-          <Link size={16} />
-        </IconButton>
-      </Flex>
+      {showUrlInput && (
+        <Flex gap={2} align="center">
+          <Input
+            value={urlInput}
+            placeholder={urlPlaceholder}
+            onChange={(event) => setUrlInput(event.target.value)}
+            onBlur={applyUrlInput}
+            onKeyDown={(event) => {
+              if (event.key === 'Enter') {
+                event.preventDefault();
+                applyUrlInput();
+              }
+            }}
+          />
+          <IconButton
+            aria-label="Áp dụng URL"
+            type="button"
+            variant="outline"
+            colorPalette="green"
+            onClick={applyUrlInput}
+          >
+            <Link size={16} aria-hidden="true" />
+          </IconButton>
+        </Flex>
+      )}
 
       <AppImageGalleryPicker
         isOpen={isGalleryOpen}

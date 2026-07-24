@@ -69,7 +69,7 @@ export function AppSearchBar({
         color="fg"
         boxShadow={{
           base: '0 2px 8px 0 rgba(0,0,0,0.12)',
-          md: '0 2px 8px 0 rgba(0,0,0,0.12)',
+          md: '0 1px 4px 0 rgba(0,0,0,0.08)',
         }}
         _placeholder={{ color: { base: 'gray.500', _dark: 'gray.400' } }}
         _focus={{
@@ -89,7 +89,13 @@ export function AppSearchBar({
           borderColor: { base: 'gray.400', _dark: 'gray.400' },
           boxShadow: {
             base: '0 4px 12px 0 rgba(0,0,0,0.15)',
-            _dark: '0 4px 12px 0 rgba(0,0,0,0.35)',
+            md: '0 2px 6px 0 rgba(0,0,0,0.1)',
+          },
+          _dark: {
+            boxShadow: {
+              base: '0 4px 12px 0 rgba(0,0,0,0.35)',
+              md: '0 2px 6px 0 rgba(0,0,0,0.24)',
+            },
           },
         }}
         transition="background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease"

@@ -1,4 +1,8 @@
+'use client';
+
+import { useState } from 'react';
 import { Box, Container, Flex, Heading, Image, Text } from '@chakra-ui/react';
+import AppLightbox from '@/components/ui/AppLightbox';
 import { IClub } from '@/types/club';
 
 interface IClubDetailHeroProps {
@@ -10,6 +14,7 @@ export const ClubDetailHero = ({
   club,
   clubDisplayImage,
 }: IClubDetailHeroProps) => {
+  const [lightboxImage, setLightboxImage] = useState<string | null>(null);
   const firstVenue = club.scheduleVenues?.[0] || club.defaultVenue;
   const locationParts = [firstVenue?.district, firstVenue?.city].filter(
     Boolean
@@ -19,9 +24,13 @@ export const ClubDetailHero = ({
     <Container maxW="container.xl" px={0}>
       <Box
         position="relative"
-        w="full"
-        h={{ base: '180px', md: '300px' }}
-        borderRadius="2xl"
+        // Full-bleed hero on mobile: cancel the PageLayout's 24px side
+        // gutter so the cover photo runs edge-to-edge (matches venue
+        // detail). Desktop keeps the rounded card inside the container.
+        w={{ base: 'calc(100% + 48px)', md: 'full' }}
+        h={{ base: 'clamp(180px, 30vh, 240px)', md: '300px' }}
+        mx={{ base: '-24px', md: 0 }}
+        borderRadius={{ base: 0, md: '2xl' }}
         overflow="hidden"
         mb={4}
       >
@@ -31,6 +40,8 @@ export const ClubDetailHero = ({
           w="full"
           h="full"
           objectFit="cover"
+          cursor="pointer"
+          onClick={() => setLightboxImage(clubDisplayImage)}
         />
         <Box
           position="absolute"
@@ -65,27 +76,35 @@ export const ClubDetailHero = ({
             shadow="sm"
             borderRadius="lg"
             overflow="hidden"
-            bg="gray.100"
+            bg={club.logo ? 'gray.100' : 'green.50'}
             display="flex"
             alignItems="center"
             justifyContent="center"
             borderWidth="1px"
-            borderColor="gray.100"
+            borderColor={club.logo ? 'gray.100' : 'green.100'}
+            cursor={club.logo ? 'pointer' : 'default'}
+            onClick={club.logo ? () => setLightboxImage(club.logo!) : undefined}
           >
-            <Image
-              src={clubDisplayImage}
-              alt={club.name}
-              objectFit="cover"
-              w="full"
-              h="full"
-            />
+            {club.logo ? (
+              <Image
+                src={club.logo}
+                alt={club.name}
+                objectFit="cover"
+                w="full"
+                h="full"
+              />
+            ) : (
+              <Text fontSize="xl" fontWeight="bold" color="green.600">
+                {club.name.charAt(0).toUpperCase()}
+              </Text>
+            )}
           </Box>
           <Box flex="1" minW="0">
             <Heading
               size={{ base: 'lg', md: 'xl' }}
               mb={0}
               letterSpacing="tight"
-              lineClamp={1}
+              lineClamp={2}
             >
               {club.name}
             </Heading>
@@ -102,6 +121,14 @@ export const ClubDetailHero = ({
           </Box>
         </Flex>
       </Box>
+
+      {lightboxImage && (
+        <AppLightbox
+          images={[lightboxImage]}
+          onClose={() => setLightboxImage(null)}
+          alt={club.name}
+        />
+      )}
     </Container>
   );
 };

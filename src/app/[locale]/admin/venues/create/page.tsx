@@ -66,6 +66,8 @@ const venueSchema = z.object({
   bookingPolicy: z.string().optional(),
   courtLayoutImage: z.string().optional(),
   courtLayoutImagePublicId: z.string().optional(),
+  logo: z.string().optional(),
+  logoPublicId: z.string().optional(),
 });
 
 type VenueFormValues = z.infer<typeof venueSchema>;
@@ -117,6 +119,8 @@ export default function CreateVenuePage() {
       bookingPolicy: '',
       courtLayoutImage: '',
       courtLayoutImagePublicId: '',
+      logo: '',
+      logoPublicId: '',
     },
   });
 
@@ -143,11 +147,11 @@ export default function CreateVenuePage() {
       const result = await VenueService.createVenue(
         payload as Omit<Venue, 'id'>
       );
-      toaster.success({ title: t('venues.createSuccess') });
+      toaster.success({ title: t('venueCreatedSuccess') });
       router.push(`/venues/${result.slug || result.id}`);
     } catch (_error) {
       console.error('Failed to create venue:', _error);
-      toaster.error({ title: t('venues.createError') });
+      toaster.error({ title: t('failedToCreateVenue') });
     }
   };
 
@@ -221,6 +225,9 @@ export default function CreateVenuePage() {
           {/* Thông tin địa chỉ */}
           <VStack gap={4} align="stretch">
             <SectionLabel title="Thông tin địa chỉ" />
+            <Text fontSize="xs" color="gray.500">
+              {t('legacyAddressHelper')}
+            </Text>
 
             <Controller
               control={form.control}
@@ -347,7 +354,10 @@ export default function CreateVenuePage() {
             </HStack>
 
             <Text fontWeight="medium" fontSize="xs" color="blue.500">
-              Địa chỉ mới (Nghị quyết 60) — để trống để hệ thống tự điền
+              {t('newAddressSection')}
+            </Text>
+            <Text fontSize="xs" color="gray.500">
+              {t('newAddressHelper')}
             </Text>
 
             <Controller
@@ -355,10 +365,7 @@ export default function CreateVenuePage() {
               name="newAddress"
               render={({ field }) => (
                 <Field label="Địa chỉ mới">
-                  <Input
-                    {...field}
-                    placeholder="VD: Phường Cầu Kiệu, TP Hồ Chí Minh"
-                  />
+                  <Input {...field} placeholder={t('newAddressPlaceholder')} />
                 </Field>
               )}
             />
@@ -369,7 +376,10 @@ export default function CreateVenuePage() {
                 name="newDistrict"
                 render={({ field }) => (
                   <Field flex={1} label="Phường/Xã mới">
-                    <Input {...field} placeholder="VD: Cầu Kiệu" />
+                    <Input
+                      {...field}
+                      placeholder={t('newDistrictPlaceholder')}
+                    />
                   </Field>
                 )}
               />
@@ -378,7 +388,7 @@ export default function CreateVenuePage() {
                 name="newCity"
                 render={({ field }) => (
                   <Field flex={1} label="Tỉnh/Thành phố mới">
-                    <Input {...field} placeholder="VD: TP Hồ Chí Minh" />
+                    <Input {...field} placeholder={t('newCityPlaceholder')} />
                   </Field>
                 )}
               />
@@ -676,6 +686,30 @@ export default function CreateVenuePage() {
                     category={EImageCategory.OTHER}
                     alt="Sơ đồ sân"
                     urlPlaceholder="Nhập URL hình ảnh sơ đồ sân..."
+                  />
+                </Field>
+              )}
+            />
+
+            <Controller
+              control={form.control}
+              name="logo"
+              render={({ field }) => (
+                <Field label="Logo sân">
+                  <AppSingleImageUpload
+                    value={field.value}
+                    publicId={form.watch('logoPublicId')}
+                    onChange={(image) => {
+                      field.onChange(image.url);
+                      form.setValue('logoPublicId', image.publicId || '');
+                    }}
+                    onClear={() => {
+                      field.onChange('');
+                      form.setValue('logoPublicId', '');
+                    }}
+                    category={EImageCategory.OTHER}
+                    alt="Logo sân"
+                    urlPlaceholder="Nhập URL logo sân..."
                   />
                 </Field>
               )}

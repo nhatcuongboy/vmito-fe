@@ -183,31 +183,37 @@ export default function ClubDetailClient({
   }
 
   const clubDisplayImage = club.image || DEFAULT_COVER_PHOTO;
+  const hasClubImages = (club.images?.length ?? 0) > 0;
 
   return (
     <PageLayout
       title={
-        <HStack gap={2} align="center">
-          <Box
-            w="32px"
-            h="32px"
-            display={{ base: 'flex', md: 'none' }}
-            borderRadius="md"
-            overflow="hidden"
-            bg="gray.100"
-            flexShrink={0}
-            alignItems="center"
-            justifyContent="center"
-          >
-            <Image
-              src={clubDisplayImage}
-              alt={club.name}
-              objectFit="cover"
-              w="full"
-              h="full"
-            />
-          </Box>
-          <Text truncate fontWeight="bold">
+        <HStack gap={2} align="center" minW={0} flex="1">
+          {/* Only shown once the club has a dedicated logo — falling back to
+              a cropped cover/group photo at 32px reads as an unrecognizable
+              smudge, not a brand mark. */}
+          {club.logo && (
+            <Box
+              w="32px"
+              h="32px"
+              display={{ base: 'flex', md: 'none' }}
+              borderRadius="md"
+              overflow="hidden"
+              bg="gray.100"
+              flexShrink={0}
+              alignItems="center"
+              justifyContent="center"
+            >
+              <Image
+                src={club.logo}
+                alt={club.name}
+                objectFit="cover"
+                w="full"
+                h="full"
+              />
+            </Box>
+          )}
+          <Text truncate fontWeight="bold" flex="1" minW={0}>
             {club.name}
           </Text>
         </HStack>
@@ -224,6 +230,7 @@ export default function ClubDetailClient({
         >
           <ClubDetailTabList
             announcementCount={club.announcements?.length ?? 0}
+            hasImages={hasClubImages}
           />
 
           {/* Grid Layout 7:3 */}
@@ -248,7 +255,9 @@ export default function ClubDetailClient({
                 clubId={club.id}
                 isUserAdmin={Boolean(isUserAdmin)}
               />
-              <ClubPhotosTab clubName={club.name} images={club.images} />
+              {hasClubImages && (
+                <ClubPhotosTab clubName={club.name} images={club.images} />
+              )}
             </Box>
 
             <ClubDetailSidebar
