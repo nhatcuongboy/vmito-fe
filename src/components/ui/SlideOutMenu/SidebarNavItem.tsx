@@ -1,7 +1,7 @@
 'use client';
 
-import { Flex, Text } from '@chakra-ui/react';
-import type { LucideIcon } from 'lucide-react';
+import { Box, Flex, HStack, Text } from '@chakra-ui/react';
+import { Flame, type LucideIcon } from 'lucide-react';
 import { NextLinkButton } from '@/components/ui/NextLinkButton';
 import { VTooltip } from '@/components/ui/VTooltip';
 import {
@@ -17,6 +17,7 @@ interface SidebarNavItemProps {
   icon: LucideIcon;
   isActive: boolean;
   isCollapsed: boolean;
+  showFlame?: boolean;
   onClose: () => void;
 }
 
@@ -26,6 +27,7 @@ export function SidebarNavItem({
   icon: Icon,
   isActive,
   isCollapsed,
+  showFlame,
   onClose,
 }: SidebarNavItemProps) {
   const justifyContent = {
@@ -55,7 +57,21 @@ export function SidebarNavItem({
             size={18}
             color={isActive ? ACTIVE_ICON_COLOR : 'currentColor'}
           />
-          {!isCollapsed && <Text>{label}</Text>}
+          {!isCollapsed && (
+            <HStack gap={1.5} align="center">
+              <Text>{label}</Text>
+              {showFlame && (
+                <Box
+                  as={Flame}
+                  color="orange.500"
+                  fill="orange.500"
+                  w="17px"
+                  h="17px"
+                  display="inline-block"
+                />
+              )}
+            </HStack>
+          )}
         </Flex>
       </NextLinkButton>
     </VTooltip>

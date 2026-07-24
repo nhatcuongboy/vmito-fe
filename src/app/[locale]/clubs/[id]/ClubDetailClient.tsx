@@ -29,6 +29,7 @@ import {
   isClubDetailTab,
   TClubDetailTab,
 } from './club-detail.types';
+import dynamic from 'next/dynamic';
 import { ClubDetailHero } from './components/ClubDetailHero';
 import { ClubDetailTabList } from './components/ClubDetailTabList';
 import { ClubAboutTab } from './components/ClubAboutTab';
@@ -37,6 +38,13 @@ import { ClubAnnouncementsTab } from './components/ClubAnnouncementsTab';
 import { ClubPhotosTab } from './components/ClubPhotosTab';
 import { ClubMembersTab } from './components/ClubMembersTab';
 import { ClubDetailSidebar } from './components/ClubDetailSidebar';
+import PendingJoinRequestModal from './components/PendingJoinRequestModal';
+import { IClubJoinRequest } from '@/types/club';
+
+const LoginPromptModal = dynamic(
+  () => import('@/components/auth/LoginPromptModal'),
+  { ssr: false }
+);
 
 interface ClubDetailClientProps {
   initialClub: IClub | null;
@@ -55,6 +63,12 @@ export default function ClubDetailClient({
 
   const [club, setClub] = useState<IClub | null>(initialClub);
   const [isLoading, setIsLoading] = useState(!initialClub);
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+  const [userJoinRequest, setUserJoinRequest] =
+    useState<IClubJoinRequest | null>(null);
+  const [isPendingModalOpen, setIsPendingModalOpen] = useState(false);
+  const [isCancelling, setIsCancelling] = useState(false);
+
   const tabParam = searchParams.get('tab');
   const [activeTab, setActiveTab] = useState<TClubDetailTab>(
     isClubDetailTab(tabParam) ? tabParam : DEFAULT_CLUB_TAB
@@ -90,9 +104,9 @@ export default function ClubDetailClient({
           ClubsService.getMyJoinRequests().catch(() => []),
         ]);
         setClub(data);
-        const pending = myRequests.some(
-          (r) => r.clubId === clubId && r.status === EJoinRequestStatus.PENDING
-        );
+        const req = myRequests.find((r) => r.clubId === clubId);
+        setUserJoinRequest(req || null);
+        const pending = req?.status === EJoinRequestStatus.PENDING;
         setHasPendingRequest(pending);
       } catch (error) {
         console.error('Failed to load club details:', error);
@@ -130,7 +144,7 @@ export default function ClubDetailClient({
 
   const handleJoinClub = async () => {
     if (!currentUser) {
-      router.push(ROUTES.AUTH.SIGNIN);
+      setIsLoginModalOpen(true);
       return;
     }
     if (!club) return;
@@ -147,12 +161,32 @@ export default function ClubDetailClient({
       if (result.status === 'pending') {
         setHasPendingRequest(true);
       }
-      await loadClubDetails();
+      await loadClubDetails(true);
     } catch (error) {
       console.error('Failed to join club:', error);
       toaster.error({ title: t('common.error') });
     } finally {
       setIsJoining(false);
+    }
+  };
+
+  const handleCancelJoinRequest = async () => {
+    if (!club) return;
+    try {
+      setIsCancelling(true);
+      await ClubsService.cancelJoinRequest(club.id);
+      toaster.success({
+        title: 'Đã thu hồi yêu cầu tham gia',
+      });
+      setUserJoinRequest(null);
+      setHasPendingRequest(false);
+      setIsPendingModalOpen(false);
+      await loadClubDetails(true);
+    } catch (error) {
+      console.error('Failed to cancel join request:', error);
+      toaster.error({ title: t('common.error') });
+    } finally {
+      setIsCancelling(false);
     }
   };
 
@@ -266,12 +300,32 @@ export default function ClubDetailClient({
               isUserMember={Boolean(isUserMember)}
               hasPendingRequest={hasPendingRequest}
               isJoining={isJoining}
+              userJoinRequest={userJoinRequest}
               onJoin={handleJoinClub}
+              onOpenPendingModal={() => setIsPendingModalOpen(true)}
               onTabChange={handleTabChange}
             />
           </Grid>
         </Tabs.Root>
       </Container>
+      {isLoginModalOpen && (
+        <LoginPromptModal
+          isOpen={isLoginModalOpen}
+          onClose={() => setIsLoginModalOpen(false)}
+          featureName={t('clubs.joinNow')}
+          returnUrl={pathname}
+        />
+      )}
+      {isPendingModalOpen && (
+        <PendingJoinRequestModal
+          isOpen={isPendingModalOpen}
+          onClose={() => setIsPendingModalOpen(false)}
+          onCancelRequest={handleCancelJoinRequest}
+          isCancelling={isCancelling}
+          request={userJoinRequest}
+          clubName={club.name}
+        />
+      )}
     </PageLayout>
   );
 }

@@ -58,6 +58,7 @@ export interface NavLinkConfig extends NavItemBase {
   getHref: (ctx: NavContext) => string;
   /** Defaults to exact match for '/', startsWith for other hrefs. */
   isActive?: (pathname: string, ctx: NavContext) => boolean;
+  showFlame?: boolean;
 }
 
 /** An item with its own rendering (e.g. a submenu). */
@@ -99,6 +100,7 @@ export const NAV_SECTIONS: NavSectionConfig[] = [
         icon: Search,
         label: (t) => t.nav('home'),
         getHref: () => ROUTES.HOME,
+        showFlame: true,
       },
       {
         key: 'browseVenues',

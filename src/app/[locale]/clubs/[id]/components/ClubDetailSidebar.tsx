@@ -13,12 +13,14 @@ import {
 } from '@chakra-ui/react';
 import {
   ChevronRight,
+  Clock,
   DollarSign,
   ExternalLink,
   MapPin,
   Settings,
   Shield,
   UserPlus,
+  XCircle,
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { AppAddressDisplay } from '@/components/common/AppAddressDisplay';
@@ -34,7 +36,7 @@ import { useLevelLabel } from '@/hooks/useLevelLabel';
 import { Link, useRouter } from '@/i18n/config';
 import { ISession } from '@/lib/api/types';
 import { getSkillLevelColor } from '@/lib/utils/skillLevel.utils';
-import { IClub } from '@/types/club';
+import { EJoinRequestStatus, IClub, IClubJoinRequest } from '@/types/club';
 import { getGoogleMapsUrl } from '@/utils';
 import {
   getClubRequiredLevels,
@@ -49,7 +51,9 @@ interface IClubDetailSidebarProps {
   isUserMember: boolean;
   hasPendingRequest: boolean;
   isJoining: boolean;
+  userJoinRequest?: IClubJoinRequest | null;
   onJoin: () => void;
+  onOpenPendingModal?: () => void;
   onTabChange: (tab: string) => void;
 }
 
@@ -74,7 +78,9 @@ export const ClubDetailSidebar = ({
   isUserMember,
   hasPendingRequest,
   isJoining,
+  userJoinRequest,
   onJoin,
+  onOpenPendingModal,
   onTabChange,
 }: IClubDetailSidebarProps) => {
   const t = useTranslations();
@@ -457,36 +463,92 @@ export const ClubDetailSidebar = ({
             </Box>
           )}
 
-          {!isUserMember && !isUserAdmin && !hasPendingRequest && (
-            <Button
-              colorPalette="green"
-              size="xl"
-              w="full"
-              onClick={onJoin}
-              loading={isJoining}
-              borderRadius="2xl"
-              shadow="md"
-              _hover={{ shadow: 'xl', transform: 'translateY(-2px)' }}
-              transition="all 0.2s"
-            >
-              <UserPlus size={20} />
-              {t('clubs.joinNow')}
-            </Button>
-          )}
+          {!isUserMember &&
+            !isUserAdmin &&
+            !hasPendingRequest &&
+            userJoinRequest?.status !== EJoinRequestStatus.REJECTED && (
+              <Button
+                colorPalette="green"
+                size="xl"
+                w="full"
+                onClick={onJoin}
+                loading={isJoining}
+                borderRadius="2xl"
+                shadow="md"
+                _hover={{ shadow: 'xl', transform: 'translateY(-2px)' }}
+                transition="all 0.2s"
+              >
+                <UserPlus size={20} />
+                {t('clubs.joinNow')}
+              </Button>
+            )}
 
           {!isUserMember && !isUserAdmin && hasPendingRequest && (
             <Button
-              variant="outline"
+              variant="subtle"
               colorPalette="yellow"
               size="xl"
               w="full"
-              disabled
               borderRadius="2xl"
-              cursor="default"
+              onClick={onOpenPendingModal}
+              _dark={{
+                bg: 'yellow.900/40',
+                color: 'yellow.300',
+                _hover: { bg: 'yellow.900/60' },
+              }}
             >
+              <Clock size={20} />
               {t('clubs.pendingApproval')}
             </Button>
           )}
+
+          {!isUserMember &&
+            !isUserAdmin &&
+            !hasPendingRequest &&
+            userJoinRequest?.status === EJoinRequestStatus.REJECTED && (
+              <Box
+                p={4}
+                borderRadius="2xl"
+                bg="red.50"
+                _dark={{ bg: 'red.900/20', borderColor: 'red.800' }}
+                borderWidth="1px"
+                borderColor="red.100"
+              >
+                <HStack gap={2} align="center" mb={1.5}>
+                  <XCircle size={18} color="var(--chakra-colors-red-600)" />
+                  <Text
+                    fontWeight="bold"
+                    fontSize="sm"
+                    color="red.800"
+                    _dark={{ color: 'red.200' }}
+                  >
+                    Yêu cầu tham gia bị từ chối
+                  </Text>
+                </HStack>
+                {userJoinRequest.response && (
+                  <Text
+                    fontSize="xs"
+                    color="red.700"
+                    _dark={{ color: 'red.300' }}
+                    mb={3}
+                  >
+                    Lý do: {userJoinRequest.response}
+                  </Text>
+                )}
+                <Button
+                  colorPalette="green"
+                  size="md"
+                  w="full"
+                  onClick={onJoin}
+                  loading={isJoining}
+                  borderRadius="xl"
+                  mt={userJoinRequest.response ? 0 : 2}
+                >
+                  <UserPlus size={16} />
+                  Gửi lại yêu cầu
+                </Button>
+              </Box>
+            )}
 
           <DetailViewCountFooter
             targetType="CLUB"

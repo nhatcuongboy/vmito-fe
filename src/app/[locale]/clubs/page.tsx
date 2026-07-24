@@ -40,6 +40,7 @@ import {
 import { getUserLocation } from '@/lib/utils/geolocation.utils';
 import { usePathname, useRouter } from '@/i18n/config';
 import { useAuthStore } from '@/stores/useAuthStore';
+import { usePreferenceStore } from '@/stores/usePreferenceStore';
 import { ClubsService } from '@/lib/api/clubs.service';
 import ClubCard from '@/components/clubs/ClubCard';
 import ClubCardSkeleton from '@/components/clubs/ClubCardSkeleton';
@@ -106,6 +107,7 @@ function BrowseClubsContent() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const { user } = useAuthStore();
+  const preferredCity = usePreferenceStore((s) => s.preferredCity);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
 
   const [viewMode] = useViewMode('clubs', 'list');
@@ -221,14 +223,19 @@ function BrowseClubsContent() {
         CLUB_SORT_OPTIONS.find((option) => option.value === sort) ??
         CLUB_SORT_OPTIONS[0];
 
+      // Fall back to the global CitySelector city when no explicit city
+      // filter is picked in the drawer.
+      const effectiveCities =
+        cities.length > 0 ? cities : preferredCity ? [preferredCity] : [];
+
       const params: Record<string, string | number | boolean | undefined> = {
         page: pageNum,
         limit: 12,
         search: debouncedSearch || undefined,
         city:
-          cities.length === 1
-            ? (VIETNAM_CITIES.find((c) => c.code === cities[0])?.name ??
-              cities[0])
+          effectiveCities.length === 1
+            ? (VIETNAM_CITIES.find((c) => c.code === effectiveCities[0])
+                ?.name ?? effectiveCities[0])
             : undefined,
         district: districts.length === 1 ? districts[0] : undefined,
         sortBy: activeSortOption.sortBy,
@@ -321,6 +328,7 @@ function BrowseClubsContent() {
     sortByDistance,
     sort,
     userLocation,
+    preferredCity,
   ]);
 
   // Trigger load more when the sentinel is close to the viewport.

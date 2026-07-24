@@ -28,7 +28,7 @@ export function PostAvatar({
 
   return (
     <span
-      className={`relative flex shrink-0 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-green-100 to-green-200 text-green-700 dark:from-gray-600 dark:to-gray-700 dark:text-gray-100 ${className}`}
+      className={`relative flex shrink-0 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-green-100 to-green-200 text-green-700 border border-black/10 dark:from-gray-600 dark:to-gray-700 dark:text-gray-100 dark:border-white/40 ${className}`}
       style={{ width: size, height: size }}
     >
       {imageSrc ? (
