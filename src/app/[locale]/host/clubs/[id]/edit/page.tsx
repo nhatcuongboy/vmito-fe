@@ -26,6 +26,8 @@ import LoadingSpinner from '@/components/ui/loading-spinner';
 import { ROUTES } from '@/constants/routes';
 import PageLayout from '@/components/layout/PageLayout';
 import { UserRole } from '@/lib/api/types';
+import { getVenueSearchSublabel } from '@/utils/venue-helpers';
+import { useAppSettings } from '@/contexts/AppSettingsContext';
 import { ISessionImage } from '@/components/session/AppMultiImageUpload';
 import { useAuthStore } from '@/stores';
 import ClubLevelRequirements from '@/components/club/ClubLevelRequirements';
@@ -65,6 +67,9 @@ type TVenueOption = {
   id: string;
   name: string;
   address: string;
+  district?: string;
+  city?: string;
+  newAddress?: string;
 };
 
 const EditClubPage = () => {
@@ -74,6 +79,7 @@ const EditClubPage = () => {
   const groupId = params.id as string;
   const { user } = useAuthStore();
   const isAdmin = user?.role === UserRole.ADMIN;
+  const { showNewAddress } = useAppSettings();
 
   const [venues, setVenues] = useState<TVenueOption[]>([]);
   // pinnedVenues keeps track of venues currently selected in venueGroups so
@@ -183,9 +189,9 @@ const EditClubPage = () => {
     return Array.from(merged.values()).map((v) => ({
       value: v.id,
       label: v.name,
-      sublabel: v.address,
+      sublabel: getVenueSearchSublabel(v, showNewAddress),
     }));
-  }, [venues, pinnedVenues]);
+  }, [venues, pinnedVenues, showNewAddress]);
 
   const hostUserOptions = useMemo(
     () =>

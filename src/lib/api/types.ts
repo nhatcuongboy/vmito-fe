@@ -632,10 +632,13 @@ export interface Venue {
   acronym?: string;
   description?: string;
   address: string;
+  /** House number + street, extracted from `address`. Read-only — derived server-side. */
+  streetAddress?: string;
   lat?: number;
   lng?: number;
   district?: string;
   city?: string;
+  /** Derived server-side from streetAddress + newDistrict + newCity — never sent as input. */
   newAddress?: string;
   newDistrict?: string;
   newCity?: string;
@@ -692,7 +695,9 @@ export interface VenueRequestPayload {
   address?: string;
   city?: string;
   district?: string;
-  newAddress?: string;
+  /** House number + street. Used to compose `address` server-side when the
+   *  venue has no old address yet (new-format-only submissions). */
+  street?: string;
   newDistrict?: string;
   newCity?: string;
   numberOfCourts?: number;

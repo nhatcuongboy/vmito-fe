@@ -47,6 +47,76 @@ export const formatVenueFullName = (
   formatPattern: string
 ): string => formatVenueName(name, formatPattern);
 
+const WARD_PATTERNS = [
+  /(?:,\s*)(Phường\s+[^,]+)/i,
+  /(?:,\s*)(Xã\s+[^,]+)/i,
+  /(?:,\s*)(Thị\s+[Tt]rấn\s+[^,]+)/i,
+  /^(Phường\s+[^,]+)/i,
+  /^(Xã\s+[^,]+)/i,
+];
+
+/**
+ * Best-effort client-side mirror of AddressMappingService's ward detection,
+ * used only to live-preview the composed new-format address as the admin
+ * types — the server is the source of truth and re-derives streetAddress on
+ * save, so a mismatch here is cosmetic, never a data-integrity issue.
+ */
+export const guessStreetAddress = (address?: string): string => {
+  if (!address) return '';
+  let ward: string | null = null;
+  for (const pattern of WARD_PATTERNS) {
+    const match = address.match(pattern);
+    if (match) {
+      ward = match[1].trim();
+      break;
+    }
+  }
+  if (!ward) return address.trim();
+  const idx = address.lastIndexOf(ward);
+  return address.slice(0, idx).replace(/,\s*$/, '').trim();
+};
+
+/**
+ * Compose the new-era (post Nghị quyết 60) full address for preview —
+ * street + Phường/Xã mới + Tỉnh/Thành phố mới. This mirrors the derivation
+ * VenuesService performs server-side (AddressMappingService.resolve); the
+ * server is the source of truth for the persisted `newAddress`, this is only
+ * for showing admins a live preview while they pick the dropdown values.
+ */
+export const composeNewAddress = (
+  streetAddress?: string,
+  newDistrict?: string,
+  newCity?: string
+): string => [streetAddress, newDistrict, newCity].filter(Boolean).join(', ');
+
+/**
+ * Subtitle for venue search/select dropdowns (e.g. picking a venue when
+ * creating a session/club/tournament). `address` alone often already embeds
+ * the old ward as free text, but not reliably — some rows have no ward
+ * marker at all — and never includes the city, which matters for
+ * disambiguating same-named venues/streets across different provinces.
+ *
+ * Respects the "Hiển thị địa chỉ mới" toggle (`showNewAddress`, same setting
+ * `AppAddressDisplay`/`LocationFilterFields` use): when on, prefers the
+ * new-era `newAddress` (already fully composed server-side); falls back to
+ * the legacy composition when the venue hasn't been migrated yet or the
+ * toggle is off.
+ */
+export const getVenueSearchSublabel = (
+  venue: {
+    address?: string;
+    district?: string;
+    city?: string;
+    newAddress?: string;
+  },
+  showNewAddress?: boolean
+): string => {
+  if (showNewAddress && venue.newAddress) {
+    return venue.newAddress;
+  }
+  return [venue.address, venue.district, venue.city].filter(Boolean).join(', ');
+};
+
 /**
  * Uniform venue display shape for tournaments, resolved from either a linked
  * Venue record or a TournamentVenue's inline address fields.

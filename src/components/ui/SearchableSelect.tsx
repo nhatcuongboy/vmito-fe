@@ -7,6 +7,7 @@ import React, {
   useRef,
   useEffect,
   useCallback,
+  useId,
 } from 'react';
 import { Box, Portal, Text, VStack } from '@chakra-ui/react';
 import { Search, ChevronDown, Check } from 'lucide-react';
@@ -138,6 +139,12 @@ export interface SearchableVSelectProps {
    * Accessible name for the select trigger.
    */
   ariaLabel?: string;
+  /**
+   * z-index of the portalled dropdown. Defaults to the `popover` token; pass a
+   * higher value when rendered inside a high z-index overlay (e.g. a filter
+   * drawer) so the dropdown is not hidden behind it.
+   */
+  dropdownZIndex?: number | string;
 }
 
 /**
@@ -158,9 +165,11 @@ export const SearchableSelect: React.FC<SearchableVSelectProps> = ({
   isLoading = false,
   onNoOptionsAction,
   ariaLabel,
+  dropdownZIndex = 'popover',
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const fieldId = useId();
   const containerRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -400,7 +409,7 @@ export const SearchableSelect: React.FC<SearchableVSelectProps> = ({
             borderRadius="md"
             borderWidth="1px"
             borderColor="border"
-            zIndex="popover"
+            zIndex={dropdownZIndex}
             minW="200px"
             maxH="350px"
             overflow="hidden"
@@ -444,6 +453,9 @@ export const SearchableSelect: React.FC<SearchableVSelectProps> = ({
                 </Box>
                 <Input
                   ref={searchInputRef}
+                  id={`${fieldId}-search`}
+                  name={`${fieldId}-search`}
+                  autoComplete="off"
                   aria-label={searchPlaceholder}
                   placeholder={searchPlaceholder}
                   value={searchQuery}

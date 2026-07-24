@@ -9,8 +9,7 @@ import {
   FeeType,
 } from '@/lib/api/types';
 import SessionFeeConfigForm from '@/components/fee/SessionFeeConfigForm';
-import { Box, Field, Stack, Text } from '@chakra-ui/react';
-import { Input } from '@/components/ui/Input';
+import { Box, Stack, Text } from '@chakra-ui/react';
 import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 
@@ -661,23 +660,7 @@ export default function SessionForm({
             />
 
             {/* Level Requirements Section */}
-            <LevelRequirementsCard control={control} setValue={setValue}>
-              <Field.Root invalid={!!errors.referenceVideoUrl}>
-                <Field.Label>{t('referenceVideoUrl')}</Field.Label>
-                <Input
-                  {...register('referenceVideoUrl')}
-                  placeholder={t('referenceVideoUrlPlaceholder')}
-                  type="url"
-                  inputMode="url"
-                />
-                <Text fontSize="xs" color="fg.muted" mt={1}>
-                  {t('referenceVideoUrlHelper')}
-                </Text>
-                <Field.ErrorText color="fg.error">
-                  {errors.referenceVideoUrl?.message}
-                </Field.ErrorText>
-              </Field.Root>
-            </LevelRequirementsCard>
+            <LevelRequirementsCard control={control} setValue={setValue} />
 
             {/* Session Settings Section - Temporarily hidden */}
             {false && user?.role !== UserRole.PLAYER && (

@@ -1,10 +1,10 @@
 'use client';
 
+import { LocationFilterFields } from '@/components/common/LocationFilterFields';
 import { Button, IconButton, Input } from '@/components/ui/chakra-compat';
 import { VDateTimeInput } from '@/components/ui/VDateTimeInput';
 import { toaster } from '@/components/ui/toaster';
 import { VALID_LEVELS } from '@/constants/levels';
-import { VIETNAM_CITIES } from '@/constants/vietnam-locations';
 import { useLevelLabel } from '@/hooks/useLevelLabel';
 import { getUserLocation } from '@/lib/utils/geolocation.utils';
 import { getSkillLevelColor } from '@/lib/utils/skillLevel.utils';
@@ -19,7 +19,6 @@ import {
 } from '@chakra-ui/react';
 import { Check, Filter, MapPin, X } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { useMemo } from 'react';
 import { SessionFilterDrawerProps } from './SessionFilterDrawer.types';
 import {
   TOP_BAR_HEIGHT_MOBILE,
@@ -78,32 +77,6 @@ export default function SessionFilterDrawer({
       : [...filters.timeRanges, rangeKey];
     setFilters({ ...filters, timeRanges: newTimeRanges });
   };
-
-  const toggleCity = (cityCode: string) => {
-    const newCities = filters.cities.includes(cityCode)
-      ? filters.cities.filter((c) => c !== cityCode)
-      : [...filters.cities, cityCode];
-    setFilters({ ...filters, cities: newCities });
-  };
-
-  const toggleDistrict = (districtName: string) => {
-    const newDistricts = filters.districts.includes(districtName)
-      ? filters.districts.filter((d) => d !== districtName)
-      : [...filters.districts, districtName];
-    setFilters({ ...filters, districts: newDistricts });
-  };
-
-  const clearLocation = () => {
-    setFilters({ ...filters, cities: [], districts: [] });
-  };
-
-  // Derived data for display
-  const availableDistricts = useMemo(() => {
-    if (filters.cities.length === 0) return [];
-    return VIETNAM_CITIES.filter((city) =>
-      filters.cities.includes(city.code)
-    ).flatMap((city) => city.districts);
-  }, [filters.cities]);
 
   return (
     <>
@@ -400,145 +373,17 @@ export default function SessionFilterDrawer({
             <Box h="1px" bg="gray.200" _dark={{ bg: 'gray.700' }} />
 
             {/* Location Section */}
-            <Box>
-              <Flex justify="space-between" align="center" mb={3}>
-                <HStack gap={2}>
-                  <Text
-                    fontSize="sm"
-                    fontWeight="bold"
-                    color="gray.700"
-                    _dark={{ color: 'gray.200' }}
-                  >
-                    📍 {t('filters.area')}
-                  </Text>
-                  {filters.cities.length > 0 && (
-                    <Badge
-                      size="sm"
-                      colorPalette="green"
-                      variant="solid"
-                      borderRadius="full"
-                      px={2}
-                    >
-                      {filters.cities.length}
-                    </Badge>
-                  )}
-                </HStack>
-                {filters.cities.length > 0 && (
-                  <Button
-                    size="xs"
-                    variant="ghost"
-                    onClick={clearLocation}
-                    colorPalette="red"
-                    fontWeight="semibold"
-                  >
-                    <X size={14} /> <Text ml={1}>Xóa</Text>
-                  </Button>
-                )}
-              </Flex>
-              <Flex gap={2} flexWrap="wrap">
-                {VIETNAM_CITIES.map((city) => (
-                  <Badge
-                    key={city.code}
-                    px={4}
-                    py={2}
-                    borderRadius="lg"
-                    cursor="pointer"
-                    variant={
-                      filters.cities.includes(city.code) ? 'solid' : 'outline'
-                    }
-                    colorPalette={
-                      filters.cities.includes(city.code) ? 'green' : 'gray'
-                    }
-                    onClick={() => toggleCity(city.code)}
-                    fontSize="sm"
-                    fontWeight="medium"
-                    transition="all 0.2s"
-                    _hover={{ transform: 'scale(1.05)' }}
-                    borderWidth={
-                      filters.cities.includes(city.code) ? '0' : '2px'
-                    }
-                  >
-                    {city.name}
-                  </Badge>
-                ))}
-              </Flex>
-            </Box>
-
-            {/* District Selection */}
-            {filters.cities.length > 0 && availableDistricts.length > 0 && (
-              <Box>
-                <Flex justify="space-between" align="center" mb={3}>
-                  <HStack gap={2}>
-                    <Text
-                      fontSize="sm"
-                      fontWeight="bold"
-                      color="gray.700"
-                      _dark={{ color: 'gray.200' }}
-                    >
-                      🏘️ {t('filters.allDistricts')}
-                    </Text>
-                    {filters.districts.length > 0 && (
-                      <Badge
-                        size="sm"
-                        colorPalette="green"
-                        variant="solid"
-                        borderRadius="full"
-                        px={2}
-                      >
-                        {filters.districts.length}
-                      </Badge>
-                    )}
-                  </HStack>
-                  {filters.districts.length > 0 && (
-                    <Button
-                      size="xs"
-                      variant="ghost"
-                      onClick={() =>
-                        setFilters({
-                          ...filters,
-                          districts: [],
-                        })
-                      }
-                      colorPalette="red"
-                      fontWeight="semibold"
-                    >
-                      <X size={14} /> <Text ml={1}>Xóa</Text>
-                    </Button>
-                  )}
-                </Flex>
-                <Flex gap={2} flexWrap="wrap">
-                  {availableDistricts.map((district) => (
-                    <Badge
-                      key={district.code}
-                      px={3}
-                      py={1.5}
-                      borderRadius="lg"
-                      cursor="pointer"
-                      variant={
-                        filters.districts.includes(district.name)
-                          ? 'solid'
-                          : 'outline'
-                      }
-                      colorPalette={
-                        filters.districts.includes(district.name)
-                          ? 'green'
-                          : 'gray'
-                      }
-                      onClick={() => toggleDistrict(district.name)}
-                      fontSize="sm"
-                      fontWeight="medium"
-                      transition="all 0.2s"
-                      _hover={{ transform: 'scale(1.05)' }}
-                      borderWidth={
-                        filters.districts.includes(district.name) ? '0' : '2px'
-                      }
-                    >
-                      {district.name}
-                    </Badge>
-                  ))}
-                </Flex>
-              </Box>
-            )}
+            <LocationFilterFields
+              title={`📍 ${t('filters.area')}`}
+              selectedCities={filters.cities}
+              selectedDistricts={filters.districts}
+              onCitiesChange={(cities) =>
+                setFilters((prev) => ({ ...prev, cities }))
+              }
+              onDistrictsChange={(districts) =>
+                setFilters((prev) => ({ ...prev, districts }))
+              }
+            />
 
             {/* Divider */}
             <Box h="1px" bg="gray.200" _dark={{ bg: 'gray.700' }} />

@@ -33,6 +33,8 @@ import ImageUploader from '@/components/cloudinary/ImageUploader';
 import PageLayout from '@/components/layout/PageLayout';
 import { Plus, Trash2 } from 'lucide-react';
 import { Venue } from '@/lib/api/types';
+import { getVenueSearchSublabel } from '@/utils/venue-helpers';
+import { useAppSettings } from '@/contexts/AppSettingsContext';
 
 const schema = z.object({
   name: z.string().min(1, 'Tên nhóm là bắt buộc'),
@@ -61,6 +63,7 @@ interface VenueGroup {
 const AdminCreateClubPage = () => {
   const t = useTranslations('clubs');
   const router = useRouter();
+  const { showNewAddress } = useAppSettings();
   const [venues, setVenues] = useState<Venue[]>([]);
   const [pinnedVenues, setPinnedVenues] = useState<Map<string, Venue>>(
     new Map()
@@ -161,9 +164,9 @@ const AdminCreateClubPage = () => {
     return Array.from(merged.values()).map((v) => ({
       value: v.id,
       label: v.name,
-      sublabel: v.address,
+      sublabel: getVenueSearchSublabel(v, showNewAddress),
     }));
-  }, [venues, pinnedVenues]);
+  }, [venues, pinnedVenues, showNewAddress]);
 
   const hostUserOptions = useMemo(
     () =>

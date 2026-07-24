@@ -6,6 +6,8 @@ import { IClub } from '@/types/club';
 import { VenueService } from '@/lib/api/venue.service';
 import { ClubsService } from '@/lib/api/clubs.service';
 import { formatVenueName } from '@/utils';
+import { getVenueSearchSublabel } from '@/utils/venue-helpers';
+import { useAppSettings } from '@/contexts/AppSettingsContext';
 
 interface UseVenueClubDataParams {
   isEditMode: boolean;
@@ -32,13 +34,14 @@ export function useVenueClubData({
   const venueSearchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(
     null
   );
+  const { showNewAddress } = useAppSettings();
 
   // Venue options: always include the currently selected venue so it shows correctly
   const venueOptions = useMemo(() => {
     const opts = venues.map((v) => ({
       value: v.id,
       label: formatVenueName(v.name, tVenue('nameFormat', { name: '{name}' })),
-      sublabel: v.address,
+      sublabel: getVenueSearchSublabel(v, showNewAddress),
     }));
     if (selectedVenueObj && !venues.find((v) => v.id === selectedVenueObj.id)) {
       opts.unshift({
@@ -47,11 +50,11 @@ export function useVenueClubData({
           selectedVenueObj.name,
           tVenue('nameFormat', { name: '{name}' })
         ),
-        sublabel: selectedVenueObj.address,
+        sublabel: getVenueSearchSublabel(selectedVenueObj, showNewAddress),
       });
     }
     return opts;
-  }, [venues, selectedVenueObj, tVenue]);
+  }, [venues, selectedVenueObj, tVenue, showNewAddress]);
 
   const clubOptions = useMemo(
     () => [

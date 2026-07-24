@@ -51,7 +51,7 @@ export default function SettingsTab({
 
   const primaryVenue = getPrimaryVenueDisplay(tournament);
   const location = primaryVenue
-    ? `${primaryVenue.city || primaryVenue.address}${primaryVenue.newCity && primaryVenue.newCity !== primaryVenue.city ? ` (${primaryVenue.newCity})` : ''}`
+    ? primaryVenue.newCity || primaryVenue.city || primaryVenue.address
     : undefined;
 
   return (

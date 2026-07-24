@@ -14,7 +14,7 @@ import {
   Badge,
 } from '@chakra-ui/react';
 import { Trash2, Plus, UploadCloud, Download, AlertCircle } from 'lucide-react';
-import { useForm, useFieldArray } from 'react-hook-form';
+import { useForm, useFieldArray, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import Papa from 'papaparse';
@@ -33,6 +33,9 @@ import {
   TableContainer,
 } from '@/components/ui/VTable';
 import { Field } from '@/components/ui/Field';
+import { SearchableSelect } from '@/components/ui/SearchableSelect';
+import { useNewAdminUnits } from '@/hooks/useNewAdminUnits';
+import { composeNewAddress, guessStreetAddress } from '@/utils/venue-helpers';
 import { useTranslations } from 'next-intl';
 
 const venueSchema = z.object({
@@ -41,7 +44,6 @@ const venueSchema = z.object({
   address: z.string().min(5, 'Address is required'),
   district: z.string().min(1, 'District is required'),
   city: z.string().min(1, 'City is required'),
-  newAddress: z.string().optional(),
   newDistrict: z.string().optional(),
   newCity: z.string().optional(),
   phone: z.string().optional(),
@@ -80,6 +82,8 @@ export default function BulkCreateVenueModal({
     handleSubmit,
     formState: { errors },
     reset,
+    watch,
+    setValue,
   } = useForm<BulkFormValues>({
     resolver: zodResolver(bulkSchema),
     defaultValues: {
@@ -91,7 +95,6 @@ export default function BulkCreateVenueModal({
           district: '',
           city: 'Hồ Chí Minh',
           phone: '',
-          newAddress: '',
           newDistrict: '',
           newCity: '',
           isVerified: false,
@@ -104,6 +107,8 @@ export default function BulkCreateVenueModal({
     control,
     name: 'venues',
   });
+
+  const { cityOptions: newCityOptions, getWardsByCity } = useNewAdminUnits();
 
   // Tab 2: CSV Data
   const [csvData, setCsvData] = useState<Omit<Venue, 'id'>[]>([]);
@@ -125,7 +130,6 @@ export default function BulkCreateVenueModal({
       address: row.address || '',
       district: row.district || '',
       city: row.city || 'Hồ Chí Minh',
-      newAddress: row.newAddress || undefined,
       newDistrict: row.newDistrict || undefined,
       newCity: row.newCity || undefined,
       phone: row.phone || undefined,
@@ -367,34 +371,59 @@ export default function BulkCreateVenueModal({
                       {t('newAddressHelper')}
                     </Text>
                     <Flex gap={3}>
-                      <Box flex={2}>
-                        <Field label={t('newAddress')}>
-                          <Input
-                            {...register(`venues.${index}.newAddress`)}
-                            placeholder={t('newAddressPlaceholder')}
-                            size="sm"
+                      <Box flex={1}>
+                        <Field label={t('newCity')}>
+                          <Controller
+                            control={control}
+                            name={`venues.${index}.newCity`}
+                            render={({ field }) => (
+                              <SearchableSelect
+                                options={newCityOptions}
+                                value={field.value}
+                                onChange={(val) => {
+                                  field.onChange(val);
+                                  setValue(`venues.${index}.newDistrict`, '');
+                                }}
+                                placeholder="Tỉnh/thành mới"
+                                size="sm"
+                              />
+                            )}
                           />
                         </Field>
                       </Box>
                       <Box flex={1}>
                         <Field label={t('newDistrict')}>
-                          <Input
-                            {...register(`venues.${index}.newDistrict`)}
-                            placeholder={t('newDistrictPlaceholder')}
-                            size="sm"
-                          />
-                        </Field>
-                      </Box>
-                      <Box flex={1}>
-                        <Field label={t('newCity')}>
-                          <Input
-                            {...register(`venues.${index}.newCity`)}
-                            placeholder={t('newCityPlaceholder')}
-                            size="sm"
+                          <Controller
+                            control={control}
+                            name={`venues.${index}.newDistrict`}
+                            render={({ field }) => (
+                              <SearchableSelect
+                                options={getWardsByCity(
+                                  watch(`venues.${index}.newCity`)
+                                )}
+                                value={field.value}
+                                onChange={field.onChange}
+                                placeholder="Phường/xã/đặc khu mới"
+                                isDisabled={!watch(`venues.${index}.newCity`)}
+                                size="sm"
+                              />
+                            )}
                           />
                         </Field>
                       </Box>
                     </Flex>
+                    {(() => {
+                      const preview = composeNewAddress(
+                        guessStreetAddress(watch(`venues.${index}.address`)),
+                        watch(`venues.${index}.newDistrict`),
+                        watch(`venues.${index}.newCity`)
+                      );
+                      return preview ? (
+                        <Text fontSize="xs" color="gray.500" mt={2}>
+                          Địa chỉ mới (tự động): {preview}
+                        </Text>
+                      ) : null;
+                    })()}
                   </Box>
                 </Box>
               ))}
@@ -409,7 +438,6 @@ export default function BulkCreateVenueModal({
                     district: '',
                     city: 'Hồ Chí Minh',
                     phone: '',
-                    newAddress: '',
                     newDistrict: '',
                     newCity: '',
                     isVerified: false,

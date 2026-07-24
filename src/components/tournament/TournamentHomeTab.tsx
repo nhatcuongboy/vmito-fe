@@ -1180,6 +1180,7 @@ export default function TournamentHomeTab({
                     <AppAddressDisplay
                       address={currentVenue.address}
                       district={currentVenue.district}
+                      city={currentVenue.city}
                       newAddress={currentVenue.newAddress}
                       newDistrict={currentVenue.newDistrict}
                       fontSize="sm"

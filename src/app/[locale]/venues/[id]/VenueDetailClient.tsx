@@ -249,6 +249,7 @@ export default function VenueDetailClient({
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const t = useTranslations('venue');
+  const tAdmin = useTranslations('admin');
   const { user, isAuthenticated } = useAuthStore();
   const isAdmin = user?.role === 'ADMIN';
 
@@ -408,6 +409,18 @@ export default function VenueDetailClient({
     venue.name,
     t(`fullNameFormat.${venue.sportType ?? 'BADMINTON'}`, { name: '{name}' })
   );
+
+  // Use the old district/city as a pair, or the new ward/city as a pair —
+  // never mix one old field with one new field (e.g. stale old district
+  // next to a freshly-set new city), which per-field fallback would allow.
+  const usingOldLocation = !!(venue.district || venue.city);
+  const locationSubtitle = (
+    usingOldLocation
+      ? [venue.district, venue.city]
+      : [venue.newDistrict, venue.newCity]
+  )
+    .filter(Boolean)
+    .join(', ');
 
   const googleMapsUrl = getGoogleMapsUrl({
     address: venue.address,
@@ -572,9 +585,10 @@ export default function VenueDetailClient({
               >
                 {venueName}
               </Heading>
-              {(venue.district || venue.city) && (
+              {locationSubtitle && (
                 <Text fontSize="sm" color="gray.500" mt={0.5}>
-                  {[venue.district, venue.city].filter(Boolean).join(', ')}
+                  {locationSubtitle}
+                  {!usingOldLocation && ` (${tAdmin('newAddressBadge')})`}
                 </Text>
               )}
             </Box>
@@ -1474,6 +1488,7 @@ export default function VenueDetailClient({
                     <AppAddressDisplay
                       address={venue.address}
                       district={venue.district}
+                      city={venue.city}
                       newAddress={venue.newAddress}
                       newDistrict={venue.newDistrict}
                       fontSize="sm"

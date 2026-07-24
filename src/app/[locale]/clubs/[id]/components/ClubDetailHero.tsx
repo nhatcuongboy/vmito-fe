@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { Box, Container, Flex, Heading, Image, Text } from '@chakra-ui/react';
+import { useTranslations } from 'next-intl';
 import AppLightbox from '@/components/ui/AppLightbox';
 import { IClub } from '@/types/club';
 
@@ -14,11 +15,17 @@ export const ClubDetailHero = ({
   club,
   clubDisplayImage,
 }: IClubDetailHeroProps) => {
+  const tAdmin = useTranslations('admin');
   const [lightboxImage, setLightboxImage] = useState<string | null>(null);
   const firstVenue = club.scheduleVenues?.[0] || club.defaultVenue;
-  const locationParts = [firstVenue?.district, firstVenue?.city].filter(
-    Boolean
-  );
+  // Use the old district/city as a pair, or the new ward/city as a pair —
+  // never mix one old field with one new field.
+  const usingOldLocation = !!(firstVenue?.district || firstVenue?.city);
+  const locationParts = (
+    usingOldLocation
+      ? [firstVenue?.district, firstVenue?.city]
+      : [firstVenue?.newDistrict, firstVenue?.newCity]
+  ).filter(Boolean);
 
   return (
     <Container maxW="container.xl" px={0}>
@@ -116,6 +123,7 @@ export const ClubDetailHero = ({
                 mt={1}
               >
                 {locationParts.join(', ')}
+                {!usingOldLocation && ` (${tAdmin('newAddressBadge')})`}
               </Text>
             ) : null}
           </Box>

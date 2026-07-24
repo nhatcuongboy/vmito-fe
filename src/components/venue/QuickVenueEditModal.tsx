@@ -30,6 +30,8 @@ import VModal from '@/components/ui/VModal';
 import { toaster } from '@/components/ui/toaster';
 import { SearchableSelect } from '@/components/ui/SearchableSelect';
 import { VIETNAM_CITIES, getDistrictsByCity } from '@/lib/vietnam-locations';
+import { useNewAdminUnits } from '@/hooks/useNewAdminUnits';
+import { composeNewAddress, guessStreetAddress } from '@/utils/venue-helpers';
 import { trimPhone } from '@/utils/phone-utils';
 import { Checkbox } from '@/components/ui/checkbox';
 
@@ -60,7 +62,6 @@ const venueSchema = z.object({
   courtLayoutImagePublicId: z.string().optional(),
   coverPhoto: z.string().optional(),
   coverPhotoPublicId: z.string().optional(),
-  newAddress: z.string().optional(),
   newDistrict: z.string().optional(),
   newCity: z.string().optional(),
 });
@@ -115,11 +116,21 @@ export function QuickVenueEditModal({
       courtLayoutImagePublicId: venue.courtLayoutImagePublicId || '',
       coverPhoto: venue.coverPhoto || '',
       coverPhotoPublicId: venue.coverPhotoPublicId || '',
-      newAddress: venue.newAddress || '',
       newDistrict: venue.newDistrict || '',
       newCity: venue.newCity || '',
     },
   });
+
+  const { cityOptions: newCityOptions, getWardsByCity } = useNewAdminUnits();
+  const watchedAddress = form.watch('address');
+  const selectedNewCity = form.watch('newCity');
+  const selectedNewDistrict = form.watch('newDistrict');
+  const newWardOptions = getWardsByCity(selectedNewCity);
+  const newAddressPreview = composeNewAddress(
+    venue.streetAddress || guessStreetAddress(watchedAddress),
+    selectedNewDistrict,
+    selectedNewCity
+  );
 
   const handleUpdate = async (data: VenueFormValues) => {
     try {
@@ -328,41 +339,57 @@ export function QuickVenueEditModal({
           {t('newAddressHelper')}
         </Text>
 
-        <Controller
-          control={form.control}
-          name="newAddress"
-          render={({ field }) => (
-            <Field.Root>
-              <Field.Label>{t('newAddress') || 'New Address'}</Field.Label>
-              <Input {...field} placeholder={t('newAddressPlaceholder')} />
-            </Field.Root>
-          )}
-        />
-
-        <HStack width="full" gap={4}>
+        <HStack width="full" gap={4} align="flex-start">
           <Controller
             control={form.control}
-            name="newDistrict"
-            render={({ field }) => (
-              <Field.Root flex={1}>
-                <Field.Label>
-                  {t('newDistrict') || 'New Ward/District'}
-                </Field.Label>
-                <Input {...field} placeholder={t('newDistrictPlaceholder')} />
+            name="newCity"
+            render={({ field, fieldState }) => (
+              <Field.Root flex={1} invalid={!!fieldState.error}>
+                <Field.Label>{t('newCity') || 'New City'}</Field.Label>
+                <SearchableSelect
+                  options={newCityOptions}
+                  value={field.value}
+                  onChange={(val) => {
+                    field.onChange(val);
+                    form.setValue('newDistrict', '');
+                  }}
+                  placeholder="Chọn tỉnh/thành phố mới"
+                  isInvalid={!!fieldState.error}
+                />
               </Field.Root>
             )}
           />
           <Controller
             control={form.control}
-            name="newCity"
-            render={({ field }) => (
-              <Field.Root flex={1}>
-                <Field.Label>{t('newCity') || 'New City'}</Field.Label>
-                <Input {...field} placeholder={t('newCityPlaceholder')} />
+            name="newDistrict"
+            render={({ field, fieldState }) => (
+              <Field.Root flex={1} invalid={!!fieldState.error}>
+                <Field.Label>
+                  {t('newDistrict') || 'New Ward/Commune/Special Zone'}
+                </Field.Label>
+                <SearchableSelect
+                  options={newWardOptions}
+                  value={field.value}
+                  onChange={field.onChange}
+                  placeholder={
+                    selectedNewCity
+                      ? 'Chọn phường/xã/đặc khu mới'
+                      : 'Chọn tỉnh/thành phố trước'
+                  }
+                  isDisabled={!selectedNewCity}
+                  isInvalid={!!fieldState.error}
+                  noOptionsMessage="Không tìm thấy phường/xã/đặc khu"
+                />
               </Field.Root>
             )}
           />
         </HStack>
+
+        {newAddressPreview && (
+          <Text fontSize="xs" color="gray.500" w="full">
+            Địa chỉ mới (tự động): {newAddressPreview}
+          </Text>
+        )}
 
         {/* === Liên hệ === */}
         <Text fontWeight="semibold" w="full" color="gray.500" fontSize="sm">

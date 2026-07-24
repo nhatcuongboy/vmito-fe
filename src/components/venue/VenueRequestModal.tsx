@@ -8,8 +8,6 @@ import {
   Box,
   Flex,
   HStack,
-  NativeSelectField,
-  NativeSelectRoot,
   SimpleGrid,
   Text,
   Textarea,
@@ -17,6 +15,8 @@ import {
 } from '@chakra-ui/react';
 import {
   AlertTriangle,
+  ChevronDown,
+  ChevronUp,
   ExternalLink,
   Info,
   MapPin,
@@ -25,6 +25,7 @@ import {
 import { useTranslations } from 'next-intl';
 import { Field } from '@/components/ui/Field';
 import { Input } from '@/components/ui/Input';
+import { SearchableSelect } from '@/components/ui/SearchableSelect';
 import { VDateTimeInput } from '@/components/ui/VDateTimeInput';
 import VModal from '@/components/ui/VModal';
 import { Button } from '@/components/ui/chakra-compat';
@@ -38,13 +39,15 @@ import {
   VenueRequestPayload,
   VenueRequestType,
 } from '@/lib/api/types';
+import { useNewAdminUnits } from '@/hooks/useNewAdminUnits';
+import { composeNewAddress } from '@/utils/venue-helpers';
 import { trimPhone } from '@/utils/phone-utils';
 import { formatVenueName } from '@/utils';
 import { formatOpeningHours, parseOpeningHours } from '@/utils/time-helpers';
 
 const venueRequestSchema = z.object({
   name: z.string().min(2).max(200),
-  newAddress: z.string().min(5).max(500),
+  street: z.string().min(3).max(500),
   newCity: z.string().min(1).max(120),
   newDistrict: z.string().min(1).max(120),
   numberOfCourts: z.number().int().min(1).optional(),
@@ -83,7 +86,7 @@ const toOptionalNumber = (value: string) => {
 
 const toPayload = (values: VenueRequestFormValues): VenueRequestPayload => ({
   name: values.name.trim(),
-  newAddress: values.newAddress.trim(),
+  street: values.street.trim(),
   newCity: values.newCity.trim(),
   newDistrict: values.newDistrict.trim(),
   numberOfCourts: values.numberOfCourts,
@@ -116,13 +119,14 @@ export default function VenueRequestModal({
   const [similarVenues, setSimilarVenues] = useState<Venue[]>([]);
   const [hasReviewedSimilar, setHasReviewedSimilar] = useState(false);
   const [isCheckingSimilar, setIsCheckingSimilar] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false);
 
   const defaultValues = useMemo<VenueRequestFormValues>(() => {
     const openingHours = parseOpeningHours(venue?.openingHours);
 
     return {
       name: venue?.name || defaultKeyword,
-      newAddress: venue?.newAddress || venue?.address || '',
+      street: venue?.streetAddress || venue?.address || '',
       newCity: venue?.newCity || venue?.city || '',
       newDistrict: venue?.newDistrict || venue?.district || '',
       numberOfCourts: venue?.numberOfCourts,
@@ -145,6 +149,17 @@ export default function VenueRequestModal({
     defaultValues,
   });
 
+  const { cityOptions: newCityOptions, getWardsByCity } = useNewAdminUnits();
+  const watchedStreet = form.watch('street');
+  const selectedNewCity = form.watch('newCity');
+  const selectedNewDistrict = form.watch('newDistrict');
+  const newWardOptions = getWardsByCity(selectedNewCity);
+  const newAddressPreview = composeNewAddress(
+    watchedStreet,
+    selectedNewDistrict,
+    selectedNewCity
+  );
+
   const isCreate = type === VenueRequestType.CREATE;
 
   useEffect(() => {
@@ -152,6 +167,7 @@ export default function VenueRequestModal({
     form.reset(defaultValues);
     setSimilarVenues([]);
     setHasReviewedSimilar(false);
+    setIsExpanded(false);
   }, [defaultValues, form, isOpen]);
 
   const resetSimilarWarning = () => {
@@ -219,7 +235,7 @@ export default function VenueRequestModal({
       isOpen={isOpen}
       onClose={onClose}
       title={isCreate ? t('createTitle') : t('updateTitle')}
-      description={isCreate ? t('createDescription') : t('updateDescription')}
+      description={undefined}
       size="xl"
       maxBodyHeight={{ base: '70vh', md: '75vh' }}
       primaryActionText={primaryActionText}
@@ -227,7 +243,8 @@ export default function VenueRequestModal({
       isPrimaryLoading={form.formState.isSubmitting || isCheckingSimilar}
       secondaryActionText={t('cancel')}
     >
-      <VStack align="stretch" gap={5}>
+      <VStack align="stretch" gap={4}>
+        {/* Similar venues warning */}
         {similarVenues.length > 0 && (
           <Box
             p={4}
@@ -288,6 +305,7 @@ export default function VenueRequestModal({
           </Box>
         )}
 
+        {/* ── Required fields ── */}
         <SimpleGrid columns={{ base: 1, md: 2 }} gap={4}>
           <Controller
             control={form.control}
@@ -312,37 +330,27 @@ export default function VenueRequestModal({
 
           <Controller
             control={form.control}
-            name="locatedWithin"
-            render={({ field }) => (
-              <Field label={t('fields.locatedWithin')}>
-                <Input {...field} />
+            name="street"
+            render={({ field, fieldState }) => (
+              <Field
+                label={t('fields.street')}
+                required
+                invalid={!!fieldState.error}
+                errorText={t('validation.required')}
+                helperText={t('helpers.street')}
+              >
+                <Input
+                  {...field}
+                  placeholder={t('placeholders.street')}
+                  onChange={(event) => {
+                    resetSimilarWarning();
+                    field.onChange(event);
+                  }}
+                />
               </Field>
             )}
           />
         </SimpleGrid>
-
-        <Controller
-          control={form.control}
-          name="newAddress"
-          render={({ field, fieldState }) => (
-            <Field
-              label={t('fields.newAddress')}
-              required
-              invalid={!!fieldState.error}
-              errorText={t('validation.required')}
-              helperText={t('helpers.newAddress')}
-            >
-              <Input
-                {...field}
-                placeholder={t('placeholders.newAddress')}
-                onChange={(event) => {
-                  resetSimilarWarning();
-                  field.onChange(event);
-                }}
-              />
-            </Field>
-          )}
-        />
 
         <SimpleGrid columns={{ base: 1, md: 2 }} gap={4}>
           <Controller
@@ -355,13 +363,16 @@ export default function VenueRequestModal({
                 invalid={!!fieldState.error}
                 errorText={t('validation.required')}
               >
-                <Input
-                  {...field}
-                  placeholder={t('placeholders.newCity')}
-                  onChange={(event) => {
+                <SearchableSelect
+                  options={newCityOptions}
+                  value={field.value}
+                  onChange={(val) => {
                     resetSimilarWarning();
-                    field.onChange(event);
+                    field.onChange(val);
+                    form.setValue('newDistrict', '');
                   }}
+                  placeholder={t('placeholders.newCity')}
+                  isInvalid={!!fieldState.error}
                 />
               </Field>
             )}
@@ -378,237 +389,272 @@ export default function VenueRequestModal({
                 errorText={t('validation.required')}
                 helperText={t('helpers.newDistrict')}
               >
-                <Input
-                  {...field}
-                  placeholder={t('placeholders.newDistrict')}
-                  onChange={(event) => {
+                <SearchableSelect
+                  options={newWardOptions}
+                  value={field.value}
+                  onChange={(val) => {
                     resetSimilarWarning();
-                    field.onChange(event);
+                    field.onChange(val);
                   }}
-                />
-              </Field>
-            )}
-          />
-        </SimpleGrid>
-
-        <SimpleGrid columns={{ base: 1, md: 3 }} gap={4}>
-          <Controller
-            control={form.control}
-            name="numberOfCourts"
-            render={({ field }) => (
-              <Field label={t('fields.numberOfCourts')}>
-                <Input
-                  type="number"
-                  min={1}
-                  value={field.value ?? ''}
-                  onChange={(event) =>
-                    field.onChange(toOptionalNumber(event.target.value))
+                  placeholder={
+                    selectedNewCity
+                      ? t('placeholders.newDistrict')
+                      : t('fields.newCity')
                   }
+                  isDisabled={!selectedNewCity}
+                  isInvalid={!!fieldState.error}
                 />
               </Field>
             )}
           />
+        </SimpleGrid>
 
-          <Field label={t('fields.openingHours')}>
-            <HStack width="full" gap={3}>
+        {/* ── Expand / Collapse toggle ── */}
+        <Box
+          as="button"
+          onClick={() => setIsExpanded((prev) => !prev)}
+          display="flex"
+          alignItems="center"
+          gap={2}
+          px={3}
+          py={2}
+          borderRadius="md"
+          borderWidth="1px"
+          borderColor="gray.200"
+          bg={{ base: 'gray.50', _dark: 'gray.800' }}
+          _dark={{ borderColor: 'gray.700' }}
+          _hover={{ bg: { base: 'gray.100', _dark: 'gray.700' } }}
+          width="full"
+          cursor="pointer"
+          transition="all 0.15s"
+          textAlign="left"
+        >
+          <Text
+            fontSize="sm"
+            fontWeight="medium"
+            color="gray.600"
+            _dark={{ color: 'gray.300' }}
+            flex={1}
+          >
+            {t('additionalInfo')}
+          </Text>
+          {isExpanded ? (
+            <ChevronUp size={15} color="var(--chakra-colors-gray-500)" />
+          ) : (
+            <ChevronDown size={15} color="var(--chakra-colors-gray-500)" />
+          )}
+        </Box>
+
+        {/* ── Optional / additional fields (collapsible) ── */}
+        <Box
+          overflow="hidden"
+          maxH={isExpanded ? '9999px' : '0px'}
+          opacity={isExpanded ? 1 : 0}
+          transition="max-height 0.3s ease, opacity 0.25s ease"
+        >
+          <VStack align="stretch" gap={4} pb={1}>
+            <SimpleGrid columns={{ base: 1, md: 2 }} gap={4}>
               <Controller
                 control={form.control}
-                name="openTime"
+                name="locatedWithin"
                 render={({ field }) => (
-                  <VDateTimeInput
-                    {...field}
-                    type="time"
-                    placeholder={t('placeholders.openTime')}
-                  />
-                )}
-              />
-              <Controller
-                control={form.control}
-                name="closeTime"
-                render={({ field }) => (
-                  <VDateTimeInput
-                    {...field}
-                    type="time"
-                    placeholder={t('placeholders.closeTime')}
-                  />
-                )}
-              />
-            </HStack>
-          </Field>
-
-          <Controller
-            control={form.control}
-            name="closureStatus"
-            render={({ field }) => (
-              <Field label={t('fields.closureStatus')}>
-                <NativeSelectRoot>
-                  <NativeSelectField
-                    {...field}
-                    value={field.value ?? ClosureStatus.OPERATING}
+                  <Field
+                    label={t('fields.locatedWithin')}
+                    helperText={t('helpers.locatedWithin')}
                   >
-                    <option value={ClosureStatus.OPERATING}>
-                      {t('closureStatusOptions.OPERATING')}
-                    </option>
-                    <option value={ClosureStatus.TEMPORARILY_CLOSED}>
-                      {t('closureStatusOptions.TEMPORARILY_CLOSED')}
-                    </option>
-                    <option value={ClosureStatus.PERMANENTLY_CLOSED}>
-                      {t('closureStatusOptions.PERMANENTLY_CLOSED')}
-                    </option>
-                  </NativeSelectField>
-                </NativeSelectRoot>
-              </Field>
-            )}
-          />
-        </SimpleGrid>
-
-        <SimpleGrid columns={{ base: 1, md: 2 }} gap={4}>
-          <Controller
-            control={form.control}
-            name="phone"
-            render={({ field }) => (
-              <Field label={t('fields.phone')}>
-                <Input {...field} />
-              </Field>
-            )}
-          />
-
-          <Controller
-            control={form.control}
-            name="website"
-            render={({ field }) => (
-              <Field label={t('fields.website')}>
-                <Input {...field} />
-              </Field>
-            )}
-          />
-        </SimpleGrid>
-
-        <SimpleGrid columns={{ base: 1, md: 2 }} gap={4}>
-          <Controller
-            control={form.control}
-            name="wifiName"
-            render={({ field }) => (
-              <Field label={t('fields.wifiName')}>
-                <Input {...field} />
-              </Field>
-            )}
-          />
-
-          <Controller
-            control={form.control}
-            name="wifiPassword"
-            render={({ field }) => (
-              <Field label={t('fields.wifiPassword')}>
-                <Input {...field} />
-              </Field>
-            )}
-          />
-        </SimpleGrid>
-
-        <Controller
-          control={form.control}
-          name="description"
-          render={({ field }) => (
-            <Field label={t('fields.description')}>
-              <Textarea
-                {...field}
-                rows={4}
-                placeholder={t('placeholders.description')}
+                    <Input {...field} />
+                  </Field>
+                )}
               />
-            </Field>
-          )}
-        />
 
-        <Controller
-          control={form.control}
-          name="note"
-          render={({ field }) => (
-            <Field label={t('fields.note')}>
-              <Textarea
-                {...field}
-                rows={3}
-                placeholder={
-                  isCreate
-                    ? t('placeholders.createNote')
-                    : t('placeholders.updateNote')
-                }
+              <Controller
+                control={form.control}
+                name="numberOfCourts"
+                render={({ field }) => (
+                  <Field label={t('fields.numberOfCourts')}>
+                    <Input
+                      type="number"
+                      min={1}
+                      value={field.value ?? ''}
+                      onChange={(event) =>
+                        field.onChange(toOptionalNumber(event.target.value))
+                      }
+                    />
+                  </Field>
+                )}
               />
-            </Field>
-          )}
-        />
+            </SimpleGrid>
 
-        {!isCreate && (onOpenPriceCorrection || onOpenImageCorrection) && (
+            <Field label={t('fields.openingHours')}>
+              <HStack width="full" gap={2}>
+                <Controller
+                  control={form.control}
+                  name="openTime"
+                  render={({ field }) => (
+                    <VDateTimeInput
+                      {...field}
+                      type="time"
+                      placeholder={t('placeholders.openTime')}
+                    />
+                  )}
+                />
+                <Controller
+                  control={form.control}
+                  name="closeTime"
+                  render={({ field }) => (
+                    <VDateTimeInput
+                      {...field}
+                      type="time"
+                      placeholder={t('placeholders.closeTime')}
+                    />
+                  )}
+                />
+              </HStack>
+            </Field>
+
+            <SimpleGrid columns={{ base: 1, md: 2 }} gap={4}>
+              <Controller
+                control={form.control}
+                name="phone"
+                render={({ field }) => (
+                  <Field label={t('fields.phone')}>
+                    <Input {...field} />
+                  </Field>
+                )}
+              />
+
+              <Controller
+                control={form.control}
+                name="website"
+                render={({ field }) => (
+                  <Field label={t('fields.website')}>
+                    <Input {...field} />
+                  </Field>
+                )}
+              />
+            </SimpleGrid>
+
+            <SimpleGrid columns={{ base: 1, md: 2 }} gap={4}>
+              <Controller
+                control={form.control}
+                name="wifiName"
+                render={({ field }) => (
+                  <Field label={t('fields.wifiName')}>
+                    <Input {...field} />
+                  </Field>
+                )}
+              />
+
+              <Controller
+                control={form.control}
+                name="wifiPassword"
+                render={({ field }) => (
+                  <Field label={t('fields.wifiPassword')}>
+                    <Input {...field} />
+                  </Field>
+                )}
+              />
+            </SimpleGrid>
+
+            <Controller
+              control={form.control}
+              name="description"
+              render={({ field }) => (
+                <Field label={t('fields.description')}>
+                  <Textarea
+                    {...field}
+                    rows={3}
+                    placeholder={t('placeholders.description')}
+                  />
+                </Field>
+              )}
+            />
+
+            <Controller
+              control={form.control}
+              name="note"
+              render={({ field }) => (
+                <Field label={t('fields.note')}>
+                  <Textarea
+                    {...field}
+                    rows={3}
+                    placeholder={
+                      isCreate
+                        ? t('placeholders.createNote')
+                        : t('placeholders.updateNote')
+                    }
+                  />
+                </Field>
+              )}
+            />
+          </VStack>
+        </Box>
+
+        {/* Other request shortcuts (update mode only) */}
+        {!isCreate && (
           <Box
             p={3}
             borderRadius="lg"
             borderWidth="1px"
-            borderColor="gray.100"
+            borderColor="gray.200"
             bg="gray.50"
             _dark={{ bg: 'gray.900/40', borderColor: 'gray.700' }}
           >
-            <HStack gap={4} flexWrap="wrap">
-              <Text fontSize="sm" color="gray.500">
-                {t('otherRequestsHint')}
-              </Text>
-              {onOpenPriceCorrection && (
-                <Button
-                  variant="ghost"
-                  size="xs"
-                  colorPalette="green"
-                  onClick={onOpenPriceCorrection}
-                >
-                  <PencilLine size={13} />
-                  {tVenue('detail.suggestPriceEdit')}
-                </Button>
+            <VStack align="stretch" gap={2.5}>
+              {(onOpenPriceCorrection || onOpenImageCorrection) && (
+                <VStack align="stretch" gap={1.5}>
+                  <Text fontSize="sm" color="gray.500">
+                    {t('otherRequestsHint')}
+                  </Text>
+                  <HStack gap={2} flexWrap="wrap">
+                    {onOpenPriceCorrection && (
+                      <Button
+                        variant="outline"
+                        size="xs"
+                        colorPalette="green"
+                        onClick={onOpenPriceCorrection}
+                      >
+                        <PencilLine size={13} />
+                        {tVenue('detail.suggestPriceEdit')}
+                      </Button>
+                    )}
+                    {onOpenImageCorrection && (
+                      <Button
+                        variant="outline"
+                        size="xs"
+                        colorPalette="green"
+                        onClick={onOpenImageCorrection}
+                      >
+                        <PencilLine size={13} />
+                        {tVenue('detail.suggestImageEdit')}
+                      </Button>
+                    )}
+                  </HStack>
+                </VStack>
               )}
-              {onOpenImageCorrection && (
-                <Button
-                  variant="ghost"
-                  size="xs"
-                  colorPalette="green"
-                  onClick={onOpenImageCorrection}
-                >
-                  <PencilLine size={13} />
-                  {tVenue('detail.suggestImageEdit')}
-                </Button>
-              )}
-            </HStack>
-          </Box>
-        )}
 
-        {!isCreate && (
-          <Flex
-            p={3}
-            borderRadius="md"
-            bg="blue.50"
-            borderWidth="1px"
-            borderColor="blue.200"
-            _dark={{ bg: 'blue.950/30', borderColor: 'blue.800' }}
-            fontSize="sm"
-            gap={2.5}
-            align="flex-start"
-            mt={2}
-          >
-            <Info
-              size={16}
-              color="var(--chakra-colors-blue-500)"
-              style={{ marginTop: '2px', flexShrink: 0 }}
-            />
-            <Text color="blue.800" _dark={{ color: 'blue.200' }} flex={1}>
-              {t('suggestNewVenueInsteadHint')}{' '}
-              <Text
-                as="span"
-                color="brand.500"
-                fontWeight="semibold"
-                cursor="pointer"
-                _hover={{ textDecoration: 'underline', color: 'brand.600' }}
-                onClick={handleRedirectToCreate}
-              >
-                {t('suggestNewVenueLink')}
-              </Text>
-            </Text>
-          </Flex>
+              <HStack gap={1.5} fontSize="sm">
+                <Info
+                  size={14}
+                  color="var(--chakra-colors-gray-400)"
+                  style={{ flexShrink: 0, marginTop: '1px' }}
+                />
+                <Text color="gray.500" _dark={{ color: 'gray.400' }}>
+                  {t('suggestNewVenueInsteadHint')}{' '}
+                  <Text
+                    as="span"
+                    color="brand.500"
+                    fontWeight="semibold"
+                    cursor="pointer"
+                    _hover={{ textDecoration: 'underline', color: 'brand.600' }}
+                    onClick={handleRedirectToCreate}
+                  >
+                    {t('suggestNewVenueLink')}
+                  </Text>
+                </Text>
+              </HStack>
+            </VStack>
+          </Box>
         )}
       </VStack>
     </VModal>

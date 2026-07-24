@@ -48,6 +48,8 @@ import {
 import { Search, X } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import {
+  Dispatch,
+  SetStateAction,
   useCallback,
   useEffect,
   useMemo,
@@ -683,7 +685,9 @@ export default function FindSessionList({
         isOpen={showFilters}
         onClose={toggleFilters}
         filters={pendingFilters as SessionFilters}
-        setFilters={setPendingFilters}
+        setFilters={
+          setPendingFilters as Dispatch<SetStateAction<SessionFilters>>
+        }
         sortByDistance={pendingSortByDistance}
         setSortByDistance={setPendingSortByDistance}
         onSubmit={handleSubmitFilters}

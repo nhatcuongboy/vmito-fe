@@ -20,6 +20,8 @@ import {
   VenueStatus,
 } from '@/lib/api/types';
 import { VIETNAM_CITIES, getDistrictsByCity } from '@/lib/vietnam-locations';
+import { useNewAdminUnits } from '@/hooks/useNewAdminUnits';
+import { composeNewAddress, guessStreetAddress } from '@/utils/venue-helpers';
 import { trimPhone } from '@/utils/phone-utils';
 import { formatOpeningHours } from '@/utils/time-helpers';
 import AppMultiImageUpload, {
@@ -45,7 +47,6 @@ const venueSchema = z.object({
   city: z.string().min(1, 'Thành phố là bắt buộc'),
   lat: z.number().optional(),
   lng: z.number().optional(),
-  newAddress: z.string().optional(),
   newDistrict: z.string().optional(),
   newCity: z.string().optional(),
   phone: z.string().optional(),
@@ -98,7 +99,6 @@ export default function CreateVenuePage() {
       city: '',
       lat: undefined,
       lng: undefined,
-      newAddress: '',
       newDistrict: '',
       newCity: '',
       phone: '',
@@ -157,6 +157,17 @@ export default function CreateVenuePage() {
 
   const selectedCity = form.watch('city');
   const districtOptions = getDistrictsByCity(selectedCity);
+
+  const { cityOptions: newCityOptions, getWardsByCity } = useNewAdminUnits();
+  const watchedAddress = form.watch('address');
+  const selectedNewCity = form.watch('newCity');
+  const selectedNewDistrict = form.watch('newDistrict');
+  const newWardOptions = getWardsByCity(selectedNewCity);
+  const newAddressPreview = composeNewAddress(
+    guessStreetAddress(watchedAddress),
+    selectedNewDistrict,
+    selectedNewCity
+  );
 
   return (
     <PageLayout title="Tạo sân mới" showBackButton backHref="/admin/venues">
@@ -360,39 +371,63 @@ export default function CreateVenuePage() {
               {t('newAddressHelper')}
             </Text>
 
-            <Controller
-              control={form.control}
-              name="newAddress"
-              render={({ field }) => (
-                <Field label="Địa chỉ mới">
-                  <Input {...field} placeholder={t('newAddressPlaceholder')} />
-                </Field>
-              )}
-            />
-
-            <HStack width="full" gap={4}>
+            <HStack width="full" gap={4} align="flex-start">
               <Controller
                 control={form.control}
-                name="newDistrict"
-                render={({ field }) => (
-                  <Field flex={1} label="Phường/Xã mới">
-                    <Input
-                      {...field}
-                      placeholder={t('newDistrictPlaceholder')}
+                name="newCity"
+                render={({ field, fieldState }) => (
+                  <Field
+                    flex={1}
+                    label="Tỉnh/Thành phố mới"
+                    invalid={!!fieldState.error}
+                    errorText={fieldState.error?.message}
+                  >
+                    <SearchableSelect
+                      options={newCityOptions}
+                      value={field.value}
+                      onChange={(val) => {
+                        field.onChange(val);
+                        form.setValue('newDistrict', '');
+                      }}
+                      placeholder="Chọn tỉnh/thành phố mới"
+                      isInvalid={!!fieldState.error}
                     />
                   </Field>
                 )}
               />
               <Controller
                 control={form.control}
-                name="newCity"
-                render={({ field }) => (
-                  <Field flex={1} label="Tỉnh/Thành phố mới">
-                    <Input {...field} placeholder={t('newCityPlaceholder')} />
+                name="newDistrict"
+                render={({ field, fieldState }) => (
+                  <Field
+                    flex={1}
+                    label="Phường/Xã/Đặc khu mới"
+                    invalid={!!fieldState.error}
+                    errorText={fieldState.error?.message}
+                  >
+                    <SearchableSelect
+                      options={newWardOptions}
+                      value={field.value}
+                      onChange={field.onChange}
+                      placeholder={
+                        selectedNewCity
+                          ? 'Chọn phường/xã/đặc khu mới'
+                          : 'Chọn tỉnh/thành phố trước'
+                      }
+                      isDisabled={!selectedNewCity}
+                      isInvalid={!!fieldState.error}
+                      noOptionsMessage="Không tìm thấy phường/xã/đặc khu"
+                    />
                   </Field>
                 )}
               />
             </HStack>
+
+            {newAddressPreview && (
+              <Text fontSize="xs" color="gray.500">
+                Địa chỉ mới (tự động): {newAddressPreview}
+              </Text>
+            )}
           </VStack>
 
           <Divider />

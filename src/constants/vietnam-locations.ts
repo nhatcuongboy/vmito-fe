@@ -79,6 +79,22 @@ export const VIETNAM_CITIES: ICity[] = [
     ],
   },
   {
+    code: 'HUE',
+    name: 'Huế',
+    shortName: 'Huế',
+    districts: [
+      { code: 'TPH', name: 'Thành phố Huế' },
+      { code: 'HTh', name: 'Thị xã Hương Thủy' },
+      { code: 'HTr', name: 'Thị xã Hương Trà' },
+      { code: 'PĐi', name: 'Huyện Phong Điền' },
+      { code: 'QĐi', name: 'Huyện Quảng Điền' },
+      { code: 'PV', name: 'Huyện Phú Vang' },
+      { code: 'PL', name: 'Huyện Phú Lộc' },
+      { code: 'AL', name: 'Huyện A Lưới' },
+      { code: 'NĐo', name: 'Huyện Nam Đông' },
+    ],
+  },
+  {
     code: 'DNG',
     name: 'Đà Nẵng',
     shortName: 'ĐN',

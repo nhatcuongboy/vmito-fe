@@ -136,6 +136,7 @@ export const LegacyPortraitCard = ({
                         <AppAddressDisplay
                           address={session.venue.address}
                           district={session.venue.district}
+                          city={session.venue.city}
                           color="gray.500"
                         />
                       )}
@@ -434,6 +435,7 @@ export const LegacySocialCard = ({
                     <AppAddressDisplay
                       address={session.venue.address}
                       district={session.venue.district}
+                      city={session.venue.city}
                       fontSize="3xl"
                       color="gray.500"
                     />
