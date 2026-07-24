@@ -322,6 +322,7 @@ export default function FindSessionList({
           filters.minAvailableSlots > 0 ? filters.minAvailableSlots : undefined,
         sessionType: filters.sessionType as 'all' | 'regular' | 'facebook',
         favoriteOnly: urlFilters.favorite ? true : undefined,
+        includeEnded: urlFilters.favorite ? true : undefined,
         page: currentPage,
         limit: effectiveLimit,
       };

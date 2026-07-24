@@ -30,10 +30,7 @@ import { useAppSettings } from '@/contexts/AppSettingsContext';
 import { normalizeImageUrl } from '@/lib/images/normalizeImageUrl';
 import { COMPACT_COVER_TRANSFORM } from '@/lib/images/coverTransforms';
 import { DEFAULT_COVER_PHOTO } from '@/constants';
-import {
-  formatCompactSessionDate,
-  formatExternalSourceName,
-} from '@/utils/session-helpers';
+import { formatCompactSessionDate } from '@/utils/session-helpers';
 import { formatTimeRangeByDevicePreference } from '@/utils/time-helpers';
 import { formatVenueName } from '@/utils/venue-helpers';
 
@@ -375,56 +372,57 @@ const SessionCardCompact = ({
             {session.name}
           </Text>
 
-          {/* Session source right under the title: host for app sessions,
-              Facebook attribution for crawled ones */}
-          {isCrawled ? (
-            <Flex align="center" gap={1} minW={0}>
-              <Icon
-                as={Facebook}
-                boxSize={{ base: 3, md: 3.5 }}
-                color="blue.500"
-                flexShrink={0}
-              />
-              <Text
-                fontSize={{ base: 'xs', md: 'sm' }}
-                color="fg.muted"
-                lineClamp={1}
-                minW={0}
-                title={session.externalSource || undefined}
-              >
-                {session.externalSource
-                  ? formatExternalSourceName(session.externalSource)
-                  : t('crawledSourcePrefix')}
-              </Text>
-            </Flex>
-          ) : (
-            displayHostName && (
-              <Flex align="center" gap={1.5} minW={0}>
-                <Avatar.Root size="2xs" bg="brand.500" flexShrink={0}>
-                  <Avatar.Fallback name={displayHostName}>
-                    {displayHostName.charAt(0).toUpperCase()}
-                  </Avatar.Fallback>
-                  {session.host?.image && (
-                    <Avatar.Image
-                      src={normalizeImageUrl(session.host.image)}
-                      // Decorative — the host name is rendered right next to it
-                      alt=""
-                    />
-                  )}
-                </Avatar.Root>
-                <Text
-                  fontSize={{ base: 'xs', md: 'sm' }}
-                  fontWeight="normal"
-                  color="fg.muted"
-                  lineClamp={1}
-                  minW={0}
-                >
-                  {displayHostName}
-                </Text>
-                <AppPlayerRating userId={session.hostId} size="xs" />
-              </Flex>
-            )
-          )}
+          {/* Session source right under the title: host avatar+name for both
+              app sessions and crawled FB posts. For crawled posts the avatar is
+              the author's FB profile picture and the name is their FB name. */}
+          {isCrawled
+            ? displayHostName && (
+                <Flex align="center" gap={1.5} minW={0}>
+                  <Avatar.Root size="2xs" bg="blue.500" flexShrink={0}>
+                    <Avatar.Fallback name={displayHostName}>
+                      {displayHostName.charAt(0).toUpperCase()}
+                    </Avatar.Fallback>
+                    {session.externalAuthorAvatar && (
+                      <Avatar.Image src={session.externalAuthorAvatar} alt="" />
+                    )}
+                  </Avatar.Root>
+                  <Text
+                    fontSize={{ base: 'xs', md: 'sm' }}
+                    fontWeight="normal"
+                    color="fg.muted"
+                    lineClamp={1}
+                    minW={0}
+                  >
+                    {displayHostName}
+                  </Text>
+                </Flex>
+              )
+            : displayHostName && (
+                <Flex align="center" gap={1.5} minW={0}>
+                  <Avatar.Root size="2xs" bg="brand.500" flexShrink={0}>
+                    <Avatar.Fallback name={displayHostName}>
+                      {displayHostName.charAt(0).toUpperCase()}
+                    </Avatar.Fallback>
+                    {session.host?.image && (
+                      <Avatar.Image
+                        src={normalizeImageUrl(session.host.image)}
+                        // Decorative — the host name is rendered right next to it
+                        alt=""
+                      />
+                    )}
+                  </Avatar.Root>
+                  <Text
+                    fontSize={{ base: 'xs', md: 'sm' }}
+                    fontWeight="normal"
+                    color="fg.muted"
+                    lineClamp={1}
+                    minW={0}
+                  >
+                    {displayHostName}
+                  </Text>
+                  <AppPlayerRating userId={session.hostId} size="xs" />
+                </Flex>
+              )}
 
           <Flex align="center" gap={1} color="fg.muted">
             <Icon as={Clock} boxSize={{ base: 3, md: 3.5 }} flexShrink={0} />

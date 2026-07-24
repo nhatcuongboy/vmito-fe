@@ -9,7 +9,7 @@ import { useNewAdminUnits } from '@/hooks/useNewAdminUnits';
 import { removeVietnameseTones } from '@/lib/utils';
 import { usePreferenceStore } from '@/stores/usePreferenceStore';
 import { Box, Flex, Input, Portal, Text } from '@chakra-ui/react';
-import { Check, ChevronDown, MapPin, Search } from 'lucide-react';
+import { Check, ChevronDown, LocateFixed, MapPin, Search } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 
 export default function CitySelector({
@@ -24,6 +24,8 @@ export default function CitySelector({
 
   const [isOpen, setIsOpen] = useState(false);
   const [search, setSearch] = useState('');
+  const [isGeolocating, setIsGeolocating] = useState(false);
+  const [geoError, setGeoError] = useState(false);
   const [dropdownPos, setDropdownPos] = useState<{
     top: number;
     left: number;
@@ -67,6 +69,56 @@ export default function CitySelector({
     ? displayName
     : (legacyCity?.shortName ?? legacyCity?.name ?? '');
 
+  // Keep a ref to the latest preferredCity so the conversion effect below can
+  // read it without adding it to the dependency array (which would cause it to
+  // re-run on every user selection).
+  const prefRef = useRef(preferredCity);
+  useEffect(() => {
+    prefRef.current = preferredCity;
+  }, [preferredCity]);
+
+  // When the address mode switches, auto-convert the stored preferredCity so
+  // it stays in the correct format for the active mode:
+  //   legacy mode  → value is a VIETNAM_CITIES code (e.g. 'HCM')
+  //   new-address  → value is the full province name (e.g. 'Thành phố Hồ Chí Minh')
+  // This effect also re-runs when items first load (cityOptions fetched async),
+  // handling the case where the mode switch happened before data arrived.
+  useEffect(() => {
+    if (items.length === 0) return;
+    const city = prefRef.current;
+    if (!city) return;
+
+    if (showNewAddress) {
+      // If current value is a legacy code, find the matching new-era name.
+      const legacy = VIETNAM_CITIES.find((c) => c.code === city);
+      if (!legacy) return; // already in new-era format
+      const target = removeVietnameseTones(
+        normalizeCityForApi(legacy.name)
+      ).toLowerCase();
+      const match = items.find(
+        (item) =>
+          removeVietnameseTones(
+            normalizeCityForApi(item.label)
+          ).toLowerCase() === target
+      );
+      if (match) setPreferredCity(match.value);
+    } else {
+      // If current value is a new-era name, find the matching legacy code.
+      const isAlreadyCode = VIETNAM_CITIES.some((c) => c.code === city);
+      if (isAlreadyCode) return; // already a legacy code
+      const target = removeVietnameseTones(
+        normalizeCityForApi(city)
+      ).toLowerCase();
+      const match = VIETNAM_CITIES.find(
+        (c) =>
+          removeVietnameseTones(normalizeCityForApi(c.name)).toLowerCase() ===
+          target
+      );
+      if (match) setPreferredCity(match.code);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [showNewAddress, items]);
+
   useEffect(() => {
     if (!isOpen) return;
     const handleClickOutside = (event: MouseEvent) => {
@@ -106,6 +158,56 @@ export default function CitySelector({
   const handleSelect = (value: string) => {
     setPreferredCity(value);
     setIsOpen(false);
+  };
+
+  const handleUseCurrentLocation = () => {
+    if (!navigator.geolocation) return;
+    setGeoError(false);
+    setIsGeolocating(true);
+    navigator.geolocation.getCurrentPosition(
+      async (pos) => {
+        try {
+          const { latitude, longitude } = pos.coords;
+          const res = await fetch(
+            `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json&accept-language=vi`
+          );
+          const data = await res.json();
+          const stateRaw: string =
+            data?.address?.state ?? data?.address?.city ?? '';
+          if (!stateRaw) {
+            setGeoError(true);
+            return;
+          }
+          const stateNorm = removeVietnameseTones(stateRaw).toLowerCase();
+          const matched = items.find((item) => {
+            const labelNorm = removeVietnameseTones(
+              normalizeCityForApi(item.label)
+            ).toLowerCase();
+            const fullNorm = removeVietnameseTones(item.label).toLowerCase();
+            return (
+              labelNorm === stateNorm ||
+              fullNorm === stateNorm ||
+              stateNorm.includes(labelNorm) ||
+              labelNorm.includes(stateNorm)
+            );
+          });
+          if (matched) {
+            handleSelect(matched.value);
+          } else {
+            setGeoError(true);
+          }
+        } catch {
+          setGeoError(true);
+        } finally {
+          setIsGeolocating(false);
+        }
+      },
+      () => {
+        setIsGeolocating(false);
+        setGeoError(true);
+      },
+      { timeout: 10000 }
+    );
   };
 
   return (
@@ -197,6 +299,37 @@ export default function CitySelector({
             py={1}
             overflow="hidden"
           >
+            {/* Use current location button */}
+            <Flex
+              align="center"
+              gap={2}
+              px={4}
+              py={2.5}
+              cursor={isGeolocating ? 'not-allowed' : 'pointer'}
+              borderBottomWidth="1px"
+              borderColor="border"
+              opacity={isGeolocating ? 0.6 : 1}
+              _hover={{ bg: isGeolocating ? 'transparent' : 'bg.muted' }}
+              onClick={isGeolocating ? undefined : handleUseCurrentLocation}
+              transition="background 0.1s"
+            >
+              <Box
+                color="blue.500"
+                className={isGeolocating ? 'animate-spin' : undefined}
+              >
+                <LocateFixed size={14} />
+              </Box>
+              <Text fontSize="sm" fontWeight="500" color="blue.500">
+                {isGeolocating
+                  ? 'Đang xác định vị trí...'
+                  : 'Dùng vị trí hiện tại'}
+              </Text>
+            </Flex>
+            {geoError && (
+              <Text px={4} py={1.5} fontSize="xs" color="red.500">
+                Không thể xác định vị trí. Vui lòng thử lại.
+              </Text>
+            )}
             {showNewAddress && (
               <Box px={2} pt={1} pb={2}>
                 <Box position="relative">
