@@ -30,7 +30,10 @@ import { Button, IconButton } from '@/components/ui/chakra-compat';
 import { useDisclosure } from '@/components/ui/ChakraHooks';
 import { toaster } from '@/components/ui/toaster';
 import { LocationFilterFields } from '@/components/common/LocationFilterFields';
-import { VIETNAM_CITIES } from '@/constants/vietnam-locations';
+import {
+  VIETNAM_CITIES,
+  normalizeCityForApi,
+} from '@/constants/vietnam-locations';
 import {
   TOP_BAR_HEIGHT_MOBILE,
   TOP_BAR_HEIGHT_DESKTOP,
@@ -234,8 +237,10 @@ function BrowseClubsContent() {
         search: debouncedSearch || undefined,
         city:
           effectiveCities.length === 1
-            ? (VIETNAM_CITIES.find((c) => c.code === effectiveCities[0])
-                ?.name ?? effectiveCities[0])
+            ? normalizeCityForApi(
+                VIETNAM_CITIES.find((c) => c.code === effectiveCities[0])
+                  ?.name ?? effectiveCities[0]
+              )
             : undefined,
         district: districts.length === 1 ? districts[0] : undefined,
         sortBy: activeSortOption.sortBy,
