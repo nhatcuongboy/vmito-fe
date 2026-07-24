@@ -101,6 +101,11 @@ export async function generateMetadata({
     description,
     alternates: {
       canonical: url,
+      languages: {
+        vi: `/vi/tournament/${tournament.slug || id}`,
+        en: `/en/tournament/${tournament.slug || id}`,
+        'zh-Hans': `/cn/tournament/${tournament.slug || id}`,
+      },
     },
     openGraph: {
       title,
@@ -125,6 +130,60 @@ export async function generateMetadata({
   };
 }
 
-export default function TournamentPage() {
-  return <TournamentPageShell activeSegment="home" />;
+const toIsoDate = (value?: Date | string): string | undefined => {
+  if (!value) return undefined;
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? undefined : date.toISOString();
+};
+
+export default async function TournamentPage({ params }: PageProps) {
+  const { id, locale } = await params;
+  const tournament = await getTournament(id);
+
+  const primaryVenue = tournament ? getPrimaryVenueDisplay(tournament) : null;
+  const jsonLd = tournament
+    ? {
+        '@context': 'https://schema.org',
+        '@type': 'SportsEvent',
+        name: tournament.name,
+        sport: 'Badminton',
+        url: `https://vmito.com/${locale || 'vi'}/tournament/${tournament.slug || id}`,
+        ...(toIsoDate(tournament.startDate)
+          ? { startDate: toIsoDate(tournament.startDate) }
+          : {}),
+        ...(toIsoDate(tournament.endDate)
+          ? { endDate: toIsoDate(tournament.endDate) }
+          : {}),
+        ...(tournament.coverPhoto ? { image: tournament.coverPhoto } : {}),
+        ...(primaryVenue?.name
+          ? {
+              location: {
+                '@type': 'Place',
+                name: primaryVenue.name,
+                ...(primaryVenue.address
+                  ? {
+                      address: {
+                        '@type': 'PostalAddress',
+                        streetAddress: primaryVenue.address,
+                        addressCountry: 'VN',
+                      },
+                    }
+                  : {}),
+              },
+            }
+          : {}),
+      }
+    : null;
+
+  return (
+    <>
+      {jsonLd && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
+      )}
+      <TournamentPageShell activeSegment="home" />
+    </>
+  );
 }

@@ -1,6 +1,7 @@
 import { MetadataRoute } from 'next';
 import { VenueService } from '@/lib/api/venue.service';
 import { ClubsService } from '@/lib/api/clubs.service';
+import { TournamentService } from '@/lib/api/tournament.service';
 import { VENUE_DISTRICT_ENTRIES } from '@/constants/venue-districts';
 
 const BASE_URL = 'https://vmito.com';
@@ -8,6 +9,11 @@ const LOCALES = ['vi', 'en', 'cn'] as const;
 
 const staticRoutes = [
   { path: '', priority: 1.0, changeFrequency: 'daily' as const },
+  { path: '/venues', priority: 0.9, changeFrequency: 'daily' as const },
+  { path: '/clubs', priority: 0.8, changeFrequency: 'daily' as const },
+  { path: '/tournaments', priority: 0.8, changeFrequency: 'daily' as const },
+  { path: '/guide', priority: 0.6, changeFrequency: 'monthly' as const },
+  { path: '/newsfeed', priority: 0.5, changeFrequency: 'daily' as const },
   { path: '/about', priority: 0.5, changeFrequency: 'monthly' as const },
 ];
 
@@ -78,6 +84,25 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }
   } catch {
     // API unavailable at build time — skip club detail pages
+  }
+
+  // Dynamic tournament detail pages: /[locale]/tournament/[id]
+  try {
+    const tournaments = await TournamentService.getAllTournaments();
+    for (const tournament of tournaments) {
+      for (const locale of LOCALES) {
+        entries.push({
+          url: `${BASE_URL}/${locale}/tournament/${tournament.slug ?? tournament.id}`,
+          lastModified: tournament.updatedAt
+            ? new Date(tournament.updatedAt)
+            : now,
+          changeFrequency: 'weekly',
+          priority: 0.7,
+        });
+      }
+    }
+  } catch {
+    // API unavailable at build time — skip tournament detail pages
   }
 
   return entries;

@@ -76,9 +76,20 @@ export async function generateMetadata({
       ? [DEFAULT_COVER_PHOTO]
       : [session.coverPhoto];
 
+  const sessionSlug = session.slug ?? session.id;
+  const canonicalUrl = `https://vmito.com/${locale || 'vi'}/sessions/${sessionSlug}`;
+
   return {
     title,
     description,
+    alternates: {
+      canonical: canonicalUrl,
+      languages: {
+        vi: `https://vmito.com/vi/sessions/${sessionSlug}`,
+        en: `https://vmito.com/en/sessions/${sessionSlug}`,
+        'zh-Hans': `https://vmito.com/cn/sessions/${sessionSlug}`,
+      },
+    },
     ...(session.isCrawled ? { robots: { index: false, follow: false } } : {}),
     openGraph: {
       title,

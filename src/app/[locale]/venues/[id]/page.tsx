@@ -92,12 +92,24 @@ export async function generateMetadata({
 
   const images = venue.coverPhoto ? [venue.coverPhoto] : [DEFAULT_COVER_PHOTO];
 
+  const venueSlug = venue.slug ?? venue.id;
+  const canonicalUrl = `${BASE_URL}/${locale || 'vi'}/venues/${venueSlug}`;
+
   return {
     title,
     description,
+    alternates: {
+      canonical: canonicalUrl,
+      languages: {
+        vi: `${BASE_URL}/vi/venues/${venueSlug}`,
+        en: `${BASE_URL}/en/venues/${venueSlug}`,
+        'zh-Hans': `${BASE_URL}/cn/venues/${venueSlug}`,
+      },
+    },
     openGraph: {
       title,
       description,
+      url: canonicalUrl,
       images,
       type: 'website',
     },

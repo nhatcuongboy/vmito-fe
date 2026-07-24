@@ -5,6 +5,8 @@ import { IClub } from '@/types/club';
 import { DEFAULT_COVER_PHOTO } from '@/constants';
 import ClubDetailClient from './ClubDetailClient';
 
+const BASE_URL = 'https://vmito.com';
+
 interface PageProps {
   params: Promise<{
     id: string;
@@ -23,7 +25,7 @@ const getClub = cache(async (id: string): Promise<IClub | null> => {
 export async function generateMetadata({
   params,
 }: PageProps): Promise<Metadata> {
-  const { id } = await params;
+  const { id, locale } = await params;
 
   const club = await getClub(id);
 
@@ -49,12 +51,24 @@ export async function generateMetadata({
 
   const images = club.image ? [club.image] : [DEFAULT_COVER_PHOTO];
 
+  const clubSlug = club.slug ?? club.id;
+  const canonicalUrl = `${BASE_URL}/${locale || 'vi'}/clubs/${clubSlug}`;
+
   return {
     title,
     description,
+    alternates: {
+      canonical: canonicalUrl,
+      languages: {
+        vi: `${BASE_URL}/vi/clubs/${clubSlug}`,
+        en: `${BASE_URL}/en/clubs/${clubSlug}`,
+        'zh-Hans': `${BASE_URL}/cn/clubs/${clubSlug}`,
+      },
+    },
     openGraph: {
       title,
       description,
+      url: canonicalUrl,
       images,
       type: 'website',
     },
@@ -68,8 +82,39 @@ export async function generateMetadata({
 }
 
 export default async function ClubDetailPage({ params }: PageProps) {
-  const { id } = await params;
+  const { id, locale } = await params;
   const club = await getClub(id);
 
-  return <ClubDetailClient initialClub={club} />;
+  const jsonLd = club
+    ? {
+        '@context': 'https://schema.org',
+        '@type': 'SportsClub',
+        name: club.name,
+        sport: 'Badminton',
+        url: `${BASE_URL}/${locale || 'vi'}/clubs/${club.slug ?? club.id}`,
+        ...(club.description ? { description: club.description } : {}),
+        ...(club.image ? { image: club.image } : {}),
+        ...(club.location
+          ? {
+              address: {
+                '@type': 'PostalAddress',
+                addressLocality: club.location,
+                addressCountry: 'VN',
+              },
+            }
+          : {}),
+      }
+    : null;
+
+  return (
+    <>
+      {jsonLd && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
+      )}
+      <ClubDetailClient initialClub={club} />
+    </>
+  );
 }
