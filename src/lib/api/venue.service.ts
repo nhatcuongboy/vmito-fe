@@ -174,6 +174,15 @@ export const VenueService = {
     return response.data.data!;
   },
 
+  // Canonical Tỉnh/Thành phố -> Phường/Xã list (public), for the new-address
+  // dropdowns in venue forms (replaces free-text newDistrict/newCity input).
+  getNewAdminUnits: async (): Promise<{ city: string; wards: string[] }[]> => {
+    const response = await api.get<
+      ApiResponse<{ city: string; wards: string[] }[]>
+    >('/venues/new-admin-units');
+    return response.data.data || [];
+  },
+
   migrateAddresses: async (): Promise<{
     message: string;
     total: number;

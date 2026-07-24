@@ -639,11 +639,11 @@ export default function SessionInfo({
             session.venue?.address || session.location || t('noLocation')
           }
           district={session.venue?.district}
+          city={session.venue?.city}
           newAddress={session.venue?.newAddress}
           newDistrict={session.venue?.newDistrict}
           fontSize="md"
           color="inherit"
-          newAddressColor="blue.500"
         />
       </InfoRow>
 

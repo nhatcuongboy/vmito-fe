@@ -113,6 +113,9 @@ export interface IClubVenue {
   address: string;
   district?: string | null;
   city?: string | null;
+  newAddress?: string | null;
+  newDistrict?: string | null;
+  newCity?: string | null;
   lat?: number | null;
   lng?: number | null;
 }

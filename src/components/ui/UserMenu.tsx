@@ -19,6 +19,8 @@ import { Locale } from '@/i18n/locales';
 import { UserRole } from '@/lib/api/types';
 import { useAiAssistantStore } from '@/stores/useAiAssistantStore';
 import { useAuthStore } from '@/stores/useAuthStore';
+import { useAppSettings } from '@/contexts/AppSettingsContext';
+import { VSwitch } from '@/components/ui/VSwitch';
 import {
   Avatar,
   Badge,
@@ -41,6 +43,7 @@ import {
   MessageCircle,
   Monitor,
   Moon,
+  Settings,
   Sparkles,
   Sun,
   User as UserIcon,
@@ -69,6 +72,8 @@ export default function UserMenu({ onLogout }: UserMenuProps) {
   const [isContactModalOpen, setIsContactModalOpen] = useState(false);
   const [isBugReportModalOpen, setIsBugReportModalOpen] = useState(false);
   const [isLogoutConfirmOpen, setIsLogoutConfirmOpen] = useState(false);
+  const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
+  const { showNewAddress, setShowNewAddress } = useAppSettings();
   const menuRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLDivElement>(null);
   const [dropdownPos, setDropdownPos] = useState<{
@@ -332,6 +337,32 @@ export default function UserMenu({ onLogout }: UserMenuProps) {
         </Box>
         <Text fontSize={{ base: 'sm', md: 'md' }} fontWeight="medium" flex={1}>
           {common('aiAssistant')}
+        </Text>
+      </Flex>
+
+      {/* Settings */}
+      <Flex
+        align="center"
+        gap={{ base: 2, md: 3 }}
+        px={{ base: 3, md: 4 }}
+        py={{ base: 2, md: 2 }}
+        cursor="pointer"
+        _hover={{ bg: 'gray.50', _dark: { bg: 'gray.700' } }}
+        onClick={() => {
+          setIsOpen(false);
+          setIsSettingsModalOpen(true);
+        }}
+      >
+        <Box
+          bg="gray.100"
+          _dark={{ bg: 'gray.700' }}
+          p={{ base: 1.5, md: 2 }}
+          borderRadius="full"
+        >
+          <Settings size={16} />
+        </Box>
+        <Text fontSize={{ base: 'sm', md: 'md' }} fontWeight="medium" flex={1}>
+          {common('settings')}
         </Text>
       </Flex>
 
@@ -743,6 +774,35 @@ export default function UserMenu({ onLogout }: UserMenuProps) {
         isCentered
       >
         <Text>{common('logoutConfirmMessage')}</Text>
+      </VModal>
+
+      {/* Settings */}
+      <VModal
+        isOpen={isSettingsModalOpen}
+        onClose={() => setIsSettingsModalOpen(false)}
+        title={common('settings')}
+        secondaryActionText={common('close')}
+        size="sm"
+        isCentered
+      >
+        <Text fontWeight="semibold" fontSize="sm">
+          {common('showNewAddressTitle')}
+        </Text>
+        <Text fontSize="xs" color="gray.500" mt={1} mb={3}>
+          {common('showNewAddressDescription')}
+        </Text>
+        <Flex align="center" gap={4}>
+          <VSwitch
+            checked={showNewAddress}
+            onCheckedChange={(e) => setShowNewAddress(e.checked)}
+            colorPalette="green"
+          />
+          <Text fontSize="sm">
+            {showNewAddress
+              ? common('showNewAddressOn')
+              : common('showNewAddressOff')}
+          </Text>
+        </Flex>
       </VModal>
     </>
   );

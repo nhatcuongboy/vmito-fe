@@ -32,6 +32,7 @@ import { useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import { Locale } from '@/i18n/locales';
 import { FeeService } from '@/lib/api/fee.service';
+import { AppAddressDisplay } from '@/components/common/AppAddressDisplay';
 import FeeDetailPopover from '@/components/fee/FeeDetailPopover';
 import { useSidebar } from '@/contexts/SidebarContext';
 import { SIDEBAR_WIDTH_EXPANDED, SIDEBAR_WIDTH_COLLAPSED } from '@/constants';
@@ -400,11 +401,19 @@ const SessionDetailStickyBar = ({
                     <Text fontSize="sm" fontWeight="medium" color="green.600">
                       {venueDisplayName}
                     </Text>
-                    {session.venue?.address &&
+                    {(session.venue?.address || session.venue?.newAddress) &&
                       session.venue.address !== session.venue?.name && (
-                        <Text fontSize="xs" color="gray.500" mt={0.5}>
-                          {session.venue.address}
-                        </Text>
+                        <Box mt={0.5}>
+                          <AppAddressDisplay
+                            address={session.venue.address}
+                            district={session.venue.district}
+                            city={session.venue.city}
+                            newAddress={session.venue.newAddress}
+                            newDistrict={session.venue.newDistrict}
+                            fontSize="xs"
+                            color="gray.500"
+                          />
+                        </Box>
                       )}
                   </Box>
                   <Icon

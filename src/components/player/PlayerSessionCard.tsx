@@ -66,9 +66,10 @@ export default function PlayerSessionCard({ session }: PlayerSessionCardProps) {
               <AppAddressDisplay
                 address={session.venue.address}
                 district={session.venue.district}
+                city={session.venue.city}
                 newAddress={session.venue.newAddress}
                 newDistrict={session.venue.newDistrict}
-                lineClamp={1}
+                lineClamp={2}
               />
             )}
         </Box>

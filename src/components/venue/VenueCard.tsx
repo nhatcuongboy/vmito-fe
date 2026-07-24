@@ -61,6 +61,7 @@ export default function VenueCard({
 }: VenueCardProps) {
   const router = useRouter();
   const t = useTranslations('venue');
+  const tAdmin = useTranslations('admin');
   const userRole = useAuthStore((state) => state.user?.role);
   const [isLoading, setIsLoading] = useState(false);
   const showAdminVerifiedBadge =
@@ -70,6 +71,13 @@ export default function VenueCard({
     venue.name,
     t('nameFormat', { name: '{name}' })
   );
+
+  // Use the old district/city as a pair, or the new ward/city as a pair —
+  // never mix one old field with one new field (e.g. stale old district
+  // next to a freshly-set new city), which per-field fallback would allow.
+  const usingOldLocation = !!(venue.district || venue.city);
+  const badgeDistrict = usingOldLocation ? venue.district : venue.newDistrict;
+  const badgeCity = usingOldLocation ? venue.city : venue.newCity;
 
   const handleNavigate = () => {
     const url = getGoogleMapsUrl({
@@ -222,17 +230,18 @@ export default function VenueCard({
               {displayName}
             </Text>
 
-            <HStack
-              fontSize="sm"
-              color="gray.600"
-              _dark={{ color: 'gray.400' }}
-              mt={0.5}
-              gap={1}
-            >
-              <Text lineClamp={2}>
-                {[venue.address, venue.district].filter(Boolean).join(', ')}
-              </Text>
-            </HStack>
+            <Box mt={0.5}>
+              <AppAddressDisplay
+                address={venue.address}
+                district={venue.district}
+                city={venue.city}
+                newAddress={venue.newAddress}
+                newDistrict={venue.newDistrict}
+                fontSize="sm"
+                color="gray.600"
+                lineClamp={2}
+              />
+            </Box>
 
             {venue.openingHours && (
               <Flex
@@ -376,10 +385,13 @@ export default function VenueCard({
               {displayName}
             </Text>
 
-            {/* Location badges */}
-            {(venue.district || venue.city) && (
+            {/* Location badges — fall back to the new-era ward/city (as a
+                pair) when the venue has no legacy district/city on file
+                (e.g. created via the public "new venue" request with no
+                old address). */}
+            {(badgeDistrict || badgeCity) && (
               <HStack gap={2} mb={2} flexWrap="wrap">
-                {venue.district && (
+                {badgeDistrict && (
                   <Badge
                     colorPalette="purple"
                     variant="subtle"
@@ -390,10 +402,13 @@ export default function VenueCard({
                     gap={1}
                   >
                     <MapPinned size={12} />
-                    <Text fontSize="xs">{venue.district}</Text>
+                    <Text fontSize="xs">
+                      {badgeDistrict}
+                      {!usingOldLocation && ` (${tAdmin('newAddressBadge')})`}
+                    </Text>
                   </Badge>
                 )}
-                {venue.city && (
+                {badgeCity && (
                   <Badge
                     colorPalette="cyan"
                     variant="subtle"
@@ -401,7 +416,8 @@ export default function VenueCard({
                     borderRadius="md"
                     fontSize="xs"
                   >
-                    {venue.city}
+                    {badgeCity}
+                    {!usingOldLocation && ` (${tAdmin('newAddressBadge')})`}
                   </Badge>
                 )}
               </HStack>
@@ -416,6 +432,7 @@ export default function VenueCard({
               <AppAddressDisplay
                 address={venue.address}
                 district={venue.district}
+                city={venue.city}
                 newAddress={venue.newAddress}
                 newDistrict={venue.newDistrict}
                 fontSize="sm"

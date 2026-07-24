@@ -8,7 +8,7 @@ export const VENUE_REQUEST_FIELDS: Array<{
   { key: 'address' },
   { key: 'city' },
   { key: 'district' },
-  { key: 'newAddress' },
+  { key: 'street' },
   { key: 'newDistrict' },
   { key: 'newCity' },
   { key: 'numberOfCourts' },

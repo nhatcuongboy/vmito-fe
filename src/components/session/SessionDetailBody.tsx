@@ -217,6 +217,7 @@ const SessionDetailBody = ({
             <AppAddressDisplay
               address={session.venue.address}
               district={session.venue.district}
+              city={session.venue.city}
               newAddress={session.venue.newAddress}
               newDistrict={session.venue.newDistrict}
               lineClamp={2}

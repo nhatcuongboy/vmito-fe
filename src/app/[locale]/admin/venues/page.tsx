@@ -845,6 +845,8 @@ function AdminVenuesContent() {
                     <Td color="gray.600">
                       <AppAddressDisplay
                         address={venue.address}
+                        district={venue.district}
+                        city={venue.city}
                         newAddress={venue.newAddress}
                         fontSize="sm"
                         color="gray.600"

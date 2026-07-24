@@ -21,6 +21,7 @@ import {
   UserPlus,
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import { AppAddressDisplay } from '@/components/common/AppAddressDisplay';
 import DetailViewCountFooter from '@/components/common/DetailViewCountFooter';
 import AppHostDetail from '@/components/session/AppHostDetail';
 import LevelBadgeWithDescription from '@/components/session/LevelBadgeWithDescription';
@@ -56,6 +57,11 @@ interface QuickInfoVenue {
   key: string;
   name: string;
   address?: string;
+  district?: string | null;
+  city?: string | null;
+  newAddress?: string | null;
+  newDistrict?: string | null;
+  newCity?: string | null;
   href?: string;
 }
 
@@ -119,6 +125,11 @@ export const ClubDetailSidebar = ({
           key: venue.id,
           name: venue.name,
           address: venue.address,
+          district: venue.district,
+          city: venue.city,
+          newAddress: venue.newAddress,
+          newDistrict: venue.newDistrict,
+          newCity: venue.newCity,
           href: ROUTES.VENUES.DETAIL(venue.id),
         }))
       : venueNames.length > 0
@@ -259,16 +270,20 @@ export const ClubDetailSidebar = ({
                                 >
                                   {venue.name}
                                 </Text>
-                                {venue.address &&
+                                {(venue.address || venue.newAddress) &&
                                   venue.address !== venue.name && (
-                                    <Text
-                                      mt={0.5}
-                                      fontSize="xs"
-                                      color="fg.muted"
-                                      lineClamp={2}
-                                    >
-                                      {venue.address}
-                                    </Text>
+                                    <Box mt={0.5}>
+                                      <AppAddressDisplay
+                                        address={venue.address}
+                                        district={venue.district}
+                                        city={venue.city}
+                                        newAddress={venue.newAddress}
+                                        newDistrict={venue.newDistrict}
+                                        fontSize="xs"
+                                        color="fg.muted"
+                                        lineClamp={2}
+                                      />
+                                    </Box>
                                   )}
                               </Box>
                               {venue.href && (

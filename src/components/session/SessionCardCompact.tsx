@@ -26,6 +26,7 @@ import {
   getLevelRank,
   sortLevelsByRank,
 } from '@/constants/levels';
+import { useAppSettings } from '@/contexts/AppSettingsContext';
 import { normalizeImageUrl } from '@/lib/images/normalizeImageUrl';
 import { COMPACT_COVER_TRANSFORM } from '@/lib/images/coverTransforms';
 import { DEFAULT_COVER_PHOTO } from '@/constants';
@@ -60,6 +61,7 @@ const SessionCardCompact = ({
   const t = useTranslations('session');
   const tVenue = useTranslations('venue');
   const locale = useLocale();
+  const { showNewAddress } = useAppSettings();
   const { getLevelShortLabel } = useLevelLabel();
   const [isLoading, setIsLoading] = useState(false);
 
@@ -181,20 +183,30 @@ const SessionCardCompact = ({
         tVenue('nameFormat', { name: '{name}' })
       )
     : session.location;
+  // Honor the global "show new address" setting, falling back to whichever
+  // side actually has data so the location segment is never silently
+  // dropped (e.g. a venue with only new-format admin data, district=null).
+  const rawDistrict = showNewAddress
+    ? session.venue?.newDistrict || session.venue?.district
+    : session.venue?.district || session.venue?.newDistrict;
+  const rawCity = showNewAddress
+    ? session.venue?.newCity || session.venue?.city
+    : session.venue?.city || session.venue?.newCity;
   // "Phường Gò Vấp" → "Gò Vấp" (Chợ Tốt style), but keep the prefix for
   // numbered wards where the bare remainder would be meaningless ("Phường 5")
-  const district = (
-    session.venue?.newDistrict ||
-    session.venue?.district ||
+  const district = (rawDistrict || '').replace(
+    /^(Phường|Xã|Thị trấn)\s+(?=\D)/i,
     ''
-  ).replace(/^(Phường|Xã|Thị trấn)\s+(?=\D)/i, '');
+  );
   const distanceLabel =
     distance !== undefined
       ? distance < 1
         ? `${Math.round(distance * 1000)}m`
         : `${distance.toFixed(1)}km`
       : undefined;
-  const venueSuffix = [district, distanceLabel].filter(Boolean).join(' • ');
+  const venueSuffix = [district || rawCity, distanceLabel]
+    .filter(Boolean)
+    .join(' • ');
 
   // Levels: min/max shown as a range (arrow) only when the selected levels
   // are actually contiguous by rank — a range badge for a gappy selection
