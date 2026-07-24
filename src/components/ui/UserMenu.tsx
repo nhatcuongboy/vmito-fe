@@ -62,6 +62,7 @@ export default function UserMenu({ onLogout }: UserMenuProps) {
   const locale = useLocale();
   const router = useRouter();
   const pathname = usePathname();
+  const isTournamentDetailRoute = /^\/tournament\/[^/]+\/?$/.test(pathname);
 
   const [isOpen, setIsOpen] = useState(false);
   const [currentMenu, setCurrentMenu] = useState<MenuState>('MAIN');
@@ -212,31 +213,37 @@ export default function UserMenu({ onLogout }: UserMenuProps) {
         </Flex>
       </Box>
 
-      {/* Home */}
-      <Flex
-        align="center"
-        gap={{ base: 2, md: 3 }}
-        px={{ base: 3, md: 4 }}
-        py={{ base: 2, md: 2 }}
-        cursor="pointer"
-        _hover={{ bg: 'gray.50', _dark: { bg: 'gray.700' } }}
-        onClick={() => {
-          setIsOpen(false);
-          router.push(ROUTES.HOME);
-        }}
-      >
-        <Box
-          bg="gray.100"
-          _dark={{ bg: 'gray.700' }}
-          p={{ base: 1.5, md: 2 }}
-          borderRadius="full"
+      {/* Home: tournament pages use a focused navigation shell. */}
+      {isTournamentDetailRoute ? (
+        <Flex
+          align="center"
+          gap={{ base: 2, md: 3 }}
+          px={{ base: 3, md: 4 }}
+          py={{ base: 2, md: 2 }}
+          cursor="pointer"
+          _hover={{ bg: 'gray.50', _dark: { bg: 'gray.700' } }}
+          onClick={() => {
+            setIsOpen(false);
+            router.push(ROUTES.HOME);
+          }}
         >
-          <House size={16} />
-        </Box>
-        <Text fontSize={{ base: 'sm', md: 'md' }} fontWeight="medium" flex={1}>
-          {navigation('mainHome')}
-        </Text>
-      </Flex>
+          <Box
+            bg="gray.100"
+            _dark={{ bg: 'gray.700' }}
+            p={{ base: 1.5, md: 2 }}
+            borderRadius="full"
+          >
+            <House size={16} />
+          </Box>
+          <Text
+            fontSize={{ base: 'sm', md: 'md' }}
+            fontWeight="medium"
+            flex={1}
+          >
+            {navigation('mainHome')}
+          </Text>
+        </Flex>
+      ) : null}
 
       {/* Appearance */}
       <Flex
