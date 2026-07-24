@@ -11,12 +11,8 @@ import {
   Badge,
 } from '@chakra-ui/react';
 import { MapPin, Clock, Hash } from 'lucide-react';
-import { VenueService } from '@/lib/api/venue.service';
 import { Venue } from '@/lib/api/types';
-import {
-  VENUE_DISTRICT_ENTRIES,
-  VENUE_DISTRICT_BY_SLUG,
-} from '@/constants/venue-districts';
+import { VENUE_DISTRICT_BY_SLUG } from '@/constants/venue-districts';
 import { DEFAULT_COVER_PHOTO } from '@/constants';
 import { formatVenueName } from '@/utils/venue-helpers';
 import Link from 'next/link';
@@ -30,11 +26,13 @@ export const revalidate = 86400;
 // Allow on-demand generation for slugs not in generateStaticParams
 export const dynamicParams = true;
 
+// Intentionally NOT pre-rendering these pages at build time. The backend is not
+// reliably reachable during the Docker/CI `next build`, so pre-rendering would
+// bake empty pages that stay cached for a full day. Instead we let each page
+// generate on-demand on its first request (where the API is reachable) and then
+// cache via ISR (`revalidate`). `dynamicParams` above allows this.
 export async function generateStaticParams() {
-  const locales = ['vi', 'en', 'cn'];
-  return locales.flatMap((locale) =>
-    VENUE_DISTRICT_ENTRIES.map(({ slug }) => ({ locale, slug }))
-  );
+  return [];
 }
 
 export async function generateMetadata({
@@ -76,14 +74,27 @@ async function fetchVenues(
   district: string | null,
   city: string
 ): Promise<Venue[]> {
+  // Server-side fetch: prefer the internal API URL to avoid public DNS loopback,
+  // and never call a relative base URL ('/api') which can't be fetched from the
+  // server. Uses native fetch (not the axios client) so it works reliably in SSR.
+  const apiUrl =
+    process.env.INTERNAL_API_URL || process.env.NEXT_PUBLIC_API_URL;
+  if (!apiUrl || apiUrl.startsWith('/')) return [];
+
+  const params = new URLSearchParams({
+    city,
+    limit: '60',
+    status: 'ACTIVE',
+  });
+  if (district) params.set('district', district);
+
   try {
-    const result = await VenueService.searchVenues({
-      ...(district ? { district } : {}),
-      city,
-      limit: 60,
-      status: 'ACTIVE',
+    const res = await fetch(`${apiUrl}/venues/search?${params.toString()}`, {
+      next: { revalidate },
     });
-    return result.data ?? [];
+    if (!res.ok) return [];
+    const json = await res.json();
+    return (json?.data?.data as Venue[]) ?? [];
   } catch {
     return [];
   }
