@@ -52,7 +52,7 @@ const AiSkeletonAccent = ({ size = 16 }: { size?: number }) => (
 );
 
 // Skeleton matching SessionCardCompact (find-session list view): horizontal
-// row with a square photo on mobile, vertical 4:3-cover card on md+.
+// row with a square photo on mobile, vertical 3:2-cover card on md+.
 export const SessionCardCompactSkeleton: React.FC<{
   display?: any; // Chakra responsive display prop
 }> = ({ display }) => (
@@ -71,7 +71,7 @@ export const SessionCardCompactSkeleton: React.FC<{
       flexShrink={0}
       w={{ base: '120px', md: '100%' }}
       minH={{ base: '120px', md: 'auto' }}
-      aspectRatio={{ base: 'auto', md: 4 / 3 }}
+      aspectRatio={{ base: 'auto', md: 3 / 2 }}
     />
     <Stack p={2.5} gap={1.5} flex={1}>
       {/* Two title lines + the source line below, matching the real card */}

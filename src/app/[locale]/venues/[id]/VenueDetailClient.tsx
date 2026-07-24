@@ -66,6 +66,7 @@ import VenueMapPin from '@/components/venue/VenueMapPin';
 import VenueRequestModal from '@/components/venue/VenueRequestModal';
 import VenuePriceRequestModal from '@/components/venue/VenuePriceRequestModal';
 import VenueImageRequestModal from '@/components/venue/VenueImageRequestModal';
+import AppLightbox from '@/components/ui/AppLightbox';
 import DetailViewCountFooter from '@/components/common/DetailViewCountFooter';
 import dynamic from 'next/dynamic';
 
@@ -259,6 +260,9 @@ export default function VenueDetailClient({
   const [isPriceRequestOpen, setIsPriceRequestOpen] = useState(false);
   const [isImageRequestOpen, setIsImageRequestOpen] = useState(false);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+  const [heroLightboxImage, setHeroLightboxImage] = useState<string | null>(
+    null
+  );
   const [priceBooks, setPriceBooks] = useState<VenuePriceBook[]>([]);
 
   useEffect(() => {
@@ -442,6 +446,10 @@ export default function VenueDetailClient({
             h="full"
             objectFit="cover"
             fetchPriority="high"
+            cursor="pointer"
+            onClick={() =>
+              setHeroLightboxImage(venue.coverPhoto || DEFAULT_COVER_PHOTO)
+            }
           />
           {/* Gradient overlay */}
           <Box
@@ -538,6 +546,10 @@ export default function VenueDetailClient({
               justifyContent="center"
               borderWidth="1px"
               borderColor="green.100"
+              cursor={venue.logo ? 'pointer' : 'default'}
+              onClick={
+                venue.logo ? () => setHeroLightboxImage(venue.logo!) : undefined
+              }
             >
               {venue.logo ? (
                 <Image
@@ -1561,6 +1573,13 @@ export default function VenueDetailClient({
         onClose={() => setIsImageRequestOpen(false)}
         venueId={venue.id}
       />
+      {heroLightboxImage && (
+        <AppLightbox
+          images={[heroLightboxImage]}
+          onClose={() => setHeroLightboxImage(null)}
+          alt={venueName}
+        />
+      )}
       {isLoginModalOpen && (
         <LoginPromptModal
           isOpen={isLoginModalOpen}

@@ -9,9 +9,9 @@ export const GRID_COVER_TRANSFORM = {
   cloudinaryHeight: 380,
 } as const;
 
-// 600x450 = 4:3 at 2x DPR for the widest render (~280px at lg 4-col).
+// 600x400 = 3:2 at 2x DPR for the widest render (~280px at lg 4-col).
 // SessionCardCompact, view=list.
 export const COMPACT_COVER_TRANSFORM = {
   cloudinaryWidth: 600,
-  cloudinaryHeight: 450,
+  cloudinaryHeight: 400,
 } as const;

@@ -7,28 +7,32 @@ import {
   Flex,
   Heading,
   HStack,
+  Link as ChakraLink,
   Text,
   VStack,
 } from '@chakra-ui/react';
 import {
+  ChevronRight,
   DollarSign,
   ExternalLink,
   MapPin,
   Settings,
-  TrendingUp,
+  Shield,
   UserPlus,
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import DetailViewCountFooter from '@/components/common/DetailViewCountFooter';
 import AppHostDetail from '@/components/session/AppHostDetail';
+import LevelBadgeWithDescription from '@/components/session/LevelBadgeWithDescription';
 import SessionMap from '@/components/session/SessionMap';
 import { Button } from '@/components/ui/chakra-compat';
 import { VModal } from '@/components/ui/VModal';
 import { ROUTES } from '@/constants';
 import { sortLevelsByRank } from '@/constants/levels';
 import { useLevelLabel } from '@/hooks/useLevelLabel';
-import { useRouter } from '@/i18n/config';
+import { Link, useRouter } from '@/i18n/config';
 import { ISession } from '@/lib/api/types';
+import { getSkillLevelColor } from '@/lib/utils/skillLevel.utils';
 import { IClub } from '@/types/club';
 import { getGoogleMapsUrl } from '@/utils';
 import {
@@ -48,6 +52,16 @@ interface IClubDetailSidebarProps {
   onTabChange: (tab: string) => void;
 }
 
+interface QuickInfoVenue {
+  key: string;
+  name: string;
+  address?: string;
+  href?: string;
+}
+
+// Keep the location card available for a quick re-enable after the temporary hide.
+const SHOW_CLUB_LOCATION_CARD = false;
+
 export const ClubDetailSidebar = ({
   club,
   isUserAdmin,
@@ -62,24 +76,19 @@ export const ClubDetailSidebar = ({
   const { getLevelShortLabel } = useLevelLabel();
   const [isHostDetailModalOpen, setIsHostDetailModalOpen] = useState(false);
 
-  const getLevelRange = () => {
+  const getDisplayLevels = () => {
     const requiredLevels = getClubRequiredLevels(club);
-    if (requiredLevels.length > 0) {
-      return requiredLevels
-        .map((level) => getLevelShortLabel(level))
-        .join(', ');
-    }
+    if (requiredLevels.length > 0) return requiredLevels;
 
-    if (!club.members || club.members.length === 0) return null;
+    if (!club.members || club.members.length === 0) return [];
     const levels = club.members
       .map((member) => member.user.level)
       .filter(
         (level): level is number => level !== undefined && level !== null
       );
 
-    if (levels.length === 0) return null;
-    const uniqueLevels = sortLevelsByRank(Array.from(new Set(levels)));
-    return uniqueLevels.map((level) => getLevelShortLabel(level)).join(', ');
+    if (levels.length === 0) return [];
+    return sortLevelsByRank(Array.from(new Set(levels)));
   };
 
   const linkedHostUser = club.host?.id ? club.host : undefined;
@@ -94,17 +103,32 @@ export const ClubDetailSidebar = ({
         ),
       ]
     : [];
-  const displayVenues =
-    venueNames.length > 0
-      ? venueNames
-      : club.defaultVenue?.name
-        ? [club.defaultVenue.name]
+  const linkedActivityVenues =
+    club.scheduleVenues && club.scheduleVenues.length > 0
+      ? club.scheduleVenues
+      : club.defaultVenue
+        ? [club.defaultVenue]
+        : [];
+  const displayVenues: QuickInfoVenue[] =
+    linkedActivityVenues.length > 0
+      ? Array.from(
+          new Map(
+            linkedActivityVenues.map((venue) => [venue.id, venue] as const)
+          ).values()
+        ).map((venue) => ({
+          key: venue.id,
+          name: venue.name,
+          address: venue.address,
+          href: ROUTES.VENUES.DETAIL(venue.id),
+        }))
+      : venueNames.length > 0
+        ? venueNames.map((name) => ({ key: name, name }))
         : club.location
-          ? [club.location]
+          ? [{ key: club.location, name: club.location }]
           : [];
 
-  const levelRangeText = getLevelRange();
-  const hasQuickInfo = !!levelRangeText || displayVenues.length > 0;
+  const displayLevels = getDisplayLevels();
+  const hasQuickInfo = displayLevels.length > 0 || displayVenues.length > 0;
 
   return (
     <>
@@ -115,80 +139,193 @@ export const ClubDetailSidebar = ({
               bg="white"
               _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
               borderRadius="2xl"
-              p={5}
-              shadow="sm"
+              p={{ base: 4, md: 5 }}
+              boxShadow="0 8px 24px rgba(15, 23, 42, 0.06)"
               borderWidth="1px"
-              borderColor="gray.100"
+              borderColor="border.subtle"
             >
               <Heading size="sm" mb={4}>
                 {t('clubs.quickInfo')}
               </Heading>
-              <VStack gap={4} align="stretch">
-                <HStack gap={3}>
+
+              <VStack gap={3} align="stretch">
+                <Flex
+                  gap={3}
+                  align="flex-start"
+                  p={3}
+                  borderRadius="xl"
+                  bg="green.50"
+                  borderWidth="1px"
+                  borderColor="green.100"
+                  _dark={{ bg: 'whiteAlpha.50', borderColor: 'green.800' }}
+                >
                   <Flex
-                    w="40px"
-                    h="40px"
+                    w="32px"
+                    h="32px"
                     borderRadius="lg"
                     bg="green.100"
-                    _dark={{ bg: 'green.900' }}
+                    color="green.600"
+                    _dark={{ bg: 'green.900', color: 'green.300' }}
                     align="center"
                     justify="center"
                     flexShrink={0}
                   >
-                    <TrendingUp
-                      size={20}
-                      color="var(--chakra-colors-green-600)"
-                    />
+                    <Shield size={16} strokeWidth={2.25} aria-hidden="true" />
                   </Flex>
-                  <Box flex="1">
+                  <Box flex="1" minW={0}>
                     <Text
                       fontSize="xs"
-                      color="gray.500"
-                      _dark={{ color: 'gray.400' }}
-                      textTransform="capitalize"
+                      color="fg.muted"
+                      fontWeight="medium"
+                      mb={1.5}
                     >
                       {t('clubs.levelRange')}
                     </Text>
-                    <Text fontWeight="semibold" fontSize="sm">
-                      {levelRangeText || t('clubs.noLevelInfo')}
-                    </Text>
+                    {displayLevels.length > 0 ? (
+                      <Flex gap={1.5} wrap="wrap">
+                        {displayLevels.map((level) => {
+                          const levelColor = getSkillLevelColor([level]);
+                          return (
+                            <LevelBadgeWithDescription
+                              key={level}
+                              level={level}
+                              colorPalette={levelColor.colorPalette}
+                              variant="solid"
+                              size="sm"
+                              fontSize="xs"
+                              fontWeight="bold"
+                              px={2}
+                              py={0.5}
+                              borderRadius="full"
+                              borderWidth="1px"
+                              borderColor={levelColor.borderColor}
+                            >
+                              {getLevelShortLabel(level)}
+                            </LevelBadgeWithDescription>
+                          );
+                        })}
+                      </Flex>
+                    ) : (
+                      <Text fontWeight="semibold" fontSize="sm">
+                        {t('clubs.noLevelInfo')}
+                      </Text>
+                    )}
                   </Box>
-                </HStack>
+                </Flex>
 
-                <HStack gap={3} align="start">
+                <Flex
+                  gap={3}
+                  align="flex-start"
+                  p={3}
+                  borderRadius="xl"
+                  bg="blue.50"
+                  borderWidth="1px"
+                  borderColor="blue.100"
+                  _dark={{ bg: 'whiteAlpha.50', borderColor: 'blue.800' }}
+                >
                   <Flex
-                    w="40px"
-                    h="40px"
+                    w="32px"
+                    h="32px"
                     borderRadius="lg"
                     bg="blue.100"
-                    _dark={{ bg: 'blue.900' }}
+                    color="blue.600"
+                    _dark={{ bg: 'blue.900', color: 'blue.300' }}
                     align="center"
                     justify="center"
                     flexShrink={0}
                   >
-                    <MapPin size={20} color="var(--chakra-colors-blue-600)" />
+                    <MapPin size={16} strokeWidth={2.25} aria-hidden="true" />
                   </Flex>
-                  <Box flex="1">
+                  <Box flex="1" minW={0}>
                     <Text
                       fontSize="xs"
-                      color="gray.500"
-                      _dark={{ color: 'gray.400' }}
-                      textTransform="capitalize"
+                      color="fg.muted"
+                      fontWeight="medium"
+                      mb={1}
                     >
-                      Sân Sinh Hoạt
+                      {t('clubs.venue')}
                     </Text>
                     {displayVenues.length > 0 ? (
-                      <VStack gap={0.5} align="start">
-                        {displayVenues.map((venue, index) => (
-                          <Text
-                            key={index}
-                            fontWeight="semibold"
-                            fontSize="sm"
-                            lineClamp={2}
-                          >
-                            {venue}
-                          </Text>
-                        ))}
+                      <VStack gap={1} align="stretch">
+                        {displayVenues.map((venue) => {
+                          const venueContent = (
+                            <>
+                              <Box flex="1" minW={0}>
+                                <Text
+                                  fontWeight="semibold"
+                                  fontSize="sm"
+                                  lineClamp={2}
+                                  color="inherit"
+                                >
+                                  {venue.name}
+                                </Text>
+                                {venue.address &&
+                                  venue.address !== venue.name && (
+                                    <Text
+                                      mt={0.5}
+                                      fontSize="xs"
+                                      color="fg.muted"
+                                      lineClamp={2}
+                                    >
+                                      {venue.address}
+                                    </Text>
+                                  )}
+                              </Box>
+                              {venue.href && (
+                                <ChevronRight
+                                  size={18}
+                                  strokeWidth={2}
+                                  aria-hidden="true"
+                                />
+                              )}
+                            </>
+                          );
+
+                          return venue.href ? (
+                            <ChakraLink
+                              asChild
+                              key={venue.key}
+                              display="flex"
+                              alignItems="center"
+                              gap={2}
+                              w="full"
+                              p={2}
+                              mx={-2}
+                              borderRadius="lg"
+                              color="gray.800"
+                              textDecoration="none"
+                              transition="background-color 0.2s ease, color 0.2s ease"
+                              _hover={{
+                                bg: 'blue.100',
+                                color: 'blue.700',
+                                textDecoration: 'none',
+                              }}
+                              _focusVisible={{
+                                outline: '2px solid',
+                                outlineColor: 'blue.500',
+                                outlineOffset: '2px',
+                              }}
+                              _dark={{
+                                color: 'gray.100',
+                                _hover: {
+                                  bg: 'blue.900',
+                                  color: 'blue.200',
+                                },
+                              }}
+                            >
+                              <Link
+                                href={venue.href}
+                                aria-label={`${t('venue.viewDetails')}: ${venue.name}`}
+                              >
+                                {venueContent}
+                              </Link>
+                            </ChakraLink>
+                          ) : (
+                            <Flex key={venue.key} align="center" gap={2} py={1}>
+                              {venueContent}
+                            </Flex>
+                          );
+                        })}
                       </VStack>
                     ) : (
                       <Text fontWeight="semibold" fontSize="sm">
@@ -196,7 +333,7 @@ export const ClubDetailSidebar = ({
                       </Text>
                     )}
                   </Box>
-                </HStack>
+                </Flex>
               </VStack>
             </Box>
           )}
@@ -263,7 +400,7 @@ export const ClubDetailSidebar = ({
             </HStack>
           </Box>
 
-          {(club.defaultVenue || club.location) && (
+          {SHOW_CLUB_LOCATION_CARD && (club.defaultVenue || club.location) && (
             <ClubLocationCard club={club} />
           )}
 
