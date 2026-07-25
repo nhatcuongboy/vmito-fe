@@ -15,6 +15,7 @@ import { Venue } from '@/lib/api/types';
 import { VENUE_DISTRICT_BY_SLUG } from '@/constants/venue-districts';
 import { DEFAULT_COVER_PHOTO } from '@/constants';
 import { formatVenueName } from '@/utils/venue-helpers';
+import PageLayout from '@/components/layout/PageLayout';
 import Link from 'next/link';
 
 interface PageProps {
@@ -126,6 +127,9 @@ export default async function VenueDistrictPage({ params }: PageProps) {
   if (!entry) notFound();
 
   const venues = await fetchVenues(entry.district, entry.city);
+  const pageTitle = entry.district
+    ? `Sân cầu lông ${entry.displayName}`
+    : `Danh sách sân cầu lông TP ${entry.city}`;
 
   // JSON-LD for ItemList
   const jsonLd = {
@@ -160,13 +164,11 @@ export default async function VenueDistrictPage({ params }: PageProps) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
 
-      <Box maxW="7xl" mx="auto" px={{ base: 4, md: 6 }} py={8}>
+      <PageLayout title={pageTitle} maxW="7xl">
         {/* Page Header */}
         <VStack align="start" gap={2} mb={8}>
           <Heading size="xl" color="fg">
-            {entry.district
-              ? `Sân cầu lông ${entry.displayName}`
-              : `Danh sách sân cầu lông TP ${entry.city}`}
+            {pageTitle}
           </Heading>
           <Text color="fg.muted" fontSize="md">
             {venues.length > 0
@@ -284,7 +286,7 @@ export default async function VenueDistrictPage({ params }: PageProps) {
             </Text>
           </Box>
         )}
-      </Box>
+      </PageLayout>
     </>
   );
 }
