@@ -1,6 +1,13 @@
 import { VIETNAM_CITIES } from './vietnam-locations';
 import { districtToSlug, slugifyVi } from '@/utils/slugify';
 
+// Strip the admin-unit prefix for display (e.g. "Quận Bình Thạnh" -> "Bình Thạnh"),
+// but keep it for numbered districts — "Quận 7" stripped down to "7" reads as a typo.
+function stripDistrictPrefix(name: string): string {
+  const stripped = name.replace(/^(?:Quận|Huyện|Thành phố|Thị xã)\s+/, '');
+  return /^\d+$/.test(stripped) ? name : stripped;
+}
+
 export interface IVenueDistrictEntry {
   /** URL slug, e.g. "binh-thanh" */
   slug: string;
@@ -32,7 +39,7 @@ export const VENUE_DISTRICT_ENTRIES: IVenueDistrictEntry[] =
         slug: districtToSlug(d.name),
         district: d.name,
         city: city.name,
-        displayName: `${d.name.replace(/^(?:Quận|Huyện|Thành phố|Thị xã)\s+/, '')}, ${city.name}`,
+        displayName: `${stripDistrictPrefix(d.name)}, ${city.name}`,
       })),
     ];
     return cityEntries;

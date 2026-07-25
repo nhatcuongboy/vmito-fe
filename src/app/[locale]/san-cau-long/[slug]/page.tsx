@@ -42,11 +42,16 @@ export async function generateMetadata({
   const entry = VENUE_DISTRICT_BY_SLUG.get(slug);
   if (!entry) return { title: 'Sân cầu lông | Vmito' };
 
-  const title = `Sân cầu lông ${entry.displayName}`;
+  // Whole-city pages (e.g. /san-cau-long/ho-chi-minh) are listing pages —
+  // title them "Danh sách sân cầu lông TP {city}" without the "| Vmito"
+  // suffix. District pages keep the shorter "Sân cầu lông {displayName}" form.
+  const title = entry.district
+    ? `Sân cầu lông ${entry.displayName}`
+    : `Danh sách sân cầu lông TP ${entry.city}`;
   const description = `Danh sách sân cầu lông tại ${entry.displayName}. Xem thông tin, giá thuê sân, giờ mở cửa và đặt kèo tại Vmito.`;
 
   return {
-    title,
+    title: entry.district ? title : { absolute: title },
     description,
     alternates: {
       canonical: `https://vmito.com/${locale}/san-cau-long/${slug}`,
@@ -70,6 +75,9 @@ export async function generateMetadata({
   };
 }
 
+// Backend max page size (see search-venue.dto.ts `limit` @Max).
+const MAX_PAGE_SIZE = 500;
+
 async function fetchVenues(
   district: string | null,
   city: string
@@ -81,23 +89,34 @@ async function fetchVenues(
     process.env.INTERNAL_API_URL || process.env.NEXT_PUBLIC_API_URL;
   if (!apiUrl || apiUrl.startsWith('/')) return [];
 
-  const params = new URLSearchParams({
-    city,
-    limit: '60',
-    status: 'ACTIVE',
-  });
-  if (district) params.set('district', district);
+  const venues: Venue[] = [];
+  let page = 1;
+  let totalPages = 1;
 
   try {
-    const res = await fetch(`${apiUrl}/venues/search?${params.toString()}`, {
-      next: { revalidate },
-    });
-    if (!res.ok) return [];
-    const json = await res.json();
-    return (json?.data?.data as Venue[]) ?? [];
+    do {
+      const params = new URLSearchParams({
+        city,
+        limit: String(MAX_PAGE_SIZE),
+        page: String(page),
+        status: 'ACTIVE',
+      });
+      if (district) params.set('district', district);
+
+      const res = await fetch(`${apiUrl}/venues/search?${params.toString()}`, {
+        next: { revalidate },
+      });
+      if (!res.ok) break;
+      const json = await res.json();
+      venues.push(...((json?.data?.data as Venue[]) ?? []));
+      totalPages = json?.data?.pagination?.totalPages ?? 1;
+      page += 1;
+    } while (page <= totalPages);
   } catch {
-    return [];
+    // return whatever was fetched before the failure
   }
+
+  return venues;
 }
 
 export default async function VenueDistrictPage({ params }: PageProps) {
@@ -145,7 +164,9 @@ export default async function VenueDistrictPage({ params }: PageProps) {
         {/* Page Header */}
         <VStack align="start" gap={2} mb={8}>
           <Heading size="xl" color="fg">
-            Sân cầu lông {entry.displayName}
+            {entry.district
+              ? `Sân cầu lông ${entry.displayName}`
+              : `Danh sách sân cầu lông TP ${entry.city}`}
           </Heading>
           <Text color="fg.muted" fontSize="md">
             {venues.length > 0
