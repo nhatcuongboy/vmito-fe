@@ -4940,6 +4940,7 @@
       "passwordPlaceholder": "Enter your password",
       "signInButton": "Sign In",
       "continueWithGoogle": "Sign in with Google",
+      "continueWithFacebook": "Sign in with Facebook",
       "continueWithZalo": "Sign in with Zalo",
       "forgotPassword": "Forgot password?",
       "noAccount": "Don't have an account?",

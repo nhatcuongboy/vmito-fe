@@ -4902,6 +4902,7 @@
       "passwordPlaceholder": "输入您的密码",
       "signInButton": "登录",
       "continueWithGoogle": "使用 Google 登录",
+      "continueWithFacebook": "使用 Facebook 登录",
       "continueWithZalo": "使用 Zalo 登录",
       "forgotPassword": "忘记密码？",
       "noAccount": "还没有账户？",
