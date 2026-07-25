@@ -29,6 +29,7 @@ import {
   AlertTriangle,
   Download,
   Info,
+  Share2,
 } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
 import SessionInfo from './SessionInfo';
@@ -36,6 +37,8 @@ import SessionEditForm from './SessionEditForm';
 import SessionPlayers from './SessionPlayers';
 import SessionShareImageModal from './SessionShareImageModal';
 import { RatePlayersSection } from '@/components/rating';
+import { postsService } from '@/lib/api/posts.service';
+import { toaster } from '@/components/ui/toaster';
 
 interface SessionOverviewTabProps {
   session: ISession;
@@ -66,6 +69,36 @@ export default function SessionOverviewTab({
   const [selectedQrLabel, setSelectedQrLabel] = useState('');
   const [isShareImageModalOpen, setIsShareImageModalOpen] = useState(false);
   const [isRankingInfoOpen, setIsRankingInfoOpen] = useState(false);
+  const [isShareResultsConfirmOpen, setIsShareResultsConfirmOpen] =
+    useState(false);
+  const [isSharingResults, setIsSharingResults] = useState(false);
+
+  const handleShareResults = async () => {
+    setIsSharingResults(true);
+    try {
+      await postsService.shareSessionResults(session.id);
+      setIsShareResultsConfirmOpen(false);
+      toaster.create({
+        title: t('shareResultsSuccess'),
+        type: 'success',
+      });
+    } catch (error: unknown) {
+      setIsShareResultsConfirmOpen(false);
+      const data = (
+        error as {
+          response?: {
+            data?: { message?: string; error?: { message?: string } };
+          };
+        }
+      )?.response?.data;
+      toaster.create({
+        title: data?.error?.message || data?.message || t('shareResultsError'),
+        type: 'error',
+      });
+    } finally {
+      setIsSharingResults(false);
+    }
+  };
 
   const handleQrClick = (url: string, label: string) => {
     setSelectedQrUrl(url);
@@ -704,6 +737,20 @@ export default function SessionOverviewTab({
         </Box>
       )}
 
+      {/* Share results to newsfeed - Show when session is FINISHED */}
+      {session.status === SessionStatus.FINISHED && (
+        <Box mt={4}>
+          <Button
+            colorPalette="green"
+            variant="outline"
+            leftIcon={<Share2 size={16} />}
+            onClick={() => setIsShareResultsConfirmOpen(true)}
+          >
+            {t('shareResultsButton')}
+          </Button>
+        </Box>
+      )}
+
       <Box mt={8}>
         <Flex align="center" gap={2} mb={4}>
           <Heading size="md">{t('playersTab.playerStatistics')}</Heading>
@@ -774,6 +821,22 @@ export default function SessionOverviewTab({
         onClose={() => setIsShareImageModalOpen(false)}
         session={session}
       />
+
+      <VModal
+        isOpen={isShareResultsConfirmOpen}
+        onClose={() => setIsShareResultsConfirmOpen(false)}
+        title={t('shareResultsConfirmTitle')}
+        size="sm"
+        primaryActionText={t('shareResultsButton')}
+        secondaryActionText={t('cancel')}
+        onPrimaryAction={handleShareResults}
+        isPrimaryLoading={isSharingResults}
+        isSecondaryDisabled={isSharingResults}
+      >
+        <Text fontSize="sm" color="fg.muted">
+          {t('shareResultsConfirmMessage')}
+        </Text>
+      </VModal>
 
       {/* Edit Session Drawer */}
       <VDrawer

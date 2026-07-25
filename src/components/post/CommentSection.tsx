@@ -15,6 +15,7 @@ import { useAuthStore } from '@/stores/useAuthStore';
 import { Link } from '@/i18n/config';
 import { ROUTES } from '@/constants/routes';
 import { Box, Flex } from '@chakra-ui/react';
+import VModal from '@/components/ui/VModal';
 
 const localeMap: Record<string, Locale> = { vi, en: enUS, cn: zhCN };
 
@@ -42,6 +43,10 @@ export function CommentSection({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(false);
+  const [commentIdToDelete, setCommentIdToDelete] = useState<string | null>(
+    null
+  );
+  const [isDeletingComment, setIsDeletingComment] = useState(false);
 
   const loadComments = useCallback(
     async (pageNum = 1) => {
@@ -113,10 +118,12 @@ export function CommentSection({
     }
   };
 
-  const handleDelete = async (commentId: string) => {
+  const handleDelete = async () => {
+    if (!commentIdToDelete) return;
+    setIsDeletingComment(true);
     try {
-      await postsService.deleteComment(commentId);
-      setComments((prev) => prev.filter((c) => c.id !== commentId));
+      await postsService.deleteComment(commentIdToDelete);
+      setComments((prev) => prev.filter((c) => c.id !== commentIdToDelete));
       const nextCount = Math.max(commentCount - 1, 0);
       setCommentCount(nextCount);
       onCommentCountChange?.(nextCount);
@@ -131,6 +138,9 @@ export function CommentSection({
         description: t('commentDeleteError'),
         type: 'error',
       });
+    } finally {
+      setIsDeletingComment(false);
+      setCommentIdToDelete(null);
     }
   };
 
@@ -268,7 +278,7 @@ export function CommentSection({
                   </span>
                   {currentUserId === comment.userId && (
                     <button
-                      onClick={() => handleDelete(comment.id)}
+                      onClick={() => setCommentIdToDelete(comment.id)}
                       aria-label={t('deleteComment')}
                       className="flex cursor-pointer items-center gap-1 rounded-md px-2 py-1 -ml-2 font-medium text-red-500 transition hover:bg-red-50 hover:text-red-700 sm:opacity-0 sm:group-hover:opacity-100 dark:hover:bg-red-900/30"
                     >
@@ -292,6 +302,23 @@ export function CommentSection({
           {isLoading ? t('loading') : t('loadMoreComments')}
         </button>
       )}
+
+      <VModal
+        isOpen={commentIdToDelete !== null}
+        onClose={() => setCommentIdToDelete(null)}
+        title={t('deleteCommentConfirmTitle')}
+        size="sm"
+        primaryActionText={t('delete')}
+        primaryColorScheme="red"
+        secondaryActionText={t('cancel')}
+        onPrimaryAction={handleDelete}
+        isPrimaryLoading={isDeletingComment}
+        isSecondaryDisabled={isDeletingComment}
+      >
+        <p className="text-sm text-gray-600 dark:text-gray-300">
+          {t('deleteCommentConfirmDescription')}
+        </p>
+      </VModal>
     </Box>
   );
 }

@@ -4812,7 +4812,12 @@
     "allowGuestJoin": "允许访客加入",
     "allowNewPlayers": "允许新玩家",
     "yes": "是",
-    "no": "否"
+    "no": "否",
+    "shareResultsButton": "分享成绩到动态",
+    "shareResultsConfirmTitle": "分享成绩",
+    "shareResultsConfirmMessage": "将本次球局的排名发布到动态？",
+    "shareResultsSuccess": "成绩已分享到动态",
+    "shareResultsError": "分享成绩失败"
   },
   "SessionPlayers": {
     "errorLoadingStats": "加载玩家统计数据失败。",
@@ -5718,7 +5723,35 @@
       "badge": "即将推出"
     },
     "suggestedSessions": "为你推荐的活动",
-    "viewAllSessions": "查看全部活动"
+    "viewAllSessions": "查看全部活动",
+    "shareConfirmTitle": "分享帖子",
+    "shareConfirmDescription": "要将此帖子分享到您的动态吗？",
+    "deleteCommentConfirmTitle": "删除评论？",
+    "deleteCommentConfirmDescription": "此评论将被永久删除。",
+    "originalPostUnavailable": "原始内容已不存在。",
+    "pullToRefresh": "下拉刷新",
+    "refreshing": "正在刷新...",
+    "activity": {
+      "SESSION_CREATED": "{author} 创建了新球局",
+      "SESSION_RESULTS": "{author} 分享了 {session} 的成绩",
+      "CLUB_CREATED": "{author} 创建了俱乐部 {club}",
+      "CLUB_UPDATED": "{author} 更新了俱乐部 {club} 的信息",
+      "CLUB_MEMBER_JOINED": "{author} 加入了俱乐部 {club}",
+      "TOURNAMENT_CREATED": "{author} 创建了赛事 {tournament}",
+      "TOURNAMENT_FINISHED": "赛事 {tournament} 已结束",
+      "AVATAR_UPDATED": "{author} 更新了头像",
+      "USER_RATED": "{author} 评价了 {rated}",
+      "champion": "冠军",
+      "runnerUp": "亚军",
+      "standingsRank": "排名",
+      "standingsPlayer": "球员",
+      "standingsMatches": "场次",
+      "andMorePlayers": "以及另外 {count} 名球员",
+      "viewSession": "查看球局",
+      "viewClub": "查看俱乐部",
+      "viewTournament": "查看赛事",
+      "viewProfile": "查看主页"
+    }
   },
   "clubs": {
     "notification": {

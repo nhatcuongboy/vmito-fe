@@ -4850,7 +4850,12 @@
     "allowGuestJoin": "Allow Guest Join",
     "allowNewPlayers": "Allow New Players",
     "yes": "Yes",
-    "no": "No"
+    "no": "No",
+    "shareResultsButton": "Share results to newsfeed",
+    "shareResultsConfirmTitle": "Share results",
+    "shareResultsConfirmMessage": "Post this session's rankings to the newsfeed?",
+    "shareResultsSuccess": "Results shared to the newsfeed",
+    "shareResultsError": "Failed to share results"
   },
   "SessionPlayers": {
     "errorLoadingStats": "Failed to load player statistics.",
@@ -5757,7 +5762,35 @@
       "badge": "COMING SOON"
     },
     "suggestedSessions": "Suggested sessions",
-    "viewAllSessions": "View all sessions"
+    "viewAllSessions": "View all sessions",
+    "shareConfirmTitle": "Share post",
+    "shareConfirmDescription": "Share this post to your feed?",
+    "deleteCommentConfirmTitle": "Delete comment?",
+    "deleteCommentConfirmDescription": "This comment will be permanently deleted.",
+    "originalPostUnavailable": "The original content is no longer available.",
+    "pullToRefresh": "Pull to refresh",
+    "refreshing": "Refreshing...",
+    "activity": {
+      "SESSION_CREATED": "{author} created a new session",
+      "SESSION_RESULTS": "{author} shared the results of {session}",
+      "CLUB_CREATED": "{author} created the club {club}",
+      "CLUB_UPDATED": "{author} updated the club {club}",
+      "CLUB_MEMBER_JOINED": "{author} joined the club {club}",
+      "TOURNAMENT_CREATED": "{author} created the tournament {tournament}",
+      "TOURNAMENT_FINISHED": "The tournament {tournament} has finished",
+      "AVATAR_UPDATED": "{author} updated their profile photo",
+      "USER_RATED": "{author} rated {rated}",
+      "champion": "Champion",
+      "runnerUp": "Runner-up",
+      "standingsRank": "Rank",
+      "standingsPlayer": "Player",
+      "standingsMatches": "Matches",
+      "andMorePlayers": "and {count} more players",
+      "viewSession": "View session",
+      "viewClub": "View club",
+      "viewTournament": "View tournament",
+      "viewProfile": "View profile"
+    }
   },
   "clubs": {
     "notification": {

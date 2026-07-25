@@ -95,4 +95,9 @@ export const postsService = {
     const response = await api.post(`/posts/${postId}/share`);
     return unwrapData<Post>(response.data);
   },
+
+  async shareSessionResults(sessionId: string): Promise<Post> {
+    const response = await api.post('/posts/session-results', { sessionId });
+    return unwrapData<Post>(response.data);
+  },
 };

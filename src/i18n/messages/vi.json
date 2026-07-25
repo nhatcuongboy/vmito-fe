@@ -4864,7 +4864,12 @@
     "allowGuestJoin": "Cho phép khách tham gia",
     "allowNewPlayers": "Cho phép người chơi mới",
     "yes": "Có",
-    "no": "Không"
+    "no": "Không",
+    "shareResultsButton": "Chia sẻ kết quả lên bảng tin",
+    "shareResultsConfirmTitle": "Chia sẻ kết quả",
+    "shareResultsConfirmMessage": "Đăng bảng xếp hạng của buổi chơi này lên bảng tin?",
+    "shareResultsSuccess": "Đã chia sẻ kết quả lên bảng tin",
+    "shareResultsError": "Không thể chia sẻ kết quả"
   },
   "SessionPlayers": {
     "errorLoadingStats": "Không thể tải thống kê người chơi.",
@@ -5773,7 +5778,35 @@
       "badge": "COMING SOON"
     },
     "suggestedSessions": "Kèo gợi ý cho bạn",
-    "viewAllSessions": "Xem tất cả kèo"
+    "viewAllSessions": "Xem tất cả kèo",
+    "shareConfirmTitle": "Chia sẻ bài viết",
+    "shareConfirmDescription": "Bạn có muốn chia sẻ bài viết này về bảng tin của mình?",
+    "deleteCommentConfirmTitle": "Xóa bình luận?",
+    "deleteCommentConfirmDescription": "Bình luận này sẽ bị xóa vĩnh viễn.",
+    "originalPostUnavailable": "Nội dung gốc không còn tồn tại.",
+    "pullToRefresh": "Kéo để làm mới",
+    "refreshing": "Đang làm mới...",
+    "activity": {
+      "SESSION_CREATED": "{author} vừa tạo kèo mới",
+      "SESSION_RESULTS": "{author} đã chia sẻ kết quả buổi chơi {session}",
+      "CLUB_CREATED": "{author} vừa tạo câu lạc bộ {club}",
+      "CLUB_UPDATED": "{author} đã cập nhật thông tin câu lạc bộ {club}",
+      "CLUB_MEMBER_JOINED": "{author} đã tham gia câu lạc bộ {club}",
+      "TOURNAMENT_CREATED": "{author} vừa tạo giải đấu {tournament}",
+      "TOURNAMENT_FINISHED": "Giải đấu {tournament} đã kết thúc",
+      "AVATAR_UPDATED": "{author} đã cập nhật ảnh đại diện",
+      "USER_RATED": "{author} đã đánh giá {rated}",
+      "champion": "Vô địch",
+      "runnerUp": "Á quân",
+      "standingsRank": "Hạng",
+      "standingsPlayer": "Người chơi",
+      "standingsMatches": "Số trận",
+      "andMorePlayers": "và {count} người chơi khác",
+      "viewSession": "Xem kèo",
+      "viewClub": "Xem CLB",
+      "viewTournament": "Xem giải đấu",
+      "viewProfile": "Xem trang cá nhân"
+    }
   },
   "clubs": {
     "notification": {

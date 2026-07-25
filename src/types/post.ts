@@ -11,6 +11,71 @@ export interface PostAuthor {
   image?: string;
 }
 
+export type PostType = 'USER' | 'ACTIVITY';
+export type PostVisibility = 'PUBLIC' | 'FRIENDS' | 'PRIVATE';
+
+export type ActivityType =
+  | 'SESSION_CREATED'
+  | 'SESSION_RESULTS'
+  | 'CLUB_CREATED'
+  | 'CLUB_UPDATED'
+  | 'CLUB_MEMBER_JOINED'
+  | 'TOURNAMENT_CREATED'
+  | 'TOURNAMENT_FINISHED'
+  | 'AVATAR_UPDATED'
+  | 'USER_RATED';
+
+// Mirrors vmito-be/src/activities/activity-metadata.types.ts
+export interface SessionResultsStanding {
+  rank: number;
+  playerNumber: number;
+  name: string;
+  matchesPlayed: number;
+  totalWaitTime: number;
+  userId?: string | null;
+}
+
+export interface TournamentPodiumSide {
+  players: Array<{ name: string; userId?: string | null }>;
+}
+
+export interface TournamentFinishedCategory {
+  categoryId: string;
+  categoryName: string;
+  champion: TournamentPodiumSide;
+  runnerUp?: TournamentPodiumSide | null;
+}
+
+export interface ActivityMetadata {
+  // SESSION_CREATED / SESSION_RESULTS
+  sessionId?: string;
+  sessionSlug?: string | null;
+  sessionName?: string;
+  coverPhoto?: string | null;
+  scheduledStartTime?: string | null;
+  endTime?: string | null;
+  standings?: SessionResultsStanding[];
+  location?: string | null;
+  // CLUB_*
+  clubId?: string;
+  clubSlug?: string | null;
+  clubName?: string;
+  logo?: string | null;
+  // TOURNAMENT_*
+  tournamentId?: string;
+  tournamentSlug?: string | null;
+  tournamentName?: string;
+  startDate?: string | null;
+  venueName?: string | null;
+  categories?: TournamentFinishedCategory[];
+  // AVATAR_UPDATED
+  image?: string;
+  // USER_RATED
+  ratedUserId?: string;
+  ratedName?: string;
+  ratedImage?: string | null;
+}
+
 export interface Post {
   id: string;
   content: string;
@@ -24,6 +89,10 @@ export interface Post {
   authorId: string;
   author: PostAuthor;
   images: PostImage[];
+  type?: PostType;
+  activityType?: ActivityType | null;
+  metadata?: ActivityMetadata | null;
+  visibility?: PostVisibility;
   originalPostId?: string;
   originalPost?: Post;
   _count: {
