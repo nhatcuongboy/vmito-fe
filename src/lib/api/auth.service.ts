@@ -118,6 +118,19 @@ export const AuthService = {
   },
 
   /**
+   * Verify password reset token and get masked email.
+   */
+  verifyResetToken: async (
+    token: string
+  ): Promise<{ valid: boolean; maskedEmail: string }> => {
+    const response = await api.get<{ valid: boolean; maskedEmail: string }>(
+      `/auth/verify-reset-token?token=${encodeURIComponent(token)}`,
+      { skipGlobalError: true }
+    );
+    return response.data;
+  },
+
+  /**
    * Get current user from store
    */
   getCurrentUser: (): User | null => {
