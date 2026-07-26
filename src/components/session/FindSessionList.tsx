@@ -3,6 +3,8 @@
 import { Button } from '@/components/ui/chakra-compat';
 import { useDisclosure } from '@/components/ui/ChakraHooks';
 import AppEmptyState from '@/components/ui/AppEmptyState';
+import AppErrorState from '@/components/ui/AppErrorState';
+import { classifyApiError, type ApiErrorKind } from '@/lib/api/apiError';
 import { useLevelLabel } from '@/hooks/useLevelLabel';
 import { VModal } from '@/components/ui/VModal';
 import { ROUTES, TIME_RANGES, BOTTOM_TAB_HEIGHT } from '@/constants';
@@ -148,7 +150,7 @@ export default function FindSessionList({
   const [loadingMore, setLoadingMore] = useState(false);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<ApiErrorKind | null>(null);
   const [joinedSessionIds, setJoinedSessionIds] = useState<Set<string>>(
     new Set()
   );
@@ -439,7 +441,7 @@ export default function FindSessionList({
         }
       }
     } catch (err) {
-      setError(t('loadingError'));
+      setError(classifyApiError(err));
       console.error(err);
     } finally {
       if (isLoadMore) {
@@ -1046,16 +1048,26 @@ export default function FindSessionList({
           )}
         </Grid>
       ) : error ? (
-        <Box
-          p={4}
-          bg="red.50"
-          color="red.600"
-          borderRadius="md"
-          borderWidth="1px"
-          borderColor="red.200"
-        >
-          <Text fontWeight="medium">{error}</Text>
-        </Box>
+        <AppErrorState
+          minH={{ base: '280px', md: '320px' }}
+          type={error === 'client' ? 'generic' : error}
+          title={
+            error === 'network'
+              ? t('loadingErrorNetwork')
+              : error === 'server'
+                ? t('loadingErrorServer')
+                : t('loadingError')
+          }
+          description={
+            error === 'network'
+              ? t('loadingErrorNetworkDescription')
+              : error === 'server'
+                ? t('loadingErrorServerDescription')
+                : t('loadingErrorDescription')
+          }
+          onRetry={() => fetchSessions()}
+          retryLabel={t('retry')}
+        />
       ) : viewMode === 'map' ? (
         <Box paddingBottom={`${BOTTOM_TAB_HEIGHT}px`}>
           <SessionMap sessions={sortedSessions} userLocation={userLocation} />

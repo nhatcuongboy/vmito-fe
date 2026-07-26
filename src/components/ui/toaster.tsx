@@ -19,6 +19,14 @@ export const toaster = createToaster({
   placement: 'top-end',
   pauseOnPageIdle: true,
   duration: 3000,
+  // Keep toasts below the top bar + sticky search bar (~50-56px + ~56px)
+  // so they never cover the header or search interactions
+  offsets: {
+    top: 'calc(112px + env(safe-area-inset-top))',
+    right: '16px',
+    bottom: '16px',
+    left: '16px',
+  },
 });
 
 export const Toaster = () => {

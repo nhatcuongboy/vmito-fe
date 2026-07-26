@@ -278,7 +278,9 @@ export const SessionService = {
           totalPages: number;
         };
       }>
-    >(url);
+      // Callers render their own inline error state with a retry button, so
+      // skip the global error toast for this endpoint
+    >(url, { skipGlobalError: true });
     return (
       response.data.data || {
         data: [],

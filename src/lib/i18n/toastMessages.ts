@@ -36,7 +36,7 @@ const DEFAULT_LOCALE = Locale.VI;
 const isLocale = (value: string): value is Locale =>
   (SUPPORTED_LOCALES as readonly string[]).includes(value);
 
-const getCurrentLocale = (): Locale => {
+export const getCurrentLocale = (): Locale => {
   if (typeof window === 'undefined') {
     return DEFAULT_LOCALE;
   }
