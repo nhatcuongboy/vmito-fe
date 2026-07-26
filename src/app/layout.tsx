@@ -12,7 +12,19 @@ export const metadata: Metadata = {
       ? 'https://vmito.com'
       : 'http://localhost:3000'
   ),
-  ...(isStaging && { robots: { index: false, follow: false } }),
+  robots: isStaging
+    ? { index: false, follow: false }
+    : {
+        index: true,
+        follow: true,
+        googleBot: {
+          index: true,
+          follow: true,
+          'max-image-preview': 'large',
+          'max-snippet': -1,
+          'max-video-preview': -1,
+        },
+      },
   title: {
     default: 'Vmito — Tìm kèo cầu lông',
     template: '%s | Vmito',
