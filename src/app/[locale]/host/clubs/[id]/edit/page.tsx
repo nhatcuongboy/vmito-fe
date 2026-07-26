@@ -24,7 +24,6 @@ import { VenueService } from '@/lib/api/venue.service';
 import { AdminService, User as AdminUser } from '@/lib/api/admin.service';
 import { toaster } from '@/components/ui/toaster';
 import { Field } from '@/components/ui/Field';
-import LoadingSpinner from '@/components/ui/loading-spinner';
 import { ROUTES } from '@/constants/routes';
 import PageLayout from '@/components/layout/PageLayout';
 import { UserRole } from '@/lib/api/types';
@@ -34,6 +33,7 @@ import { ISessionImage } from '@/components/session/AppMultiImageUpload';
 import { useAuthStore } from '@/stores';
 import ClubLevelRequirements from '@/components/club/ClubLevelRequirements';
 import ClubMediaEditor from '@/components/club/ClubMediaEditor';
+import ClubEditFormSkeleton from '@/components/club/ClubEditFormSkeleton';
 import VenueCollapsibleSection from '@/components/venue/VenueCollapsibleSection';
 import ClubVenueScheduleEditor, {
   ClubVenueScheduleEditorHandle,
@@ -489,8 +489,12 @@ const EditClubPage = () => {
 
   if (isLoadingClub) {
     return (
-      <PageLayout title={t('editGroup')}>
-        <LoadingSpinner />
+      <PageLayout
+        title={t('editGroup')}
+        showBackButton
+        backHref={ROUTES.CLUBS.BROWSE}
+      >
+        <ClubEditFormSkeleton />
       </PageLayout>
     );
   }
