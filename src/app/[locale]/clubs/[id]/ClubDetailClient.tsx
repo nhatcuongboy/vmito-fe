@@ -275,7 +275,10 @@ export default function ClubDetailClient({
           >
             {/* Main Content - Left Column */}
             <Box>
-              <ClubAboutTab description={club.description} />
+              <ClubAboutTab
+                description={club.description}
+                socialLinks={club.socialLinks}
+              />
 
               <ClubMembersTab
                 club={club}

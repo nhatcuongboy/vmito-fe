@@ -127,13 +127,13 @@ const ContactModal = ({ isOpen, onClose }: IContactModalProps) => {
               </svg>
             </Box>
             <Link
-              href="https://www.facebook.com/itscuonggo/"
+              href="https://www.facebook.com/profile.php?id=61592222922510"
               target="_blank"
               rel="noopener noreferrer"
               color="blue.600"
               _hover={{ textDecoration: 'underline' }}
             >
-              facebook.com/itscuonggo
+              Fanpage
             </Link>
           </HStack>
           <HStack gap={2} fontSize="sm" color="fg.muted">
@@ -155,7 +155,7 @@ const ContactModal = ({ isOpen, onClose }: IContactModalProps) => {
               color="blue.600"
               _hover={{ textDecoration: 'underline' }}
             >
-              zalo.me/84914810765
+              Zalo
             </Link>
           </HStack>
         </VStack>

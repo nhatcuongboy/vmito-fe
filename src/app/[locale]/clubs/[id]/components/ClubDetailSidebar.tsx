@@ -37,6 +37,7 @@ import { Link, useRouter } from '@/i18n/config';
 import { ISession } from '@/lib/api/types';
 import { getSkillLevelColor } from '@/lib/utils/skillLevel.utils';
 import { EJoinRequestStatus, IClub, IClubJoinRequest } from '@/types/club';
+import { ClubSocialLinks } from './ClubSocialLinks';
 import { getGoogleMapsUrl } from '@/utils';
 import {
   getClubRequiredLevels,
@@ -358,6 +359,29 @@ export const ClubDetailSidebar = ({
               </VStack>
             </Box>
           )}
+
+          {club.socialLinks &&
+            Object.values(club.socialLinks).some(
+              (val) => typeof val === 'string' && val.trim() !== ''
+            ) && (
+              <Box
+                bg="white"
+                _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
+                borderRadius="2xl"
+                p={5}
+                shadow="sm"
+                borderWidth="1px"
+                borderColor="gray.100"
+              >
+                <Heading size="sm" mb={4}>
+                  {t('clubs.socialLinks.title')}
+                </Heading>
+                <ClubSocialLinks
+                  socialLinks={club.socialLinks}
+                  variant="card"
+                />
+              </Box>
+            )}
 
           <Box
             bg="white"

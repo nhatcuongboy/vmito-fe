@@ -148,6 +148,8 @@
     "aiAssistant": "Trợ lý AI",
     "contact": "Liên hệ",
     "bugReport": "Báo cáo lỗi",
+    "terms": "Điều khoản dịch vụ",
+    "privacy": "Chính sách bảo mật",
     "developedBy": "Phát triển bởi Nhật Cường.",
     "favorites": {
       "add": "Thêm vào yêu thích",
@@ -5898,6 +5900,22 @@
     }
   },
   "clubs": {
+    "socialLinks": {
+      "title": "Mạng xã hội & Liên kết",
+      "description": "Các kênh truyền thông và liên kết của câu lạc bộ",
+      "facebook": "Facebook",
+      "facebookPlaceholder": "https://facebook.com/fanpage",
+      "zalo": "Zalo",
+      "zaloPlaceholder": "https://zalo.me/g/...",
+      "tiktok": "TikTok",
+      "tiktokPlaceholder": "https://tiktok.com/@...",
+      "youtube": "YouTube",
+      "youtubePlaceholder": "https://youtube.com/@...",
+      "website": "Website",
+      "websitePlaceholder": "https://yourwebsite.com",
+      "other": "Liên kết khác",
+      "otherPlaceholder": "https://..."
+    },
     "notification": {
       "club": {
         "creationPending": "Yêu cầu tạo nhóm của bạn đang được xem xét",

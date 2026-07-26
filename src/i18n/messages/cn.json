@@ -139,6 +139,8 @@
     "aiAssistant": "AI 助手",
     "contact": "联系我们",
     "bugReport": "报告错误",
+    "terms": "服务条款",
+    "privacy": "隐私政策",
     "developedBy": "由 Nhat Cuong 开发。",
     "favorites": {
       "add": "添加到收藏",
@@ -5841,6 +5843,22 @@
     }
   },
   "clubs": {
+    "socialLinks": {
+      "title": "社交媒体与链接",
+      "description": "俱乐部的社交媒体频道与外部链接",
+      "facebook": "Facebook",
+      "facebookPlaceholder": "https://facebook.com/fanpage",
+      "zalo": "Zalo",
+      "zaloPlaceholder": "https://zalo.me/g/...",
+      "tiktok": "TikTok",
+      "tiktokPlaceholder": "https://tiktok.com/@...",
+      "youtube": "YouTube",
+      "youtubePlaceholder": "https://youtube.com/@...",
+      "website": "Website",
+      "websitePlaceholder": "https://yourwebsite.com",
+      "other": "其他链接",
+      "otherPlaceholder": "https://..."
+    },
     "notification": {
       "club": {
         "creationPending": "您的俱乐部创建请求正在审核中",

@@ -8,7 +8,7 @@ import React, {
   useRef,
 } from 'react';
 import { useTranslations } from 'next-intl';
-import { Box, Flex } from '@chakra-ui/react';
+import { Box, Flex, Grid } from '@chakra-ui/react';
 import { Button, VStack, Input } from '@/components/ui/chakra-compat';
 import { RichTextEditor } from '@/components/ui/RichTextEditor';
 import { SearchableSelect } from '@/components/ui/SearchableSelect';
@@ -29,6 +29,7 @@ import { useAppSettings } from '@/contexts/AppSettingsContext';
 import { ISessionImage } from '@/components/session/AppMultiImageUpload';
 import ClubLevelRequirements from '@/components/club/ClubLevelRequirements';
 import ClubMediaEditor from '@/components/club/ClubMediaEditor';
+import VenueCollapsibleSection from '@/components/venue/VenueCollapsibleSection';
 import ClubVenueScheduleEditor, {
   ClubVenueScheduleEditorHandle,
 } from '@/components/club/ClubVenueScheduleEditor';
@@ -54,6 +55,16 @@ const schema = z.object({
   imagePublicIds: z.array(z.string()).optional(),
   requiredLevels: z.array(z.number()).optional(),
   allLevelsSelected: z.boolean().optional(),
+  socialLinks: z
+    .object({
+      facebook: z.string().optional(),
+      zalo: z.string().optional(),
+      tiktok: z.string().optional(),
+      youtube: z.string().optional(),
+      website: z.string().optional(),
+      other: z.string().optional(),
+    })
+    .optional(),
 });
 
 type FormData = z.infer<typeof schema>;
@@ -383,6 +394,64 @@ const CreateClubPage = () => {
             isLoading={venueSearchLoading}
             validation={venueValidation}
           />
+
+          {/* Mạng xã hội & Liên kết */}
+          <Box
+            p={4}
+            borderRadius="xl"
+            borderWidth="1px"
+            borderColor={{ base: 'gray.200', _dark: 'gray.700' }}
+            bg={{ base: 'gray.50/50', _dark: 'gray.800/50' }}
+          >
+            <VenueCollapsibleSection
+              title={t('socialLinks.title')}
+              defaultOpen={false}
+            >
+              <Grid templateColumns={{ base: '1fr', md: '1fr 1fr' }} gap={4}>
+                <Field label={t('socialLinks.facebook')}>
+                  <Input
+                    {...register('socialLinks.facebook')}
+                    placeholder={t('socialLinks.facebookPlaceholder')}
+                  />
+                </Field>
+
+                <Field label={t('socialLinks.zalo')}>
+                  <Input
+                    {...register('socialLinks.zalo')}
+                    placeholder={t('socialLinks.zaloPlaceholder')}
+                  />
+                </Field>
+
+                <Field label={t('socialLinks.tiktok')}>
+                  <Input
+                    {...register('socialLinks.tiktok')}
+                    placeholder={t('socialLinks.tiktokPlaceholder')}
+                  />
+                </Field>
+
+                <Field label={t('socialLinks.youtube')}>
+                  <Input
+                    {...register('socialLinks.youtube')}
+                    placeholder={t('socialLinks.youtubePlaceholder')}
+                  />
+                </Field>
+
+                <Field label={t('socialLinks.website')}>
+                  <Input
+                    {...register('socialLinks.website')}
+                    placeholder={t('socialLinks.websitePlaceholder')}
+                  />
+                </Field>
+
+                <Field label={t('socialLinks.other')}>
+                  <Input
+                    {...register('socialLinks.other')}
+                    placeholder={t('socialLinks.otherPlaceholder')}
+                  />
+                </Field>
+              </Grid>
+            </VenueCollapsibleSection>
+          </Box>
 
           <Flex
             justify={{ base: 'stretch', md: 'flex-end' }}

@@ -148,6 +148,8 @@
     "aiAssistant": "AI Assistant",
     "contact": "Contact Us",
     "bugReport": "Bug Report",
+    "terms": "Terms of Service",
+    "privacy": "Privacy Policy",
     "developedBy": "Developed by Nhat Cuong.",
     "favorites": {
       "add": "Add to favorites",
@@ -5882,6 +5884,22 @@
     }
   },
   "clubs": {
+    "socialLinks": {
+      "title": "Social Media & Links",
+      "description": "Club media channels and external links",
+      "facebook": "Facebook",
+      "facebookPlaceholder": "https://facebook.com/fanpage",
+      "zalo": "Zalo",
+      "zaloPlaceholder": "https://zalo.me/g/...",
+      "tiktok": "TikTok",
+      "tiktokPlaceholder": "https://tiktok.com/@...",
+      "youtube": "YouTube",
+      "youtubePlaceholder": "https://youtube.com/@...",
+      "website": "Website",
+      "websitePlaceholder": "https://yourwebsite.com",
+      "other": "Other Link",
+      "otherPlaceholder": "https://..."
+    },
     "notification": {
       "club": {
         "creationPending": "Your club creation request is under review",

@@ -139,6 +139,15 @@ export interface ICreateClubAnnouncementDto {
   pinnedUntil?: string;
 }
 
+export interface ISocialLinks {
+  facebook?: string;
+  zalo?: string;
+  tiktok?: string;
+  youtube?: string;
+  website?: string;
+  other?: string;
+}
+
 export type IUpdateClubAnnouncementDto = Partial<ICreateClubAnnouncementDto>;
 
 export interface IClub {
@@ -176,6 +185,7 @@ export interface IClub {
   requiredLevels?: number[];
   viewCount?: number;
   isFavorite?: boolean;
+  socialLinks?: ISocialLinks;
 }
 
 export interface IClubListItem {
@@ -271,6 +281,7 @@ export interface ICreateClubDto {
   imagePublicIds?: string[];
   schedules?: IClubScheduleDto[];
   requiredLevels?: number[];
+  socialLinks?: ISocialLinks;
 }
 
 export interface IUpdateClubDto {
@@ -290,6 +301,7 @@ export interface IUpdateClubDto {
   imagePublicIds?: string[];
   schedules?: IClubScheduleDto[];
   requiredLevels?: number[];
+  socialLinks?: ISocialLinks;
 }
 
 export interface ICreateClubFeeDto {
