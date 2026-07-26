@@ -4485,6 +4485,53 @@
           "body": "If you have questions about this Privacy Policy, please contact us at support@vmito.com."
         }
       ]
+    },
+    "terms": {
+      "title": "Terms of Service",
+      "lastUpdated": "Last updated: July 26, 2026",
+      "intro": "Welcome to Vmito. By accessing or using our platform for finding badminton sessions, connecting with players, and managing tournaments, you agree to be bound by the following Terms of Service. Please read them carefully before using the service.",
+      "sections": [
+        {
+          "heading": "1. Acceptance of Terms",
+          "body": "By creating an account or using Vmito, you confirm that you are at least 16 years old (or have guardian consent) and accept these terms together with our Privacy Policy. If you do not agree, please stop using the service."
+        },
+        {
+          "heading": "2. User Accounts",
+          "body": "You are responsible for the accuracy of your registration information and for keeping your account secure.\n• Do not share your login credentials with others.\n• You are responsible for all activity that occurs under your account.\n• Notify us immediately if you detect unauthorized access."
+        },
+        {
+          "heading": "3. Acceptable Use",
+          "body": "When using Vmito, you agree not to:\n• Post false, fraudulent, or unlawful information.\n• Harass, abuse, or harm other users.\n• Use the platform for unauthorized commercial purposes or spam.\n• Interfere with, disrupt, or attempt unauthorized access to our systems."
+        },
+        {
+          "heading": "4. User-Generated Content",
+          "body": "You retain ownership of the content you post (sessions, posts, images, etc.), but grant Vmito the right to use, display, and distribute that content as needed to operate the service. You are responsible for your content and warrant that it does not infringe the rights of any third party."
+        },
+        {
+          "heading": "5. Sessions, Tournaments, and Transactions",
+          "body": "Vmito is a platform that connects players, clubs, and organizers. Arrangements regarding sessions, participation fees, court bookings, or tournaments are made between the relevant parties. Vmito is not a party to these arrangements and is not responsible for their performance, quality, or any disputes that arise, unless expressly stated otherwise."
+        },
+        {
+          "heading": "6. Fees and Payments",
+          "body": "Some features may require payment. All fees will be clearly disclosed before you confirm. Unless otherwise stated, payments are non-refundable. We reserve the right to change our fees and will provide notice before they take effect."
+        },
+        {
+          "heading": "7. Disclaimer of Warranties",
+          "body": "Vmito is provided \"as is\" and \"as available\". We strive to keep the service reliable but do not warrant that it will be uninterrupted or error-free. To the extent permitted by law, Vmito is not liable for indirect damages arising from your use of the platform."
+        },
+        {
+          "heading": "8. Termination",
+          "body": "You may stop using and delete your account at any time. We reserve the right to suspend or terminate accounts that violate these terms or harm other users and the platform."
+        },
+        {
+          "heading": "9. Changes to These Terms",
+          "body": "We may update these terms from time to time. Any material changes will be announced on the platform. Continued use of Vmito after an update means you accept the revised terms."
+        },
+        {
+          "heading": "10. Contact Us",
+          "body": "If you have questions about these Terms of Service, please contact us at support@vmito.com."
+        }
+      ]
     }
   },
   "errors": {

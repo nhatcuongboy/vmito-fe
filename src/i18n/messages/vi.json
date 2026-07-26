@@ -4493,6 +4493,53 @@
           "body": "Nếu bạn có câu hỏi về chính sách bảo mật này, vui lòng liên hệ với chúng tôi qua email: support@vmito.com."
         }
       ]
+    },
+    "terms": {
+      "title": "Điều khoản dịch vụ",
+      "lastUpdated": "Cập nhật lần cuối: 26/07/2026",
+      "intro": "Chào mừng bạn đến với Vmito. Bằng việc truy cập hoặc sử dụng nền tảng tìm kèo, giao lưu và quản lý giải đấu cầu lông của chúng tôi, bạn đồng ý tuân thủ các Điều khoản dịch vụ dưới đây. Vui lòng đọc kỹ trước khi sử dụng.",
+      "sections": [
+        {
+          "heading": "1. Chấp nhận điều khoản",
+          "body": "Khi tạo tài khoản hoặc sử dụng Vmito, bạn xác nhận rằng bạn đủ 16 tuổi trở lên (hoặc có sự đồng ý của người giám hộ) và chấp nhận các điều khoản này cùng với Chính sách bảo mật của chúng tôi. Nếu bạn không đồng ý, vui lòng ngừng sử dụng dịch vụ."
+        },
+        {
+          "heading": "2. Tài khoản người dùng",
+          "body": "Bạn chịu trách nhiệm về tính chính xác của thông tin đăng ký và việc bảo mật tài khoản của mình.\n• Không chia sẻ thông tin đăng nhập cho người khác.\n• Bạn chịu trách nhiệm cho mọi hoạt động diễn ra dưới tài khoản của mình.\n• Thông báo cho chúng tôi ngay khi phát hiện truy cập trái phép."
+        },
+        {
+          "heading": "3. Quy tắc sử dụng",
+          "body": "Khi sử dụng Vmito, bạn đồng ý không:\n• Đăng thông tin sai lệch, lừa đảo hoặc vi phạm pháp luật.\n• Quấy rối, xúc phạm hoặc gây hại cho người dùng khác.\n• Sử dụng nền tảng cho mục đích thương mại trái phép hoặc spam.\n• Can thiệp, phá hoại hoặc cố gắng truy cập trái phép vào hệ thống."
+        },
+        {
+          "heading": "4. Nội dung do người dùng đăng tải",
+          "body": "Bạn giữ quyền sở hữu đối với nội dung mình đăng (buổi tập, bài viết, hình ảnh...), nhưng cấp cho Vmito quyền sử dụng, hiển thị và phân phối nội dung đó trong phạm vi vận hành dịch vụ. Bạn chịu trách nhiệm về nội dung mình đăng và cam kết nội dung đó không vi phạm quyền của bên thứ ba."
+        },
+        {
+          "heading": "5. Buổi tập, giải đấu và giao dịch",
+          "body": "Vmito là nền tảng kết nối người chơi, câu lạc bộ và ban tổ chức. Các thỏa thuận về buổi tập, phí tham gia, đặt sân hay giải đấu là giữa các bên liên quan. Vmito không phải là một bên trong các thỏa thuận này và không chịu trách nhiệm về việc thực hiện, chất lượng hay tranh chấp phát sinh, trừ khi được nêu rõ khác."
+        },
+        {
+          "heading": "6. Phí và thanh toán",
+          "body": "Một số tính năng có thể yêu cầu thanh toán. Mọi khoản phí sẽ được thông báo rõ ràng trước khi bạn xác nhận. Trừ khi có quy định khác, các khoản đã thanh toán là không hoàn lại. Chúng tôi có quyền thay đổi biểu phí và sẽ thông báo trước khi áp dụng."
+        },
+        {
+          "heading": "7. Miễn trừ trách nhiệm",
+          "body": "Vmito được cung cấp \"nguyên trạng\" và \"theo khả năng sẵn có\". Chúng tôi nỗ lực duy trì dịch vụ ổn định nhưng không bảo đảm dịch vụ luôn không gián đoạn hoặc không có lỗi. Trong phạm vi pháp luật cho phép, Vmito không chịu trách nhiệm cho các thiệt hại gián tiếp phát sinh từ việc sử dụng nền tảng."
+        },
+        {
+          "heading": "8. Chấm dứt",
+          "body": "Bạn có thể ngừng sử dụng và xóa tài khoản bất cứ lúc nào. Chúng tôi có quyền tạm ngừng hoặc chấm dứt tài khoản vi phạm các điều khoản này hoặc gây hại cho người dùng khác và nền tảng."
+        },
+        {
+          "heading": "9. Thay đổi điều khoản",
+          "body": "Chúng tôi có thể cập nhật các điều khoản này theo thời gian. Mọi thay đổi quan trọng sẽ được thông báo trên nền tảng. Việc tiếp tục sử dụng Vmito sau khi cập nhật đồng nghĩa với việc bạn chấp nhận các điều khoản mới."
+        },
+        {
+          "heading": "10. Liên hệ",
+          "body": "Nếu bạn có câu hỏi về các Điều khoản dịch vụ này, vui lòng liên hệ với chúng tôi qua email: support@vmito.com."
+        }
+      ]
     }
   },
   "errors": {
