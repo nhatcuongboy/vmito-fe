@@ -4446,6 +4446,45 @@
           "understood": "Got it, I'm on my way!"
         }
       }
+    },
+    "privacy": {
+      "title": "Privacy Policy",
+      "lastUpdated": "Last updated: July 26, 2026",
+      "intro": "Vmito (\"we\", \"us\") respects your privacy and is committed to protecting the personal information you provide when using our platform for finding badminton sessions, connecting with players, and managing tournaments. This policy explains how we collect, use, store, and protect your data.",
+      "sections": [
+        {
+          "heading": "1. Information We Collect",
+          "body": "We may collect the following types of information:\n• Account information: name, email, phone number, and profile photo when you register.\n• Third-party sign-in information: when you sign in with Google or Facebook, we receive your name, email, and public profile photo.\n• Activity information: your sessions, matches, tournaments, clubs, and interactions on the platform.\n• Technical information: IP address, device type, browser, and usage data to improve the service."
+        },
+        {
+          "heading": "2. How We Use Your Information",
+          "body": "We use your information to:\n• Provide and operate Vmito features.\n• Connect you with relevant players, clubs, and tournaments.\n• Send notifications about activities, invitations, and service updates.\n• Ensure safety and detect or prevent fraud and abuse.\n• Analyze and improve the user experience."
+        },
+        {
+          "heading": "3. Sharing Your Information",
+          "body": "We do not sell your personal information. Information is only shared in the following cases:\n• With other users when necessary for operations (e.g. your name and profile photo shown in a session or tournament you join).\n• With service providers that support our operations (hosting, email delivery, authentication).\n• When required by law or a valid request from authorities."
+        },
+        {
+          "heading": "4. Data Security",
+          "body": "We apply reasonable technical and organizational measures to protect your data from unauthorized access, alteration, or disclosure. However, no method of transmission over the Internet is completely secure."
+        },
+        {
+          "heading": "5. Your Rights",
+          "body": "You have the right to access, correct, or delete your personal information, and to request that we stop processing your data. You can manage most of your information directly in Account Settings or by contacting us."
+        },
+        {
+          "heading": "6. Data Retention",
+          "body": "We retain your information for as long as necessary to provide the service and comply with legal obligations. When you delete your account, we delete or anonymize your personal data unless retention is required by law."
+        },
+        {
+          "heading": "7. Changes to This Policy",
+          "body": "We may update this policy from time to time. Any material changes will be announced on the platform. Continued use of Vmito after an update means you accept the revised policy."
+        },
+        {
+          "heading": "8. Contact Us",
+          "body": "If you have questions about this Privacy Policy, please contact us at support@vmito.com."
+        }
+      ]
     }
   },
   "errors": {

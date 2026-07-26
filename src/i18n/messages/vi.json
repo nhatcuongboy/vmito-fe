@@ -4454,6 +4454,45 @@
           "understood": "Đã hiểu, tôi đang đến!"
         }
       }
+    },
+    "privacy": {
+      "title": "Chính sách bảo mật",
+      "lastUpdated": "Cập nhật lần cuối: 26/07/2026",
+      "intro": "Vmito (\"chúng tôi\") tôn trọng quyền riêng tư của bạn và cam kết bảo vệ thông tin cá nhân mà bạn cung cấp khi sử dụng nền tảng tìm kèo, giao lưu và quản lý giải đấu cầu lông của chúng tôi. Chính sách này giải thích cách chúng tôi thu thập, sử dụng, lưu trữ và bảo vệ dữ liệu của bạn.",
+      "sections": [
+        {
+          "heading": "1. Thông tin chúng tôi thu thập",
+          "body": "Chúng tôi có thể thu thập các loại thông tin sau:\n• Thông tin tài khoản: họ tên, email, số điện thoại, ảnh đại diện khi bạn đăng ký.\n• Thông tin đăng nhập qua bên thứ ba: khi bạn đăng nhập bằng Google hoặc Facebook, chúng tôi nhận tên, email và ảnh đại diện công khai.\n• Thông tin hoạt động: các buổi tập, kèo đấu, giải đấu, câu lạc bộ và tương tác của bạn trên nền tảng.\n• Thông tin kỹ thuật: địa chỉ IP, loại thiết bị, trình duyệt và dữ liệu sử dụng nhằm cải thiện dịch vụ."
+        },
+        {
+          "heading": "2. Cách chúng tôi sử dụng thông tin",
+          "body": "Chúng tôi sử dụng thông tin của bạn để:\n• Cung cấp và vận hành các tính năng của Vmito.\n• Kết nối bạn với người chơi, câu lạc bộ và giải đấu phù hợp.\n• Gửi thông báo liên quan đến hoạt động, lời mời và cập nhật dịch vụ.\n• Bảo đảm an toàn, phát hiện và ngăn chặn gian lận hoặc lạm dụng.\n• Phân tích và cải thiện trải nghiệm người dùng."
+        },
+        {
+          "heading": "3. Chia sẻ thông tin",
+          "body": "Chúng tôi không bán thông tin cá nhân của bạn. Thông tin chỉ được chia sẻ trong các trường hợp:\n• Với người dùng khác khi cần thiết cho hoạt động (ví dụ tên và ảnh đại diện hiển thị trong buổi tập hoặc giải đấu bạn tham gia).\n• Với nhà cung cấp dịch vụ hỗ trợ vận hành (lưu trữ, gửi email, xác thực đăng nhập).\n• Khi có yêu cầu hợp pháp từ cơ quan chức năng theo quy định của pháp luật."
+        },
+        {
+          "heading": "4. Bảo mật dữ liệu",
+          "body": "Chúng tôi áp dụng các biện pháp kỹ thuật và tổ chức hợp lý để bảo vệ dữ liệu của bạn khỏi truy cập, thay đổi hoặc tiết lộ trái phép. Tuy nhiên, không có phương thức truyền tải qua Internet nào là an toàn tuyệt đối."
+        },
+        {
+          "heading": "5. Quyền của bạn",
+          "body": "Bạn có quyền truy cập, chỉnh sửa hoặc xóa thông tin cá nhân của mình, cũng như yêu cầu ngừng xử lý dữ liệu. Bạn có thể quản lý phần lớn thông tin trực tiếp trong phần Cài đặt tài khoản hoặc liên hệ với chúng tôi."
+        },
+        {
+          "heading": "6. Lưu trữ dữ liệu",
+          "body": "Chúng tôi lưu trữ thông tin của bạn trong thời gian cần thiết để cung cấp dịch vụ và tuân thủ nghĩa vụ pháp lý. Khi bạn xóa tài khoản, chúng tôi sẽ xóa hoặc ẩn danh dữ liệu cá nhân trừ khi pháp luật yêu cầu lưu giữ."
+        },
+        {
+          "heading": "7. Thay đổi chính sách",
+          "body": "Chúng tôi có thể cập nhật chính sách này theo thời gian. Mọi thay đổi quan trọng sẽ được thông báo trên nền tảng. Việc tiếp tục sử dụng Vmito sau khi cập nhật đồng nghĩa với việc bạn chấp nhận chính sách mới."
+        },
+        {
+          "heading": "8. Liên hệ",
+          "body": "Nếu bạn có câu hỏi về chính sách bảo mật này, vui lòng liên hệ với chúng tôi qua email: support@vmito.com."
+        }
+      ]
     }
   },
   "errors": {
