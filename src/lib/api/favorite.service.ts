@@ -116,7 +116,7 @@ export const FavoriteService = {
   },
 
   getSummary: async (
-    type: Exclude<FavoriteType, 'VENUE'>,
+    type: FavoriteType,
     targetId: string
   ): Promise<FavoriteSummary> => {
     const response = await api.get<ApiResponse<FavoriteSummary>>(
@@ -126,7 +126,7 @@ export const FavoriteService = {
   },
 
   getFavoriteUsers: async (
-    type: Exclude<FavoriteType, 'VENUE'>,
+    type: FavoriteType,
     targetId: string,
     params: { page?: number; limit?: number } = {}
   ): Promise<FavoriteUsersResponse> => {

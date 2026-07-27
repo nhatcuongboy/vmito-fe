@@ -11,6 +11,7 @@ import {
   Grid,
   Heading,
   HStack,
+  Icon,
   Image,
   SimpleGrid,
   Spinner,
@@ -35,6 +36,7 @@ import {
   PencilLine,
   Search,
   Settings,
+  Share2,
   UtensilsCrossed,
   Wifi,
   XCircle,
@@ -50,7 +52,7 @@ import {
   VenueRequestType,
 } from '@/lib/api/types';
 import PageLayout from '@/components/layout/PageLayout';
-import { Button } from '@/components/ui/chakra-compat';
+import { Button, IconButton } from '@/components/ui/chakra-compat';
 import { DEFAULT_COVER_PHOTO } from '@/constants';
 import { usePathname, useRouter } from '@/i18n/config';
 import { toaster } from '@/components/ui/toaster';
@@ -68,6 +70,7 @@ import VenuePriceRequestModal from '@/components/venue/VenuePriceRequestModal';
 import VenueImageRequestModal from '@/components/venue/VenueImageRequestModal';
 import AppLightbox from '@/components/ui/AppLightbox';
 import DetailViewCountFooter from '@/components/common/DetailViewCountFooter';
+import { FavoriteEngagementControl } from '@/components/favorites/FavoriteEngagementControl';
 import dynamic from 'next/dynamic';
 
 const LoginPromptModal = dynamic(
@@ -379,6 +382,36 @@ export default function VenueDetailClient({
     setIsCreateRequestOpen(true);
   };
 
+  const handleShare = async () => {
+    const shareUrl =
+      typeof window !== 'undefined'
+        ? `${window.location.origin}${window.location.pathname}`
+        : '';
+
+    try {
+      if (typeof navigator !== 'undefined' && navigator.share) {
+        await navigator.share({
+          title: venueName,
+          text: `Khám phá ${venueName} trên Vmito`,
+          url: shareUrl,
+        });
+        return;
+      }
+
+      if (typeof navigator !== 'undefined' && navigator.clipboard) {
+        await navigator.clipboard.writeText(shareUrl);
+        toaster.success({
+          title: t('detail.linkCopied') || 'Đã sao chép liên kết',
+        });
+      }
+    } catch (error) {
+      if (error instanceof DOMException && error.name === 'AbortError') return;
+      toaster.error({
+        title: t('detail.shareFailed') || 'Không thể chia sẻ',
+      });
+    }
+  };
+
   if (loading) {
     return (
       <PageLayout title={t('detail.title')}>
@@ -434,6 +467,11 @@ export default function VenueDetailClient({
   const hasPricingRows = pricingRows.length > 0;
   const legacyPricingSummary = getLegacyPricingSummary(venue, t);
   const hasImages = (venue.images?.length ?? 0) > 0;
+  // Venue owner = someone listed as a manager (any role). Admin can always see.
+  const isVenueOwner =
+    !!user &&
+    (venue.managers?.some((m) => String(m.userId) === String(user.id)) ??
+      false);
 
   return (
     <PageLayout title={venueName}>
@@ -476,19 +514,18 @@ export default function VenueDetailClient({
             gradientTo="transparent"
             pointerEvents="none"
           />
-          {/* Badges top-right */}
-          <Flex
-            position="absolute"
-            top={4}
-            right={4}
-            zIndex={2}
-            gap={2}
-            direction={{ base: 'column', sm: 'row' }}
-            align={{ base: 'flex-end', sm: 'center' }}
-          >
-            {venue.isVerified && (
+          {/* Closure badge — top-left (only when not operating) */}
+          {venue.closureStatus &&
+            venue.closureStatus !== ClosureStatus.OPERATING && (
               <Badge
-                colorPalette="green"
+                position="absolute"
+                top={4}
+                left={4}
+                colorPalette={
+                  venue.closureStatus === ClosureStatus.PERMANENTLY_CLOSED
+                    ? 'red'
+                    : 'orange'
+                }
                 variant="solid"
                 size="lg"
                 borderRadius="full"
@@ -498,37 +535,77 @@ export default function VenueDetailClient({
                 alignItems="center"
                 gap={2}
                 shadow="lg"
+                zIndex={2}
               >
-                <BadgeCheck size={16} />
-                <Text fontSize="sm">{t('verified')}</Text>
+                <XCircle size={16} />
+                <Text fontSize="sm">
+                  {venue.closureStatus === ClosureStatus.PERMANENTLY_CLOSED
+                    ? t('detail.permanentlyClosed')
+                    : t('detail.temporarilyClosed')}
+                </Text>
               </Badge>
             )}
-            {venue.closureStatus &&
-              venue.closureStatus !== ClosureStatus.OPERATING && (
-                <Badge
-                  colorPalette={
-                    venue.closureStatus === ClosureStatus.PERMANENTLY_CLOSED
-                      ? 'red'
-                      : 'orange'
-                  }
-                  variant="solid"
-                  size="lg"
-                  borderRadius="full"
-                  px={4}
-                  py={2}
-                  display="flex"
-                  alignItems="center"
-                  gap={2}
-                  shadow="lg"
-                >
-                  <XCircle size={16} />
-                  <Text fontSize="sm">
-                    {venue.closureStatus === ClosureStatus.PERMANENTLY_CLOSED
-                      ? t('detail.permanentlyClosed')
-                      : t('detail.temporarilyClosed')}
-                  </Text>
-                </Badge>
-              )}
+          {/* Verified badge — bottom-left */}
+          {venue.isVerified && (
+            <Badge
+              position="absolute"
+              bottom={4}
+              left={4}
+              colorPalette="green"
+              variant="solid"
+              size="lg"
+              borderRadius="full"
+              px={4}
+              py={2}
+              display="flex"
+              alignItems="center"
+              gap={2}
+              shadow="lg"
+              zIndex={2}
+            >
+              <BadgeCheck size={16} />
+              <Text fontSize="sm">{t('verified')}</Text>
+            </Badge>
+          )}
+          {/* Favourite + Share — top-right */}
+          <Flex
+            position="absolute"
+            top={3}
+            right={3}
+            gap={2}
+            align="center"
+            zIndex={10}
+          >
+            <FavoriteEngagementControl
+              type="VENUE"
+              targetId={venue.id}
+              initialIsFavorite={venue.isFavorite}
+              returnUrl={`/venues/${venue.slug || venue.id}`}
+              variant="overlay-dark"
+              canViewUsersOverride={isAdmin || isVenueOwner}
+            />
+            <IconButton
+              aria-label={t('detail.share') || 'Chia sẻ'}
+              title={t('detail.share') || 'Chia sẻ'}
+              variant="ghost"
+              size="sm"
+              minW="40px"
+              h="40px"
+              color="white"
+              bg="blackAlpha.500"
+              backdropFilter="blur(6px)"
+              borderRadius="full"
+              boxShadow="0 2px 8px rgba(0,0,0,0.35)"
+              touchAction="manipulation"
+              _hover={{ bg: 'blackAlpha.700' }}
+              _focusVisible={{
+                outline: '2px solid',
+                outlineColor: 'white',
+                outlineOffset: '2px',
+              }}
+              onClick={handleShare}
+              icon={<Icon as={Share2} boxSize={5} aria-hidden="true" />}
+            />
           </Flex>
         </Box>
 

@@ -1,7 +1,7 @@
 'use client';
 import { Input } from '@/components/ui/Input';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   Box,
   VStack,
@@ -11,6 +11,7 @@ import {
   Textarea,
   Field,
   Button,
+  Spinner,
 } from '@chakra-ui/react';
 import { VSelect } from './VSelect';
 import { Upload, Lock } from 'lucide-react';
@@ -24,7 +25,7 @@ import { toaster } from '@/components/ui/toaster';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { compressImage } from '@/lib/utils/image';
+import { useImageUpload } from '@/hooks/useImageUpload';
 import { VALID_LEVELS } from '@/constants/levels';
 
 // Zod schema for user profile validation
@@ -50,9 +51,44 @@ export default function UserProfileModal({
   const { user, setUser } = useAuthStore();
   const common = useTranslations('common');
   const t = useTranslations('common.profileModal');
-  const avatarInputRef = useRef<HTMLInputElement>(null);
-  const [isAvatarUploading, setIsAvatarUploading] = useState(false);
   const [isChangePasswordOpen, setIsChangePasswordOpen] = useState(false);
+
+  const {
+    inputRef: avatarInputRef,
+    isUploading: isAvatarUploading,
+    progress: avatarProgress,
+    openFilePicker: handleAvatarClick,
+    handleFileChange: handleAvatarFileChange,
+  } = useImageUpload({
+    uploader: AdminService.uploadAvatar,
+    compression: { maxSizeMB: 1, maxWidthOrHeight: 1200 },
+    onSuccess: async (uploaded) => {
+      if (!user) return;
+      const updatedUser = await AdminService.updateUser(user.id, {
+        image: uploaded.url,
+        imagePublicId: uploaded.publicId,
+      });
+      setUser({
+        ...user,
+        image: updatedUser.image ?? uploaded.url,
+        imagePublicId:
+          (updatedUser as { imagePublicId?: string }).imagePublicId ??
+          uploaded.publicId,
+      });
+      toaster.create({
+        title: common('success'),
+        description: t('avatarUpdatedSuccessfully'),
+        type: 'success',
+      });
+    },
+    onError: () => {
+      toaster.create({
+        title: common('error'),
+        description: t('failedToUploadAvatar'),
+        type: 'error',
+      });
+    },
+  });
 
   const {
     register,
@@ -150,55 +186,6 @@ export default function UserProfileModal({
 
   if (!user) return null;
 
-  const handleAvatarClick = () => {
-    if (isAvatarUploading) return;
-    avatarInputRef.current?.click();
-  };
-
-  const handleAvatarFileChange = async (
-    e: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    const file = e.target.files?.[0];
-    if (!file || !user) return;
-
-    setIsAvatarUploading(true);
-    try {
-      const compressedFile = await compressImage(file, {
-        maxSizeMB: 1,
-        maxWidthOrHeight: 1200,
-      });
-      const uploaded = await AdminService.uploadAvatar(compressedFile);
-      const updatedUser = await AdminService.updateUser(user.id, {
-        image: uploaded.url,
-        imagePublicId: uploaded.publicId,
-      });
-
-      setUser({
-        ...user,
-        image: updatedUser.image ?? uploaded.url,
-        imagePublicId:
-          (updatedUser as { imagePublicId?: string }).imagePublicId ??
-          uploaded.publicId,
-      });
-
-      toaster.create({
-        title: common('success'),
-        description: t('avatarUpdatedSuccessfully'),
-        type: 'success',
-      });
-    } catch (error) {
-      console.error('Failed to upload avatar:', error);
-      toaster.create({
-        title: common('error'),
-        description: t('failedToUploadAvatar'),
-        type: 'error',
-      });
-    } finally {
-      setIsAvatarUploading(false);
-      if (avatarInputRef.current) avatarInputRef.current.value = '';
-    }
-  };
-
   return (
     <VModal
       isOpen={isOpen}
@@ -230,6 +217,24 @@ export default function UserProfileModal({
               </Avatar.Fallback>
               {user.image && <Avatar.Image src={user.image} />}
             </Avatar.Root>
+            {isAvatarUploading && (
+              <Flex
+                position="absolute"
+                inset={0}
+                borderRadius="full"
+                bg="blackAlpha.600"
+                align="center"
+                justify="center"
+                direction="column"
+                gap={1}
+                zIndex={1}
+              >
+                <Spinner size="sm" color="white" />
+                <Text fontSize="xs" color="white" fontWeight="bold">
+                  {avatarProgress}%
+                </Text>
+              </Flex>
+            )}
             <Box
               position="absolute"
               bottom={0}
@@ -238,8 +243,9 @@ export default function UserProfileModal({
               color="white"
               p={2}
               borderRadius="full"
-              cursor="pointer"
-              _hover={{ bg: 'brand.600' }}
+              cursor={isAvatarUploading ? 'not-allowed' : 'pointer'}
+              opacity={isAvatarUploading ? 0.6 : 1}
+              _hover={isAvatarUploading ? undefined : { bg: 'brand.600' }}
               boxShadow="md"
               onClick={handleAvatarClick}
             >

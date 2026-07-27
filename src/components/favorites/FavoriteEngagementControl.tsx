@@ -27,7 +27,7 @@ import {
 import { FavoriteButton } from './FavoriteButton';
 import { SessionEventType, useSocket } from '@/contexts/SocketContext';
 
-type EngagementType = Exclude<FavoriteType, 'VENUE'>;
+type EngagementType = FavoriteType;
 type EngagementVariant = 'surface' | 'overlay-dark' | 'minimal';
 
 interface FavoriteEngagementControlProps {
@@ -36,6 +36,8 @@ interface FavoriteEngagementControlProps {
   initialIsFavorite?: boolean;
   returnUrl?: string;
   variant?: EngagementVariant;
+  /** When provided, overrides the server-returned canViewUsers value. */
+  canViewUsersOverride?: boolean;
 }
 
 const USERS_PER_PAGE = 20;
@@ -54,6 +56,7 @@ export function FavoriteEngagementControl({
   initialIsFavorite = false,
   returnUrl,
   variant = 'surface',
+  canViewUsersOverride,
 }: FavoriteEngagementControlProps) {
   const t = useTranslations('common.favorites');
   const locale = useLocale();
@@ -177,7 +180,11 @@ export function FavoriteEngagementControl({
   );
 
   const handleOpenUsers = () => {
-    if (!summary?.canViewUsers || summary.favoriteCount === 0) return;
+    const canView =
+      canViewUsersOverride !== undefined
+        ? canViewUsersOverride
+        : summary?.canViewUsers;
+    if (!canView || summary?.favoriteCount === 0) return;
     setIsUsersOpen(true);
     void loadUsers(1);
   };
@@ -266,16 +273,21 @@ export function FavoriteEngagementControl({
             borderRadius={isMinimal ? 'md' : 0}
             borderLeftWidth={isDark ? '1px' : 0}
             borderColor={isDark ? 'whiteAlpha.200' : 'transparent'}
-            disabled={!summary.canViewUsers || summary.favoriteCount === 0}
+            disabled={
+              !(canViewUsersOverride ?? summary.canViewUsers) ||
+              summary.favoriteCount === 0
+            }
             cursor={
-              summary.canViewUsers && summary.favoriteCount > 0
+              (canViewUsersOverride ?? summary.canViewUsers) &&
+              summary.favoriteCount > 0
                 ? 'pointer'
                 : 'default'
             }
             aria-label={t('likeCount', { count: summary.favoriteCount })}
             onClick={handleOpenUsers}
             _hover={
-              summary.canViewUsers && summary.favoriteCount > 0
+              (canViewUsersOverride ?? summary.canViewUsers) &&
+              summary.favoriteCount > 0
                 ? {
                     bg: isDark
                       ? 'blackAlpha.300'

@@ -255,7 +255,9 @@
       "passwordTooShort": "Mật khẩu phải có ít nhất 6 ký tự",
       "passwordRequired": "Vui lòng nhập mật khẩu mới",
       "passwordChangedSuccessfully": "Đổi mật khẩu thành công",
-      "failedToChangePassword": "Đổi mật khẩu thất bại"
+      "failedToChangePassword": "Đổi mật khẩu thất bại",
+      "coverUpdatedSuccessfully": "Cập nhật ảnh bìa thành công",
+      "failedToUploadCover": "Không thể tải ảnh bìa lên"
     },
     "deviceTheme": "Tự động",
     "darkTheme": "Giao diện tối",
@@ -1637,7 +1639,7 @@
         }
       },
       "sort": {
-        "startDate": "Sắp diễn ra gần nhất",
+        "startDate": "Sắp diễn ra",
         "newest": "Mới tạo",
         "nameAsc": "Tên A-Z",
         "nameDesc": "Tên Z-A"
@@ -5677,7 +5679,16 @@
     "noFavoriteVenues": "Chưa có sân yêu thích nào",
     "noFavoriteClubs": "Chưa có nhóm yêu thích nào",
     "noFavoriteTournaments": "Chưa có giải đấu yêu thích nào",
-    "viewAllFavorites": "Xem tất cả"
+    "viewAllFavorites": "Xem tất cả",
+    "postsTab": "Bài viết",
+    "hostedTab": "Kèo đã host",
+    "clubsTab": "Nhóm",
+    "reviewsTab": "Đánh giá",
+    "favoritesTab": "Yêu thích",
+    "noPosts": "Chưa có bài viết nào",
+    "share": "Chia sẻ",
+    "changeCover": "Đổi ảnh bìa",
+    "linkCopied": "Đã sao chép liên kết"
   },
   "notification": {
     "notifications": "Thông báo",

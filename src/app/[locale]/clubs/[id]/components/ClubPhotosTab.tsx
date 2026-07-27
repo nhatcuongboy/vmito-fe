@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import {
   Box,
   Flex,
@@ -10,6 +11,7 @@ import {
 import { Image as ImageIcon } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { IClub } from '@/types/club';
+import AppLightbox from '@/components/ui/AppLightbox';
 
 interface IClubPhotosTabProps {
   clubName: string;
@@ -18,6 +20,9 @@ interface IClubPhotosTabProps {
 
 export const ClubPhotosTab = ({ clubName, images }: IClubPhotosTabProps) => {
   const t = useTranslations();
+  const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
+
+  const safeImages = images || [];
 
   return (
     <Tabs.Content value="photos" pt={0}>
@@ -33,9 +38,9 @@ export const ClubPhotosTab = ({ clubName, images }: IClubPhotosTabProps) => {
         <Heading size="md" mb={5}>
           {t('clubs.clubImage')}
         </Heading>
-        {images && images.length > 0 ? (
+        {safeImages.length > 0 ? (
           <SimpleGrid columns={{ base: 2, md: 3 }} gap={4}>
-            {images.map((imageUrl, index) => (
+            {safeImages.map((imageUrl, index) => (
               <Box
                 key={index}
                 aspectRatio={1}
@@ -47,6 +52,7 @@ export const ClubPhotosTab = ({ clubName, images }: IClubPhotosTabProps) => {
                 transition="all 0.2s"
                 _hover={{ shadow: 'lg', transform: 'scale(1.02)' }}
                 cursor="pointer"
+                onClick={() => setSelectedIndex(index)}
               >
                 <Image
                   src={imageUrl}
@@ -74,6 +80,15 @@ export const ClubPhotosTab = ({ clubName, images }: IClubPhotosTabProps) => {
           </Flex>
         )}
       </Box>
+
+      {selectedIndex !== null && (
+        <AppLightbox
+          images={safeImages}
+          initialIndex={selectedIndex}
+          onClose={() => setSelectedIndex(null)}
+          alt={clubName}
+        />
+      )}
     </Tabs.Content>
   );
 };

@@ -245,7 +245,9 @@
       "passwordTooShort": "密码至少需要6个字符",
       "passwordRequired": "请输入新密码",
       "passwordChangedSuccessfully": "密码修改成功",
-      "failedToChangePassword": "修改密码失败"
+      "failedToChangePassword": "修改密码失败",
+      "coverUpdatedSuccessfully": "封面更新成功",
+      "failedToUploadCover": "封面上传失败"
     },
     "deviceTheme": "自动",
     "darkTheme": "深色",
@@ -5620,7 +5622,16 @@
     "noFavoriteVenues": "暂无收藏的场地",
     "noFavoriteClubs": "暂无收藏的俱乐部",
     "noFavoriteTournaments": "暂无收藏的赛事",
-    "viewAllFavorites": "查看全部"
+    "viewAllFavorites": "查看全部",
+    "postsTab": "动态",
+    "hostedTab": "已主持",
+    "clubsTab": "俱乐部",
+    "reviewsTab": "评价",
+    "favoritesTab": "收藏",
+    "noPosts": "暂无动态",
+    "share": "分享",
+    "changeCover": "更换封面",
+    "linkCopied": "链接已复制"
   },
   "notification": {
     "notifications": "通知",

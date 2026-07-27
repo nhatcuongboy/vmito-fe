@@ -255,7 +255,9 @@
       "passwordTooShort": "Password must be at least 6 characters",
       "passwordRequired": "Please enter new password",
       "passwordChangedSuccessfully": "Password changed successfully",
-      "failedToChangePassword": "Failed to change password"
+      "failedToChangePassword": "Failed to change password",
+      "coverUpdatedSuccessfully": "Cover photo updated successfully",
+      "failedToUploadCover": "Failed to upload cover photo"
     },
     "deviceTheme": "Auto",
     "darkTheme": "Dark Theme",
@@ -5661,7 +5663,16 @@
     "noFavoriteVenues": "No favorite venues yet",
     "noFavoriteClubs": "No favorite clubs yet",
     "noFavoriteTournaments": "No favorite tournaments yet",
-    "viewAllFavorites": "View all"
+    "viewAllFavorites": "View all",
+    "postsTab": "Posts",
+    "hostedTab": "Hosted",
+    "clubsTab": "Clubs",
+    "reviewsTab": "Reviews",
+    "favoritesTab": "Favorites",
+    "noPosts": "No posts yet",
+    "share": "Share",
+    "changeCover": "Change cover",
+    "linkCopied": "Link copied"
   },
   "notification": {
     "notifications": "Notifications",

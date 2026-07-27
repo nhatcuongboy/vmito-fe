@@ -55,7 +55,7 @@ interface IClubDetailSidebarProps {
   userJoinRequest?: IClubJoinRequest | null;
   onJoin: () => void;
   onOpenPendingModal?: () => void;
-  onTabChange: (tab: string) => void;
+  onTabChange?: (tab: string) => void;
 }
 
 interface QuickInfoVenue {
@@ -579,57 +579,6 @@ export const ClubDetailSidebar = ({
             targetId={club.id}
             initialCount={club.viewCount}
           />
-
-          {club.announcements && club.announcements.length > 0 && (
-            <Box
-              bg="white"
-              _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
-              borderRadius="2xl"
-              p={5}
-              shadow="sm"
-              borderWidth="1px"
-              borderColor="gray.100"
-            >
-              <Flex justify="space-between" align="center" mb={3}>
-                <Heading size="sm">{t('clubs.recentAnnouncements')}</Heading>
-                <Button
-                  variant="ghost"
-                  size="xs"
-                  onClick={() => onTabChange('announcements')}
-                >
-                  {t('clubs.viewAll')}
-                </Button>
-              </Flex>
-              <VStack gap={2} align="stretch">
-                {club.announcements.slice(0, 3).map((announcement) => (
-                  <Box
-                    key={announcement.id}
-                    p={3}
-                    bg="gray.50"
-                    _dark={{ bg: 'gray.900' }}
-                    borderRadius="lg"
-                  >
-                    <Text
-                      fontWeight="semibold"
-                      fontSize="xs"
-                      mb={1}
-                      lineClamp={1}
-                    >
-                      {announcement.title}
-                    </Text>
-                    <Text
-                      fontSize="2xs"
-                      color="gray.600"
-                      _dark={{ color: 'gray.400' }}
-                      lineClamp={2}
-                    >
-                      {announcement.content}
-                    </Text>
-                  </Box>
-                ))}
-              </VStack>
-            </Box>
-          )}
         </VStack>
       </Box>
 

@@ -97,31 +97,44 @@ export const ClubDetailHero = ({
           gradientTo="transparent"
           pointerEvents="none"
         />
-        <IconButton
-          aria-label={t('share')}
-          title={t('share')}
-          variant="ghost"
-          size="sm"
-          minW="40px"
-          h="40px"
+        <Flex
           position="absolute"
           top={3}
           right={3}
-          color="white"
-          bg="blackAlpha.500"
-          backdropFilter="blur(6px)"
-          borderRadius="full"
-          boxShadow="0 2px 8px rgba(0,0,0,0.35)"
-          touchAction="manipulation"
-          _hover={{ bg: 'blackAlpha.700' }}
-          _focusVisible={{
-            outline: '2px solid',
-            outlineColor: 'white',
-            outlineOffset: '2px',
-          }}
-          onClick={handleShare}
-          icon={<Icon as={Share2} boxSize={5} aria-hidden="true" />}
-        />
+          gap={2}
+          align="center"
+          zIndex={10}
+        >
+          <FavoriteEngagementControl
+            type="CLUB"
+            targetId={club.id}
+            initialIsFavorite={club.isFavorite}
+            returnUrl={`/clubs/${club.slug || club.id}`}
+            variant="overlay-dark"
+          />
+          <IconButton
+            aria-label={t('share')}
+            title={t('share')}
+            variant="ghost"
+            size="sm"
+            minW="40px"
+            h="40px"
+            color="white"
+            bg="blackAlpha.500"
+            backdropFilter="blur(6px)"
+            borderRadius="full"
+            boxShadow="0 2px 8px rgba(0,0,0,0.35)"
+            touchAction="manipulation"
+            _hover={{ bg: 'blackAlpha.700' }}
+            _focusVisible={{
+              outline: '2px solid',
+              outlineColor: 'white',
+              outlineOffset: '2px',
+            }}
+            onClick={handleShare}
+            icon={<Icon as={Share2} boxSize={5} aria-hidden="true" />}
+          />
+        </Flex>
       </Box>
 
       <Box
@@ -192,13 +205,6 @@ export const ClubDetailHero = ({
               </Text>
             ) : null}
           </Box>
-          <FavoriteEngagementControl
-            type="CLUB"
-            targetId={club.id}
-            initialIsFavorite={club.isFavorite}
-            returnUrl={`/clubs/${club.slug || club.id}`}
-            variant="minimal"
-          />
         </Flex>
       </Box>
 

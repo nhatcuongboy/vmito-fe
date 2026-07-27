@@ -9,6 +9,8 @@ export interface User {
   role: UserRole;
   image?: string | null;
   imagePublicId?: string | null;
+  coverPhoto?: string | null;
+  coverPhotoPublicId?: string | null;
   phone?: string | null;
   gender?: string | null;
   // Guest-specific fields

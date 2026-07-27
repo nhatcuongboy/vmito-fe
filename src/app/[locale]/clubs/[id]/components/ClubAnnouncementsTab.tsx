@@ -167,7 +167,7 @@ export const ClubAnnouncementsTab = ({
             gap={3}
             mb={5}
           >
-            <Heading size="md">{t('clubs.recentAnnouncements')}</Heading>
+            <Heading size="md">{t('clubs.announcementsTab')}</Heading>
             {isUserAdmin && (
               <Button
                 size="sm"

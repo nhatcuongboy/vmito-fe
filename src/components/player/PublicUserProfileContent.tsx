@@ -2,39 +2,27 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import {
-  Avatar,
   Box,
   Button,
   Flex,
   HStack,
   Icon,
-  Image,
-  Portal,
-  SimpleGrid,
   Skeleton,
   Text,
   VStack,
 } from '@chakra-ui/react';
-import {
-  CalendarDays,
-  ChevronRight,
-  MessageSquare,
-  Pencil,
-  Phone,
-  Settings,
-  User,
-  X,
-} from 'lucide-react';
-import { useLocale, useTranslations } from 'next-intl';
+import { MessageSquare } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { usePathname, useRouter } from '@/i18n/config';
 import { useSearchParams } from 'next/navigation';
-import Link from 'next/link';
 import PageLayout from '@/components/layout/PageLayout';
 import UserProfileModal from '@/components/ui/UserProfileModal';
+import UserProfileHeader from '@/components/player/UserProfileHeader';
+import UserClubsSection from '@/components/player/UserClubsSection';
+import UserPostsSection from '@/components/player/UserPostsSection';
 import { RatingService } from '@/lib/api/rating.service';
 import { SessionService } from '@/lib/api/session.service';
 import { UserService, IPublicProfileMeta } from '@/lib/api/user.service';
-import { getFullSizeAvatarUrl } from '@/lib/utils/image';
 import { ClubsService } from '@/lib/api/clubs.service';
 import { useAuthStore } from '@/stores/useAuthStore';
 import {
@@ -48,7 +36,6 @@ import { IClub } from '@/types/club';
 import { UserRatingSummaryCard } from '@/components/rating/UserRatingSummaryCard';
 import { RatingList } from '@/components/rating/RatingList';
 import { VModal, useModal } from '@/components/ui/VModal';
-import { StarRatingDisplay } from '@/components/rating/StarRatingDisplay';
 import PublicHostedSessionCard from '@/components/player/PublicHostedSessionCard';
 import PublicUserProfileSkeleton from '@/components/player/PublicUserProfileSkeleton';
 import PublicUserFavoritesSection from '@/components/player/PublicUserFavoritesSection';
@@ -61,6 +48,7 @@ const DEFAULT_PAGE = 1;
 const DEFAULT_LIMIT = 6;
 const REVIEWS_PREVIEW_SIZE = 3;
 type THostedTab = 'active' | 'ended' | 'all';
+type ProfileSection = 'posts' | 'hosted' | 'clubs' | 'reviews' | 'favorites';
 
 const getHostedTab = (value: string | null): THostedTab => {
   if (value === 'active' || value === 'ended' || value === 'all') {
@@ -78,36 +66,11 @@ const parsePositiveInt = (value: string | null, fallback: number): number => {
   return parsed;
 };
 
-const formatDate = (
-  input: Date | string | undefined,
-  locale: string
-): string => {
-  if (!input) {
-    return '--';
-  }
-
-  const parsed = new Date(input);
-  if (Number.isNaN(parsed.getTime())) {
-    return '--';
-  }
-
-  return new Intl.DateTimeFormat(
-    locale === 'vi' ? 'vi-VN' : locale === 'cn' ? 'zh-CN' : 'en-US',
-    {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-    }
-  ).format(parsed);
-};
-
 export default function PublicUserProfileContent({
   userId,
 }: IPublicUserProfileContentProps) {
   const t = useTranslations('userProfilePage');
   const tCommon = useTranslations('common');
-  const tClubs = useTranslations('clubs');
-  const locale = useLocale();
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
@@ -125,6 +88,10 @@ export default function PublicUserProfileContent({
   const [isLoading, setIsLoading] = useState(true);
   const [isSessionsLoading, setIsSessionsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const isOwner = currentUser?.id === userId;
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [activeSection, setActiveSection] = useState<ProfileSection>('posts');
 
   const {
     isOpen: isAllReviewsOpen,
@@ -270,38 +237,12 @@ export default function PublicUserProfileContent({
     router.replace(`${pathname}?${params.toString()}`, { scroll: false });
   };
 
-  const displayName = profile?.name || tCommon('unknown');
-  const avatarUrl = profile?.image || undefined;
-
-  const isOwner = currentUser?.id === userId;
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [isAvatarPreviewOpen, setIsAvatarPreviewOpen] = useState(false);
-
-  const joinedAt = profile?.createdAt;
-  const phone = profile?.phone;
-  const genderLabel = useMemo(() => {
-    if (!profile?.gender) {
-      return '';
-    }
-
-    if (profile.gender === 'MALE') {
-      return tCommon('male');
-    }
-
-    if (profile.gender === 'FEMALE') {
-      return tCommon('female');
-    }
-
-    if (profile.gender === 'OTHER') {
-      return tCommon('other');
-    }
-
-    if (profile.gender === 'PREFER_NOT_TO_SAY') {
-      return tCommon('preferNotToSay');
-    }
-
-    return profile.gender;
-  }, [profile?.gender, tCommon]);
+  const handleProfileImageUpdated = (patch: {
+    image?: string;
+    coverPhoto?: string;
+  }) => {
+    setProfile((prev) => (prev ? { ...prev, ...patch } : prev));
+  };
 
   if (isLoading) {
     return <PublicUserProfileSkeleton />;
@@ -331,6 +272,21 @@ export default function PublicUserProfileContent({
     );
   }
 
+  const sectionTabs: { key: ProfileSection; label: string; count?: number }[] =
+    [
+      { key: 'posts', label: t('postsTab') },
+      { key: 'hosted', label: t('hostedTab'), count: allHostedSessionsCount },
+      { key: 'clubs', label: t('clubsTab') },
+      {
+        key: 'reviews',
+        label: t('reviewsTab'),
+        count: ratingStats?.totalRatings ?? 0,
+      },
+      ...(isOwner
+        ? [{ key: 'favorites' as ProfileSection, label: t('favoritesTab') }]
+        : []),
+    ];
+
   return (
     <>
       {isOwner && (
@@ -341,608 +297,215 @@ export default function PublicUserProfileContent({
       )}
       <PageLayout title={t('title')} bg="gray.50" _dark={{ bg: 'gray.900' }}>
         <VStack gap={6} align="stretch" pb={6}>
-          <Box
-            borderWidth="1px"
-            borderColor="gray.200"
-            borderRadius="2xl"
-            bg="white"
-            overflow="hidden"
-            _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
-          >
-            <Box
-              bg="linear-gradient(135deg, #FFD75F 0%, #FFC107 100%)"
-              position="relative"
-            >
-              <Image
-                src="/icons/app-logo-black.png"
-                alt="Vmito"
-                position="absolute"
-                right={4}
-                bottom={4}
-                h="24px"
-                opacity={0.25}
-              />
+          <UserProfileHeader
+            profile={profile}
+            ratingStats={ratingStats}
+            allHostedSessionsCount={allHostedSessionsCount}
+            isOwner={isOwner}
+            userId={userId}
+            onEdit={() => setIsEditModalOpen(true)}
+            onProfileImageUpdated={handleProfileImageUpdated}
+          />
 
-              {isOwner && (
+          {/* Section tabs */}
+          <Box overflowX="auto" pb={1} css={{ scrollbarWidth: 'none' }}>
+            <HStack gap={2} minW="max-content">
+              {sectionTabs.map((tab) => (
                 <Button
-                  size="xs"
-                  variant="outline"
-                  onClick={() => setIsEditModalOpen(true)}
-                  position="absolute"
-                  right={4}
-                  top={4}
-                  zIndex={1}
+                  key={tab.key}
+                  size="sm"
                   borderRadius="full"
-                  px={3}
-                  fontWeight="bold"
-                  bg="white"
-                  color="gray.800"
-                  borderColor="gray.300"
-                  _dark={{
-                    bg: 'gray.700',
-                    color: 'gray.100',
-                    borderColor: 'gray.500',
-                  }}
-                  shadow="sm"
-                  _hover={{
-                    shadow: 'md',
-                    bg: 'gray.50',
-                    transform: 'translateY(-1px)',
-                  }}
-                  transition="all 0.2s"
+                  variant={activeSection === tab.key ? 'solid' : 'outline'}
+                  colorPalette={activeSection === tab.key ? 'green' : 'gray'}
+                  onClick={() => setActiveSection(tab.key)}
                 >
-                  <Pencil size={12} />
-                  {tCommon('edit')}
+                  {tab.label}
+                  {tab.count != null ? ` (${tab.count})` : ''}
                 </Button>
-              )}
-
-              <HStack align="end" gap={3} px={5} pt={12} pb={3}>
-                <Avatar.Root
-                  size="2xl"
-                  borderRadius="full"
-                  borderWidth="4px"
-                  borderColor="white"
-                  mb="-32px"
-                  cursor={avatarUrl ? 'pointer' : 'default'}
-                  onClick={() => {
-                    if (avatarUrl) setIsAvatarPreviewOpen(true);
-                  }}
-                  _hover={avatarUrl ? { opacity: 0.9 } : undefined}
-                  transition="opacity 0.2s"
-                >
-                  <Avatar.Fallback name={displayName}>
-                    <User size={24} />
-                  </Avatar.Fallback>
-                  {avatarUrl && <Avatar.Image src={avatarUrl} />}
-                </Avatar.Root>
-
-                <VStack align="start" gap={0} flex={1} pb={0}>
-                  <Text
-                    fontSize="lg"
-                    fontWeight="bold"
-                    color="gray.800"
-                    _dark={{ color: 'gray.100' }}
-                    lineClamp={1}
-                  >
-                    {displayName}
-                  </Text>
-                </VStack>
-              </HStack>
-            </Box>
-
-            <Box px={5} pb={5} pt={2}>
-              <VStack align="start" gap={2} pl="88px">
-                <HStack gap={2}>
-                  <StarRatingDisplay
-                    rating={ratingStats?.averageRating || 0}
-                    count={ratingStats?.totalRatings || 0}
-                    variant="compact"
-                    size="sm"
-                  />
-                </HStack>
-
-                <SimpleGrid columns={2} gap={3} width="full" pt={1}>
-                  <Box
-                    borderRadius="lg"
-                    bg="gray.50"
-                    _dark={{ bg: 'gray.700' }}
-                    px={3}
-                    py={2}
-                  >
-                    <Text
-                      fontSize="xs"
-                      color="gray.500"
-                      _dark={{ color: 'gray.400' }}
-                    >
-                      {t('hostedSessions')}
-                    </Text>
-                    <Text
-                      fontSize="md"
-                      fontWeight="semibold"
-                      color="gray.800"
-                      _dark={{ color: 'gray.100' }}
-                    >
-                      {allHostedSessionsCount}
-                    </Text>
-                  </Box>
-
-                  <Box
-                    borderRadius="lg"
-                    bg="gray.50"
-                    _dark={{ bg: 'gray.700' }}
-                    px={3}
-                    py={2}
-                  >
-                    <Text
-                      fontSize="xs"
-                      color="gray.500"
-                      _dark={{ color: 'gray.400' }}
-                    >
-                      {t('reviews')}
-                    </Text>
-                    <Text
-                      fontSize="md"
-                      fontWeight="semibold"
-                      color="gray.800"
-                      _dark={{ color: 'gray.100' }}
-                    >
-                      {ratingStats?.totalRatings ?? 0}
-                    </Text>
-                  </Box>
-                </SimpleGrid>
-
-                {phone && (
-                  <HStack
-                    gap={2}
-                    color="gray.600"
-                    _dark={{ color: 'gray.300' }}
-                    pt={1}
-                  >
-                    <Phone size={16} />
-                    <Text fontSize="sm">{phone}</Text>
-                  </HStack>
-                )}
-
-                {genderLabel && (
-                  <HStack
-                    gap={2}
-                    color="gray.600"
-                    _dark={{ color: 'gray.300' }}
-                  >
-                    <User size={16} />
-                    <Text fontSize="sm">
-                      {tCommon('gender')}: {genderLabel}
-                    </Text>
-                  </HStack>
-                )}
-
-                {joinedAt && (
-                  <HStack
-                    gap={2}
-                    color="gray.600"
-                    _dark={{ color: 'gray.300' }}
-                  >
-                    <CalendarDays size={16} />
-                    <Text fontSize="sm">
-                      {t('joinedDateLabel', {
-                        date: formatDate(joinedAt, locale),
-                      })}
-                    </Text>
-                  </HStack>
-                )}
-              </VStack>
-            </Box>
-          </Box>
-
-          {(() => {
-            const hostedClubs = clubs.filter(
-              (c) => (c.hostId ?? c.host?.id) === userId
-            );
-            const memberClubs = clubs.filter(
-              (c) => (c.hostId ?? c.host?.id) !== userId
-            );
-            const isOwnProfile = currentUser?.id === userId;
-
-            // Own profile always shows the section so users can navigate to
-            // club management even before creating or joining a club.
-            const shouldShowSection = isOwnProfile
-              ? true
-              : hostedClubs.length > 0;
-
-            if (!shouldShowSection) {
-              return null;
-            }
-
-            return (
-              <Box
-                bg="white"
-                borderWidth="1px"
-                borderColor="gray.200"
-                borderRadius="2xl"
-                p={4}
-                _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
-              >
-                <HStack justify="space-between" align="center" mb={3}>
-                  <Text
-                    fontSize="lg"
-                    fontWeight="bold"
-                    color="gray.800"
-                    _dark={{ color: 'gray.100' }}
-                  >
-                    {t('clubs')}
-                  </Text>
-
-                  {isOwnProfile && (
-                    <Link href={`/${locale}/my-clubs`}>
-                      <Button
-                        size="xs"
-                        variant="outline"
-                        borderRadius="full"
-                        bg="green.50"
-                        color="green.700"
-                        borderColor="green.200"
-                        _hover={{
-                          bg: 'green.100',
-                          borderColor: 'green.300',
-                        }}
-                      >
-                        <Settings size={14} />
-                        {tClubs('manageClubs')}
-                      </Button>
-                    </Link>
-                  )}
-                </HStack>
-
-                <VStack gap={4} align="stretch">
-                  {(isOwnProfile || hostedClubs.length > 0) && (
-                    <Box>
-                      <Text
-                        fontSize="sm"
-                        fontWeight="semibold"
-                        color="gray.600"
-                        _dark={{ color: 'gray.300' }}
-                        mb={2}
-                      >
-                        {t('hostedClubs')} ({hostedClubs.length})
-                      </Text>
-                      {hostedClubs.length === 0 ? (
-                        <Box
-                          borderWidth="1px"
-                          borderStyle="dashed"
-                          borderColor="gray.300"
-                          borderRadius="lg"
-                          bg="gray.50"
-                          p={3}
-                          _dark={{ bg: 'gray.700', borderColor: 'gray.600' }}
-                        >
-                          <Text
-                            fontSize="sm"
-                            color="gray.500"
-                            _dark={{ color: 'gray.400' }}
-                          >
-                            {t('noHostedClubs')}
-                          </Text>
-                        </Box>
-                      ) : (
-                        <VStack gap={2} align="stretch">
-                          {hostedClubs.map((club, idx) => (
-                            <Link
-                              key={`hosted-${club.id}-${idx}`}
-                              href={`/${locale}/clubs/${club.id}`}
-                            >
-                              <Box
-                                borderWidth="1px"
-                                borderColor="gray.200"
-                                borderRadius="lg"
-                                p={3}
-                                bg="gray.50"
-                                _dark={{
-                                  bg: 'gray.700',
-                                  borderColor: 'gray.600',
-                                }}
-                                _hover={{
-                                  bg: 'gray.100',
-                                  borderColor: 'green.300',
-                                  _dark: {
-                                    bg: 'gray.600',
-                                    borderColor: 'green.500',
-                                  },
-                                }}
-                                transition="all 0.2s"
-                                cursor="pointer"
-                              >
-                                <HStack gap={3}>
-                                  {club.image && (
-                                    <Image
-                                      src={club.image}
-                                      alt={club.name}
-                                      boxSize="40px"
-                                      borderRadius="md"
-                                      objectFit="cover"
-                                    />
-                                  )}
-                                  <VStack align="start" gap={0} flex={1}>
-                                    <Text
-                                      fontWeight="semibold"
-                                      color="gray.800"
-                                      _dark={{ color: 'gray.100' }}
-                                    >
-                                      {club.name}
-                                    </Text>
-                                    {club.memberCount > 0 && (
-                                      <Text
-                                        fontSize="xs"
-                                        color="gray.500"
-                                        _dark={{ color: 'gray.400' }}
-                                      >
-                                        {club.memberCount} {tCommon('members')}
-                                      </Text>
-                                    )}
-                                  </VStack>
-                                  <ChevronRight size={16} color="gray" />
-                                </HStack>
-                              </Box>
-                            </Link>
-                          ))}
-                        </VStack>
-                      )}
-                    </Box>
-                  )}
-
-                  {isOwnProfile && (
-                    <Box>
-                      <Text
-                        fontSize="sm"
-                        fontWeight="semibold"
-                        color="gray.600"
-                        _dark={{ color: 'gray.300' }}
-                        mb={2}
-                      >
-                        {t('memberClubs')} ({memberClubs.length})
-                      </Text>
-                      {memberClubs.length === 0 ? (
-                        <Box
-                          borderWidth="1px"
-                          borderStyle="dashed"
-                          borderColor="gray.300"
-                          borderRadius="lg"
-                          bg="gray.50"
-                          p={3}
-                          _dark={{ bg: 'gray.700', borderColor: 'gray.600' }}
-                        >
-                          <Text
-                            fontSize="sm"
-                            color="gray.500"
-                            _dark={{ color: 'gray.400' }}
-                          >
-                            {t('noMemberClubs')}
-                          </Text>
-                        </Box>
-                      ) : (
-                        <VStack gap={2} align="stretch">
-                          {memberClubs.map((club, idx) => (
-                            <Link
-                              key={`member-${club.id}-${idx}`}
-                              href={`/${locale}/clubs/${club.id}`}
-                            >
-                              <Box
-                                borderWidth="1px"
-                                borderColor="gray.200"
-                                borderRadius="lg"
-                                p={3}
-                                bg="gray.50"
-                                _dark={{
-                                  bg: 'gray.700',
-                                  borderColor: 'gray.600',
-                                }}
-                                _hover={{
-                                  bg: 'gray.100',
-                                  borderColor: 'green.300',
-                                  _dark: {
-                                    bg: 'gray.600',
-                                    borderColor: 'green.500',
-                                  },
-                                }}
-                                transition="all 0.2s"
-                                cursor="pointer"
-                              >
-                                <HStack gap={3}>
-                                  {club.image && (
-                                    <Image
-                                      src={club.image}
-                                      alt={club.name}
-                                      boxSize="40px"
-                                      borderRadius="md"
-                                      objectFit="cover"
-                                    />
-                                  )}
-                                  <VStack align="start" gap={0} flex={1}>
-                                    <Text
-                                      fontWeight="semibold"
-                                      color="gray.800"
-                                      _dark={{ color: 'gray.100' }}
-                                    >
-                                      {club.name}
-                                    </Text>
-                                    {club.memberCount > 0 && (
-                                      <Text
-                                        fontSize="xs"
-                                        color="gray.500"
-                                        _dark={{ color: 'gray.400' }}
-                                      >
-                                        {club.memberCount} {tCommon('members')}
-                                      </Text>
-                                    )}
-                                  </VStack>
-                                  <ChevronRight size={16} color="gray" />
-                                </HStack>
-                              </Box>
-                            </Link>
-                          ))}
-                        </VStack>
-                      )}
-                    </Box>
-                  )}
-                </VStack>
-              </Box>
-            );
-          })()}
-
-          {isOwner && <PublicUserFavoritesSection />}
-
-          <Box
-            bg="white"
-            borderWidth="1px"
-            borderColor="gray.200"
-            borderRadius="2xl"
-            p={4}
-            _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
-          >
-            <Flex justify="space-between" align="center" mb={3}>
-              <Text
-                fontSize="lg"
-                fontWeight="bold"
-                color="gray.800"
-                _dark={{ color: 'gray.100' }}
-              >
-                {t('hostedSessions')} ({allHostedSessionsCount})
-              </Text>
-            </Flex>
-
-            <HStack gap={2} mb={4}>
-              <Button
-                size="sm"
-                borderRadius="full"
-                variant={hostedTab === 'active' ? 'solid' : 'outline'}
-                colorPalette={hostedTab === 'active' ? 'green' : 'gray'}
-                onClick={() => handleTabChange('active')}
-              >
-                {t('activeHosted')} ({activeHostedSessionsCount})
-              </Button>
-              <Button
-                size="sm"
-                borderRadius="full"
-                variant={hostedTab === 'ended' ? 'solid' : 'outline'}
-                colorPalette={hostedTab === 'ended' ? 'green' : 'gray'}
-                onClick={() => handleTabChange('ended')}
-              >
-                {t('endedHosted')} ({endedHostedSessionsCount})
-              </Button>
-              <Button
-                size="sm"
-                borderRadius="full"
-                variant={hostedTab === 'all' ? 'solid' : 'outline'}
-                colorPalette={hostedTab === 'all' ? 'green' : 'gray'}
-                onClick={() => handleTabChange('all')}
-              >
-                {t('allHosted')}
-              </Button>
+              ))}
             </HStack>
+          </Box>
 
-            {isSessionsLoading ? (
-              <VStack gap={3} align="stretch">
-                {[0, 1, 2].map((i) => (
-                  <Skeleton key={i} height="80px" borderRadius="lg" />
-                ))}
-              </VStack>
-            ) : hostedSessions.length === 0 ? (
-              <Box
-                borderWidth="1px"
-                borderStyle="dashed"
-                borderColor="gray.300"
-                borderRadius="xl"
-                p={6}
-                textAlign="center"
-                bg="gray.50"
-                _dark={{ bg: 'gray.700', borderColor: 'gray.600' }}
-              >
-                <Icon as={MessageSquare} boxSize={6} color="gray.300" mb={2} />
-                <Text color="gray.500" _dark={{ color: 'gray.400' }}>
-                  {hostedTab === 'active'
-                    ? t('noActiveHostedSessions')
-                    : hostedTab === 'ended'
-                      ? t('noEndedHostedSessions')
-                      : t('noHostedSessions')}
-                </Text>
-              </Box>
-            ) : (
-              <VStack gap={3} align="stretch">
-                {hostedSessions.map((session) => (
-                  <PublicHostedSessionCard key={session.id} session={session} />
-                ))}
-              </VStack>
-            )}
+          {/* Posts */}
+          {activeSection === 'posts' && <UserPostsSection userId={userId} />}
 
-            {totalSessionPages > 1 && (
-              <HStack justify="space-between" mt={4}>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  disabled={page <= 1}
-                  onClick={() => handlePageChange(page - 1)}
-                >
-                  {tCommon('previous')}
-                </Button>
-
+          {/* Hosted sessions */}
+          {activeSection === 'hosted' && (
+            <Box
+              bg="white"
+              borderWidth="1px"
+              borderColor="gray.200"
+              borderRadius="2xl"
+              p={4}
+              _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
+            >
+              <Flex justify="space-between" align="center" mb={3}>
                 <Text
-                  fontSize="sm"
-                  color="gray.600"
-                  _dark={{ color: 'gray.400' }}
+                  fontSize="lg"
+                  fontWeight="bold"
+                  color="gray.800"
+                  _dark={{ color: 'gray.100' }}
                 >
-                  {t('pagination', { page, totalPages: totalSessionPages })}
+                  {t('hostedSessions')} ({allHostedSessionsCount})
                 </Text>
+              </Flex>
 
+              <HStack gap={2} mb={4}>
                 <Button
-                  variant="outline"
                   size="sm"
-                  disabled={page >= totalSessionPages}
-                  onClick={() => handlePageChange(page + 1)}
+                  borderRadius="full"
+                  variant={hostedTab === 'active' ? 'solid' : 'outline'}
+                  colorPalette={hostedTab === 'active' ? 'green' : 'gray'}
+                  onClick={() => handleTabChange('active')}
                 >
-                  {tCommon('next')}
+                  {t('activeHosted')} ({activeHostedSessionsCount})
+                </Button>
+                <Button
+                  size="sm"
+                  borderRadius="full"
+                  variant={hostedTab === 'ended' ? 'solid' : 'outline'}
+                  colorPalette={hostedTab === 'ended' ? 'green' : 'gray'}
+                  onClick={() => handleTabChange('ended')}
+                >
+                  {t('endedHosted')} ({endedHostedSessionsCount})
+                </Button>
+                <Button
+                  size="sm"
+                  borderRadius="full"
+                  variant={hostedTab === 'all' ? 'solid' : 'outline'}
+                  colorPalette={hostedTab === 'all' ? 'green' : 'gray'}
+                  onClick={() => handleTabChange('all')}
+                >
+                  {t('allHosted')}
                 </Button>
               </HStack>
-            )}
-          </Box>
 
-          <Box
-            bg="white"
-            borderWidth="1px"
-            borderColor="gray.200"
-            borderRadius="2xl"
-            p={4}
-            _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
-          >
-            <Flex justify="space-between" align="center" mb={3}>
-              <Text
-                fontSize="lg"
-                fontWeight="bold"
-                color="gray.800"
-                _dark={{ color: 'gray.100' }}
-              >
-                {t('reviews')} ({ratingStats?.totalRatings ?? 0})
-              </Text>
-              {ratings.length > REVIEWS_PREVIEW_SIZE && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  colorPalette="green"
-                  onClick={onOpenAllReviews}
+              {isSessionsLoading ? (
+                <VStack gap={3} align="stretch">
+                  {[0, 1, 2].map((i) => (
+                    <Skeleton key={i} height="80px" borderRadius="lg" />
+                  ))}
+                </VStack>
+              ) : hostedSessions.length === 0 ? (
+                <Box
+                  borderWidth="1px"
+                  borderStyle="dashed"
+                  borderColor="gray.300"
+                  borderRadius="xl"
+                  p={6}
+                  textAlign="center"
+                  bg="gray.50"
+                  _dark={{ bg: 'gray.700', borderColor: 'gray.600' }}
                 >
-                  {t('viewAllReviews')}
-                </Button>
+                  <Icon
+                    as={MessageSquare}
+                    boxSize={6}
+                    color="gray.300"
+                    mb={2}
+                  />
+                  <Text color="gray.500" _dark={{ color: 'gray.400' }}>
+                    {hostedTab === 'active'
+                      ? t('noActiveHostedSessions')
+                      : hostedTab === 'ended'
+                        ? t('noEndedHostedSessions')
+                        : t('noHostedSessions')}
+                  </Text>
+                </Box>
+              ) : (
+                <VStack gap={3} align="stretch">
+                  {hostedSessions.map((session) => (
+                    <PublicHostedSessionCard
+                      key={session.id}
+                      session={session}
+                    />
+                  ))}
+                </VStack>
               )}
-            </Flex>
 
-            <VStack gap={3} align="stretch">
-              <UserRatingSummaryCard stats={ratingStats} />
-              {ratingsPreview.length > 0 && (
-                <RatingList
-                  ratings={ratingsPreview}
-                  emptyMessage={t('noReviews')}
-                />
+              {totalSessionPages > 1 && (
+                <HStack justify="space-between" mt={4}>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    disabled={page <= 1}
+                    onClick={() => handlePageChange(page - 1)}
+                  >
+                    {tCommon('previous')}
+                  </Button>
+
+                  <Text
+                    fontSize="sm"
+                    color="gray.600"
+                    _dark={{ color: 'gray.400' }}
+                  >
+                    {t('pagination', { page, totalPages: totalSessionPages })}
+                  </Text>
+
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    disabled={page >= totalSessionPages}
+                    onClick={() => handlePageChange(page + 1)}
+                  >
+                    {tCommon('next')}
+                  </Button>
+                </HStack>
               )}
-            </VStack>
-          </Box>
+            </Box>
+          )}
+
+          {/* Clubs */}
+          {activeSection === 'clubs' && (
+            <UserClubsSection clubs={clubs} userId={userId} />
+          )}
+
+          {/* Reviews */}
+          {activeSection === 'reviews' && (
+            <Box
+              bg="white"
+              borderWidth="1px"
+              borderColor="gray.200"
+              borderRadius="2xl"
+              p={4}
+              _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
+            >
+              <Flex justify="space-between" align="center" mb={3}>
+                <Text
+                  fontSize="lg"
+                  fontWeight="bold"
+                  color="gray.800"
+                  _dark={{ color: 'gray.100' }}
+                >
+                  {t('reviews')} ({ratingStats?.totalRatings ?? 0})
+                </Text>
+                {ratings.length > REVIEWS_PREVIEW_SIZE && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    colorPalette="green"
+                    onClick={onOpenAllReviews}
+                  >
+                    {t('viewAllReviews')}
+                  </Button>
+                )}
+              </Flex>
+
+              <VStack gap={3} align="stretch">
+                <UserRatingSummaryCard stats={ratingStats} />
+                {ratingsPreview.length > 0 && (
+                  <RatingList
+                    ratings={ratingsPreview}
+                    emptyMessage={t('noReviews')}
+                  />
+                )}
+              </VStack>
+            </Box>
+          )}
+
+          {/* Favorites (owner only) */}
+          {activeSection === 'favorites' && isOwner && (
+            <PublicUserFavoritesSection />
+          )}
         </VStack>
       </PageLayout>
 
@@ -957,80 +520,6 @@ export default function PublicUserProfileContent({
       >
         <RatingList ratings={ratings} emptyMessage={t('noReviews')} />
       </VModal>
-
-      {/* Avatar full-size preview */}
-      {isAvatarPreviewOpen && avatarUrl && (
-        <Portal>
-          <Flex
-            position="fixed"
-            top={0}
-            left={0}
-            right={0}
-            bottom={0}
-            bg="blackAlpha.800"
-            zIndex={2000}
-            align="center"
-            justify="center"
-            p={4}
-            onClick={() => setIsAvatarPreviewOpen(false)}
-            animation="fadeIn 0.15s ease-out"
-            css={{
-              '@keyframes fadeIn': {
-                from: { opacity: 0 },
-                to: { opacity: 1 },
-              },
-            }}
-          >
-            <Box
-              position="relative"
-              display="inline-flex"
-              alignItems="center"
-              justifyContent="center"
-            >
-              <Box
-                as="button"
-                {...({ type: 'button' } as Record<string, unknown>)}
-                position="absolute"
-                top="-12px"
-                right="-12px"
-                w={12}
-                h={12}
-                display="inline-flex"
-                alignItems="center"
-                justifyContent="center"
-                borderRadius="full"
-                bg="blackAlpha.800"
-                color="white"
-                borderWidth="2px"
-                borderColor="whiteAlpha.800"
-                boxShadow="0 8px 24px rgba(0,0,0,.24)"
-                _hover={{ bg: 'blackAlpha.900' }}
-                _active={{ bg: 'blackAlpha.950' }}
-                transition="background 0.2s"
-                aria-label="Close image preview"
-                zIndex={1}
-                onClick={(e: React.MouseEvent) => {
-                  e.stopPropagation();
-                  setIsAvatarPreviewOpen(false);
-                }}
-              >
-                <Icon as={X} boxSize={5} />
-              </Box>
-              <Image
-                src={getFullSizeAvatarUrl(avatarUrl)}
-                alt={displayName}
-                w={{ base: '92vw', md: '560px' }}
-                maxW="92vw"
-                maxH="90vh"
-                borderRadius="16px"
-                objectFit="contain"
-                boxShadow="0 4px 16px rgba(0,0,0,.08)"
-                onClick={(e: React.MouseEvent) => e.stopPropagation()}
-              />
-            </Box>
-          </Flex>
-        </Portal>
-      )}
     </>
   );
 }
