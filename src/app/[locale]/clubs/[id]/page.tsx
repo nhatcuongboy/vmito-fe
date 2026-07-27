@@ -50,6 +50,15 @@ export async function generateMetadata({
 }: PageProps): Promise<Metadata> {
   const { id, locale } = await params;
 
+  if (locale !== 'vi') {
+    return {
+      robots: {
+        index: false,
+        follow: true,
+      },
+    };
+  }
+
   const club = await getClub(id);
 
   if (!club) {
@@ -84,18 +93,13 @@ export async function generateMetadata({
   ];
 
   const clubSlug = club.slug ?? club.id;
-  const canonicalUrl = `${BASE_URL}/${locale || 'vi'}/clubs/${clubSlug}`;
+  const canonicalUrl = `${BASE_URL}/vi/clubs/${clubSlug}`;
 
   return {
     title: pageTitle,
     description,
     alternates: {
       canonical: canonicalUrl,
-      languages: {
-        vi: `${BASE_URL}/vi/clubs/${clubSlug}`,
-        en: `${BASE_URL}/en/clubs/${clubSlug}`,
-        'zh-Hans': `${BASE_URL}/cn/clubs/${clubSlug}`,
-      },
     },
     openGraph: {
       title: socialTitle,
@@ -116,6 +120,11 @@ export async function generateMetadata({
 export default async function ClubDetailPage({ params }: PageProps) {
   const { id, locale } = await params;
   const club = await getClub(id);
+
+  if (locale !== 'vi') {
+    return <ClubDetailClient initialClub={club} />;
+  }
+
   const clubImages = club ? getClubSeoImages(club) : [];
   const clubDescription = club
     ? stripHtml(club.description).replace(/\s+/g, ' ')
@@ -127,7 +136,7 @@ export default async function ClubDetailPage({ params }: PageProps) {
         '@type': 'SportsClub',
         name: club.name,
         sport: 'Badminton',
-        url: `${BASE_URL}/${locale || 'vi'}/clubs/${club.slug ?? club.id}`,
+        url: `${BASE_URL}/vi/clubs/${club.slug ?? club.id}`,
         ...(clubDescription ? { description: clubDescription } : {}),
         ...(clubImages.length > 0 ? { image: clubImages } : {}),
         ...(club.location

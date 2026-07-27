@@ -196,6 +196,16 @@ export async function generateMetadata({
   params,
 }: PageProps): Promise<Metadata> {
   const { id, locale } = await params;
+
+  if (locale !== 'vi') {
+    return {
+      robots: {
+        index: false,
+        follow: true,
+      },
+    };
+  }
+
   const venueMessages = await getVenueMessages(locale);
 
   const venue = await getVenue(id);
@@ -250,18 +260,13 @@ export async function generateMetadata({
   ];
 
   const venueSlug = venue.slug ?? venue.id;
-  const canonicalUrl = `${BASE_URL}/${locale || 'vi'}/venues/${venueSlug}`;
+  const canonicalUrl = `${BASE_URL}/vi/venues/${venueSlug}`;
 
   return {
     title: venueName,
     description,
     alternates: {
       canonical: canonicalUrl,
-      languages: {
-        vi: `${BASE_URL}/vi/venues/${venueSlug}`,
-        en: `${BASE_URL}/en/venues/${venueSlug}`,
-        'zh-Hans': `${BASE_URL}/cn/venues/${venueSlug}`,
-      },
     },
     openGraph: {
       title: socialTitle,
@@ -287,10 +292,14 @@ export default async function VenueDetailPage({ params }: PageProps) {
     notFound();
   }
 
+  if (locale !== 'vi') {
+    return <VenueDetailClient initialVenue={venue} />;
+  }
+
   const venueMessages = await getVenueMessages(locale);
   const venueName = getFullVenueName(venue, venueMessages);
   const venueSlug = venue.slug ?? venue.id;
-  const canonicalUrl = `${BASE_URL}/${locale || 'vi'}/venues/${venueSlug}`;
+  const canonicalUrl = `${BASE_URL}/vi/venues/${venueSlug}`;
   const venueImages = getVenueSeoImages(venue);
   const venueAddress = getVenueAddress(venue);
   const plainDescription = getPlainDescription(venue.description);
