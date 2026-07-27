@@ -61,7 +61,10 @@ export default function UserProfileModal({
     handleFileChange: handleAvatarFileChange,
   } = useImageUpload({
     uploader: AdminService.uploadAvatar,
-    compression: { maxSizeMB: 1, maxWidthOrHeight: 1200 },
+    // Cloudinary crops/re-encodes to 1000x1000 anyway; keep the pre-upload
+    // pass light so its source isn't already degraded by a smaller/harder
+    // client-side compression pass.
+    compression: { maxSizeMB: 2, maxWidthOrHeight: 1600 },
     onSuccess: async (uploaded) => {
       if (!user) return;
       const updatedUser = await AdminService.updateUser(user.id, {
