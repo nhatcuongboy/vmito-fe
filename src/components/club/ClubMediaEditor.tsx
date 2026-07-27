@@ -72,7 +72,7 @@ export default function ClubMediaEditor({
               onImagesChange={onImagesChange}
               onBannerChange={onBannerChange}
               maxImages={10}
-              category={EImageCategory.CLUB}
+              category={EImageCategory.CLUB_COVER}
               label={null}
               compact
             />
