@@ -5117,6 +5117,7 @@
         "total": "用户总数",
         "newInRange": "新增用户",
         "byRole": "按角色划分的用户",
+        "byGender": "按性别划分的用户",
         "trend": "新增用户趋势"
       },
       "sessionsTournaments": {
@@ -5136,20 +5137,30 @@
         "totalVenues": "场馆总数",
         "pendingVenueRequests": "待审核场馆申请",
         "venuesByStatus": "按状态划分的场馆",
-        "venueRequestsByStatus": "按状态划分的场馆申请"
+        "venueRequestsByStatus": "按状态划分的场馆申请",
+        "totalCourts": "球场总数",
+        "courtsByStatus": "按状态划分的球场"
       },
       "statusLabels": {
         "PENDING": "待审核",
         "APPROVED": "已批准",
         "REJECTED": "已拒绝",
         "ACTIVE": "启用",
-        "INACTIVE": "停用"
+        "INACTIVE": "停用",
+        "MAINTENANCE": "维护中"
       },
       "roleLabels": {
         "HOST": "主办方",
         "PLAYER": "玩家",
         "ADMIN": "管理员",
         "REFEREE": "裁判"
+      },
+      "genderLabels": {
+        "MALE": "男",
+        "FEMALE": "女",
+        "OTHER": "其他",
+        "PREFER_NOT_TO_SAY": "不愿透露",
+        "UNSPECIFIED": "未指定"
       }
     },
     "sessions": {

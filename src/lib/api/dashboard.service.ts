@@ -16,6 +16,7 @@ export interface UserStatsResponse {
   total: number;
   newInRange: number;
   byRole: { role: string; count: number }[];
+  byGender: { gender: string | null; count: number }[];
   trend: TrendBucket[];
 }
 
@@ -45,6 +46,10 @@ export interface ClubVenueStatsResponse {
     trend: TrendBucket[];
     pendingRequests: number;
     requestsByStatus: { status: string; count: number }[];
+  };
+  courts: {
+    total: number;
+    byStatus: { status: string; count: number }[];
   };
 }
 

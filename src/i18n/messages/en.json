@@ -5157,6 +5157,7 @@
         "total": "Total Users",
         "newInRange": "New Users",
         "byRole": "Users by Role",
+        "byGender": "Users by Gender",
         "trend": "New Users Trend"
       },
       "sessionsTournaments": {
@@ -5176,20 +5177,30 @@
         "totalVenues": "Total Venues",
         "pendingVenueRequests": "Pending Venue Requests",
         "venuesByStatus": "Venues by Status",
-        "venueRequestsByStatus": "Venue Requests by Status"
+        "venueRequestsByStatus": "Venue Requests by Status",
+        "totalCourts": "Total Courts",
+        "courtsByStatus": "Courts by Status"
       },
       "statusLabels": {
         "PENDING": "Pending",
         "APPROVED": "Approved",
         "REJECTED": "Rejected",
         "ACTIVE": "Active",
-        "INACTIVE": "Inactive"
+        "INACTIVE": "Inactive",
+        "MAINTENANCE": "Maintenance"
       },
       "roleLabels": {
         "HOST": "Host",
         "PLAYER": "Player",
         "ADMIN": "Admin",
         "REFEREE": "Referee"
+      },
+      "genderLabels": {
+        "MALE": "Male",
+        "FEMALE": "Female",
+        "OTHER": "Other",
+        "PREFER_NOT_TO_SAY": "Prefer not to say",
+        "UNSPECIFIED": "Unspecified"
       }
     },
     "sessions": {

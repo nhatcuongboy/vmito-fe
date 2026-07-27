@@ -60,7 +60,7 @@ export default function TrendLineChart({
         <ResponsiveContainer width="100%" height={220}>
           <LineChart
             data={data}
-            margin={{ top: 4, right: 8, left: -20, bottom: 0 }}
+            margin={{ top: 4, right: 8, left: 4, bottom: 0 }}
           >
             <CartesianGrid strokeDasharray="3 3" stroke={gridColor} />
             <XAxis
@@ -75,7 +75,6 @@ export default function TrendLineChart({
               tick={{ fontSize: 12, fill: textColor }}
               axisLine={{ stroke: gridColor }}
               tickLine={false}
-              width={32}
             />
             <Tooltip
               labelFormatter={(label) => formatBucketLabel(String(label))}

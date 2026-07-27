@@ -54,13 +54,13 @@ export default function SessionsTournamentsStatsSection() {
         <StatCard
           icon={CalendarDays}
           label={t('dashboard.sessionsTournaments.totalSessions')}
-          value={data?.sessions.total ?? 0}
+          value={data?.sessions?.total ?? 0}
           isLoading={isLoading}
         />
         <StatCard
           icon={Trophy}
           label={t('dashboard.sessionsTournaments.totalTournaments')}
-          value={data?.tournaments.total ?? 0}
+          value={data?.tournaments?.total ?? 0}
           colorPalette="purple"
           isLoading={isLoading}
         />
@@ -71,11 +71,11 @@ export default function SessionsTournamentsStatsSection() {
           <SimpleGrid columns={{ base: 1, lg: 2 }} gap={6}>
             <TrendLineChart
               title={t('dashboard.sessionsTournaments.sessionsTrend')}
-              data={data?.sessions.trend ?? []}
+              data={data?.sessions?.trend ?? []}
             />
             <StatusBarChart
               title={t('dashboard.sessionsTournaments.sessionsByStatus')}
-              data={(data?.sessions.byStatus ?? []).map((s) => ({
+              data={(data?.sessions?.byStatus ?? []).map((s) => ({
                 label: statusLabel(s.status),
                 count: s.count,
               }))}
@@ -89,12 +89,12 @@ export default function SessionsTournamentsStatsSection() {
           <SimpleGrid columns={{ base: 1, lg: 2 }} gap={6}>
             <TrendLineChart
               title={t('dashboard.sessionsTournaments.tournamentsTrend')}
-              data={data?.tournaments.trend ?? []}
+              data={data?.tournaments?.trend ?? []}
               color="#9333ea"
             />
             <StatusBarChart
               title={t('dashboard.sessionsTournaments.tournamentsByStatus')}
-              data={(data?.tournaments.byStatus ?? []).map((s) => ({
+              data={(data?.tournaments?.byStatus ?? []).map((s) => ({
                 label: statusLabel(s.status),
                 count: s.count,
               }))}

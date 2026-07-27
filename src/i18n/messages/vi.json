@@ -5171,6 +5171,7 @@
         "total": "Tổng người dùng",
         "newInRange": "Người dùng mới",
         "byRole": "Người dùng theo vai trò",
+        "byGender": "Người dùng theo giới tính",
         "trend": "Xu hướng người dùng mới"
       },
       "sessionsTournaments": {
@@ -5190,20 +5191,30 @@
         "totalVenues": "Tổng số địa điểm",
         "pendingVenueRequests": "Yêu cầu địa điểm chờ duyệt",
         "venuesByStatus": "Địa điểm theo trạng thái",
-        "venueRequestsByStatus": "Yêu cầu địa điểm theo trạng thái"
+        "venueRequestsByStatus": "Yêu cầu địa điểm theo trạng thái",
+        "totalCourts": "Tổng số sân",
+        "courtsByStatus": "Sân theo trạng thái"
       },
       "statusLabels": {
         "PENDING": "Chờ duyệt",
         "APPROVED": "Đã duyệt",
         "REJECTED": "Đã từ chối",
         "ACTIVE": "Đang hoạt động",
-        "INACTIVE": "Ngưng hoạt động"
+        "INACTIVE": "Ngưng hoạt động",
+        "MAINTENANCE": "Đang bảo trì"
       },
       "roleLabels": {
         "HOST": "Chủ kèo",
         "PLAYER": "Người chơi",
         "ADMIN": "Quản trị viên",
         "REFEREE": "Trọng tài"
+      },
+      "genderLabels": {
+        "MALE": "Nam",
+        "FEMALE": "Nữ",
+        "OTHER": "Khác",
+        "PREFER_NOT_TO_SAY": "Không muốn tiết lộ",
+        "UNSPECIFIED": "Chưa xác định"
       }
     },
     "sessions": {

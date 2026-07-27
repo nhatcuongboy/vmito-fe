@@ -67,7 +67,7 @@ export default function UsersStatsSection() {
 
       <Card.Root>
         <Card.Body>
-          <SimpleGrid columns={{ base: 1, lg: 2 }} gap={6}>
+          <SimpleGrid columns={{ base: 1, lg: 3 }} gap={6}>
             <TrendLineChart
               title={t('dashboard.users.trend')}
               data={data?.trend ?? []}
@@ -79,6 +79,14 @@ export default function UsersStatsSection() {
                 count: r.count,
               }))}
               color="#2563eb"
+            />
+            <StatusBarChart
+              title={t('dashboard.users.byGender')}
+              data={(data?.byGender ?? []).map((g) => ({
+                label: t(`dashboard.genderLabels.${g.gender ?? 'UNSPECIFIED'}`),
+                count: g.count,
+              }))}
+              color="#db2777"
             />
           </SimpleGrid>
         </Card.Body>
