@@ -9,6 +9,7 @@
     "finish": "Start Exploring"
   },
   "navigation": {
+    "dashboard": "Dashboard",
     "host": "Manage Sessions",
     "join": "Join",
     "home": "Find Sessions",
@@ -5145,6 +5146,63 @@
   },
   "admin": {
     "title": "Admin",
+    "dashboard": {
+      "title": "Dashboard",
+      "subtitle": "System overview and key statistics",
+      "loadError": "Failed to load statistics",
+      "retry": "Retry",
+      "last30Days": "Last 30 days",
+      "users": {
+        "sectionTitle": "Users",
+        "total": "Total Users",
+        "newInRange": "New Users",
+        "byRole": "Users by Role",
+        "byGender": "Users by Gender",
+        "trend": "New Users Trend"
+      },
+      "sessionsTournaments": {
+        "sectionTitle": "Sessions & Tournaments",
+        "totalSessions": "Total Sessions",
+        "totalTournaments": "Total Tournaments",
+        "sessionsByStatus": "Sessions by Status",
+        "tournamentsByStatus": "Tournaments by Status",
+        "sessionsTrend": "New Sessions Trend",
+        "tournamentsTrend": "New Tournaments Trend"
+      },
+      "clubsVenues": {
+        "sectionTitle": "Clubs & Venues",
+        "totalClubs": "Total Clubs",
+        "pendingClubs": "Pending Clubs",
+        "clubsByStatus": "Clubs by Status",
+        "totalVenues": "Total Venues",
+        "pendingVenueRequests": "Pending Venue Requests",
+        "venuesByStatus": "Venues by Status",
+        "venueRequestsByStatus": "Venue Requests by Status",
+        "totalCourts": "Total Courts",
+        "courtsByStatus": "Courts by Status"
+      },
+      "statusLabels": {
+        "PENDING": "Pending",
+        "APPROVED": "Approved",
+        "REJECTED": "Rejected",
+        "ACTIVE": "Active",
+        "INACTIVE": "Inactive",
+        "MAINTENANCE": "Maintenance"
+      },
+      "roleLabels": {
+        "HOST": "Host",
+        "PLAYER": "Player",
+        "ADMIN": "Admin",
+        "REFEREE": "Referee"
+      },
+      "genderLabels": {
+        "MALE": "Male",
+        "FEMALE": "Female",
+        "OTHER": "Other",
+        "PREFER_NOT_TO_SAY": "Prefer not to say",
+        "UNSPECIFIED": "Unspecified"
+      }
+    },
     "sessions": {
       "title": "Manage All Sessions",
       "searchPlaceholder": "Search by name, venue, location...",

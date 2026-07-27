@@ -1,5 +1,6 @@
 {
   "navigation": {
+    "dashboard": "仪表盘",
     "host": "主办方",
     "join": "加入",
     "home": "发现场次",
@@ -5105,6 +5106,63 @@
   },
   "admin": {
     "title": "管理员",
+    "dashboard": {
+      "title": "仪表盘",
+      "subtitle": "系统概览与关键统计数据",
+      "loadError": "加载统计数据失败",
+      "retry": "重试",
+      "last30Days": "最近30天",
+      "users": {
+        "sectionTitle": "用户",
+        "total": "用户总数",
+        "newInRange": "新增用户",
+        "byRole": "按角色划分的用户",
+        "byGender": "按性别划分的用户",
+        "trend": "新增用户趋势"
+      },
+      "sessionsTournaments": {
+        "sectionTitle": "场次与赛事",
+        "totalSessions": "场次总数",
+        "totalTournaments": "赛事总数",
+        "sessionsByStatus": "按状态划分的场次",
+        "tournamentsByStatus": "按状态划分的赛事",
+        "sessionsTrend": "新增场次趋势",
+        "tournamentsTrend": "新增赛事趋势"
+      },
+      "clubsVenues": {
+        "sectionTitle": "俱乐部与场馆",
+        "totalClubs": "俱乐部总数",
+        "pendingClubs": "待审核俱乐部",
+        "clubsByStatus": "按状态划分的俱乐部",
+        "totalVenues": "场馆总数",
+        "pendingVenueRequests": "待审核场馆申请",
+        "venuesByStatus": "按状态划分的场馆",
+        "venueRequestsByStatus": "按状态划分的场馆申请",
+        "totalCourts": "球场总数",
+        "courtsByStatus": "按状态划分的球场"
+      },
+      "statusLabels": {
+        "PENDING": "待审核",
+        "APPROVED": "已批准",
+        "REJECTED": "已拒绝",
+        "ACTIVE": "启用",
+        "INACTIVE": "停用",
+        "MAINTENANCE": "维护中"
+      },
+      "roleLabels": {
+        "HOST": "主办方",
+        "PLAYER": "玩家",
+        "ADMIN": "管理员",
+        "REFEREE": "裁判"
+      },
+      "genderLabels": {
+        "MALE": "男",
+        "FEMALE": "女",
+        "OTHER": "其他",
+        "PREFER_NOT_TO_SAY": "不愿透露",
+        "UNSPECIFIED": "未指定"
+      }
+    },
     "sessions": {
       "title": "管理所有场次",
       "searchPlaceholder": "按名称、场馆、地点搜索...",

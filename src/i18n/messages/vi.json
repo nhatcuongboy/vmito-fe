@@ -9,6 +9,7 @@
     "finish": "Bắt đầu khám phá"
   },
   "navigation": {
+    "dashboard": "Bảng điều khiển",
     "host": "Quản lý kèo",
     "join": "Tham gia",
     "home": "Tìm kèo",
@@ -5159,6 +5160,63 @@
   },
   "admin": {
     "title": "Quản trị",
+    "dashboard": {
+      "title": "Bảng điều khiển",
+      "subtitle": "Tổng quan hệ thống và các số liệu quan trọng",
+      "loadError": "Không thể tải số liệu thống kê",
+      "retry": "Thử lại",
+      "last30Days": "30 ngày qua",
+      "users": {
+        "sectionTitle": "Người dùng",
+        "total": "Tổng người dùng",
+        "newInRange": "Người dùng mới",
+        "byRole": "Người dùng theo vai trò",
+        "byGender": "Người dùng theo giới tính",
+        "trend": "Xu hướng người dùng mới"
+      },
+      "sessionsTournaments": {
+        "sectionTitle": "Kèo & Giải đấu",
+        "totalSessions": "Tổng số kèo",
+        "totalTournaments": "Tổng số giải đấu",
+        "sessionsByStatus": "Kèo theo trạng thái",
+        "tournamentsByStatus": "Giải đấu theo trạng thái",
+        "sessionsTrend": "Xu hướng kèo mới",
+        "tournamentsTrend": "Xu hướng giải đấu mới"
+      },
+      "clubsVenues": {
+        "sectionTitle": "Câu lạc bộ & Địa điểm",
+        "totalClubs": "Tổng số câu lạc bộ",
+        "pendingClubs": "Câu lạc bộ chờ duyệt",
+        "clubsByStatus": "Câu lạc bộ theo trạng thái",
+        "totalVenues": "Tổng số địa điểm",
+        "pendingVenueRequests": "Yêu cầu địa điểm chờ duyệt",
+        "venuesByStatus": "Địa điểm theo trạng thái",
+        "venueRequestsByStatus": "Yêu cầu địa điểm theo trạng thái",
+        "totalCourts": "Tổng số sân",
+        "courtsByStatus": "Sân theo trạng thái"
+      },
+      "statusLabels": {
+        "PENDING": "Chờ duyệt",
+        "APPROVED": "Đã duyệt",
+        "REJECTED": "Đã từ chối",
+        "ACTIVE": "Đang hoạt động",
+        "INACTIVE": "Ngưng hoạt động",
+        "MAINTENANCE": "Đang bảo trì"
+      },
+      "roleLabels": {
+        "HOST": "Chủ kèo",
+        "PLAYER": "Người chơi",
+        "ADMIN": "Quản trị viên",
+        "REFEREE": "Trọng tài"
+      },
+      "genderLabels": {
+        "MALE": "Nam",
+        "FEMALE": "Nữ",
+        "OTHER": "Khác",
+        "PREFER_NOT_TO_SAY": "Không muốn tiết lộ",
+        "UNSPECIFIED": "Chưa xác định"
+      }
+    },
     "sessions": {
       "title": "Quản lý tất cả kèo",
       "searchPlaceholder": "Tìm theo tên, sân, địa điểm...",

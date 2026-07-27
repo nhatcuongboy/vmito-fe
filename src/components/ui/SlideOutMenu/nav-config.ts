@@ -6,6 +6,7 @@ import {
   CalendarCheck,
   CreditCard,
   Info,
+  LayoutDashboard,
   MapPin,
   MessageCircle,
   Newspaper,
@@ -201,6 +202,13 @@ export const NAV_SECTIONS: NavSectionConfig[] = [
     title: (t) => t.common('adminSection'),
     isVisible: isAdmin,
     items: [
+      {
+        key: 'adminDashboard',
+        icon: LayoutDashboard,
+        label: (t) => t.nav('dashboard'),
+        getHref: () => ROUTES.ADMIN.DASHBOARD,
+        isActive: (pathname) => pathname === ROUTES.ADMIN.DASHBOARD,
+      },
       {
         key: 'adminUsers',
         icon: Users,
