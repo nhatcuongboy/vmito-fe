@@ -20,6 +20,7 @@ export interface IPublicProfileMeta {
   levelDescription?: string;
   phone?: string;
   createdAt: Date | string;
+  joinedSessionsCount?: number;
 }
 
 export const UserService = {

@@ -5594,6 +5594,7 @@
     "loadFailed": "无法加载个人主页",
     "profileNotFound": "未找到该用户",
     "hostedSessions": "已主持场次",
+    "joinedSessions": "已参加场次",
     "reviews": "评价",
     "joinedAt": "加入时间",
     "joinedDateLabel": "加入于 {date}",
