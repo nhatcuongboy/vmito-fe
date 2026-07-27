@@ -269,7 +269,7 @@ export function PostCard({
         >
           <Share2 size={14} className="shrink-0 text-green-600" />
           <Box as="span" truncate>
-            {t('sharedFrom', { name: localPost.originalPost.author.name })}
+            {t('sharedPost', { sharer: localPost.author.name })}
           </Box>
         </Flex>
       )}
@@ -317,7 +317,7 @@ export function PostCard({
           <div className="relative -mr-1 shrink-0" ref={menuRef}>
             <button
               onClick={() => setShowMenu(!showMenu)}
-              className="flex h-9 w-9 items-center justify-center rounded-full text-gray-500 transition hover:bg-gray-100 hover:text-gray-700 focus:outline-none dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-gray-100"
+              className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-full text-gray-500 transition hover:bg-gray-100 hover:text-gray-700 focus:outline-none dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-gray-100"
               aria-label={t('postMenu')}
             >
               <MoreHorizontal size={20} />
@@ -350,7 +350,7 @@ export function PostCard({
           px={4}
           pt={2.5}
           whiteSpace="pre-wrap"
-          fontSize="16px"
+          fontSize="17px"
           lineHeight="1.6"
           color="gray.900"
           _dark={{ color: 'gray.50' }}
@@ -407,8 +407,11 @@ export function PostCard({
       {/* Original post (for shares) */}
       {localPost.originalPost && (
         <Box mx={4} mt={3}>
-          <div className="rounded-lg border border-gray-200 bg-gray-50 p-3 dark:border-white/10 dark:bg-gray-700/50">
-            <div className="mb-2 flex items-center gap-2">
+          <div
+            className="rounded-lg border border-gray-200 bg-gray-50 dark:border-white/10 dark:bg-gray-700/50"
+            style={{ padding: '12px 16px' }}
+          >
+            <Flex mb={2} align="center" gap={2}>
               <Link
                 href={ROUTES.USER.PROFILE(localPost.originalPost.authorId)}
                 className="shrink-0 transition hover:opacity-90"
@@ -420,24 +423,56 @@ export function PostCard({
                   size={32}
                 />
               </Link>
-              <span className="truncate text-sm font-semibold text-gray-900 dark:text-gray-50">
-                <Link
-                  href={ROUTES.USER.PROFILE(localPost.originalPost.authorId)}
-                  className="hover:underline"
+              <Box minW={0} flex={1}>
+                <Box
+                  truncate
+                  fontSize="14px"
+                  lineHeight="1.25"
+                  fontWeight={700}
+                  color={{ base: 'gray.900', _dark: 'gray.50' }}
                 >
-                  {localPost.originalPost.author.name}
-                </Link>
-              </span>
-            </div>
+                  <Link
+                    href={ROUTES.USER.PROFILE(localPost.originalPost.authorId)}
+                    className="hover:underline"
+                  >
+                    {localPost.originalPost.author.name}
+                  </Link>
+                </Box>
+                <Box
+                  as="time"
+                  display="block"
+                  mt={0.5}
+                  fontSize="12px"
+                  lineHeight="1.25"
+                  color={{ base: 'gray.500', _dark: 'gray.400' }}
+                  // dateTime={localPost.originalPost.createdAt}
+                  title={format(
+                    new Date(localPost.originalPost.createdAt),
+                    'PPP',
+                    { locale: dateLocale }
+                  )}
+                >
+                  {formatDistanceToNow(
+                    new Date(localPost.originalPost.createdAt),
+                    { addSuffix: true, locale: dateLocale }
+                  )}
+                </Box>
+              </Box>
+            </Flex>
             {localPost.originalPost.type === 'ACTIVITY' ? (
               <div className="-mx-3">
                 <ActivityPostContent post={localPost.originalPost} />
               </div>
             ) : (
               <>
-                <div className="whitespace-pre-wrap text-sm leading-6 text-gray-700 dark:text-gray-200">
+                <Box
+                  whiteSpace="pre-wrap"
+                  fontSize="16px"
+                  lineHeight="1.6"
+                  color={{ base: 'gray.700', _dark: 'gray.200' }}
+                >
                   {localPost.originalPost.content}
-                </div>
+                </Box>
                 {(localPost.originalPost.images ?? []).length > 0 && (
                   <div className="mt-2 grid grid-cols-2 gap-0.5 overflow-hidden rounded-lg">
                     {(localPost.originalPost.images ?? [])
@@ -461,7 +496,10 @@ export function PostCard({
       {/* Shared post whose original was deleted */}
       {localPost.originalPostId && !localPost.originalPost && (
         <Box mx={4} mt={3}>
-          <div className="rounded-lg border border-gray-200 bg-gray-50 p-3 text-sm text-gray-500 dark:border-white/10 dark:bg-gray-700/50 dark:text-gray-400">
+          <div
+            className="rounded-lg border border-gray-200 bg-gray-50 text-sm text-gray-500 dark:border-white/10 dark:bg-gray-700/50 dark:text-gray-400"
+            style={{ padding: '12px 16px' }}
+          >
             {t('originalPostUnavailable')}
           </div>
         </Box>

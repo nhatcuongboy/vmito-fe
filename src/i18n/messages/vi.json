@@ -5838,6 +5838,7 @@
     "removeImages": "Xóa hình ảnh",
     "closeModal": "Đóng hộp thoại",
     "sharedFrom": "Chia sẻ từ {name}",
+    "sharedPost": "{sharer} đã chia sẻ một bài viết",
     "postMenu": "Menu bài viết",
     "postImage": "Ảnh bài viết {index}",
     "viewOnMap": "Xem trên Google Maps",

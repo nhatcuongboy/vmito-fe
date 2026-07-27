@@ -5822,6 +5822,7 @@
     "removeImages": "Remove images",
     "closeModal": "Close modal",
     "sharedFrom": "Shared from {name}",
+    "sharedPost": "{sharer} shared a post",
     "postMenu": "Post menu",
     "postImage": "Post image {index}",
     "viewOnMap": "View on Google Maps",

@@ -5781,6 +5781,7 @@
     "removeImages": "移除图片",
     "closeModal": "关闭弹窗",
     "sharedFrom": "分享自 {name}",
+    "sharedPost": "{sharer} 分享了一篇动态",
     "postMenu": "动态菜单",
     "postImage": "动态图片 {index}",
     "viewOnMap": "在谷歌地图中查看",

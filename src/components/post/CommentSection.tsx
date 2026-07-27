@@ -255,7 +255,7 @@ export function CommentSection({
                   <Box
                     whiteSpace="pre-wrap"
                     wordBreak="break-word"
-                    fontSize="14px"
+                    fontSize="15px"
                     lineHeight="1.4"
                     color={{ base: 'gray.800', _dark: 'gray.100' }}
                   >
