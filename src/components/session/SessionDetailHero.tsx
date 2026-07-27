@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { ISession, SessionStatus } from '@/lib/api/types';
-import { Box, Badge, Flex, Icon, Image } from '@chakra-ui/react';
+import { Box, Badge, Flex, Icon, Image, Portal } from '@chakra-ui/react';
 import { IconButton } from '@/components/ui/chakra-compat';
 import { ChevronLeft, Share2, Facebook } from 'lucide-react';
 import { useTranslations } from 'next-intl';
@@ -11,6 +11,7 @@ import { statusColors, getStatusLabel } from './BaseSessionCard';
 import { toaster } from '@/components/ui/toaster';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FavoriteButton } from '@/components/favorites/FavoriteButton';
+import AppLightbox from '@/components/ui/AppLightbox';
 
 interface ISessionDetailHeroProps {
   session: ISession;
@@ -44,6 +45,13 @@ const SessionDetailHero = ({
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const [direction, setDirection] = useState(1);
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [lightboxIndex, setLightboxIndex] = useState(0);
+
+  const openLightbox = (index: number) => {
+    setLightboxIndex(index);
+    setLightboxOpen(true);
+  };
 
   const goNext = () => {
     if (currentIndex < allImages.length - 1) {
@@ -59,9 +67,24 @@ const SessionDetailHero = ({
     }
   };
 
+  // Track whether a drag has occurred so we don't open lightbox on swipe
+  const [isDragging, setIsDragging] = useState(false);
+
+  const handleDragStart = () => setIsDragging(false);
+
   const handleDragEnd = (_: unknown, info: { offset: { x: number } }) => {
-    if (info.offset.x < -50) goNext();
-    else if (info.offset.x > 50) goPrev();
+    if (Math.abs(info.offset.x) > 10) {
+      setIsDragging(true);
+      if (info.offset.x < -50) goNext();
+      else if (info.offset.x > 50) goPrev();
+    }
+  };
+
+  const handleImageClick = () => {
+    if (!isDragging) {
+      openLightbox(currentIndex);
+    }
+    setIsDragging(false);
   };
 
   const handleShare = async () => {
@@ -117,224 +140,240 @@ const SessionDetailHero = ({
     ) : null;
 
   return (
-    <Box
-      position="relative"
-      w="full"
-      h={{ base: 'clamp(170px, 29vh, 235px)', md: '350px' }}
-      overflow="hidden"
-      bg="gray.900"
-    >
-      {/* Carousel images */}
-      <AnimatePresence custom={direction} initial={false} mode="wait">
-        <motion.div
-          key={currentIndex}
-          custom={direction}
-          variants={slideVariants}
-          initial="enter"
-          animate="center"
-          exit="exit"
-          transition={{ duration: 0.25, ease: 'easeInOut' }}
-          drag={allImages.length > 1 ? 'x' : false}
-          dragConstraints={{ left: 0, right: 0 }}
-          dragElastic={0.15}
-          onDragEnd={handleDragEnd}
-          style={{
-            position: 'absolute',
-            width: '100%',
-            height: '100%',
-            cursor: allImages.length > 1 ? 'grab' : 'default',
-          }}
-        >
-          <Image
-            src={allImages[currentIndex] || DEFAULT_COVER_PHOTO}
-            alt={`${session.name} ${currentIndex + 1}`}
-            w="100%"
-            h="100%"
-            objectFit="cover"
-            draggable={false}
-            pointerEvents="none"
-            onError={(e) => {
-              // Hotlinked Facebook images can expire — fall back to default
-              const img = e.currentTarget as HTMLImageElement;
-              if (img.src !== DEFAULT_COVER_PHOTO) {
-                img.src = DEFAULT_COVER_PHOTO;
-              }
-            }}
-          />
-        </motion.div>
-      </AnimatePresence>
-
-      {/* Top gradient overlay for buttons */}
+    <>
       <Box
-        position="absolute"
-        top={0}
-        left={0}
-        right={0}
-        h="80px"
-        bgGradient="to-b"
-        gradientFrom="blackAlpha.500"
-        gradientTo="transparent"
-        pointerEvents="none"
-      />
-
-      {/* Bottom gradient overlay for badges */}
-      <Box
-        position="absolute"
-        bottom={0}
-        left={0}
-        right={0}
-        h="80px"
-        bgGradient="to-t"
-        gradientFrom="blackAlpha.500"
-        gradientTo="transparent"
-        pointerEvents="none"
-      />
-
-      {/* Back Button */}
-      {showBackButton && onBack && (
-        <IconButton
-          aria-label="Back"
-          variant="ghost"
-          size="md"
-          position="absolute"
-          top="calc(env(safe-area-inset-top) + 8px)"
-          left={2}
-          color="white"
-          bg="blackAlpha.500"
-          backdropFilter="blur(6px)"
-          borderRadius="full"
-          _hover={{ bg: 'blackAlpha.700' }}
-          zIndex={100}
-          onClick={onBack}
-        >
-          <ChevronLeft size={24} strokeWidth={2.5} />
-        </IconButton>
-      )}
-
-      {/* Share + Favorite Buttons */}
-      <Flex
-        position="absolute"
-        top="calc(env(safe-area-inset-top) + 12px)"
-        right={3}
-        gap={2}
-        align="center"
-        zIndex={100}
+        position="relative"
+        w="full"
+        h={{ base: 'clamp(170px, 29vh, 235px)', md: '350px' }}
+        overflow="hidden"
+        bg="gray.900"
       >
-        <IconButton
-          aria-label="Share"
-          variant="ghost"
-          size="sm"
-          color="white"
-          bg="blackAlpha.500"
-          backdropFilter="blur(6px)"
-          borderRadius="full"
-          boxShadow="0 2px 8px rgba(0,0,0,0.45)"
-          _hover={{ bg: 'blackAlpha.700' }}
-          onClick={handleShare}
-          icon={<Icon as={Share2} boxSize={5} />}
-        />
-        <FavoriteButton
-          type="SESSION"
-          targetId={session.id}
-          isFavorite={session.isFavorite}
-          variant="overlay-dark"
-          returnUrl={`/sessions/${session.slug || session.id}`}
-        />
-      </Flex>
+        {/* Carousel images */}
+        <AnimatePresence custom={direction} initial={false} mode="wait">
+          <motion.div
+            key={currentIndex}
+            custom={direction}
+            variants={slideVariants}
+            initial="enter"
+            animate="center"
+            exit="exit"
+            transition={{ duration: 0.25, ease: 'easeInOut' }}
+            drag={allImages.length > 1 ? 'x' : false}
+            dragConstraints={{ left: 0, right: 0 }}
+            dragElastic={0.15}
+            onDragStart={handleDragStart}
+            onDragEnd={handleDragEnd}
+            onClick={handleImageClick}
+            style={{
+              position: 'absolute',
+              width: '100%',
+              height: '100%',
+              cursor: 'zoom-in',
+            }}
+          >
+            <Image
+              src={allImages[currentIndex] || DEFAULT_COVER_PHOTO}
+              alt={`${session.name} ${currentIndex + 1}`}
+              w="100%"
+              h="100%"
+              objectFit="cover"
+              draggable={false}
+              pointerEvents="none"
+              onError={(e) => {
+                // Hotlinked Facebook images can expire — fall back to default
+                const img = e.currentTarget as HTMLImageElement;
+                if (img.src !== DEFAULT_COVER_PHOTO) {
+                  img.src = DEFAULT_COVER_PHOTO;
+                }
+              }}
+            />
+          </motion.div>
+        </AnimatePresence>
 
-      {/* Dot indicators */}
-      {allImages.length > 1 && (
+        {/* Top gradient overlay for buttons */}
+        <Box
+          position="absolute"
+          top={0}
+          left={0}
+          right={0}
+          h="80px"
+          bgGradient="to-b"
+          gradientFrom="blackAlpha.500"
+          gradientTo="transparent"
+          pointerEvents="none"
+        />
+
+        {/* Bottom gradient overlay for badges */}
+        <Box
+          position="absolute"
+          bottom={0}
+          left={0}
+          right={0}
+          h="80px"
+          bgGradient="to-t"
+          gradientFrom="blackAlpha.500"
+          gradientTo="transparent"
+          pointerEvents="none"
+        />
+
+        {/* Back Button */}
+        {showBackButton && onBack && (
+          <IconButton
+            aria-label="Back"
+            variant="ghost"
+            size="md"
+            position="absolute"
+            top="calc(env(safe-area-inset-top) + 8px)"
+            left={2}
+            color="white"
+            bg="blackAlpha.500"
+            backdropFilter="blur(6px)"
+            borderRadius="full"
+            _hover={{ bg: 'blackAlpha.700' }}
+            zIndex={100}
+            onClick={onBack}
+          >
+            <ChevronLeft size={24} strokeWidth={2.5} />
+          </IconButton>
+        )}
+
+        {/* Share + Favorite Buttons */}
         <Flex
           position="absolute"
-          bottom={5}
-          left="50%"
-          transform="translateX(-50%)"
-          gap={1.5}
-          zIndex={100}
+          top="calc(env(safe-area-inset-top) + 12px)"
+          right={3}
+          gap={2}
           align="center"
+          zIndex={100}
         >
-          {allImages.map((_, i) => (
-            <Box
-              key={i}
-              as="button"
-              w={i === currentIndex ? '16px' : '6px'}
-              h="6px"
-              borderRadius="full"
-              bg={i === currentIndex ? 'white' : 'whiteAlpha.600'}
-              transition="width 0.25s ease, background-color 0.25s ease"
-              onClick={() => {
-                setDirection(i > currentIndex ? 1 : -1);
-                setCurrentIndex(i);
-              }}
-              flexShrink={0}
-            />
-          ))}
+          <IconButton
+            aria-label="Share"
+            variant="ghost"
+            size="sm"
+            color="white"
+            bg="blackAlpha.500"
+            backdropFilter="blur(6px)"
+            borderRadius="full"
+            boxShadow="0 2px 8px rgba(0,0,0,0.45)"
+            _hover={{ bg: 'blackAlpha.700' }}
+            onClick={handleShare}
+            icon={<Icon as={Share2} boxSize={5} />}
+          />
+          <FavoriteButton
+            type="SESSION"
+            targetId={session.id}
+            isFavorite={session.isFavorite}
+            variant="overlay-dark"
+            returnUrl={`/sessions/${session.slug || session.id}`}
+          />
         </Flex>
-      )}
 
-      {/* Bottom-left badge: crawled → "Facebook post"; else slot availability */}
-      {session.isCrawled ? (
-        <Badge
-          position="absolute"
-          bottom={5}
-          left={3}
-          bg="blackAlpha.600"
-          _dark={{ bg: 'whiteAlpha.200' }}
-          color="white"
-          borderWidth="1px"
-          borderColor="whiteAlpha.200"
-          backdropFilter="blur(4px)"
-          fontSize="sm"
-          px={3}
-          py={1}
-          borderRadius="full"
-          fontWeight="medium"
-          gap={1}
-        >
-          <Icon as={Facebook} boxSize={3.5} />
-          {t('crawledBadge')}
-        </Badge>
-      ) : (
-        <Flex position="absolute" bottom={5} left={3} gap={1} zIndex={100}>
+        {/* Dot indicators */}
+        {allImages.length > 1 && (
+          <Flex
+            position="absolute"
+            bottom={5}
+            left="50%"
+            transform="translateX(-50%)"
+            gap={1.5}
+            zIndex={100}
+            align="center"
+          >
+            {allImages.map((_, i) => (
+              <Box
+                key={i}
+                as="button"
+                w={i === currentIndex ? '16px' : '6px'}
+                h="6px"
+                borderRadius="full"
+                bg={i === currentIndex ? 'white' : 'whiteAlpha.600'}
+                transition="width 0.25s ease, background-color 0.25s ease"
+                onClick={() => {
+                  setDirection(i > currentIndex ? 1 : -1);
+                  setCurrentIndex(i);
+                }}
+                flexShrink={0}
+              />
+            ))}
+          </Flex>
+        )}
+
+        {/* Bottom-left badge: crawled → "Facebook post"; else slot availability */}
+        {session.isCrawled ? (
           <Badge
-            colorPalette={isClosed || isFull ? 'gray' : 'teal'}
-            variant="solid"
+            position="absolute"
+            bottom={5}
+            left={3}
+            bg="blackAlpha.600"
+            _dark={{ bg: 'whiteAlpha.200' }}
+            color="white"
+            borderWidth="1px"
+            borderColor="whiteAlpha.200"
+            backdropFilter="blur(4px)"
             fontSize="sm"
             px={3}
             py={1}
             borderRadius="full"
-            fontWeight="600"
+            fontWeight="medium"
             gap={1}
-            boxShadow="0 2px 8px rgba(0, 0, 0, 0.2)"
-            backdropFilter="blur(8px)"
           >
-            {isClosed
-              ? t('registrationClosed')
-              : isFull
-                ? t('slotsFull')
-                : t('slotsAvailable', { count: availableSlots })}
+            <Icon as={Facebook} boxSize={3.5} />
+            {t('crawledBadge')}
           </Badge>
-          {approvedBadge}
-        </Flex>
-      )}
+        ) : (
+          <Flex position="absolute" bottom={5} left={3} gap={1} zIndex={100}>
+            <Badge
+              colorPalette={isClosed || isFull ? 'gray' : 'teal'}
+              variant="solid"
+              fontSize="sm"
+              px={3}
+              py={1}
+              borderRadius="full"
+              fontWeight="600"
+              gap={1}
+              boxShadow="0 2px 8px rgba(0, 0, 0, 0.2)"
+              backdropFilter="blur(8px)"
+            >
+              {isClosed
+                ? t('registrationClosed')
+                : isFull
+                  ? t('slotsFull')
+                  : t('slotsAvailable', { count: availableSlots })}
+            </Badge>
+            {approvedBadge}
+          </Flex>
+        )}
 
-      {/* Status Badge - bottom right */}
-      <Badge
-        position="absolute"
-        bottom={5}
-        right={3}
-        colorPalette={statusColorPalette}
-        fontSize="sm"
-        px={3}
-        py={1}
-        borderRadius="full"
-        fontWeight="600"
-        boxShadow="0 2px 8px rgba(0, 0, 0, 0.2)"
-        backdropFilter="blur(8px)"
-      >
-        {getStatusLabel(session.status, t, session.endTime)}
-      </Badge>
-    </Box>
+        {/* Status Badge - bottom right */}
+        <Badge
+          position="absolute"
+          bottom={5}
+          right={3}
+          colorPalette={statusColorPalette}
+          fontSize="sm"
+          px={3}
+          py={1}
+          borderRadius="full"
+          fontWeight="600"
+          boxShadow="0 2px 8px rgba(0, 0, 0, 0.2)"
+          backdropFilter="blur(8px)"
+        >
+          {getStatusLabel(session.status, t, session.endTime)}
+        </Badge>
+      </Box>
+
+      {/* Lightbox */}
+      {lightboxOpen && (
+        <Portal>
+          <AppLightbox
+            images={allImages}
+            initialIndex={lightboxIndex}
+            onClose={() => setLightboxOpen(false)}
+            alt={session.name}
+          />
+        </Portal>
+      )}
+    </>
   );
 };
 

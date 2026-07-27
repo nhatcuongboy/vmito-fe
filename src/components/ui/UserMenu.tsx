@@ -234,7 +234,7 @@ export default function UserMenu({ onLogout }: UserMenuProps) {
         >
           <Box
             bg="gray.100"
-            _dark={{ bg: 'gray.700' }}
+            _dark={{ bg: 'gray.600' }}
             p={{ base: 1.5, md: 2 }}
             borderRadius="full"
           >
@@ -262,7 +262,7 @@ export default function UserMenu({ onLogout }: UserMenuProps) {
       >
         <Box
           bg="gray.100"
-          _dark={{ bg: 'gray.700' }}
+          _dark={{ bg: 'gray.600' }}
           p={{ base: 1.5, md: 2 }}
           borderRadius="full"
         >
@@ -275,11 +275,12 @@ export default function UserMenu({ onLogout }: UserMenuProps) {
           fontSize={{ base: 'sm', md: 'md' }}
           fontWeight="medium"
           color="gray.500"
+          _dark={{ color: 'gray.400' }}
           mr={1}
         >
           {getThemeLabelShort(currentTheme)}
         </Text>
-        <ChevronRight size={16} color="gray" />
+        <ChevronRight size={16} color="var(--chakra-colors-gray-400)" />
       </Flex>
 
       {/* Language */}
@@ -294,7 +295,7 @@ export default function UserMenu({ onLogout }: UserMenuProps) {
       >
         <Box
           bg="gray.100"
-          _dark={{ bg: 'gray.700' }}
+          _dark={{ bg: 'gray.600' }}
           p={{ base: 1.5, md: 2 }}
           borderRadius="full"
         >
@@ -307,11 +308,12 @@ export default function UserMenu({ onLogout }: UserMenuProps) {
           fontSize={{ base: 'sm', md: 'md' }}
           fontWeight="medium"
           color="gray.500"
+          _dark={{ color: 'gray.400' }}
           mr={1}
         >
           {getLanguageLabel(locale)}
         </Text>
-        <ChevronRight size={16} color="gray" />
+        <ChevronRight size={16} color="var(--chakra-colors-gray-400)" />
       </Flex>
 
       {/* AI Assistant */}
@@ -329,7 +331,7 @@ export default function UserMenu({ onLogout }: UserMenuProps) {
       >
         <Box
           bg="purple.50"
-          _dark={{ bg: 'purple.900/40' }}
+          _dark={{ bg: 'purple.800/50' }}
           p={{ base: 1.5, md: 2 }}
           borderRadius="full"
         >
@@ -355,7 +357,7 @@ export default function UserMenu({ onLogout }: UserMenuProps) {
       >
         <Box
           bg="gray.100"
-          _dark={{ bg: 'gray.700' }}
+          _dark={{ bg: 'gray.600' }}
           p={{ base: 1.5, md: 2 }}
           borderRadius="full"
         >
@@ -383,8 +385,8 @@ export default function UserMenu({ onLogout }: UserMenuProps) {
         }}
       >
         <Box
-          bg="gray.50"
-          _dark={{ bg: 'gray.700' }}
+          bg="gray.100"
+          _dark={{ bg: 'gray.600' }}
           p={{ base: 1.5, md: 2 }}
           borderRadius="full"
         >
@@ -410,7 +412,7 @@ export default function UserMenu({ onLogout }: UserMenuProps) {
       >
         <Box
           bg="gray.100"
-          _dark={{ bg: 'gray.700' }}
+          _dark={{ bg: 'gray.600' }}
           p={{ base: 1.5, md: 2 }}
           borderRadius="full"
         >
@@ -436,7 +438,7 @@ export default function UserMenu({ onLogout }: UserMenuProps) {
       >
         <Box
           bg="gray.100"
-          _dark={{ bg: 'gray.700' }}
+          _dark={{ bg: 'gray.600' }}
           p={{ base: 1.5, md: 2 }}
           borderRadius="full"
         >
@@ -467,7 +469,7 @@ export default function UserMenu({ onLogout }: UserMenuProps) {
       >
         <Box
           bg="gray.100"
-          _dark={{ bg: 'gray.700' }}
+          _dark={{ bg: 'gray.600' }}
           p={{ base: 1.5, md: 2 }}
           borderRadius="full"
         >
@@ -506,6 +508,7 @@ export default function UserMenu({ onLogout }: UserMenuProps) {
         <Text
           fontSize={{ base: 'xs', md: 'sm' }}
           color="gray.500"
+          _dark={{ color: 'gray.400' }}
           mb={{ base: 2, md: 4 }}
         >
           {common('displayOptionsSubtitle')}
@@ -531,7 +534,7 @@ export default function UserMenu({ onLogout }: UserMenuProps) {
                 {theme === t.id ? (
                   <Check size={16} color="var(--chakra-colors-blue-500)" />
                 ) : (
-                  <t.icon size={16} color="gray" />
+                  <t.icon size={16} color="var(--chakra-colors-gray-400)" />
                 )}
               </Box>
               <Text
@@ -788,7 +791,13 @@ export default function UserMenu({ onLogout }: UserMenuProps) {
         <Text fontWeight="semibold" fontSize="sm">
           {common('showNewAddressTitle')}
         </Text>
-        <Text fontSize="xs" color="gray.500" mt={1} mb={3}>
+        <Text
+          fontSize="xs"
+          color="gray.500"
+          _dark={{ color: 'gray.400' }}
+          mt={1}
+          mb={3}
+        >
           {common('showNewAddressDescription')}
         </Text>
         <Flex align="center" gap={4}>

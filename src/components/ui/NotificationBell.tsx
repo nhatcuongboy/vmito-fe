@@ -100,6 +100,9 @@ const getNotificationIcon = (type: NotificationType, action?: string) => {
       return LuUsers;
     case NotificationType.POST:
       return action === 'post_commented' ? LuMessageCircle : LuHeart;
+    case NotificationType.VENUE_REQUEST:
+    case NotificationType.VENUE_RENTAL:
+      return LuMapPin;
     default:
       return LuBell;
   }
@@ -706,7 +709,7 @@ export default function NotificationBell({
                               <Button
                                 size="xs"
                                 colorPalette="red"
-                                variant="outline"
+                                variant="subtle"
                                 onClick={(e) =>
                                   handleApprovalAction(e, allSlots, 'REJECTED')
                                 }
@@ -714,6 +717,11 @@ export default function NotificationBell({
                                 h="24px"
                                 fontSize="xs"
                                 px={3}
+                                _dark={{
+                                  bg: 'red.900/60',
+                                  color: 'red.300',
+                                  _hover: { bg: 'red.800/80' },
+                                }}
                               >
                                 {t('reject')}
                               </Button>
@@ -830,7 +838,7 @@ export default function NotificationBell({
                               <Button
                                 size="xs"
                                 colorPalette="red"
-                                variant="outline"
+                                variant="subtle"
                                 onClick={(e) =>
                                   handleClubJoinRequestAction(
                                     e,
@@ -842,6 +850,11 @@ export default function NotificationBell({
                                 h="24px"
                                 fontSize="xs"
                                 px={3}
+                                _dark={{
+                                  bg: 'red.900/60',
+                                  color: 'red.300',
+                                  _hover: { bg: 'red.800/80' },
+                                }}
                               >
                                 {t('reject')}
                               </Button>
@@ -917,7 +930,12 @@ export default function NotificationBell({
                               h="36px"
                               borderRadius="xl"
                               bg="purple.100"
-                              _dark={{ bg: 'rgba(168,85,247,0.25)' }}
+                              borderWidth="1px"
+                              borderColor="purple.200"
+                              _dark={{
+                                bg: 'rgba(168,85,247,0.25)',
+                                borderColor: 'purple.400',
+                              }}
                               display="flex"
                               alignItems="center"
                               justifyContent="center"
@@ -1057,8 +1075,11 @@ export default function NotificationBell({
                             h="36px"
                             borderRadius="xl"
                             bg={isUnread ? 'white' : 'green.50'}
+                            borderWidth="1px"
+                            borderColor={isUnread ? 'green.200' : 'green.100'}
                             _dark={{
                               bg: isUnread ? 'green.800' : 'green.900/30',
+                              borderColor: isUnread ? 'green.500' : 'green.700',
                             }}
                             display="flex"
                             alignItems="center"

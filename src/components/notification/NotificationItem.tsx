@@ -13,6 +13,7 @@ import {
   LuUsers,
   LuHeart,
   LuMessageCircle,
+  LuMapPin,
 } from 'react-icons/lu';
 import { INotification, NotificationType } from '@/lib/api/types';
 import { useTranslations } from 'next-intl';
@@ -58,6 +59,9 @@ const getNotificationIcon = (type: NotificationType, action?: string) => {
       return LuUsers;
     case NotificationType.POST:
       return action === 'post_commented' ? LuMessageCircle : LuHeart;
+    case NotificationType.VENUE_REQUEST:
+    case NotificationType.VENUE_RENTAL:
+      return LuMapPin;
     default:
       return LuBell;
   }
@@ -159,7 +163,10 @@ export const NotificationItem = ({
           h="36px"
           borderRadius="xl"
           bg={!notification.isRead ? 'white' : 'green.50'}
-          _dark={{ bg: !notification.isRead ? 'green.800' : 'green.900/30' }}
+          _dark={{
+            bg: !notification.isRead ? 'green.800' : 'green.900/30',
+            borderColor: !notification.isRead ? 'green.600' : 'green.800',
+          }}
           display="flex"
           alignItems="center"
           justifyContent="center"
@@ -167,6 +174,8 @@ export const NotificationItem = ({
           boxShadow={!notification.isRead ? 'sm' : 'none'}
           flexShrink={0}
           mt="1px"
+          borderWidth="1px"
+          borderColor={!notification.isRead ? 'green.100' : 'green.100'}
         >
           <Icon size={17} strokeWidth={!notification.isRead ? 2.5 : 2} />
         </Box>

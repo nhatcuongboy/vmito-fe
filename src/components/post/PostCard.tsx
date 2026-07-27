@@ -18,6 +18,7 @@ import {
 import type { Post } from '@/types/post';
 import { CommentSection } from './CommentSection';
 import { PostAvatar } from './PostAvatar';
+import { ActivityPostContent } from './ActivityPostContent';
 import { postsService } from '@/lib/api/posts.service';
 import { toaster } from '@/components/ui/toaster';
 import VModal from '@/components/ui/VModal';
@@ -33,6 +34,8 @@ const localeMap: Record<string, Locale> = { vi, en: enUS, cn: zhCN };
 interface PostCardProps {
   post: Post;
   onPostUpdate?: () => void;
+  onPostDeleted?: (postId: string) => void;
+  onPostShared?: (newPost: Post) => void;
   currentUserId?: string;
   defaultShowComments?: boolean;
 }
@@ -72,6 +75,8 @@ function PostMediaImage({ src, alt, className, onClick }: PostMediaImageProps) {
 export function PostCard({
   post,
   onPostUpdate,
+  onPostDeleted,
+  onPostShared,
   currentUserId,
   defaultShowComments = false,
 }: PostCardProps) {
@@ -81,12 +86,15 @@ export function PostCard({
   const [showMenu, setShowMenu] = useState(false);
   const [showComments, setShowComments] = useState(defaultShowComments);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [showShareConfirm, setShowShareConfirm] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isSharing, setIsSharing] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
   const [localPost, setLocalPost] = useState(post);
   const menuRef = useRef<HTMLDivElement>(null);
 
   const isOwner = currentUserId === localPost.authorId;
+  const isActivityPost = localPost.type === 'ACTIVITY';
   const postImages = localPost.images ?? [];
   const postCounts = localPost._count ?? { likes: 0, comments: 0, shares: 0 };
   const hasEngagement =
@@ -140,22 +148,43 @@ export function PostCard({
   };
 
   const handleShare = async () => {
+    setIsSharing(true);
     try {
-      await postsService.sharePost(localPost.id);
+      const sharedPost = await postsService.sharePost(localPost.id);
       toaster.create({
         title: t('success'),
         description: t('shareSuccess'),
         type: 'success',
       });
-      onPostUpdate?.();
+      setShowShareConfirm(false);
+      setLocalPost((prev) => {
+        const prevCounts = prev._count ?? { likes: 0, comments: 0, shares: 0 };
+        return {
+          ...prev,
+          _count: { ...prevCounts, shares: prevCounts.shares + 1 },
+        };
+      });
+      if (onPostShared) {
+        onPostShared(sharedPost);
+      } else {
+        onPostUpdate?.();
+      }
     } catch (error: unknown) {
+      setShowShareConfirm(false);
+      const data = (
+        error as {
+          response?: {
+            data?: { message?: string; error?: { message?: string } };
+          };
+        }
+      )?.response?.data;
       toaster.create({
         title: t('error'),
-        description:
-          (error as { response?: { data?: { message?: string } } })?.response
-            ?.data?.message || t('shareError'),
+        description: data?.error?.message || data?.message || t('shareError'),
         type: 'error',
       });
+    } finally {
+      setIsSharing(false);
     }
   };
 
@@ -169,7 +198,11 @@ export function PostCard({
         type: 'success',
       });
       setShowDeleteConfirm(false);
-      onPostUpdate?.();
+      if (onPostDeleted) {
+        onPostDeleted(localPost.id);
+      } else {
+        onPostUpdate?.();
+      }
     } catch {
       toaster.create({
         title: t('error'),
@@ -308,8 +341,11 @@ export function PostCard({
         )}
       </Flex>
 
+      {/* Activity post body (auto-generated posts) */}
+      {isActivityPost && <ActivityPostContent post={localPost} />}
+
       {/* Content */}
-      {localPost.content && (
+      {!isActivityPost && localPost.content && (
         <Box
           px={4}
           pt={2.5}
@@ -324,7 +360,7 @@ export function PostCard({
       )}
 
       {/* Location */}
-      {localPost.location && (
+      {!isActivityPost && localPost.location && (
         <Box px={4} pt={2.5}>
           <a
             href={getGoogleMapsUrl({
@@ -346,7 +382,7 @@ export function PostCard({
       )}
 
       {/* Images — full width */}
-      {postImages.length > 0 && (
+      {!isActivityPost && postImages.length > 0 && (
         <Box mt={3.5}>
           <div
             className={`grid overflow-hidden bg-gray-100 dark:bg-gray-900 ${
@@ -393,9 +429,40 @@ export function PostCard({
                 </Link>
               </span>
             </div>
-            <div className="whitespace-pre-wrap text-sm leading-6 text-gray-700 dark:text-gray-200">
-              {localPost.originalPost.content}
-            </div>
+            {localPost.originalPost.type === 'ACTIVITY' ? (
+              <div className="-mx-3">
+                <ActivityPostContent post={localPost.originalPost} />
+              </div>
+            ) : (
+              <>
+                <div className="whitespace-pre-wrap text-sm leading-6 text-gray-700 dark:text-gray-200">
+                  {localPost.originalPost.content}
+                </div>
+                {(localPost.originalPost.images ?? []).length > 0 && (
+                  <div className="mt-2 grid grid-cols-2 gap-0.5 overflow-hidden rounded-lg">
+                    {(localPost.originalPost.images ?? [])
+                      .slice(0, 2)
+                      .map((img, index) => (
+                        <PostMediaImage
+                          key={img.id}
+                          src={img.url}
+                          alt={t('postImage', { index: index + 1 })}
+                          className="aspect-video w-full object-cover"
+                        />
+                      ))}
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+        </Box>
+      )}
+
+      {/* Shared post whose original was deleted */}
+      {localPost.originalPostId && !localPost.originalPost && (
+        <Box mx={4} mt={3}>
+          <div className="rounded-lg border border-gray-200 bg-gray-50 p-3 text-sm text-gray-500 dark:border-white/10 dark:bg-gray-700/50 dark:text-gray-400">
+            {t('originalPostUnavailable')}
           </div>
         </Box>
       )}
@@ -485,7 +552,7 @@ export function PostCard({
           {t('comment')}
         </button>
         <button
-          onClick={handleShare}
+          onClick={() => setShowShareConfirm(true)}
           aria-label={t('sharePost')}
           className={`${actionButtonBase} text-gray-600 hover:bg-blue-50 hover:text-blue-600 dark:text-gray-300 dark:hover:bg-blue-950/30 dark:hover:text-blue-400`}
         >
@@ -527,6 +594,22 @@ export function PostCard({
       >
         <p className="text-sm text-gray-600 dark:text-gray-300">
           {t('deleteConfirmDescription')}
+        </p>
+      </VModal>
+
+      <VModal
+        isOpen={showShareConfirm}
+        onClose={() => setShowShareConfirm(false)}
+        title={t('shareConfirmTitle')}
+        size="sm"
+        primaryActionText={t('share')}
+        secondaryActionText={t('cancel')}
+        onPrimaryAction={handleShare}
+        isPrimaryLoading={isSharing}
+        isSecondaryDisabled={isSharing}
+      >
+        <p className="text-sm text-gray-600 dark:text-gray-300">
+          {t('shareConfirmDescription')}
         </p>
       </VModal>
     </Box>

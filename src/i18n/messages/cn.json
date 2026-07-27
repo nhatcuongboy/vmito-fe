@@ -139,6 +139,8 @@
     "aiAssistant": "AI 助手",
     "contact": "联系我们",
     "bugReport": "报告错误",
+    "terms": "服务条款",
+    "privacy": "隐私政策",
     "developedBy": "由 Nhat Cuong 开发。",
     "favorites": {
       "add": "添加到收藏",
@@ -360,6 +362,12 @@
     "noActiveSessions": "没有活动场次",
     "noActiveSessionsDescription": "您没有任何活动场次。创建一个新场次以开始！",
     "loadingError": "加载场次时出错",
+    "loadingErrorDescription": "无法加载场次列表，请重试",
+    "loadingErrorServer": "系统出现问题",
+    "loadingErrorServerDescription": "请稍后重试",
+    "loadingErrorNetwork": "无法连接",
+    "loadingErrorNetworkDescription": "请检查网络后重试",
+    "retry": "重试",
     "sessionNamePlaceholder": "输入场次名称（例如：'周一晚羽毛球'）",
     "sessionNameDescription": "为您的场次选择一个描述性名称",
     "sessionDuration": "场次时长",
@@ -4408,6 +4416,92 @@
           "understood": "收到，我马上就去！"
         }
       }
+    },
+    "privacy": {
+      "title": "隐私政策",
+      "lastUpdated": "最后更新：2026年7月26日",
+      "intro": "Vmito（\"我们\"）尊重您的隐私，并致力于保护您在使用我们的羽毛球约球、交流和赛事管理平台时提供的个人信息。本政策说明了我们如何收集、使用、存储和保护您的数据。",
+      "sections": [
+        {
+          "heading": "1. 我们收集的信息",
+          "body": "我们可能收集以下类型的信息：\n• 账户信息：注册时提供的姓名、电子邮件、电话号码和头像。\n• 第三方登录信息：当您使用 Google 或 Facebook 登录时，我们会获取您的姓名、电子邮件和公开头像。\n• 活动信息：您在平台上的训练、约球、赛事、俱乐部及互动。\n• 技术信息：IP 地址、设备类型、浏览器和使用数据，用于改进服务。"
+        },
+        {
+          "heading": "2. 我们如何使用您的信息",
+          "body": "我们使用您的信息用于：\n• 提供和运营 Vmito 的各项功能。\n• 为您匹配合适的球友、俱乐部和赛事。\n• 发送与活动、邀请和服务更新相关的通知。\n• 保障安全，检测和防止欺诈或滥用。\n• 分析并改进用户体验。"
+        },
+        {
+          "heading": "3. 信息共享",
+          "body": "我们不会出售您的个人信息。信息仅在以下情况下共享：\n• 在运营必要时与其他用户共享（例如您参加的训练或赛事中显示的姓名和头像）。\n• 与支持我们运营的服务提供商共享（托管、电子邮件发送、登录验证）。\n• 依据法律规定或有关部门的合法要求。"
+        },
+        {
+          "heading": "4. 数据安全",
+          "body": "我们采取合理的技术和组织措施，保护您的数据免遭未经授权的访问、更改或泄露。但通过互联网传输的任何方式都无法保证绝对安全。"
+        },
+        {
+          "heading": "5. 您的权利",
+          "body": "您有权访问、更正或删除您的个人信息，并要求我们停止处理您的数据。您可以在账户设置中直接管理大部分信息，或联系我们。"
+        },
+        {
+          "heading": "6. 数据保留",
+          "body": "我们会在提供服务和履行法律义务所必需的期限内保留您的信息。当您删除账户时，除非法律要求保留，我们将删除或匿名化您的个人数据。"
+        },
+        {
+          "heading": "7. 政策变更",
+          "body": "我们可能会不时更新本政策。任何重大变更都会在平台上公布。在更新后继续使用 Vmito 即表示您接受修订后的政策。"
+        },
+        {
+          "heading": "8. 联系我们",
+          "body": "如果您对本隐私政策有任何疑问，请通过 support@vmito.com 与我们联系。"
+        }
+      ]
+    },
+    "terms": {
+      "title": "服务条款",
+      "lastUpdated": "最后更新：2026年7月26日",
+      "intro": "欢迎使用 Vmito。访问或使用我们的羽毛球约球、交流和赛事管理平台即表示您同意遵守以下服务条款。使用前请仔细阅读。",
+      "sections": [
+        {
+          "heading": "1. 接受条款",
+          "body": "创建账户或使用 Vmito 即表示您确认已年满 16 周岁（或已获得监护人同意），并接受本条款及我们的隐私政策。如您不同意，请停止使用本服务。"
+        },
+        {
+          "heading": "2. 用户账户",
+          "body": "您有责任确保注册信息的准确性并保管好您的账户安全。\n• 请勿与他人共享您的登录凭据。\n• 您对账户下发生的所有活动负责。\n• 如发现未经授权的访问，请立即通知我们。"
+        },
+        {
+          "heading": "3. 使用规范",
+          "body": "使用 Vmito 时，您同意不得：\n• 发布虚假、欺诈或违法的信息。\n• 骚扰、辱骂或伤害其他用户。\n• 将平台用于未经授权的商业用途或发送垃圾信息。\n• 干扰、破坏或试图未经授权访问我们的系统。"
+        },
+        {
+          "heading": "4. 用户生成内容",
+          "body": "您保留对所发布内容（训练、帖子、图片等）的所有权，但授予 Vmito 在运营服务所需范围内使用、展示和分发该内容的权利。您对自己发布的内容负责，并保证其不侵犯任何第三方的权利。"
+        },
+        {
+          "heading": "5. 训练、赛事与交易",
+          "body": "Vmito 是连接球友、俱乐部和组织者的平台。有关训练、参与费用、场地预订或赛事的安排均由相关各方之间达成。除非另有明确说明，Vmito 并非这些安排的当事方，不对其履行、质量或由此产生的任何争议负责。"
+        },
+        {
+          "heading": "6. 费用与支付",
+          "body": "部分功能可能需要付费。所有费用将在您确认前明确告知。除非另有说明，已支付的款项不予退还。我们保留更改费用的权利，并会在生效前通知。"
+        },
+        {
+          "heading": "7. 免责声明",
+          "body": "Vmito 按\"现状\"和\"现有可用\"基础提供。我们努力保持服务的稳定，但不保证服务不会中断或无差错。在法律允许的范围内，Vmito 不对因您使用平台而产生的间接损失承担责任。"
+        },
+        {
+          "heading": "8. 终止",
+          "body": "您可以随时停止使用并删除账户。对于违反本条款或损害其他用户和平台的账户，我们保留暂停或终止的权利。"
+        },
+        {
+          "heading": "9. 条款变更",
+          "body": "我们可能会不时更新本条款。任何重大变更都会在平台上公布。在更新后继续使用 Vmito 即表示您接受修订后的条款。"
+        },
+        {
+          "heading": "10. 联系我们",
+          "body": "如果您对本服务条款有任何疑问，请通过 support@vmito.com 与我们联系。"
+        }
+      ]
     }
   },
   "errors": {
@@ -4812,7 +4906,12 @@
     "allowGuestJoin": "允许访客加入",
     "allowNewPlayers": "允许新玩家",
     "yes": "是",
-    "no": "否"
+    "no": "否",
+    "shareResultsButton": "分享成绩到动态",
+    "shareResultsConfirmTitle": "分享成绩",
+    "shareResultsConfirmMessage": "将本次球局的排名发布到动态？",
+    "shareResultsSuccess": "成绩已分享到动态",
+    "shareResultsError": "分享成绩失败"
   },
   "SessionPlayers": {
     "errorLoadingStats": "加载玩家统计数据失败。",
@@ -4897,6 +4996,7 @@
       "passwordPlaceholder": "输入您的密码",
       "signInButton": "登录",
       "continueWithGoogle": "使用 Google 登录",
+      "continueWithFacebook": "使用 Facebook 登录",
       "continueWithZalo": "使用 Zalo 登录",
       "forgotPassword": "忘记密码？",
       "noAccount": "还没有账户？",
@@ -5632,6 +5732,10 @@
       "postLikedMessage": "{actorName} 赞了你的动态。",
       "postCommentedTitle": "你的动态有新评论",
       "postCommentedMessage": "{actorName} 评论了你的动态。",
+      "venueRequestApprovedTitle": "场地建议已批准",
+      "venueRequestApprovedMessage": "您对场地 “{venueName}” 的建议已获得管理员批准。",
+      "venueRequestRejectedTitle": "场地建议被拒绝",
+      "venueRequestRejectedMessage": "您对场地 “{venueName}” 的建议已被拒绝。原因：{rejectionReason}",
       "tournamentCreatedSuccessfully": "锦标赛创建成功",
       "pairUpdatedSuccessfully": "组合已成功更新",
       "categoryUpdatedSuccessfully": "类别已成功更新",
@@ -5714,9 +5818,53 @@
       "badge": "即将推出"
     },
     "suggestedSessions": "为你推荐的活动",
-    "viewAllSessions": "查看全部活动"
+    "viewAllSessions": "查看全部活动",
+    "shareConfirmTitle": "分享帖子",
+    "shareConfirmDescription": "要将此帖子分享到您的动态吗？",
+    "deleteCommentConfirmTitle": "删除评论？",
+    "deleteCommentConfirmDescription": "此评论将被永久删除。",
+    "originalPostUnavailable": "原始内容已不存在。",
+    "pullToRefresh": "下拉刷新",
+    "refreshing": "正在刷新...",
+    "activity": {
+      "SESSION_CREATED": "{author} 创建了新球局",
+      "SESSION_RESULTS": "{author} 分享了 {session} 的成绩",
+      "CLUB_CREATED": "{author} 创建了俱乐部 {club}",
+      "CLUB_UPDATED": "{author} 更新了俱乐部 {club} 的信息",
+      "CLUB_MEMBER_JOINED": "{author} 加入了俱乐部 {club}",
+      "TOURNAMENT_CREATED": "{author} 创建了赛事 {tournament}",
+      "TOURNAMENT_FINISHED": "赛事 {tournament} 已结束",
+      "AVATAR_UPDATED": "{author} 更新了头像",
+      "USER_RATED": "{author} 评价了 {rated}",
+      "champion": "冠军",
+      "runnerUp": "亚军",
+      "standingsRank": "排名",
+      "standingsPlayer": "球员",
+      "standingsMatches": "场次",
+      "andMorePlayers": "以及另外 {count} 名球员",
+      "viewSession": "查看球局",
+      "viewClub": "查看俱乐部",
+      "viewTournament": "查看赛事",
+      "viewProfile": "查看主页"
+    }
   },
   "clubs": {
+    "socialLinks": {
+      "title": "社交媒体与链接",
+      "description": "俱乐部的社交媒体频道与外部链接",
+      "facebook": "Facebook",
+      "facebookPlaceholder": "https://facebook.com/fanpage",
+      "zalo": "Zalo",
+      "zaloPlaceholder": "https://zalo.me/g/...",
+      "tiktok": "TikTok",
+      "tiktokPlaceholder": "https://tiktok.com/@...",
+      "youtube": "YouTube",
+      "youtubePlaceholder": "https://youtube.com/@...",
+      "website": "Website",
+      "websitePlaceholder": "https://yourwebsite.com",
+      "other": "其他链接",
+      "otherPlaceholder": "https://..."
+    },
     "notification": {
       "club": {
         "creationPending": "您的俱乐部创建请求正在审核中",

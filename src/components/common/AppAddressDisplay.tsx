@@ -12,6 +12,7 @@ export interface IAppAddressDisplayProps {
   newDistrict?: string | null;
   fontSize?: string;
   color?: string;
+  _dark?: Record<string, any>;
   lineClamp?: number;
 }
 
@@ -22,6 +23,7 @@ export const AppAddressDisplay = ({
   newAddress,
   fontSize = 'xs',
   color = 'fg.subtle',
+  _dark = { color: 'gray.300' },
   lineClamp,
 }: IAppAddressDisplayProps) => {
   const { showNewAddress } = useAppSettings();
@@ -39,7 +41,12 @@ export const AppAddressDisplay = ({
 
   return (
     <Box>
-      <Text fontSize={fontSize} color={color} lineClamp={lineClamp}>
+      <Text
+        fontSize={fontSize}
+        color={color}
+        _dark={_dark}
+        lineClamp={lineClamp}
+      >
         {text}{' '}
         {showingNew && (
           <Badge colorPalette="blue" size="xs" verticalAlign="middle">

@@ -166,6 +166,29 @@
   }
 }
 
+/*
+ * iOS Safari auto-zooms into any focused form control whose font-size is below
+ * 16px and — because our viewport intentionally allows user scaling (WCAG
+ * 1.4.4) — never zooms back out, leaving the page stuck magnified. Chakra UI
+ * v3's default `md` size renders inputs/selects/textareas at 14px (textStyle
+ * "sm"), so every default field triggers this. Force all form controls to
+ * >=16px on touch devices to prevent the zoom, without capping zoom or altering
+ * the 14px desktop design.
+ *
+ * Left unlayered on purpose: unlayered rules win the cascade over Chakra's and
+ * Tailwind's @layer output regardless of specificity.
+ */
+@media (pointer: coarse) {
+  input:not([type='checkbox']):not([type='radio']):not([type='range']):not(
+      [type='color']
+    ),
+  select,
+  textarea,
+  [contenteditable]:not([contenteditable='false']) {
+    font-size: 16px !important;
+  }
+}
+
 @layer utilities {
   @keyframes splashEnter {
     from {

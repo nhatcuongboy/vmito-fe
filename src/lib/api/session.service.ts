@@ -221,6 +221,7 @@ export const SessionService = {
     sortOrder?: 'asc' | 'desc';
     sessionType?: 'all' | 'regular' | 'facebook';
     favoriteOnly?: boolean;
+    includeEnded?: boolean;
   }): Promise<{
     data: ISession[];
     pagination: {
@@ -261,6 +262,7 @@ export const SessionService = {
     if (filters?.sessionType && filters.sessionType !== 'all')
       params.append('sessionType', filters.sessionType);
     if (filters?.favoriteOnly === true) params.append('favoriteOnly', 'true');
+    if (filters?.includeEnded === true) params.append('includeEnded', 'true');
 
     const url = params.toString()
       ? `/sessions/available?${params.toString()}`
@@ -276,7 +278,9 @@ export const SessionService = {
           totalPages: number;
         };
       }>
-    >(url);
+      // Callers render their own inline error state with a retry button, so
+      // skip the global error toast for this endpoint
+    >(url, { skipGlobalError: true });
     return (
       response.data.data || {
         data: [],

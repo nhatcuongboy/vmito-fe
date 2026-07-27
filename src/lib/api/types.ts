@@ -1840,6 +1840,7 @@ export enum NotificationType {
   CLUB = 'CLUB', // Club-related notifications
   POST = 'POST', // Post interactions (like, comment)
   VENUE_RENTAL = 'VENUE_RENTAL', // Venue rental workflow updates
+  VENUE_REQUEST = 'VENUE_REQUEST', // Venue request status updates (approved/rejected)
 }
 
 export interface INotification {

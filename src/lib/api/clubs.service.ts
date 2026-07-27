@@ -86,6 +86,13 @@ export const ClubsService = {
     return response.data.data || [];
   },
 
+  /**
+   * Cancel current user's pending join request for a club
+   */
+  cancelJoinRequest: async (clubId: string): Promise<void> => {
+    await api.delete(`/clubs/${clubId}/join-request`);
+  },
+
   // ===========================================
   // Club Management Endpoints (Host/Admin)
   // ===========================================

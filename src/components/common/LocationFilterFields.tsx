@@ -29,10 +29,8 @@ interface LocationFilterFieldsProps {
 
 /**
  * Shared city + district/ward picker used by the Venues, Sessions, Tournaments
- * and Clubs filters. When the "Hiển thị địa chỉ mới" (Nghị quyết 60) toggle is
- * on it uses the new-era Tỉnh/Thành + Phường/Xã/Đặc khu vocabulary (province is
- * a single searchable select, wards a searchable multi-select); otherwise it
- * uses the legacy Tỉnh/Thành + Quận/Huyện lists, both searchable multi-selects.
+ * and Clubs filters. City/province selection is a single searchable select
+ * in both legacy and new-address modes; district/ward selection is a searchable multi-select.
  * All long lists live behind a searchable dropdown so the filter stays compact.
  */
 export function LocationFilterFields({
@@ -108,17 +106,6 @@ export function LocationFilterFields({
             >
               {title}
             </Text>
-            {!showNewAddress && selectedCities.length > 0 && (
-              <Badge
-                size="sm"
-                colorPalette="green"
-                variant="solid"
-                borderRadius="full"
-                px={2}
-              >
-                {selectedCities.length}
-              </Badge>
-            )}
           </HStack>
           {selectedCities.length > 0 && (
             <Button
@@ -135,25 +122,14 @@ export function LocationFilterFields({
             </Button>
           )}
         </Flex>
-        {showNewAddress ? (
-          <SearchableSelect
-            options={cityOptions}
-            value={selectedCities[0] ?? ''}
-            onChange={(val) => handleCitiesChange(val ? [val] : [])}
-            placeholder="Chọn tỉnh / thành phố..."
-            searchPlaceholder="Tìm tỉnh / thành phố..."
-            dropdownZIndex={DROPDOWN_Z_INDEX}
-          />
-        ) : (
-          <MultiSearchableSelect
-            options={cityItems}
-            values={selectedCities}
-            onChange={handleCitiesChange}
-            placeholder="Chọn tỉnh / thành phố..."
-            searchPlaceholder="Tìm tỉnh / thành phố..."
-            dropdownZIndex={DROPDOWN_Z_INDEX}
-          />
-        )}
+        <SearchableSelect
+          options={showNewAddress ? cityOptions : cityItems}
+          value={selectedCities[0] ?? ''}
+          onChange={(val) => handleCitiesChange(val ? [val] : [])}
+          placeholder="Chọn tỉnh / thành phố..."
+          searchPlaceholder="Tìm tỉnh / thành phố..."
+          dropdownZIndex={DROPDOWN_Z_INDEX}
+        />
       </Box>
 
       {/* District / ward group */}

@@ -3,7 +3,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import {
   Avatar,
-  Badge,
   Box,
   Button,
   Flex,
@@ -440,9 +439,6 @@ export default function PublicUserProfileContent({
                     variant="compact"
                     size="sm"
                   />
-                  <Badge colorPalette="green" variant="subtle">
-                    {t('verifiedHost')}
-                  </Badge>
                 </HStack>
 
                 <SimpleGrid columns={2} gap={3} width="full" pt={1}>

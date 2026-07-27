@@ -270,6 +270,7 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
                             icon={item.icon}
                             isActive={isNavLinkActive(item, pathname, ctx)}
                             isCollapsed={isCollapsed}
+                            showFlame={item.showFlame}
                             onClose={onClose}
                           />
                         );

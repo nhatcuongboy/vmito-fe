@@ -30,3 +30,6 @@ export const TIME_RANGES = [
   { key: 'evening', start: 18, end: 22 },
   { key: 'night', start: 22, end: 5 },
 ] as const;
+
+// Max distance into the future a session (kèo) can be cloned to.
+export const CLONE_SESSION_MAX_MONTHS_AHEAD = 3;

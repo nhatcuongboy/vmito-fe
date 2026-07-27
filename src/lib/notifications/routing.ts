@@ -21,12 +21,21 @@ export const getNotificationTargetRoute = (
 ): string | null => {
   const type = String(notification.type).toUpperCase();
   const { data } = notification;
+  const action = getStringData(data, ['action']);
 
   const sessionId = getStringData(data, ['sessionId']);
   const sessionSlug = getStringData(data, ['slug', 'sessionSlug']);
   const clubId = getStringData(data, ['clubSlug', 'clubId']);
   const postId = getStringData(data, ['postId']);
   const rentalRequestId = getStringData(data, ['rentalRequestId']);
+  const venueId = getStringData(data, ['venueSlug', 'venueId', 'id']);
+
+  if (type === 'VENUE_REQUEST' || action?.startsWith('venue_request_')) {
+    if (venueId) {
+      return `/venues/${venueId}`;
+    }
+    return '/venues';
+  }
 
   if (type === 'VENUE_RENTAL' && rentalRequestId) {
     return data?.manage === true

@@ -148,6 +148,8 @@
     "aiAssistant": "AI Assistant",
     "contact": "Contact Us",
     "bugReport": "Bug Report",
+    "terms": "Terms of Service",
+    "privacy": "Privacy Policy",
     "developedBy": "Developed by Nhat Cuong.",
     "favorites": {
       "add": "Add to favorites",
@@ -372,6 +374,12 @@
     "noActiveSessions": "No Active Sessions",
     "noActiveSessionsDescription": "You don't have any active sessions. Create a new one to get started!",
     "loadingError": "Error loading sessions",
+    "loadingErrorDescription": "Could not load sessions, please try again",
+    "loadingErrorServer": "The system is having issues",
+    "loadingErrorServerDescription": "Please try again in a few minutes",
+    "loadingErrorNetwork": "Unable to connect",
+    "loadingErrorNetworkDescription": "Check your network and try again",
+    "retry": "Retry",
     "sessionNamePlaceholder": "Enter session name (e.g., 'Monday Night Badminton')",
     "sessionNameDescription": "Choose a descriptive name for your session",
     "sessionDuration": "Session Duration",
@@ -4446,6 +4454,92 @@
           "understood": "Got it, I'm on my way!"
         }
       }
+    },
+    "privacy": {
+      "title": "Privacy Policy",
+      "lastUpdated": "Last updated: July 26, 2026",
+      "intro": "Vmito (\"we\", \"us\") respects your privacy and is committed to protecting the personal information you provide when using our platform for finding badminton sessions, connecting with players, and managing tournaments. This policy explains how we collect, use, store, and protect your data.",
+      "sections": [
+        {
+          "heading": "1. Information We Collect",
+          "body": "We may collect the following types of information:\n• Account information: name, email, phone number, and profile photo when you register.\n• Third-party sign-in information: when you sign in with Google or Facebook, we receive your name, email, and public profile photo.\n• Activity information: your sessions, matches, tournaments, clubs, and interactions on the platform.\n• Technical information: IP address, device type, browser, and usage data to improve the service."
+        },
+        {
+          "heading": "2. How We Use Your Information",
+          "body": "We use your information to:\n• Provide and operate Vmito features.\n• Connect you with relevant players, clubs, and tournaments.\n• Send notifications about activities, invitations, and service updates.\n• Ensure safety and detect or prevent fraud and abuse.\n• Analyze and improve the user experience."
+        },
+        {
+          "heading": "3. Sharing Your Information",
+          "body": "We do not sell your personal information. Information is only shared in the following cases:\n• With other users when necessary for operations (e.g. your name and profile photo shown in a session or tournament you join).\n• With service providers that support our operations (hosting, email delivery, authentication).\n• When required by law or a valid request from authorities."
+        },
+        {
+          "heading": "4. Data Security",
+          "body": "We apply reasonable technical and organizational measures to protect your data from unauthorized access, alteration, or disclosure. However, no method of transmission over the Internet is completely secure."
+        },
+        {
+          "heading": "5. Your Rights",
+          "body": "You have the right to access, correct, or delete your personal information, and to request that we stop processing your data. You can manage most of your information directly in Account Settings or by contacting us."
+        },
+        {
+          "heading": "6. Data Retention",
+          "body": "We retain your information for as long as necessary to provide the service and comply with legal obligations. When you delete your account, we delete or anonymize your personal data unless retention is required by law."
+        },
+        {
+          "heading": "7. Changes to This Policy",
+          "body": "We may update this policy from time to time. Any material changes will be announced on the platform. Continued use of Vmito after an update means you accept the revised policy."
+        },
+        {
+          "heading": "8. Contact Us",
+          "body": "If you have questions about this Privacy Policy, please contact us at support@vmito.com."
+        }
+      ]
+    },
+    "terms": {
+      "title": "Terms of Service",
+      "lastUpdated": "Last updated: July 26, 2026",
+      "intro": "Welcome to Vmito. By accessing or using our platform for finding badminton sessions, connecting with players, and managing tournaments, you agree to be bound by the following Terms of Service. Please read them carefully before using the service.",
+      "sections": [
+        {
+          "heading": "1. Acceptance of Terms",
+          "body": "By creating an account or using Vmito, you confirm that you are at least 16 years old (or have guardian consent) and accept these terms together with our Privacy Policy. If you do not agree, please stop using the service."
+        },
+        {
+          "heading": "2. User Accounts",
+          "body": "You are responsible for the accuracy of your registration information and for keeping your account secure.\n• Do not share your login credentials with others.\n• You are responsible for all activity that occurs under your account.\n• Notify us immediately if you detect unauthorized access."
+        },
+        {
+          "heading": "3. Acceptable Use",
+          "body": "When using Vmito, you agree not to:\n• Post false, fraudulent, or unlawful information.\n• Harass, abuse, or harm other users.\n• Use the platform for unauthorized commercial purposes or spam.\n• Interfere with, disrupt, or attempt unauthorized access to our systems."
+        },
+        {
+          "heading": "4. User-Generated Content",
+          "body": "You retain ownership of the content you post (sessions, posts, images, etc.), but grant Vmito the right to use, display, and distribute that content as needed to operate the service. You are responsible for your content and warrant that it does not infringe the rights of any third party."
+        },
+        {
+          "heading": "5. Sessions, Tournaments, and Transactions",
+          "body": "Vmito is a platform that connects players, clubs, and organizers. Arrangements regarding sessions, participation fees, court bookings, or tournaments are made between the relevant parties. Vmito is not a party to these arrangements and is not responsible for their performance, quality, or any disputes that arise, unless expressly stated otherwise."
+        },
+        {
+          "heading": "6. Fees and Payments",
+          "body": "Some features may require payment. All fees will be clearly disclosed before you confirm. Unless otherwise stated, payments are non-refundable. We reserve the right to change our fees and will provide notice before they take effect."
+        },
+        {
+          "heading": "7. Disclaimer of Warranties",
+          "body": "Vmito is provided \"as is\" and \"as available\". We strive to keep the service reliable but do not warrant that it will be uninterrupted or error-free. To the extent permitted by law, Vmito is not liable for indirect damages arising from your use of the platform."
+        },
+        {
+          "heading": "8. Termination",
+          "body": "You may stop using and delete your account at any time. We reserve the right to suspend or terminate accounts that violate these terms or harm other users and the platform."
+        },
+        {
+          "heading": "9. Changes to These Terms",
+          "body": "We may update these terms from time to time. Any material changes will be announced on the platform. Continued use of Vmito after an update means you accept the revised terms."
+        },
+        {
+          "heading": "10. Contact Us",
+          "body": "If you have questions about these Terms of Service, please contact us at support@vmito.com."
+        }
+      ]
     }
   },
   "errors": {
@@ -4850,7 +4944,12 @@
     "allowGuestJoin": "Allow Guest Join",
     "allowNewPlayers": "Allow New Players",
     "yes": "Yes",
-    "no": "No"
+    "no": "No",
+    "shareResultsButton": "Share results to newsfeed",
+    "shareResultsConfirmTitle": "Share results",
+    "shareResultsConfirmMessage": "Post this session's rankings to the newsfeed?",
+    "shareResultsSuccess": "Results shared to the newsfeed",
+    "shareResultsError": "Failed to share results"
   },
   "SessionPlayers": {
     "errorLoadingStats": "Failed to load player statistics.",
@@ -4935,6 +5034,7 @@
       "passwordPlaceholder": "Enter your password",
       "signInButton": "Sign In",
       "continueWithGoogle": "Sign in with Google",
+      "continueWithFacebook": "Sign in with Facebook",
       "continueWithZalo": "Sign in with Zalo",
       "forgotPassword": "Forgot password?",
       "noAccount": "Don't have an account?",
@@ -5000,12 +5100,14 @@
     "resetPassword": {
       "heading": "Reset Password",
       "description": "Create a new password for your account.",
+      "descriptionWithEmail": "Create a new password for account {email}.",
       "newPassword": "New password",
       "newPasswordPlaceholder": "Enter new password",
       "confirmPassword": "Confirm password",
       "confirmPasswordPlaceholder": "Confirm new password",
       "submitButton": "Reset password",
       "successMessage": "Your password has been reset successfully. You can sign in with your new password.",
+      "successMessageWithEmail": "The password for account {email} has been reset successfully. You can sign in with your new password.",
       "missingToken": "This password reset link is invalid or missing a verification token.",
       "invalidOrExpiredToken": "This password reset link is invalid or has expired.",
       "resetFailed": "Could not reset your password. Please try again.",
@@ -5671,6 +5773,10 @@
       "postLikedMessage": "{actorName} liked your post.",
       "postCommentedTitle": "New comment on your post",
       "postCommentedMessage": "{actorName} commented on your post.",
+      "venueRequestApprovedTitle": "Venue request approved",
+      "venueRequestApprovedMessage": "Your suggestion for venue \"{venueName}\" has been approved.",
+      "venueRequestRejectedTitle": "Venue request rejected",
+      "venueRequestRejectedMessage": "Your suggestion for venue \"{venueName}\" was rejected. Reason: {rejectionReason}",
       "tournamentCreatedSuccessfully": "Tournament created successfully",
       "pairUpdatedSuccessfully": "Pair updated successfully",
       "categoryUpdatedSuccessfully": "Category updated successfully",
@@ -5753,9 +5859,53 @@
       "badge": "COMING SOON"
     },
     "suggestedSessions": "Suggested sessions",
-    "viewAllSessions": "View all sessions"
+    "viewAllSessions": "View all sessions",
+    "shareConfirmTitle": "Share post",
+    "shareConfirmDescription": "Share this post to your feed?",
+    "deleteCommentConfirmTitle": "Delete comment?",
+    "deleteCommentConfirmDescription": "This comment will be permanently deleted.",
+    "originalPostUnavailable": "The original content is no longer available.",
+    "pullToRefresh": "Pull to refresh",
+    "refreshing": "Refreshing...",
+    "activity": {
+      "SESSION_CREATED": "{author} created a new session",
+      "SESSION_RESULTS": "{author} shared the results of {session}",
+      "CLUB_CREATED": "{author} created the club {club}",
+      "CLUB_UPDATED": "{author} updated the club {club}",
+      "CLUB_MEMBER_JOINED": "{author} joined the club {club}",
+      "TOURNAMENT_CREATED": "{author} created the tournament {tournament}",
+      "TOURNAMENT_FINISHED": "The tournament {tournament} has finished",
+      "AVATAR_UPDATED": "{author} updated their profile photo",
+      "USER_RATED": "{author} rated {rated}",
+      "champion": "Champion",
+      "runnerUp": "Runner-up",
+      "standingsRank": "Rank",
+      "standingsPlayer": "Player",
+      "standingsMatches": "Matches",
+      "andMorePlayers": "and {count} more players",
+      "viewSession": "View session",
+      "viewClub": "View club",
+      "viewTournament": "View tournament",
+      "viewProfile": "View profile"
+    }
   },
   "clubs": {
+    "socialLinks": {
+      "title": "Social Media & Links",
+      "description": "Club media channels and external links",
+      "facebook": "Facebook",
+      "facebookPlaceholder": "https://facebook.com/fanpage",
+      "zalo": "Zalo",
+      "zaloPlaceholder": "https://zalo.me/g/...",
+      "tiktok": "TikTok",
+      "tiktokPlaceholder": "https://tiktok.com/@...",
+      "youtube": "YouTube",
+      "youtubePlaceholder": "https://youtube.com/@...",
+      "website": "Website",
+      "websitePlaceholder": "https://yourwebsite.com",
+      "other": "Other Link",
+      "otherPlaceholder": "https://..."
+    },
     "notification": {
       "club": {
         "creationPending": "Your club creation request is under review",

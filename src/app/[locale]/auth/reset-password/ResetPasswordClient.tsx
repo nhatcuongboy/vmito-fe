@@ -19,11 +19,14 @@ import {
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useLocale, useTranslations } from 'next-intl';
 import { useSearchParams } from 'next/navigation';
-import { Suspense, useMemo, useState } from 'react';
+import { Suspense, useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
-type TTranslate = (key: string) => string;
+type TTranslate = (
+  key: string,
+  values?: Record<string, string | number>
+) => string;
 
 function createResetPasswordSchema(t: TTranslate) {
   return z
@@ -48,9 +51,47 @@ function ResetPasswordForm() {
   const t = useTranslations('auth.resetPassword');
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
+  const [isVerifying, setIsVerifying] = useState(true);
+  const [tokenError, setTokenError] = useState<string | null>(null);
+  const [maskedEmail, setMaskedEmail] = useState<string | null>(null);
   const token = searchParams.get('token')?.trim() || '';
 
   const schema = useMemo(() => createResetPasswordSchema(t), [t]);
+
+  useEffect(() => {
+    if (!token) {
+      setIsVerifying(false);
+      return;
+    }
+
+    let isMounted = true;
+    const verifyToken = async () => {
+      try {
+        const res = await AuthService.verifyResetToken(token);
+        if (isMounted) {
+          if (res.valid) {
+            setMaskedEmail(res.maskedEmail);
+          } else {
+            setTokenError(t('invalidOrExpiredToken'));
+          }
+        }
+      } catch {
+        if (isMounted) {
+          setTokenError(t('invalidOrExpiredToken'));
+        }
+      } finally {
+        if (isMounted) {
+          setIsVerifying(false);
+        }
+      }
+    };
+
+    verifyToken();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [token, t]);
 
   const {
     register,
@@ -138,11 +179,17 @@ function ResetPasswordForm() {
                   {t('heading')}
                 </Heading>
                 <Text color="fg.muted" mt={2}>
-                  {t('description')}
+                  {maskedEmail
+                    ? t('descriptionWithEmail', { email: maskedEmail })
+                    : t('description')}
                 </Text>
               </Box>
 
-              {!token ? (
+              {isVerifying ? (
+                <VStack py={6} justifyContent="center" width="full">
+                  <Spinner size="lg" color="green.500" />
+                </VStack>
+              ) : !token ? (
                 <VStack gap={4} width="full">
                   <Box
                     bg={{ base: 'red.50', _dark: 'red.900/30' }}
@@ -163,6 +210,27 @@ function ResetPasswordForm() {
                     {t('backToSignIn')}
                   </Button>
                 </VStack>
+              ) : tokenError ? (
+                <VStack gap={4} width="full">
+                  <Box
+                    bg={{ base: 'red.50', _dark: 'red.900/30' }}
+                    color={{ base: 'red.700', _dark: 'red.300' }}
+                    p={4}
+                    width="100%"
+                    borderRadius="md"
+                    border="1px solid"
+                    borderColor={{ base: 'red.200', _dark: 'red.800' }}
+                  >
+                    {tokenError}
+                  </Box>
+                  <Button
+                    colorPalette="green"
+                    width="full"
+                    onClick={goToSignIn}
+                  >
+                    {t('backToSignIn')}
+                  </Button>
+                </VStack>
               ) : isSubmitted ? (
                 <VStack gap={4} width="full">
                   <Box
@@ -174,7 +242,9 @@ function ResetPasswordForm() {
                     border="1px solid"
                     borderColor={{ base: 'green.200', _dark: 'green.800' }}
                   >
-                    {t('successMessage')}
+                    {maskedEmail
+                      ? t('successMessageWithEmail', { email: maskedEmail })
+                      : t('successMessage')}
                   </Box>
                   <Button
                     colorPalette="green"
@@ -241,7 +311,7 @@ function ResetPasswordForm() {
                 </form>
               )}
 
-              {!isSubmitted && token && (
+              {!isSubmitted && token && !tokenError && (
                 <Link
                   href={`/${locale}${ROUTES.AUTH.SIGNIN}`}
                   color="green.600"

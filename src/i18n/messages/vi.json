@@ -148,6 +148,8 @@
     "aiAssistant": "Trợ lý AI",
     "contact": "Liên hệ",
     "bugReport": "Báo cáo lỗi",
+    "terms": "Điều khoản dịch vụ",
+    "privacy": "Chính sách bảo mật",
     "developedBy": "Phát triển bởi Nhật Cường.",
     "favorites": {
       "add": "Thêm vào yêu thích",
@@ -373,6 +375,12 @@
     "noActiveSessions": "Không có kèo nào đang hoạt động",
     "noActiveSessionsDescription": "Bạn không có kèo nào đang hoạt động. Tạo kèo mới để bắt đầu!",
     "loadingError": "Lỗi tải kèo",
+    "loadingErrorDescription": "Không tải được danh sách kèo, vui lòng thử lại",
+    "loadingErrorServer": "Hệ thống đang gặp sự cố",
+    "loadingErrorServerDescription": "Vui lòng thử lại sau ít phút",
+    "loadingErrorNetwork": "Không thể kết nối",
+    "loadingErrorNetworkDescription": "Kiểm tra lại mạng và thử lại",
+    "retry": "Thử lại",
     "sessionNamePlaceholder": "Nhập tên kèo (ví dụ: 'Cầu lông thứ hai tối')",
     "sessionNameDescription": "Chọn tên mô tả cho kèo của bạn",
     "sessionDuration": "Thời lượng kèo",
@@ -4454,6 +4462,92 @@
           "understood": "Đã hiểu, tôi đang đến!"
         }
       }
+    },
+    "privacy": {
+      "title": "Chính sách bảo mật",
+      "lastUpdated": "Cập nhật lần cuối: 26/07/2026",
+      "intro": "Vmito (\"chúng tôi\") tôn trọng quyền riêng tư của bạn và cam kết bảo vệ thông tin cá nhân mà bạn cung cấp khi sử dụng nền tảng tìm kèo, giao lưu và quản lý giải đấu cầu lông của chúng tôi. Chính sách này giải thích cách chúng tôi thu thập, sử dụng, lưu trữ và bảo vệ dữ liệu của bạn.",
+      "sections": [
+        {
+          "heading": "1. Thông tin chúng tôi thu thập",
+          "body": "Chúng tôi có thể thu thập các loại thông tin sau:\n• Thông tin tài khoản: họ tên, email, số điện thoại, ảnh đại diện khi bạn đăng ký.\n• Thông tin đăng nhập qua bên thứ ba: khi bạn đăng nhập bằng Google hoặc Facebook, chúng tôi nhận tên, email và ảnh đại diện công khai.\n• Thông tin hoạt động: các buổi tập, kèo đấu, giải đấu, câu lạc bộ và tương tác của bạn trên nền tảng.\n• Thông tin kỹ thuật: địa chỉ IP, loại thiết bị, trình duyệt và dữ liệu sử dụng nhằm cải thiện dịch vụ."
+        },
+        {
+          "heading": "2. Cách chúng tôi sử dụng thông tin",
+          "body": "Chúng tôi sử dụng thông tin của bạn để:\n• Cung cấp và vận hành các tính năng của Vmito.\n• Kết nối bạn với người chơi, câu lạc bộ và giải đấu phù hợp.\n• Gửi thông báo liên quan đến hoạt động, lời mời và cập nhật dịch vụ.\n• Bảo đảm an toàn, phát hiện và ngăn chặn gian lận hoặc lạm dụng.\n• Phân tích và cải thiện trải nghiệm người dùng."
+        },
+        {
+          "heading": "3. Chia sẻ thông tin",
+          "body": "Chúng tôi không bán thông tin cá nhân của bạn. Thông tin chỉ được chia sẻ trong các trường hợp:\n• Với người dùng khác khi cần thiết cho hoạt động (ví dụ tên và ảnh đại diện hiển thị trong buổi tập hoặc giải đấu bạn tham gia).\n• Với nhà cung cấp dịch vụ hỗ trợ vận hành (lưu trữ, gửi email, xác thực đăng nhập).\n• Khi có yêu cầu hợp pháp từ cơ quan chức năng theo quy định của pháp luật."
+        },
+        {
+          "heading": "4. Bảo mật dữ liệu",
+          "body": "Chúng tôi áp dụng các biện pháp kỹ thuật và tổ chức hợp lý để bảo vệ dữ liệu của bạn khỏi truy cập, thay đổi hoặc tiết lộ trái phép. Tuy nhiên, không có phương thức truyền tải qua Internet nào là an toàn tuyệt đối."
+        },
+        {
+          "heading": "5. Quyền của bạn",
+          "body": "Bạn có quyền truy cập, chỉnh sửa hoặc xóa thông tin cá nhân của mình, cũng như yêu cầu ngừng xử lý dữ liệu. Bạn có thể quản lý phần lớn thông tin trực tiếp trong phần Cài đặt tài khoản hoặc liên hệ với chúng tôi."
+        },
+        {
+          "heading": "6. Lưu trữ dữ liệu",
+          "body": "Chúng tôi lưu trữ thông tin của bạn trong thời gian cần thiết để cung cấp dịch vụ và tuân thủ nghĩa vụ pháp lý. Khi bạn xóa tài khoản, chúng tôi sẽ xóa hoặc ẩn danh dữ liệu cá nhân trừ khi pháp luật yêu cầu lưu giữ."
+        },
+        {
+          "heading": "7. Thay đổi chính sách",
+          "body": "Chúng tôi có thể cập nhật chính sách này theo thời gian. Mọi thay đổi quan trọng sẽ được thông báo trên nền tảng. Việc tiếp tục sử dụng Vmito sau khi cập nhật đồng nghĩa với việc bạn chấp nhận chính sách mới."
+        },
+        {
+          "heading": "8. Liên hệ",
+          "body": "Nếu bạn có câu hỏi về chính sách bảo mật này, vui lòng liên hệ với chúng tôi qua email: support@vmito.com."
+        }
+      ]
+    },
+    "terms": {
+      "title": "Điều khoản dịch vụ",
+      "lastUpdated": "Cập nhật lần cuối: 26/07/2026",
+      "intro": "Chào mừng bạn đến với Vmito. Bằng việc truy cập hoặc sử dụng nền tảng tìm kèo, giao lưu và quản lý giải đấu cầu lông của chúng tôi, bạn đồng ý tuân thủ các Điều khoản dịch vụ dưới đây. Vui lòng đọc kỹ trước khi sử dụng.",
+      "sections": [
+        {
+          "heading": "1. Chấp nhận điều khoản",
+          "body": "Khi tạo tài khoản hoặc sử dụng Vmito, bạn xác nhận rằng bạn đủ 16 tuổi trở lên (hoặc có sự đồng ý của người giám hộ) và chấp nhận các điều khoản này cùng với Chính sách bảo mật của chúng tôi. Nếu bạn không đồng ý, vui lòng ngừng sử dụng dịch vụ."
+        },
+        {
+          "heading": "2. Tài khoản người dùng",
+          "body": "Bạn chịu trách nhiệm về tính chính xác của thông tin đăng ký và việc bảo mật tài khoản của mình.\n• Không chia sẻ thông tin đăng nhập cho người khác.\n• Bạn chịu trách nhiệm cho mọi hoạt động diễn ra dưới tài khoản của mình.\n• Thông báo cho chúng tôi ngay khi phát hiện truy cập trái phép."
+        },
+        {
+          "heading": "3. Quy tắc sử dụng",
+          "body": "Khi sử dụng Vmito, bạn đồng ý không:\n• Đăng thông tin sai lệch, lừa đảo hoặc vi phạm pháp luật.\n• Quấy rối, xúc phạm hoặc gây hại cho người dùng khác.\n• Sử dụng nền tảng cho mục đích thương mại trái phép hoặc spam.\n• Can thiệp, phá hoại hoặc cố gắng truy cập trái phép vào hệ thống."
+        },
+        {
+          "heading": "4. Nội dung do người dùng đăng tải",
+          "body": "Bạn giữ quyền sở hữu đối với nội dung mình đăng (buổi tập, bài viết, hình ảnh...), nhưng cấp cho Vmito quyền sử dụng, hiển thị và phân phối nội dung đó trong phạm vi vận hành dịch vụ. Bạn chịu trách nhiệm về nội dung mình đăng và cam kết nội dung đó không vi phạm quyền của bên thứ ba."
+        },
+        {
+          "heading": "5. Buổi tập, giải đấu và giao dịch",
+          "body": "Vmito là nền tảng kết nối người chơi, câu lạc bộ và ban tổ chức. Các thỏa thuận về buổi tập, phí tham gia, đặt sân hay giải đấu là giữa các bên liên quan. Vmito không phải là một bên trong các thỏa thuận này và không chịu trách nhiệm về việc thực hiện, chất lượng hay tranh chấp phát sinh, trừ khi được nêu rõ khác."
+        },
+        {
+          "heading": "6. Phí và thanh toán",
+          "body": "Một số tính năng có thể yêu cầu thanh toán. Mọi khoản phí sẽ được thông báo rõ ràng trước khi bạn xác nhận. Trừ khi có quy định khác, các khoản đã thanh toán là không hoàn lại. Chúng tôi có quyền thay đổi biểu phí và sẽ thông báo trước khi áp dụng."
+        },
+        {
+          "heading": "7. Miễn trừ trách nhiệm",
+          "body": "Vmito được cung cấp \"nguyên trạng\" và \"theo khả năng sẵn có\". Chúng tôi nỗ lực duy trì dịch vụ ổn định nhưng không bảo đảm dịch vụ luôn không gián đoạn hoặc không có lỗi. Trong phạm vi pháp luật cho phép, Vmito không chịu trách nhiệm cho các thiệt hại gián tiếp phát sinh từ việc sử dụng nền tảng."
+        },
+        {
+          "heading": "8. Chấm dứt",
+          "body": "Bạn có thể ngừng sử dụng và xóa tài khoản bất cứ lúc nào. Chúng tôi có quyền tạm ngừng hoặc chấm dứt tài khoản vi phạm các điều khoản này hoặc gây hại cho người dùng khác và nền tảng."
+        },
+        {
+          "heading": "9. Thay đổi điều khoản",
+          "body": "Chúng tôi có thể cập nhật các điều khoản này theo thời gian. Mọi thay đổi quan trọng sẽ được thông báo trên nền tảng. Việc tiếp tục sử dụng Vmito sau khi cập nhật đồng nghĩa với việc bạn chấp nhận các điều khoản mới."
+        },
+        {
+          "heading": "10. Liên hệ",
+          "body": "Nếu bạn có câu hỏi về các Điều khoản dịch vụ này, vui lòng liên hệ với chúng tôi qua email: support@vmito.com."
+        }
+      ]
     }
   },
   "errors": {
@@ -4864,7 +4958,12 @@
     "allowGuestJoin": "Cho phép khách tham gia",
     "allowNewPlayers": "Cho phép người chơi mới",
     "yes": "Có",
-    "no": "Không"
+    "no": "Không",
+    "shareResultsButton": "Chia sẻ kết quả lên bảng tin",
+    "shareResultsConfirmTitle": "Chia sẻ kết quả",
+    "shareResultsConfirmMessage": "Đăng bảng xếp hạng của buổi chơi này lên bảng tin?",
+    "shareResultsSuccess": "Đã chia sẻ kết quả lên bảng tin",
+    "shareResultsError": "Không thể chia sẻ kết quả"
   },
   "SessionPlayers": {
     "errorLoadingStats": "Không thể tải thống kê người chơi.",
@@ -4949,6 +5048,7 @@
       "passwordPlaceholder": "Nhập mật khẩu của bạn",
       "signInButton": "Đăng nhập",
       "continueWithGoogle": "Đăng nhập với Google",
+      "continueWithFacebook": "Đăng nhập với Facebook",
       "continueWithZalo": "Đăng nhập với Zalo",
       "forgotPassword": "Quên mật khẩu?",
       "noAccount": "Chưa có tài khoản?",
@@ -5014,12 +5114,14 @@
     "resetPassword": {
       "heading": "Đặt lại mật khẩu",
       "description": "Tạo mật khẩu mới cho tài khoản của bạn.",
+      "descriptionWithEmail": "Tạo mật khẩu mới cho tài khoản {email}.",
       "newPassword": "Mật khẩu mới",
       "newPasswordPlaceholder": "Nhập mật khẩu mới",
       "confirmPassword": "Xác nhận mật khẩu",
       "confirmPasswordPlaceholder": "Xác nhận mật khẩu mới",
       "submitButton": "Đặt lại mật khẩu",
       "successMessage": "Mật khẩu đã được đặt lại thành công. Bạn có thể đăng nhập bằng mật khẩu mới.",
+      "successMessageWithEmail": "Mật khẩu cho tài khoản {email} đã được đặt lại thành công. Bạn có thể đăng nhập bằng mật khẩu mới.",
       "missingToken": "Liên kết đặt lại mật khẩu không hợp lệ hoặc đã thiếu mã xác thực.",
       "invalidOrExpiredToken": "Liên kết đặt lại mật khẩu không hợp lệ hoặc đã hết hạn.",
       "resetFailed": "Không thể đặt lại mật khẩu. Vui lòng thử lại.",
@@ -5687,6 +5789,10 @@
       "postLikedMessage": "{actorName} đã thích bài viết của bạn.",
       "postCommentedTitle": "Bình luận mới về bài viết của bạn",
       "postCommentedMessage": "{actorName} đã bình luận về bài viết của bạn.",
+      "venueRequestApprovedTitle": "Yêu cầu thông tin sân đã được phê duyệt",
+      "venueRequestApprovedMessage": "Đề xuất về sân “{venueName}” của bạn đã được quản trị viên phê duyệt.",
+      "venueRequestRejectedTitle": "Yêu cầu thông tin sân bị từ chối",
+      "venueRequestRejectedMessage": "Đề xuất về sân “{venueName}” của bạn bị từ chối. Lý do: {rejectionReason}",
       "tournamentCreatedSuccessfully": "Giải đấu đã được tạo thành công",
       "pairUpdatedSuccessfully": "Cặp đấu đã được cập nhật thành công",
       "categoryUpdatedSuccessfully": "Hạng mục đã được cập nhật thành công",
@@ -5769,9 +5875,53 @@
       "badge": "COMING SOON"
     },
     "suggestedSessions": "Kèo gợi ý cho bạn",
-    "viewAllSessions": "Xem tất cả kèo"
+    "viewAllSessions": "Xem tất cả kèo",
+    "shareConfirmTitle": "Chia sẻ bài viết",
+    "shareConfirmDescription": "Bạn có muốn chia sẻ bài viết này về bảng tin của mình?",
+    "deleteCommentConfirmTitle": "Xóa bình luận?",
+    "deleteCommentConfirmDescription": "Bình luận này sẽ bị xóa vĩnh viễn.",
+    "originalPostUnavailable": "Nội dung gốc không còn tồn tại.",
+    "pullToRefresh": "Kéo để làm mới",
+    "refreshing": "Đang làm mới...",
+    "activity": {
+      "SESSION_CREATED": "{author} vừa tạo kèo mới",
+      "SESSION_RESULTS": "{author} đã chia sẻ kết quả buổi chơi {session}",
+      "CLUB_CREATED": "{author} vừa tạo câu lạc bộ {club}",
+      "CLUB_UPDATED": "{author} đã cập nhật thông tin câu lạc bộ {club}",
+      "CLUB_MEMBER_JOINED": "{author} đã tham gia câu lạc bộ {club}",
+      "TOURNAMENT_CREATED": "{author} vừa tạo giải đấu {tournament}",
+      "TOURNAMENT_FINISHED": "Giải đấu {tournament} đã kết thúc",
+      "AVATAR_UPDATED": "{author} đã cập nhật ảnh đại diện",
+      "USER_RATED": "{author} đã đánh giá {rated}",
+      "champion": "Vô địch",
+      "runnerUp": "Á quân",
+      "standingsRank": "Hạng",
+      "standingsPlayer": "Người chơi",
+      "standingsMatches": "Số trận",
+      "andMorePlayers": "và {count} người chơi khác",
+      "viewSession": "Xem kèo",
+      "viewClub": "Xem CLB",
+      "viewTournament": "Xem giải đấu",
+      "viewProfile": "Xem trang cá nhân"
+    }
   },
   "clubs": {
+    "socialLinks": {
+      "title": "Mạng xã hội & Liên kết",
+      "description": "Các kênh truyền thông và liên kết của câu lạc bộ",
+      "facebook": "Facebook",
+      "facebookPlaceholder": "https://facebook.com/fanpage",
+      "zalo": "Zalo",
+      "zaloPlaceholder": "https://zalo.me/g/...",
+      "tiktok": "TikTok",
+      "tiktokPlaceholder": "https://tiktok.com/@...",
+      "youtube": "YouTube",
+      "youtubePlaceholder": "https://youtube.com/@...",
+      "website": "Website",
+      "websitePlaceholder": "https://yourwebsite.com",
+      "other": "Liên kết khác",
+      "otherPlaceholder": "https://..."
+    },
     "notification": {
       "club": {
         "creationPending": "Yêu cầu tạo nhóm của bạn đang được xem xét",

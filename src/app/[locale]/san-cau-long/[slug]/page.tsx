@@ -11,14 +11,11 @@ import {
   Badge,
 } from '@chakra-ui/react';
 import { MapPin, Clock, Hash } from 'lucide-react';
-import { VenueService } from '@/lib/api/venue.service';
 import { Venue } from '@/lib/api/types';
-import {
-  VENUE_DISTRICT_ENTRIES,
-  VENUE_DISTRICT_BY_SLUG,
-} from '@/constants/venue-districts';
+import { VENUE_DISTRICT_BY_SLUG } from '@/constants/venue-districts';
 import { DEFAULT_COVER_PHOTO } from '@/constants';
 import { formatVenueName } from '@/utils/venue-helpers';
+import PageLayout from '@/components/layout/PageLayout';
 import Link from 'next/link';
 
 interface PageProps {
@@ -30,11 +27,13 @@ export const revalidate = 86400;
 // Allow on-demand generation for slugs not in generateStaticParams
 export const dynamicParams = true;
 
+// Intentionally NOT pre-rendering these pages at build time. The backend is not
+// reliably reachable during the Docker/CI `next build`, so pre-rendering would
+// bake empty pages that stay cached for a full day. Instead we let each page
+// generate on-demand on its first request (where the API is reachable) and then
+// cache via ISR (`revalidate`). `dynamicParams` above allows this.
 export async function generateStaticParams() {
-  const locales = ['vi', 'en', 'cn'];
-  return locales.flatMap((locale) =>
-    VENUE_DISTRICT_ENTRIES.map(({ slug }) => ({ locale, slug }))
-  );
+  return [];
 }
 
 export async function generateMetadata({
@@ -44,11 +43,16 @@ export async function generateMetadata({
   const entry = VENUE_DISTRICT_BY_SLUG.get(slug);
   if (!entry) return { title: 'Sân cầu lông | Vmito' };
 
-  const title = `Sân cầu lông ${entry.displayName}`;
+  // Whole-city pages (e.g. /san-cau-long/ho-chi-minh) are listing pages —
+  // title them "Danh sách sân cầu lông TP {city}" without the "| Vmito"
+  // suffix. District pages keep the shorter "Sân cầu lông {displayName}" form.
+  const title = entry.district
+    ? `Sân cầu lông ${entry.displayName}`
+    : `Danh sách sân cầu lông TP ${entry.city}`;
   const description = `Danh sách sân cầu lông tại ${entry.displayName}. Xem thông tin, giá thuê sân, giờ mở cửa và đặt kèo tại Vmito.`;
 
   return {
-    title,
+    title: entry.district ? title : { absolute: title },
     description,
     alternates: {
       canonical: `https://vmito.com/${locale}/san-cau-long/${slug}`,
@@ -72,21 +76,48 @@ export async function generateMetadata({
   };
 }
 
+// Backend max page size (see search-venue.dto.ts `limit` @Max).
+const MAX_PAGE_SIZE = 500;
+
 async function fetchVenues(
   district: string | null,
   city: string
 ): Promise<Venue[]> {
+  // Server-side fetch: prefer the internal API URL to avoid public DNS loopback,
+  // and never call a relative base URL ('/api') which can't be fetched from the
+  // server. Uses native fetch (not the axios client) so it works reliably in SSR.
+  const apiUrl =
+    process.env.INTERNAL_API_URL || process.env.NEXT_PUBLIC_API_URL;
+  if (!apiUrl || apiUrl.startsWith('/')) return [];
+
+  const venues: Venue[] = [];
+  let page = 1;
+  let totalPages = 1;
+
   try {
-    const result = await VenueService.searchVenues({
-      ...(district ? { district } : {}),
-      city,
-      limit: 60,
-      status: 'ACTIVE',
-    });
-    return result.data ?? [];
+    do {
+      const params = new URLSearchParams({
+        city,
+        limit: String(MAX_PAGE_SIZE),
+        page: String(page),
+        status: 'ACTIVE',
+      });
+      if (district) params.set('district', district);
+
+      const res = await fetch(`${apiUrl}/venues/search?${params.toString()}`, {
+        next: { revalidate },
+      });
+      if (!res.ok) break;
+      const json = await res.json();
+      venues.push(...((json?.data?.data as Venue[]) ?? []));
+      totalPages = json?.data?.pagination?.totalPages ?? 1;
+      page += 1;
+    } while (page <= totalPages);
   } catch {
-    return [];
+    // return whatever was fetched before the failure
   }
+
+  return venues;
 }
 
 export default async function VenueDistrictPage({ params }: PageProps) {
@@ -96,6 +127,9 @@ export default async function VenueDistrictPage({ params }: PageProps) {
   if (!entry) notFound();
 
   const venues = await fetchVenues(entry.district, entry.city);
+  const pageTitle = entry.district
+    ? `Sân cầu lông ${entry.displayName}`
+    : `Danh sách sân cầu lông TP ${entry.city}`;
 
   // JSON-LD for ItemList
   const jsonLd = {
@@ -130,11 +164,11 @@ export default async function VenueDistrictPage({ params }: PageProps) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
 
-      <Box maxW="7xl" mx="auto" px={{ base: 4, md: 6 }} py={8}>
+      <PageLayout title={pageTitle} maxW="7xl">
         {/* Page Header */}
         <VStack align="start" gap={2} mb={8}>
           <Heading size="xl" color="fg">
-            Sân cầu lông {entry.displayName}
+            {pageTitle}
           </Heading>
           <Text color="fg.muted" fontSize="md">
             {venues.length > 0
@@ -252,7 +286,7 @@ export default async function VenueDistrictPage({ params }: PageProps) {
             </Text>
           </Box>
         )}
-      </Box>
+      </PageLayout>
     </>
   );
 }

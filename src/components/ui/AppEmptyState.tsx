@@ -28,6 +28,10 @@ export default function AppEmptyState({
     <Card
       variant="outline"
       bg="linear-gradient(180deg, #fafafa 0%, #f5f5f5 100%)"
+      _dark={{
+        bg: 'linear-gradient(180deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.01) 100%)',
+        borderColor: 'gray.800',
+      }}
       borderStyle="dashed"
       borderWidth="2px"
       borderColor="gray.200"
@@ -50,6 +54,11 @@ export default function AppEmptyState({
               height="80px"
               borderRadius="2xl"
               bg="white"
+              _dark={{
+                bg: 'gray.800',
+                borderColor: 'gray.700',
+                boxShadow: '0 4px 20px rgba(0,0,0,0.4)',
+              }}
               align="center"
               justify="center"
               boxShadow="0 4px 20px rgba(0,0,0,0.08)"
@@ -64,7 +73,8 @@ export default function AppEmptyState({
             <Text
               fontSize={{ base: 'xl', md: '2xl' }}
               fontWeight="bold"
-              color="gray.700"
+              color="gray.800"
+              _dark={{ color: 'white' }}
               letterSpacing="-0.01em"
               textAlign="center"
             >
@@ -74,6 +84,7 @@ export default function AppEmptyState({
               <Text
                 fontSize={{ base: 'sm', md: 'md' }}
                 color="gray.500"
+                _dark={{ color: 'gray.300' }}
                 textAlign="center"
                 maxW="520px"
                 lineHeight="1.6"

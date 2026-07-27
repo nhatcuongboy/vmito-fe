@@ -1,5 +1,6 @@
 import axios, { type AxiosRequestConfig, type AxiosResponse } from 'axios';
 import { toaster } from '@/components/ui/toaster';
+import { getUserFacingErrorMessage, logApiError } from './apiError';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { useAppStore } from '@/stores/useAppStore';
 
@@ -87,33 +88,9 @@ api.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
     const status = error.response?.status;
-    const errorData = error.response?.data;
-    let message = 'Something went wrong';
-
-    if (errorData) {
-      if (typeof errorData === 'string') {
-        message = errorData;
-      } else {
-        // Handle common backend error formats (NestJS, etc.)
-        const rawMessage =
-          errorData.message ||
-          errorData.error?.message ||
-          errorData.error ||
-          errorData.errors;
-
-        if (Array.isArray(rawMessage)) {
-          message = rawMessage.join('\n');
-        } else if (typeof rawMessage === 'string') {
-          message = rawMessage;
-        } else if (rawMessage && typeof rawMessage === 'object') {
-          message = rawMessage.message || JSON.stringify(rawMessage);
-        } else {
-          message = JSON.stringify(errorData);
-        }
-      }
-    } else if (error.message) {
-      message = error.message;
-    }
+    // Short, locale-aware message safe for end users. Raw response bodies
+    // (e.g. Cloudflare application/problem+json) never reach the UI.
+    const message = getUserFacingErrorMessage(error);
 
     // Check if this is an authentication request (login/register/refresh)
     // Must exclude /auth/refresh to prevent infinite retry loop when refresh token is expired
@@ -187,6 +164,9 @@ api.interceptors.response.use(
 
       // Only handle UI interactions on the client side
       if (typeof window !== 'undefined') {
+        // Full technical details (status, ray_id, raw body) go to the console
+        // only — never to the UI
+        logApiError(error);
         // For GET requests, show toaster to avoid interrupting user flow
         // Exclude 401 for guests (no refresh token) to prevent annoying unauthorized toasts on public pages
         if (
@@ -210,7 +190,8 @@ api.interceptors.response.use(
           );
         } else {
           console.error(
-            `[SSR API Error] ${method} ${API_URL}${error.config?.url}: ${message}`
+            `[SSR API Error] ${method} ${API_URL}${error.config?.url}: ${status ?? error.code ?? 'no response'}`,
+            error.response?.data ?? error.message
           );
         }
       }

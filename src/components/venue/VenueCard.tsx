@@ -224,7 +224,7 @@ export default function VenueCard({
               fontSize="md"
               lineClamp={1}
               color="green.800"
-              _dark={{ color: 'green.300' }}
+              _dark={{ color: 'green.400' }}
               letterSpacing="tight"
             >
               {displayName}
@@ -239,6 +239,7 @@ export default function VenueCard({
                 newDistrict={venue.newDistrict}
                 fontSize="sm"
                 color="gray.600"
+                _dark={{ color: 'gray.300' }}
                 lineClamp={2}
               />
             </Box>
@@ -249,7 +250,7 @@ export default function VenueCard({
                 gap={1.5}
                 mt={1}
                 color="gray.600"
-                _dark={{ color: 'gray.400' }}
+                _dark={{ color: 'gray.300' }}
               >
                 <Clock size={14} />
                 <Text fontSize="sm" fontWeight="medium">
@@ -260,7 +261,14 @@ export default function VenueCard({
           </Box>
 
           {/* Right Icon */}
-          <Box as={ChevronRight} color="gray.400" w={5} h={5} flexShrink={0} />
+          <Box
+            as={ChevronRight}
+            color="gray.400"
+            _dark={{ color: 'gray.400' }}
+            w={5}
+            h={5}
+            flexShrink={0}
+          />
         </Flex>
 
         {/* Loading Overlay */}
@@ -437,6 +445,7 @@ export default function VenueCard({
                 newDistrict={venue.newDistrict}
                 fontSize="sm"
                 color="gray.600"
+                _dark={{ color: 'gray.300' }}
                 lineClamp={2}
               />
               <IconButton
@@ -454,7 +463,14 @@ export default function VenueCard({
           </Box>
 
           {/* Right Icon */}
-          <Box as={ChevronRight} color="gray.400" w={5} h={5} flexShrink={0} />
+          <Box
+            as={ChevronRight}
+            color="gray.400"
+            _dark={{ color: 'gray.400' }}
+            w={5}
+            h={5}
+            flexShrink={0}
+          />
         </Flex>
       </Box>
 
@@ -483,7 +499,7 @@ export default function VenueCard({
                   <Text
                     fontSize="xs"
                     color="gray.500"
-                    _dark={{ color: 'gray.500' }}
+                    _dark={{ color: 'gray.400' }}
                     mb={0.5}
                   >
                     {t('openingHours')}
@@ -519,7 +535,7 @@ export default function VenueCard({
                   <Text
                     fontSize="xs"
                     color="gray.500"
-                    _dark={{ color: 'gray.500' }}
+                    _dark={{ color: 'gray.400' }}
                     mb={0.5}
                   >
                     {t('availableCourts')}
@@ -555,7 +571,7 @@ export default function VenueCard({
                   <Text
                     fontSize="xs"
                     color="gray.500"
-                    _dark={{ color: 'gray.500' }}
+                    _dark={{ color: 'gray.400' }}
                     mb={1}
                   >
                     {t('pricing')}

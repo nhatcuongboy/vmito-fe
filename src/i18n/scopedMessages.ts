@@ -8,6 +8,8 @@ export const ROUTE_SCOPED_NAMESPACES = [
   'pages.tournaments',
   'pages.guide',
   'pages.about',
+  'pages.privacy',
+  'pages.terms',
 ] as const;
 
 export type RouteScopedNamespace = (typeof ROUTE_SCOPED_NAMESPACES)[number];
