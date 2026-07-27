@@ -151,6 +151,7 @@ export const ROUTES = {
 
   // Admin Routes
   ADMIN: {
+    DASHBOARD: '/admin',
     USERS: '/admin/users',
     SESSIONS: '/admin/sessions',
     NOTIFICATIONS: '/admin/notifications',
@@ -194,6 +195,7 @@ export const ROUTE_GROUPS = {
     ROUTES.HOST.SESSIONS.LIST,
     ROUTES.PLAYER.SESSIONS.LIST,
     ROUTES.PLAYER.TRANSACTIONS,
+    ROUTES.ADMIN.DASHBOARD,
     ROUTES.ADMIN.USERS,
     ROUTES.ADMIN.SESSIONS,
     ROUTES.ADMIN.NOTIFICATIONS,
@@ -233,6 +235,7 @@ export const ROUTE_GROUPS = {
 
   // Admin-only routes
   ADMIN_ONLY: [
+    ROUTES.ADMIN.DASHBOARD,
     ROUTES.ADMIN.USERS,
     ROUTES.ADMIN.SESSIONS,
     ROUTES.ADMIN.NOTIFICATIONS,
