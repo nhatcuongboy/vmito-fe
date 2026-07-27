@@ -43,7 +43,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     });
   }
 
-  // Dynamic venue detail pages: /[locale]/venues/[id]
+  // Dynamic venue detail pages: /vi/venues/[id]
   try {
     const venueResponse = await VenueService.searchVenues({
       limit: 500,
@@ -51,20 +51,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     });
     const venues = venueResponse.data ?? [];
     for (const venue of venues) {
-      for (const locale of LOCALES) {
-        entries.push({
-          url: `${BASE_URL}/${locale}/venues/${venue.slug ?? venue.id}`,
-          lastModified: venue.updatedAt ? new Date(venue.updatedAt) : now,
-          changeFrequency: 'weekly',
-          priority: 0.7,
-        });
-      }
+      entries.push({
+        url: `${BASE_URL}/vi/venues/${venue.slug ?? venue.id}`,
+        lastModified: venue.updatedAt ? new Date(venue.updatedAt) : now,
+        changeFrequency: 'weekly',
+        priority: 0.7,
+      });
     }
   } catch {
     // API unavailable at build time — skip venue detail pages
   }
 
-  // Dynamic club detail pages: /[locale]/clubs/[id]
+  // Dynamic club detail pages: /vi/clubs/[id]
   try {
     const clubResponse = await ClubsService.browseClubs({
       limit: 500,
@@ -73,14 +71,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     });
     const clubs = clubResponse.items ?? [];
     for (const club of clubs) {
-      for (const locale of LOCALES) {
-        entries.push({
-          url: `${BASE_URL}/${locale}/clubs/${club.slug ?? club.id}`,
-          lastModified: now,
-          changeFrequency: 'weekly',
-          priority: 0.7,
-        });
-      }
+      entries.push({
+        url: `${BASE_URL}/vi/clubs/${club.slug ?? club.id}`,
+        lastModified: now,
+        changeFrequency: 'weekly',
+        priority: 0.7,
+      });
     }
   } catch {
     // API unavailable at build time — skip club detail pages
