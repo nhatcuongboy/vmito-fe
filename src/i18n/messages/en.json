@@ -162,7 +162,16 @@
       "saved": "Saved to Favorites",
       "removed": "Removed from Favorites",
       "viewList": "View list",
-      "undo": "Undo"
+      "undo": "Undo",
+      "likeCount": "{count} likes",
+      "peopleWhoLiked": "People who liked this",
+      "noLikesYet": "No likes yet",
+      "loadUsersFailed": "Could not load the people who liked this",
+      "retry": "Retry",
+      "previousPage": "Previous",
+      "nextPage": "Next",
+      "pageStatus": "Page {page}/{totalPages}",
+      "viewUserProfile": "View {name}'s profile"
     },
     "levels": {
       "1": "Weak",
@@ -786,7 +795,7 @@
     "timeNotSet": "Time not set",
     "courts": "courts",
     "viewMoreSessions": "View more sessions",
-    "findMoreSessions": "Find more sessions",
+    "findMoreSessions": "View all sessions",
     "whoWillPlay": "Who will play with you?",
     "aiAnalyzeChip": "Analyze session",
     "aiAnalyzeTitle": "Session Level Analysis",
@@ -5732,7 +5741,8 @@
       "SYSTEM": "System",
       "SESSION": "Session",
       "REGISTRATION": "Registration",
-      "PAYMENT": "Payment"
+      "PAYMENT": "Payment",
+      "TOURNAMENT": "Tournament"
     },
     "messages": {
       "viewSession": "View session",
@@ -5773,6 +5783,12 @@
       "postLikedMessage": "{actorName} liked your post.",
       "postCommentedTitle": "New comment on your post",
       "postCommentedMessage": "{actorName} commented on your post.",
+      "sessionFavoritedTitle": "New like on your session",
+      "sessionFavoritedMessage": "{actorName} liked “{sessionName}”.",
+      "clubFavoritedTitle": "New like on your club",
+      "clubFavoritedMessage": "{actorName} liked “{clubName}”.",
+      "tournamentFavoritedTitle": "New like on your tournament",
+      "tournamentFavoritedMessage": "{actorName} liked “{tournamentName}”.",
       "venueRequestApprovedTitle": "Venue request approved",
       "venueRequestApprovedMessage": "Your suggestion for venue \"{venueName}\" has been approved.",
       "venueRequestRejectedTitle": "Venue request rejected",
@@ -6182,7 +6198,11 @@
     "scheduleTab": "Schedule",
     "galleryTab": "Gallery",
     "announcementsTab": "Announcements",
-    "noImages": "No images"
+    "noImages": "No images",
+    "share": "Share club",
+    "shareText": "Discover {name} on Vmito",
+    "linkCopied": "Club link copied",
+    "shareFailed": "Unable to share club"
   },
   "aiAssistant": {
     "title": "AI Assistant",

@@ -36,10 +36,8 @@ const VARIANT_CHROME: Record<
     hoverFg: 'red.500',
   },
   'overlay-dark': {
-    bg: 'blackAlpha.500',
-    hoverBg: 'blackAlpha.700',
-    shadow: '0 2px 8px rgba(0,0,0,0.45)',
-    blur: 'blur(6px)',
+    bg: 'transparent',
+    hoverBg: 'whiteAlpha.200',
     fg: 'white',
     hoverFg: 'white',
   },

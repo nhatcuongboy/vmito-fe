@@ -88,6 +88,18 @@ export const NOTIFICATION_ACTION_TO_KEYS: Record<
     titleKey: 'messages.postCommentedTitle',
     messageKey: 'messages.postCommentedMessage',
   },
+  session_favorited: {
+    titleKey: 'messages.sessionFavoritedTitle',
+    messageKey: 'messages.sessionFavoritedMessage',
+  },
+  club_favorited: {
+    titleKey: 'messages.clubFavoritedTitle',
+    messageKey: 'messages.clubFavoritedMessage',
+  },
+  tournament_favorited: {
+    titleKey: 'messages.tournamentFavoritedTitle',
+    messageKey: 'messages.tournamentFavoritedMessage',
+  },
   venue_request_approved: {
     titleKey: 'messages.venueRequestApprovedTitle',
     messageKey: 'messages.venueRequestApprovedMessage',
@@ -103,6 +115,7 @@ export const getNotificationTranslationParams = (
 ): NotificationTranslationParams => {
   const sessionName = notification.data?.sessionName;
   const clubName = notification.data?.clubName;
+  const tournamentName = notification.data?.tournamentName;
   const venueName = notification.data?.venueName ?? notification.data?.name;
   const actorName = notification.data?.actorName;
   const rejectionReason =
@@ -117,6 +130,7 @@ export const getNotificationTranslationParams = (
       ? { sessionName }
       : { sessionName: '' }),
     ...(typeof clubName === 'string' ? { clubName } : {}),
+    ...(typeof tournamentName === 'string' ? { tournamentName } : {}),
     ...(typeof venueName === 'string' ? { venueName, venue: venueName } : {}),
     ...(typeof actorName === 'string' ? { actorName } : {}),
     ...(typeof rejectionReason === 'string'
@@ -126,7 +140,13 @@ export const getNotificationTranslationParams = (
   };
 };
 
-const USER_RELATED_ACTIONS = new Set(['post_liked', 'post_commented']);
+const USER_RELATED_ACTIONS = new Set([
+  'post_liked',
+  'post_commented',
+  'session_favorited',
+  'club_favorited',
+  'tournament_favorited',
+]);
 
 export const getNotificationRelatedUser = (
   notification: INotification

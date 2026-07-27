@@ -71,6 +71,7 @@ import { toaster } from '@/components/ui/toaster';
 import VenueMapPin from '@/components/venue/VenueMapPin';
 import { VModal, useModal } from '@/components/ui/VModal';
 import { getYouTubeEmbed } from '@/lib/utils/youtube';
+import { FavoriteEngagementControl } from '@/components/favorites/FavoriteEngagementControl';
 
 interface ICategoryHomeItem {
   id: string;
@@ -93,6 +94,7 @@ interface TournamentHomeTabProps {
   isLoadingCategories?: boolean;
   canManageTournament: boolean;
   slug: string;
+  showFavoriteOverlay: boolean;
 }
 
 const URL_PATTERN = /(https?:\/\/[^\s]+)/g;
@@ -564,6 +566,7 @@ export default function TournamentHomeTab({
   isLoadingCategories = false,
   canManageTournament,
   slug,
+  showFavoriteOverlay,
 }: TournamentHomeTabProps) {
   const t = useTranslations('pages.tournaments.detail.homeTab');
   const tBoard = useTranslations('pages.tournaments.scoreboard');
@@ -720,6 +723,7 @@ export default function TournamentHomeTab({
       {/* Mobile cover */}
       <Box
         display={{ base: 'block', md: 'none' }}
+        position="relative"
         borderRadius="xl"
         overflow="hidden"
         bg="gray.100"
@@ -735,6 +739,17 @@ export default function TournamentHomeTab({
           />
         ) : (
           <Box w="100%" h="100%" bg="gray.200" />
+        )}
+        {showFavoriteOverlay && (
+          <Box position="absolute" top={3} right={3} zIndex={1}>
+            <FavoriteEngagementControl
+              type="TOURNAMENT"
+              targetId={tournament.id}
+              initialIsFavorite={tournament.isFavorite}
+              returnUrl={`/tournament/${slug}`}
+              variant="overlay-dark"
+            />
+          </Box>
         )}
       </Box>
 
@@ -752,11 +767,9 @@ export default function TournamentHomeTab({
           boxShadow: 'var(--tournament-shadow-soft)',
         }}
       >
-        <Flex justify="space-between" align="center" mb={3}>
-          <Text fontWeight="bold" fontSize={{ base: 'xl', md: 'lg' }}>
-            {t('overview.title')}
-          </Text>
-        </Flex>
+        <Text fontWeight="bold" fontSize={{ base: 'xl', md: 'lg' }} mb={3}>
+          {t('overview.title')}
+        </Text>
 
         <Grid
           templateColumns="repeat(2, minmax(0, 1fr))"

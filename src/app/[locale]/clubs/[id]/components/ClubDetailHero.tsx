@@ -1,10 +1,22 @@
 'use client';
 
 import { useState } from 'react';
-import { Box, Container, Flex, Heading, Image, Text } from '@chakra-ui/react';
+import {
+  Box,
+  Container,
+  Flex,
+  Heading,
+  Icon,
+  Image,
+  Text,
+} from '@chakra-ui/react';
 import { useTranslations } from 'next-intl';
+import { Share2 } from 'lucide-react';
 import AppLightbox from '@/components/ui/AppLightbox';
 import { IClub } from '@/types/club';
+import { FavoriteEngagementControl } from '@/components/favorites/FavoriteEngagementControl';
+import { IconButton } from '@/components/ui/chakra-compat';
+import { toaster } from '@/components/ui/toaster';
 
 interface IClubDetailHeroProps {
   club: IClub;
@@ -16,6 +28,7 @@ export const ClubDetailHero = ({
   clubDisplayImage,
 }: IClubDetailHeroProps) => {
   const tAdmin = useTranslations('admin');
+  const t = useTranslations('clubs');
   const [lightboxImage, setLightboxImage] = useState<string | null>(null);
   const firstVenue = club.scheduleVenues?.[0] || club.defaultVenue;
   // Use the old district/city as a pair, or the new ward/city as a pair —
@@ -26,6 +39,29 @@ export const ClubDetailHero = ({
       ? [firstVenue?.district, firstVenue?.city]
       : [firstVenue?.newDistrict, firstVenue?.newCity]
   ).filter(Boolean);
+
+  const handleShare = async () => {
+    const shareUrl = `${window.location.origin}${window.location.pathname}`;
+
+    try {
+      if (navigator.share) {
+        await navigator.share({
+          title: club.name,
+          text: t('shareText', { name: club.name }),
+          url: shareUrl,
+        });
+        return;
+      }
+
+      await navigator.clipboard.writeText(shareUrl);
+      toaster.success({ title: t('linkCopied') });
+    } catch (error) {
+      if (error instanceof DOMException && error.name === 'AbortError') return;
+
+      console.error('Failed to share club:', error);
+      toaster.error({ title: t('shareFailed') });
+    }
+  };
 
   return (
     <Container maxW="container.xl" px={0}>
@@ -61,6 +97,31 @@ export const ClubDetailHero = ({
           gradientTo="transparent"
           pointerEvents="none"
         />
+        <IconButton
+          aria-label={t('share')}
+          title={t('share')}
+          variant="ghost"
+          size="sm"
+          minW="40px"
+          h="40px"
+          position="absolute"
+          top={3}
+          right={3}
+          color="white"
+          bg="blackAlpha.500"
+          backdropFilter="blur(6px)"
+          borderRadius="full"
+          boxShadow="0 2px 8px rgba(0,0,0,0.35)"
+          touchAction="manipulation"
+          _hover={{ bg: 'blackAlpha.700' }}
+          _focusVisible={{
+            outline: '2px solid',
+            outlineColor: 'white',
+            outlineOffset: '2px',
+          }}
+          onClick={handleShare}
+          icon={<Icon as={Share2} boxSize={5} aria-hidden="true" />}
+        />
       </Box>
 
       <Box
@@ -75,7 +136,11 @@ export const ClubDetailHero = ({
         borderColor="gray.100"
         mb={4}
       >
-        <Flex gap={{ base: 3, md: 4 }} align="center">
+        <Flex
+          gap={{ base: 3, md: 4 }}
+          align="center"
+          wrap={{ base: 'wrap', sm: 'nowrap' }}
+        >
           <Box
             w="48px"
             h="48px"
@@ -127,6 +192,13 @@ export const ClubDetailHero = ({
               </Text>
             ) : null}
           </Box>
+          <FavoriteEngagementControl
+            type="CLUB"
+            targetId={club.id}
+            initialIsFavorite={club.isFavorite}
+            returnUrl={`/clubs/${club.slug || club.id}`}
+            variant="minimal"
+          />
         </Flex>
       </Box>
 

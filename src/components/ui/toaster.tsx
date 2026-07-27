@@ -19,10 +19,14 @@ export const toaster = createToaster({
   placement: 'top-end',
   pauseOnPageIdle: true,
   duration: 3000,
-  // Keep toasts below the top bar + sticky search bar (~50-56px + ~56px)
-  // so they never cover the header or search interactions
+  // Clears the floating back/share/favorite icons on hero-image detail
+  // pages (~48-56px tall) and the standard top bar on most other pages.
+  // Pages with extra sticky chrome below the top bar (e.g. the Tìm kèo
+  // search bar + tabs) may still see brief overlap — acceptable since
+  // toasts auto-dismiss in 3s and that screen's main error path already
+  // renders inline (see AppErrorState) instead of using this toast.
   offsets: {
-    top: 'calc(112px + env(safe-area-inset-top))',
+    top: 'calc(64px + env(safe-area-inset-top))',
     right: '16px',
     bottom: '16px',
     left: '16px',

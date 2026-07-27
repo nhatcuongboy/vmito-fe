@@ -162,7 +162,16 @@
       "saved": "Đã lưu vào Yêu thích",
       "removed": "Đã xóa khỏi Yêu thích",
       "viewList": "Xem danh sách",
-      "undo": "Hoàn tác"
+      "undo": "Hoàn tác",
+      "likeCount": "{count} lượt Thích",
+      "peopleWhoLiked": "Những người đã Thích",
+      "noLikesYet": "Chưa có lượt Thích nào",
+      "loadUsersFailed": "Không thể tải danh sách người đã Thích",
+      "retry": "Thử lại",
+      "previousPage": "Trước",
+      "nextPage": "Sau",
+      "pageStatus": "Trang {page}/{totalPages}",
+      "viewUserProfile": "Xem trang cá nhân của {name}"
     },
     "levels": {
       "1": "Yếu",
@@ -787,7 +796,7 @@
     "timeNotSet": "Chưa đặt giờ",
     "courts": "sân",
     "viewMoreSessions": "Xem thêm kèo",
-    "findMoreSessions": "Tìm thêm kèo",
+    "findMoreSessions": "Xem tất cả kèo",
     "whoWillPlay": "Ai sẽ chơi cùng bạn?",
     "aiAnalyzeChip": "Phân tích kèo",
     "aiAnalyzeTitle": "Phân tích trình độ kèo",
@@ -5748,7 +5757,8 @@
       "SYSTEM": "Hệ thống",
       "SESSION": "Kèo",
       "REGISTRATION": "Đăng ký",
-      "PAYMENT": "Thanh toán"
+      "PAYMENT": "Thanh toán",
+      "TOURNAMENT": "Giải đấu"
     },
     "messages": {
       "viewSession": "Xem kèo",
@@ -5789,6 +5799,12 @@
       "postLikedMessage": "{actorName} đã thích bài viết của bạn.",
       "postCommentedTitle": "Bình luận mới về bài viết của bạn",
       "postCommentedMessage": "{actorName} đã bình luận về bài viết của bạn.",
+      "sessionFavoritedTitle": "Có người Thích kèo của bạn",
+      "sessionFavoritedMessage": "{actorName} đã Thích kèo “{sessionName}”.",
+      "clubFavoritedTitle": "Có người Thích nhóm của bạn",
+      "clubFavoritedMessage": "{actorName} đã Thích nhóm “{clubName}”.",
+      "tournamentFavoritedTitle": "Có người Thích giải đấu của bạn",
+      "tournamentFavoritedMessage": "{actorName} đã Thích giải đấu “{tournamentName}”.",
       "venueRequestApprovedTitle": "Yêu cầu thông tin sân đã được phê duyệt",
       "venueRequestApprovedMessage": "Đề xuất về sân “{venueName}” của bạn đã được quản trị viên phê duyệt.",
       "venueRequestRejectedTitle": "Yêu cầu thông tin sân bị từ chối",
@@ -6202,7 +6218,11 @@
     "scheduleTab": "Lịch tập",
     "galleryTab": "Hình ảnh",
     "announcementsTab": "Thông báo",
-    "noImages": "Chưa có hình ảnh"
+    "noImages": "Chưa có hình ảnh",
+    "share": "Chia sẻ câu lạc bộ",
+    "shareText": "Khám phá câu lạc bộ {name} trên Vmito",
+    "linkCopied": "Đã sao chép liên kết câu lạc bộ",
+    "shareFailed": "Không thể chia sẻ câu lạc bộ"
   },
   "aiAssistant": {
     "title": "Trợ lý AI",

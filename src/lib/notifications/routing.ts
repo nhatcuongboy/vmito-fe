@@ -26,9 +26,22 @@ export const getNotificationTargetRoute = (
   const sessionId = getStringData(data, ['sessionId']);
   const sessionSlug = getStringData(data, ['slug', 'sessionSlug']);
   const clubId = getStringData(data, ['clubSlug', 'clubId']);
+  const tournamentId = getStringData(data, ['tournamentSlug', 'tournamentId']);
   const postId = getStringData(data, ['postId']);
   const rentalRequestId = getStringData(data, ['rentalRequestId']);
   const venueId = getStringData(data, ['venueSlug', 'venueId', 'id']);
+
+  if (action === 'session_favorited' && sessionId) {
+    return ROUTES.SESSIONS.DETAIL(sessionId, sessionSlug);
+  }
+
+  if (action === 'club_favorited' && clubId) {
+    return ROUTES.CLUBS.DETAIL(clubId);
+  }
+
+  if (action === 'tournament_favorited' && tournamentId) {
+    return ROUTES.TOURNAMENT.DETAIL(tournamentId);
+  }
 
   if (type === 'VENUE_REQUEST' || action?.startsWith('venue_request_')) {
     if (venueId) {

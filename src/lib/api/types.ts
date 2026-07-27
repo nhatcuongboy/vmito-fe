@@ -1838,6 +1838,7 @@ export enum NotificationType {
   REGISTRATION = 'REGISTRATION', // Registration status updates
   PAYMENT = 'PAYMENT', // Payment-related notifications
   CLUB = 'CLUB', // Club-related notifications
+  TOURNAMENT = 'TOURNAMENT', // Tournament-related notifications
   POST = 'POST', // Post interactions (like, comment)
   VENUE_RENTAL = 'VENUE_RENTAL', // Venue rental workflow updates
   VENUE_REQUEST = 'VENUE_REQUEST', // Venue request status updates (approved/rejected)

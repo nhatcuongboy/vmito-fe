@@ -129,7 +129,7 @@ export function ActivityPostContent({ post }: ActivityPostContentProps) {
           {headline}
           <Box px={4} pt={3}>
             <EntityPreviewCard
-              href={ROUTES.BROWSE.SESSIONS.DETAIL(
+              href={ROUTES.SESSIONS.DETAIL(
                 metadata.sessionId ?? '',
                 metadata.sessionSlug ?? undefined
               )}
@@ -204,7 +204,7 @@ export function ActivityPostContent({ post }: ActivityPostContentProps) {
           </Box>
           <Box px={4} pt={3}>
             <EntityPreviewCard
-              href={ROUTES.BROWSE.SESSIONS.DETAIL(
+              href={ROUTES.SESSIONS.DETAIL(
                 metadata.sessionId ?? '',
                 metadata.sessionSlug ?? undefined
               )}

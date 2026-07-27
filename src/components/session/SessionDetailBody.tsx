@@ -22,6 +22,8 @@ import {
   Info,
   Phone,
   Navigation,
+  CalendarClock,
+  MapPin,
   ClipboardCheck,
   Feather,
 } from 'lucide-react';
@@ -170,60 +172,105 @@ const SessionDetailBody = ({
       {/* Time & Date */}
       <Flex
         align="center"
-        gap={2}
-        mt={2}
+        gap={3}
+        mt={3}
         color="gray.600"
         _dark={{ color: 'gray.400' }}
       >
-        <Text fontSize={{ base: 'md', md: 'lg' }} fontWeight="medium">
-          {timeDisplay}
+        <Icon
+          as={CalendarClock}
+          boxSize={4.5}
+          flexShrink={0}
+          aria-hidden="true"
+        />
+        <Text fontSize={{ base: 'md', md: 'lg' }} minW={0}>
+          <Box as="span" fontWeight="semibold">
+            {timeDisplay}
+          </Box>
+          <Box
+            as="span"
+            mx={2}
+            color="gray.400"
+            fontSize="1.25em"
+            fontWeight="bold"
+            lineHeight={1}
+          >
+            ·
+          </Box>
+          <Box as="span">{dateDisplay}</Box>
         </Text>
-        <Text fontSize={{ base: 'md', md: 'lg' }}>|</Text>
-        <Text fontSize={{ base: 'md', md: 'lg' }}>{dateDisplay}</Text>
       </Flex>
 
       {/* Location */}
       {venueDisplayName && (
-        <Flex align="center" gap={1} mt={2}>
-          {venueDetailHref ? (
-            <Link href={venueDetailHref} style={{ textDecoration: 'none' }}>
+        <Flex align="flex-start" gap={3} mt={3}>
+          <Icon
+            as={MapPin}
+            boxSize={4.5}
+            flexShrink={0}
+            mt={0.5}
+            color="green.600"
+            _dark={{ color: 'green.400' }}
+            aria-hidden="true"
+          />
+
+          <Box flex={1} minW={0}>
+            {venueDetailHref ? (
+              <Link href={venueDetailHref} style={{ textDecoration: 'none' }}>
+                <Text
+                  fontSize="md"
+                  fontWeight="semibold"
+                  color="green.600"
+                  _dark={{ color: 'green.400' }}
+                  overflowWrap="anywhere"
+                  _hover={{ textDecoration: 'underline' }}
+                >
+                  {venueDisplayName}
+                </Text>
+              </Link>
+            ) : (
               <Text
-                fontSize="sm"
-                fontWeight="medium"
+                fontSize="md"
+                fontWeight="semibold"
                 color="green.600"
-                _hover={{ textDecoration: 'underline' }}
+                _dark={{ color: 'green.400' }}
+                overflowWrap="anywhere"
               >
                 {venueDisplayName}
               </Text>
-            </Link>
-          ) : (
-            <Text fontSize="sm" fontWeight="medium" color="green.600">
-              {venueDisplayName}
-            </Text>
-          )}
+            )}
+
+            {session.venue?.address &&
+              session.venue.address !== session.venue?.name && (
+                <Box mt={0.5}>
+                  <AppAddressDisplay
+                    address={session.venue.address}
+                    district={session.venue.district}
+                    city={session.venue.city}
+                    newAddress={session.venue.newAddress}
+                    newDistrict={session.venue.newDistrict}
+                    fontSize="sm"
+                    lineClamp={2}
+                  />
+                </Box>
+              )}
+          </Box>
+
           <IconButton
-            aria-label="Open map"
+            aria-label={t('getDirections')}
+            title={t('getDirections')}
             variant="ghost"
             size="xs"
+            minW="40px"
+            h="40px"
+            mt={-2}
+            flexShrink={0}
             colorPalette="green"
             onClick={handleOpenMap}
-            icon={<Icon as={Navigation} boxSize={3.5} />}
+            icon={<Icon as={Navigation} boxSize={4} aria-hidden="true" />}
           />
         </Flex>
       )}
-      {session.venue?.address &&
-        session.venue.address !== session.venue?.name && (
-          <Box mt={0.5}>
-            <AppAddressDisplay
-              address={session.venue.address}
-              district={session.venue.district}
-              city={session.venue.city}
-              newAddress={session.venue.newAddress}
-              newDistrict={session.venue.newDistrict}
-              lineClamp={2}
-            />
-          </Box>
-        )}
 
       <Separator mt={3} mb={1} />
 

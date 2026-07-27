@@ -912,6 +912,7 @@ export default function TournamentPageShell({
           activeTab={activeTab}
           onTabChange={handleTabChange}
           showStatusBadge={showStatusBadge}
+          showFavorite={false}
           variant="embedded"
         />
         <Box
@@ -1013,7 +1014,7 @@ export default function TournamentPageShell({
     );
   }
 
-  const renderContent = () => (
+  const renderContent = (layout: 'desktop' | 'mobile') => (
     <>
       {activeTab === 0 && (
         <TournamentHomeTab
@@ -1032,6 +1033,7 @@ export default function TournamentPageShell({
           isLoadingCategories={loadingTeams}
           canManageTournament={isHostOrAdmin}
           slug={slug}
+          showFavoriteOverlay={false}
         />
       )}
       {activeTab === 1 && (
@@ -1317,10 +1319,16 @@ export default function TournamentPageShell({
         }}
       >
         {/* Desktop: sidebar + content in one tournament container */}
-        {renderDesktopTournamentFrame(renderContent(), tournament, canManage)}
+        {renderDesktopTournamentFrame(
+          renderContent('desktop'),
+          tournament,
+          canManage
+        )}
 
         {/* Mobile: content only */}
-        <Box display={{ base: 'block', md: 'none' }}>{renderContent()}</Box>
+        <Box display={{ base: 'block', md: 'none' }}>
+          {renderContent('mobile')}
+        </Box>
       </PageLayout>
 
       {/* Desktop-only floating guide stepper for hosts/admins */}

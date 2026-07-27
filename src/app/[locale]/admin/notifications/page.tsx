@@ -162,7 +162,7 @@ function AdminNotificationsContent() {
     } finally {
       setIsLoading(false);
     }
-  }, [filters, page, pageSize]);
+  }, [filters, page, pageSize, t]);
 
   useEffect(() => {
     if (!isHydrated) return;
@@ -265,6 +265,8 @@ function AdminNotificationsContent() {
         return 'orange';
       case NotificationType.CLUB:
         return 'teal';
+      case NotificationType.TOURNAMENT:
+        return 'orange';
       default:
         return 'gray';
     }
