@@ -16,7 +16,10 @@ import { useNotificationStore } from '@/stores/useNotificationStore';
 import { useCourtCallStore } from '@/stores/useCourtCallStore';
 import { INotification } from '@/lib/api/types';
 import { sendSystemNotification } from '@/utils/notifications';
-import { getYourTurnNotificationContent } from '@/lib/notifications/content';
+import {
+  getNotificationDisplayText,
+  getYourTurnNotificationContent,
+} from '@/lib/notifications/content';
 
 // Event types matching backend SessionEventType
 export enum SessionEventType {
@@ -32,6 +35,8 @@ export enum SessionEventType {
   REGISTRATION_REQUEST = 'registration_request',
   REGISTRATION_STATUS_UPDATED = 'registration_status_updated',
   NOTIFICATION_RECEIVED = 'notification_received',
+  FAVORITE_UPDATED = 'favorite_updated',
+  POST_LIKE_UPDATED = 'post_like_updated',
 }
 
 // All session-related event types for listening
@@ -275,22 +280,28 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
         return;
       }
 
+      const { displayTitle, displayMessage } = getNotificationDisplayText(
+        data,
+        (key, values) =>
+          tNotification(key as Parameters<typeof tNotification>[0], values)
+      );
+
       if (action === 'player_added') {
         toaster.success({
-          title: data.title,
-          description: data.message,
+          title: displayTitle,
+          description: displayMessage,
           duration: 5000,
         });
       } else if (action === 'player_removed') {
         toaster.error({
-          title: data.title,
-          description: data.message,
+          title: displayTitle,
+          description: displayMessage,
           duration: 5000,
         });
       } else {
         toaster.info({
-          title: data.title,
-          description: data.message,
+          title: displayTitle,
+          description: displayMessage,
           duration: 5000,
         });
       }
@@ -317,7 +328,7 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
         handleNotificationReceived
       );
     };
-  }, [socket, t, userId]);
+  }, [socket, t, tNotification, userId]);
 
   // Global listener for court-call (players_selected) via user room.
   // This fires even when the player is NOT on the session detail page.

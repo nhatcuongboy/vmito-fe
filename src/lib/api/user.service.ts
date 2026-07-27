@@ -13,6 +13,7 @@ export interface IPublicProfileMeta {
   id: string;
   name: string;
   image?: string;
+  coverPhoto?: string;
   role: string;
   gender?: string;
   level?: number;

@@ -28,6 +28,7 @@ import { Link } from '@/i18n/config';
 import { ROUTES } from '@/constants/routes';
 import { getGoogleMapsUrl } from '@/utils/venue-helpers';
 import AppLightbox from '@/components/ui/AppLightbox';
+import { SessionEventType, useSocket } from '@/contexts/SocketContext';
 
 const localeMap: Record<string, Locale> = { vi, en: enUS, cn: zhCN };
 
@@ -45,6 +46,13 @@ interface PostMediaImageProps {
   alt: string;
   className: string;
   onClick?: () => void;
+}
+
+interface PostLikeUpdatedPayload {
+  postId: string;
+  likeCount: number;
+  actorId: string;
+  isLiked: boolean;
 }
 
 function PostMediaImage({ src, alt, className, onClick }: PostMediaImageProps) {
@@ -92,6 +100,7 @@ export function PostCard({
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
   const [localPost, setLocalPost] = useState(post);
   const menuRef = useRef<HTMLDivElement>(null);
+  const { socket, isConnected } = useSocket();
 
   const isOwner = currentUserId === localPost.authorId;
   const isActivityPost = localPost.type === 'ACTIVITY';
@@ -103,6 +112,36 @@ export function PostCard({
   useEffect(() => {
     setLocalPost(post);
   }, [post]);
+
+  useEffect(() => {
+    if (!socket || !isConnected) return;
+
+    const postId = localPost.id;
+    const handlePostLikeUpdated = (data: PostLikeUpdatedPayload) => {
+      if (data.postId !== postId || !Number.isFinite(data.likeCount)) return;
+
+      setLocalPost((prev) => {
+        const prevCounts = prev._count ?? { likes: 0, comments: 0, shares: 0 };
+
+        return {
+          ...prev,
+          isLiked: data.actorId === currentUserId ? data.isLiked : prev.isLiked,
+          _count: {
+            ...prevCounts,
+            likes: Math.max(0, data.likeCount),
+          },
+        };
+      });
+    };
+
+    socket.on(SessionEventType.POST_LIKE_UPDATED, handlePostLikeUpdated);
+    socket.emit('joinPost', postId);
+
+    return () => {
+      socket.off(SessionEventType.POST_LIKE_UPDATED, handlePostLikeUpdated);
+      socket.emit('leavePost', postId);
+    };
+  }, [currentUserId, isConnected, localPost.id, socket]);
 
   useEffect(() => {
     if (!showMenu) return;

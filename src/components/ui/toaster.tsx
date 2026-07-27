@@ -9,6 +9,7 @@ import {
   createToaster,
   Box,
   HStack,
+  Icon,
   Text,
 } from '@chakra-ui/react';
 import { Check, X } from 'lucide-react';
@@ -19,10 +20,14 @@ export const toaster = createToaster({
   placement: 'top-end',
   pauseOnPageIdle: true,
   duration: 3000,
-  // Keep toasts below the top bar + sticky search bar (~50-56px + ~56px)
-  // so they never cover the header or search interactions
+  // Clears the floating back/share/favorite icons on hero-image detail
+  // pages (~48-56px tall) and the standard top bar on most other pages.
+  // Pages with extra sticky chrome below the top bar (e.g. the Tìm kèo
+  // search bar + tabs) may still see brief overlap — acceptable since
+  // toasts auto-dismiss in 3s and that screen's main error path already
+  // renders inline (see AppErrorState) instead of using this toast.
   offsets: {
-    top: 'calc(112px + env(safe-area-inset-top))',
+    top: 'calc(64px + env(safe-area-inset-top))',
     right: '16px',
     bottom: '16px',
     left: '16px',
@@ -58,17 +63,17 @@ export const Toaster = () => {
           if (isFavoriteToast) {
             return (
               <Toast.Root
-                width={{ base: 'calc(100vw - 40px)', md: 'min(440px, 88vw)' }}
-                maxWidth={{ base: 'calc(100vw - 40px)', md: '440px' }}
-                minH={{ base: '48px', md: '52px' }}
-                px={{ base: 3, md: 3.5 }}
-                py={{ base: 2.5, md: 3 }}
+                width={{ base: 'calc(100vw - 40px)', md: 'min(420px, 88vw)' }}
+                maxWidth={{ base: 'calc(100vw - 40px)', md: '420px' }}
+                minH={{ base: '40px', md: '32px' }}
+                px={{ base: 3, md: 3 }}
+                py={{ base: 2.5, md: 2 }}
                 bg="#151515"
                 color="white"
-                borderRadius={{ base: '14px', md: '16px' }}
+                borderRadius={{ base: '12px', md: '14px' }}
                 border="1px solid"
                 borderColor="whiteAlpha.100"
-                boxShadow="0 12px 30px rgba(0, 0, 0, 0.3)"
+                boxShadow="0 8px 24px rgba(0, 0, 0, 0.3)"
                 _dark={{
                   bg: '#151515',
                   borderColor: 'whiteAlpha.100',
@@ -82,7 +87,10 @@ export const Toaster = () => {
                 >
                   <Box
                     flexShrink={0}
-                    boxSize={{ base: 6, md: 6.5 }}
+                    w={{ base: '20px', md: '20px' }}
+                    h={{ base: '20px', md: '20px' }}
+                    minW={{ base: '20px', md: '20px' }}
+                    minH={{ base: '20px', md: '20px' }}
                     borderRadius="full"
                     bg="#2FC56D"
                     color="#111"
@@ -90,12 +98,17 @@ export const Toaster = () => {
                     alignItems="center"
                     justifyContent="center"
                   >
-                    <Check size={15} strokeWidth={3} />
+                    <Icon
+                      as={Check}
+                      w={{ base: '13px', md: '13px' }}
+                      h={{ base: '13px', md: '13px' }}
+                      strokeWidth={3}
+                    />
                   </Box>
                   <Text
                     flex="1"
                     minW={0}
-                    fontSize={{ base: 'sm', md: 'md' }}
+                    fontSize="sm"
                     lineHeight="1.25"
                     fontWeight="semibold"
                     whiteSpace="normal"
@@ -110,7 +123,7 @@ export const Toaster = () => {
                       flexShrink={0}
                       alignSelf="center"
                       color="#F5C542"
-                      fontSize={{ base: 'sm', md: 'md' }}
+                      fontSize="sm"
                       lineHeight="1.2"
                       fontWeight="semibold"
                       textDecoration="underline"
@@ -129,8 +142,9 @@ export const Toaster = () => {
                 </HStack>
                 <Toast.CloseTrigger
                   position="absolute"
-                  top={{ base: 1.5, md: 2 }}
-                  right={{ base: 1.5, md: 2 }}
+                  top="50%"
+                  right={{ base: 1.5, md: 2.5 }}
+                  transform="translateY(-50%)"
                   p="0.5"
                   borderRadius="full"
                   color="gray.500"
@@ -167,7 +181,11 @@ export const Toaster = () => {
               )}
               <Stack gap="1" flex="1" maxWidth="100%">
                 {toast.title && (
-                  <Toast.Title whiteSpace="pre-wrap" fontWeight="semibold">
+                  <Toast.Title
+                    whiteSpace="pre-wrap"
+                    fontWeight="semibold"
+                    fontSize="sm"
+                  >
                     {toast.title}
                   </Toast.Title>
                 )}

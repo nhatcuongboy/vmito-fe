@@ -8,6 +8,7 @@ import { Tournament } from '@/lib/api/types';
 import SidebarNav from '@/components/ui/SidebarNav';
 import { useLocale, useTranslations } from 'next-intl';
 import { getPrimaryVenueDisplay } from '@/utils';
+import { FavoriteEngagementControl } from '@/components/favorites/FavoriteEngagementControl';
 
 interface SidebarTab {
   id: number;
@@ -23,6 +24,7 @@ interface TournamentSidebarProps {
   activeTab: number;
   onTabChange: (tabIndex: number) => void;
   showStatusBadge?: boolean;
+  showFavorite?: boolean;
   variant?: 'card' | 'embedded';
 }
 
@@ -32,6 +34,7 @@ export default function TournamentSidebar({
   activeTab,
   onTabChange,
   showStatusBadge = false,
+  showFavorite = false,
   variant = 'card',
 }: TournamentSidebarProps) {
   const t = useTranslations('pages.tournaments.detail.publicationStatus');
@@ -62,6 +65,7 @@ export default function TournamentSidebar({
       publishedLabel={t('published')}
       draftLabel={t('draft')}
       showStatusBadge={showStatusBadge}
+      showFavorite={showFavorite}
       isCollapsed={isCollapsed}
       onToggleCollapsed={handleToggleCollapsed}
     />
@@ -92,6 +96,7 @@ interface TournamentSidebarHeaderProps {
   publishedLabel: string;
   draftLabel: string;
   showStatusBadge: boolean;
+  showFavorite: boolean;
   isCollapsed: boolean;
   onToggleCollapsed: () => void;
 }
@@ -102,6 +107,7 @@ function TournamentSidebarHeader({
   publishedLabel,
   draftLabel,
   showStatusBadge,
+  showFavorite,
   isCollapsed,
   onToggleCollapsed,
 }: TournamentSidebarHeaderProps) {
@@ -181,6 +187,17 @@ function TournamentSidebarHeader({
             fontWeight="semibold"
           >
             {statusLabel}
+          </Box>
+        )}
+        {showFavorite && !isCollapsed && (
+          <Box position="absolute" bottom={2} right={2} zIndex={1}>
+            <FavoriteEngagementControl
+              type="TOURNAMENT"
+              targetId={tournament.id}
+              initialIsFavorite={tournament.isFavorite}
+              returnUrl={`/tournament/${tournament.slug || tournament.id}`}
+              variant="overlay-dark"
+            />
           </Box>
         )}
       </Box>

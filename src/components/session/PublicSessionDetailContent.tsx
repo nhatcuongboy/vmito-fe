@@ -1,7 +1,14 @@
 'use client';
 
 import { ISession } from '@/lib/api/types';
-import { Box, Flex, Grid, Icon, Portal } from '@chakra-ui/react';
+import {
+  Box,
+  Flex,
+  Grid,
+  Icon,
+  Link as ChakraLink,
+  Portal,
+} from '@chakra-ui/react';
 import { ArrowRight } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { TOP_BAR_HEIGHT_DESKTOP } from '@/constants';
@@ -11,12 +18,11 @@ import { VModal, useModal } from '@/components/ui/VModal';
 import { useEffect, useState, useCallback } from 'react';
 import { SessionService } from '@/lib/api/session.service';
 import { PlayerService } from '@/lib/api/player.service';
-import { useRouter, usePathname } from '@/i18n/config';
+import { Link, useRouter, usePathname } from '@/i18n/config';
 import { useSearchParams } from 'next/navigation';
 import AppHostDetail from '@/components/session/AppHostDetail';
 import JoinSessionModal from '@/components/session/JoinSessionModal';
 import MyRegistrationModal from '@/components/session/MyRegistrationModal';
-import { NextLinkButton } from '@/components/ui/NextLinkButton';
 import { RatingStatsProvider } from '@/contexts/RatingStatsContext';
 import SessionDetailHero from './SessionDetailHero';
 import SessionDetailBody from './SessionDetailBody';
@@ -267,28 +273,37 @@ export const PublicSessionDetailContent = ({
 
             {/* View More Sessions Link */}
             {showViewMore && (
-              <Flex justify="center" mt={4} mb={2} px={5}>
-                <NextLinkButton
+              <Flex justify="center" mt={3} mb={1} px={5}>
+                <ChakraLink
+                  as={Link}
                   href="/"
-                  colorPalette="green"
-                  variant="outline"
-                  size="md"
-                  px={6}
+                  display="inline-flex"
+                  alignItems="center"
+                  justifyContent="center"
+                  minH="44px"
+                  px={4}
                   borderRadius="full"
-                  fontWeight="medium"
+                  fontSize="sm"
+                  fontWeight="semibold"
                   color="green.600"
-                  borderColor="green.300"
+                  textDecoration="none"
+                  touchAction="manipulation"
                   _hover={{
                     bg: 'green.50',
-                    borderColor: 'green.500',
                     color: 'green.700',
+                    textDecoration: 'none',
                   }}
-                  transition="background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease"
+                  _focusVisible={{
+                    outline: '2px solid',
+                    outlineColor: 'green.500',
+                    outlineOffset: '2px',
+                  }}
+                  transition="background-color 0.2s ease, color 0.2s ease"
                   gap={1.5}
                 >
                   {t('findMoreSessions')}
-                  <Icon as={ArrowRight} boxSize={3.5} />
-                </NextLinkButton>
+                  <Icon as={ArrowRight} boxSize={4} aria-hidden="true" />
+                </ChakraLink>
               </Flex>
             )}
 

@@ -8,6 +8,8 @@ export interface User {
   role: UserRole;
   image?: string;
   imagePublicId?: string;
+  coverPhoto?: string;
+  coverPhotoPublicId?: string;
   gender?: GenderType;
   level?: number;
   levelDescription?: string;
@@ -34,6 +36,8 @@ export interface UpdateUserData {
   levelDescription?: string;
   image?: string;
   imagePublicId?: string;
+  coverPhoto?: string;
+  coverPhotoPublicId?: string;
   password?: string;
   role?: UserRole;
 }
@@ -146,7 +150,8 @@ export const AdminService = {
   },
 
   uploadAvatar: async (
-    file: File
+    file: File,
+    onProgress?: (percent: number) => void
   ): Promise<{ url: string; publicId: string }> => {
     const formData = new FormData();
     formData.append('avatar', file);
@@ -155,6 +160,32 @@ export const AdminService = {
     >('/upload/avatar', formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
+      },
+      onUploadProgress: (event) => {
+        if (onProgress && event.total) {
+          onProgress(Math.round((event.loaded / event.total) * 100));
+        }
+      },
+    });
+    return response.data.data!;
+  },
+
+  uploadCover: async (
+    file: File,
+    onProgress?: (percent: number) => void
+  ): Promise<{ url: string; publicId: string }> => {
+    const formData = new FormData();
+    formData.append('cover', file);
+    const response = await api.post<
+      ApiResponse<{ url: string; publicId: string }>
+    >('/upload/cover', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+      onUploadProgress: (event) => {
+        if (onProgress && event.total) {
+          onProgress(Math.round((event.loaded / event.total) * 100));
+        }
       },
     });
     return response.data.data!;

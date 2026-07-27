@@ -30,6 +30,17 @@ export const postsService = {
     return unwrapData<PostsResponse>(response.data);
   },
 
+  async getUserPosts(
+    userId: string,
+    page = 1,
+    limit = 10
+  ): Promise<PostsResponse> {
+    const response = await api.get(`/posts/user/${userId}`, {
+      params: { page, limit },
+    });
+    return unwrapData<PostsResponse>(response.data);
+  },
+
   async getPost(id: string): Promise<Post> {
     const response = await api.get(`/posts/${id}`);
     return unwrapData<Post>(response.data);

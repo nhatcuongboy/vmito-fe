@@ -87,6 +87,8 @@ const PANEL_CACHE_TTL_MS = 30_000;
 const formatBadgeCount = (count: number) => (count > 99 ? '99+' : count);
 
 const getNotificationIcon = (type: NotificationType, action?: string) => {
+  if (action?.endsWith('_favorited')) return LuHeart;
+
   switch (type) {
     case NotificationType.SYSTEM:
       return LuShield;
@@ -98,6 +100,8 @@ const getNotificationIcon = (type: NotificationType, action?: string) => {
       return LuCreditCard;
     case NotificationType.CLUB:
       return LuUsers;
+    case NotificationType.TOURNAMENT:
+      return LuHeart;
     case NotificationType.POST:
       return action === 'post_commented' ? LuMessageCircle : LuHeart;
     case NotificationType.VENUE_REQUEST:

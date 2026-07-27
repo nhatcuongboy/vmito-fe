@@ -153,7 +153,16 @@
       "saved": "已保存到收藏",
       "removed": "已从收藏中移除",
       "viewList": "查看列表",
-      "undo": "撤销"
+      "undo": "撤销",
+      "likeCount": "{count} 个赞",
+      "peopleWhoLiked": "点赞用户",
+      "noLikesYet": "暂无点赞",
+      "loadUsersFailed": "无法加载点赞用户列表",
+      "retry": "重试",
+      "previousPage": "上一页",
+      "nextPage": "下一页",
+      "pageStatus": "第 {page}/{totalPages} 页",
+      "viewUserProfile": "查看 {name} 的个人主页"
     },
     "levels": {
       "1": "新手",
@@ -236,7 +245,9 @@
       "passwordTooShort": "密码至少需要6个字符",
       "passwordRequired": "请输入新密码",
       "passwordChangedSuccessfully": "密码修改成功",
-      "failedToChangePassword": "修改密码失败"
+      "failedToChangePassword": "修改密码失败",
+      "coverUpdatedSuccessfully": "封面更新成功",
+      "failedToUploadCover": "封面上传失败"
     },
     "deviceTheme": "自动",
     "darkTheme": "深色",
@@ -768,7 +779,7 @@
     "timeNotSet": "未设定时间",
     "courts": "场地",
     "viewMoreSessions": "查看更多场次",
-    "findMoreSessions": "查找更多场次",
+    "findMoreSessions": "查看全部场次",
     "whoWillPlay": "谁会和你一起打？",
     "aiAnalyzeChip": "分析场次",
     "aiAnalyzeTitle": "场次水平分析",
@@ -5611,7 +5622,16 @@
     "noFavoriteVenues": "暂无收藏的场地",
     "noFavoriteClubs": "暂无收藏的俱乐部",
     "noFavoriteTournaments": "暂无收藏的赛事",
-    "viewAllFavorites": "查看全部"
+    "viewAllFavorites": "查看全部",
+    "postsTab": "动态",
+    "hostedTab": "已主持",
+    "clubsTab": "俱乐部",
+    "reviewsTab": "评价",
+    "favoritesTab": "收藏",
+    "noPosts": "暂无动态",
+    "share": "分享",
+    "changeCover": "更换封面",
+    "linkCopied": "链接已复制"
   },
   "notification": {
     "notifications": "通知",
@@ -5691,7 +5711,8 @@
       "SYSTEM": "系统",
       "SESSION": "场次",
       "REGISTRATION": "注册",
-      "PAYMENT": "支付"
+      "PAYMENT": "支付",
+      "TOURNAMENT": "赛事"
     },
     "messages": {
       "viewSession": "查看场次",
@@ -5732,6 +5753,12 @@
       "postLikedMessage": "{actorName} 赞了你的动态。",
       "postCommentedTitle": "你的动态有新评论",
       "postCommentedMessage": "{actorName} 评论了你的动态。",
+      "sessionFavoritedTitle": "你的场次获得点赞",
+      "sessionFavoritedMessage": "{actorName} 点赞了场次“{sessionName}”。",
+      "clubFavoritedTitle": "你的俱乐部获得点赞",
+      "clubFavoritedMessage": "{actorName} 点赞了俱乐部“{clubName}”。",
+      "tournamentFavoritedTitle": "你的赛事获得点赞",
+      "tournamentFavoritedMessage": "{actorName} 点赞了赛事“{tournamentName}”。",
       "venueRequestApprovedTitle": "场地建议已批准",
       "venueRequestApprovedMessage": "您对场地 “{venueName}” 的建议已获得管理员批准。",
       "venueRequestRejectedTitle": "场地建议被拒绝",
@@ -6142,7 +6169,11 @@
     "scheduleTab": "日程",
     "galleryTab": "相册",
     "announcementsTab": "公告",
-    "noImages": "暂无图片"
+    "noImages": "暂无图片",
+    "share": "分享俱乐部",
+    "shareText": "在 Vmito 上查看俱乐部 {name}",
+    "linkCopied": "俱乐部链接已复制",
+    "shareFailed": "无法分享俱乐部"
   },
   "aiAssistant": {
     "title": "AI 助手",

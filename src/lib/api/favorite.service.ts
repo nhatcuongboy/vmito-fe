@@ -61,6 +61,29 @@ export interface FavoriteRecord {
   createdAt: string;
 }
 
+export interface FavoriteSummary {
+  isFavorite: boolean;
+  favoriteCount: number;
+  canViewUsers: boolean;
+}
+
+export interface FavoriteUser {
+  id: string;
+  name: string;
+  image?: string | null;
+  favoritedAt: string;
+}
+
+export interface FavoriteUsersResponse {
+  data: FavoriteUser[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
+}
+
 export const FavoriteService = {
   addFavorite: async (
     type: FavoriteType,
@@ -88,6 +111,28 @@ export const FavoriteService = {
     const response = await api.get<ApiResponse<FavoriteListResponse>>(
       '/favorites',
       { params: filters }
+    );
+    return response.data.data!;
+  },
+
+  getSummary: async (
+    type: FavoriteType,
+    targetId: string
+  ): Promise<FavoriteSummary> => {
+    const response = await api.get<ApiResponse<FavoriteSummary>>(
+      `/favorites/${type}/${targetId}/summary`
+    );
+    return response.data.data!;
+  },
+
+  getFavoriteUsers: async (
+    type: FavoriteType,
+    targetId: string,
+    params: { page?: number; limit?: number } = {}
+  ): Promise<FavoriteUsersResponse> => {
+    const response = await api.get<ApiResponse<FavoriteUsersResponse>>(
+      `/favorites/${type}/${targetId}/users`,
+      { params }
     );
     return response.data.data!;
   },
