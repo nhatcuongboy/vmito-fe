@@ -15,6 +15,8 @@ interface UnderlineTabsProps {
   onTabClick: (id: string) => void;
   px?: string | number | Record<string, string | number>;
   isFixed?: boolean;
+  /** Sticks within the normal flow (needs `top`), unlike isFixed which overlays. */
+  isSticky?: boolean;
   top?: string | number | Record<string, string | number>;
   zIndex?: number;
   boxShadow?: string;
@@ -27,6 +29,7 @@ export function UnderlineTabs({
   onTabClick,
   px = CONTAINER_PX,
   isFixed = false,
+  isSticky = false,
   top,
   zIndex = 1099,
   boxShadow,
@@ -35,11 +38,11 @@ export function UnderlineTabs({
   return (
     <Box
       w="100%"
-      position={isFixed ? 'fixed' : 'relative'}
-      top={isFixed ? top : undefined}
+      position={isFixed ? 'fixed' : isSticky ? 'sticky' : 'relative'}
+      top={isFixed || isSticky ? top : undefined}
       left={isFixed ? 0 : undefined}
       right={isFixed ? 0 : undefined}
-      zIndex={isFixed ? zIndex : undefined}
+      zIndex={isFixed || isSticky ? zIndex : undefined}
       overflowX="auto"
       overflowY="hidden"
       css={{

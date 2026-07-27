@@ -200,63 +200,6 @@ export default function UserProfileModal({
       isCentered={true}
     >
       <VStack gap={6} align="stretch">
-        {/* Avatar Section */}
-        <Flex direction="column" align="center" gap={3}>
-          <input
-            ref={avatarInputRef}
-            type="file"
-            accept="image/*"
-            onChange={handleAvatarFileChange}
-            style={{ display: 'none' }}
-            disabled={isAvatarUploading}
-          />
-          <Box position="relative">
-            <Avatar.Root size="2xl" bg="green.500">
-              <Avatar.Fallback name={user.name || user.email}>
-                {(user.name || user.email).charAt(0).toUpperCase()}
-              </Avatar.Fallback>
-              {user.image && <Avatar.Image src={user.image} />}
-            </Avatar.Root>
-            {isAvatarUploading && (
-              <Flex
-                position="absolute"
-                inset={0}
-                borderRadius="full"
-                bg="blackAlpha.600"
-                align="center"
-                justify="center"
-                direction="column"
-                gap={1}
-                zIndex={1}
-              >
-                <Spinner size="sm" color="white" />
-                <Text fontSize="xs" color="white" fontWeight="bold">
-                  {avatarProgress}%
-                </Text>
-              </Flex>
-            )}
-            <Box
-              position="absolute"
-              bottom={0}
-              right={0}
-              bg="green.500"
-              color="white"
-              p={2}
-              borderRadius="full"
-              cursor={isAvatarUploading ? 'not-allowed' : 'pointer'}
-              opacity={isAvatarUploading ? 0.6 : 1}
-              _hover={isAvatarUploading ? undefined : { bg: 'brand.600' }}
-              boxShadow="md"
-              onClick={handleAvatarClick}
-            >
-              <Upload size={16} />
-            </Box>
-          </Box>
-          <Text fontSize="sm" color="fg.muted">
-            {t('clickToUploadAvatar')}
-          </Text>
-        </Flex>
-
         {/* Name */}
         <Field.Root invalid={!!errors.name} required>
           <Field.Label>

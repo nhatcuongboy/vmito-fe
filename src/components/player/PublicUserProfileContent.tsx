@@ -39,6 +39,8 @@ import { VModal, useModal } from '@/components/ui/VModal';
 import PublicHostedSessionCard from '@/components/player/PublicHostedSessionCard';
 import PublicUserProfileSkeleton from '@/components/player/PublicUserProfileSkeleton';
 import PublicUserFavoritesSection from '@/components/player/PublicUserFavoritesSection';
+import { UnderlineTabs } from '@/components/ui/UnderlineTabs';
+import { TOP_BAR_HEIGHT_DESKTOP, TOP_BAR_HEIGHT_MOBILE } from '@/constants';
 
 interface IPublicUserProfileContentProps {
   userId: string;
@@ -272,20 +274,15 @@ export default function PublicUserProfileContent({
     );
   }
 
-  const sectionTabs: { key: ProfileSection; label: string; count?: number }[] =
-    [
-      { key: 'posts', label: t('postsTab') },
-      { key: 'hosted', label: t('hostedTab'), count: allHostedSessionsCount },
-      { key: 'clubs', label: t('clubsTab') },
-      {
-        key: 'reviews',
-        label: t('reviewsTab'),
-        count: ratingStats?.totalRatings ?? 0,
-      },
-      ...(isOwner
-        ? [{ key: 'favorites' as ProfileSection, label: t('favoritesTab') }]
-        : []),
-    ];
+  const sectionTabs: { key: ProfileSection; label: string }[] = [
+    { key: 'posts', label: t('postsTab') },
+    { key: 'hosted', label: t('hostedTab') },
+    { key: 'clubs', label: t('clubsTab') },
+    { key: 'reviews', label: t('reviewsTab') },
+    ...(isOwner
+      ? [{ key: 'favorites' as ProfileSection, label: t('favoritesTab') }]
+      : []),
+  ];
 
   return (
     <>
@@ -307,24 +304,22 @@ export default function PublicUserProfileContent({
             onProfileImageUpdated={handleProfileImageUpdated}
           />
 
-          {/* Section tabs */}
-          <Box overflowX="auto" pb={1} css={{ scrollbarWidth: 'none' }}>
-            <HStack gap={2} minW="max-content">
-              {sectionTabs.map((tab) => (
-                <Button
-                  key={tab.key}
-                  size="sm"
-                  borderRadius="full"
-                  variant={activeSection === tab.key ? 'solid' : 'outline'}
-                  colorPalette={activeSection === tab.key ? 'green' : 'gray'}
-                  onClick={() => setActiveSection(tab.key)}
-                >
-                  {tab.label}
-                  {tab.count != null ? ` (${tab.count})` : ''}
-                </Button>
-              ))}
-            </HStack>
-          </Box>
+          {/* Section tabs: sticky under the fixed top bar */}
+          <UnderlineTabs
+            items={sectionTabs.map((tab) => ({
+              id: tab.key,
+              label: tab.label,
+            }))}
+            activeId={activeSection}
+            onTabClick={(id) => setActiveSection(id as ProfileSection)}
+            isSticky
+            top={{
+              base: `calc(${TOP_BAR_HEIGHT_MOBILE}px + env(safe-area-inset-top))`,
+              md: `calc(${TOP_BAR_HEIGHT_DESKTOP}px + env(safe-area-inset-top))`,
+            }}
+            px={3}
+            boxShadow="0 2px 6px -2px rgba(0,0,0,0.08)"
+          />
 
           {/* Posts */}
           {activeSection === 'posts' && <UserPostsSection userId={userId} />}

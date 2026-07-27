@@ -21,6 +21,8 @@ import {
   Pencil,
   Phone,
   Share2,
+  Star,
+  Trophy,
   User,
   X,
 } from 'lucide-react';
@@ -75,7 +77,8 @@ export default function UserProfileHeader({
   const locale = useLocale();
   const { user: currentUser, setUser } = useAuthStore();
 
-  const [isAvatarPreviewOpen, setIsAvatarPreviewOpen] = useState(false);
+  // Fullscreen preview for either the avatar or the cover photo.
+  const [previewImage, setPreviewImage] = useState<string | null>(null);
 
   const displayName = profile.name || tCommon('unknown');
   const avatarUrl = profile.image || undefined;
@@ -203,7 +206,7 @@ export default function UserProfileHeader({
 
       <Box
         position="relative"
-        minH="140px"
+        h={{ base: '180px', md: '220px' }}
         backgroundImage={coverUrl ? `url('${coverUrl}')` : undefined}
         backgroundSize="cover"
         backgroundPosition="center"
@@ -212,17 +215,11 @@ export default function UserProfileHeader({
             ? undefined
             : 'linear-gradient(135deg, #FFD75F 0%, #FFC107 100%)'
         }
+        cursor={coverUrl ? 'pointer' : 'default'}
+        onClick={() => {
+          if (coverUrl && !cover.isUploading) setPreviewImage(coverUrl);
+        }}
       >
-        {/* Scrim for text readability over a photo cover */}
-        {coverUrl && (
-          <Box
-            position="absolute"
-            inset={0}
-            bg="linear-gradient(to top, rgba(0,0,0,0.45) 0%, rgba(0,0,0,0) 55%)"
-            pointerEvents="none"
-          />
-        )}
-
         {/* Cover upload progress overlay */}
         {cover.isUploading && (
           <Flex
@@ -254,273 +251,273 @@ export default function UserProfileHeader({
           />
         )}
 
-        {/* Top-right controls: Share (everyone) + Edit (owner) */}
-        <HStack position="absolute" right={4} top={4} zIndex={2} gap={2}>
-          <Button
-            size="xs"
-            variant="outline"
-            onClick={handleShare}
-            borderRadius="full"
-            px={3}
-            fontWeight="bold"
-            bg="white"
-            color="gray.800"
-            borderColor="gray.300"
-            _dark={{
-              bg: 'gray.700',
-              color: 'gray.100',
-              borderColor: 'gray.500',
-            }}
-            shadow="sm"
-            _hover={{
-              shadow: 'md',
-              bg: 'gray.50',
-              transform: 'translateY(-1px)',
-            }}
-            transition="all 0.2s"
-          >
-            <Share2 size={12} />
-            {t('share')}
-          </Button>
+        {/* Share button (everyone), icon-only */}
+        <Button
+          aria-label={t('share')}
+          size="sm"
+          variant="plain"
+          onClick={(e: React.MouseEvent) => {
+            e.stopPropagation();
+            handleShare();
+          }}
+          position="absolute"
+          right={3}
+          top={3}
+          zIndex={2}
+          borderRadius="full"
+          p={0}
+          minW="32px"
+          h="32px"
+          bg="blackAlpha.400"
+          color="white"
+          backdropFilter="blur(6px)"
+          _hover={{ bg: 'blackAlpha.600' }}
+          transition="background 0.2s"
+        >
+          <Share2 size={15} />
+        </Button>
 
-          {isOwner && (
-            <Button
-              size="xs"
-              variant="outline"
-              onClick={onEdit}
-              borderRadius="full"
-              px={3}
-              fontWeight="bold"
-              bg="white"
-              color="gray.800"
-              borderColor="gray.300"
-              _dark={{
-                bg: 'gray.700',
-                color: 'gray.100',
-                borderColor: 'gray.500',
-              }}
-              shadow="sm"
-              _hover={{
-                shadow: 'md',
-                bg: 'gray.50',
-                transform: 'translateY(-1px)',
-              }}
-              transition="all 0.2s"
-            >
-              <Pencil size={12} />
-              {tCommon('edit')}
-            </Button>
-          )}
-        </HStack>
-
-        {/* Change-cover button (owner) */}
+        {/* Change-cover button (owner), icon-only */}
         {isOwner && !cover.isUploading && (
           <Button
-            size="xs"
-            variant="outline"
-            onClick={cover.openFilePicker}
+            aria-label={t('changeCover')}
+            size="sm"
+            variant="plain"
+            onClick={(e: React.MouseEvent) => {
+              e.stopPropagation();
+              cover.openFilePicker();
+            }}
             position="absolute"
-            right={4}
-            bottom={4}
+            right={3}
+            bottom={3}
             zIndex={2}
             borderRadius="full"
-            px={3}
-            fontWeight="medium"
-            bg="whiteAlpha.900"
-            color="gray.800"
-            borderColor="gray.300"
-            _dark={{
-              bg: 'blackAlpha.700',
-              color: 'gray.100',
-              borderColor: 'gray.600',
-            }}
-            shadow="sm"
-            _hover={{ shadow: 'md', bg: 'white' }}
-            transition="all 0.2s"
+            p={0}
+            minW="32px"
+            h="32px"
+            bg="blackAlpha.400"
+            color="white"
+            backdropFilter="blur(6px)"
+            _hover={{ bg: 'blackAlpha.600' }}
+            transition="background 0.2s"
           >
-            <Camera size={12} />
-            {t('changeCover')}
+            <Camera size={15} />
           </Button>
         )}
-
-        <HStack
-          align="end"
-          gap={3}
-          px={5}
-          pt={12}
-          pb={3}
-          position="relative"
-          zIndex={1}
-        >
-          <Box position="relative" mb="-32px">
-            <Avatar.Root
-              size="2xl"
-              borderRadius="full"
-              borderWidth="4px"
-              borderColor="white"
-              cursor={avatarUrl ? 'pointer' : 'default'}
-              onClick={() => {
-                if (avatarUrl && !avatar.isUploading)
-                  setIsAvatarPreviewOpen(true);
-              }}
-              _hover={avatarUrl ? { opacity: 0.9 } : undefined}
-              transition="opacity 0.2s"
-            >
-              <Avatar.Fallback name={displayName}>
-                <User size={24} />
-              </Avatar.Fallback>
-              {avatarUrl && <Avatar.Image src={avatarUrl} />}
-            </Avatar.Root>
-
-            {avatar.isUploading && (
-              <Flex
-                position="absolute"
-                inset={0}
-                borderRadius="full"
-                bg="blackAlpha.600"
-                align="center"
-                justify="center"
-                direction="column"
-                gap={0}
-              >
-                <Spinner size="sm" color="white" />
-                <Text fontSize="2xs" color="white" fontWeight="bold">
-                  {avatar.progress}%
-                </Text>
-              </Flex>
-            )}
-
-            {isOwner && !avatar.isUploading && (
-              <Box
-                position="absolute"
-                bottom={0}
-                right={0}
-                bg="green.500"
-                color="white"
-                p={1.5}
-                borderRadius="full"
-                cursor="pointer"
-                _hover={{ bg: 'brand.600' }}
-                boxShadow="md"
-                borderWidth="2px"
-                borderColor="white"
-                onClick={avatar.openFilePicker}
-              >
-                <Camera size={12} />
-              </Box>
-            )}
-          </Box>
-
-          <VStack align="start" gap={0} flex={1} pb={0}>
-            <Text
-              fontSize="lg"
-              fontWeight="bold"
-              color={coverUrl ? 'white' : 'gray.800'}
-              textShadow={coverUrl ? '0 1px 3px rgba(0,0,0,0.5)' : undefined}
-              _dark={{ color: coverUrl ? 'white' : 'gray.100' }}
-              lineClamp={1}
-            >
-              {displayName}
-            </Text>
-          </VStack>
-        </HStack>
       </Box>
 
-      <Box px={5} pb={5} pt={2}>
-        <VStack align="start" gap={2} pl="88px">
-          <HStack gap={2}>
-            <StarRatingDisplay
-              rating={ratingStats?.averageRating || 0}
-              count={ratingStats?.totalRatings || 0}
-              variant="compact"
-              size="sm"
-            />
-          </HStack>
+      {/* Centered avatar overlapping the cover, Facebook-style */}
+      <Flex direction="column" align="center" px={5}>
+        <Box position="relative" mt="-48px" zIndex={1}>
+          <Avatar.Root
+            w="112px"
+            h="112px"
+            borderRadius="full"
+            borderWidth="4px"
+            borderColor="white"
+            bg="gray.100"
+            _dark={{ borderColor: 'gray.800', bg: 'gray.700' }}
+            cursor={avatarUrl ? 'pointer' : 'default'}
+            onClick={() => {
+              if (avatarUrl && !avatar.isUploading)
+                setPreviewImage(getFullSizeAvatarUrl(avatarUrl));
+            }}
+            _hover={avatarUrl ? { opacity: 0.9 } : undefined}
+            transition="opacity 0.2s"
+          >
+            <Avatar.Fallback name={displayName}>
+              <User size={40} />
+            </Avatar.Fallback>
+            {avatarUrl && <Avatar.Image src={avatarUrl} />}
+          </Avatar.Root>
 
-          <SimpleGrid columns={2} gap={3} width="full" pt={1}>
-            <Box
-              borderRadius="lg"
-              bg="gray.50"
-              _dark={{ bg: 'gray.700' }}
-              px={3}
-              py={2}
+          {avatar.isUploading && (
+            <Flex
+              position="absolute"
+              inset={0}
+              borderRadius="full"
+              bg="blackAlpha.600"
+              align="center"
+              justify="center"
+              direction="column"
+              gap={0}
             >
+              <Spinner size="sm" color="white" />
+              <Text fontSize="2xs" color="white" fontWeight="bold">
+                {avatar.progress}%
+              </Text>
+            </Flex>
+          )}
+
+          {isOwner && !avatar.isUploading && (
+            <Box
+              position="absolute"
+              bottom="4px"
+              right="4px"
+              bg="green.500"
+              color="white"
+              p={2}
+              borderRadius="full"
+              cursor="pointer"
+              _hover={{ bg: 'brand.600' }}
+              boxShadow="md"
+              borderWidth="2px"
+              borderColor="white"
+              onClick={avatar.openFilePicker}
+            >
+              <Camera size={14} />
+            </Box>
+          )}
+        </Box>
+
+        <Text
+          fontSize="xl"
+          fontWeight="bold"
+          color="gray.800"
+          _dark={{ color: 'gray.100' }}
+          lineClamp={1}
+          mt={2}
+          textAlign="center"
+        >
+          {displayName}
+        </Text>
+
+        <StarRatingDisplay
+          rating={ratingStats?.averageRating || 0}
+          count={ratingStats?.totalRatings || 0}
+          variant="compact"
+          size="sm"
+        />
+
+        {isOwner && (
+          <Button
+            size="xs"
+            variant="outline"
+            onClick={onEdit}
+            mt={2}
+            borderRadius="full"
+            px={4}
+            fontWeight="semibold"
+            color="gray.700"
+            borderColor="gray.300"
+            _dark={{ color: 'gray.100', borderColor: 'gray.600' }}
+            _hover={{ bg: 'gray.50', _dark: { bg: 'gray.700' } }}
+          >
+            <Pencil size={12} />
+            {tCommon('edit')}
+          </Button>
+        )}
+      </Flex>
+
+      <Box px={5} pb={5} pt={3}>
+        <SimpleGrid columns={2} gap={8} width="full">
+          {/* Left column: contact info */}
+          <VStack align="stretch" gap={2.5}>
+            {phone && (
+              <HStack gap={2.5}>
+                <Box color="gray.400" _dark={{ color: 'gray.500' }}>
+                  <Phone size={16} />
+                </Box>
+                <Text
+                  fontSize="sm"
+                  fontWeight="medium"
+                  color="gray.700"
+                  _dark={{ color: 'gray.200' }}
+                >
+                  {phone}
+                </Text>
+              </HStack>
+            )}
+
+            {genderLabel && (
+              <HStack gap={2.5}>
+                <Box color="gray.400" _dark={{ color: 'gray.500' }}>
+                  <User size={16} />
+                </Box>
+                <Text
+                  fontSize="sm"
+                  color="gray.500"
+                  _dark={{ color: 'gray.400' }}
+                >
+                  {tCommon('gender')}:
+                </Text>
+                <Text
+                  fontSize="sm"
+                  fontWeight="medium"
+                  color="gray.700"
+                  _dark={{ color: 'gray.200' }}
+                >
+                  {genderLabel}
+                </Text>
+              </HStack>
+            )}
+
+            {joinedAt && (
+              <HStack gap={2.5}>
+                <Box color="gray.400" _dark={{ color: 'gray.500' }}>
+                  <CalendarDays size={16} />
+                </Box>
+                <Text
+                  fontSize="sm"
+                  fontWeight="medium"
+                  color="gray.700"
+                  _dark={{ color: 'gray.200' }}
+                >
+                  {t('joinedDateLabel', { date: formatDate(joinedAt, locale) })}
+                </Text>
+              </HStack>
+            )}
+          </VStack>
+
+          {/* Right column: activity stats */}
+          <VStack align="stretch" gap={2.5}>
+            <HStack gap={2.5}>
+              <Box color="gray.400" _dark={{ color: 'gray.500' }}>
+                <Trophy size={16} />
+              </Box>
               <Text
-                fontSize="xs"
+                fontSize="sm"
                 color="gray.500"
                 _dark={{ color: 'gray.400' }}
               >
-                {t('hostedSessions')}
+                {t('hostedSessions')}:
               </Text>
               <Text
-                fontSize="md"
+                fontSize="sm"
                 fontWeight="semibold"
-                color="gray.800"
-                _dark={{ color: 'gray.100' }}
+                color="gray.700"
+                _dark={{ color: 'gray.200' }}
               >
                 {allHostedSessionsCount}
               </Text>
-            </Box>
+            </HStack>
 
-            <Box
-              borderRadius="lg"
-              bg="gray.50"
-              _dark={{ bg: 'gray.700' }}
-              px={3}
-              py={2}
-            >
+            <HStack gap={2.5}>
+              <Box color="gray.400" _dark={{ color: 'gray.500' }}>
+                <Star size={16} />
+              </Box>
               <Text
-                fontSize="xs"
+                fontSize="sm"
                 color="gray.500"
                 _dark={{ color: 'gray.400' }}
               >
-                {t('reviews')}
+                {t('reviews')}:
               </Text>
               <Text
-                fontSize="md"
+                fontSize="sm"
                 fontWeight="semibold"
-                color="gray.800"
-                _dark={{ color: 'gray.100' }}
+                color="gray.700"
+                _dark={{ color: 'gray.200' }}
               >
                 {ratingStats?.totalRatings ?? 0}
               </Text>
-            </Box>
-          </SimpleGrid>
-
-          {phone && (
-            <HStack
-              gap={2}
-              color="gray.600"
-              _dark={{ color: 'gray.300' }}
-              pt={1}
-            >
-              <Phone size={16} />
-              <Text fontSize="sm">{phone}</Text>
             </HStack>
-          )}
-
-          {genderLabel && (
-            <HStack gap={2} color="gray.600" _dark={{ color: 'gray.300' }}>
-              <User size={16} />
-              <Text fontSize="sm">
-                {tCommon('gender')}: {genderLabel}
-              </Text>
-            </HStack>
-          )}
-
-          {joinedAt && (
-            <HStack gap={2} color="gray.600" _dark={{ color: 'gray.300' }}>
-              <CalendarDays size={16} />
-              <Text fontSize="sm">
-                {t('joinedDateLabel', { date: formatDate(joinedAt, locale) })}
-              </Text>
-            </HStack>
-          )}
-        </VStack>
+          </VStack>
+        </SimpleGrid>
       </Box>
 
-      {/* Avatar full-size preview */}
-      {isAvatarPreviewOpen && avatarUrl && (
+      {/* Fullscreen image preview (avatar / cover) at original stored quality */}
+      {previewImage && (
         <Portal>
           <Flex
             position="fixed"
@@ -533,7 +530,7 @@ export default function UserProfileHeader({
             align="center"
             justify="center"
             p={4}
-            onClick={() => setIsAvatarPreviewOpen(false)}
+            onClick={() => setPreviewImage(null)}
             animation="fadeIn 0.15s ease-out"
             css={{
               '@keyframes fadeIn': { from: { opacity: 0 }, to: { opacity: 1 } },
@@ -569,15 +566,14 @@ export default function UserProfileHeader({
                 zIndex={1}
                 onClick={(e: React.MouseEvent) => {
                   e.stopPropagation();
-                  setIsAvatarPreviewOpen(false);
+                  setPreviewImage(null);
                 }}
               >
                 <Icon as={X} boxSize={5} />
               </Box>
               <Image
-                src={getFullSizeAvatarUrl(avatarUrl)}
+                src={previewImage}
                 alt={displayName}
-                w={{ base: '92vw', md: '560px' }}
                 maxW="92vw"
                 maxH="90vh"
                 borderRadius="16px"
