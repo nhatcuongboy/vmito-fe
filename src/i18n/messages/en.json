@@ -5635,6 +5635,7 @@
     "loadFailed": "Unable to load profile",
     "profileNotFound": "User not found",
     "hostedSessions": "Hosted sessions",
+    "joinedSessions": "Joined sessions",
     "reviews": "Reviews",
     "joinedAt": "Joined",
     "joinedDateLabel": "Joined since {date}",

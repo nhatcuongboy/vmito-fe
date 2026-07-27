@@ -13,7 +13,6 @@ import {
   SimpleGrid,
   Spinner,
   Text,
-  VStack,
 } from '@chakra-ui/react';
 import {
   CalendarDays,
@@ -24,6 +23,7 @@ import {
   Star,
   Trophy,
   User,
+  Users,
   X,
 } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
@@ -35,6 +35,7 @@ import { toaster } from '@/components/ui/toaster';
 import { getFullSizeAvatarUrl } from '@/lib/utils/image';
 import { useImageUpload } from '@/hooks/useImageUpload';
 import { useAuthStore } from '@/stores/useAuthStore';
+import { DEFAULT_COVER_PHOTO } from '@/constants';
 
 const formatDate = (
   input: Date | string | undefined,
@@ -83,6 +84,7 @@ export default function UserProfileHeader({
   const displayName = profile.name || tCommon('unknown');
   const avatarUrl = profile.image || undefined;
   const coverUrl = profile.coverPhoto || undefined;
+  const displayCoverUrl = coverUrl || DEFAULT_COVER_PHOTO;
   const joinedAt = profile.createdAt;
   const phone = profile.phone;
 
@@ -95,6 +97,83 @@ export default function UserProfileHeader({
       return tCommon('preferNotToSay');
     return profile.gender;
   }, [profile.gender, tCommon]);
+
+  // Build the info rows in a single ordered list so they flow into the grid
+  // consecutively (row by row) without leaving empty cells when optional
+  // fields like phone or gender are missing.
+  const infoItems = useMemo(() => {
+    const items: {
+      key: string;
+      icon: React.ReactNode;
+      label?: string;
+      value: React.ReactNode;
+      valueWeight: 'medium' | 'semibold';
+    }[] = [];
+
+    if (phone) {
+      items.push({
+        key: 'phone',
+        icon: <Phone size={16} />,
+        value: phone,
+        valueWeight: 'medium',
+      });
+    }
+
+    if (genderLabel) {
+      items.push({
+        key: 'gender',
+        icon: <User size={16} />,
+        label: `${tCommon('gender')}:`,
+        value: genderLabel,
+        valueWeight: 'medium',
+      });
+    }
+
+    if (joinedAt) {
+      items.push({
+        key: 'joinedAt',
+        icon: <CalendarDays size={16} />,
+        value: t('joinedDateLabel', { date: formatDate(joinedAt, locale) }),
+        valueWeight: 'medium',
+      });
+    }
+
+    items.push({
+      key: 'hostedSessions',
+      icon: <Trophy size={16} />,
+      label: `${t('hostedSessions')}:`,
+      value: allHostedSessionsCount,
+      valueWeight: 'semibold',
+    });
+
+    items.push({
+      key: 'joinedSessions',
+      icon: <Users size={16} />,
+      label: `${t('joinedSessions')}:`,
+      value: profile.joinedSessionsCount ?? 0,
+      valueWeight: 'semibold',
+    });
+
+    items.push({
+      key: 'reviews',
+      icon: <Star size={16} />,
+      label: `${t('reviews')}:`,
+      value: ratingStats?.totalRatings ?? 0,
+      valueWeight: 'semibold',
+    });
+
+    return items;
+  }, [
+    phone,
+    genderLabel,
+    joinedAt,
+    locale,
+    t,
+    tCommon,
+    allHostedSessionsCount,
+    profile.joinedSessionsCount,
+    ratingStats?.totalRatings,
+  ]);
 
   const cover = useImageUpload({
     uploader: AdminService.uploadCover,
@@ -210,17 +289,12 @@ export default function UserProfileHeader({
       <Box
         position="relative"
         h={{ base: '180px', md: '220px' }}
-        backgroundImage={coverUrl ? `url('${coverUrl}')` : undefined}
+        backgroundImage={`url('${displayCoverUrl}')`}
         backgroundSize="cover"
         backgroundPosition="center"
-        bg={
-          coverUrl
-            ? undefined
-            : 'linear-gradient(135deg, #FFD75F 0%, #FFC107 100%)'
-        }
-        cursor={coverUrl ? 'pointer' : 'default'}
+        cursor="pointer"
         onClick={() => {
-          if (coverUrl && !cover.isUploading) setPreviewImage(coverUrl);
+          if (!cover.isUploading) setPreviewImage(displayCoverUrl);
         }}
       >
         {/* Cover upload progress overlay */}
@@ -240,18 +314,6 @@ export default function UserProfileHeader({
               {cover.progress}%
             </Text>
           </Flex>
-        )}
-
-        {!coverUrl && (
-          <Image
-            src="/icons/app-logo-black.png"
-            alt="Vmito"
-            position="absolute"
-            right={4}
-            bottom={4}
-            h="24px"
-            opacity={0.25}
-          />
         )}
 
         {/* Share button (everyone), icon-only */}
@@ -413,109 +475,36 @@ export default function UserProfileHeader({
       </Flex>
 
       <Box px={5} pb={5} pt={3}>
-        <SimpleGrid columns={2} gap={8} width="full">
-          {/* Left column: contact info */}
-          <VStack align="stretch" gap={2.5}>
-            {phone && (
-              <HStack gap={2.5}>
-                <Box color="gray.400" _dark={{ color: 'gray.500' }}>
-                  <Phone size={16} />
-                </Box>
-                <Text
-                  fontSize="sm"
-                  fontWeight="medium"
-                  color="gray.700"
-                  _dark={{ color: 'gray.200' }}
-                >
-                  {phone}
-                </Text>
-              </HStack>
-            )}
-
-            {genderLabel && (
-              <HStack gap={2.5}>
-                <Box color="gray.400" _dark={{ color: 'gray.500' }}>
-                  <User size={16} />
-                </Box>
+        <SimpleGrid
+          columns={{ base: 1, sm: 2 }}
+          columnGap={8}
+          rowGap={2.5}
+          width="full"
+        >
+          {infoItems.map((item) => (
+            <HStack key={item.key} gap={2.5} align="center">
+              <Box color="gray.400" _dark={{ color: 'gray.500' }}>
+                {item.icon}
+              </Box>
+              {item.label && (
                 <Text
                   fontSize="sm"
                   color="gray.500"
                   _dark={{ color: 'gray.400' }}
                 >
-                  {tCommon('gender')}:
+                  {item.label}
                 </Text>
-                <Text
-                  fontSize="sm"
-                  fontWeight="medium"
-                  color="gray.700"
-                  _dark={{ color: 'gray.200' }}
-                >
-                  {genderLabel}
-                </Text>
-              </HStack>
-            )}
-
-            {joinedAt && (
-              <HStack gap={2.5}>
-                <Box color="gray.400" _dark={{ color: 'gray.500' }}>
-                  <CalendarDays size={16} />
-                </Box>
-                <Text
-                  fontSize="sm"
-                  fontWeight="medium"
-                  color="gray.700"
-                  _dark={{ color: 'gray.200' }}
-                >
-                  {t('joinedDateLabel', { date: formatDate(joinedAt, locale) })}
-                </Text>
-              </HStack>
-            )}
-          </VStack>
-
-          {/* Right column: activity stats */}
-          <VStack align="stretch" gap={2.5}>
-            <HStack gap={2.5}>
-              <Box color="gray.400" _dark={{ color: 'gray.500' }}>
-                <Trophy size={16} />
-              </Box>
+              )}
               <Text
                 fontSize="sm"
-                color="gray.500"
-                _dark={{ color: 'gray.400' }}
-              >
-                {t('hostedSessions')}:
-              </Text>
-              <Text
-                fontSize="sm"
-                fontWeight="semibold"
+                fontWeight={item.valueWeight}
                 color="gray.700"
                 _dark={{ color: 'gray.200' }}
               >
-                {allHostedSessionsCount}
+                {item.value}
               </Text>
             </HStack>
-
-            <HStack gap={2.5}>
-              <Box color="gray.400" _dark={{ color: 'gray.500' }}>
-                <Star size={16} />
-              </Box>
-              <Text
-                fontSize="sm"
-                color="gray.500"
-                _dark={{ color: 'gray.400' }}
-              >
-                {t('reviews')}:
-              </Text>
-              <Text
-                fontSize="sm"
-                fontWeight="semibold"
-                color="gray.700"
-                _dark={{ color: 'gray.200' }}
-              >
-                {ratingStats?.totalRatings ?? 0}
-              </Text>
-            </HStack>
-          </VStack>
+          ))}
         </SimpleGrid>
       </Box>
 
