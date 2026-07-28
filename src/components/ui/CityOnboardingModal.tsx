@@ -10,18 +10,27 @@ import { MapPin } from 'lucide-react';
 export default function CityOnboardingModal() {
   const preferredCity = usePreferenceStore((s) => s.preferredCity);
   const hasHydrated = usePreferenceStore((s) => s._hasHydrated);
+  const onboardingCompleted = usePreferenceStore((s) => s.onboardingCompleted);
   const setPreferredCity = usePreferenceStore((s) => s.setPreferredCity);
+  const setOnboardingCompleted = usePreferenceStore(
+    (s) => s.setOnboardingCompleted
+  );
 
-  // Only show after the store has rehydrated from localStorage — prevents
-  // the modal from flashing for returning users on first render.
-  const isOpen = hasHydrated && preferredCity === null;
+  // Only show for genuinely new users: the store has rehydrated, onboarding
+  // was never completed, and no city has been chosen yet. Gating on
+  // `onboardingCompleted` (not just `preferredCity === null`) is what lets the
+  // CitySelector offer an "All" option — picking "All" sets preferredCity to
+  // null intentionally, and this flag keeps the modal from re-appearing.
+  const isOpen = hasHydrated && !onboardingCompleted && preferredCity === null;
 
   const handleSelect = (code: string) => {
     setPreferredCity(code);
+    setOnboardingCompleted(true);
   };
 
   const handleSkip = () => {
     setPreferredCity('HCM');
+    setOnboardingCompleted(true);
   };
 
   return (
@@ -47,7 +56,7 @@ export default function CityOnboardingModal() {
     >
       <Box pb={2}>
         <Text fontSize="sm" color="fg.muted" textAlign="center" mb={4}>
-          Chọn thành phố để xem buổi đánh cầu và sân gần bạn nhất
+          Chọn thành phố để xem các kèo và sân gần bạn nhất.
         </Text>
         <Grid templateColumns="1fr 1fr" gap={2}>
           {VIETNAM_CITIES.map((city) => (

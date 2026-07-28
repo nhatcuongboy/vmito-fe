@@ -468,6 +468,10 @@
       "customLocationAddress": "Address",
       "customLocationAddressPlaceholder": "Search or enter an address…",
       "customLocationAddressHelp": "Add an address so players can easily find and get directions to the session.",
+      "aiCustomLocation": {
+        "title": "This venue is not in Vmito yet",
+        "description": "The AI filled in a temporary location from the post. Please check the name and address before creating the session, or pick an existing venue from the list."
+      },
       "temporaryLocation": "Optional location",
       "customLocationHint": "This location is used only for the session and has not been added to the Vmito venue directory.",
       "useCustomLocation": "Use “{name}” as an optional location",
@@ -5296,6 +5300,77 @@
     "failedToCreateUser": "Failed to create user",
     "failedToUpdateUser": "Failed to update user",
     "failedToDeleteUser": "Failed to delete user",
+    "usersPage": {
+      "title": "User Management",
+      "addUser": "Add User",
+      "searchPlaceholder": "Search by email or name...",
+      "columns": {
+        "name": "Name",
+        "email": "Email",
+        "role": "Role",
+        "gender": "Gender",
+        "registeredVia": "Registered via",
+        "created": "Created",
+        "actions": "Actions"
+      },
+      "gender": {
+        "MALE": "Male",
+        "FEMALE": "Female",
+        "OTHER": "Other",
+        "PREFER_NOT_TO_SAY": "Prefer not to say",
+        "unknown": "Not set"
+      },
+      "provider": {
+        "email": "Direct",
+        "google": "Google",
+        "facebook": "Facebook",
+        "zalo": "Zalo",
+        "apple": "Apple",
+        "unknown": "Unknown"
+      },
+      "role": {
+        "ADMIN": "Admin",
+        "HOST": "Host",
+        "PLAYER": "Player",
+        "REFEREE": "Referee"
+      },
+      "filters": {
+        "role": "Role",
+        "gender": "Gender",
+        "registeredVia": "Registered via",
+        "allRoles": "All roles",
+        "allGenders": "All genders",
+        "allProviders": "All methods"
+      },
+      "actions": {
+        "viewProfile": "View profile",
+        "edit": "Edit",
+        "delete": "Delete"
+      },
+      "noUsersFound": "No users found",
+      "totalRecords": "Total: {count}",
+      "showingRange": "Showing {from}-{to}",
+      "createTitle": "Create User",
+      "editTitle": "Edit User",
+      "deleteTitle": "Delete User",
+      "fields": {
+        "email": "Email",
+        "name": "Name",
+        "password": "Password",
+        "role": "Role"
+      },
+      "deleteConfirmation": "Are you sure you want to delete user {name}? This action cannot be undone.",
+      "toast": {
+        "loadError": "Failed to load users",
+        "createSuccess": "User created successfully",
+        "createError": "Failed to create user",
+        "updateSuccess": "User updated successfully",
+        "updateError": "Failed to update user",
+        "deleteSuccess": "User deleted successfully",
+        "deleteError": "Failed to delete user",
+        "accessDenied": "Access denied. Admins only."
+      }
+    },
     "aiImageQuota": {
       "title": "AI image quota",
       "manage": "Manage AI image quota",

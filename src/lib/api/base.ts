@@ -141,9 +141,11 @@ api.interceptors.response.use(
       } catch (refreshError) {
         processQueue(refreshError, null);
 
-        // If refresh fails, clear auth and redirect
-        const clearAuth = useAuthStore.getState().clearAuth;
-        clearAuth();
+        // If refresh fails, clear all user-scoped state (auth, notifications,
+        // product tour, preferences) and redirect. Reuse AuthService.logout so
+        // this path stays in sync with the manual logout flow.
+        const { AuthService } = await import('./auth.service');
+        AuthService.logout();
 
         // Only show toast and redirect if not already on auth pages
         if (!window.location.pathname.includes('/auth/')) {

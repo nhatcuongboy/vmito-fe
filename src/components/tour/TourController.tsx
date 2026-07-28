@@ -80,7 +80,7 @@ const TourControllerInner = () => {
   const authHydrated = useAuthStore((s) => s.isHydrated);
 
   const prefHydrated = usePreferenceStore((s) => s._hasHydrated);
-  const preferredCity = usePreferenceStore((s) => s.preferredCity);
+  const onboardingCompleted = usePreferenceStore((s) => s.onboardingCompleted);
 
   const tours = useTourStore((s) => s.tours);
   const tourSessionId = useTourStore((s) => s.tourSessionId);
@@ -158,8 +158,10 @@ const TourControllerInner = () => {
     if (tours[FIRST_TOUR].status !== 'idle') return;
     // Don't interrupt another running tour
     if (TOUR_IDS.some((id) => tours[id].status === 'active')) return;
-    // Let the city onboarding modal resolve first
-    if (preferredCity === null) return;
+    // Let the city onboarding modal resolve first. A user who picked "All"
+    // has preferredCity === null but onboardingCompleted === true, so gate on
+    // the onboarding flag rather than the city value.
+    if (!onboardingCompleted) return;
 
     autoStartCheckedRef.current = true;
     SessionService.getAllSessions({
@@ -182,7 +184,7 @@ const TourControllerInner = () => {
     isAuthenticated,
     user?.id,
     tours,
-    preferredCity,
+    onboardingCompleted,
   ]);
 
   // --- Capture the session slug/id whenever we're on its management page ---

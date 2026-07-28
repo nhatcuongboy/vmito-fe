@@ -1,6 +1,8 @@
 import {
+  Alert,
   Box,
   Badge,
+  CloseButton,
   Field,
   Flex,
   Heading,
@@ -52,6 +54,8 @@ export function BasicInfoSection({
   handleVenueSearch,
   isVenueLoading,
   onSuggestNewVenue,
+  showAiCustomLocationWarning = false,
+  onDismissAiCustomLocationWarning,
 }: {
   t: Translator;
   isEditMode: boolean;
@@ -68,8 +72,15 @@ export function BasicInfoSection({
   isVenueLoading: boolean;
   /** Called when user clicks "Suggest new venue" below venue search results. */
   onSuggestNewVenue?: (keyword: string) => void;
+  /**
+   * True when AI extraction fell back to a custom location because the venue
+   * is not in Vmito, so the user must verify the name and address.
+   */
+  showAiCustomLocationWarning?: boolean;
+  onDismissAiCustomLocationWarning?: () => void;
 }) {
   const tVenueRequests = useNextIntlTranslations('venueRequests');
+  const tCommon = useNextIntlTranslations('common');
   const locationType = useWatch({ control, name: 'locationType' });
   const customLocation = useWatch({ control, name: 'customLocation' });
   const customLocationAddress = useWatch({
@@ -185,6 +196,12 @@ export function BasicInfoSection({
                       : undefined
                   }
                   onChange={(value) => {
+                    // Picking (or clearing to) a Vmito venue resolves what the
+                    // warning was about, so retire it for good rather than
+                    // letting it resurface if the user goes custom again by
+                    // hand — that location would be theirs, not the AI's.
+                    onDismissAiCustomLocationWarning?.();
+
                     if (!value) {
                       field.onChange('');
                       setValue('locationType', SessionLocationType.VENUE);
@@ -248,6 +265,34 @@ export function BasicInfoSection({
               {errors.selectedVenueId?.message}
             </Field.ErrorText>
           </Field.Root>
+
+          {/* Only meaningful while the custom fallback is still in place:
+              switching back to a Vmito venue resolves the problem, so the
+              warning disappears on its own without the user dismissing it. */}
+          {showAiCustomLocationWarning &&
+          locationType === SessionLocationType.CUSTOM ? (
+            <Alert.Root status="warning" size="sm" mt={3} borderRadius="md">
+              <Alert.Indicator />
+              <Alert.Content>
+                <Alert.Title>
+                  {t('generalSettings.aiCustomLocation.title')}
+                </Alert.Title>
+                <Alert.Description>
+                  {t('generalSettings.aiCustomLocation.description')}
+                </Alert.Description>
+              </Alert.Content>
+              {onDismissAiCustomLocationWarning ? (
+                <CloseButton
+                  size="xs"
+                  pos="relative"
+                  top="-1"
+                  insetEnd="-1"
+                  aria-label={tCommon('close')}
+                  onClick={onDismissAiCustomLocationWarning}
+                />
+              ) : null}
+            </Alert.Root>
+          ) : null}
 
           {locationType === SessionLocationType.CUSTOM ? (
             <Box

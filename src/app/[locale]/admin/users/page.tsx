@@ -30,9 +30,9 @@ import {
   VTablePagination,
 } from '@/components/ui/VTable';
 import { PasswordInput } from '@/components/ui/password-input';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import { useEffect, useState, useCallback, Suspense } from 'react';
-import { Pencil, Trash2, Plus } from 'lucide-react';
+import { Pencil, Trash2, Plus, Eye } from 'lucide-react';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -48,7 +48,19 @@ import { FilterChip } from '@/components/ui/FilterChip';
 const USER_FILTERS_SCHEMA = {
   q: stringField(''),
   role: stringField(''),
+  gender: stringField(''),
+  provider: stringField(''),
 };
+
+const GENDER_VALUES = ['MALE', 'FEMALE', 'OTHER', 'PREFER_NOT_TO_SAY'] as const;
+
+const PROVIDER_VALUES = [
+  'email',
+  'google',
+  'facebook',
+  'zalo',
+  'apple',
+] as const;
 
 // Schema definitions
 const createUserSchema = z.object({
@@ -75,8 +87,9 @@ export default function AdminUsersPage() {
 }
 
 function AdminUsersContent() {
-  const t = useTranslations('admin');
+  const t = useTranslations('admin.usersPage');
   const tCommon = useTranslations('common');
+  const locale = useLocale();
   const router = useRouter();
   const { user: currentUser, isAuthenticated, isHydrated } = useAuthStore();
   const [users, setUsers] = useState<User[]>([]);
@@ -93,6 +106,8 @@ function AdminUsersContent() {
   // Filter drawer
   const { isOpen: showFilters, onToggle: toggleFilters } = useDisclosure(false);
   const [pendingRole, setPendingRole] = useState('');
+  const [pendingGender, setPendingGender] = useState('');
+  const [pendingProvider, setPendingProvider] = useState('');
 
   // Modal states
   const [isCreateOpen, setIsCreateOpen] = useState(false);
@@ -129,6 +144,8 @@ function AdminUsersContent() {
   useEffect(() => {
     if (showFilters) {
       setPendingRole(filters.role);
+      setPendingGender(filters.gender);
+      setPendingProvider(filters.provider);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [showFilters]);
@@ -139,6 +156,8 @@ function AdminUsersContent() {
       const result = await AdminService.getUsersPaginated({
         search: filters.q || undefined,
         role: filters.role || undefined,
+        gender: filters.gender || undefined,
+        provider: filters.provider || undefined,
         page,
         limit: pageSize,
       });
@@ -147,14 +166,22 @@ function AdminUsersContent() {
       setTotalPages(result.pagination.totalPages);
     } catch (error) {
       console.error('Failed to fetch users:', error);
-      toaster.error({ title: t('users.loadError') });
+      toaster.error({ title: t('toast.loadError') });
       setUsers([]);
       setTotalCount(0);
       setTotalPages(0);
     } finally {
       setLoading(false);
     }
-  }, [filters.q, filters.role, page, pageSize, t]);
+  }, [
+    filters.q,
+    filters.role,
+    filters.gender,
+    filters.provider,
+    page,
+    pageSize,
+    t,
+  ]);
 
   useEffect(() => {
     if (!isHydrated) return;
@@ -164,7 +191,7 @@ function AdminUsersContent() {
     }
     if (!currentUser) return;
     if (currentUser.role !== UserRole.ADMIN) {
-      toaster.error({ title: t('accessDeniedAdmin') });
+      toaster.error({ title: t('toast.accessDenied') });
       router.replace('/dashboard');
       return;
     }
@@ -182,16 +209,25 @@ function AdminUsersContent() {
   }, [keyword]);
 
   // Filter helpers
-  const activeFilterCount = filters.role ? 1 : 0;
+  const activeFilterCount =
+    (filters.role ? 1 : 0) +
+    (filters.gender ? 1 : 0) +
+    (filters.provider ? 1 : 0);
 
   const handleSubmitFilters = () => {
-    setFilters({ role: pendingRole });
+    setFilters({
+      role: pendingRole,
+      gender: pendingGender,
+      provider: pendingProvider,
+    });
     setPage(1);
     toggleFilters();
   };
 
   const handleResetFilters = () => {
     setPendingRole('');
+    setPendingGender('');
+    setPendingProvider('');
   };
 
   const getRoleBadgeColor = (role: string) => {
@@ -200,21 +236,58 @@ function AdminUsersContent() {
         return 'red';
       case UserRole.HOST:
         return 'blue';
+      case UserRole.REFEREE:
+        return 'purple';
       default:
         return 'gray';
     }
   };
 
+  const getRoleLabel = (role: string) =>
+    role ? t(`role.${role}`) : t('filters.allRoles');
+
+  const getGenderLabel = (gender?: string) =>
+    gender ? t(`gender.${gender}`) : t('gender.unknown');
+
+  const getProviderLabel = (provider?: string) => {
+    if (!provider) return t('provider.unknown');
+    const known = ['email', 'google', 'facebook', 'zalo', 'apple'];
+    return known.includes(provider)
+      ? t(`provider.${provider}`)
+      : t('provider.unknown');
+  };
+
+  const getProviderBadgeColor = (provider?: string) => {
+    switch (provider) {
+      case 'google':
+        return 'red';
+      case 'facebook':
+        return 'blue';
+      case 'zalo':
+        return 'cyan';
+      case 'apple':
+        return 'gray';
+      case 'email':
+        return 'green';
+      default:
+        return 'gray';
+    }
+  };
+
+  const handleViewProfile = (userId: string) => {
+    window.open(`/${locale}/user/${userId}`, '_blank');
+  };
+
   const handleCreate = async (data: CreateUserFormValues) => {
     try {
       await AdminService.createUser(data);
-      toaster.success({ title: t('users.createSuccess') });
+      toaster.success({ title: t('toast.createSuccess') });
       setIsCreateOpen(false);
       createForm.reset();
       fetchUsers();
     } catch (error) {
       console.error('Failed to create user:', error);
-      toaster.error({ title: t('users.createError') });
+      toaster.error({ title: t('toast.createError') });
     }
   };
 
@@ -226,12 +299,12 @@ function AdminUsersContent() {
         role: data.role,
       };
       await AdminService.updateUser(selectedUser.id, updateData);
-      toaster.success({ title: t('users.updateSuccess') });
+      toaster.success({ title: t('toast.updateSuccess') });
       setIsEditOpen(false);
       fetchUsers();
     } catch (error) {
       console.error('Failed to update user:', error);
-      toaster.error({ title: t('users.updateError') });
+      toaster.error({ title: t('toast.updateError') });
     }
   };
 
@@ -239,12 +312,12 @@ function AdminUsersContent() {
     if (!selectedUser) return;
     try {
       await AdminService.deleteUser(selectedUser.id);
-      toaster.success({ title: t('users.deleteSuccess') });
+      toaster.success({ title: t('toast.deleteSuccess') });
       setIsDeleteOpen(false);
       fetchUsers();
     } catch (error) {
       console.error('Failed to delete user:', error);
-      toaster.error({ title: t('users.deleteError') });
+      toaster.error({ title: t('toast.deleteError') });
     }
   };
 
@@ -264,10 +337,15 @@ function AdminUsersContent() {
 
   const showingFrom = totalCount === 0 ? 0 : (page - 1) * pageSize + 1;
   const showingTo = Math.min(page * pageSize, totalCount);
-  const totalRecordsLabel = `Total records: ${totalCount.toLocaleString()}`;
+  const totalRecordsLabel = t('totalRecords', {
+    count: totalCount.toLocaleString(),
+  });
   const paginationLabel =
     totalCount > 0
-      ? `${totalRecordsLabel} · Showing ${showingFrom.toLocaleString()}-${showingTo.toLocaleString()}`
+      ? `${totalRecordsLabel} · ${t('showingRange', {
+          from: showingFrom.toLocaleString(),
+          to: showingTo.toLocaleString(),
+        })}`
       : totalRecordsLabel;
 
   return (
@@ -276,7 +354,7 @@ function AdminUsersContent() {
         <VStack gap={6} align="stretch">
           {/* Header */}
           <Flex justify="space-between" align="center">
-            <Heading size="lg">User Management</Heading>
+            <Heading size="lg">{t('title')}</Heading>
             <Button
               colorPalette="green"
               onClick={() => {
@@ -285,7 +363,7 @@ function AdminUsersContent() {
               }}
             >
               <Plus size={18} />
-              <Text ml={2}>Add User</Text>
+              <Text ml={2}>{t('addUser')}</Text>
             </Button>
           </Flex>
 
@@ -294,20 +372,36 @@ function AdminUsersContent() {
             <SearchFilterBar
               keyword={keyword}
               onKeywordChange={setKeyword}
-              placeholder="Search by email or name..."
+              placeholder={t('searchPlaceholder')}
               activeFilterCount={activeFilterCount}
               onFilterToggle={toggleFilters}
             />
           </Box>
 
           {/* Active filter chips */}
-          {!loading && filters.role && (
+          {!loading && activeFilterCount > 0 && (
             <Flex align="center" flexWrap="wrap" gap={2} mb={-2} minH="28px">
-              <FilterChip
-                label={filters.role}
-                colorPalette={getRoleBadgeColor(filters.role)}
-                onRemove={() => setFilters({ role: '' })}
-              />
+              {filters.role && (
+                <FilterChip
+                  label={getRoleLabel(filters.role)}
+                  colorPalette={getRoleBadgeColor(filters.role)}
+                  onRemove={() => setFilters({ role: '' })}
+                />
+              )}
+              {filters.gender && (
+                <FilterChip
+                  label={getGenderLabel(filters.gender)}
+                  colorPalette="pink"
+                  onRemove={() => setFilters({ gender: '' })}
+                />
+              )}
+              {filters.provider && (
+                <FilterChip
+                  label={getProviderLabel(filters.provider)}
+                  colorPalette={getProviderBadgeColor(filters.provider)}
+                  onRemove={() => setFilters({ provider: '' })}
+                />
+              )}
             </Flex>
           )}
 
@@ -319,6 +413,7 @@ function AdminUsersContent() {
             onReset={handleResetFilters}
           >
             <VStack align="stretch" gap={5}>
+              {/* Role filter */}
               <Box>
                 <Text
                   fontSize="sm"
@@ -327,14 +422,15 @@ function AdminUsersContent() {
                   _dark={{ color: 'gray.200' }}
                   mb={3}
                 >
-                  Role
+                  {t('filters.role')}
                 </Text>
                 <Flex gap={2} flexWrap="wrap">
                   {[
-                    { value: '', label: 'All Roles' },
-                    { value: UserRole.ADMIN, label: 'Admin' },
-                    { value: UserRole.HOST, label: 'Host' },
-                    { value: UserRole.PLAYER, label: 'Player' },
+                    { value: '', label: t('filters.allRoles') },
+                    { value: UserRole.ADMIN, label: t('role.ADMIN') },
+                    { value: UserRole.HOST, label: t('role.HOST') },
+                    { value: UserRole.PLAYER, label: t('role.PLAYER') },
+                    { value: UserRole.REFEREE, label: t('role.REFEREE') },
                   ].map((opt) => (
                     <Badge
                       key={opt.value || 'all'}
@@ -358,6 +454,94 @@ function AdminUsersContent() {
                   ))}
                 </Flex>
               </Box>
+
+              {/* Gender filter */}
+              <Box>
+                <Text
+                  fontSize="sm"
+                  fontWeight="bold"
+                  color="gray.700"
+                  _dark={{ color: 'gray.200' }}
+                  mb={3}
+                >
+                  {t('filters.gender')}
+                </Text>
+                <Flex gap={2} flexWrap="wrap">
+                  {[
+                    { value: '', label: t('filters.allGenders') },
+                    ...GENDER_VALUES.map((g) => ({
+                      value: g,
+                      label: t(`gender.${g}`),
+                    })),
+                  ].map((opt) => (
+                    <Badge
+                      key={opt.value || 'all'}
+                      px={4}
+                      py={2}
+                      borderRadius="lg"
+                      cursor="pointer"
+                      variant={
+                        pendingGender === opt.value ? 'solid' : 'outline'
+                      }
+                      colorPalette={
+                        pendingGender === opt.value ? 'green' : 'gray'
+                      }
+                      onClick={() => setPendingGender(opt.value)}
+                      fontSize="sm"
+                      fontWeight="medium"
+                      transition="all 0.2s"
+                      _hover={{ transform: 'scale(1.05)' }}
+                      borderWidth={pendingGender === opt.value ? '0' : '2px'}
+                    >
+                      {opt.label}
+                    </Badge>
+                  ))}
+                </Flex>
+              </Box>
+
+              {/* Registration method filter */}
+              <Box>
+                <Text
+                  fontSize="sm"
+                  fontWeight="bold"
+                  color="gray.700"
+                  _dark={{ color: 'gray.200' }}
+                  mb={3}
+                >
+                  {t('filters.registeredVia')}
+                </Text>
+                <Flex gap={2} flexWrap="wrap">
+                  {[
+                    { value: '', label: t('filters.allProviders') },
+                    ...PROVIDER_VALUES.map((p) => ({
+                      value: p,
+                      label: t(`provider.${p}`),
+                    })),
+                  ].map((opt) => (
+                    <Badge
+                      key={opt.value || 'all'}
+                      px={4}
+                      py={2}
+                      borderRadius="lg"
+                      cursor="pointer"
+                      variant={
+                        pendingProvider === opt.value ? 'solid' : 'outline'
+                      }
+                      colorPalette={
+                        pendingProvider === opt.value ? 'green' : 'gray'
+                      }
+                      onClick={() => setPendingProvider(opt.value)}
+                      fontSize="sm"
+                      fontWeight="medium"
+                      transition="all 0.2s"
+                      _hover={{ transform: 'scale(1.05)' }}
+                      borderWidth={pendingProvider === opt.value ? '0' : '2px'}
+                    >
+                      {opt.label}
+                    </Badge>
+                  ))}
+                </Flex>
+              </Box>
             </VStack>
           </FilterDrawer>
 
@@ -366,12 +550,14 @@ function AdminUsersContent() {
             <Table>
               <Thead>
                 <Tr>
-                  <Th w="180px">Name</Th>
-                  <Th>Email</Th>
-                  <Th w="100px">Role</Th>
-                  <Th w="120px">Created</Th>
-                  <Th w="120px" textAlign="right">
-                    Actions
+                  <Th w="180px">{t('columns.name')}</Th>
+                  <Th>{t('columns.email')}</Th>
+                  <Th w="100px">{t('columns.role')}</Th>
+                  <Th w="90px">{t('columns.gender')}</Th>
+                  <Th w="130px">{t('columns.registeredVia')}</Th>
+                  <Th w="120px">{t('columns.created')}</Th>
+                  <Th w="140px" textAlign="right">
+                    {t('columns.actions')}
                   </Th>
                 </Tr>
               </Thead>
@@ -384,16 +570,46 @@ function AdminUsersContent() {
                     <Td color="gray.600">{user.email}</Td>
                     <Td w="100px">
                       <Badge colorPalette={getRoleBadgeColor(user.role)}>
-                        {user.role}
+                        {getRoleLabel(user.role)}
+                      </Badge>
+                    </Td>
+                    <Td w="90px" color="gray.600">
+                      {user.gender ? (
+                        getGenderLabel(user.gender)
+                      ) : (
+                        <Text as="span" color="gray.400">
+                          —
+                        </Text>
+                      )}
+                    </Td>
+                    <Td w="130px">
+                      <Badge
+                        variant="subtle"
+                        colorPalette={getProviderBadgeColor(
+                          user.registrationProvider
+                        )}
+                      >
+                        {getProviderLabel(user.registrationProvider)}
                       </Badge>
                     </Td>
                     <Td w="120px" color="gray.600">
                       {new Date(user.createdAt).toLocaleDateString()}
                     </Td>
-                    <Td w="120px">
+                    <Td w="140px">
                       <HStack gap={2} justify="flex-end">
                         <IconButton
-                          aria-label="Edit user"
+                          aria-label={t('actions.viewProfile')}
+                          title={t('actions.viewProfile')}
+                          size="sm"
+                          variant="ghost"
+                          colorPalette="green"
+                          onClick={() => handleViewProfile(user.id)}
+                        >
+                          <Eye size={16} />
+                        </IconButton>
+                        <IconButton
+                          aria-label={t('actions.edit')}
+                          title={t('actions.edit')}
                           size="sm"
                           variant="ghost"
                           onClick={() => openEditModal(user)}
@@ -401,7 +617,8 @@ function AdminUsersContent() {
                           <Pencil size={16} />
                         </IconButton>
                         <IconButton
-                          aria-label="Delete user"
+                          aria-label={t('actions.delete')}
+                          title={t('actions.delete')}
                           size="sm"
                           variant="ghost"
                           colorPalette="red"
@@ -418,7 +635,7 @@ function AdminUsersContent() {
             </Table>
             {users.length === 0 && !loading && (
               <Box p={8} textAlign="center" color="gray.500">
-                No users found
+                {t('noUsersFound')}
               </Box>
             )}
             {totalCount > 0 && (
@@ -445,7 +662,7 @@ function AdminUsersContent() {
         <VModal
           isOpen={isCreateOpen}
           onClose={() => setIsCreateOpen(false)}
-          title={t('createUser')}
+          title={t('createTitle')}
           primaryActionText={tCommon('create') || 'Create'}
           onPrimaryAction={createForm.handleSubmit(handleCreate)}
           isPrimaryLoading={createForm.formState.isSubmitting}
@@ -461,7 +678,9 @@ function AdminUsersContent() {
               name="email"
               render={({ field, fieldState }) => (
                 <Field.Root invalid={!!fieldState.error}>
-                  <Field.Label htmlFor="create-email">{t('email')}</Field.Label>
+                  <Field.Label htmlFor="create-email">
+                    {t('fields.email')}
+                  </Field.Label>
                   <Input id="create-email" type="email" {...field} />
                   <Field.ErrorText>{fieldState.error?.message}</Field.ErrorText>
                 </Field.Root>
@@ -473,7 +692,9 @@ function AdminUsersContent() {
               name="name"
               render={({ field, fieldState }) => (
                 <Field.Root invalid={!!fieldState.error}>
-                  <Field.Label htmlFor="create-name">{t('name')}</Field.Label>
+                  <Field.Label htmlFor="create-name">
+                    {t('fields.name')}
+                  </Field.Label>
                   <Input id="create-name" {...field} />
                   <Field.ErrorText>{fieldState.error?.message}</Field.ErrorText>
                 </Field.Root>
@@ -486,7 +707,7 @@ function AdminUsersContent() {
               render={({ field, fieldState }) => (
                 <Field.Root invalid={!!fieldState.error}>
                   <Field.Label htmlFor="create-password">
-                    {t('password')}
+                    {t('fields.password')}
                   </Field.Label>
                   <PasswordInput id="create-password" {...field} />
                   <Field.ErrorText>{fieldState.error?.message}</Field.ErrorText>
@@ -499,7 +720,9 @@ function AdminUsersContent() {
               name="role"
               render={({ field, fieldState }) => (
                 <Field.Root invalid={!!fieldState.error}>
-                  <Field.Label htmlFor="create-role">{t('role')}</Field.Label>
+                  <Field.Label htmlFor="create-role">
+                    {t('fields.role')}
+                  </Field.Label>
                   <select
                     id="create-role"
                     {...field}
@@ -510,9 +733,9 @@ function AdminUsersContent() {
                       border: '1px solid #e2e8f0',
                     }}
                   >
-                    <option value="PLAYER">Player</option>
-                    <option value="HOST">Host</option>
-                    <option value={UserRole.ADMIN}>Admin</option>
+                    <option value={UserRole.PLAYER}>{t('role.PLAYER')}</option>
+                    <option value={UserRole.HOST}>{t('role.HOST')}</option>
+                    <option value={UserRole.ADMIN}>{t('role.ADMIN')}</option>
                   </select>
                   <Field.ErrorText>{fieldState.error?.message}</Field.ErrorText>
                 </Field.Root>
@@ -525,7 +748,7 @@ function AdminUsersContent() {
         <VModal
           isOpen={isEditOpen}
           onClose={() => setIsEditOpen(false)}
-          title={t('editUser')}
+          title={t('editTitle')}
           primaryActionText={tCommon('save')}
           onPrimaryAction={updateForm.handleSubmit(handleUpdate)}
           isPrimaryLoading={updateForm.formState.isSubmitting}
@@ -537,7 +760,9 @@ function AdminUsersContent() {
             onSubmit={updateForm.handleSubmit(handleUpdate)}
           >
             <Field.Root>
-              <Field.Label htmlFor="edit-email">{t('email')}</Field.Label>
+              <Field.Label htmlFor="edit-email">
+                {t('fields.email')}
+              </Field.Label>
               <Input
                 id="edit-email"
                 value={selectedUser?.email || ''}
@@ -550,7 +775,9 @@ function AdminUsersContent() {
               name="name"
               render={({ field, fieldState }) => (
                 <Field.Root invalid={!!fieldState.error}>
-                  <Field.Label htmlFor="edit-name">{t('name')}</Field.Label>
+                  <Field.Label htmlFor="edit-name">
+                    {t('fields.name')}
+                  </Field.Label>
                   <Input id="edit-name" {...field} />
                   <Field.ErrorText>{fieldState.error?.message}</Field.ErrorText>
                 </Field.Root>
@@ -562,7 +789,9 @@ function AdminUsersContent() {
               name="role"
               render={({ field, fieldState }) => (
                 <Field.Root invalid={!!fieldState.error}>
-                  <Field.Label htmlFor="edit-role">{t('role')}</Field.Label>
+                  <Field.Label htmlFor="edit-role">
+                    {t('fields.role')}
+                  </Field.Label>
                   <select
                     id="edit-role"
                     {...field}
@@ -573,9 +802,9 @@ function AdminUsersContent() {
                       border: '1px solid #e2e8f0',
                     }}
                   >
-                    <option value={UserRole.PLAYER}>Player</option>
-                    <option value={UserRole.HOST}>Host</option>
-                    <option value={UserRole.ADMIN}>Admin</option>
+                    <option value={UserRole.PLAYER}>{t('role.PLAYER')}</option>
+                    <option value={UserRole.HOST}>{t('role.HOST')}</option>
+                    <option value={UserRole.ADMIN}>{t('role.ADMIN')}</option>
                   </select>
                   <Field.ErrorText>{fieldState.error?.message}</Field.ErrorText>
                 </Field.Root>
@@ -588,7 +817,7 @@ function AdminUsersContent() {
         <VModal
           isOpen={isDeleteOpen}
           onClose={() => setIsDeleteOpen(false)}
-          title={t('deleteUser')}
+          title={t('deleteTitle')}
           primaryActionText={tCommon('delete')}
           onPrimaryAction={handleDelete}
           isPrimaryLoading={false}

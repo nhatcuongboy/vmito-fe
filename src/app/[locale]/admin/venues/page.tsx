@@ -902,12 +902,9 @@ function AdminVenuesContent() {
                           size="sm"
                           variant="ghost"
                           colorPalette="green"
-                          onClick={() => {
-                            window.open(
-                              `/san-cau-long/${venue.slug || venue.id}`,
-                              '_blank'
-                            );
-                          }}
+                          onClick={() =>
+                            router.push(`/venues/${venue.slug || venue.id}`)
+                          }
                         >
                           <Eye size={16} />
                         </IconButton>

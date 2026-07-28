@@ -31,6 +31,10 @@ export function useVenueClubData({
     isEditMode && initialData?.venue ? (initialData.venue as Venue) : null
   );
   const [isVenueLoading, setIsVenueLoading] = useState(false);
+  // Set once the initial venue fetch settles, success or failure. Callers gate
+  // on this rather than on `venues.length`, so an empty directory or a failed
+  // request still lets pending AI data through instead of stranding it.
+  const [venuesLoaded, setVenuesLoaded] = useState(false);
   const venueSearchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(
     null
   );
@@ -96,6 +100,8 @@ export function useVenueClubData({
       } catch (error) {
         console.error('Error fetching venues:', error);
         setVenues([]);
+      } finally {
+        setVenuesLoaded(true);
       }
     };
     fetchVenues();
@@ -122,6 +128,7 @@ export function useVenueClubData({
 
   return {
     venues,
+    venuesLoaded,
     setVenues,
     clubs,
     isClubsLoading,
