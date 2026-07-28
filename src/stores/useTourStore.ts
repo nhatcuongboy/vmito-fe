@@ -32,6 +32,8 @@ interface TourState {
   /** Restart the whole journey from the first tour (used by "view tour" CTAs) */
   restartJourney: () => void;
   setTourSessionId: (sessionId: string) => void;
+  /** Wipe all tour progress. Called on logout so state doesn't leak to the next user. */
+  reset: () => void;
   _setHasHydrated: (value: boolean) => void;
 }
 
@@ -106,6 +108,8 @@ export const useTourStore = create<TourState>()(
       },
 
       setTourSessionId: (sessionId) => set({ tourSessionId: sessionId }),
+
+      reset: () => set({ tours: idleTours(), tourSessionId: null }),
 
       _setHasHydrated: (value) => set({ _hasHydrated: value }),
     }),

@@ -14,6 +14,8 @@ import {
 } from '@/types/auth';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { useNotificationStore } from '@/stores/useNotificationStore';
+import { useTourStore } from '@/stores/useTourStore';
+import { usePreferenceStore } from '@/stores/usePreferenceStore';
 
 // Auth service - connects to NestJS backend
 export const AuthService = {
@@ -52,6 +54,12 @@ export const AuthService = {
     useAuthStore.getState().clearAuth();
     // Use reset to clear notification state on logout
     useNotificationStore.getState().reset();
+    // Clear per-user product tour progress so it doesn't leak to the next
+    // account signing in on the same browser.
+    useTourStore.getState().reset();
+    // Onboarding/city preferences are user-scoped; reset them too so a new
+    // user gets a clean onboarding flow.
+    usePreferenceStore.getState().resetPreferences();
   },
 
   /**
