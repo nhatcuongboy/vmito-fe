@@ -284,7 +284,10 @@ export function BasicInfoSection({
 
                 <Field.Root>
                   <Field.Label>
-                    {t('generalSettings.customLocationAddress')}
+                    {t('generalSettings.customLocationAddress')}{' '}
+                    <Text as="span" color="fg.muted" fontWeight="normal">
+                      ({t('generalSettings.recommendedLabel')})
+                    </Text>
                   </Field.Label>
                   <LocationAutocomplete
                     value={customLocationAddress || ''}
