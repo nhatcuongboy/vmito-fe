@@ -305,7 +305,7 @@
     "start": "Bắt đầu",
     "end": "Kết thúc",
     "duration": "Thời lượng",
-    "multiDay": "Nhiều ngày",
+    "multiDay": "Dài ngày",
     "shuttlecock": "Cầu",
     "defaultMatchType": "Thể loại mặc định",
     "singles": "Đánh đơn",
@@ -422,6 +422,7 @@
     "forBestPractices": "cho thực hành tốt nhất",
     "validation": {
       "locationRequired": "Vui lòng chọn địa điểm",
+      "customLocationRequired": "Vui lòng nhập tên địa điểm có ít nhất 2 ký tự",
       "startTimeRequired": "Vui lòng chọn thời gian bắt đầu",
       "startTimeMustBeInFuture": "Thời gian bắt đầu không được trong quá khứ",
       "endTimeRequired": "Vui lòng chọn thời gian kết thúc",
@@ -461,6 +462,17 @@
     },
     "generalSettings": {
       "selectVenue": "Chọn địa điểm...",
+      "existingVenue": "Sân có sẵn",
+      "customLocation": "Địa điểm khác",
+      "customLocationPlaceholder": "Nhập tên sân hoặc địa điểm",
+      "customLocationName": "Tên địa điểm",
+      "customLocationAddress": "Địa chỉ",
+      "customLocationAddressPlaceholder": "Tìm hoặc nhập địa chỉ…",
+      "customLocationAddressHelp": "Thêm địa chỉ để người tham gia có thể tìm đường. Địa chỉ sẽ hiển thị với người xem kèo.",
+      "temporaryLocation": "Địa điểm tùy chọn",
+      "customLocationHint": "Địa điểm này chỉ dùng cho kèo và chưa được thêm vào danh sách sân Vmito.",
+      "useCustomLocation": "Dùng “{name}” làm địa điểm tùy chọn",
+      "clearLocation": "Xóa địa điểm đã chọn",
       "searchVenue": "Tìm địa điểm...",
       "noVenueFound": "Không tìm thấy sân nào",
       "sessionName": "Tên kèo",
@@ -4965,6 +4977,7 @@
     "copyCode": "Sao chép mã",
     "copyJoinLink": "Sao chép link tham gia",
     "noLocation": "Chưa có địa điểm",
+    "noAddress": "Chưa có địa chỉ",
     "notScheduled": "Chưa có lịch",
     "requirePlayerInfo": "Yêu cầu thông tin",
     "allowGuestJoin": "Cho phép khách tham gia",
@@ -6692,6 +6705,7 @@
     "status": {
       "PENDING": "Chờ duyệt",
       "COUNTER_OFFERED": "Có đề xuất mới",
+      "AWAITING_DEPOSIT": "Chờ đặt cọc",
       "CONFIRMED": "Đã xác nhận",
       "REJECTED": "Đã từ chối",
       "CANCELLED": "Đã hủy",
@@ -6781,6 +6795,7 @@
         "AVAILABLE": "Còn trống",
         "UNAVAILABLE": "Không khả dụng",
         "HELD": "Đang giữ",
+        "RESERVED": "Đã giữ chờ cọc",
         "BOOKED": "Đã đặt",
         "PENDING_REQUEST": "Đang chờ duyệt",
         "MAINTENANCE": "Bảo trì",
@@ -6816,7 +6831,13 @@
       "COMPLETED": "Lịch thuê đã hoàn thành",
       "MANUAL_CREATED": "Quản lý đã tạo booking trực tiếp",
       "COURTS_ALLOCATED": "Đã phân bổ sân",
-      "COURTS_REALLOCATED": "Đã đổi sân"
+      "COURTS_REALLOCATED": "Đã đổi sân",
+      "PAYMENT_SUBMITTED": "Đã gửi chứng từ thanh toán",
+      "PAYMENT_APPROVED": "Giao dịch đã được duyệt",
+      "PAYMENT_REJECTED": "Giao dịch đã bị từ chối",
+      "DEPOSIT_EXPIRED": "Hạn đặt cọc đã hết",
+      "REFUND_REQUIRED": "Đã tạo yêu cầu hoàn tiền",
+      "REFUND_COMPLETED": "Đã hoàn tất hoàn tiền"
     },
     "modal": {
       "rejectTitle": "Từ chối yêu cầu",
@@ -6824,6 +6845,8 @@
       "counterTitle": "Đề xuất lịch thuê mới",
       "linkSessionTitle": "Liên kết kèo với lịch thuê",
       "reallocateTitle": "Đổi sân cho booking",
+      "refundEstimate": "Số tiền dự kiến được hoàn",
+      "refundEstimateHelp": "Số tiền thực tế sẽ được chốt theo chính sách đã lưu khi yêu cầu hủy được xử lý.",
       "reason": "Lý do"
     },
     "settings": {
@@ -6870,6 +6893,130 @@
       "roleHelp": {
         "OWNER": "Toàn quyền: đổi cấu hình, quản lý thành viên",
         "MANAGER": "Duyệt booking, không đổi được cấu hình"
+      }
+    },
+    "paymentSettings": {
+      "title": "Thanh toán và đặt cọc",
+      "description": "Cấu hình tiền cọc, hạn thanh toán và chính sách hoàn tiền cho booking thuê sân.",
+      "unsaved": "Chưa lưu",
+      "save": "Lưu cấu hình thanh toán",
+      "saved": "Đã lưu cấu hình thanh toán",
+      "readOnly": "Quản lý được xem cấu hình; chỉ chủ sân hoặc admin có thể chỉnh sửa.",
+      "depositMode": "Hình thức đặt cọc",
+      "mode": {
+        "NONE": "Không yêu cầu cọc",
+        "PERCENTAGE": "Theo phần trăm",
+        "FIXED": "Số tiền cố định"
+      },
+      "depositPercent": "Tỷ lệ cọc (%)",
+      "depositFixed": "Tiền cọc cố định (VND)",
+      "depositDeadline": "Hạn đặt cọc (phút)",
+      "balanceDue": "Hạn trả phần còn lại trước giờ chơi (giờ)",
+      "refundCutoff": "Mốc chính sách hoàn tiền (giờ)",
+      "refundBefore": "Hoàn trước mốc (%)",
+      "refundAfter": "Hoàn sau mốc (%)",
+      "bankSection": "Tài khoản nhận tiền",
+      "bankName": "Ngân hàng",
+      "accountNumber": "Số tài khoản",
+      "accountName": "Tên chủ tài khoản",
+      "customQr": "QR tùy chỉnh (không bắt buộc)",
+      "preview": "Xem trước",
+      "previewEmpty": "Nhập thông tin ngân hàng để tạo VietQR.",
+      "previewPolicy": "{mode} · Giá trị {value}",
+      "errors": {
+        "bankRequired": "Cần nhập đủ ngân hàng, số tài khoản và tên chủ tài khoản khi bật đặt cọc.",
+        "percentage": "Tỷ lệ cọc phải từ 1 đến 100%.",
+        "fixed": "Tiền cọc cố định phải lớn hơn 0.",
+        "deadline": "Hạn đặt cọc phải từ 10 đến 1.440 phút.",
+        "balanceDue": "Hạn trả phần còn lại phải từ 0 đến 720 giờ.",
+        "refundCutoff": "Mốc hoàn tiền phải từ 0 đến 8.760 giờ.",
+        "refundPercent": "Tỷ lệ hoàn tiền phải từ 0 đến 100%."
+      }
+    },
+    "payment": {
+      "title": "Thanh toán thuê sân",
+      "transactionsTitle": "Giao dịch thanh toán",
+      "refresh": "Làm mới",
+      "total": "Tổng tiền",
+      "paid": "Đã thanh toán",
+      "outstanding": "Còn phải trả",
+      "refundEstimate": "Dự kiến hoàn",
+      "deposit": "Tiền cọc",
+      "balance": "Phần còn lại",
+      "bankTransfer": "Thông tin chuyển khoản",
+      "copyContent": "Sao chép nội dung",
+      "copied": "Đã sao chép nội dung chuyển khoản",
+      "qrAlt": "Mã VietQR thanh toán thuê sân",
+      "noQr": "Chưa có mã QR. Vui lòng dùng thông tin tài khoản.",
+      "qrAmount": "Số tiền: {amount}",
+      "submitDeposit": "Gửi chứng từ đặt cọc",
+      "submitBalance": "Gửi chứng từ phần còn lại",
+      "submitProof": "Gửi chứng từ",
+      "depositExpired": "Hạn đặt cọc đã hết. Dữ liệu booking đang được cập nhật.",
+      "recordCash": "Ghi nhận tiền mặt",
+      "confirmCash": "Xác nhận đã nhận tiền",
+      "history": "Lịch sử giao dịch",
+      "noTransactions": "Chưa có giao dịch.",
+      "proof": "Chứng từ",
+      "uploadProof": "Tải ảnh chứng từ",
+      "removeProof": "Xóa ảnh",
+      "proofHelp": "Ảnh JPG, PNG hoặc WebP, tối đa 5 MB.",
+      "viewProof": "Xem chứng từ",
+      "amount": "Số tiền (VND)",
+      "notes": "Ghi chú",
+      "approve": "Duyệt",
+      "reject": "Từ chối",
+      "rejectTitle": "Từ chối giao dịch",
+      "rejectReason": "Lý do từ chối",
+      "completeRefund": "Hoàn tất hoàn tiền",
+      "confirmRefund": "Xác nhận đã hoàn tiền",
+      "method": "Phương thức",
+      "methodValue": { "BANK_TRANSFER": "Chuyển khoản", "CASH": "Tiền mặt" },
+      "purposeLabel": "Loại thanh toán",
+      "purpose": {
+        "DEPOSIT": "Đặt cọc",
+        "BALANCE": "Phần còn lại",
+        "REFUND": "Hoàn tiền"
+      },
+      "depositStatus": {
+        "UNPAID": "Chưa trả",
+        "SUBMITTED": "Chờ duyệt",
+        "PAID": "Đã trả",
+        "EXPIRED": "Hết hạn"
+      },
+      "balanceStatus": {
+        "UNPAID": "Chưa trả",
+        "SUBMITTED": "Chờ duyệt",
+        "PAID": "Đã trả",
+        "OVERDUE": "Quá hạn"
+      },
+      "transactionStatus": {
+        "PENDING": "Chờ xử lý",
+        "SUBMITTED": "Chờ duyệt",
+        "APPROVED": "Đã duyệt",
+        "REJECTED": "Đã từ chối",
+        "EXPIRED": "Hết hạn",
+        "CANCELLED": "Đã hủy"
+      },
+      "filters": {
+        "allPurposes": "Tất cả loại",
+        "allStatuses": "Tất cả trạng thái"
+      },
+      "dashboard": {
+        "depositDue": "Sắp hết hạn cọc",
+        "balanceOverdue": "Phần còn lại quá hạn",
+        "refundPending": "Chờ hoàn tiền"
+      },
+      "messages": { "updated": "Đã cập nhật giao dịch" },
+      "errors": {
+        "action": "Không thể xử lý giao dịch",
+        "invalidProof": "Chỉ nhận ảnh chứng từ tối đa 5 MB.",
+        "DEPOSIT_EXPIRED": "Hạn đặt cọc đã hết.",
+        "PAYMENT_ALREADY_PROCESSED": "Giao dịch đã được một quản lý khác xử lý. Dữ liệu đã được làm mới.",
+        "PAYMENT_AMOUNT_EXCEEDED": "Số tiền vượt quá khoản cần thanh toán.",
+        "PAYMENT_NOT_REQUIRED": "Booking này không còn khoản cần thanh toán.",
+        "REFUND_ALREADY_COMPLETED": "Khoản hoàn tiền đã được hoàn tất.",
+        "INVALID_TRANSITION": "Trạng thái booking đã thay đổi. Dữ liệu đã được làm mới."
       }
     },
     "courts": {

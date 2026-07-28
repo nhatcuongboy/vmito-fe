@@ -17,6 +17,7 @@ interface RecommendedSession {
   startTime: string;
   endTime: string;
   coverPhoto: string | null;
+  location?: string | null;
 
   venue: {
     id: string;
@@ -26,7 +27,7 @@ interface RecommendedSession {
     district: string;
     lat: number;
     lng: number;
-  };
+  } | null;
 
   host: {
     id: string;
@@ -70,6 +71,7 @@ const RecommendationCard = ({
   const tSuggestions = useTranslations('suggestions');
 
   const isMobile = variant === 'mobile';
+  const venueName = session.venue?.name || session.location || '';
 
   const handleClick = () => {
     if (onClick) {
@@ -128,7 +130,7 @@ const RecommendationCard = ({
         role="button"
         aria-label={t('viewSessionAt', {
           name: session.name,
-          venue: session.venue.name,
+          venue: venueName,
         })}
         onKeyDown={(e) => {
           if (e.key === 'Enter' || e.key === ' ') {
@@ -187,7 +189,7 @@ const RecommendationCard = ({
                 color="green.500"
                 flexShrink={0}
               />
-              <Text lineClamp={1}>{session.venue.name}</Text>
+              <Text lineClamp={1}>{venueName}</Text>
             </Flex>
 
             {/* Time */}
@@ -242,7 +244,7 @@ const RecommendationCard = ({
       role="button"
       aria-label={t('viewSessionAt', {
         name: session.name,
-        venue: session.venue.name,
+        venue: venueName,
       })}
       onKeyDown={(e) => {
         if (e.key === 'Enter' || e.key === ' ') {
@@ -296,7 +298,7 @@ const RecommendationCard = ({
           {/* Venue */}
           <Flex align="center" gap={1}>
             <Icon as={MapPin} boxSize={3} color="green.500" flexShrink={0} />
-            <Text lineClamp={1}>{session.venue.name}</Text>
+            <Text lineClamp={1}>{venueName}</Text>
           </Flex>
 
           {/* Time */}

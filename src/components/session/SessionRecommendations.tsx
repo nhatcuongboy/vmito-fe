@@ -39,7 +39,7 @@ interface RecommendedSession
     district: string;
     lat: number;
     lng: number;
-  };
+  } | null;
   host: {
     id: string;
     name: string;

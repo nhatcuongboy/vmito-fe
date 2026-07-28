@@ -45,6 +45,11 @@ import LevelDescriptionsModal from './LevelDescriptionsModal';
 import SessionReferenceVideo from './SessionReferenceVideo';
 import { ROUTES } from '@/constants';
 import { formatTimeRangeByDevicePreference } from '@/utils/time-helpers';
+import {
+  getSessionLocationAddress,
+  getSessionLocationMapUrl,
+  getSessionLocationName,
+} from '@/utils/session-location';
 
 interface ISessionDetailBodyProps {
   session: ISession;
@@ -132,19 +137,15 @@ const SessionDetailBody = ({
 
   const venueDisplayName = session.venue?.name
     ? tVenue('nameFormat', { name: session.venue.name })
-    : session.location || '';
+    : getSessionLocationName(session);
+  const locationAddress = getSessionLocationAddress(session);
+  const locationMapUrl = getSessionLocationMapUrl(session, venueDisplayName);
   const venueDetailHref = session.venue?.id
     ? ROUTES.VENUES.DETAIL(session.venue.id, session.venue.slug)
     : null;
 
   const handleOpenMap = () => {
-    const address = session.venue?.address || venueDisplayName;
-    if (address) {
-      window.open(
-        `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`,
-        '_blank'
-      );
-    }
+    if (locationMapUrl) window.open(locationMapUrl, '_blank');
   };
 
   return (
@@ -240,35 +241,44 @@ const SessionDetailBody = ({
               </Text>
             )}
 
-            {session.venue?.address &&
-              session.venue.address !== session.venue?.name && (
-                <Box mt={0.5}>
-                  <AppAddressDisplay
-                    address={session.venue.address}
-                    district={session.venue.district}
-                    city={session.venue.city}
-                    newAddress={session.venue.newAddress}
-                    newDistrict={session.venue.newDistrict}
-                    fontSize="sm"
-                    lineClamp={2}
-                  />
-                </Box>
-              )}
+            {locationAddress && locationAddress !== venueDisplayName && (
+              <Box mt={0.5}>
+                <AppAddressDisplay
+                  address={locationAddress}
+                  district={
+                    session.venue?.district ||
+                    session.customLocationDistrict ||
+                    undefined
+                  }
+                  city={
+                    session.venue?.city ||
+                    session.customLocationCity ||
+                    undefined
+                  }
+                  newAddress={session.venue?.newAddress}
+                  newDistrict={session.venue?.newDistrict}
+                  fontSize="sm"
+                  lineClamp={2}
+                />
+              </Box>
+            )}
           </Box>
 
-          <IconButton
-            aria-label={t('getDirections')}
-            title={t('getDirections')}
-            variant="ghost"
-            size="xs"
-            minW="40px"
-            h="40px"
-            mt={-2}
-            flexShrink={0}
-            colorPalette="green"
-            onClick={handleOpenMap}
-            icon={<Icon as={Navigation} boxSize={4} aria-hidden="true" />}
-          />
+          {locationMapUrl ? (
+            <IconButton
+              aria-label={t('getDirections')}
+              title={t('getDirections')}
+              variant="ghost"
+              size="xs"
+              minW="40px"
+              h="40px"
+              mt={-2}
+              flexShrink={0}
+              colorPalette="green"
+              onClick={handleOpenMap}
+              icon={<Icon as={Navigation} boxSize={4} aria-hidden="true" />}
+            />
+          ) : null}
         </Flex>
       )}
 

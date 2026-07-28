@@ -17,6 +17,7 @@ import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/chakra-compat';
 import { SearchableSelect } from '@/components/ui/SearchableSelect';
 import { ChevronDown, ChevronUp, Settings, User, Users } from 'lucide-react';
+import { useRef } from 'react';
 import { Controller } from 'react-hook-form';
 import type { Control, FieldErrors, UseFormRegister } from 'react-hook-form';
 import type { useTranslations } from 'next-intl';
@@ -66,6 +67,8 @@ export function AdvancedSection({
   clubOptions: ClubOption[];
   isClubsLoading: boolean;
 }) {
+  const defaultClubFieldRef = useRef<HTMLDivElement>(null);
+
   return (
     <Box
       bg={{ base: 'white', _dark: 'gray.800' }}
@@ -315,7 +318,7 @@ export function AdvancedSection({
 
             {/* Default Club */}
             {canAccessHostFeatures && (
-              <Field.Root>
+              <Field.Root ref={defaultClubFieldRef}>
                 <Field.Label>{t('defaultClub')}</Field.Label>
                 <Controller
                   control={control}
@@ -328,6 +331,8 @@ export function AdvancedSection({
                       placeholder={t('selectDefaultClub')}
                       searchPlaceholder={t('searchDefaultClub')}
                       isLoading={isClubsLoading}
+                      dropdownZIndex={2000}
+                      dropdownPortalContainerRef={defaultClubFieldRef}
                     />
                   )}
                 />

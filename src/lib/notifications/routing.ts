@@ -51,9 +51,13 @@ export const getNotificationTargetRoute = (
   }
 
   if (type === 'VENUE_RENTAL' && rentalRequestId) {
-    return data?.manage === true
-      ? `/manage/venues/rentals/${rentalRequestId}`
-      : `/my/rentals/${rentalRequestId}`;
+    const detailRoute =
+      data?.manage === true
+        ? `/manage/venues/rentals/${rentalRequestId}`
+        : `/my/rentals/${rentalRequestId}`;
+    return data?.route === 'rental-payment'
+      ? `${detailRoute}#rental-payment`
+      : detailRoute;
   }
 
   if (type === 'POST' && postId) {

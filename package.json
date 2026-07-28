@@ -17,6 +17,8 @@
     "test:ranking": "node --no-warnings --experimental-strip-types --test src/utils/session-player-ranking.test.js",
     "test:venue-pricing": "node --no-warnings --experimental-transform-types --test src/components/venue/pricing/pricing-utils.test.ts",
     "test:venue-schedule": "node --no-warnings --experimental-transform-types --test src/components/venue-rental/schedule-validation.test.ts",
+    "test:venue-payment": "node --no-warnings --experimental-transform-types --test src/lib/venue-rental-payment.test.ts",
+    "test:e2e:venue-payment": "playwright test e2e/venue-rental-payment.spec.ts",
     "prepare": "husky"
   },
   "dependencies": {
@@ -81,6 +83,7 @@
   },
   "devDependencies": {
     "@next/bundle-analyzer": "^16.2.10",
+    "@playwright/test": "^1.62.0",
     "@tailwindcss/postcss": "^4",
     "@types/google.maps": "^3.58.1",
     "@types/next-pwa": "^5.6.9",

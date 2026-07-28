@@ -12,18 +12,25 @@ import { useEffect, useRef } from 'react';
 
 const LIBRARIES: 'places'[] = ['places'];
 
+export interface LocationAutocompleteValue {
+  placeId: string;
+  name: string;
+  address: string;
+  lat: number;
+  lng: number;
+  district?: string;
+  city?: string;
+}
+
 interface LocationAutocompleteProps {
-  onSelect: (venue: {
-    placeId: string;
-    name: string;
-    address: string;
-    lat: number;
-    lng: number;
-    district?: string;
-    city?: string;
-  }) => void;
+  onSelect: (venue: LocationAutocompleteValue) => void;
   defaultValue?: string;
+  value?: string;
+  onInputChange?: (value: string) => void;
   placeholder?: string;
+  ariaLabel?: string;
+  inputName?: string;
+  isDisabled?: boolean;
   suggestionsPlacement?: 'absolute' | 'inline';
   suggestionsMaxH?: string;
 }
@@ -31,7 +38,12 @@ interface LocationAutocompleteProps {
 const LocationAutocompleteInner = ({
   onSelect,
   defaultValue = '',
+  value: controlledValue,
+  onInputChange,
   placeholder = 'Search for a badminton court...',
+  ariaLabel,
+  inputName,
+  isDisabled = false,
   suggestionsPlacement = 'absolute',
   suggestionsMaxH = '200px',
 }: LocationAutocompleteProps) => {
@@ -50,13 +62,12 @@ const LocationAutocompleteInner = ({
     defaultValue,
   });
 
-  const listRef = useRef<HTMLUListElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (defaultValue) {
-      setValue(defaultValue, false);
-    }
-  }, [defaultValue, setValue]);
+    const nextValue = controlledValue ?? defaultValue;
+    if (nextValue !== value) setValue(nextValue, false);
+  }, [controlledValue, defaultValue, setValue, value]);
 
   const handleSelect = async (
     address: string,
@@ -64,6 +75,7 @@ const LocationAutocompleteInner = ({
     mainText: string
   ) => {
     setValue(address, false);
+    onInputChange?.(address);
     clearSuggestions();
 
     try {
@@ -98,14 +110,19 @@ const LocationAutocompleteInner = ({
   };
 
   const handleInputCheck = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setValue(e.target.value);
+    const nextValue = e.target.value;
+    setValue(nextValue);
+    onInputChange?.(nextValue);
   };
   const isInlineSuggestions = suggestionsPlacement === 'inline';
 
   // Click outside to close info
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (listRef.current && !listRef.current.contains(event.target as Node)) {
+      if (
+        containerRef.current &&
+        !containerRef.current.contains(event.target as Node)
+      ) {
         clearSuggestions();
       }
     };
@@ -117,12 +134,15 @@ const LocationAutocompleteInner = ({
   }, [clearSuggestions]);
 
   return (
-    <Box position="relative" width="full">
+    <Box ref={containerRef} position="relative" width="full">
       <Input
+        name={inputName}
+        aria-label={ariaLabel}
+        autoComplete="off"
         value={value}
         onChange={handleInputCheck}
         placeholder={placeholder}
-        disabled={!ready}
+        disabled={!ready || isDisabled}
         bg="white"
         _dark={{ bg: 'gray.800' }}
         leftElement={<MapPin color="gray" size={18} />}
@@ -130,7 +150,7 @@ const LocationAutocompleteInner = ({
 
       {status === 'OK' && (
         <Box
-          ref={listRef}
+          role="listbox"
           position={isInlineSuggestions ? 'static' : 'absolute'}
           zIndex={1000}
           top={isInlineSuggestions ? undefined : '100%'}
@@ -150,26 +170,35 @@ const LocationAutocompleteInner = ({
           {data.map(({ place_id, description, structured_formatting }) => (
             <Box
               key={place_id}
+              asChild
               px={4}
               py={3}
               cursor="pointer"
+              textAlign="left"
+              width="full"
               _hover={{ bg: 'gray.100', _dark: { bg: 'gray.700' } }}
-              onClick={() =>
-                handleSelect(
-                  description,
-                  place_id,
-                  structured_formatting.main_text
-                )
-              }
               borderBottomWidth="1px"
               _last={{ borderBottomWidth: 0 }}
             >
-              <Text fontWeight="medium" fontSize="sm">
-                {structured_formatting.main_text}
-              </Text>
-              <Text fontSize="xs" color="gray.500">
-                {structured_formatting.secondary_text}
-              </Text>
+              <button
+                type="button"
+                role="option"
+                aria-selected="false"
+                onClick={() =>
+                  handleSelect(
+                    description,
+                    place_id,
+                    structured_formatting.main_text
+                  )
+                }
+              >
+                <Text fontWeight="medium" fontSize="sm">
+                  {structured_formatting.main_text}
+                </Text>
+                <Text fontSize="xs" color="gray.500">
+                  {structured_formatting.secondary_text}
+                </Text>
+              </button>
             </Box>
           ))}
         </Box>
@@ -180,39 +209,34 @@ const LocationAutocompleteInner = ({
 
 export default function LocationAutocomplete(props: LocationAutocompleteProps) {
   const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
-  console.log('LocationAutocomplete', apiKey);
   const { isLoaded, loadError } = useJsApiLoader({
     id: 'google-map-script',
     googleMapsApiKey: apiKey || '',
     libraries: LIBRARIES,
   });
 
+  const manualInput = (
+    <Input
+      name={props.inputName}
+      aria-label={props.ariaLabel}
+      autoComplete="off"
+      value={props.onInputChange ? (props.value ?? '') : undefined}
+      defaultValue={props.onInputChange ? undefined : props.defaultValue}
+      onChange={(event) => props.onInputChange?.(event.target.value)}
+      placeholder={props.placeholder}
+      bg="white"
+      _dark={{ bg: 'gray.800' }}
+      disabled={props.isDisabled}
+      leftElement={<MapPin color="gray" size={18} />}
+    />
+  );
+
   if (!apiKey) {
-    console.warn(
-      'Google Maps API key is missing. Location search will not work.'
-    );
-    return (
-      <Input
-        placeholder="Enter location (Map API key missing)"
-        bg="white"
-        _dark={{ bg: 'gray.800' }}
-        disabled
-        leftElement={<MapPin color="gray" size={18} />}
-      />
-    );
+    return manualInput;
   }
 
   if (loadError) {
-    console.error('Error loading Google Maps script:', loadError);
-    return (
-      <Input
-        placeholder="Error loading maps"
-        bg="white"
-        _dark={{ bg: 'gray.800' }}
-        disabled
-        leftElement={<MapPin color="gray" size={18} />}
-      />
-    );
+    return manualInput;
   }
 
   if (!isLoaded) {
@@ -222,8 +246,6 @@ export default function LocationAutocomplete(props: LocationAutocompleteProps) {
       </Box>
     );
   }
-
-  console.log('Google Maps API loaded successfully');
 
   return <LocationAutocompleteInner {...props} />;
 }

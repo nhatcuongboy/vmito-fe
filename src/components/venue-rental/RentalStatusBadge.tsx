@@ -7,6 +7,7 @@ import { VenueRentalStatus } from '@/lib/api/types';
 const PALETTE: Record<VenueRentalStatus, string> = {
   PENDING: 'orange',
   COUNTER_OFFERED: 'blue',
+  AWAITING_DEPOSIT: 'orange',
   CONFIRMED: 'green',
   REJECTED: 'red',
   CANCELLED: 'gray',

@@ -5,6 +5,7 @@ import {
   CourtDirection,
   ISession,
   SessionStatus,
+  SessionLocationType,
   UserRole,
   FeeType,
 } from '@/lib/api/types';
@@ -156,7 +157,8 @@ export default function SessionForm({
   } = useDisclosure(false);
   const [venueRequestKeyword, setVenueRequestKeyword] = useState('');
 
-  const handleSuggestNewVenue = () => {
+  const handleSuggestNewVenue = (keyword: string) => {
+    setVenueRequestKeyword(keyword);
     if (!isAuthenticated) {
       openVenueLoginModal();
       return;
@@ -167,7 +169,6 @@ export default function SessionForm({
   const {
     venues,
     isClubsLoading,
-    selectedVenueObj,
     setSelectedVenueObj,
     isVenueLoading,
     venueOptions,
@@ -351,17 +352,24 @@ export default function SessionForm({
   // Form submission handler
   const onSubmit = async (data: SessionFormData) => {
     try {
-      const venueData = selectedVenueObj
-        ? {
-            placeId: selectedVenueObj.placeId,
-            name: selectedVenueObj.name,
-            address: selectedVenueObj.address,
-            lat: selectedVenueObj.lat,
-            lng: selectedVenueObj.lng,
-            district: selectedVenueObj.district,
-            city: selectedVenueObj.city,
-          }
-        : undefined;
+      const locationData =
+        data.locationType === SessionLocationType.VENUE
+          ? {
+              locationType: SessionLocationType.VENUE,
+              venueId: data.selectedVenueId,
+            }
+          : {
+              locationType: SessionLocationType.CUSTOM,
+              customLocation: {
+                name: data.customLocation!.trim(),
+                address: data.customLocationAddress?.trim() || undefined,
+                placeId: data.customLocationPlaceId?.trim() || undefined,
+                lat: data.customLocationLat,
+                lng: data.customLocationLng,
+                district: data.customLocationDistrict?.trim() || undefined,
+                city: data.customLocationCity?.trim() || undefined,
+              },
+            };
 
       let session: ISession;
       let bulkCreatedSessions: ISession[] = [];
@@ -402,7 +410,7 @@ export default function SessionForm({
           coverPhotoPublicId: sessionImages[bannerIndex]?.publicId,
           images: sessionImages.map((img) => img.url),
           imagePublicIds: sessionImages.map((img) => img.publicId),
-          venue: venueData,
+          ...locationData,
           feeConfig: feeConfigData,
 
           // Only update courts if allowed
@@ -453,7 +461,7 @@ export default function SessionForm({
           coverPhotoPublicId: sessionImages[bannerIndex]?.publicId,
           images: sessionImages.map((img) => img.url),
           imagePublicIds: sessionImages.map((img) => img.publicId),
-          venue: venueData,
+          ...locationData,
           courts: data.courts.map((court) => ({
             courtNumber: court.courtNumber,
             courtName: court.courtName || undefined,
@@ -602,6 +610,7 @@ export default function SessionForm({
               isEditMode={isEditMode}
               onOpenAIModal={() => setIsAIModalOpen(true)}
               register={register}
+              setValue={setValue}
               errors={errors}
               control={control}
               canEditVenue={canEditVenue}

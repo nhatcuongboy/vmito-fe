@@ -76,7 +76,7 @@ export function useVenueClubData({
       try {
         const result = await VenueService.searchVenues({
           keyword: keyword.trim() || undefined,
-          limit: 100,
+          limit: 30,
           sortBy: keyword.trim() ? 'relevance' : undefined,
         });
         setVenues(result.data || []);
@@ -91,7 +91,7 @@ export function useVenueClubData({
   useEffect(() => {
     const fetchVenues = async () => {
       try {
-        const result = await VenueService.searchVenues({ limit: 100 });
+        const result = await VenueService.searchVenues({ limit: 30 });
         setVenues(result.data || []);
       } catch (error) {
         console.error('Error fetching venues:', error);

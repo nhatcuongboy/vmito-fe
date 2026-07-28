@@ -84,6 +84,12 @@ export const VDrawer: React.FC<VDrawerProps> = ({
       }}
       placement={placement === 'right' ? 'end' : 'start'}
       closeOnInteractOutside={closeOnOverlayClick}
+      persistentElements={[
+        () =>
+          typeof document === 'undefined'
+            ? null
+            : document.querySelector('[data-vmito-persistent-overlay="true"]'),
+      ]}
       lazyMount
       unmountOnExit
     >
