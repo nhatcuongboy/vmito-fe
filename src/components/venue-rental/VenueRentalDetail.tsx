@@ -45,6 +45,7 @@ import {
   venueTimeValue,
 } from './date-time';
 import RentalStatusBadge from './RentalStatusBadge';
+import RentalPaymentPanel from './RentalPaymentPanel';
 
 const money = (amount: number, currency: string) =>
   new Intl.NumberFormat('vi-VN', { style: 'currency', currency }).format(
@@ -67,6 +68,9 @@ export default function VenueRentalDetail({
     null
   );
   const [reason, setReason] = useState('');
+  const [cancelRefundEstimate, setCancelRefundEstimate] = useState<
+    number | null
+  >(null);
   const [counterOpen, setCounterOpen] = useState(false);
   const [sessionOpen, setSessionOpen] = useState(false);
   const [sessionId, setSessionId] = useState('');
@@ -85,17 +89,20 @@ export default function VenueRentalDetail({
     courtIds: [] as string[],
   });
 
-  const load = useCallback(async () => {
-    try {
-      setLoading(true);
-      setRequest(await VenueRentalService.getById(id));
-    } catch (error) {
-      console.error(error);
-      toaster.error({ title: t('errors.load') });
-    } finally {
-      setLoading(false);
-    }
-  }, [id, t]);
+  const load = useCallback(
+    async (quiet = false) => {
+      try {
+        if (!quiet) setLoading(true);
+        setRequest(await VenueRentalService.getById(id));
+      } catch (error) {
+        console.error(error);
+        toaster.error({ title: t('errors.load') });
+      } finally {
+        if (!quiet) setLoading(false);
+      }
+    },
+    [id, t]
+  );
 
   useEffect(() => {
     load();
@@ -167,6 +174,22 @@ export default function VenueRentalDetail({
       await operation();
       toaster.success({ title: t('messages.updated') });
       await load();
+    } catch (error) {
+      console.error(error);
+      toaster.error({ title: t('errors.action') });
+    } finally {
+      setAction(null);
+    }
+  };
+
+  const refreshQuietly = useCallback(() => load(true), [load]);
+
+  const openCancel = async () => {
+    try {
+      setAction('refund-estimate');
+      const payment = await VenueRentalService.getPaymentSummary(id);
+      setCancelRefundEstimate(payment.refundEstimate);
+      setReasonMode('cancel');
     } catch (error) {
       console.error(error);
       toaster.error({ title: t('errors.action') });
@@ -409,6 +432,19 @@ export default function VenueRentalDetail({
         </Box>
       )}
 
+      {[
+        VenueRentalStatus.AWAITING_DEPOSIT,
+        VenueRentalStatus.CONFIRMED,
+        VenueRentalStatus.CANCELLED,
+        VenueRentalStatus.COMPLETED,
+      ].includes(request.status) ? (
+        <RentalPaymentPanel
+          request={request}
+          manage={manage}
+          onRentalRefresh={refreshQuietly}
+        />
+      ) : null}
+
       <HStack gap={3} flexWrap="wrap">
         {manage && request.status === VenueRentalStatus.PENDING && (
           <Button
@@ -451,7 +487,8 @@ export default function VenueRentalDetail({
           <Button
             variant="outline"
             colorPalette="gray"
-            onClick={() => setReasonMode('cancel')}
+            loading={action === 'refund-estimate'}
+            onClick={openCancel}
           >
             {t('actions.cancel')}
           </Button>
@@ -553,6 +590,22 @@ export default function VenueRentalDetail({
         isPrimaryLoading={!!action}
         primaryColorScheme="red"
       >
+        {reasonMode === 'cancel' && cancelRefundEstimate !== null ? (
+          <Box
+            mb={4}
+            p={3}
+            borderRadius="md"
+            bg={{ base: 'orange.50', _dark: 'orange.950' }}
+          >
+            <Text fontWeight="semibold">{t('modal.refundEstimate')}</Text>
+            <Text fontSize="xl" fontWeight="bold" color="orange.700">
+              {money(cancelRefundEstimate, currency)}
+            </Text>
+            <Text fontSize="sm" color="gray.600">
+              {t('modal.refundEstimateHelp')}
+            </Text>
+          </Box>
+        ) : null}
         <Field label={t('modal.reason')} required={manage}>
           <Textarea
             value={reason}

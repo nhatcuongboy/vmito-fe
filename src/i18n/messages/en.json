@@ -6672,6 +6672,7 @@
     "status": {
       "PENDING": "Pending",
       "COUNTER_OFFERED": "New proposal",
+      "AWAITING_DEPOSIT": "Awaiting deposit",
       "CONFIRMED": "Confirmed",
       "REJECTED": "Rejected",
       "CANCELLED": "Cancelled",
@@ -6761,6 +6762,7 @@
         "AVAILABLE": "Available",
         "UNAVAILABLE": "Unavailable",
         "HELD": "Held",
+        "RESERVED": "Reserved pending deposit",
         "BOOKED": "Booked",
         "PENDING_REQUEST": "Pending request",
         "MAINTENANCE": "Maintenance",
@@ -6796,7 +6798,13 @@
       "COMPLETED": "Rental completed",
       "MANUAL_CREATED": "Manager created a direct booking",
       "COURTS_ALLOCATED": "Courts allocated",
-      "COURTS_REALLOCATED": "Courts changed"
+      "COURTS_REALLOCATED": "Courts changed",
+      "PAYMENT_SUBMITTED": "Payment proof submitted",
+      "PAYMENT_APPROVED": "Payment approved",
+      "PAYMENT_REJECTED": "Payment rejected",
+      "DEPOSIT_EXPIRED": "Deposit deadline expired",
+      "REFUND_REQUIRED": "Refund requested",
+      "REFUND_COMPLETED": "Refund completed"
     },
     "modal": {
       "rejectTitle": "Reject request",
@@ -6804,6 +6812,8 @@
       "counterTitle": "Propose a new schedule",
       "linkSessionTitle": "Link session to rental",
       "reallocateTitle": "Change booking courts",
+      "refundEstimate": "Estimated refund",
+      "refundEstimateHelp": "The final refund follows the policy snapshot when the cancellation is processed.",
       "reason": "Reason"
     },
     "settings": {
@@ -6850,6 +6860,130 @@
       "roleHelp": {
         "OWNER": "Full access: settings and members",
         "MANAGER": "Handles bookings, cannot change settings"
+      }
+    },
+    "paymentSettings": {
+      "title": "Payments and deposits",
+      "description": "Configure deposits, payment deadlines and the refund policy for court rentals.",
+      "unsaved": "Unsaved",
+      "save": "Save payment settings",
+      "saved": "Payment settings saved",
+      "readOnly": "Managers can view these settings; only venue owners or admins can edit them.",
+      "depositMode": "Deposit mode",
+      "mode": {
+        "NONE": "No deposit",
+        "PERCENTAGE": "Percentage",
+        "FIXED": "Fixed amount"
+      },
+      "depositPercent": "Deposit percentage (%)",
+      "depositFixed": "Fixed deposit (VND)",
+      "depositDeadline": "Deposit deadline (minutes)",
+      "balanceDue": "Balance due before play (hours)",
+      "refundCutoff": "Refund cutoff (hours)",
+      "refundBefore": "Refund before cutoff (%)",
+      "refundAfter": "Refund after cutoff (%)",
+      "bankSection": "Receiving bank account",
+      "bankName": "Bank",
+      "accountNumber": "Account number",
+      "accountName": "Account holder",
+      "customQr": "Custom QR (optional)",
+      "preview": "Preview",
+      "previewEmpty": "Enter bank details to generate a VietQR.",
+      "previewPolicy": "{mode} · Value {value}",
+      "errors": {
+        "bankRequired": "Bank, account number and account holder are required when deposits are enabled.",
+        "percentage": "The deposit percentage must be between 1 and 100%.",
+        "fixed": "The fixed deposit must be greater than 0.",
+        "deadline": "The deposit deadline must be between 10 and 1,440 minutes.",
+        "balanceDue": "The balance deadline must be between 0 and 720 hours.",
+        "refundCutoff": "The refund cutoff must be between 0 and 8,760 hours.",
+        "refundPercent": "Refund percentages must be between 0 and 100%."
+      }
+    },
+    "payment": {
+      "title": "Rental payment",
+      "transactionsTitle": "Payment transactions",
+      "refresh": "Refresh",
+      "total": "Total",
+      "paid": "Paid",
+      "outstanding": "Outstanding",
+      "refundEstimate": "Estimated refund",
+      "deposit": "Deposit",
+      "balance": "Balance",
+      "bankTransfer": "Bank transfer details",
+      "copyContent": "Copy transfer content",
+      "copied": "Transfer content copied",
+      "qrAlt": "Court rental payment VietQR",
+      "noQr": "No QR is available. Use the bank account details.",
+      "qrAmount": "Amount: {amount}",
+      "submitDeposit": "Submit deposit proof",
+      "submitBalance": "Submit balance proof",
+      "submitProof": "Submit proof",
+      "depositExpired": "The deposit deadline has passed. The booking is being refreshed.",
+      "recordCash": "Record cash payment",
+      "confirmCash": "Confirm cash received",
+      "history": "Transaction history",
+      "noTransactions": "No transactions yet.",
+      "proof": "Payment proof",
+      "uploadProof": "Upload proof image",
+      "removeProof": "Remove image",
+      "proofHelp": "JPG, PNG or WebP, up to 5 MB.",
+      "viewProof": "View proof",
+      "amount": "Amount (VND)",
+      "notes": "Notes",
+      "approve": "Approve",
+      "reject": "Reject",
+      "rejectTitle": "Reject transaction",
+      "rejectReason": "Rejection reason",
+      "completeRefund": "Complete refund",
+      "confirmRefund": "Confirm refund completed",
+      "method": "Method",
+      "methodValue": { "BANK_TRANSFER": "Bank transfer", "CASH": "Cash" },
+      "purposeLabel": "Payment purpose",
+      "purpose": {
+        "DEPOSIT": "Deposit",
+        "BALANCE": "Balance",
+        "REFUND": "Refund"
+      },
+      "depositStatus": {
+        "UNPAID": "Unpaid",
+        "SUBMITTED": "Submitted",
+        "PAID": "Paid",
+        "EXPIRED": "Expired"
+      },
+      "balanceStatus": {
+        "UNPAID": "Unpaid",
+        "SUBMITTED": "Submitted",
+        "PAID": "Paid",
+        "OVERDUE": "Overdue"
+      },
+      "transactionStatus": {
+        "PENDING": "Pending",
+        "SUBMITTED": "Submitted",
+        "APPROVED": "Approved",
+        "REJECTED": "Rejected",
+        "EXPIRED": "Expired",
+        "CANCELLED": "Cancelled"
+      },
+      "filters": {
+        "allPurposes": "All purposes",
+        "allStatuses": "All statuses"
+      },
+      "dashboard": {
+        "depositDue": "Deposit due soon",
+        "balanceOverdue": "Balance overdue",
+        "refundPending": "Refund pending"
+      },
+      "messages": { "updated": "Transaction updated" },
+      "errors": {
+        "action": "Unable to process the transaction",
+        "invalidProof": "Upload an image no larger than 5 MB.",
+        "DEPOSIT_EXPIRED": "The deposit deadline has passed.",
+        "PAYMENT_ALREADY_PROCESSED": "Another manager already processed this transaction. The data was refreshed.",
+        "PAYMENT_AMOUNT_EXCEEDED": "The amount exceeds the outstanding payment.",
+        "PAYMENT_NOT_REQUIRED": "This booking has no payment due.",
+        "REFUND_ALREADY_COMPLETED": "This refund has already been completed.",
+        "INVALID_TRANSITION": "The booking state changed. The data was refreshed."
       }
     },
     "courts": {

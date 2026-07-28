@@ -400,10 +400,106 @@ export enum VenueManagerRole {
 export enum VenueRentalStatus {
   PENDING = 'PENDING',
   COUNTER_OFFERED = 'COUNTER_OFFERED',
+  AWAITING_DEPOSIT = 'AWAITING_DEPOSIT',
   CONFIRMED = 'CONFIRMED',
   REJECTED = 'REJECTED',
   CANCELLED = 'CANCELLED',
   COMPLETED = 'COMPLETED',
+}
+
+export enum VenueRentalDepositMode {
+  NONE = 'NONE',
+  PERCENTAGE = 'PERCENTAGE',
+  FIXED = 'FIXED',
+}
+
+export enum VenueRentalTransactionPurpose {
+  DEPOSIT = 'DEPOSIT',
+  BALANCE = 'BALANCE',
+  REFUND = 'REFUND',
+}
+
+export enum VenueRentalTransactionDirection {
+  IN = 'IN',
+  OUT = 'OUT',
+}
+
+export enum VenueRentalPaymentMethod {
+  BANK_TRANSFER = 'BANK_TRANSFER',
+  CASH = 'CASH',
+}
+
+export enum VenueRentalTransactionStatus {
+  PENDING = 'PENDING',
+  SUBMITTED = 'SUBMITTED',
+  APPROVED = 'APPROVED',
+  REJECTED = 'REJECTED',
+  EXPIRED = 'EXPIRED',
+  CANCELLED = 'CANCELLED',
+}
+
+export interface VenueRentalPaymentSettings {
+  id?: string;
+  venueId: string;
+  bankName: string | null;
+  bankAccountNumber: string | null;
+  bankAccountName: string | null;
+  qrUrl: string | null;
+  qrPublicId: string | null;
+  depositMode: VenueRentalDepositMode;
+  depositValue: number;
+  depositDeadlineMinutes: number;
+  balanceDueHours: number;
+  refundCutoffHours: number;
+  refundBeforePercent: number;
+  refundAfterPercent: number;
+}
+
+export interface VenueRentalTransaction {
+  id: string;
+  requestId: string;
+  purpose: VenueRentalTransactionPurpose;
+  direction: VenueRentalTransactionDirection;
+  method: VenueRentalPaymentMethod | null;
+  status: VenueRentalTransactionStatus;
+  amount: number;
+  currency: string;
+  proofUrl: string | null;
+  proofPublicId: string | null;
+  notes: string | null;
+  submittedAt: string | null;
+  approvedAt: string | null;
+  rejectedAt: string | null;
+  createdAt: string;
+  updatedAt: string;
+  submittedBy?: { id: string; name: string; image: string | null } | null;
+  processedBy?: { id: string; name: string; image: string | null } | null;
+}
+
+export interface VenueRentalPaymentSummary {
+  rentalRequestId: string;
+  status: VenueRentalStatus;
+  currency: string;
+  totalAmount: number;
+  depositAmount: number;
+  depositPaid: number;
+  depositDueAt: string | null;
+  balanceAmount: number;
+  balancePaid: number;
+  balanceDueAt: string | null;
+  balanceStatus: 'UNPAID' | 'SUBMITTED' | 'PAID' | 'OVERDUE';
+  totalPaid: number;
+  refunded: number;
+  outstanding: number;
+  refundEstimate: number;
+  recipient: {
+    bankName: string | null;
+    bankAccountNumber: string | null;
+    bankAccountName: string | null;
+    qrUrl: string | null;
+    qrPublicId: string | null;
+  };
+  transactions: VenueRentalTransaction[];
 }
 
 export enum VenueRentalProposalStatus {
@@ -466,6 +562,7 @@ export type PublicCourtSlotStatus = 'AVAILABLE' | 'UNAVAILABLE';
 export type ManagerCourtSlotStatus =
   | 'AVAILABLE'
   | 'HELD'
+  | 'RESERVED'
   | 'BOOKED'
   | 'PENDING_REQUEST'
   | 'MAINTENANCE'

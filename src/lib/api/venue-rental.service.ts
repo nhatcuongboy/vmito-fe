@@ -10,12 +10,17 @@ import {
   VenueManager,
   VenueManagerRole,
   VenueRentalAvailability,
+  VenueRentalPaymentMethod,
+  VenueRentalPaymentSettings,
+  VenueRentalPaymentSummary,
   VenueRentalPage,
   VenueRentalProposal,
   VenueRentalQuote,
   VenueRentalRequest,
   VenueRentalSelectionMode,
   VenueRentalStatus,
+  VenueRentalTransaction,
+  VenueRentalTransactionPurpose,
   VenueOperatingPeriod,
 } from './types';
 
@@ -53,6 +58,107 @@ const withParams = (filters?: RentalFilters) => ({
 });
 
 export const VenueRentalService = {
+  async getPaymentSettings(venueId: string) {
+    const response = await api.get<ApiResponse<VenueRentalPaymentSettings>>(
+      `/venues/${venueId}/rental-payment-settings`
+    );
+    return response.data.data!;
+  },
+
+  async updatePaymentSettings(
+    venueId: string,
+    data: Partial<Omit<VenueRentalPaymentSettings, 'id' | 'venueId'>>
+  ) {
+    const response = await api.patch<ApiResponse<VenueRentalPaymentSettings>>(
+      `/venues/${venueId}/rental-payment-settings`,
+      data
+    );
+    return response.data.data!;
+  },
+
+  async getPaymentSummary(id: string, options?: RequestOptions) {
+    const response = await api.get<ApiResponse<VenueRentalPaymentSummary>>(
+      `/venue-rentals/${id}/payment-summary`,
+      options
+    );
+    return response.data.data!;
+  },
+
+  async submitPayment(
+    id: string,
+    data: {
+      purpose: Exclude<
+        VenueRentalTransactionPurpose,
+        VenueRentalTransactionPurpose.REFUND
+      >;
+      amount: number;
+      proofUrl: string;
+      proofPublicId?: string;
+      notes?: string;
+    }
+  ) {
+    const response = await api.post<ApiResponse<VenueRentalTransaction>>(
+      `/venue-rentals/${id}/payments`,
+      data,
+      { skipGlobalError: true }
+    );
+    return response.data.data!;
+  },
+
+  async recordCashPayment(
+    id: string,
+    data: {
+      purpose: Exclude<
+        VenueRentalTransactionPurpose,
+        VenueRentalTransactionPurpose.REFUND
+      >;
+      amount: number;
+      notes?: string;
+    }
+  ) {
+    const response = await api.post<ApiResponse<VenueRentalTransaction>>(
+      `/venue-rentals/${id}/payments/cash`,
+      data,
+      { skipGlobalError: true }
+    );
+    return response.data.data!;
+  },
+
+  async approvePayment(id: string, paymentId: string) {
+    const response = await api.post<ApiResponse<VenueRentalTransaction>>(
+      `/venue-rentals/${id}/payments/${paymentId}/approve`,
+      undefined,
+      { skipGlobalError: true }
+    );
+    return response.data.data!;
+  },
+
+  async rejectPayment(id: string, paymentId: string, reason: string) {
+    const response = await api.post<ApiResponse<VenueRentalTransaction>>(
+      `/venue-rentals/${id}/payments/${paymentId}/reject`,
+      { reason },
+      { skipGlobalError: true }
+    );
+    return response.data.data!;
+  },
+
+  async completeRefund(
+    id: string,
+    refundId: string,
+    data: {
+      method: VenueRentalPaymentMethod;
+      notes?: string;
+      proofUrl?: string;
+      proofPublicId?: string;
+    }
+  ) {
+    const response = await api.post<ApiResponse<VenueRentalTransaction>>(
+      `/venue-rentals/${id}/refunds/${refundId}/complete`,
+      data,
+      { skipGlobalError: true }
+    );
+    return response.data.data!;
+  },
   async createQuote(venueId: string, data: RentalTimeInput) {
     const response = await api.post<ApiResponse<VenueRentalQuote>>(
       `/venues/${venueId}/rental-quotes`,

@@ -19,6 +19,7 @@ import { useAuthStore } from '@/stores/useAuthStore';
 import SectionCard from './SectionCard';
 import VenueCourtManagement from './VenueCourtManagement';
 import VenueManagersSection from './VenueManagersSection';
+import RentalPaymentSettingsSection from './RentalPaymentSettingsSection';
 import { getTimeZoneOptions, DEFAULT_TIMEZONE } from './timezones';
 
 export default function VenueRentalSettings({
@@ -141,6 +142,11 @@ export default function VenueRentalSettings({
           </HStack>
         </VStack>
       </SectionCard>
+
+      <RentalPaymentSettingsSection
+        venueId={venue.id}
+        canEdit={canManageMembers}
+      />
 
       <VenueManagersSection
         venueId={venue.id}

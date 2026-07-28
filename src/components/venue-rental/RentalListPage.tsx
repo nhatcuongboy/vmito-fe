@@ -17,6 +17,7 @@ import { VenueRentalService } from '@/lib/api/venue-rental.service';
 import { Venue, VenueRentalRequest, VenueRentalStatus } from '@/lib/api/types';
 import RentalRequestCard from './RentalRequestCard';
 import VenueManagerSchedule from './VenueManagerSchedule';
+import RentalPaymentAttention from './RentalPaymentAttention';
 
 export default function RentalListPage({
   manage = false,
@@ -110,6 +111,9 @@ export default function RentalListPage({
           />
         )}
       </HStack>
+      {manage && view === 'list' && !loading ? (
+        <RentalPaymentAttention rentals={rentals} />
+      ) : null}
       {manage && view === 'schedule' ? (
         venueId ? (
           <VenueManagerSchedule
