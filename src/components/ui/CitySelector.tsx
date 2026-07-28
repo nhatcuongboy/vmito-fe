@@ -13,6 +13,11 @@ import { Box, Flex, Input, Portal, Text } from '@chakra-ui/react';
 import { Check, ChevronDown, LocateFixed, MapPin, Search } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 
+// Sentinel used only for the "All" menu row; selecting it stores
+// preferredCity = null, which every browse page already treats as
+// "no city filter" (nationwide).
+const ALL_CITY_LABEL = 'Tất cả';
+
 export default function CitySelector({
   hideIcon = false,
 }: {
@@ -20,6 +25,9 @@ export default function CitySelector({
 }) {
   const preferredCity = usePreferenceStore((s) => s.preferredCity);
   const setPreferredCity = usePreferenceStore((s) => s.setPreferredCity);
+  const setOnboardingCompleted = usePreferenceStore(
+    (s) => s.setOnboardingCompleted
+  );
   const { showNewAddress } = useAppSettings();
   const { cityOptions } = useNewAdminUnits();
 
@@ -62,15 +70,22 @@ export default function CitySelector({
     );
   }, [showNewAddress, search, items]);
 
+  // "All" is the active selection whenever no specific city is stored.
+  const isAllSelected = preferredCity === null;
+
   // Display name (falls back to a legacy code stored before a mode switch).
-  const displayName = formatCity(
-    showNewAddress
-      ? (legacyCity?.name ?? preferredCity ?? '')
-      : (legacyCity?.name ?? '')
-  );
-  const displayShort = showNewAddress
-    ? displayName
-    : (legacyCity?.shortName ?? legacyCity?.name ?? '');
+  const displayName = isAllSelected
+    ? ALL_CITY_LABEL
+    : formatCity(
+        showNewAddress
+          ? (legacyCity?.name ?? preferredCity ?? '')
+          : (legacyCity?.name ?? '')
+      );
+  const displayShort = isAllSelected
+    ? ALL_CITY_LABEL
+    : showNewAddress
+      ? displayName
+      : (legacyCity?.shortName ?? legacyCity?.name ?? '');
 
   // Keep a ref to the latest preferredCity so the conversion effect below can
   // read it without adding it to the dependency array (which would cause it to
@@ -160,6 +175,14 @@ export default function CitySelector({
 
   const handleSelect = (value: string) => {
     setPreferredCity(value);
+    setIsOpen(false);
+  };
+
+  const handleSelectAll = () => {
+    // null = no city filter (nationwide). Mark onboarding complete so the
+    // CityOnboardingModal doesn't treat this as an unset preference.
+    setPreferredCity(null);
+    setOnboardingCompleted(true);
     setIsOpen(false);
   };
 
@@ -375,6 +398,44 @@ export default function CitySelector({
               </Box>
             )}
             <Box maxH="300px" overflowY="auto">
+              {/* "All" (nationwide) — hidden while actively searching */}
+              {!search.trim() && (
+                <Flex
+                  align="center"
+                  justify="space-between"
+                  gap={2}
+                  px={4}
+                  py={2.5}
+                  cursor="pointer"
+                  bg={isAllSelected ? 'green.50' : 'transparent'}
+                  _hover={{ bg: isAllSelected ? 'green.50' : 'bg.muted' }}
+                  _dark={{
+                    bg: isAllSelected ? 'green.950' : 'transparent',
+                    _hover: {
+                      bg: isAllSelected ? 'green.950' : 'whiteAlpha.100',
+                    },
+                  }}
+                  onClick={handleSelectAll}
+                  transition="background 0.1s"
+                >
+                  <Text
+                    fontSize="sm"
+                    fontWeight={isAllSelected ? '600' : '400'}
+                    color={isAllSelected ? 'green.700' : 'fg'}
+                    _dark={{ color: isAllSelected ? 'green.300' : 'fg' }}
+                    truncate
+                  >
+                    {ALL_CITY_LABEL}
+                  </Text>
+                  {isAllSelected && (
+                    <Check
+                      size={14}
+                      color="var(--chakra-colors-green-500)"
+                      style={{ flexShrink: 0 }}
+                    />
+                  )}
+                </Flex>
+              )}
               {visibleItems.length === 0 ? (
                 <Text px={4} py={3} fontSize="sm" color="fg.muted">
                   Không tìm thấy kết quả
