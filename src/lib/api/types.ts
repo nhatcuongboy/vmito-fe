@@ -853,6 +853,11 @@ export interface SearchVenueResponse {
 }
 
 // Session types
+export enum SessionLocationType {
+  VENUE = 'VENUE',
+  CUSTOM = 'CUSTOM',
+}
+
 export interface ISession {
   id: string;
   slug?: string;
@@ -1111,7 +1116,11 @@ export interface CreateSessionRequest {
   shuttlecock?: string;
   defaultMatchType?: 'SINGLES' | 'DOUBLES';
   courts?: CourtConfig[];
-  venue?: Omit<Venue, 'id' | 'createdAt' | 'updatedAt'>; // Inline venue object (backend doesn't support venueId)
+  locationType?: SessionLocationType;
+  venueId?: string;
+  location?: string;
+  /** @deprecated Legacy clients only. New clients should submit locationType + venueId. */
+  venue?: Omit<Venue, 'id' | 'createdAt' | 'updatedAt'>;
   clubId?: string | null;
   feeConfig?: CreateSessionFeeConfigRequest; // Fee configuration
   coverPhoto?: string;

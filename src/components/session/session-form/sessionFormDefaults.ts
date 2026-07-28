@@ -1,4 +1,4 @@
-import { CourtDirection, ISession } from '@/lib/api/types';
+import { CourtDirection, ISession, SessionLocationType } from '@/lib/api/types';
 import { COURT_COLORS } from '@/components/session/CourtSettings';
 
 import { formatDateTimeLocal } from './sessionFormUtils';
@@ -18,7 +18,11 @@ export function buildSessionFormDefaults({
       name: initialData.name,
       description: initialData.description || '',
       referenceVideoUrl: initialData.referenceVideoUrl || '',
+      locationType: initialData.venue
+        ? SessionLocationType.VENUE
+        : SessionLocationType.CUSTOM,
       selectedVenueId: initialData.venue?.id || '',
+      customLocation: initialData.venue ? '' : initialData.location || '',
       clubId: initialData.clubId || '',
       hostName: initialData.hostName || initialData.host?.name || '',
       hostPhone: initialData.hostPhone || '',
@@ -53,7 +57,9 @@ export function buildSessionFormDefaults({
     name: '',
     description: '',
     referenceVideoUrl: '',
+    locationType: SessionLocationType.VENUE,
     selectedVenueId: '',
+    customLocation: '',
     clubId: '',
     hostName: userName || '',
     hostPhone: '',

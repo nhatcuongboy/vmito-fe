@@ -10,13 +10,14 @@ import {
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/chakra-compat';
 import { SearchableSelect } from '@/components/ui/SearchableSelect';
+import { Radio } from '@/components/ui/radio';
 import { Sparkles } from 'lucide-react';
-import { Controller } from 'react-hook-form';
+import { Controller, useWatch } from 'react-hook-form';
 import type { Control, FieldErrors, UseFormRegister } from 'react-hook-form';
 import type { useTranslations } from 'next-intl';
 import { useTranslations as useNextIntlTranslations } from 'next-intl';
 
-import { Venue } from '@/lib/api/types';
+import { SessionLocationType, Venue } from '@/lib/api/types';
 import { SessionFormData } from '@/components/session/session-form/sessionFormSchema';
 
 type Translator = ReturnType<typeof useTranslations>;
@@ -58,6 +59,7 @@ export function BasicInfoSection({
   onSuggestNewVenue?: () => void;
 }) {
   const tVenueRequests = useNextIntlTranslations('venueRequests');
+  const locationType = useWatch({ control, name: 'locationType' });
   return (
     <Box
       bg={{ base: 'white', _dark: 'gray.800' }}
@@ -119,10 +121,7 @@ export function BasicInfoSection({
 
         {/* Location */}
         <Box id="field-venue">
-          <Field.Root
-            invalid={!!errors.selectedVenueId}
-            disabled={!canEditVenue}
-          >
+          <Field.Root disabled={!canEditVenue}>
             <Field.Label>
               {t('location')}{' '}
               <Text as="span" color="red.500">
@@ -131,37 +130,78 @@ export function BasicInfoSection({
             </Field.Label>
             <Controller
               control={control}
-              name="selectedVenueId"
+              name="locationType"
               render={({ field }) => (
-                <SearchableSelect
-                  isInvalid={!!errors.selectedVenueId}
+                <Radio.Root
                   value={field.value}
-                  onChange={(value) => {
-                    field.onChange(value);
-                    const venue = venues.find((v) => v.id === value);
-                    setSelectedVenueObj(venue ?? null);
-                  }}
-                  options={venueOptions}
-                  placeholder={t('generalSettings.selectVenue')}
-                  searchPlaceholder={t('generalSettings.searchVenue')}
-                  noOptionsMessage={t('generalSettings.noVenueFound')}
-                  onSearchChange={handleVenueSearch}
-                  isLoading={isVenueLoading}
-                  isDisabled={!canEditVenue}
-                  onNoOptionsAction={
-                    onSuggestNewVenue
-                      ? {
-                          label: tVenueRequests('suggestNewVenue'),
-                          onClick: onSuggestNewVenue,
-                        }
-                      : undefined
-                  }
-                />
+                  onValueChange={(details) => field.onChange(details.value)}
+                  disabled={!canEditVenue}
+                  display="flex"
+                  gap={5}
+                  mb={3}
+                >
+                  <Radio.Item value={SessionLocationType.VENUE}>
+                    {t('generalSettings.existingVenue')}
+                  </Radio.Item>
+                  <Radio.Item value={SessionLocationType.CUSTOM}>
+                    {t('generalSettings.customLocation')}
+                  </Radio.Item>
+                </Radio.Root>
               )}
             />
-            <Field.ErrorText color="fg.error">
-              {errors.selectedVenueId?.message}
-            </Field.ErrorText>
+
+            {locationType === SessionLocationType.VENUE ? (
+              <Field.Root invalid={!!errors.selectedVenueId}>
+                <Controller
+                  control={control}
+                  name="selectedVenueId"
+                  render={({ field }) => (
+                    <SearchableSelect
+                      isInvalid={!!errors.selectedVenueId}
+                      value={field.value}
+                      onChange={(value) => {
+                        field.onChange(value);
+                        const venue = venues.find((v) => v.id === value);
+                        setSelectedVenueObj(venue ?? null);
+                      }}
+                      options={venueOptions}
+                      placeholder={t('generalSettings.selectVenue')}
+                      searchPlaceholder={t('generalSettings.searchVenue')}
+                      noOptionsMessage={t('generalSettings.noVenueFound')}
+                      onSearchChange={handleVenueSearch}
+                      isLoading={isVenueLoading}
+                      isDisabled={!canEditVenue}
+                      onNoOptionsAction={
+                        onSuggestNewVenue
+                          ? {
+                              label: tVenueRequests('suggestNewVenue'),
+                              onClick: onSuggestNewVenue,
+                            }
+                          : undefined
+                      }
+                    />
+                  )}
+                />
+                <Field.ErrorText color="fg.error">
+                  {errors.selectedVenueId?.message}
+                </Field.ErrorText>
+              </Field.Root>
+            ) : (
+              <Field.Root invalid={!!errors.customLocation}>
+                <Input
+                  {...register('customLocation')}
+                  maxLength={200}
+                  placeholder={t('generalSettings.customLocationPlaceholder')}
+                  disabled={!canEditVenue}
+                />
+                <Text mt={1} fontSize="xs" color="fg.muted">
+                  {t('generalSettings.customLocationHint')}
+                </Text>
+                <Field.ErrorText color="fg.error">
+                  {errors.customLocation?.message}
+                </Field.ErrorText>
+              </Field.Root>
+            )}
           </Field.Root>
         </Box>
       </Stack>

@@ -422,6 +422,7 @@
     "forBestPractices": "cho thực hành tốt nhất",
     "validation": {
       "locationRequired": "Vui lòng chọn địa điểm",
+      "customLocationRequired": "Vui lòng nhập tên địa điểm có ít nhất 2 ký tự",
       "startTimeRequired": "Vui lòng chọn thời gian bắt đầu",
       "startTimeMustBeInFuture": "Thời gian bắt đầu không được trong quá khứ",
       "endTimeRequired": "Vui lòng chọn thời gian kết thúc",
@@ -461,6 +462,10 @@
     },
     "generalSettings": {
       "selectVenue": "Chọn địa điểm...",
+      "existingVenue": "Sân có sẵn",
+      "customLocation": "Địa điểm khác",
+      "customLocationPlaceholder": "Nhập tên sân hoặc địa điểm",
+      "customLocationHint": "Địa điểm này chỉ dùng cho kèo và không được thêm vào danh sách sân Vmito.",
       "searchVenue": "Tìm địa điểm...",
       "noVenueFound": "Không tìm thấy sân nào",
       "sessionName": "Tên kèo",

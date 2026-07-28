@@ -409,6 +409,7 @@
     "forBestPractices": "了解最佳实践",
     "validation": {
       "locationRequired": "请选择地点",
+      "customLocationRequired": "请输入至少 2 个字符的地点名称",
       "startTimeRequired": "请选择开始时间",
       "endTimeRequired": "请选择结束时间",
       "hostNameRequired": "请输入主办方姓名",
@@ -447,6 +448,10 @@
     },
     "generalSettings": {
       "selectVenue": "选择场地...",
+      "existingVenue": "现有场地",
+      "customLocation": "其他地点",
+      "customLocationPlaceholder": "输入场地或地点名称",
+      "customLocationHint": "此地点仅用于本场活动，不会添加到 Vmito 场地目录。",
       "searchVenue": "搜索场地...",
       "noVenueFound": "未找到场地",
       "sessionName": "场次名称",

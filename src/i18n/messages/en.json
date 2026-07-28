@@ -421,6 +421,7 @@
     "forBestPractices": "for best practices",
     "validation": {
       "locationRequired": "Location is required",
+      "customLocationRequired": "Enter a location name with at least 2 characters",
       "startTimeRequired": "Start time is required",
       "startTimeMustBeInFuture": "Start time cannot be in the past",
       "endTimeRequired": "End time is required",
@@ -460,6 +461,10 @@
     },
     "generalSettings": {
       "selectVenue": "Select a venue...",
+      "existingVenue": "Existing venue",
+      "customLocation": "Other location",
+      "customLocationPlaceholder": "Enter a venue or location name",
+      "customLocationHint": "This location is used only for the session and is not added to the Vmito venue directory.",
       "searchVenue": "Search for a venue...",
       "noVenueFound": "No venues found",
       "sessionName": "Session Name",

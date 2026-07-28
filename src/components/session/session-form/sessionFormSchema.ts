@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { CourtDirection } from '@/lib/api/types';
+import { CourtDirection, SessionLocationType } from '@/lib/api/types';
 
 // Zod schema for court validation
 export type SessionFormData = z.infer<
@@ -28,7 +28,9 @@ export function createSessionFormSchema(
     .object({
       // Required fields
       name: z.string().min(1, t('validation.sessionNameRequired')),
-      selectedVenueId: z.string().min(1, t('validation.locationRequired')),
+      locationType: z.nativeEnum(SessionLocationType),
+      selectedVenueId: z.string(),
+      customLocation: z.string().trim().max(200).optional(),
       clubId: z.string().optional(),
       hostName: z.string().min(1, t('validation.hostNameRequired')),
       hostPhone: z.string().optional(),
@@ -81,6 +83,28 @@ export function createSessionFormSchema(
       requiredLevels: z.array(z.coerce.number()).optional(),
       shuttlecock: z.string().optional(),
       defaultMatchType: z.enum(['SINGLES', 'DOUBLES']),
+    })
+    .superRefine((data, ctx) => {
+      if (
+        data.locationType === SessionLocationType.VENUE &&
+        !data.selectedVenueId
+      ) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: t('validation.locationRequired'),
+          path: ['selectedVenueId'],
+        });
+      }
+      if (
+        data.locationType === SessionLocationType.CUSTOM &&
+        (!data.customLocation || data.customLocation.length < 2)
+      ) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: t('validation.customLocationRequired'),
+          path: ['customLocation'],
+        });
+      }
     })
     .refine((data) => new Date(data.endTime) > new Date(data.startTime), {
       message: t('validation.endTimeMustBeAfterStartTime'),
