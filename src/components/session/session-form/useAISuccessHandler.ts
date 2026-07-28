@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 import { UseFormSetValue } from 'react-hook-form';
 
-import { FeeType, Venue } from '@/lib/api/types';
+import { FeeType, SessionLocationType, Venue } from '@/lib/api/types';
 import { VenueService } from '@/lib/api/venue.service';
 import { ExtractedSessionData } from '@/lib/api/ai.service';
 
@@ -12,7 +12,7 @@ import {
   formatDateTimeLocal,
   formatTimeOnly,
 } from '@/components/session/session-form/sessionFormUtils';
-import { findBestVenueMatch } from '@/components/session/session-form/venueMatching';
+import { resolveAiLocation } from '@/components/session/session-form/aiLocationResolver';
 
 interface UseAISuccessHandlerParams {
   setValue: UseFormSetValue<SessionFormData>;
@@ -27,6 +27,11 @@ interface UseAISuccessHandlerParams {
   setMaleFee: (value: number | undefined) => void;
   setFemaleFee: (value: number | undefined) => void;
   setFeeNotes: (value: string) => void;
+  /**
+   * Called with true when the AI data fell back to a custom location, so the
+   * form can tell the user to check the name/address before submitting.
+   */
+  setCustomLocationFromAI: (value: boolean) => void;
 }
 
 export function useAISuccessHandler({
@@ -42,6 +47,7 @@ export function useAISuccessHandler({
   setMaleFee,
   setFemaleFee,
   setFeeNotes,
+  setCustomLocationFromAI,
 }: UseAISuccessHandlerParams) {
   return useCallback(
     async (
@@ -124,45 +130,53 @@ export function useAISuccessHandler({
         if (data.feeConfig.notes) setFeeNotes(data.feeConfig.notes);
       }
 
-      // Venue handling - use venueId from backend if available
-      if (data.venueId) {
-        // Backend already matched the venue, use it directly
-        console.log('Using venue ID from backend:', data.venueId);
-        setValue('selectedVenueId', data.venueId);
+      // Location: the backend already decided whether this venue exists in
+      // Vmito, so the two branches below are exhaustive — no client-side
+      // fuzzy re-match, which used to silently pick a similarly named venue.
+      const location = resolveAiLocation(data);
 
-        // Fetch venue details to set selectedVenueObj
-        const matchedVenue = venues.find((v) => v.id === data.venueId);
+      if (location.kind === 'venue') {
+        setValue('locationType', SessionLocationType.VENUE);
+        setValue('selectedVenueId', location.venueId, {
+          shouldValidate: true,
+        });
+        // Wipe any custom-location leftovers so the two shapes never coexist.
+        setValue('customLocation', '');
+        setValue('customLocationAddress', '');
+        setValue('customLocationDistrict', '');
+        setValue('customLocationCity', '');
+        setValue('customLocationPlaceId', '');
+        setValue('customLocationLat', undefined);
+        setValue('customLocationLng', undefined);
+        setCustomLocationFromAI(false);
+
+        const matchedVenue = venues.find((v) => v.id === location.venueId);
         if (matchedVenue) {
           setSelectedVenueObj(matchedVenue);
         } else {
-          // Venue not in current list, fetch it
+          // Not in the currently loaded page of venues — fetch it so the
+          // select shows a proper label instead of a bare id.
           try {
-            const venueDetails = await VenueService.getVenue(data.venueId);
+            const venueDetails = await VenueService.getVenue(location.venueId);
             setSelectedVenueObj(venueDetails);
           } catch (error) {
             console.error('Failed to fetch venue details:', error);
           }
         }
-      } else if (
-        data.venue &&
-        (data.venue.name || data.venue.address) &&
-        venues.length > 0
-      ) {
-        // Fallback: try client-side matching if backend didn't find a match
-        console.log(
-          'Backend did not match venue, trying client-side matching for:',
-          data.venue
-        );
-
-        const matchedVenue = findBestVenueMatch(venues, data.venue);
-
-        if (matchedVenue) {
-          console.log('Client-side matched venue:', matchedVenue.name);
-          setValue('selectedVenueId', matchedVenue.id);
-          setSelectedVenueObj(matchedVenue);
-        } else {
-          console.log('No matching venue found for:', data.venue);
-        }
+      } else if (location.kind === 'custom') {
+        setValue('locationType', SessionLocationType.CUSTOM);
+        setValue('selectedVenueId', '');
+        setSelectedVenueObj(null);
+        setValue('customLocation', location.name, { shouldValidate: true });
+        setValue('customLocationAddress', location.address ?? '');
+        setValue('customLocationDistrict', location.district ?? '');
+        setValue('customLocationCity', location.city ?? '');
+        // No placeId/coordinates: nothing here has been geocoded, and a stale
+        // pin is worse than none.
+        setValue('customLocationPlaceId', '');
+        setValue('customLocationLat', undefined);
+        setValue('customLocationLng', undefined);
+        setCustomLocationFromAI(true);
       }
     },
     [
@@ -178,6 +192,7 @@ export function useAISuccessHandler({
       setSessionDate,
       setStartHour,
       setEndHour,
+      setCustomLocationFromAI,
     ]
   );
 }

@@ -168,6 +168,7 @@ export default function SessionForm({
 
   const {
     venues,
+    venuesLoaded,
     isClubsLoading,
     setSelectedVenueObj,
     isVenueLoading,
@@ -314,6 +315,10 @@ export default function SessionForm({
     }
   };
 
+  // True when the AI extraction could not be matched to a Vmito venue and the
+  // form fell back to a custom location the user needs to double-check.
+  const [customLocationFromAI, setCustomLocationFromAI] = useState(false);
+
   // AI Success handler using setValue
   const handleAISuccess = useAISuccessHandler({
     setValue,
@@ -328,12 +333,16 @@ export default function SessionForm({
     setMaleFee,
     setFemaleFee,
     setFeeNotes,
+    setCustomLocationFromAI,
   });
 
-  // Check for pending session data from quick create
+  // Check for pending session data from quick create.
+  // Gated on venuesLoaded, not on venues.length: a matched venue still needs
+  // the list to resolve its label, but an empty or failed fetch must not
+  // strand the pending data — the custom-location fallback needs no venues.
   const hasCheckedSessionStorage = useRef(false);
   useEffect(() => {
-    if (!isEditMode && venues.length > 0 && !hasCheckedSessionStorage.current) {
+    if (!isEditMode && venuesLoaded && !hasCheckedSessionStorage.current) {
       const pendingData = sessionStorage.getItem('vmito_pending_session_data');
       if (pendingData) {
         try {
@@ -347,7 +356,7 @@ export default function SessionForm({
         }
       }
     }
-  }, [isEditMode, venues, handleAISuccess]);
+  }, [isEditMode, venuesLoaded, handleAISuccess]);
 
   // Form submission handler
   const onSubmit = async (data: SessionFormData) => {
@@ -626,6 +635,10 @@ export default function SessionForm({
               }}
               isVenueLoading={isVenueLoading}
               onSuggestNewVenue={handleSuggestNewVenue}
+              showAiCustomLocationWarning={customLocationFromAI}
+              onDismissAiCustomLocationWarning={() =>
+                setCustomLocationFromAI(false)
+              }
             />
 
             {/* Host Info Section */}

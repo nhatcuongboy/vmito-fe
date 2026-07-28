@@ -456,6 +456,10 @@
       "recommendedLabel": "推荐",
       "customLocationAddressPlaceholder": "搜索或输入地址…",
       "customLocationAddressHelp": "添加地址，方便玩家查找和获取场次路线。",
+      "aiCustomLocation": {
+        "title": "在 Vmito 中未找到该场地",
+        "description": "AI 已根据帖子填写了临时地点。请在创建约球前核对名称和地址，或从列表中选择已有场地。"
+      },
       "temporaryLocation": "可选地点",
       "customLocationHint": "此地点仅用于本场活动，尚未添加到 Vmito 场地目录。",
       "useCustomLocation": "将“{name}”用作可选地点",

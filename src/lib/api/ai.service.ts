@@ -6,6 +6,9 @@ export interface ExtractedVenue {
   address?: string;
   district?: string;
   city?: string;
+  newAddress?: string;
+  newDistrict?: string;
+  newCity?: string;
 }
 
 export interface ExtractedSessionData {
@@ -17,8 +20,19 @@ export interface ExtractedSessionData {
   endTime?: string;
   maxPlayersPerCourt?: number;
   requiredLevels?: number[];
+  /** Free-form display location from the post, e.g. "Sân ABC, Quận 7". */
+  location?: string;
+  /**
+   * Venue snapshot. When venueId is set this is the canonical Vmito venue;
+   * when venueId is absent it is unverified text the user must check.
+   */
   venue?: ExtractedVenue;
-  venueId?: string; // Matched venue ID from backend
+  /**
+   * Set only when the backend confirmed a match against the venue directory.
+   * Its absence is meaningful: never re-run a client-side fuzzy match on top —
+   * the backend already decided this venue is not in Vmito.
+   */
+  venueId?: string;
   numberOfCourts?: number;
   courtNames?: string[];
   shuttlecock?: string;

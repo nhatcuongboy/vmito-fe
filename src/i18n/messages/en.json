@@ -468,6 +468,10 @@
       "customLocationAddress": "Address",
       "customLocationAddressPlaceholder": "Search or enter an address…",
       "customLocationAddressHelp": "Add an address so players can easily find and get directions to the session.",
+      "aiCustomLocation": {
+        "title": "This venue is not in Vmito yet",
+        "description": "The AI filled in a temporary location from the post. Please check the name and address before creating the session, or pick an existing venue from the list."
+      },
       "temporaryLocation": "Optional location",
       "customLocationHint": "This location is used only for the session and has not been added to the Vmito venue directory.",
       "useCustomLocation": "Use “{name}” as an optional location",

@@ -470,6 +470,10 @@
       "recommendedLabel": "Khuyến nghị",
       "customLocationAddressPlaceholder": "Tìm hoặc nhập địa chỉ…",
       "customLocationAddressHelp": "Thêm địa chỉ để người chơi có thể tìm kiếm kèo và tìm đường dễ dàng.",
+      "aiCustomLocation": {
+        "title": "Chưa tìm thấy sân này trong Vmito",
+        "description": "AI đã điền địa điểm tạm từ bài viết. Vui lòng kiểm tra lại tên và địa chỉ trước khi tạo kèo, hoặc chọn sân có sẵn trong danh sách."
+      },
       "temporaryLocation": "Địa điểm tùy chọn",
       "customLocationHint": "Địa điểm này chỉ dùng cho kèo và chưa được thêm vào danh sách sân Vmito.",
       "useCustomLocation": "Dùng “{name}” làm địa điểm tùy chọn",
