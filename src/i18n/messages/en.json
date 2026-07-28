@@ -467,7 +467,7 @@
       "customLocationName": "Location name",
       "customLocationAddress": "Address",
       "customLocationAddressPlaceholder": "Search or enter an address…",
-      "customLocationAddressHelp": "Add an address so participants can get directions. It will be visible to people viewing the session.",
+      "customLocationAddressHelp": "Add an address so players can easily find and get directions to the session.",
       "temporaryLocation": "Optional location",
       "customLocationHint": "This location is used only for the session and has not been added to the Vmito venue directory.",
       "useCustomLocation": "Use “{name}” as an optional location",
