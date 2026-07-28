@@ -157,7 +157,8 @@ export default function SessionForm({
   } = useDisclosure(false);
   const [venueRequestKeyword, setVenueRequestKeyword] = useState('');
 
-  const handleSuggestNewVenue = () => {
+  const handleSuggestNewVenue = (keyword: string) => {
+    setVenueRequestKeyword(keyword);
     if (!isAuthenticated) {
       openVenueLoginModal();
       return;
@@ -359,7 +360,15 @@ export default function SessionForm({
             }
           : {
               locationType: SessionLocationType.CUSTOM,
-              location: data.customLocation!.trim(),
+              customLocation: {
+                name: data.customLocation!.trim(),
+                address: data.customLocationAddress?.trim() || undefined,
+                placeId: data.customLocationPlaceId?.trim() || undefined,
+                lat: data.customLocationLat,
+                lng: data.customLocationLng,
+                district: data.customLocationDistrict?.trim() || undefined,
+                city: data.customLocationCity?.trim() || undefined,
+              },
             };
 
       let session: ISession;
@@ -601,6 +610,7 @@ export default function SessionForm({
               isEditMode={isEditMode}
               onOpenAIModal={() => setIsAIModalOpen(true)}
               register={register}
+              setValue={setValue}
               errors={errors}
               control={control}
               canEditVenue={canEditVenue}

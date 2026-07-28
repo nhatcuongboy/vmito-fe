@@ -10,7 +10,7 @@ import React, {
   useId,
 } from 'react';
 import { Box, Portal, Text, VStack } from '@chakra-ui/react';
-import { Search, ChevronDown, Check } from 'lucide-react';
+import { Search, ChevronDown, Check, X, type LucideIcon } from 'lucide-react';
 
 const normalizeVietnamese = (text: string): string => {
   return text.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
@@ -90,6 +90,8 @@ export interface SearchableVSelectProps {
    * Current selected value
    */
   value?: string;
+  /** Override the trigger text for values that are not part of options. */
+  selectedLabelOverride?: string;
   /**
    * Callback when value changes
    */
@@ -135,6 +137,16 @@ export interface SearchableVSelectProps {
     label: string;
     onClick: () => void;
   };
+  /** Actions rendered below search results while the user has entered a query. */
+  searchActions?: Array<{
+    label: (query: string) => string;
+    onClick: (query: string) => void;
+    variant?: 'primary' | 'secondary';
+    icon?: LucideIcon;
+  }>;
+  /** Allow the selected value to be cleared from the trigger. */
+  isClearable?: boolean;
+  clearAriaLabel?: string;
   /**
    * Accessible name for the select trigger.
    */
@@ -145,6 +157,11 @@ export interface SearchableVSelectProps {
    * drawer) so the dropdown is not hidden behind it.
    */
   dropdownZIndex?: number | string;
+  /**
+   * Optional portal container for overlays rendered inside components that block
+   * pointer events outside themselves, such as a modal drawer.
+   */
+  dropdownPortalContainerRef?: React.RefObject<HTMLElement | null>;
 }
 
 /**
@@ -154,6 +171,7 @@ export interface SearchableVSelectProps {
 export const SearchableSelect: React.FC<SearchableVSelectProps> = ({
   options,
   value,
+  selectedLabelOverride,
   onChange,
   placeholder = 'Select…',
   searchPlaceholder = 'Search…',
@@ -164,8 +182,12 @@ export const SearchableSelect: React.FC<SearchableVSelectProps> = ({
   onSearchChange,
   isLoading = false,
   onNoOptionsAction,
+  searchActions,
+  isClearable = false,
+  clearAriaLabel = 'Clear selection',
   ariaLabel,
   dropdownZIndex = 'popover',
+  dropdownPortalContainerRef,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -246,8 +268,8 @@ export const SearchableSelect: React.FC<SearchableVSelectProps> = ({
     const selected =
       safeOptions.find((opt) => opt.value === value) ||
       (cachedSelectedOption?.value === value ? cachedSelectedOption : null);
-    return selected?.label || '';
-  }, [options, value, cachedSelectedOption]);
+    return selectedLabelOverride ?? selected?.label ?? '';
+  }, [options, value, cachedSelectedOption, selectedLabelOverride]);
 
   // Close dropdown and reset search state (including parent's server-side search)
   const closeDropdown = useCallback(() => {
@@ -318,6 +340,22 @@ export const SearchableSelect: React.FC<SearchableVSelectProps> = ({
     closeDropdown();
   };
 
+  const handleClear = (event: React.MouseEvent) => {
+    event.stopPropagation();
+    onChange?.('');
+    setCachedSelectedOption(null);
+    closeDropdown();
+  };
+
+  const handleSearchAction = (
+    action: NonNullable<SearchableVSelectProps['searchActions']>[number]
+  ) => {
+    const query = searchQuery.trim();
+    if (!query) return;
+    closeDropdown();
+    action.onClick(query);
+  };
+
   // Handle keyboard navigation
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Escape') {
@@ -358,7 +396,7 @@ export const SearchableSelect: React.FC<SearchableVSelectProps> = ({
         }
         borderRadius="md"
         {...sizeStyles}
-        pr="10"
+        pr={isClearable && value ? '16' : '10'}
         cursor={isDisabled ? 'not-allowed' : 'pointer'}
         opacity={isDisabled ? 0.5 : 1}
         _hover={{
@@ -398,11 +436,40 @@ export const SearchableSelect: React.FC<SearchableVSelectProps> = ({
         </Box>
       </Box>
 
+      {isClearable && value && !isDisabled ? (
+        <Box
+          as="button"
+          {...({ type: 'button' } as Record<string, unknown>)}
+          position="absolute"
+          right="8"
+          top="50%"
+          transform="translateY(-50%)"
+          display="inline-flex"
+          alignItems="center"
+          justifyContent="center"
+          w="8"
+          h="8"
+          borderRadius="sm"
+          color="fg.muted"
+          aria-label={clearAriaLabel}
+          onClick={handleClear}
+          _hover={{ bg: 'bg.muted', color: 'fg' }}
+          _focusVisible={{
+            outline: '2px solid',
+            outlineColor: 'brand.500',
+            outlineOffset: '1px',
+          }}
+        >
+          <X size={16} aria-hidden="true" />
+        </Box>
+      ) : null}
+
       {/* Dropdown */}
       {isOpen && (
-        <Portal>
+        <Portal container={dropdownPortalContainerRef}>
           <Box
             ref={dropdownRef}
+            data-vmito-persistent-overlay="true"
             position="fixed"
             bg={{ base: 'white', _dark: 'gray.800' }}
             boxShadow="lg"
@@ -581,6 +648,62 @@ export const SearchableSelect: React.FC<SearchableVSelectProps> = ({
                 </VStack>
               )}
             </Box>
+
+            {!isLoading && searchQuery.trim() && searchActions?.length ? (
+              <VStack
+                gap="1"
+                align="stretch"
+                p="2"
+                borderTopWidth="1px"
+                borderColor="border"
+                bg={{ base: 'gray.50', _dark: 'whiteAlpha.50' }}
+              >
+                {searchActions.map((action, index) => {
+                  const ActionIcon = action.icon;
+                  return (
+                    <Box
+                      key={`${action.variant || 'secondary'}-${index}`}
+                      as="button"
+                      {...({ type: 'button' } as Record<string, unknown>)}
+                      onClick={() => handleSearchAction(action)}
+                      width="full"
+                      px="3"
+                      py="2"
+                      borderRadius="sm"
+                      textAlign="left"
+                      fontSize="sm"
+                      fontWeight={
+                        action.variant === 'primary' ? 'semibold' : 'medium'
+                      }
+                      color={
+                        action.variant === 'primary' ? 'brand.600' : 'fg.muted'
+                      }
+                      _hover={{
+                        bg:
+                          action.variant === 'primary'
+                            ? { base: 'brand.50', _dark: 'brand.900/40' }
+                            : 'bg.muted',
+                        color:
+                          action.variant === 'primary' ? 'brand.700' : 'fg',
+                      }}
+                      _focusVisible={{
+                        outline: '2px solid',
+                        outlineColor: 'brand.500',
+                        outlineOffset: '-2px',
+                      }}
+                      display="flex"
+                      alignItems="center"
+                      gap="2"
+                    >
+                      {ActionIcon && (
+                        <ActionIcon size={16} style={{ flexShrink: 0 }} />
+                      )}
+                      <Text truncate>{action.label(searchQuery.trim())}</Text>
+                    </Box>
+                  );
+                })}
+              </VStack>
+            ) : null}
           </Box>
         </Portal>
       )}

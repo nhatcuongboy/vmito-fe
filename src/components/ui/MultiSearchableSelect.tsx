@@ -13,7 +13,10 @@ import React, {
 } from 'react';
 
 const normalize = (text: string): string =>
-  text.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+  // U+0110/U+0111 (Vietnamese D/d with stroke) has no canonical decomposition,
+  // so NFD leaves it untouched. Map it to plain "d" separately, otherwise an
+  // unaccented query never matches a label containing the stroked D.
+  text.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/đ/g, 'd');
 
 export interface MultiSelectOption {
   value: string;

@@ -22,7 +22,27 @@ export function buildSessionFormDefaults({
         ? SessionLocationType.VENUE
         : SessionLocationType.CUSTOM,
       selectedVenueId: initialData.venue?.id || '',
-      customLocation: initialData.venue ? '' : initialData.location || '',
+      customLocation: initialData.venue
+        ? ''
+        : initialData.customLocationName || initialData.location || '',
+      customLocationAddress: initialData.venue
+        ? ''
+        : initialData.customLocationAddress || '',
+      customLocationPlaceId: initialData.venue
+        ? ''
+        : initialData.customLocationPlaceId || '',
+      customLocationLat: initialData.venue
+        ? undefined
+        : (initialData.customLocationLat ?? undefined),
+      customLocationLng: initialData.venue
+        ? undefined
+        : (initialData.customLocationLng ?? undefined),
+      customLocationDistrict: initialData.venue
+        ? ''
+        : initialData.customLocationDistrict || '',
+      customLocationCity: initialData.venue
+        ? ''
+        : initialData.customLocationCity || '',
       clubId: initialData.clubId || '',
       hostName: initialData.hostName || initialData.host?.name || '',
       hostPhone: initialData.hostPhone || '',
@@ -60,6 +80,12 @@ export function buildSessionFormDefaults({
     locationType: SessionLocationType.VENUE,
     selectedVenueId: '',
     customLocation: '',
+    customLocationAddress: '',
+    customLocationPlaceId: '',
+    customLocationLat: undefined,
+    customLocationLng: undefined,
+    customLocationDistrict: '',
+    customLocationCity: '',
     clubId: '',
     hostName: userName || '',
     hostPhone: '',

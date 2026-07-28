@@ -11,6 +11,12 @@ const baseForm = {
   locationType: SessionLocationType.VENUE,
   selectedVenueId: 'venue-1',
   customLocation: '',
+  customLocationAddress: '',
+  customLocationPlaceId: '',
+  customLocationLat: undefined,
+  customLocationLng: undefined,
+  customLocationDistrict: '',
+  customLocationCity: '',
   clubId: '',
   hostName: 'Host',
   hostPhone: '',
@@ -85,4 +91,21 @@ test('requires at least two characters in custom mode', () => {
       true
     );
   }
+});
+
+test('accepts a custom location with an optional address snapshot', () => {
+  const result = schema.safeParse({
+    ...baseForm,
+    locationType: SessionLocationType.CUSTOM,
+    selectedVenueId: '',
+    customLocation: 'Sân nội bộ ABC',
+    customLocationAddress: '123 Nguyễn Trãi',
+    customLocationPlaceId: 'place-1',
+    customLocationLat: 10.75,
+    customLocationLng: 106.67,
+    customLocationDistrict: 'Quận 1',
+    customLocationCity: 'Hồ Chí Minh',
+  });
+
+  assert.equal(result.success, true);
 });

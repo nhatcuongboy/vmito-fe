@@ -7,7 +7,7 @@ import {
   MarkerF,
   InfoWindowF,
 } from '@react-google-maps/api';
-import { ISession, Venue } from '@/lib/api/types';
+import { ISession } from '@/lib/api/types';
 import {
   Box,
   Text,
@@ -56,8 +56,14 @@ interface SessionMapProps {
   userLocation?: { lat: number; lng: number } | null;
 }
 
-interface VenueGroup {
-  venue: Venue;
+interface LocationGroup {
+  key: string;
+  location: {
+    name: string;
+    address?: string | null;
+    lat: number;
+    lng: number;
+  };
   sessions: ISession[];
 }
 
@@ -67,8 +73,12 @@ export default function SessionMap({
 }: SessionMapProps) {
   const t = useTranslations('session');
   const router = useRouter();
-  const [selectedVenueId, setSelectedVenueId] = useState<string | null>(null);
-  const [hoveredVenueId, setHoveredVenueId] = useState<string | null>(null);
+  const [selectedLocationKey, setSelectedLocationKey] = useState<string | null>(
+    null
+  );
+  const [hoveredLocationKey, setHoveredLocationKey] = useState<string | null>(
+    null
+  );
   const [isLocating, setIsLocating] = useState(false);
   const [mapInstance, setMapInstance] = useState<google.maps.Map | null>(null);
   const [currentUserLocation, setCurrentUserLocation] = useState<{
@@ -132,29 +142,56 @@ export default function SessionMap({
 
   const { iconOptions: markerIconOptions } = useMapPinIcon({ isLoaded });
 
-  // Group sessions by venue
-  const venueGroups = useMemo(() => {
-    const groups: Record<string, VenueGroup> = {};
+  // Linked venues share a marker. A custom location belongs only to its session.
+  const locationGroups = useMemo(() => {
+    const groups: Record<string, LocationGroup> = {};
 
     sessions.forEach((session) => {
-      if (session.venue && session.venue.lat && session.venue.lng) {
-        const venueId = session.venue.id;
-        if (!groups[venueId]) {
-          groups[venueId] = {
-            venue: session.venue,
+      if (
+        session.venue &&
+        session.venue.lat != null &&
+        session.venue.lng != null
+      ) {
+        const key = session.venue.id;
+        if (!groups[key]) {
+          groups[key] = {
+            key,
+            location: {
+              name: session.venue.name,
+              address: session.venue.address,
+              lat: session.venue.lat,
+              lng: session.venue.lng,
+            },
             sessions: [],
           };
         }
-        groups[venueId].sessions.push(session);
+        groups[key].sessions.push(session);
+      } else if (
+        session.customLocationLat != null &&
+        session.customLocationLng != null
+      ) {
+        const key = `custom:${session.id}`;
+        groups[key] = {
+          key,
+          location: {
+            name:
+              session.customLocationName || session.location || session.name,
+            address: session.customLocationAddress,
+            lat: session.customLocationLat,
+            lng: session.customLocationLng,
+          },
+          sessions: [session],
+        };
       }
     });
 
     return Object.values(groups);
   }, [sessions]);
 
-  const selectedGroup = useMemo(() => {
-    return venueGroups.find((g) => g.venue.id === selectedVenueId);
-  }, [venueGroups, selectedVenueId]);
+  const selectedGroup = useMemo(
+    () => locationGroups.find((group) => group.key === selectedLocationKey),
+    [locationGroups, selectedLocationKey]
+  );
 
   // Calculate distance between two coordinates in kilometers
   const calculateDistance = useCallback(
@@ -176,16 +213,16 @@ export default function SessionMap({
 
   const center = useMemo(() => {
     // If user location is available and there are venues, find nearby venues
-    if (currentUserLocation && venueGroups.length > 0) {
+    if (currentUserLocation && locationGroups.length > 0) {
       const NEARBY_RADIUS_KM = 10; // Consider venues within 10km as nearby
 
       // Find venues within the nearby radius
-      const nearbyVenues = venueGroups.filter((group) => {
+      const nearbyVenues = locationGroups.filter((group) => {
         const distance = calculateDistance(
           currentUserLocation.lat,
           currentUserLocation.lng,
-          group.venue.lat!,
-          group.venue.lng!
+          group.location.lat,
+          group.location.lng
         );
         return distance <= NEARBY_RADIUS_KM;
       });
@@ -197,22 +234,22 @@ export default function SessionMap({
           const prevDist = calculateDistance(
             currentUserLocation.lat,
             currentUserLocation.lng,
-            prev.venue.lat!,
-            prev.venue.lng!
+            prev.location.lat,
+            prev.location.lng
           );
           const currDist = calculateDistance(
             currentUserLocation.lat,
             currentUserLocation.lng,
-            curr.venue.lat!,
-            curr.venue.lng!
+            curr.location.lat,
+            curr.location.lng
           );
           return currDist < prevDist ? curr : prev;
         });
 
         // Calculate midpoint between user and nearest venue
         return {
-          lat: (currentUserLocation.lat + nearest.venue.lat!) / 2,
-          lng: (currentUserLocation.lng + nearest.venue.lng!) / 2,
+          lat: (currentUserLocation.lat + nearest.location.lat) / 2,
+          lng: (currentUserLocation.lng + nearest.location.lng) / 2,
         };
       }
 
@@ -224,13 +261,16 @@ export default function SessionMap({
     if (currentUserLocation) return currentUserLocation;
 
     // Fallback to first venue if available
-    if (venueGroups.length > 0) {
-      return { lat: venueGroups[0].venue.lat!, lng: venueGroups[0].venue.lng! };
+    if (locationGroups.length > 0) {
+      return {
+        lat: locationGroups[0].location.lat,
+        lng: locationGroups[0].location.lng,
+      };
     }
 
     // Final fallback to default center
     return defaultCenter;
-  }, [currentUserLocation, venueGroups, calculateDistance]);
+  }, [currentUserLocation, locationGroups, calculateDistance]);
 
   // Handle location button click
   const handleLocationClick = useCallback(() => {
@@ -278,7 +318,7 @@ export default function SessionMap({
         duration: 3000,
       });
     }
-  }, [mapInstance]);
+  }, [mapInstance, t]);
 
   if (loadError) {
     return (
@@ -371,17 +411,17 @@ export default function SessionMap({
         )}
 
         {/* Venue Markers */}
-        {venueGroups.map((group) => (
+        {locationGroups.map((group) => (
           <MarkerF
-            key={group.venue.id}
-            position={{ lat: group.venue.lat!, lng: group.venue.lng! }}
-            onClick={() => setSelectedVenueId(group.venue.id)}
-            onMouseOver={() => setHoveredVenueId(group.venue.id)}
-            onMouseOut={() => setHoveredVenueId(null)}
+            key={group.key}
+            position={{ lat: group.location.lat, lng: group.location.lng }}
+            onClick={() => setSelectedLocationKey(group.key)}
+            onMouseOver={() => setHoveredLocationKey(group.key)}
+            onMouseOut={() => setHoveredLocationKey(null)}
             label={
-              isDesktop && hoveredVenueId === group.venue.id
+              isDesktop && hoveredLocationKey === group.key
                 ? {
-                    text: group.venue.name,
+                    text: group.location.name,
                     color: '#15803d',
                     fontWeight: '700',
                     fontSize: '13px',
@@ -397,21 +437,21 @@ export default function SessionMap({
         {selectedGroup && (
           <InfoWindowF
             position={{
-              lat: selectedGroup.venue.lat!,
-              lng: selectedGroup.venue.lng!,
+              lat: selectedGroup.location.lat,
+              lng: selectedGroup.location.lng,
             }}
-            onCloseClick={() => setSelectedVenueId(null)}
+            onCloseClick={() => setSelectedLocationKey(null)}
           >
             <Box p={1} maxW="300px" maxH="400px" overflowY="auto">
               <VStack align="stretch" gap={3}>
                 <Box>
                   <Text fontWeight="bold" fontSize="md" color="green.600">
-                    {selectedGroup.venue.name}
+                    {selectedGroup.location.name}
                   </Text>
                   <HStack gap={1} mt={1}>
                     <MapPin size={12} color="#718096" />
                     <Text fontSize="xs" color="gray.600" lineClamp={1}>
-                      {selectedGroup.venue.address}
+                      {selectedGroup.location.address}
                     </Text>
                   </HStack>
                 </Box>
@@ -496,7 +536,7 @@ export default function SessionMap({
                   onClick={(e) => {
                     e.stopPropagation();
                     window.open(
-                      `https://www.google.com/maps/dir/?api=1&destination=${selectedGroup.venue.lat},${selectedGroup.venue.lng}`,
+                      `https://www.google.com/maps/dir/?api=1&destination=${selectedGroup.location.lat},${selectedGroup.location.lng}`,
                       '_blank'
                     );
                   }}

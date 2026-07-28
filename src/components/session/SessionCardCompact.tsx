@@ -33,6 +33,7 @@ import { DEFAULT_COVER_PHOTO } from '@/constants';
 import { formatCompactSessionDate } from '@/utils/session-helpers';
 import { formatTimeRangeByDevicePreference } from '@/utils/time-helpers';
 import { formatVenueName } from '@/utils/venue-helpers';
+import { getSessionLocationName } from '@/utils/session-location';
 
 interface SessionCardCompactProps {
   session: ISession;
@@ -179,16 +180,24 @@ const SessionCardCompact = ({
         session.venue.name,
         tVenue('nameFormat', { name: '{name}' })
       )
-    : session.location;
+    : getSessionLocationName(session);
   // Honor the global "show new address" setting, falling back to whichever
   // side actually has data so the location segment is never silently
   // dropped (e.g. a venue with only new-format admin data, district=null).
   const rawDistrict = showNewAddress
-    ? session.venue?.newDistrict || session.venue?.district
-    : session.venue?.district || session.venue?.newDistrict;
+    ? session.venue?.newDistrict ||
+      session.venue?.district ||
+      session.customLocationDistrict
+    : session.venue?.district ||
+      session.venue?.newDistrict ||
+      session.customLocationDistrict;
   const rawCity = showNewAddress
-    ? session.venue?.newCity || session.venue?.city
-    : session.venue?.city || session.venue?.newCity;
+    ? session.venue?.newCity ||
+      session.venue?.city ||
+      session.customLocationCity
+    : session.venue?.city ||
+      session.venue?.newCity ||
+      session.customLocationCity;
   // "Phường Gò Vấp" → "Gò Vấp" (Chợ Tốt style), but keep the prefix for
   // numbered wards where the bare remainder would be meaningless ("Phường 5")
   const district = (rawDistrict || '').replace(

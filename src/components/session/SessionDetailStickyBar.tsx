@@ -1,6 +1,6 @@
 'use client';
 
-import { ISession, FeeType, SessionStatus, UserRole } from '@/lib/api/types';
+import { ISession, SessionStatus, UserRole } from '@/lib/api/types';
 import {
   Badge,
   Box,
@@ -45,6 +45,11 @@ import dayjs, { getDayjsLocale } from '@/lib/dayjs';
 import LevelBadgeWithDescription from './LevelBadgeWithDescription';
 import LevelDescriptionsModal from './LevelDescriptionsModal';
 import { formatTimeRangeByDevicePreference } from '@/utils/time-helpers';
+import {
+  getSessionLocationAddress,
+  getSessionLocationMapUrl,
+  getSessionLocationName,
+} from '@/utils/session-location';
 
 interface ISessionDetailStickyBarProps {
   session: ISession;
@@ -137,16 +142,12 @@ const SessionDetailStickyBar = ({
 
   const venueDisplayName = session.venue?.name
     ? tVenue('nameFormat', { name: session.venue.name })
-    : session.location || '';
+    : getSessionLocationName(session);
+  const locationAddress = getSessionLocationAddress(session);
+  const locationMapUrl = getSessionLocationMapUrl(session, venueDisplayName);
 
   const handleOpenMap = () => {
-    const address = session.venue?.address || venueDisplayName;
-    if (address) {
-      window.open(
-        `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`,
-        '_blank'
-      );
-    }
+    if (locationMapUrl) window.open(locationMapUrl, '_blank');
   };
 
   const renderActionButton = () => {
@@ -384,11 +385,22 @@ const SessionDetailStickyBar = ({
                 <Flex
                   align="flex-start"
                   gap={3}
-                  cursor="pointer"
-                  onClick={handleOpenMap}
-                  _hover={{ color: 'green.600' }}
+                  cursor={locationMapUrl ? 'pointer' : 'default'}
+                  onClick={locationMapUrl ? handleOpenMap : undefined}
+                  onKeyDown={
+                    locationMapUrl
+                      ? (event) => {
+                          if (event.key === 'Enter' || event.key === ' ') {
+                            event.preventDefault();
+                            handleOpenMap();
+                          }
+                        }
+                      : undefined
+                  }
+                  _hover={locationMapUrl ? { color: 'green.600' } : undefined}
                   transition="color 0.15s"
-                  role="button"
+                  role={locationMapUrl ? 'button' : undefined}
+                  tabIndex={locationMapUrl ? 0 : undefined}
                 >
                   <Icon
                     as={MapPin}
@@ -401,28 +413,38 @@ const SessionDetailStickyBar = ({
                     <Text fontSize="sm" fontWeight="medium" color="green.600">
                       {venueDisplayName}
                     </Text>
-                    {(session.venue?.address || session.venue?.newAddress) &&
-                      session.venue.address !== session.venue?.name && (
+                    {locationAddress &&
+                      locationAddress !== venueDisplayName && (
                         <Box mt={0.5}>
                           <AppAddressDisplay
-                            address={session.venue.address}
-                            district={session.venue.district}
-                            city={session.venue.city}
-                            newAddress={session.venue.newAddress}
-                            newDistrict={session.venue.newDistrict}
+                            address={locationAddress}
+                            district={
+                              session.venue?.district ||
+                              session.customLocationDistrict ||
+                              undefined
+                            }
+                            city={
+                              session.venue?.city ||
+                              session.customLocationCity ||
+                              undefined
+                            }
+                            newAddress={session.venue?.newAddress}
+                            newDistrict={session.venue?.newDistrict}
                             fontSize="xs"
                             color="gray.500"
                           />
                         </Box>
                       )}
                   </Box>
-                  <Icon
-                    as={Navigation}
-                    boxSize={3.5}
-                    color="green.400"
-                    flexShrink={0}
-                    mt="2px"
-                  />
+                  {locationMapUrl ? (
+                    <Icon
+                      as={Navigation}
+                      boxSize={3.5}
+                      color="green.400"
+                      flexShrink={0}
+                      mt="2px"
+                    />
+                  ) : null}
                 </Flex>
               )}
 

@@ -3,6 +3,7 @@
 import {
   VIETNAM_CITIES,
   normalizeCityForApi,
+  sortWithPopularCitiesFirst,
 } from '@/constants/vietnam-locations';
 import { useAppSettings } from '@/contexts/AppSettingsContext';
 import { useNewAdminUnits } from '@/hooks/useNewAdminUnits';
@@ -45,9 +46,11 @@ export default function CitySelector({
   // VIETNAM_CITIES code; new-address mode stores the full new-era province name.
   const items = useMemo(
     () =>
-      showNewAddress
-        ? cityOptions.map((o) => ({ value: o.value, label: o.label }))
-        : VIETNAM_CITIES.map((c) => ({ value: c.code, label: c.name })),
+      sortWithPopularCitiesFirst(
+        showNewAddress
+          ? cityOptions.map((o) => ({ value: o.value, label: o.label }))
+          : VIETNAM_CITIES.map((c) => ({ value: c.code, label: c.name }))
+      ),
     [showNewAddress, cityOptions]
   );
 

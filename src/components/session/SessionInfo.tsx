@@ -49,6 +49,10 @@ import { getSkillLevelColor } from '@/lib/utils/skillLevel.utils';
 import { sortLevelsByRank } from '@/constants/levels';
 import { FeeService } from '@/lib/api/fee.service';
 import { AppAddressDisplay } from '@/components/common/AppAddressDisplay';
+import {
+  getSessionLocationAddress,
+  getSessionLocationName,
+} from '@/utils/session-location';
 import LevelBadgeWithDescription from './LevelBadgeWithDescription';
 import LevelDescriptionsModal from './LevelDescriptionsModal';
 import { useDownloadSessionImage } from '@/hooks/useDownloadSessionImage';
@@ -188,7 +192,7 @@ const PlayerAchievementExportCard = ({
   const sessionTime = session.startTime
     ? formatTimeRangeByDevicePreference(session.startTime, session.endTime)
     : null;
-  const venueName = session.venue?.name || session.location;
+  const venueName = getSessionLocationName(session);
   const hasResultStats = playerStats.wins + playerStats.losses > 0;
 
   const [qrDataUrl, setQrDataUrl] = useState('');
@@ -630,16 +634,23 @@ export default function SessionInfo({
       </InfoRow>
 
       <InfoRow icon={Map} label={t('venue')}>
-        {session.venue?.name || t('common.notAvailable')}
+        {getSessionLocationName(session) || t('common.notAvailable')}
       </InfoRow>
 
       <InfoRow icon={MapPin} label={t('location')} hideLabelOnMobile>
         <AppAddressDisplay
           address={
-            session.venue?.address || session.location || t('noLocation')
+            getSessionLocationAddress(session) ||
+            (session.customLocationName && !session.customLocationAddress
+              ? t('noAddress')
+              : t('noLocation'))
           }
-          district={session.venue?.district}
-          city={session.venue?.city}
+          district={
+            session.venue?.district ||
+            session.customLocationDistrict ||
+            undefined
+          }
+          city={session.venue?.city || session.customLocationCity || undefined}
           newAddress={session.venue?.newAddress}
           newDistrict={session.venue?.newDistrict}
           fontSize="md"

@@ -19,6 +19,28 @@ export function normalizeCityForApi(name: string): string {
   return name.replace(/^(TP\.|Thành phố|Tỉnh)\s+/i, '').trim();
 }
 
+// Cities pinned to the top of city dropdowns, in this order. The new-address
+// city list otherwise comes back alphabetical from the backend, which buries
+// the two most-used cities in the middle of the list.
+const POPULAR_CITY_NAMES = ['Hồ Chí Minh', 'Hà Nội'];
+
+/** Reorders city options so POPULAR_CITY_NAMES appear first; leaves the rest as-is. */
+export function sortWithPopularCitiesFirst<T extends { label: string }>(
+  items: T[]
+): T[] {
+  const popular: T[] = [];
+  const rest: T[] = [];
+  items.forEach((item) => {
+    const index = POPULAR_CITY_NAMES.indexOf(normalizeCityForApi(item.label));
+    if (index === -1) {
+      rest.push(item);
+    } else {
+      popular[index] = item;
+    }
+  });
+  return [...popular.filter(Boolean), ...rest];
+}
+
 export const VIETNAM_CITIES: ICity[] = [
   {
     code: 'HCM',

@@ -858,6 +858,16 @@ export enum SessionLocationType {
   CUSTOM = 'CUSTOM',
 }
 
+export interface CustomSessionLocation {
+  name: string;
+  address?: string;
+  placeId?: string;
+  lat?: number;
+  lng?: number;
+  district?: string;
+  city?: string;
+}
+
 export interface ISession {
   id: string;
   slug?: string;
@@ -894,6 +904,13 @@ export interface ISession {
   createdAt: Date;
   updatedAt: Date;
   location?: string;
+  customLocationName?: string | null;
+  customLocationAddress?: string | null;
+  customLocationPlaceId?: string | null;
+  customLocationLat?: number | null;
+  customLocationLng?: number | null;
+  customLocationDistrict?: string | null;
+  customLocationCity?: string | null;
   venue?: Venue;
   clubId?: string | null;
   club?: {
@@ -1119,6 +1136,7 @@ export interface CreateSessionRequest {
   locationType?: SessionLocationType;
   venueId?: string;
   location?: string;
+  customLocation?: CustomSessionLocation;
   /** @deprecated Legacy clients only. New clients should submit locationType + venueId. */
   venue?: Omit<Venue, 'id' | 'createdAt' | 'updatedAt'>;
   clubId?: string | null;

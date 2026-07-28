@@ -5,6 +5,10 @@ import { ISession } from '@/lib/api/types';
 import { cache } from 'react';
 import { DEFAULT_COVER_PHOTO } from '@/constants';
 import { formatVenueName } from '@/utils';
+import {
+  getSessionLocationAddress,
+  getSessionLocationName,
+} from '@/utils/session-location';
 import StructuredData from '@/components/seo/StructuredData';
 import { generateSportsEventSchema } from '@/lib/seo/structuredData';
 
@@ -64,7 +68,7 @@ export async function generateMetadata({
   const locationName =
     (session.venue?.name
       ? formatVenueName(session.venue.name, nameFormat)
-      : session.location) || 'Địa điểm chưa xác định';
+      : getSessionLocationName(session)) || 'Địa điểm chưa xác định';
   const description = `Tham gia giao lưu cầu lông cùng ${session.host?.name || 'host'} tại ${locationName}. Chi tiết: ${session.description || 'Bấm để xem chi tiết.'}`;
 
   // Crawled (vãng lai) sessions are short-lived, scraped from public Facebook
@@ -121,7 +125,7 @@ export default async function PublicSessionDetailPage({ params }: PageProps) {
     const locationName =
       (session.venue?.name
         ? formatVenueName(session.venue.name, nameFormat)
-        : session.location) || 'Địa điểm chưa xác định';
+        : getSessionLocationName(session)) || 'Địa điểm chưa xác định';
 
     // Estimate price for schema
     let price = 0;
@@ -147,9 +151,9 @@ export default async function PublicSessionDetailPage({ params }: PageProps) {
         : undefined,
       location: {
         name: locationName,
-        address: session.venue?.address || session.location,
-        latitude: session.venue?.lat,
-        longitude: session.venue?.lng,
+        address: getSessionLocationAddress(session) || locationName,
+        latitude: session.venue?.lat ?? session.customLocationLat ?? undefined,
+        longitude: session.venue?.lng ?? session.customLocationLng ?? undefined,
       },
       maxPlayers: maxPlayers > 0 ? maxPlayers : undefined,
       currentPlayers: currentPlayers,

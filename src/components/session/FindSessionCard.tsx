@@ -5,7 +5,7 @@ import { Box, Flex, Icon, Text, Badge } from '@chakra-ui/react';
 import { IconButton } from '@/components/ui/chakra-compat';
 import { MapPin, Navigation, Facebook } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { formatVenueName, getGoogleMapsUrl } from '@/utils';
+import { formatVenueName } from '@/utils';
 import { AppAddressDisplay } from '@/components/common/AppAddressDisplay';
 import BaseSessionCard from './BaseSessionCard';
 import { SessionActionConfig } from './BaseSessionCard.types';
@@ -16,6 +16,11 @@ import { VModal, useModal } from '@/components/ui/VModal';
 import { SessionService } from '@/lib/api/session.service';
 import { toaster } from '@/components/ui/toaster';
 import dynamic from 'next/dynamic';
+import {
+  getSessionLocationAddress,
+  getSessionLocationMapUrl,
+  getSessionLocationName,
+} from '@/utils/session-location';
 
 const LoginPromptModal = dynamic(
   () => import('@/components/auth/LoginPromptModal'),
@@ -116,85 +121,83 @@ const FindSessionCard = ({
     }
   };
 
-  const googleMapButton =
-    session.venue?.address || session.venue?.name || session.location ? (
-      <IconButton
-        size="xs"
-        colorPalette="green"
-        variant="ghost"
-        aria-label="Google Maps"
-        icon={<Icon as={Navigation} />}
-        onClick={(e: React.MouseEvent) => {
-          e.stopPropagation();
-          const url = getGoogleMapsUrl({
-            address: session.venue?.address,
-            name: session.venue?.name || session.location,
-            placeId: session.venue?.placeId,
-            lat: session.venue?.lat,
-            lng: session.venue?.lng,
-          });
-          if (url) window.open(url, '_blank');
-        }}
-      />
-    ) : null;
+  const locationName = getSessionLocationName(session);
+  const locationAddress = getSessionLocationAddress(session);
+  const locationMapUrl = getSessionLocationMapUrl(session);
+  const googleMapButton = locationMapUrl ? (
+    <IconButton
+      size="xs"
+      colorPalette="green"
+      variant="ghost"
+      aria-label="Google Maps"
+      icon={<Icon as={Navigation} />}
+      onClick={(e: React.MouseEvent) => {
+        e.stopPropagation();
+        window.open(locationMapUrl, '_blank');
+      }}
+    />
+  ) : null;
 
   // Location/venue display
-  const locationRow =
-    session.venue?.name || session.location ? (
-      <Flex align="flex-start">
-        <Icon
-          as={MapPin}
-          boxSize={isCompact ? 4 : 5}
-          mr={2}
-          color="green.500"
-          mt={isCompact ? 0.5 : 1}
-          flexShrink={0}
-        />
-        <Box flex="1" overflow="hidden" minW={0}>
-          <Flex align="center" gap={2}>
-            <Text
-              fontWeight="medium"
-              fontSize={isCompact ? 'sm' : 'md'}
-              lineClamp={1}
-              flex="1"
-              minW={0}
+  const locationRow = locationName ? (
+    <Flex align="flex-start">
+      <Icon
+        as={MapPin}
+        boxSize={isCompact ? 4 : 5}
+        mr={2}
+        color="green.500"
+        mt={isCompact ? 0.5 : 1}
+        flexShrink={0}
+      />
+      <Box flex="1" overflow="hidden" minW={0}>
+        <Flex align="center" gap={2}>
+          <Text
+            fontWeight="medium"
+            fontSize={isCompact ? 'sm' : 'md'}
+            lineClamp={1}
+            flex="1"
+            minW={0}
+          >
+            {session.venue?.name
+              ? formatVenueName(
+                  session.venue.name,
+                  tVenue('nameFormat', { name: '{name}' })
+                )
+              : locationName}
+          </Text>
+          {distance !== undefined && (
+            <Badge
+              colorPalette="green"
+              variant="subtle"
+              size="sm"
+              flexShrink={0}
             >
-              {session.venue?.name
-                ? formatVenueName(
-                    session.venue.name,
-                    tVenue('nameFormat', { name: '{name}' })
-                  )
-                : session.location}
-            </Text>
-            {distance !== undefined && (
-              <Badge
-                colorPalette="green"
-                variant="subtle"
-                size="sm"
-                flexShrink={0}
-              >
-                {distance < 1
-                  ? `${Math.round(distance * 1000)}m`
-                  : `${distance.toFixed(1)}km`}
-              </Badge>
-            )}
-            {googleMapButton}
-          </Flex>
-          {!isCompact &&
-            session.venue?.address &&
-            session.venue.address !== session.venue.name && (
-              <AppAddressDisplay
-                address={session.venue.address}
-                district={session.venue.district}
-                city={session.venue.city}
-                newAddress={session.venue.newAddress}
-                newDistrict={session.venue.newDistrict}
-                lineClamp={2}
-              />
-            )}
-        </Box>
-      </Flex>
-    ) : null;
+              {distance < 1
+                ? `${Math.round(distance * 1000)}m`
+                : `${distance.toFixed(1)}km`}
+            </Badge>
+          )}
+          {googleMapButton}
+        </Flex>
+        {!isCompact && locationAddress && locationAddress !== locationName && (
+          <AppAddressDisplay
+            address={locationAddress}
+            district={
+              session.venue?.district ||
+              session.customLocationDistrict ||
+              undefined
+            }
+            city={
+              session.venue?.city || session.customLocationCity || undefined
+            }
+            newAddress={session.venue?.newAddress}
+            newDistrict={session.venue?.newDistrict}
+            lineClamp={2}
+          />
+        )}
+      </Box>
+    </Flex>
+  ) : null;
 
   const extraInfoRows = <>{locationRow}</>;
 

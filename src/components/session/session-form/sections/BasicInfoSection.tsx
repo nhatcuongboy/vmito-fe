@@ -1,5 +1,6 @@
 import {
   Box,
+  Badge,
   Field,
   Flex,
   Heading,
@@ -10,15 +11,21 @@ import {
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/chakra-compat';
 import { SearchableSelect } from '@/components/ui/SearchableSelect';
-import { Radio } from '@/components/ui/radio';
-import { Sparkles } from 'lucide-react';
+import LocationAutocomplete from '@/components/common/LocationAutocomplete';
+import { Sparkles, MapPin, Plus } from 'lucide-react';
 import { Controller, useWatch } from 'react-hook-form';
-import type { Control, FieldErrors, UseFormRegister } from 'react-hook-form';
+import type {
+  Control,
+  FieldErrors,
+  UseFormRegister,
+  UseFormSetValue,
+} from 'react-hook-form';
 import type { useTranslations } from 'next-intl';
 import { useTranslations as useNextIntlTranslations } from 'next-intl';
 
 import { SessionLocationType, Venue } from '@/lib/api/types';
 import { SessionFormData } from '@/components/session/session-form/sessionFormSchema';
+import { useRef } from 'react';
 
 type Translator = ReturnType<typeof useTranslations>;
 
@@ -28,11 +35,14 @@ interface VenueOption {
   sublabel?: string;
 }
 
+const CUSTOM_LOCATION_VALUE = '__custom_location__';
+
 export function BasicInfoSection({
   t,
   isEditMode,
   onOpenAIModal,
   register,
+  setValue,
   errors,
   control,
   canEditVenue,
@@ -47,6 +57,7 @@ export function BasicInfoSection({
   isEditMode: boolean;
   onOpenAIModal: () => void;
   register: UseFormRegister<SessionFormData>;
+  setValue: UseFormSetValue<SessionFormData>;
   errors: FieldErrors<SessionFormData>;
   control: Control<SessionFormData>;
   canEditVenue: boolean;
@@ -55,11 +66,31 @@ export function BasicInfoSection({
   venueOptions: VenueOption[];
   handleVenueSearch: (keyword: string) => void;
   isVenueLoading: boolean;
-  /** Called when user clicks "Suggest new venue" in the empty-state of the venue dropdown */
-  onSuggestNewVenue?: () => void;
+  /** Called when user clicks "Suggest new venue" below venue search results. */
+  onSuggestNewVenue?: (keyword: string) => void;
 }) {
   const tVenueRequests = useNextIntlTranslations('venueRequests');
   const locationType = useWatch({ control, name: 'locationType' });
+  const customLocation = useWatch({ control, name: 'customLocation' });
+  const customLocationAddress = useWatch({
+    control,
+    name: 'customLocationAddress',
+  });
+  const venueFieldRef = useRef<HTMLDivElement>(null);
+
+  const clearCustomLocationDetails = () => {
+    setValue('customLocationAddress', '');
+    setValue('customLocationPlaceId', '');
+    setValue('customLocationLat', undefined);
+    setValue('customLocationLng', undefined);
+    setValue('customLocationDistrict', '');
+    setValue('customLocationCity', '');
+  };
+
+  const clearCustomLocation = () => {
+    setValue('customLocation', '');
+    clearCustomLocationDetails();
+  };
   return (
     <Box
       bg={{ base: 'white', _dark: 'gray.800' }}
@@ -120,8 +151,14 @@ export function BasicInfoSection({
         </Field.Root>
 
         {/* Location */}
-        <Box id="field-venue">
-          <Field.Root disabled={!canEditVenue}>
+        <Box id="field-venue" ref={venueFieldRef}>
+          <Field.Root
+            disabled={!canEditVenue}
+            invalid={
+              locationType === SessionLocationType.VENUE &&
+              !!errors.selectedVenueId
+            }
+          >
             <Field.Label>
               {t('location')}{' '}
               <Text as="span" color="red.500">
@@ -130,79 +167,161 @@ export function BasicInfoSection({
             </Field.Label>
             <Controller
               control={control}
-              name="locationType"
+              name="selectedVenueId"
               render={({ field }) => (
-                <Radio.Root
-                  value={field.value}
-                  onValueChange={(details) => field.onChange(details.value)}
-                  disabled={!canEditVenue}
-                  display="flex"
-                  gap={5}
-                  mb={3}
-                >
-                  <Radio.Item value={SessionLocationType.VENUE}>
-                    {t('generalSettings.existingVenue')}
-                  </Radio.Item>
-                  <Radio.Item value={SessionLocationType.CUSTOM}>
-                    {t('generalSettings.customLocation')}
-                  </Radio.Item>
-                </Radio.Root>
+                <SearchableSelect
+                  isInvalid={
+                    locationType === SessionLocationType.VENUE &&
+                    !!errors.selectedVenueId
+                  }
+                  value={
+                    locationType === SessionLocationType.CUSTOM
+                      ? CUSTOM_LOCATION_VALUE
+                      : field.value
+                  }
+                  selectedLabelOverride={
+                    locationType === SessionLocationType.CUSTOM
+                      ? customLocation
+                      : undefined
+                  }
+                  onChange={(value) => {
+                    if (!value) {
+                      field.onChange('');
+                      setValue('locationType', SessionLocationType.VENUE);
+                      clearCustomLocation();
+                      setSelectedVenueObj(null);
+                      return;
+                    }
+
+                    field.onChange(value);
+                    setValue('locationType', SessionLocationType.VENUE);
+                    clearCustomLocation();
+                    const venue = venues.find((v) => v.id === value);
+                    setSelectedVenueObj(venue ?? null);
+                  }}
+                  options={venueOptions}
+                  placeholder={t('generalSettings.selectVenue')}
+                  searchPlaceholder={t('generalSettings.searchVenue')}
+                  noOptionsMessage={t('generalSettings.noVenueFound')}
+                  onSearchChange={handleVenueSearch}
+                  isLoading={isVenueLoading}
+                  isDisabled={!canEditVenue}
+                  dropdownZIndex={2000}
+                  dropdownPortalContainerRef={venueFieldRef}
+                  isClearable
+                  clearAriaLabel={t('generalSettings.clearLocation')}
+                  searchActions={[
+                    {
+                      label: (query) =>
+                        t('generalSettings.useCustomLocation', { name: query }),
+                      onClick: (query) => {
+                        field.onChange('');
+                        setValue('locationType', SessionLocationType.CUSTOM, {
+                          shouldValidate: true,
+                        });
+                        setValue('customLocation', query, {
+                          shouldValidate: true,
+                        });
+                        clearCustomLocationDetails();
+                        setSelectedVenueObj(null);
+                      },
+                      variant: 'primary',
+                      icon: MapPin,
+                    },
+                    ...(onSuggestNewVenue
+                      ? [
+                          {
+                            label: () => tVenueRequests('suggestNewVenue'),
+                            onClick: (query: string) =>
+                              onSuggestNewVenue(query),
+                            variant: 'secondary' as const,
+                            icon: Plus,
+                          },
+                        ]
+                      : []),
+                  ]}
+                />
               )}
             />
 
-            {locationType === SessionLocationType.VENUE ? (
-              <Field.Root invalid={!!errors.selectedVenueId}>
-                <Controller
-                  control={control}
-                  name="selectedVenueId"
-                  render={({ field }) => (
-                    <SearchableSelect
-                      isInvalid={!!errors.selectedVenueId}
-                      value={field.value}
-                      onChange={(value) => {
-                        field.onChange(value);
-                        const venue = venues.find((v) => v.id === value);
-                        setSelectedVenueObj(venue ?? null);
-                      }}
-                      options={venueOptions}
-                      placeholder={t('generalSettings.selectVenue')}
-                      searchPlaceholder={t('generalSettings.searchVenue')}
-                      noOptionsMessage={t('generalSettings.noVenueFound')}
-                      onSearchChange={handleVenueSearch}
-                      isLoading={isVenueLoading}
-                      isDisabled={!canEditVenue}
-                      onNoOptionsAction={
-                        onSuggestNewVenue
-                          ? {
-                              label: tVenueRequests('suggestNewVenue'),
-                              onClick: onSuggestNewVenue,
-                            }
-                          : undefined
-                      }
-                    />
-                  )}
-                />
-                <Field.ErrorText color="fg.error">
-                  {errors.selectedVenueId?.message}
-                </Field.ErrorText>
-              </Field.Root>
-            ) : (
-              <Field.Root invalid={!!errors.customLocation}>
-                <Input
-                  {...register('customLocation')}
-                  maxLength={200}
-                  placeholder={t('generalSettings.customLocationPlaceholder')}
-                  disabled={!canEditVenue}
-                />
-                <Text mt={1} fontSize="xs" color="fg.muted">
-                  {t('generalSettings.customLocationHint')}
-                </Text>
-                <Field.ErrorText color="fg.error">
-                  {errors.customLocation?.message}
-                </Field.ErrorText>
-              </Field.Root>
-            )}
+            <Field.ErrorText color="fg.error">
+              {errors.selectedVenueId?.message}
+            </Field.ErrorText>
           </Field.Root>
+
+          {locationType === SessionLocationType.CUSTOM ? (
+            <Box
+              mt={3}
+              p={{ base: 3, md: 4 }}
+              borderWidth="1px"
+              borderColor={{ base: 'green.200', _dark: 'green.700' }}
+              bg={{ base: 'green.50', _dark: 'green.950' }}
+              borderRadius="lg"
+            >
+              <Badge mb={3} colorPalette="green" variant="subtle">
+                {t('generalSettings.temporaryLocation')}
+              </Badge>
+
+              <Stack gap={3}>
+                <Field.Root invalid={!!errors.customLocation}>
+                  <Field.Label>
+                    {t('generalSettings.customLocationName')}{' '}
+                    <Text as="span" color="red.500">
+                      *
+                    </Text>
+                  </Field.Label>
+                  <Input
+                    {...register('customLocation')}
+                    autoComplete="off"
+                    placeholder={t('generalSettings.customLocationPlaceholder')}
+                    disabled={!canEditVenue}
+                    bg={{ base: 'white', _dark: 'gray.800' }}
+                  />
+                  <Field.ErrorText color="fg.error">
+                    {errors.customLocation?.message}
+                  </Field.ErrorText>
+                </Field.Root>
+
+                <Field.Root>
+                  <Field.Label>
+                    {t('generalSettings.customLocationAddress')}
+                  </Field.Label>
+                  <LocationAutocomplete
+                    value={customLocationAddress || ''}
+                    onInputChange={(address) => {
+                      setValue('customLocationAddress', address, {
+                        shouldDirty: true,
+                      });
+                      setValue('customLocationPlaceId', '');
+                      setValue('customLocationLat', undefined);
+                      setValue('customLocationLng', undefined);
+                      setValue('customLocationDistrict', '');
+                      setValue('customLocationCity', '');
+                    }}
+                    onSelect={(place) => {
+                      setValue('customLocationAddress', place.address, {
+                        shouldDirty: true,
+                      });
+                      setValue('customLocationPlaceId', place.placeId);
+                      setValue('customLocationLat', place.lat);
+                      setValue('customLocationLng', place.lng);
+                      setValue('customLocationDistrict', place.district || '');
+                      setValue('customLocationCity', place.city || '');
+                    }}
+                    inputName="customLocationAddress"
+                    ariaLabel={t('generalSettings.customLocationAddress')}
+                    placeholder={t(
+                      'generalSettings.customLocationAddressPlaceholder'
+                    )}
+                    isDisabled={!canEditVenue}
+                  />
+                  <Field.HelperText color="fg.muted">
+                    {t('generalSettings.customLocationAddressHelp')}
+                  </Field.HelperText>
+                </Field.Root>
+              </Stack>
+            </Box>
+          ) : null}
         </Box>
       </Stack>
     </Box>

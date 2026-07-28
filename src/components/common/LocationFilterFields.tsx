@@ -2,7 +2,10 @@
 
 import { MultiSearchableSelect } from '@/components/ui/MultiSearchableSelect';
 import { SearchableSelect } from '@/components/ui/SearchableSelect';
-import { VIETNAM_CITIES } from '@/constants/vietnam-locations';
+import {
+  sortWithPopularCitiesFirst,
+  VIETNAM_CITIES,
+} from '@/constants/vietnam-locations';
 import { useAppSettings } from '@/contexts/AppSettingsContext';
 import { useNewAdminUnits } from '@/hooks/useNewAdminUnits';
 import { Badge, Box, Button, Flex, HStack, Text } from '@chakra-ui/react';
@@ -47,6 +50,12 @@ export function LocationFilterFields({
   const cityItems = useMemo(
     () => VIETNAM_CITIES.map((c) => ({ value: c.code, label: c.name })),
     []
+  );
+
+  // City options for the active mode, with the most-used cities pinned first.
+  const sortedCityOptions = useMemo(
+    () => sortWithPopularCitiesFirst(showNewAddress ? cityOptions : cityItems),
+    [showNewAddress, cityOptions, cityItems]
   );
 
   // District/ward options available for the currently selected cities.
@@ -123,7 +132,7 @@ export function LocationFilterFields({
           )}
         </Flex>
         <SearchableSelect
-          options={showNewAddress ? cityOptions : cityItems}
+          options={sortedCityOptions}
           value={selectedCities[0] ?? ''}
           onChange={(val) => handleCitiesChange(val ? [val] : [])}
           placeholder="Chọn tỉnh / thành phố..."
