@@ -15,6 +15,11 @@ export interface User {
   levelDescription?: string;
   phone?: string;
   emailVerified?: string;
+  /**
+   * How the user registered: 'email' (direct password sign-up) or an OAuth
+   * provider ('google', 'facebook', 'zalo', 'apple'). Derived server-side.
+   */
+  registrationProvider?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -74,12 +79,16 @@ export const AdminService = {
   getUsersPaginated: async (params?: {
     search?: string;
     role?: string;
+    gender?: string;
+    provider?: string;
     page?: number;
     limit?: number;
   }): Promise<PaginatedUsers> => {
     const searchParams = new URLSearchParams();
     if (params?.search) searchParams.set('search', params.search);
     if (params?.role) searchParams.set('role', params.role);
+    if (params?.gender) searchParams.set('gender', params.gender);
+    if (params?.provider) searchParams.set('provider', params.provider);
     if (params?.page) searchParams.set('page', String(params.page));
     if (params?.limit) searchParams.set('limit', String(params.limit));
 

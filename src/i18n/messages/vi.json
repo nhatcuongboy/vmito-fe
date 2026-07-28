@@ -5315,6 +5315,77 @@
     "failedToCreateUser": "Không thể tạo người dùng",
     "failedToUpdateUser": "Không thể cập nhật người dùng",
     "failedToDeleteUser": "Không thể xóa người dùng",
+    "usersPage": {
+      "title": "Quản lý người dùng",
+      "addUser": "Thêm người dùng",
+      "searchPlaceholder": "Tìm theo email hoặc tên...",
+      "columns": {
+        "name": "Tên",
+        "email": "Email",
+        "role": "Vai trò",
+        "gender": "Giới tính",
+        "registeredVia": "Hình thức đăng ký",
+        "created": "Ngày tạo",
+        "actions": "Hành động"
+      },
+      "gender": {
+        "MALE": "Nam",
+        "FEMALE": "Nữ",
+        "OTHER": "Khác",
+        "PREFER_NOT_TO_SAY": "Không tiết lộ",
+        "unknown": "Chưa cập nhật"
+      },
+      "provider": {
+        "email": "Trực tiếp",
+        "google": "Google",
+        "facebook": "Facebook",
+        "zalo": "Zalo",
+        "apple": "Apple",
+        "unknown": "Không rõ"
+      },
+      "role": {
+        "ADMIN": "Quản trị viên",
+        "HOST": "Chủ kèo",
+        "PLAYER": "Người chơi",
+        "REFEREE": "Trọng tài"
+      },
+      "filters": {
+        "role": "Vai trò",
+        "gender": "Giới tính",
+        "registeredVia": "Hình thức đăng ký",
+        "allRoles": "Tất cả vai trò",
+        "allGenders": "Tất cả giới tính",
+        "allProviders": "Tất cả hình thức"
+      },
+      "actions": {
+        "viewProfile": "Xem trang cá nhân",
+        "edit": "Chỉnh sửa",
+        "delete": "Xóa"
+      },
+      "noUsersFound": "Không tìm thấy người dùng",
+      "totalRecords": "Tổng số: {count}",
+      "showingRange": "Hiển thị {from}-{to}",
+      "createTitle": "Tạo người dùng",
+      "editTitle": "Sửa người dùng",
+      "deleteTitle": "Xóa người dùng",
+      "fields": {
+        "email": "Email",
+        "name": "Tên",
+        "password": "Mật khẩu",
+        "role": "Vai trò"
+      },
+      "deleteConfirmation": "Bạn có chắc chắn muốn xóa người dùng {name}? Hành động này không thể hoàn tác.",
+      "toast": {
+        "loadError": "Không thể tải danh sách người dùng",
+        "createSuccess": "Tạo người dùng thành công",
+        "createError": "Không thể tạo người dùng",
+        "updateSuccess": "Cập nhật người dùng thành công",
+        "updateError": "Không thể cập nhật người dùng",
+        "deleteSuccess": "Xóa người dùng thành công",
+        "deleteError": "Không thể xóa người dùng",
+        "accessDenied": "Từ chối truy cập. Chỉ dành cho quản trị viên."
+      }
+    },
     "aiImageQuota": {
       "title": "Quota ảnh AI",
       "manage": "Quản lý quota ảnh AI",
