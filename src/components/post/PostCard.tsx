@@ -19,6 +19,7 @@ import type { Post } from '@/types/post';
 import { CommentSection } from './CommentSection';
 import { PostAvatar } from './PostAvatar';
 import { ActivityPostContent } from './ActivityPostContent';
+import { SharePostModal } from './SharePostModal';
 import { postsService } from '@/lib/api/posts.service';
 import { toaster } from '@/components/ui/toaster';
 import VModal from '@/components/ui/VModal';
@@ -711,21 +712,13 @@ export function PostCard({
         </p>
       </VModal>
 
-      <VModal
+      <SharePostModal
         isOpen={showShareConfirm}
         onClose={() => setShowShareConfirm(false)}
-        title={t('shareConfirmTitle')}
-        size="sm"
-        primaryActionText={t('share')}
-        secondaryActionText={t('cancel')}
-        onPrimaryAction={handleShare}
-        isPrimaryLoading={isSharing}
-        isSecondaryDisabled={isSharing}
-      >
-        <p className="text-sm text-gray-600 dark:text-gray-300">
-          {t('shareConfirmDescription')}
-        </p>
-      </VModal>
+        post={localPost}
+        onRepost={handleShare}
+        isReposting={isSharing}
+      />
     </Box>
   );
 }

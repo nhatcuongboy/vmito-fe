@@ -1928,6 +1928,9 @@ export interface UserRatingStats {
 }
 
 export interface SessionRatingEligibility {
+  isHost?: boolean; // Viewer is the session host
+  isPlayer?: boolean; // Viewer is a player in the session
+  isFinished?: boolean; // Session has finished
   canRateHost: boolean;
   hasRatedHost: boolean;
   hostRating?: Rating;
