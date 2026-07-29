@@ -12,6 +12,30 @@ import {
   VenueRentalPriceCalculation,
 } from './types';
 
+/** Mirrors MigrateAddressesResult in vmito-be venue-address-migration.service.ts. */
+export interface MigrateAddressesResult {
+  message: string;
+  dryRun: boolean;
+  rescan: boolean;
+  total: number;
+  matched: number;
+  cityOnly: number;
+  streetOnly: number;
+  needsReview: number;
+  needsReviewSamples: {
+    id: string;
+    name: string;
+    address: string;
+    district: string;
+    city: string;
+  }[];
+}
+
+export interface BackfillResult {
+  message: string;
+  count: number;
+}
+
 export const VenueService = {
   // Search venues (public - no auth required)
   searchVenues: async (filters?: {
@@ -183,22 +207,39 @@ export const VenueService = {
     return response.data.data || [];
   },
 
-  migrateAddresses: async (): Promise<{
-    message: string;
-    total: number;
-    matched: number;
-    cityOnly: number;
-    unmatched: number;
-  }> => {
-    const response = await api.post<
-      ApiResponse<{
-        message: string;
-        total: number;
-        matched: number;
-        cityOnly: number;
-        unmatched: number;
-      }>
-    >('/venues/migrate-addresses');
+  /**
+   * Resolve new-era (Nghị quyết 60) address fields from the CSV mapping.
+   * - `rescan`: re-derive every venue, not just those without a newAddress —
+   *   required after a mapping fix, since migrated rows are skipped otherwise.
+   * - `dryRun`: report what would change without writing.
+   */
+  migrateAddresses: async (options?: {
+    rescan?: boolean;
+    dryRun?: boolean;
+  }): Promise<MigrateAddressesResult> => {
+    const params = new URLSearchParams();
+    if (options?.rescan) params.append('rescan', 'true');
+    if (options?.dryRun) params.append('dryRun', 'true');
+    const query = params.toString();
+    const response = await api.post<ApiResponse<MigrateAddressesResult>>(
+      `/venues/migrate-addresses${query ? `?${query}` : ''}`
+    );
+    return response.data.data!;
+  },
+
+  /** Rebuild searchTerms for every venue (run after a migrate/rename). */
+  backfillSearchTerms: async (): Promise<BackfillResult> => {
+    const response = await api.post<ApiResponse<BackfillResult>>(
+      '/venues/backfill-search-terms'
+    );
+    return response.data.data!;
+  },
+
+  /** Generate slugs for venues created without one. */
+  backfillSlugs: async (): Promise<BackfillResult> => {
+    const response = await api.post<ApiResponse<BackfillResult>>(
+      '/venues/backfill-slugs'
+    );
     return response.data.data!;
   },
 };
