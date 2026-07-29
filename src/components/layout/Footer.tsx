@@ -1,11 +1,9 @@
 'use client';
 
 import { Box, Container, Stack, Text } from '@chakra-ui/react';
-import { useTranslations } from 'next-intl';
 import { useBottomNavVisibility } from '@/hooks/useBottomNavVisibility';
 
 export default function Footer() {
-  const t = useTranslations('common');
   const isBottomNavVisible = useBottomNavVisibility();
 
   return (
@@ -35,7 +33,8 @@ export default function Footer() {
           align="center"
         >
           <Text>
-            © {new Date().getFullYear()} {t('appName')}. All rights reserved
+            © {new Date().getFullYear()} - Đơn vị chủ quản: HỘ KINH DOANH LÊ
+            THANH HỒNG NHỰT
           </Text>
         </Stack>
       </Container>
