@@ -55,6 +55,7 @@ function AboutContent() {
                 © {new Date().getFullYear()} {common('appName')}.{' '}
                 {t('copyright')}
               </Text>
+              <Text>Đơn vị chủ quản: HỘ KINH DOANH LÊ THANH HỒNG NHỰT</Text>
               <Stack direction="row" gap={3} align="center">
                 <ChakraLink
                   as={Link}

@@ -310,6 +310,7 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
                 <>
                   <Text fontSize="xs" color="gray.500" textAlign="center">
                     {`© ${new Date().getFullYear()} ${common('appName')}. All Rights Reserved!`}
+                    Đơn vị chủ quản: HỘ KINH DOANH LÊ THANH HỒNG NHỰT
                   </Text>
                   <Text
                     fontSize="xs"

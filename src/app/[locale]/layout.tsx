@@ -69,7 +69,7 @@ export default async function LocaleLayout({
             <AppStartupSplash />
             <AppNavigationSplash />
             {children}
-            <Footer />
+            {/* <Footer /> */}
             <GlobalBottomNav />
             <GlobalAiButton />
             {/* <PWAInstallPrompt /> */}
