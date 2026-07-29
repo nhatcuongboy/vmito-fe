@@ -1,11 +1,15 @@
 'use client';
 
+import dynamic from 'next/dynamic';
+import { useState } from 'react';
 import { Badge, Box, Flex, Image, Text } from '@chakra-ui/react';
-import { CalendarDays, MapPin, UserRound, Users } from 'lucide-react';
+import { CalendarDays, MapPin, Share2, UserRound, Users } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
 import { FavoriteEngagementControl } from '@/components/favorites/FavoriteEngagementControl';
 import { Tournament, TournamentStatus } from '@/lib/api/types';
+
+const AppLightbox = dynamic(() => import('@/components/ui/AppLightbox'));
 
 interface TournamentHomeHeroProps {
   tournament: Tournament;
@@ -19,6 +23,7 @@ interface TournamentHomeHeroProps {
   isLoadingCounts: boolean;
   slug: string;
   showFavorite: boolean;
+  onShare: () => void;
 }
 
 const STATUS_COLORS: Record<
@@ -59,9 +64,11 @@ export default function TournamentHomeHero({
   isLoadingCounts,
   slug,
   showFavorite,
+  onShare,
 }: TournamentHomeHeroProps) {
   const t = useTranslations('pages.tournaments.detail.homeTab');
   const statusTone = STATUS_COLORS[status];
+  const [isCoverOpen, setIsCoverOpen] = useState(false);
 
   return (
     <Box>
@@ -82,6 +89,8 @@ export default function TournamentHomeHero({
             h="100%"
             objectFit="cover"
             fetchPriority="high"
+            cursor="zoom-in"
+            onClick={() => setIsCoverOpen(true)}
           />
         ) : (
           <Box
@@ -126,8 +135,30 @@ export default function TournamentHomeHero({
           {t(`status.${status}`)}
         </Badge>
 
-        {showFavorite ? (
-          <Box position="absolute" top={3} right={3} zIndex={1}>
+        <Flex position="absolute" top={3} right={3} zIndex={1} gap={2}>
+          <Box
+            as="button"
+            aria-label={t('hero.share')}
+            onClick={(e) => {
+              e.stopPropagation();
+              onShare();
+            }}
+            display="inline-flex"
+            alignItems="center"
+            justifyContent="center"
+            w="34px"
+            h="34px"
+            borderRadius="full"
+            color="white"
+            bg="rgba(15, 23, 42, 0.42)"
+            backdropFilter="blur(6px)"
+            boxShadow="0 4px 14px rgba(15, 23, 42, 0.18)"
+            transition="background 0.15s ease"
+            _hover={{ bg: 'rgba(15, 23, 42, 0.62)' }}
+          >
+            <Share2 size={17} aria-hidden="true" />
+          </Box>
+          {showFavorite ? (
             <FavoriteEngagementControl
               type="TOURNAMENT"
               targetId={tournament.id}
@@ -135,8 +166,8 @@ export default function TournamentHomeHero({
               returnUrl={`/tournament/${slug}`}
               variant="overlay-dark"
             />
-          </Box>
-        ) : null}
+          ) : null}
+        </Flex>
 
         <Flex
           position="absolute"
@@ -248,6 +279,14 @@ export default function TournamentHomeHero({
           </>
         ) : null}
       </Flex>
+
+      {isCoverOpen && coverImage ? (
+        <AppLightbox
+          images={[coverImage]}
+          alt={tournament.name}
+          onClose={() => setIsCoverOpen(false)}
+        />
+      ) : null}
     </Box>
   );
 }

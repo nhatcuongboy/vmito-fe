@@ -1882,7 +1882,9 @@
           "hero": {
             "loading": "Updating…",
             "teams": "{count} teams",
-            "athletes": "{count} athletes"
+            "athletes": "{count} athletes",
+            "share": "Share tournament",
+            "viewCover": "View cover photo"
           },
           "pulse": {
             "live": "Live",

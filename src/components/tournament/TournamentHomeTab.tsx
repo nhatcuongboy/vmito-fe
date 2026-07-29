@@ -740,6 +740,7 @@ export default function TournamentHomeTab({
         isLoadingCounts={isLoadingCategories}
         slug={slug}
         showFavorite={showFavoriteOverlay}
+        onShare={handleShareLink}
       />
 
       <TournamentPulseCard

@@ -26,7 +26,7 @@ const PlayerNamesToggle = ({
       label={label}
       fullWidthOnMobile={fullWidthOnMobile}
     >
-      <Users size={16} />
+      <Users size={16} aria-hidden="true" />
     </TournamentIconToggle>
   );
 };

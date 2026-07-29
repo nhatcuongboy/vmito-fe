@@ -8,14 +8,7 @@ import PageLayout from '@/components/layout/PageLayout';
 import { Link, useRouter } from '@/i18n/config';
 import { useParams } from 'next/navigation';
 import { getRoundDisplayLabel } from '@/lib/tournament/roundLabel';
-import {
-  CalendarDays,
-  Trophy,
-  UserRound,
-  Users,
-  Home,
-  BarChart3,
-} from 'lucide-react';
+import { CalendarDays, Trophy, UserRound, Users } from 'lucide-react';
 import { CategoryService } from '@/lib/api/category.service';
 import { TournamentPlayerService } from '@/lib/api/tournament-player.service';
 import { TournamentService } from '@/lib/api/tournament.service';
@@ -29,7 +22,6 @@ import {
 } from '@/lib/api/types';
 import { getTournamentPlayerCode } from './PublicTournamentPlayerPage';
 import { getTournamentPlayerDisplayCode } from '@/lib/tournament/codes';
-import BottomNavigationBar from '@/components/ui/BottomNavigationBar';
 import { PublicTournamentTeamSkeleton } from '@/components/tournament/skeletons';
 import TournamentTopBarMenu from '@/components/tournament/TournamentTopBarMenu';
 import TournamentQrBar from '@/components/tournament/TournamentQrBar';
@@ -183,25 +175,6 @@ export default function PublicTournamentTeamPage() {
     registration.player?.name ||
     t('defaultTeamName');
   const coverImage = getTournamentCoverImage(tournament);
-
-  const tabs = [
-    { id: 0, label: t('tabs.overview'), icon: Home },
-    { id: 1, label: t('tabs.teams'), icon: Users },
-    { id: 2, label: t('tabs.schedule'), icon: CalendarDays },
-    { id: 3, label: t('tabs.standings'), icon: BarChart3 },
-  ];
-
-  const handleTabChange = (tabIndex: number) => {
-    if (tabIndex === 0) {
-      router.push(`/tournament/${tournamentId}`);
-    } else if (tabIndex === 1) {
-      router.push(`/tournament/${tournamentId}/teams`);
-    } else if (tabIndex === 2) {
-      router.push(`/tournament/${tournamentId}/schedule`);
-    } else if (tabIndex === 3) {
-      router.push(`/tournament/${tournamentId}/standings`);
-    }
-  };
 
   const selectedMatchRoundLabel = selectedMatch
     ? getRoundDisplayLabel(selectedMatch.round, tRounds)
@@ -421,11 +394,6 @@ export default function PublicTournamentTeamPage() {
         </VStack>
       </PageLayout>
 
-      <BottomNavigationBar
-        tabs={tabs}
-        activeTab={1}
-        onTabChange={handleTabChange}
-      />
       <MatchDetailModal
         isOpen={!!selectedMatch}
         onClose={closeMatchDetail}

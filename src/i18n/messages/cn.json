@@ -1863,7 +1863,9 @@
           "hero": {
             "loading": "正在更新…",
             "teams": "{count} 支队伍",
-            "athletes": "{count} 名运动员"
+            "athletes": "{count} 名运动员",
+            "share": "分享赛事",
+            "viewCover": "查看封面图"
           },
           "pulse": {
             "live": "直播",

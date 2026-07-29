@@ -1,6 +1,6 @@
 'use client';
 
-import { Box, Text } from '@chakra-ui/react';
+import { Box, Button, Text } from '@chakra-ui/react';
 import { Check } from 'lucide-react';
 import { ReactNode } from 'react';
 
@@ -24,10 +24,11 @@ export default function TournamentIconToggle({
   const hasLabel = !!label;
 
   return (
-    <Box
+    <Button
+      type="button"
+      variant="plain"
       position="relative"
       cursor="pointer"
-      role="button"
       aria-label={title}
       aria-pressed={active}
       title={title}
@@ -47,14 +48,22 @@ export default function TournamentIconToggle({
             : '36px'
       }
       minW={hasLabel ? 'max-content' : undefined}
+      minH={9}
       px={hasLabel ? 3 : 0}
+      py={0}
       borderRadius={hasLabel ? 'full' : 'md'}
       borderWidth="1px"
       borderColor={active ? 'green.400' : 'gray.300'}
       bg={active ? 'green.500' : 'white'}
       color={active ? 'white' : 'gray.600'}
       boxShadow="sm"
-      transition="all 0.15s ease"
+      transitionProperty="background-color, border-color, color, box-shadow"
+      transitionDuration="0.15s"
+      transitionTimingFunction="ease"
+      _focusVisible={{
+        outline: '2px solid var(--chakra-colors-green-500)',
+        outlineOffset: '2px',
+      }}
       _hover={{
         bg: active ? 'green.600' : 'gray.100',
         borderColor: active ? 'green.500' : 'gray.300',
@@ -81,6 +90,7 @@ export default function TournamentIconToggle({
       )}
       {active && (
         <Box
+          aria-hidden="true"
           position="absolute"
           top={0}
           right={0}
@@ -96,9 +106,9 @@ export default function TournamentIconToggle({
           justifyContent="center"
           _dark={{ borderColor: 'gray.900' }}
         >
-          <Check size={8} strokeWidth={3} color="white" />
+          <Check size={8} strokeWidth={3} color="white" aria-hidden="true" />
         </Box>
       )}
-    </Box>
+    </Button>
   );
 }

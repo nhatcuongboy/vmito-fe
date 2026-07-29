@@ -277,7 +277,7 @@ function TeamCategoryCard({
           {categoryBlock.title}
         </Heading>
         <Badge
-          colorPalette="gray"
+          colorPalette="green"
           variant="solid"
           borderRadius="full"
           px={3}
@@ -1268,7 +1268,7 @@ export default function TournamentPageShell({
                   />
                 </Box>
                 <Badge
-                  colorPalette="gray"
+                  colorPalette="green"
                   variant="solid"
                   borderRadius="full"
                   px={3}

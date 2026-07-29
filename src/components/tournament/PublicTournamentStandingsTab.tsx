@@ -41,7 +41,7 @@ import PublicDoubleEliminationBracket from '@/components/tournament/PublicDouble
 import PlayerNamesToggle from '@/components/tournament/PlayerNamesToggle';
 import { Link } from '@/i18n/config';
 import { usePathname, useSearchParams } from 'next/navigation';
-import { Button, LegacySelect, VStack } from '@/components/ui/chakra-compat';
+import { Button, VSelect, VStack } from '@/components/ui/chakra-compat';
 import { TournamentTableSkeleton } from '@/components/tournament/skeletons';
 import { VModal } from '@/components/ui/VModal';
 import { useTournamentSocket } from '@/hooks/useTournamentSocket';
@@ -607,18 +607,10 @@ export default function PublicTournamentStandingsTab({
           {t('title')}
         </Heading>
 
-        <HStack
-          gap={2}
-          w={{ base: 'full', md: 'auto' }}
-          justify={{ base: 'space-between', md: 'flex-end' }}
-        >
+        <HStack gap={2} w={{ base: 'full', md: 'auto' }} justify="flex-end">
           {categories.length > 1 && (
-            <Box
-              flex={{ base: 1, md: '0 0 auto' }}
-              minW={{ base: '0', md: '260px' }}
-              maxW={{ base: '260px', md: '260px' }}
-            >
-              <LegacySelect
+            <Box w={{ base: 'full', md: '260px' }} minW={0}>
+              <VSelect
                 aria-label={t('categoryFilter')}
                 value={selectedCategoryId}
                 onChange={(event) => setSelectedCategoryId(event.target.value)}
@@ -632,7 +624,7 @@ export default function PublicTournamentStandingsTab({
                     {getCategoryLabel(category)}
                   </option>
                 ))}
-              </LegacySelect>
+              </VSelect>
             </Box>
           )}
         </HStack>
@@ -675,7 +667,7 @@ export default function PublicTournamentStandingsTab({
             onClick={() => setStageView('pool')}
           >
             <HStack gap={2} justify="center">
-              <ListTree size={15} />
+              <ListTree size={15} aria-hidden="true" />
               <Text>{t('poolPlay')}</Text>
             </HStack>
           </Button>
@@ -690,32 +682,35 @@ export default function PublicTournamentStandingsTab({
             onClick={() => setStageView('playoffs')}
           >
             <HStack gap={2} justify="center">
-              <GitBranch size={15} />
+              <GitBranch size={15} aria-hidden="true" />
               <Text>{t('playoffs')}</Text>
             </HStack>
           </Button>
         </Flex>
 
-        <HStack
+        <Flex
           order={{ base: 2, md: 2 }}
           w={{ base: 'full', md: 'auto' }}
           gap={2}
           justify="flex-end"
+          align="center"
+          flexWrap="wrap"
           flexShrink={0}
         >
           {stageView === 'pool' && (
-            <LegacySelect
-              aria-label={t('pools')}
-              value={standingView}
-              onChange={(event) =>
-                setStandingView(event.target.value as StandingView)
-              }
-              size="sm"
-              style={{ width: 'auto' }}
-            >
-              <option value="pools">{t('pools')}</option>
-              <option value="overall">{t('overall')}</option>
-            </LegacySelect>
+            <Box flex={{ base: '1 1 160px', md: '0 0 110px' }} minW={0}>
+              <VSelect
+                aria-label={t('pools')}
+                value={standingView}
+                onChange={(event) =>
+                  setStandingView(event.target.value as StandingView)
+                }
+                size="sm"
+              >
+                <option value="pools">{t('pools')}</option>
+                <option value="overall">{t('overall')}</option>
+              </VSelect>
+            </Box>
           )}
 
           <PlayerNamesToggle
@@ -723,7 +718,7 @@ export default function PublicTournamentStandingsTab({
             onToggle={() => setShowPlayerNames((prev) => !prev)}
             title={t('showPlayerNames')}
           />
-        </HStack>
+        </Flex>
       </Flex>
 
       {error ? (

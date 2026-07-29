@@ -260,6 +260,8 @@ export const VSelect = ({
   width,
   minWidth,
   renderItem,
+  'aria-label': ariaLabel,
+  'aria-labelledby': ariaLabelledBy,
   ...props
 }: VSelectProps) => {
   const isSelectDisabled = isDisabled || disabled;
@@ -362,7 +364,11 @@ export const VSelect = ({
           </Box>
         )}
 
-        <SelectTrigger {...triggerProps}>
+        <SelectTrigger
+          {...triggerProps}
+          aria-label={ariaLabel}
+          aria-labelledby={ariaLabelledBy}
+        >
           <SelectValueText placeholder={derivedPlaceholder} />
           <SelectIndicator />
         </SelectTrigger>

@@ -1891,7 +1891,9 @@
           "hero": {
             "loading": "Đang cập nhật…",
             "teams": "{count} đội",
-            "athletes": "{count} VĐV"
+            "athletes": "{count} VĐV",
+            "share": "Chia sẻ giải đấu",
+            "viewCover": "Xem ảnh bìa"
           },
           "pulse": {
             "live": "Trực tiếp",
