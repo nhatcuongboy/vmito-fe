@@ -1,4 +1,4 @@
-import { ApiResponse } from '@/lib/api/types';
+import type { ApiResponse } from '@/lib/api/types';
 import { api } from './base';
 import { JoinByCodeResponse } from './types';
 import {
@@ -131,11 +131,18 @@ export const AuthService = {
   verifyResetToken: async (
     token: string
   ): Promise<{ valid: boolean; maskedEmail: string }> => {
-    const response = await api.get<{ valid: boolean; maskedEmail: string }>(
-      `/auth/verify-reset-token?token=${encodeURIComponent(token)}`,
-      { skipGlobalError: true }
-    );
-    return response.data;
+    const response = await api.get<
+      ApiResponse<{ valid: boolean; maskedEmail: string }>
+    >(`/auth/verify-reset-token?token=${encodeURIComponent(token)}`, {
+      skipGlobalError: true,
+    });
+
+    const result = response.data.data;
+    if (!result) {
+      throw new Error('Verify reset token response is missing data');
+    }
+
+    return result;
   },
 
   /**
