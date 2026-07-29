@@ -69,7 +69,7 @@ export default function TournamentQuickActions({
             key={action.id}
             minH="56px"
             borderWidth="1px"
-            borderColor={isPrimary ? `${action.color}.300` : 'gray.200'}
+            borderColor="gray.200"
             borderRadius="xl"
             bg={isPrimary ? `${action.color}.50` : 'white'}
             color={isPrimary ? `${action.color}.800` : 'gray.800'}
@@ -96,9 +96,7 @@ export default function TournamentQuickActions({
                 ? `rgba(20, 184, 166, 0.12)`
                 : 'var(--tournament-surface-raised)',
               color: 'gray.100',
-              borderColor: isPrimary
-                ? 'var(--tournament-accent-border)'
-                : 'var(--tournament-border)',
+              borderColor: 'var(--tournament-border)',
             }}
           >
             <Link href={action.href}>
