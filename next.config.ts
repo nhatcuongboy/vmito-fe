@@ -30,6 +30,13 @@ const nextConfig = {
         hostname: 'play-lh.googleusercontent.com',
       },
       {
+        // Facebook Graph profile picture, used as the avatar for accounts
+        // that signed up via "Sign in with Facebook" (see
+        // FacebookStrategy.validate -> photos[0].value in vmito-be).
+        protocol: 'https' as const,
+        hostname: 'platform-lookaside.fbsbx.com',
+      },
+      {
         protocol: 'https' as const,
         hostname: 'res.cloudinary.com',
       },
