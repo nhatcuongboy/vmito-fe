@@ -70,7 +70,6 @@ export default function MainLayout({
           <Box flex="1" p={contentPadding}>
             {children}
           </Box>
-          {/* <Footer /> */}
         </Flex>
       </Box>
     </Box>
