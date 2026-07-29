@@ -742,7 +742,7 @@ export default function SessionOverviewTab({
         <Box mt={4}>
           <Button
             colorPalette="green"
-            variant="outline"
+            variant="solid"
             leftIcon={<Share2 size={16} />}
             onClick={() => setIsShareResultsConfirmOpen(true)}
           >

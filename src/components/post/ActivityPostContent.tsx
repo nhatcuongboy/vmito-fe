@@ -24,7 +24,7 @@ import type {
   TournamentPodiumSide,
 } from '@/types/post';
 
-const MAX_STANDINGS_ROWS = 5;
+const MAX_STANDINGS_ROWS = 3;
 
 const PODIUM_STYLES = [
   {
@@ -67,7 +67,10 @@ function EntityPreviewCard({
   const imageSrc = image ? normalizeImageUrl(image) : null;
   return (
     <Link href={href} className="group block">
-      <div className="flex items-center gap-3.5 rounded-2xl border border-gray-200/80 bg-gradient-to-br from-gray-50 to-white p-3 shadow-sm transition-all duration-200 group-hover:-translate-y-0.5 group-hover:border-green-300 group-hover:shadow-md dark:border-white/10 dark:from-gray-700/50 dark:to-gray-800/40 dark:group-hover:border-green-500/40">
+      <div
+        className="flex items-center gap-3.5 rounded-2xl border border-gray-200/80 bg-gradient-to-br from-gray-50 to-white shadow-sm transition-all duration-200 group-hover:-translate-y-0.5 group-hover:border-green-300 group-hover:shadow-md dark:border-white/10 dark:from-gray-700/50 dark:to-gray-800/40 dark:group-hover:border-green-500/40"
+        style={{ padding: 12 }}
+      >
         {imageSrc ? (
           <img // eslint-disable-line @next/next/no-img-element
             src={imageSrc}
@@ -88,7 +91,10 @@ function EntityPreviewCard({
             {title}
           </div>
           {subtitle && (
-            <div className="mt-0.5 truncate text-[13px] text-gray-500 dark:text-gray-400">
+            <div
+              className="truncate text-[13px] text-gray-500 dark:text-gray-400"
+              style={{ marginTop: 2 }}
+            >
               {subtitle}
             </div>
           )}
@@ -113,16 +119,26 @@ function SessionStandings({
   return (
     <div className="overflow-hidden rounded-2xl border border-gray-200/80 shadow-sm dark:border-white/10">
       <div className={expanded ? 'max-h-[360px] overflow-y-auto' : ''}>
-        <table className="w-full border-separate border-spacing-0 text-[14px]">
+        <table
+          className="w-full border-separate border-spacing-0"
+          style={{ fontSize: 14 }}
+        >
           <thead>
             <tr className="sticky top-0 z-10 bg-gradient-to-r from-gray-50 to-gray-100/70 text-left text-[11px] uppercase tracking-wide text-gray-500 backdrop-blur dark:from-gray-800 dark:to-gray-700/70 dark:text-gray-400">
-              <th className="px-3 py-2.5 font-semibold">
+              <th
+                style={{ padding: '10px 12px', fontWeight: 600, fontSize: 12 }}
+              >
                 {t('activity.standingsRank')}
               </th>
-              <th className="px-3 py-2.5 font-semibold">
+              <th
+                style={{ padding: '10px 12px', fontWeight: 600, fontSize: 12 }}
+              >
                 {t('activity.standingsPlayer')}
               </th>
-              <th className="px-3 py-2.5 text-right font-semibold">
+              <th
+                className="text-right"
+                style={{ padding: '10px 12px', fontWeight: 600, fontSize: 12 }}
+              >
                 {hasWinRate
                   ? t('activity.standingsWinRate')
                   : t('activity.standingsMatches')}
@@ -137,21 +153,25 @@ function SessionStandings({
                   key={`${row.rank}-${row.playerNumber}`}
                   className={`border-t border-gray-100 transition-colors hover:bg-gray-50 dark:border-white/5 dark:hover:bg-white/5 ${podium?.row ?? ''}`}
                 >
-                  <td className="px-3 py-2">
+                  <td style={{ padding: '8px 12px' }}>
                     <span
-                      className={`flex h-8 w-8 items-center justify-center rounded-full border text-[13px] font-bold shadow-sm ${
+                      style={{ fontWeight: 700, fontSize: 15 }}
+                      className={`flex h-8 w-8 items-center justify-center rounded-full border shadow-sm ${
                         podium
                           ? podium.badge
                           : 'border-gray-200 bg-gray-50 text-gray-500 dark:border-white/10 dark:bg-white/5 dark:text-gray-400'
                       }`}
                     >
-                      {podium ? podium.medal : row.rank}
+                      {row.rank}
                     </span>
                   </td>
-                  <td className="max-w-0 px-3 py-2">
+                  <td className="max-w-0" style={{ padding: '8px 12px' }}>
                     <div className="flex min-w-0 items-center gap-2.5">
-                      <PostAvatar name={row.name} size={28} />
-                      <span className="truncate font-medium text-gray-900 dark:text-gray-50">
+                      <PostAvatar name={row.name} image={row.image} size={28} />
+                      <span
+                        className="min-w-0 flex-1 truncate text-gray-900 dark:text-gray-50"
+                        style={{ fontWeight: 500, fontSize: 15 }}
+                      >
                         {row.userId ? (
                           <Link
                             href={ROUTES.USER.PROFILE(row.userId)}
@@ -165,11 +185,16 @@ function SessionStandings({
                       </span>
                     </div>
                   </td>
-                  <td className="px-3 py-2 text-right">
+                  <td className="text-right" style={{ padding: '8px 12px' }}>
                     {hasWinRate ? (
                       <div className="flex flex-col items-end gap-0.5">
                         <span
-                          className={`inline-flex min-w-[46px] items-center justify-center rounded-full px-2 py-0.5 text-[13px] font-semibold ${
+                          style={{
+                            padding: '2px 8px',
+                            fontWeight: 600,
+                            fontSize: 14,
+                          }}
+                          className={`inline-flex min-w-[46px] items-center justify-center rounded-full ${
                             (row.winRate ?? 0) >= 50
                               ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300'
                               : 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300'
@@ -177,14 +202,24 @@ function SessionStandings({
                         >
                           {row.winRate ?? 0}%
                         </span>
-                        <span className="text-[11px] text-gray-400 dark:text-gray-500">
+                        <span
+                          className="text-gray-400 dark:text-gray-500"
+                          style={{ fontSize: 12 }}
+                        >
                           {t('activity.standingsMatchesShort', {
                             count: row.matchesPlayed,
                           })}
                         </span>
                       </div>
                     ) : (
-                      <span className="inline-flex min-w-[28px] items-center justify-center rounded-full bg-gray-100 px-2 py-0.5 text-[13px] font-semibold text-gray-700 dark:bg-white/10 dark:text-gray-200">
+                      <span
+                        className="inline-flex min-w-[28px] items-center justify-center rounded-full bg-gray-100 text-gray-700 dark:bg-white/10 dark:text-gray-200"
+                        style={{
+                          padding: '2px 8px',
+                          fontWeight: 600,
+                          fontSize: 14,
+                        }}
+                      >
                         {row.matchesPlayed}
                       </span>
                     )}
@@ -200,7 +235,8 @@ function SessionStandings({
           type="button"
           onClick={() => setExpanded((prev) => !prev)}
           aria-expanded={expanded}
-          className="flex w-full cursor-pointer items-center justify-center gap-1.5 border-t border-gray-100 bg-gray-50 px-3 py-2.5 text-[13px] font-semibold text-green-600 transition-colors hover:bg-green-50 dark:border-white/5 dark:bg-gray-700/40 dark:text-green-300 dark:hover:bg-green-950/20"
+          className="flex w-full cursor-pointer items-center justify-center gap-1.5 border-t border-gray-100 bg-gray-50 text-green-600 transition-colors hover:bg-green-50 dark:border-white/5 dark:bg-gray-700/40 dark:text-green-300 dark:hover:bg-green-950/20"
+          style={{ padding: '10px 12px', fontWeight: 600, fontSize: 14 }}
         >
           {expanded
             ? t('activity.showLess')
@@ -218,7 +254,10 @@ function SessionStandings({
 function PodiumNames({ side }: { side: TournamentPodiumSide }) {
   const players = side.players ?? [];
   return (
-    <span className="font-semibold text-gray-900 dark:text-gray-50">
+    <span
+      className="text-gray-900 dark:text-gray-50"
+      style={{ fontWeight: 600 }}
+    >
       {players.map((player, index) => (
         <span key={`${player.name}-${index}`}>
           {index > 0 && ' & '}
@@ -396,18 +435,28 @@ export function ActivityPostContent({ post }: ActivityPostContentProps) {
               {categories.map((category) => (
                 <div
                   key={category.categoryId}
-                  className="rounded-xl border border-amber-200 bg-amber-50 p-3 dark:border-amber-500/20 dark:bg-amber-950/20"
+                  className="rounded-xl border border-amber-200 bg-amber-50 dark:border-amber-500/20 dark:bg-amber-950/20"
+                  style={{ padding: 12 }}
                 >
-                  <div className="text-[13px] font-semibold uppercase tracking-wide text-amber-700 dark:text-amber-300">
+                  <div
+                    className="text-[13px] uppercase tracking-wide text-amber-700 dark:text-amber-300"
+                    style={{ fontWeight: 600 }}
+                  >
                     {category.categoryName}
                   </div>
-                  <div className="mt-1.5 flex items-center gap-2 text-[14px] text-gray-700 dark:text-gray-200">
+                  <div
+                    className="flex items-center gap-2 text-[14px] text-gray-700 dark:text-gray-200"
+                    style={{ marginTop: 6 }}
+                  >
                     <span aria-hidden="true">🏆</span>
                     <span>{t('activity.champion')}:</span>
                     <PodiumNames side={category.champion} />
                   </div>
                   {category.runnerUp && (
-                    <div className="mt-1 flex items-center gap-2 text-[14px] text-gray-700 dark:text-gray-200">
+                    <div
+                      className="flex items-center gap-2 text-[14px] text-gray-700 dark:text-gray-200"
+                      style={{ marginTop: 4 }}
+                    >
                       <span aria-hidden="true">🥈</span>
                       <span>{t('activity.runnerUp')}:</span>
                       <PodiumNames side={category.runnerUp} />

@@ -55,6 +55,12 @@ interface PostLikeUpdatedPayload {
   isLiked: boolean;
 }
 
+interface PostCommentUpdatedPayload {
+  postId: string;
+  commentCount: number;
+  actorId: string;
+}
+
 function PostMediaImage({ src, alt, className, onClick }: PostMediaImageProps) {
   const [hasError, setHasError] = useState(false);
   const imageSrc = normalizeImageUrl(src);
@@ -144,6 +150,41 @@ export function PostCard({
   }, [currentUserId, isConnected, localPost.id, socket]);
 
   useEffect(() => {
+    if (!socket || !isConnected) return;
+
+    const postId = localPost.id;
+    const handleCommentCountUpdated = (data: PostCommentUpdatedPayload) => {
+      if (data.postId !== postId || !Number.isFinite(data.commentCount)) return;
+
+      setLocalPost((prev) => {
+        const prevCounts = prev._count ?? { likes: 0, comments: 0, shares: 0 };
+
+        return {
+          ...prev,
+          _count: {
+            ...prevCounts,
+            comments: Math.max(0, data.commentCount),
+          },
+        };
+      });
+    };
+
+    socket.on(SessionEventType.POST_COMMENT_CREATED, handleCommentCountUpdated);
+    socket.on(SessionEventType.POST_COMMENT_DELETED, handleCommentCountUpdated);
+
+    return () => {
+      socket.off(
+        SessionEventType.POST_COMMENT_CREATED,
+        handleCommentCountUpdated
+      );
+      socket.off(
+        SessionEventType.POST_COMMENT_DELETED,
+        handleCommentCountUpdated
+      );
+    };
+  }, [isConnected, localPost.id, socket]);
+
+  useEffect(() => {
     if (!showMenu) return;
     const handleClickOutside = (event: MouseEvent) => {
       if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
@@ -231,11 +272,6 @@ export function PostCard({
     setIsDeleting(true);
     try {
       await postsService.deletePost(localPost.id);
-      toaster.create({
-        title: t('success'),
-        description: t('deleteSuccess'),
-        type: 'success',
-      });
       setShowDeleteConfirm(false);
       if (onPostDeleted) {
         onPostDeleted(localPost.id);

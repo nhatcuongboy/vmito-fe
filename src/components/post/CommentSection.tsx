@@ -16,6 +16,7 @@ import { Link } from '@/i18n/config';
 import { ROUTES } from '@/constants/routes';
 import { Box, Flex } from '@chakra-ui/react';
 import VModal from '@/components/ui/VModal';
+import { SessionEventType, useSocket } from '@/contexts/SocketContext';
 
 const localeMap: Record<string, Locale> = { vi, en: enUS, cn: zhCN };
 
@@ -24,6 +25,20 @@ interface CommentSectionProps {
   currentUserId?: string;
   initialCommentCount?: number;
   onCommentCountChange?: (nextCount: number) => void;
+}
+
+interface CommentCreatedPayload {
+  postId: string;
+  comment: PostComment;
+  commentCount: number;
+  actorId: string;
+}
+
+interface CommentDeletedPayload {
+  postId: string;
+  commentId: string;
+  commentCount: number;
+  actorId: string;
 }
 
 export function CommentSection({
@@ -36,6 +51,7 @@ export function CommentSection({
   const locale = useLocale();
   const dateLocale = localeMap[locale] || enUS;
   const currentUser = useAuthStore((state) => state.user);
+  const { socket, isConnected } = useSocket();
   const [comments, setComments] = useState<PostComment[]>([]);
   const [commentCount, setCommentCount] = useState(initialCommentCount);
   const [newComment, setNewComment] = useState('');
@@ -90,6 +106,37 @@ export function CommentSection({
     setCommentCount(initialCommentCount);
   }, [initialCommentCount]);
 
+  useEffect(() => {
+    if (!socket || !isConnected) return;
+
+    const handleCommentCreated = (data: CommentCreatedPayload) => {
+      if (data.postId !== postId || !data.comment?.id) return;
+      setComments((prev) => {
+        if (prev.some((c) => c.id === data.comment.id)) return prev;
+        return [data.comment, ...prev];
+      });
+      if (Number.isFinite(data.commentCount)) {
+        setCommentCount(Math.max(0, data.commentCount));
+      }
+    };
+
+    const handleCommentDeleted = (data: CommentDeletedPayload) => {
+      if (data.postId !== postId || !data.commentId) return;
+      setComments((prev) => prev.filter((c) => c.id !== data.commentId));
+      if (Number.isFinite(data.commentCount)) {
+        setCommentCount(Math.max(0, data.commentCount));
+      }
+    };
+
+    socket.on(SessionEventType.POST_COMMENT_CREATED, handleCommentCreated);
+    socket.on(SessionEventType.POST_COMMENT_DELETED, handleCommentDeleted);
+
+    return () => {
+      socket.off(SessionEventType.POST_COMMENT_CREATED, handleCommentCreated);
+      socket.off(SessionEventType.POST_COMMENT_DELETED, handleCommentDeleted);
+    };
+  }, [isConnected, postId, socket]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newComment.trim()) return;
@@ -102,11 +149,6 @@ export function CommentSection({
       setCommentCount(nextCount);
       onCommentCountChange?.(nextCount);
       setNewComment('');
-      toaster.create({
-        title: t('success'),
-        description: t('commentAdded'),
-        type: 'success',
-      });
     } catch {
       toaster.create({
         title: t('error'),
@@ -127,11 +169,6 @@ export function CommentSection({
       const nextCount = Math.max(commentCount - 1, 0);
       setCommentCount(nextCount);
       onCommentCountChange?.(nextCount);
-      toaster.create({
-        title: t('success'),
-        description: t('commentDeleted'),
-        type: 'success',
-      });
     } catch {
       toaster.create({
         title: t('error'),
@@ -187,7 +224,8 @@ export function CommentSection({
               onChange={(e) => setNewComment(e.target.value)}
               placeholder={t('writeComment')}
               aria-label={t('writeComment')}
-              className="h-full min-w-0 flex-1 bg-transparent text-sm text-gray-800 placeholder:text-gray-500 focus:outline-none dark:text-gray-100 dark:placeholder:text-gray-400"
+              className="h-full min-w-0 flex-1 bg-transparent text-gray-800 placeholder:text-gray-500 focus:outline-none dark:text-gray-100 dark:placeholder:text-gray-400"
+              style={{ fontSize: 15 }}
               disabled={isSubmitting}
             />
             <button
@@ -241,7 +279,7 @@ export function CommentSection({
                   py={1.5}
                 >
                   <Box
-                    fontSize="13px"
+                    fontSize="14px"
                     fontWeight="semibold"
                     color={{ base: 'gray.900', _dark: 'gray.50' }}
                   >
@@ -256,7 +294,7 @@ export function CommentSection({
                     whiteSpace="pre-wrap"
                     wordBreak="break-word"
                     fontSize="15px"
-                    lineHeight="1.4"
+                    lineHeight="1.5"
                     color={{ base: 'gray.800', _dark: 'gray.100' }}
                   >
                     {comment.content}
@@ -267,7 +305,7 @@ export function CommentSection({
                   align="center"
                   gap={2}
                   pl={3}
-                  fontSize="11px"
+                  fontSize="12px"
                   color={{ base: 'gray.500', _dark: 'gray.400' }}
                 >
                   <span>

@@ -40,7 +40,9 @@ export const StarRatingDisplay = ({
   // Round to 1 decimal
   const displayRating = Math.round(rating * 10) / 10;
 
-  if (count === 0 && variant !== 'inline') {
+  // The empty state only applies to the aggregate summary (default variant).
+  // Compact/inline render a single, already-known rating where count is irrelevant.
+  if (count === 0 && variant === 'default') {
     return (
       <HStack gap={1}>
         <Star size={starSize} color="#CBD5E0" strokeWidth={1.5} />

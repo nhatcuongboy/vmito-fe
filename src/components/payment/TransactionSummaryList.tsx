@@ -228,16 +228,17 @@ export default function TransactionSummaryList({
                         {summary.totalSessions} {t('sessions')}
                       </Text>
                     </HStack>
-                    {summary.averageRating !== undefined && (
-                      <Box mt={1}>
-                        <StarRatingDisplay
-                          rating={summary.averageRating}
-                          count={summary.totalRatings}
-                          size="xs"
-                          variant="compact"
-                        />
-                      </Box>
-                    )}
+                    {summary.averageRating !== undefined &&
+                      (summary.totalRatings ?? 0) > 0 && (
+                        <Box mt={1}>
+                          <StarRatingDisplay
+                            rating={summary.averageRating}
+                            count={summary.totalRatings}
+                            size="xs"
+                            variant="compact"
+                          />
+                        </Box>
+                      )}
                   </Box>
                 </HStack>
 

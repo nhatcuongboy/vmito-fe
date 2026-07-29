@@ -69,12 +69,6 @@ export function CreatePostModal({
         })),
       });
 
-      toaster.create({
-        title: t('success'),
-        description: t('createSuccess'),
-        type: 'success',
-      });
-
       setContent('');
       setLocation(null);
       setImages([]);
