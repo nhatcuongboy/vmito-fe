@@ -120,6 +120,7 @@ export default function NewsfeedContent() {
                 name={authorName}
                 image={currentUser?.image}
                 size={44}
+                bordered
               />
               <Box
                 role="button"

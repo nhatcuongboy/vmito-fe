@@ -324,6 +324,7 @@ export function PostCard({
             name={localPost.author.name}
             image={localPost.author.image}
             size={40}
+            bordered
           />
         </Link>
         <div className="min-w-0 flex-1">
