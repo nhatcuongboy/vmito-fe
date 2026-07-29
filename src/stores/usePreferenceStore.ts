@@ -41,10 +41,10 @@ export const usePreferenceStore = create<PreferenceState>()(
       setOnboardingCompleted: (completed) =>
         set({ onboardingCompleted: completed }),
 
+      // Keeps preferredCity/preferredDistricts intact: the selected city is a
+      // browser-level preference, not user-scoped, so it should survive logout.
       resetPreferences: () =>
         set({
-          preferredCity: null,
-          preferredDistricts: [],
           onboardingCompleted: false,
           useAiForCreation: DEFAULT_USE_AI_FOR_CREATION,
         }),
