@@ -1,7 +1,7 @@
 'use client';
 
-import { Box, Text } from '@chakra-ui/react';
-import { Check, Users } from 'lucide-react';
+import { Users } from 'lucide-react';
+import TournamentIconToggle from '@/components/tournament/TournamentIconToggle';
 
 interface PlayerNamesToggleProps {
   active: boolean;
@@ -18,82 +18,16 @@ const PlayerNamesToggle = ({
   label,
   fullWidthOnMobile = false,
 }: PlayerNamesToggleProps) => {
-  const hasLabel = !!label;
-
   return (
-    <Box
-      position="relative"
-      cursor="pointer"
-      role="button"
-      aria-pressed={active}
+    <TournamentIconToggle
+      active={active}
+      onToggle={onToggle}
       title={title}
-      onClick={onToggle}
-      flex={fullWidthOnMobile ? { base: 1, sm: '0 0 auto' } : '0 0 auto'}
-      flexShrink={0}
-      display="flex"
-      alignItems="center"
-      justifyContent="center"
-      gap={hasLabel ? 2 : 0}
-      h={9}
-      w={
-        hasLabel
-          ? 'auto'
-          : fullWidthOnMobile
-            ? { base: 'full', sm: '36px' }
-            : '36px'
-      }
-      minW={hasLabel ? 'max-content' : undefined}
-      px={hasLabel ? 3 : 0}
-      borderRadius={hasLabel ? 'full' : 'md'}
-      borderWidth="1px"
-      borderColor={active ? 'green.400' : 'gray.200'}
-      bg={active ? 'green.500' : 'transparent'}
-      color={active ? 'white' : 'gray.500'}
-      transition="all 0.15s ease"
-      _hover={{
-        bg: active ? 'green.600' : 'gray.100',
-        borderColor: active ? 'green.500' : 'gray.300',
-      }}
-      _dark={{
-        borderColor: active ? 'green.500' : 'gray.600',
-        bg: active ? 'green.600' : 'transparent',
-        color: active ? 'white' : 'gray.400',
-        _hover: {
-          bg: active ? 'green.700' : 'gray.700',
-        },
-      }}
+      label={label}
+      fullWidthOnMobile={fullWidthOnMobile}
     >
       <Users size={16} />
-      {hasLabel && (
-        <Text
-          fontSize="sm"
-          fontWeight="semibold"
-          lineHeight="1"
-          whiteSpace="nowrap"
-        >
-          {label}
-        </Text>
-      )}
-      {active && (
-        <Box
-          position="absolute"
-          top="-4px"
-          right="-4px"
-          w="14px"
-          h="14px"
-          borderRadius="full"
-          bg="green.400"
-          borderWidth="2px"
-          borderColor="white"
-          display="flex"
-          alignItems="center"
-          justifyContent="center"
-          _dark={{ borderColor: 'gray.900' }}
-        >
-          <Check size={8} strokeWidth={3} color="white" />
-        </Box>
-      )}
-    </Box>
+    </TournamentIconToggle>
   );
 };
 

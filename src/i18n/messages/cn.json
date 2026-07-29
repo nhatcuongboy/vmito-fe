@@ -1669,22 +1669,51 @@
       "create": {
         "title": "创建锦标赛",
         "createNewTournament": "创建新锦标赛",
+        "introEyebrow": "设置锦标赛",
+        "introDescription": "先填写最重要的信息。",
         "basicInformation": "基本信息",
+        "formDescription": "填写参赛者识别锦标赛所需的信息。",
         "tournamentName": "锦标赛名称",
-        "enterTournamentName": "输入锦标赛名称",
-        "creating": "正在创建...",
+        "tournamentNameHelper": "请选择简短、易记并能体现赛季的名称。",
+        "enterTournamentName": "例如：2026 夏季羽毛球公开赛…",
+        "creating": "正在创建…",
         "fillAllFields": "请填写所有必填字段",
+        "createFailed": "无法创建锦标赛。请检查信息后重试。",
         "startDate": "开始日期",
         "endDate": "结束日期",
+        "datePlaceholder": "年 / 月 / 日",
+        "schedule": "比赛日期",
         "venue": "场地",
-        "locationPlaceholder": "活动将在哪里举行？",
+        "optional": "选填",
+        "locationHelper": "在地图上搜索或手动输入地点。",
+        "locationPlaceholder": "搜索场地或输入地点…",
+        "selectedVenue": "已选地点",
+        "clearVenue": "清除",
         "selectVenue": "-- 选择场地 --",
         "cancel": "取消",
         "createTournament": "创建锦标赛",
         "sport": "比赛项目",
+        "sportHelper": "选择锦标赛的主要比赛项目。",
+        "nextStepsTitle": "稍后继续完善",
+        "nextStepsDescription": "创建后，可在管理页面添加组别、赛制、选手和赛程。",
         "sports": {
           "BADMINTON": "羽毛球",
           "PICKLEBALL": "匹克球"
+        },
+        "validation": {
+          "nameRequired": "请输入锦标赛名称。",
+          "startDateRequired": "请选择开始日期。",
+          "endDateRequired": "请选择结束日期。",
+          "startDatePast": "开始日期不能早于今天。",
+          "endBeforeStart": "结束日期必须等于或晚于开始日期。"
+        },
+        "unsaved": {
+          "title": "离开锦标赛设置？",
+          "description": "您有尚未保存的更改。",
+          "body": "离开此页面后，您刚才输入的信息将会丢失。",
+          "stay": "继续编辑",
+          "leave": "离开页面",
+          "close": "关闭对话框"
         }
       },
       "detail": {
@@ -1825,6 +1854,43 @@
             "viewStandings": "查看排名",
             "viewShowcase": "展示"
           },
+          "status": {
+            "PREPARING": "即将开始",
+            "IN_PROGRESS": "进行中",
+            "FINISHED": "已结束",
+            "CANCELLED": "已取消"
+          },
+          "hero": {
+            "loading": "正在更新…",
+            "teams": "{count} 支队伍",
+            "athletes": "{count} 名运动员"
+          },
+          "pulse": {
+            "live": "直播",
+            "liveTitle": "比赛进行中",
+            "liveDescription": "关注赛事最新比分。",
+            "nextTitle": "下一场比赛",
+            "nextDescription": "最新比赛日程已准备就绪。",
+            "finishedTitle": "赛事已结束",
+            "finishedDescription": "查看最终排名和赛事冠军。",
+            "preparingTitle": "赛事准备中",
+            "preparingDescription": "比赛开始前查看类别和竞赛规则。",
+            "cancelledTitle": "赛事已取消",
+            "cancelledDescription": "查看日程了解更多信息。",
+            "viewLive": "查看实时比分",
+            "viewSchedule": "查看日程",
+            "viewResults": "查看结果",
+            "viewCategories": "查看类别",
+            "court": "球场",
+            "versus": "对阵",
+            "errorTitle": "无法加载赛事动态",
+            "errorDescription": "请重试加载比赛信息。",
+            "retry": "重试"
+          },
+          "share": {
+            "success": "已复制赛事链接",
+            "error": "无法分享赛事"
+          },
           "categories": {
             "title": "类别",
             "manage": "管理类别",
@@ -1861,6 +1927,7 @@
             "name": "姓名",
             "email": "邮箱",
             "phone": "电话",
+            "edit": "编辑联系信息",
             "empty": "暂无联系信息。"
           },
           "sponsors": {
@@ -1872,6 +1939,16 @@
             "title": "冠军",
             "subtitle": "最终成绩已公布。",
             "viewAll": "查看全部优胜者"
+          },
+          "organizerCompletion": {
+            "title": "完善赛事页面",
+            "description": "补充缺失信息，让公开页面更实用、更有吸引力。",
+            "items": {
+              "name": "添加备注",
+              "videos": "添加视频",
+              "sponsors": "添加赞助商",
+              "contact": "添加联系方式"
+            }
           }
         },
         "dashboard": {
@@ -4020,6 +4097,8 @@
           "searchPlaceholder": "搜索选手或队伍",
           "referee": "裁判",
           "refereeOnlyLabel": "我的比赛",
+          "refereeModeEnabled": "已开启裁判模式",
+          "refereeModeDisabled": "已关闭裁判模式",
           "clear": "清除筛选",
           "apply": "应用",
           "empty": "没有符合筛选条件的比赛。",

@@ -2,6 +2,7 @@
 
 import type { ReactNode } from 'react';
 import { useEffect, useMemo, useState } from 'react';
+import dynamic from 'next/dynamic';
 import {
   Badge,
   Box,
@@ -16,19 +17,13 @@ import {
 } from '@chakra-ui/react';
 import { AppAddressDisplay } from '@/components/common/AppAddressDisplay';
 import {
-  Users,
-  UserRound,
-  CalendarDays,
-  BarChart3,
   ChevronRight,
   MapPin,
   Navigation,
   Pencil,
-  Trash2,
   CheckCircle,
   MonitorPlay,
   NotebookText,
-  Sparkles,
   GitBranch,
 } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
@@ -57,9 +52,12 @@ import type {
   TiebreakerItem,
 } from '@/components/tournament/format-wizard/types';
 import PublicTournamentWinnersTab from '@/components/tournament/PublicTournamentWinnersTab';
+import TournamentHomeHero from '@/components/tournament/TournamentHomeHero';
+import TournamentPulseCard from '@/components/tournament/TournamentPulseCard';
+import TournamentQuickActions from '@/components/tournament/TournamentQuickActions';
 import TournamentQrBar from '@/components/tournament/TournamentQrBar';
 import { TournamentTableSkeleton } from '@/components/tournament/skeletons';
-import { useRouter } from '@/i18n/config';
+import { Link as RouterLink, useRouter } from '@/i18n/config';
 import {
   getGoogleMapsUrl,
   getPrimaryVenueDisplay,
@@ -68,10 +66,14 @@ import {
 } from '@/utils';
 import { Button } from '@/components/ui/chakra-compat';
 import { toaster } from '@/components/ui/toaster';
-import VenueMapPin from '@/components/venue/VenueMapPin';
 import { VModal, useModal } from '@/components/ui/VModal';
 import { getYouTubeEmbed } from '@/lib/utils/youtube';
-import { FavoriteEngagementControl } from '@/components/favorites/FavoriteEngagementControl';
+import { useTournamentHomeMatches } from '@/hooks/useTournamentHomeMatches';
+
+const VenueMapPin = dynamic(() => import('@/components/venue/VenueMapPin'), {
+  ssr: false,
+  loading: () => <Skeleton height="160px" width="100%" borderRadius="xl" />,
+});
 
 interface ICategoryHomeItem {
   id: string;
@@ -246,7 +248,7 @@ function CompetitionInfoSection({ categories }: { categories: Category[] }) {
         borderWidth="1px"
         borderColor="gray.200"
         borderRadius="xl"
-        p={4}
+        p={3}
         bg="white"
         cursor="pointer"
         transition="background 160ms ease, border-color 160ms ease"
@@ -263,28 +265,28 @@ function CompetitionInfoSection({ categories }: { categories: Category[] }) {
         onClick={modal.onOpen}
       >
         <Flex align="center" justify="space-between" gap={3}>
-          <HStack gap={3} minW={0}>
+          <HStack gap={2.5} minW={0}>
             <Flex
               align="center"
               justify="center"
-              w="40px"
-              h="40px"
+              w="36px"
+              h="36px"
               borderRadius="lg"
               bg="green.50"
               color="green.600"
               flexShrink={0}
               _dark={{ bg: 'green.900', color: 'green.200' }}
             >
-              <GitBranch size={20} />
+              <GitBranch size={18} aria-hidden="true" />
             </Flex>
             <Box minW={0}>
-              <Text fontWeight="semibold" fontSize="lg">
+              <Text fontWeight="semibold" fontSize="md">
                 {t('competitionInfo.title')}
               </Text>
               <Text
                 fontSize="sm"
                 color="gray.500"
-                lineClamp={2}
+                lineClamp={1}
                 _dark={{ color: 'gray.400' }}
               >
                 {t('competitionInfo.subtitle')}
@@ -569,14 +571,19 @@ export default function TournamentHomeTab({
   showFavoriteOverlay,
 }: TournamentHomeTabProps) {
   const t = useTranslations('pages.tournaments.detail.homeTab');
-  const tBoard = useTranslations('pages.tournaments.scoreboard');
   const locale = useLocale();
   const router = useRouter();
   const [tournamentVenues, setTournamentVenues] = useState<IHomeVenueItem[]>(
     []
   );
+  const [selectedVenueId, setSelectedVenueId] = useState<string | null>(null);
   const [sponsors, setSponsors] = useState<Sponsor[]>([]);
   const [selectedSponsor, setSelectedSponsor] = useState<Sponsor | null>(null);
+  const homeMatches = useTournamentHomeMatches(
+    tournament.id,
+    tournament.status
+  );
+  const effectiveStatus = homeMatches.statusOverride ?? tournament.status;
 
   const sharePath = useMemo(() => `/tournament/${slug}`, [slug]);
 
@@ -590,6 +597,15 @@ export default function TournamentHomeTab({
     locale,
     {
       weekday: 'short',
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+    }
+  );
+  const heroDateLabel = new Date(tournament.startDate).toLocaleDateString(
+    locale,
+    {
+      weekday: 'long',
       month: 'short',
       day: 'numeric',
       year: 'numeric',
@@ -617,6 +633,18 @@ export default function TournamentHomeTab({
     .map(({ display }) => display.name)
     .filter(Boolean)
     .join(', ');
+  const selectedVenue =
+    displayVenues.find(({ id }) => id === selectedVenueId) ?? displayVenues[0];
+  const contactName = tournament.contactName || host?.name || '';
+  const contactEmail = tournament.contactEmail || host?.email || '';
+  const contactPhone = tournament.contactPhone || '';
+  const hasAnyContact = !!(contactName || contactEmail || contactPhone);
+  const missingOrganizerSections = [
+    !tournamentNote ? 'name' : null,
+    youtubeEmbeds.length === 0 ? 'videos' : null,
+    sponsors.length === 0 ? 'sponsors' : null,
+    !hasAnyContact ? 'contact' : null,
+  ].filter((option): option is string => !!option);
 
   useEffect(() => {
     let isMounted = true;
@@ -659,26 +687,6 @@ export default function TournamentHomeTab({
     };
   }, [tournament.id]);
 
-  const handleViewSchedule = () => {
-    router.push(`/tournament/${slug}/schedule`);
-  };
-
-  const handleViewScoreboard = () => {
-    router.push(`/tournament/${slug}/scoreboard`);
-  };
-
-  const handleViewShowcase = () => {
-    router.push(`/tournament/${slug}/showcase`);
-  };
-
-  const handleViewStandings = () => {
-    router.push(`/tournament/${slug}/standings`);
-  };
-
-  const handleManageCategories = () => {
-    router.push(`/tournament/${slug}/manage?option=categories`);
-  };
-
   const handleManageVenues = () => {
     router.push(`/tournament/${slug}/manage?option=venues`);
   };
@@ -712,231 +720,39 @@ export default function TournamentHomeTab({
       }
 
       await navigator.clipboard.writeText(shareUrl);
-      toaster.success({ title: 'Đã sao chép link giải đấu' });
+      toaster.success({ title: t('share.success') });
     } catch {
-      toaster.error({ title: 'Không thể chia sẻ giải đấu' });
+      toaster.error({ title: t('share.error') });
     }
   };
 
   return (
     <VStack align="stretch" gap={4} pt={{ base: 4, md: 0 }}>
-      {/* Mobile cover */}
-      <Box
-        display={{ base: 'block', md: 'none' }}
-        position="relative"
-        borderRadius="xl"
-        overflow="hidden"
-        bg="gray.100"
-        aspectRatio={21 / 9}
-      >
-        {coverImage ? (
-          <Image
-            src={coverImage}
-            alt={tournament.name}
-            w="100%"
-            h="100%"
-            objectFit="cover"
-          />
-        ) : (
-          <Box w="100%" h="100%" bg="gray.200" />
-        )}
-        {showFavoriteOverlay && (
-          <Box position="absolute" top={3} right={3} zIndex={1}>
-            <FavoriteEngagementControl
-              type="TOURNAMENT"
-              targetId={tournament.id}
-              initialIsFavorite={tournament.isFavorite}
-              returnUrl={`/tournament/${slug}`}
-              variant="overlay-dark"
-            />
-          </Box>
-        )}
-      </Box>
+      <TournamentHomeHero
+        tournament={tournament}
+        status={effectiveStatus}
+        coverImage={coverImage}
+        dateLabel={formattedDate}
+        heroDateLabel={heroDateLabel}
+        venueName={overviewVenueName}
+        totalTeams={totalTeams}
+        totalAthletes={totalAthletes}
+        isLoadingCounts={isLoadingCategories}
+        slug={slug}
+        showFavorite={showFavoriteOverlay}
+      />
 
-      {/* Overview section */}
-      <Box
-        borderWidth="1px"
-        borderColor="gray.200"
-        borderRadius="xl"
-        p={{ base: 4, md: 4 }}
-        bg="white"
-        _dark={{
-          bg: 'var(--tournament-surface-raised, var(--chakra-colors-gray-800))',
-          borderColor:
-            'var(--tournament-border, var(--chakra-colors-gray-700))',
-          boxShadow: 'var(--tournament-shadow-soft)',
-        }}
-      >
-        <Text fontWeight="bold" fontSize={{ base: 'xl', md: 'lg' }} mb={3}>
-          {t('overview.title')}
-        </Text>
+      <TournamentPulseCard
+        status={effectiveStatus}
+        categories={fullCategories}
+        matches={homeMatches.matches}
+        slug={slug}
+        loading={homeMatches.loading}
+        error={homeMatches.error}
+        onRetry={() => void homeMatches.retry()}
+      />
 
-        <Grid
-          templateColumns="repeat(2, minmax(0, 1fr))"
-          gap={{ base: 3, md: 4 }}
-          mb={4}
-        >
-          <Flex align="center" gap={2} minW={0}>
-            <Users size={16} color="var(--chakra-colors-gray-500)" />
-            {isLoadingCategories ? (
-              <Skeleton height="16px" width="132px" borderRadius="md" />
-            ) : (
-              <Text
-                fontSize="sm"
-                color="gray.600"
-                _dark={{ color: 'gray.300' }}
-              >
-                {t('overview.teamsParticipating', { count: totalTeams })}
-              </Text>
-            )}
-          </Flex>
-          <Flex align="center" gap={2} minW={0}>
-            <UserRound size={16} color="var(--chakra-colors-gray-500)" />
-            {isLoadingCategories ? (
-              <Skeleton height="16px" width="132px" borderRadius="md" />
-            ) : (
-              <Text
-                fontSize="sm"
-                color="gray.600"
-                _dark={{ color: 'gray.300' }}
-              >
-                {t('overview.athletesParticipating', {
-                  count: totalAthletes,
-                })}
-              </Text>
-            )}
-          </Flex>
-          <Flex align="center" gap={2} minW={0}>
-            <CalendarDays size={16} color="var(--chakra-colors-gray-500)" />
-            <Text
-              fontSize="sm"
-              color="gray.600"
-              lineClamp={1}
-              _dark={{ color: 'gray.300' }}
-            >
-              {formattedDate}
-            </Text>
-          </Flex>
-          {overviewVenueName && (
-            <Flex align="center" gap={2} minW={0}>
-              <MapPin size={16} color="var(--chakra-colors-gray-500)" />
-              <Text
-                fontSize="sm"
-                color="gray.600"
-                lineClamp={1}
-                _dark={{ color: 'gray.300' }}
-              >
-                {overviewVenueName}
-              </Text>
-            </Flex>
-          )}
-        </Grid>
-
-        <Grid
-          templateColumns={{
-            base: 'repeat(2, minmax(0, 1fr))',
-            md: 'repeat(auto-fit, minmax(140px, 1fr))',
-          }}
-          gap={3}
-        >
-          <Box
-            borderWidth="1px"
-            borderColor="gray.200"
-            borderRadius="lg"
-            px={3}
-            py={2}
-            cursor="pointer"
-            _hover={{ bg: 'gray.50' }}
-            _dark={{
-              borderColor: 'gray.700',
-              _hover: { bg: 'gray.700' },
-            }}
-            onClick={handleViewSchedule}
-            minH="56px"
-          >
-            <Flex align="center" gap={2} h="full">
-              <Box color="gray.500" flexShrink={0}>
-                <CalendarDays size={16} />
-              </Box>
-              <Text fontSize="sm" fontWeight="medium" lineHeight="1.3">
-                {t('overview.viewSchedule')}
-              </Text>
-            </Flex>
-          </Box>
-          <Box
-            borderWidth="1px"
-            borderColor="gray.200"
-            borderRadius="lg"
-            px={3}
-            py={2}
-            cursor="pointer"
-            _hover={{ bg: 'gray.50' }}
-            _dark={{
-              borderColor: 'gray.700',
-              _hover: { bg: 'gray.700' },
-            }}
-            onClick={handleViewStandings}
-            minH="56px"
-          >
-            <Flex align="center" gap={2} h="full">
-              <Box color="gray.500" flexShrink={0}>
-                <BarChart3 size={16} />
-              </Box>
-              <Text fontSize="sm" fontWeight="medium" lineHeight="1.3">
-                {t('overview.viewStandings')}
-              </Text>
-            </Flex>
-          </Box>
-          <Box
-            borderWidth="1px"
-            borderColor="gray.200"
-            borderRadius="lg"
-            px={3}
-            py={2}
-            cursor="pointer"
-            _hover={{ bg: 'gray.50' }}
-            _dark={{
-              borderColor: 'gray.700',
-              _hover: { bg: 'gray.700' },
-            }}
-            onClick={handleViewScoreboard}
-            minH="56px"
-          >
-            <Flex align="center" gap={2} h="full">
-              <Box color="gray.500" flexShrink={0}>
-                <MonitorPlay size={16} />
-              </Box>
-              <Text fontSize="sm" fontWeight="medium" lineHeight="1.3">
-                {tBoard('liveScoreboard')}
-              </Text>
-            </Flex>
-          </Box>
-          <Box
-            borderWidth="1px"
-            borderColor="gray.200"
-            borderRadius="lg"
-            px={3}
-            py={2}
-            cursor="pointer"
-            _hover={{ bg: 'gray.50' }}
-            _dark={{
-              borderColor: 'gray.700',
-              _hover: { bg: 'gray.700' },
-            }}
-            onClick={handleViewShowcase}
-            minH="56px"
-          >
-            <Flex align="center" gap={2} h="full">
-              <Box color="gray.500" flexShrink={0}>
-                <Sparkles size={16} />
-              </Box>
-              <Text fontSize="sm" fontWeight="medium" lineHeight="1.3">
-                {t('overview.viewShowcase')}
-              </Text>
-            </Flex>
-          </Box>
-        </Grid>
-      </Box>
+      <TournamentQuickActions slug={slug} status={effectiveStatus} />
 
       {/* Categories section */}
       <Box
@@ -952,22 +768,35 @@ export default function TournamentHomeTab({
           boxShadow: 'var(--tournament-shadow-soft)',
         }}
       >
-        <Flex justify="space-between" align="center" p={4} pb={3}>
-          <Text fontWeight="semibold" fontSize="lg">
+        <Flex justify="space-between" align="center" px={4} py={3}>
+          <Text fontWeight="semibold" fontSize="md">
             {t('categories.title')}
           </Text>
           <HStack gap={1}>
             {canManageTournament && (
-              <Text
+              <Box
+                asChild
+                minH="36px"
+                display="inline-flex"
+                alignItems="center"
+                px={2}
+                borderRadius="lg"
                 fontSize="sm"
                 color="blue.500"
-                cursor="pointer"
                 fontWeight="medium"
-                _hover={{ color: 'blue.600' }}
-                onClick={handleManageCategories}
+                _hover={{ color: 'blue.600', bg: 'blue.50' }}
+                _focusVisible={{
+                  outline: '2px solid',
+                  outlineColor: 'blue.400',
+                  outlineOffset: '2px',
+                }}
               >
-                {t('categories.manage')}
-              </Text>
+                <RouterLink
+                  href={`/tournament/${slug}/manage?option=categories`}
+                >
+                  {t('categories.manage')}
+                </RouterLink>
+              </Box>
             )}
           </HStack>
         </Flex>
@@ -1026,46 +855,56 @@ export default function TournamentHomeTab({
                         _dark={{ bg: 'gray.700' }}
                       />
                     )}
-                    <Flex
-                      align="center"
-                      justify="space-between"
-                      py={3}
-                      px={4}
-                      cursor="pointer"
-                      _hover={{ bg: 'gray.50' }}
+                    <Box
+                      asChild
+                      display="block"
+                      _hover={{ bg: 'gray.50', textDecoration: 'none' }}
+                      _focusVisible={{
+                        outline: '2px solid',
+                        outlineColor: 'green.400',
+                        outlineOffset: '-2px',
+                      }}
                       _dark={{ _hover: { bg: 'gray.700' } }}
-                      onClick={() =>
-                        router.push(
-                          `/tournament/${slug}/teams?view=category#category-${category.id}`
-                        )
-                      }
                     >
-                      <Text fontSize="md">{category.name}</Text>
-                      <HStack gap={2}>
-                        {countLabel && (
-                          <Box
-                            px={2}
-                            py={0.5}
-                            borderRadius="full"
-                            bg="gray.100"
-                            _dark={{ bg: 'gray.700' }}
-                          >
-                            <Text
-                              fontSize="xs"
-                              fontWeight="medium"
-                              color="gray.500"
-                              _dark={{ color: 'gray.400' }}
-                            >
-                              {countLabel}
-                            </Text>
-                          </Box>
-                        )}
-                        <ChevronRight
-                          size={18}
-                          color="var(--chakra-colors-gray-400)"
-                        />
-                      </HStack>
-                    </Flex>
+                      <RouterLink
+                        href={`/tournament/${slug}/teams?view=category#category-${category.id}`}
+                      >
+                        <Flex
+                          align="center"
+                          justify="space-between"
+                          minH="40px"
+                          py={2}
+                          px={4}
+                        >
+                          <Text fontSize="md">{category.name}</Text>
+                          <HStack gap={2}>
+                            {countLabel && (
+                              <Box
+                                px={2}
+                                py={0.5}
+                                borderRadius="full"
+                                bg="gray.100"
+                                _dark={{ bg: 'gray.700' }}
+                              >
+                                <Text
+                                  fontSize="xs"
+                                  fontWeight="medium"
+                                  color="gray.500"
+                                  _dark={{ color: 'gray.400' }}
+                                >
+                                  {countLabel}
+                                </Text>
+                              </Box>
+                            )}
+                            <ChevronRight
+                              size={18}
+                              color="var(--chakra-colors-gray-400)"
+                              aria-hidden="true"
+                            />
+                          </HStack>
+                        </Flex>
+                      </RouterLink>
+                    </Box>
                   </Box>
                 );
               });
@@ -1081,8 +920,12 @@ export default function TournamentHomeTab({
         <TournamentTableSkeleton rows={3} columns={3} />
       ) : (
         <PublicTournamentWinnersTab
-          tournament={tournament}
           categories={fullCategories}
+          matches={homeMatches.matches}
+          matchesLoading={homeMatches.loading}
+          matchesError={homeMatches.error}
+          resultsVersion={homeMatches.resultsVersion}
+          onRetryMatches={homeMatches.retry}
         />
       )}
 
@@ -1114,6 +957,7 @@ export default function TournamentHomeTab({
                   borderRadius="full"
                   px={4}
                   size="sm"
+                  minH="44px"
                   onClick={handleManageVenues}
                 >
                   {t('venues.manage')}
@@ -1122,121 +966,150 @@ export default function TournamentHomeTab({
             </HStack>
           </Flex>
 
-          <VStack align="stretch" gap={0}>
-            {displayVenues.map(({ id, display: currentVenue }, index) => (
-              <Box key={id}>
-                {index > 0 && (
-                  <Box
-                    h="1px"
-                    bg="gray.100"
-                    mx={4}
-                    _dark={{ bg: 'gray.700' }}
-                  />
-                )}
-                <Box px={4}>
-                  {currentVenue.lat && currentVenue.lng ? (
-                    <VenueMapPin
-                      lat={currentVenue.lat}
-                      lng={currentVenue.lng}
-                      height="160px"
-                      zoom={12}
-                    />
-                  ) : (
-                    <Box
-                      h="140px"
-                      bg="gray.100"
-                      borderRadius="xl"
-                      display="flex"
-                      alignItems="center"
-                      justifyContent="center"
-                      _dark={{ bg: 'gray.700' }}
-                    >
-                      <MapPin size={34} color="var(--chakra-colors-gray-400)" />
-                    </Box>
-                  )}
-                </Box>
+          {displayVenues.length > 1 ? (
+            <Flex
+              px={4}
+              pb={3}
+              gap={2}
+              overflowX="auto"
+              css={{ scrollbarWidth: 'none' }}
+            >
+              {displayVenues.map(({ id, display }) => {
+                const isSelected = selectedVenue?.id === id;
+                return (
+                  <Button
+                    key={id}
+                    size="sm"
+                    minH="40px"
+                    px={3}
+                    borderRadius="full"
+                    variant={isSelected ? 'solid' : 'outline'}
+                    colorPalette={isSelected ? 'green' : 'gray'}
+                    flexShrink={0}
+                    aria-pressed={isSelected}
+                    onClick={() => setSelectedVenueId(id)}
+                  >
+                    {display.name}
+                  </Button>
+                );
+              })}
+            </Flex>
+          ) : null}
 
-                <Flex
-                  align={{ base: 'stretch', sm: 'center' }}
-                  justify="space-between"
-                  direction={{ base: 'column', sm: 'row' }}
-                  gap={3}
-                  px={4}
-                  py={3}
-                >
-                  <Box flex="1" minW={0}>
-                    <Flex align="center" gap={2}>
-                      <Text
-                        fontWeight="bold"
-                        fontSize="md"
-                        color="gray.900"
-                        _dark={{ color: 'gray.50' }}
-                      >
-                        {currentVenue.name}
-                      </Text>
-                      {currentVenue.acronym && (
-                        <Text
-                          fontWeight="bold"
-                          fontSize="sm"
-                          color="gray.500"
-                          _dark={{ color: 'gray.400' }}
-                        >
-                          {currentVenue.acronym}
-                        </Text>
-                      )}
-                      {currentVenue.isVerified && (
-                        <Box color="blue.500" flexShrink={0}>
-                          <CheckCircle size={15} />
-                        </Box>
-                      )}
-                    </Flex>
-                    <AppAddressDisplay
-                      address={currentVenue.address}
-                      district={currentVenue.district}
-                      city={currentVenue.city}
-                      newAddress={currentVenue.newAddress}
-                      newDistrict={currentVenue.newDistrict}
-                      fontSize="sm"
-                      color="gray.600"
-                      lineClamp={2}
+          {selectedVenue ? (
+            <Box>
+              <Box px={4}>
+                {selectedVenue.display.lat != null &&
+                selectedVenue.display.lng != null ? (
+                  <VenueMapPin
+                    lat={selectedVenue.display.lat}
+                    lng={selectedVenue.display.lng}
+                    height="180px"
+                    zoom={12}
+                  />
+                ) : (
+                  <Box
+                    h="150px"
+                    bg="gray.100"
+                    borderRadius="xl"
+                    display="flex"
+                    alignItems="center"
+                    justifyContent="center"
+                    _dark={{ bg: 'gray.700' }}
+                  >
+                    <MapPin
+                      size={34}
+                      color="var(--chakra-colors-gray-400)"
+                      aria-hidden="true"
                     />
                   </Box>
-
-                  {(currentVenue.lat ||
-                    currentVenue.lng ||
-                    currentVenue.address) && (
-                    <Box
-                      as="button"
-                      borderRadius="lg"
-                      px={2}
-                      py={2}
-                      color="gray.900"
-                      cursor="pointer"
-                      flexShrink={0}
-                      alignSelf={{ base: 'flex-start', sm: 'center' }}
-                      _hover={{ bg: 'gray.50' }}
-                      _dark={{
-                        color: 'gray.50',
-                        _hover: { bg: 'gray.700' },
-                      }}
-                      onClick={() => handleOpenDirections(currentVenue)}
-                    >
-                      <Flex align="center" gap={2}>
-                        <Navigation size={18} color="currentColor" />
-                        <Text fontSize="md" fontWeight="bold">
-                          {t('venues.directions')}
-                        </Text>
-                      </Flex>
-                    </Box>
-                  )}
-                </Flex>
+                )}
               </Box>
-            ))}
-          </VStack>
+
+              <Flex
+                align={{ base: 'stretch', sm: 'center' }}
+                justify="space-between"
+                direction={{ base: 'column', sm: 'row' }}
+                gap={3}
+                px={4}
+                py={3}
+              >
+                <Box flex="1" minW={0}>
+                  <Flex align="center" gap={2}>
+                    <Text
+                      fontWeight="bold"
+                      fontSize="md"
+                      color="gray.900"
+                      _dark={{ color: 'gray.50' }}
+                    >
+                      {selectedVenue.display.name}
+                    </Text>
+                    {selectedVenue.display.acronym ? (
+                      <Text
+                        fontWeight="bold"
+                        fontSize="sm"
+                        color="gray.500"
+                        _dark={{ color: 'gray.400' }}
+                      >
+                        {selectedVenue.display.acronym}
+                      </Text>
+                    ) : null}
+                    {selectedVenue.display.isVerified ? (
+                      <Box color="blue.500" flexShrink={0}>
+                        <CheckCircle size={15} aria-hidden="true" />
+                      </Box>
+                    ) : null}
+                  </Flex>
+                  <AppAddressDisplay
+                    address={selectedVenue.display.address}
+                    district={selectedVenue.display.district}
+                    city={selectedVenue.display.city}
+                    newAddress={selectedVenue.display.newAddress}
+                    newDistrict={selectedVenue.display.newDistrict}
+                    fontSize="sm"
+                    color="gray.600"
+                    lineClamp={2}
+                  />
+                </Box>
+
+                {selectedVenue.display.lat != null ||
+                selectedVenue.display.lng != null ||
+                selectedVenue.display.address ? (
+                  <Box
+                    as="button"
+                    minH="44px"
+                    borderRadius="lg"
+                    px={3}
+                    color="gray.900"
+                    flexShrink={0}
+                    alignSelf={{ base: 'flex-start', sm: 'center' }}
+                    _hover={{ bg: 'gray.50' }}
+                    _focusVisible={{
+                      outline: '2px solid',
+                      outlineColor: 'green.400',
+                      outlineOffset: '2px',
+                    }}
+                    _dark={{
+                      color: 'gray.50',
+                      _hover: { bg: 'gray.700' },
+                    }}
+                    onClick={() => handleOpenDirections(selectedVenue.display)}
+                  >
+                    <Flex align="center" gap={2}>
+                      <Navigation size={18} aria-hidden="true" />
+                      <Text fontSize="md" fontWeight="bold">
+                        {t('venues.directions')}
+                      </Text>
+                    </Flex>
+                  </Box>
+                ) : null}
+              </Flex>
+            </Box>
+          ) : null}
         </Box>
       )}
 
-      {(tournamentNote || canManageTournament) && (
+      {tournamentNote ? (
         <Box
           borderWidth="1px"
           borderColor="gray.200"
@@ -1253,7 +1126,7 @@ export default function TournamentHomeTab({
           <Flex justify="space-between" align="center" mb={3}>
             <HStack gap={2}>
               <Box color="green.600" _dark={{ color: 'green.300' }}>
-                <NotebookText size={18} />
+                <NotebookText size={18} aria-hidden="true" />
               </Box>
               <Text fontWeight="semibold" fontSize="lg">
                 {t('notes.title')}
@@ -1263,40 +1136,43 @@ export default function TournamentHomeTab({
               <Box
                 as="button"
                 aria-label={t('notes.edit')}
-                w="32px"
-                h="32px"
+                w="44px"
+                h="44px"
                 display="flex"
                 borderRadius="md"
                 alignItems="center"
                 justifyContent="center"
                 cursor="pointer"
                 _hover={{ bg: 'gray.100', _dark: { bg: 'gray.700' } }}
+                _focusVisible={{
+                  outline: '2px solid',
+                  outlineColor: 'green.400',
+                  outlineOffset: '2px',
+                }}
                 onClick={() => handleManageOption('name')}
               >
-                <Pencil size={16} color="var(--chakra-colors-gray-500)" />
+                <Pencil
+                  size={16}
+                  color="var(--chakra-colors-gray-500)"
+                  aria-hidden="true"
+                />
               </Box>
             )}
           </Flex>
 
-          {tournamentNote ? (
-            <Text
-              fontSize="sm"
-              lineHeight="1.7"
-              whiteSpace="pre-wrap"
-              color="gray.700"
-              _dark={{ color: 'gray.200' }}
-            >
-              {renderTextWithLinks(tournamentNote)}
-            </Text>
-          ) : (
-            <Text fontSize="sm" color="gray.500" _dark={{ color: 'gray.400' }}>
-              {t('notes.empty')}
-            </Text>
-          )}
+          <Text
+            fontSize="sm"
+            lineHeight="1.7"
+            whiteSpace="pre-wrap"
+            color="gray.700"
+            _dark={{ color: 'gray.200' }}
+          >
+            {renderTextWithLinks(tournamentNote)}
+          </Text>
         </Box>
-      )}
+      ) : null}
 
-      {(youtubeEmbeds.length > 0 || canManageTournament) && (
+      {youtubeEmbeds.length > 0 ? (
         <Box
           borderWidth="1px"
           borderColor="gray.200"
@@ -1313,7 +1189,7 @@ export default function TournamentHomeTab({
           <Flex justify="space-between" align="center" mb={3}>
             <HStack gap={2}>
               <Box color="red.500" _dark={{ color: 'red.300' }}>
-                <MonitorPlay size={18} />
+                <MonitorPlay size={18} aria-hidden="true" />
               </Box>
               <Text fontWeight="semibold" fontSize="lg">
                 {t('videos.title')}
@@ -1323,56 +1199,57 @@ export default function TournamentHomeTab({
               <Box
                 as="button"
                 aria-label={t('videos.edit')}
-                w="32px"
-                h="32px"
+                w="44px"
+                h="44px"
                 display="flex"
                 borderRadius="md"
                 alignItems="center"
                 justifyContent="center"
                 cursor="pointer"
                 _hover={{ bg: 'gray.100', _dark: { bg: 'gray.700' } }}
+                _focusVisible={{
+                  outline: '2px solid',
+                  outlineColor: 'green.400',
+                  outlineOffset: '2px',
+                }}
                 onClick={() => handleManageOption('videos')}
               >
-                <Pencil size={16} color="var(--chakra-colors-gray-500)" />
+                <Pencil
+                  size={16}
+                  color="var(--chakra-colors-gray-500)"
+                  aria-hidden="true"
+                />
               </Box>
             )}
           </Flex>
 
-          {youtubeEmbeds.length > 0 ? (
-            <Grid
-              templateColumns={{ base: '1fr', lg: 'repeat(2, 1fr)' }}
-              gap={3}
-            >
-              {youtubeEmbeds.map((embed) => (
-                <Box
-                  key={embed.id}
-                  borderRadius="lg"
-                  overflow="hidden"
-                  bg="black"
-                  aspectRatio={16 / 9}
-                >
-                  <iframe
-                    src={embed.embedUrl}
-                    title={t('videos.iframeTitle')}
-                    width="100%"
-                    height="100%"
-                    style={{ border: 0 }}
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                    allowFullScreen
-                  />
-                </Box>
-              ))}
-            </Grid>
-          ) : (
-            <Text fontSize="sm" color="gray.500" _dark={{ color: 'gray.400' }}>
-              {t('videos.empty')}
-            </Text>
-          )}
+          <Grid templateColumns={{ base: '1fr', lg: 'repeat(2, 1fr)' }} gap={3}>
+            {youtubeEmbeds.map((embed) => (
+              <Box
+                key={embed.id}
+                borderRadius="lg"
+                overflow="hidden"
+                bg="black"
+                aspectRatio={16 / 9}
+              >
+                <iframe
+                  src={embed.embedUrl}
+                  title={t('videos.iframeTitle')}
+                  width="100%"
+                  height="100%"
+                  style={{ border: 0 }}
+                  loading="lazy"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                  allowFullScreen
+                />
+              </Box>
+            ))}
+          </Grid>
         </Box>
-      )}
+      ) : null}
 
       {/* Sponsors section */}
-      {(sponsors.length > 0 || canManageTournament) && (
+      {sponsors.length > 0 ? (
         <Box
           borderWidth="1px"
           borderColor="gray.200"
@@ -1394,84 +1271,91 @@ export default function TournamentHomeTab({
               <Box
                 as="button"
                 aria-label={t('sponsors.manage')}
-                w="32px"
-                h="32px"
+                w="44px"
+                h="44px"
                 display="flex"
                 borderRadius="md"
                 alignItems="center"
                 justifyContent="center"
                 cursor="pointer"
                 _hover={{ bg: 'gray.100', _dark: { bg: 'gray.700' } }}
+                _focusVisible={{
+                  outline: '2px solid',
+                  outlineColor: 'green.400',
+                  outlineOffset: '2px',
+                }}
                 onClick={() => handleManageOption('sponsors')}
               >
-                <Pencil size={16} color="var(--chakra-colors-gray-500)" />
+                <Pencil
+                  size={16}
+                  color="var(--chakra-colors-gray-500)"
+                  aria-hidden="true"
+                />
               </Box>
             )}
           </Flex>
 
-          {sponsors.length > 0 ? (
-            <Flex wrap="wrap" gap={2.5}>
-              {sponsors.map((sponsor) => {
-                return (
-                  <Box
-                    as="button"
-                    key={sponsor.id}
-                    title={sponsor.name}
-                    aria-label={sponsor.name}
-                    w={{ base: '86px', sm: '92px' }}
-                    h={{ base: '86px', sm: '92px' }}
-                    p={2}
-                    borderWidth="1px"
-                    borderColor="gray.200"
-                    borderRadius="lg"
-                    bg="white"
-                    overflow="hidden"
-                    display="flex"
-                    alignItems="center"
-                    justifyContent="center"
-                    cursor="pointer"
-                    transition="border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease"
-                    _hover={{
-                      borderColor: 'green.300',
-                      boxShadow: '0 10px 24px rgba(15, 23, 42, 0.08)',
-                      transform: 'translateY(-1px)',
-                    }}
-                    _dark={{
-                      bg: 'gray.900',
-                      borderColor: 'gray.700',
-                      _hover: { borderColor: 'green.500' },
-                    }}
-                    onClick={() => setSelectedSponsor(sponsor)}
+          <Flex wrap="wrap" gap={2.5}>
+            {sponsors.map((sponsor) => (
+              <Box
+                as="button"
+                key={sponsor.id}
+                title={sponsor.name}
+                aria-label={sponsor.name}
+                w={{ base: '86px', sm: '92px' }}
+                h={{ base: '86px', sm: '92px' }}
+                p={2}
+                borderWidth="1px"
+                borderColor="gray.200"
+                borderRadius="lg"
+                bg="white"
+                overflow="hidden"
+                display="flex"
+                alignItems="center"
+                justifyContent="center"
+                cursor="pointer"
+                transition="border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease"
+                _hover={{
+                  borderColor: 'green.300',
+                  boxShadow: '0 10px 24px rgba(15, 23, 42, 0.08)',
+                  transform: 'translateY(-1px)',
+                }}
+                _focusVisible={{
+                  outline: '2px solid',
+                  outlineColor: 'green.400',
+                  outlineOffset: '2px',
+                }}
+                _dark={{
+                  bg: 'gray.900',
+                  borderColor: 'gray.700',
+                  _hover: { borderColor: 'green.500' },
+                }}
+                onClick={() => setSelectedSponsor(sponsor)}
+              >
+                {sponsor.logo ? (
+                  <Image
+                    src={sponsor.logo}
+                    alt={sponsor.name}
+                    maxW="100%"
+                    maxH="100%"
+                    objectFit="contain"
+                    loading="lazy"
+                  />
+                ) : (
+                  <Text
+                    fontSize="xs"
+                    fontWeight="medium"
+                    textAlign="center"
+                    lineClamp={3}
+                    color="gray.700"
+                    _dark={{ color: 'gray.300' }}
                   >
-                    {sponsor.logo ? (
-                      <Image
-                        src={sponsor.logo}
-                        alt={sponsor.name}
-                        maxW="100%"
-                        maxH="100%"
-                        objectFit="contain"
-                      />
-                    ) : (
-                      <Text
-                        fontSize="xs"
-                        fontWeight="medium"
-                        textAlign="center"
-                        lineClamp={3}
-                        color="gray.700"
-                        _dark={{ color: 'gray.300' }}
-                      >
-                        {sponsor.name}
-                      </Text>
-                    )}
-                  </Box>
-                );
-              })}
-            </Flex>
-          ) : (
-            <Text fontSize="sm" color="gray.500" _dark={{ color: 'gray.400' }}>
-              {t('sponsors.empty')}
-            </Text>
-          )}
+                    {sponsor.name}
+                  </Text>
+                )}
+              </Box>
+            ))}
+          </Flex>
 
           <VModal
             isOpen={!!selectedSponsor}
@@ -1532,122 +1416,173 @@ export default function TournamentHomeTab({
             )}
           </VModal>
         </Box>
-      )}
+      ) : null}
 
       {/* Contact section */}
-      {(() => {
-        const contactName = tournament.contactName || host?.name || '';
-        const contactEmail = tournament.contactEmail || host?.email || '';
-        const contactPhone = tournament.contactPhone || '';
-        const hasAnyContact = !!(contactName || contactEmail || contactPhone);
+      {hasAnyContact ? (
+        <Box
+          borderWidth="1px"
+          borderColor="gray.200"
+          borderRadius="xl"
+          p={4}
+          bg="white"
+          _dark={{
+            bg: 'var(--tournament-surface-raised, var(--chakra-colors-gray-800))',
+            borderColor:
+              'var(--tournament-border, var(--chakra-colors-gray-700))',
+            boxShadow: 'var(--tournament-shadow-soft)',
+          }}
+        >
+          <Flex justify="space-between" align="center" mb={3}>
+            <Text fontWeight="semibold" fontSize="lg">
+              {t('contact.title')}
+            </Text>
+            {canManageTournament ? (
+              <Box
+                as="button"
+                aria-label={t('contact.edit')}
+                w="44px"
+                h="44px"
+                display="flex"
+                borderRadius="md"
+                alignItems="center"
+                justifyContent="center"
+                _hover={{ bg: 'gray.100', _dark: { bg: 'gray.700' } }}
+                _focusVisible={{
+                  outline: '2px solid',
+                  outlineColor: 'green.400',
+                  outlineOffset: '2px',
+                }}
+                onClick={() => handleManageOption('contact')}
+              >
+                <Pencil
+                  size={16}
+                  color="var(--chakra-colors-gray-500)"
+                  aria-hidden="true"
+                />
+              </Box>
+            ) : null}
+          </Flex>
 
-        if (!hasAnyContact && !canManageTournament) return null;
-
-        return (
-          <Box
-            borderWidth="1px"
-            borderColor="gray.200"
-            borderRadius="xl"
-            p={4}
-            bg="white"
-            _dark={{
-              bg: 'var(--tournament-surface-raised, var(--chakra-colors-gray-800))',
-              borderColor:
-                'var(--tournament-border, var(--chakra-colors-gray-700))',
-              boxShadow: 'var(--tournament-shadow-soft)',
-            }}
-          >
-            <Flex justify="space-between" align="center" mb={3}>
-              <Text fontWeight="semibold" fontSize="lg">
-                {t('contact.title')}
-              </Text>
-              {canManageTournament && (
-                <HStack gap={1}>
-                  <Box
-                    as="button"
-                    aria-label="Xóa giải đấu"
-                    w="32px"
-                    h="32px"
-                    display="flex"
-                    borderRadius="md"
-                    alignItems="center"
-                    justifyContent="center"
-                    cursor="pointer"
-                    _hover={{ bg: 'gray.100', _dark: { bg: 'gray.700' } }}
-                    onClick={() => handleManageOption('delete')}
-                  >
-                    <Trash2 size={16} color="var(--chakra-colors-gray-500)" />
-                  </Box>
-                  <Box
-                    as="button"
-                    aria-label="Chỉnh sửa thông tin liên hệ"
-                    w="32px"
-                    h="32px"
-                    display="flex"
-                    borderRadius="md"
-                    alignItems="center"
-                    justifyContent="center"
-                    cursor="pointer"
-                    _hover={{ bg: 'gray.100', _dark: { bg: 'gray.700' } }}
-                    onClick={() => handleManageOption('contact')}
-                  >
-                    <Pencil size={16} color="var(--chakra-colors-gray-500)" />
-                  </Box>
-                </HStack>
-              )}
-            </Flex>
-
-            {hasAnyContact ? (
-              <VStack align="stretch" gap={1.5}>
-                {contactName && (
-                  <Text
-                    fontSize="sm"
-                    color="gray.700"
-                    _dark={{ color: 'gray.300' }}
-                  >
-                    <Text as="span" fontWeight="medium">
-                      {t('contact.name')}:
-                    </Text>{' '}
-                    {contactName}
-                  </Text>
-                )}
-                {contactEmail && (
-                  <Text
-                    fontSize="sm"
-                    color="gray.700"
-                    _dark={{ color: 'gray.300' }}
-                  >
-                    <Text as="span" fontWeight="medium">
-                      {t('contact.email')}:
-                    </Text>{' '}
-                    {contactEmail}
-                  </Text>
-                )}
-                {contactPhone && (
-                  <Text
-                    fontSize="sm"
-                    color="gray.700"
-                    _dark={{ color: 'gray.300' }}
-                  >
-                    <Text as="span" fontWeight="medium">
-                      {t('contact.phone')}:
-                    </Text>{' '}
-                    {contactPhone}
-                  </Text>
-                )}
-              </VStack>
-            ) : (
+          <VStack align="stretch" gap={1.5}>
+            {contactName ? (
               <Text
                 fontSize="sm"
-                color="gray.500"
-                _dark={{ color: 'gray.400' }}
+                color="gray.700"
+                _dark={{ color: 'gray.300' }}
               >
-                {t('contact.empty')}
+                <Text as="span" fontWeight="medium">
+                  {t('contact.name')}:
+                </Text>{' '}
+                {contactName}
               </Text>
-            )}
-          </Box>
-        );
-      })()}
+            ) : null}
+            {contactEmail ? (
+              <Text
+                fontSize="sm"
+                color="gray.700"
+                _dark={{ color: 'gray.300' }}
+              >
+                <Text as="span" fontWeight="medium">
+                  {t('contact.email')}:
+                </Text>{' '}
+                <Link
+                  href={`mailto:${contactEmail}`}
+                  color="green.700"
+                  fontWeight="medium"
+                  wordBreak="break-word"
+                  _hover={{ textDecoration: 'underline' }}
+                  _dark={{ color: 'green.300' }}
+                >
+                  {contactEmail}
+                </Link>
+              </Text>
+            ) : null}
+            {contactPhone ? (
+              <Text
+                fontSize="sm"
+                color="gray.700"
+                _dark={{ color: 'gray.300' }}
+              >
+                <Text as="span" fontWeight="medium">
+                  {t('contact.phone')}:
+                </Text>{' '}
+                <Link
+                  href={`tel:${contactPhone}`}
+                  color="green.700"
+                  fontWeight="medium"
+                  _hover={{ textDecoration: 'underline' }}
+                  _dark={{ color: 'green.300' }}
+                >
+                  {contactPhone}
+                </Link>
+              </Text>
+            ) : null}
+          </VStack>
+        </Box>
+      ) : null}
+
+      {canManageTournament && missingOrganizerSections.length > 0 ? (
+        <Box
+          borderWidth="1px"
+          borderColor="blue.200"
+          borderRadius="xl"
+          p={4}
+          bg="blue.50"
+          _dark={{
+            bg: 'rgba(59, 130, 246, 0.1)',
+            borderColor: 'rgba(96, 165, 250, 0.28)',
+          }}
+        >
+          <Text fontWeight="bold">{t('organizerCompletion.title')}</Text>
+          <Text
+            mt={0.5}
+            fontSize="sm"
+            color="gray.600"
+            _dark={{ color: 'gray.300' }}
+          >
+            {t('organizerCompletion.description')}
+          </Text>
+          <Flex mt={3} gap={2} wrap="wrap">
+            {missingOrganizerSections.map((option) => (
+              <Box
+                asChild
+                key={option}
+                minH="44px"
+                display="inline-flex"
+                alignItems="center"
+                borderWidth="1px"
+                borderColor="blue.200"
+                borderRadius="full"
+                bg="white"
+                color="blue.700"
+                fontSize="sm"
+                fontWeight="700"
+                _hover={{ borderColor: 'blue.400', textDecoration: 'none' }}
+                _focusVisible={{
+                  outline: '2px solid',
+                  outlineColor: 'blue.400',
+                  outlineOffset: '2px',
+                }}
+                _dark={{
+                  bg: 'var(--tournament-surface-raised)',
+                  color: 'blue.200',
+                  borderColor: 'blue.700',
+                }}
+              >
+                <RouterLink
+                  href={`/tournament/${slug}/manage?option=${option}`}
+                >
+                  <Flex align="center" gap={2} px={3}>
+                    <Pencil size={14} aria-hidden="true" />
+                    {t(`organizerCompletion.items.${option}`)}
+                  </Flex>
+                </RouterLink>
+              </Box>
+            ))}
+          </Flex>
+        </Box>
+      ) : null}
 
       {/* Tournament access QR */}
       <TournamentQrBar url={shareUrl} onShare={handleShareLink} />

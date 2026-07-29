@@ -1689,21 +1689,50 @@
       "create": {
         "title": "Create Tournament",
         "createNewTournament": "Create New Tournament",
+        "introEyebrow": "Set Up Your Tournament",
+        "introDescription": "Start with the essentials.",
         "basicInformation": "Basic Information",
+        "formDescription": "Add the details participants need to recognize your tournament.",
         "tournamentName": "Tournament Name",
-        "enterTournamentName": "Enter tournament name",
-        "creating": "Creating...",
+        "tournamentNameHelper": "Choose a short, memorable name that identifies the season.",
+        "enterTournamentName": "Example: Summer Badminton Open 2026…",
+        "creating": "Creating…",
         "fillAllFields": "Please fill in all required fields",
+        "createFailed": "We could not create the tournament. Check the details and try again.",
         "startDate": "Start Date",
         "endDate": "End Date",
+        "datePlaceholder": "Month / day / year",
+        "schedule": "Tournament Dates",
         "venue": "Location",
-        "locationPlaceholder": "Where will the event take place?",
+        "optional": "Optional",
+        "locationHelper": "Search the map or enter a location manually.",
+        "locationPlaceholder": "Search for a venue or enter a location…",
+        "selectedVenue": "Selected Location",
+        "clearVenue": "Clear",
         "cancel": "Cancel",
         "createTournament": "Create Tournament",
         "sport": "Sport",
+        "sportHelper": "Choose the tournament's primary sport.",
+        "nextStepsTitle": "Finish the Setup Later",
+        "nextStepsDescription": "After creating the tournament, add categories, formats, players, and schedules from the management page.",
         "sports": {
           "BADMINTON": "Badminton",
           "PICKLEBALL": "Pickleball"
+        },
+        "validation": {
+          "nameRequired": "Enter a tournament name.",
+          "startDateRequired": "Choose a start date.",
+          "endDateRequired": "Choose an end date.",
+          "startDatePast": "The start date cannot be in the past.",
+          "endBeforeStart": "The end date must be on or after the start date."
+        },
+        "unsaved": {
+          "title": "Leave Tournament Setup?",
+          "description": "You have unsaved changes.",
+          "body": "If you leave this page, the information you entered will be lost.",
+          "stay": "Keep Editing",
+          "leave": "Leave Page",
+          "close": "Close dialog"
         }
       },
       "detail": {
@@ -1844,6 +1873,43 @@
             "viewStandings": "View Standings",
             "viewShowcase": "Showcase"
           },
+          "status": {
+            "PREPARING": "Coming Up",
+            "IN_PROGRESS": "In Progress",
+            "FINISHED": "Finished",
+            "CANCELLED": "Cancelled"
+          },
+          "hero": {
+            "loading": "Updating…",
+            "teams": "{count} teams",
+            "athletes": "{count} athletes"
+          },
+          "pulse": {
+            "live": "Live",
+            "liveTitle": "Match in Progress",
+            "liveDescription": "Follow the latest live score.",
+            "nextTitle": "Up Next",
+            "nextDescription": "The latest match schedule is ready.",
+            "finishedTitle": "Tournament Complete",
+            "finishedDescription": "See the final standings and tournament winners.",
+            "preparingTitle": "Tournament Preparations Underway",
+            "preparingDescription": "Explore the categories and rules before play begins.",
+            "cancelledTitle": "Tournament Cancelled",
+            "cancelledDescription": "View the schedule for more information.",
+            "viewLive": "View Live Score",
+            "viewSchedule": "View Schedule",
+            "viewResults": "View Results",
+            "viewCategories": "View Categories",
+            "court": "Court",
+            "versus": "vs",
+            "errorTitle": "Tournament Activity Unavailable",
+            "errorDescription": "Try loading the match information again.",
+            "retry": "Try Again"
+          },
+          "share": {
+            "success": "Tournament link copied",
+            "error": "Could not share the tournament"
+          },
           "categories": {
             "title": "Categories",
             "manage": "Manage categories",
@@ -1880,6 +1946,7 @@
             "name": "Name",
             "email": "Email",
             "phone": "Phone",
+            "edit": "Edit contact information",
             "empty": "No contact information yet."
           },
           "sponsors": {
@@ -1891,6 +1958,16 @@
             "title": "Champions",
             "subtitle": "Final results are in.",
             "viewAll": "View all winners"
+          },
+          "organizerCompletion": {
+            "title": "Complete Your Tournament Page",
+            "description": "Add the missing details to make the public page more useful and engaging.",
+            "items": {
+              "name": "Add notes",
+              "videos": "Add videos",
+              "sponsors": "Add sponsors",
+              "contact": "Add contact"
+            }
           }
         },
         "dashboard": {
@@ -4057,6 +4134,8 @@
           "searchPlaceholder": "Search player or team",
           "referee": "Referee",
           "refereeOnlyLabel": "My matches",
+          "refereeModeEnabled": "Referee mode enabled",
+          "refereeModeDisabled": "Referee mode disabled",
           "clear": "Clear filters",
           "apply": "Apply",
           "empty": "No matches match these filters.",

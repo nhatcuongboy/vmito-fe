@@ -1698,21 +1698,50 @@
       "create": {
         "title": "Tạo giải đấu",
         "createNewTournament": "Tạo giải đấu mới",
+        "introEyebrow": "Khởi tạo giải đấu",
+        "introDescription": "Bắt đầu với những thông tin quan trọng nhất.",
         "basicInformation": "Thông tin cơ bản",
+        "formDescription": "Điền thông tin để người tham gia dễ dàng nhận biết giải đấu của bạn.",
         "tournamentName": "Tên giải đấu",
-        "enterTournamentName": "Nhập tên giải đấu",
-        "creating": "Đang tạo...",
+        "tournamentNameHelper": "Chọn tên ngắn gọn, dễ nhớ và có thể nhận biết mùa giải.",
+        "enterTournamentName": "Ví dụ: Giải cầu lông mùa hè 2026…",
+        "creating": "Đang tạo…",
         "fillAllFields": "Vui lòng điền đầy đủ các trường bắt buộc",
+        "createFailed": "Không thể tạo giải đấu. Vui lòng kiểm tra và thử lại.",
         "startDate": "Ngày bắt đầu",
         "endDate": "Ngày kết thúc",
+        "datePlaceholder": "Ngày / tháng / năm",
+        "schedule": "Thời gian diễn ra",
         "venue": "Địa điểm",
-        "locationPlaceholder": "Sự kiện sẽ diễn ra ở đâu?",
+        "optional": "Không bắt buộc",
+        "locationHelper": "Tìm địa điểm trên bản đồ hoặc nhập tên địa điểm thủ công.",
+        "locationPlaceholder": "Tìm sân hoặc nhập địa điểm…",
+        "selectedVenue": "Đã chọn địa điểm",
+        "clearVenue": "Xóa",
         "cancel": "Hủy",
         "createTournament": "Tạo giải đấu",
         "sport": "Môn thi đấu",
+        "sportHelper": "Chọn môn thi đấu chính của giải.",
+        "nextStepsTitle": "Bạn có thể hoàn thiện sau",
+        "nextStepsDescription": "Sau khi tạo, hãy bổ sung hạng mục, thể thức, vận động viên và lịch thi đấu trong trang quản lý.",
         "sports": {
           "BADMINTON": "Cầu lông",
           "PICKLEBALL": "Pickleball"
+        },
+        "validation": {
+          "nameRequired": "Hãy nhập tên giải đấu.",
+          "startDateRequired": "Hãy chọn ngày bắt đầu.",
+          "endDateRequired": "Hãy chọn ngày kết thúc.",
+          "startDatePast": "Ngày bắt đầu không thể nằm trong quá khứ.",
+          "endBeforeStart": "Ngày kết thúc phải bằng hoặc sau ngày bắt đầu."
+        },
+        "unsaved": {
+          "title": "Rời khỏi trang tạo giải?",
+          "description": "Bạn đang có thay đổi chưa được lưu.",
+          "body": "Nếu rời khỏi trang, những thông tin bạn vừa nhập sẽ bị mất.",
+          "stay": "Tiếp tục chỉnh sửa",
+          "leave": "Rời khỏi trang",
+          "close": "Đóng hộp thoại"
         }
       },
       "detail": {
@@ -1771,7 +1800,7 @@
           "overall": "Tổng thể",
           "showPlayerNames": "Tên VĐV",
           "showPlayerNamesBadge": "Hiện tên VĐV",
-          "rankingsExplained": "Cách tính xếp hạng",
+          "rankingsExplained": "Cách tính bảng xếp hạng",
           "rankingsExplanation": "Bảng xếp hạng được sắp theo điểm, sau đó lần lượt xét hiệu số, điểm ghi được, số trận thắng và số trận đã chơi. Mục Tổng thể gộp các đội trong những bảng đang hiển thị và xếp lại theo cùng thứ tự này.",
           "viewGames": "Xem trận đấu",
           "emptyPlayoffs": "Chưa có trận vòng loại trực tiếp nào để hiển thị.",
@@ -1853,6 +1882,43 @@
             "viewStandings": "Bảng xếp hạng",
             "viewShowcase": "Showcase"
           },
+          "status": {
+            "PREPARING": "Sắp diễn ra",
+            "IN_PROGRESS": "Đang diễn ra",
+            "FINISHED": "Đã kết thúc",
+            "CANCELLED": "Đã hủy"
+          },
+          "hero": {
+            "loading": "Đang cập nhật…",
+            "teams": "{count} đội",
+            "athletes": "{count} VĐV"
+          },
+          "pulse": {
+            "live": "Trực tiếp",
+            "liveTitle": "Trận đấu đang diễn ra",
+            "liveDescription": "Theo dõi tỷ số mới nhất của giải.",
+            "nextTitle": "Trận đấu tiếp theo",
+            "nextDescription": "Lịch thi đấu mới nhất đã sẵn sàng.",
+            "finishedTitle": "Giải đấu đã khép lại",
+            "finishedDescription": "Xem bảng xếp hạng và những gương mặt chiến thắng.",
+            "preparingTitle": "Giải đấu đang được chuẩn bị",
+            "preparingDescription": "Khám phá các hạng mục và thể lệ trước giờ thi đấu.",
+            "cancelledTitle": "Giải đấu đã bị hủy",
+            "cancelledDescription": "Xem lịch thi đấu để biết thêm thông tin.",
+            "viewLive": "Xem điểm live",
+            "viewSchedule": "Xem lịch thi đấu",
+            "viewResults": "Xem kết quả",
+            "viewCategories": "Xem hạng mục",
+            "court": "Sân",
+            "versus": "đấu",
+            "errorTitle": "Chưa tải được nhịp giải đấu",
+            "errorDescription": "Hãy thử tải lại thông tin trận đấu.",
+            "retry": "Thử lại"
+          },
+          "share": {
+            "success": "Đã sao chép link giải đấu",
+            "error": "Không thể chia sẻ giải đấu"
+          },
           "categories": {
             "title": "Hạng mục",
             "manage": "Quản lý hạng mục",
@@ -1889,6 +1955,7 @@
             "name": "Tên",
             "email": "Email",
             "phone": "Số điện thoại",
+            "edit": "Chỉnh sửa thông tin liên hệ",
             "empty": "Chưa có thông tin liên hệ."
           },
           "sponsors": {
@@ -1900,6 +1967,16 @@
             "title": "Nhà vô địch",
             "subtitle": "Kết quả chung cuộc đã có.",
             "viewAll": "Xem tất cả nhà vô địch"
+          },
+          "organizerCompletion": {
+            "title": "Hoàn thiện trang giải đấu",
+            "description": "Bổ sung nội dung còn thiếu để trang công khai hấp dẫn và hữu ích hơn.",
+            "items": {
+              "name": "Thêm ghi chú",
+              "videos": "Thêm video",
+              "sponsors": "Thêm nhà tài trợ",
+              "contact": "Thêm liên hệ"
+            }
           }
         },
         "dashboard": {
@@ -4066,6 +4143,8 @@
           "searchPlaceholder": "Tìm tên VĐV hoặc đội",
           "referee": "Trọng tài",
           "refereeOnlyLabel": "Trận đấu của tôi",
+          "refereeModeEnabled": "Đã bật chế độ Trọng tài",
+          "refereeModeDisabled": "Đã tắt chế độ Trọng tài",
           "clear": "Xóa lọc",
           "apply": "Áp dụng",
           "empty": "Không có trận nào khớp bộ lọc.",

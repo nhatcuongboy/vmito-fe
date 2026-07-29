@@ -137,6 +137,100 @@ interface TournamentPageShellProps {
   activeSegment: TournamentSegment;
 }
 
+function getAvatarInitials(name: string) {
+  const normalized = name.trim();
+  if (!normalized) return '';
+
+  const words = normalized.split(/\s+/);
+  const first = words[0]?.[0] ?? '';
+  const last = words.length > 1 ? (words[words.length - 1]?.[0] ?? '') : '';
+
+  return `${first}${last}`.toLocaleUpperCase('vi-VN');
+}
+
+function TeamDefaultAvatar() {
+  return (
+    <Flex
+      align="center"
+      justify="center"
+      w="44px"
+      h="44px"
+      borderRadius="full"
+      bg="linear-gradient(135deg, #ecfdf5 0%, #d1fae5 58%, #fef3c7 140%)"
+      borderWidth="1px"
+      borderColor="green.200"
+      color="green.700"
+      boxShadow="inset 0 1px 0 rgba(255,255,255,0.78), 0 8px 18px rgba(22, 163, 74, 0.12)"
+      flexShrink={0}
+      _dark={{
+        bg: 'linear-gradient(135deg, rgba(6, 78, 59, 0.72) 0%, rgba(20, 83, 45, 0.58) 100%)',
+        borderColor: 'green.600',
+        color: 'green.100',
+        boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.08)',
+      }}
+    >
+      <UsersRound size={22} strokeWidth={2.3} />
+    </Flex>
+  );
+}
+
+function PlayerDefaultAvatar({ name }: { name: string }) {
+  const initials = getAvatarInitials(name);
+
+  return (
+    <Flex
+      align="center"
+      justify="center"
+      w="44px"
+      h="44px"
+      borderRadius="full"
+      bg="linear-gradient(135deg, #16a34a 0%, #059669 56%, #0f766e 100%)"
+      borderWidth="2px"
+      borderColor="white"
+      color="white"
+      boxShadow="0 8px 20px rgba(5, 150, 105, 0.24)"
+      flexShrink={0}
+      _dark={{
+        borderColor: 'rgba(255,255,255,0.18)',
+        boxShadow: '0 8px 20px rgba(0, 0, 0, 0.28)',
+      }}
+    >
+      {initials ? (
+        <Text fontSize="sm" fontWeight="bold" letterSpacing="0">
+          {initials}
+        </Text>
+      ) : (
+        <CircleUserRound size={23} />
+      )}
+    </Flex>
+  );
+}
+
+function PlayerAvatar({ name, image }: { name: string; image?: string }) {
+  if (!image) return <PlayerDefaultAvatar name={name} />;
+
+  return (
+    <Flex
+      align="center"
+      justify="center"
+      w="44px"
+      h="44px"
+      borderRadius="full"
+      borderWidth="2px"
+      borderColor="white"
+      boxShadow="0 8px 20px rgba(15, 23, 42, 0.1)"
+      flexShrink={0}
+      overflow="hidden"
+      _dark={{
+        borderColor: 'rgba(255,255,255,0.16)',
+        boxShadow: '0 8px 20px rgba(0, 0, 0, 0.28)',
+      }}
+    >
+      <Image src={image} alt={name} w="full" h="full" objectFit="cover" />
+    </Flex>
+  );
+}
+
 function TeamCategoryCard({
   categoryBlock,
   slug,
@@ -243,26 +337,7 @@ function TeamRow({
           : {},
       }}
     >
-      <Flex
-        align="center"
-        justify="center"
-        w="44px"
-        h="44px"
-        borderRadius="full"
-        bg="gray.50"
-        borderWidth="1px"
-        borderColor="gray.200"
-        color="gray.500"
-        flexShrink={0}
-        _dark={{
-          bg: 'var(--tournament-surface-muted, var(--chakra-colors-gray-700))',
-          borderColor:
-            'var(--tournament-border, var(--chakra-colors-gray-600))',
-          color: 'green.200',
-        }}
-      >
-        <CircleUserRound size={23} />
-      </Flex>
+      <TeamDefaultAvatar />
 
       <Box flex="1" minW={0}>
         <Flex align="center" gap={2} minW={0}>
@@ -343,37 +418,7 @@ function PlayerRow({
           },
         }}
       >
-        <Flex
-          align="center"
-          justify="center"
-          w="44px"
-          h="44px"
-          borderRadius="full"
-          bg="gray.50"
-          borderWidth="1px"
-          borderColor="gray.200"
-          color="gray.500"
-          flexShrink={0}
-          overflow="hidden"
-          _dark={{
-            bg: 'var(--tournament-surface-muted, var(--chakra-colors-gray-700))',
-            borderColor:
-              'var(--tournament-border, var(--chakra-colors-gray-600))',
-            color: 'green.200',
-          }}
-        >
-          {player.image ? (
-            <Image
-              src={player.image}
-              alt={player.name}
-              w="full"
-              h="full"
-              objectFit="cover"
-            />
-          ) : (
-            <CircleUserRound size={23} />
-          )}
-        </Flex>
+        <PlayerAvatar name={player.name} image={player.image} />
 
         <Box flex="1" minW={0}>
           <Text

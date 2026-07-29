@@ -454,6 +454,7 @@ export default function TournamentManage({
         {/* Left column: heading, tabs, and menu items */}
         <Box
           flex={{ md: '0 0 42%', xl: '0 0 38%' }}
+          w={{ base: '100%', md: 'auto' }}
           minW={0}
           h={{ md: '100%' }}
           px={{ md: 6, xl: 8 }}
