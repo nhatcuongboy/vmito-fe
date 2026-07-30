@@ -9,6 +9,7 @@ interface PlayerNamesToggleProps {
   title: string;
   label?: string;
   fullWidthOnMobile?: boolean;
+  size?: number;
 }
 
 const PlayerNamesToggle = ({
@@ -17,6 +18,7 @@ const PlayerNamesToggle = ({
   title,
   label,
   fullWidthOnMobile = false,
+  size,
 }: PlayerNamesToggleProps) => {
   return (
     <TournamentIconToggle
@@ -25,6 +27,7 @@ const PlayerNamesToggle = ({
       title={title}
       label={label}
       fullWidthOnMobile={fullWidthOnMobile}
+      size={size}
     >
       <Users size={16} aria-hidden="true" />
     </TournamentIconToggle>

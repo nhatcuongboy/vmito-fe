@@ -5,21 +5,16 @@ import { BarChart3, CalendarDays, MonitorPlay, Sparkles } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
 import { Link } from '@/i18n/config';
-import { TournamentStatus } from '@/lib/api/types';
 
 interface TournamentQuickActionsProps {
   slug: string;
-  status: TournamentStatus;
 }
 
 export default function TournamentQuickActions({
   slug,
-  status,
 }: TournamentQuickActionsProps) {
   const t = useTranslations('pages.tournaments.detail.homeTab');
   const tBoard = useTranslations('pages.tournaments.scoreboard');
-  const primaryId =
-    status === TournamentStatus.IN_PROGRESS ? 'scoreboard' : 'schedule';
   const actions = [
     {
       id: 'schedule',
@@ -60,7 +55,6 @@ export default function TournamentQuickActions({
       gap={2}
     >
       {actions.map((action) => {
-        const isPrimary = action.id === primaryId;
         const Icon = action.icon;
 
         return (
@@ -71,13 +65,9 @@ export default function TournamentQuickActions({
             borderWidth="1px"
             borderColor="gray.200"
             borderRadius="xl"
-            bg={isPrimary ? `${action.color}.50` : 'white'}
-            color={isPrimary ? `${action.color}.800` : 'gray.800'}
-            boxShadow={
-              isPrimary
-                ? `0 10px 28px var(--chakra-colors-${action.color}-100)`
-                : 'none'
-            }
+            bg="white"
+            color="gray.800"
+            boxShadow="none"
             transition="border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease"
             _hover={{
               borderColor: `${action.color}.300`,
@@ -92,9 +82,7 @@ export default function TournamentQuickActions({
               outlineOffset: '2px',
             }}
             _dark={{
-              bg: isPrimary
-                ? `rgba(20, 184, 166, 0.12)`
-                : 'var(--tournament-surface-raised)',
+              bg: 'var(--tournament-surface-raised)',
               color: 'gray.100',
               borderColor: 'var(--tournament-border)',
             }}
@@ -107,13 +95,11 @@ export default function TournamentQuickActions({
                   w="30px"
                   h="30px"
                   borderRadius="lg"
-                  bg={isPrimary ? `${action.color}.100` : 'gray.50'}
+                  bg="gray.50"
                   color={`${action.color}.600`}
                   flexShrink={0}
                   _dark={{
-                    bg: isPrimary
-                      ? 'rgba(45, 212, 191, 0.16)'
-                      : 'var(--tournament-surface-muted)',
+                    bg: 'var(--tournament-surface-muted)',
                     color: `${action.color}.300`,
                   }}
                 >

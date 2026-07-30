@@ -221,29 +221,6 @@ export default function TournamentHomeHero({
           borderColor: 'var(--tournament-accent-border)',
         }}
       >
-        <HeroStat
-          icon={<Users size={18} aria-hidden="true" />}
-          value={
-            isLoadingCounts
-              ? t('hero.loading')
-              : t('hero.teams', { count: totalTeams })
-          }
-        />
-        <Box w="1px" bg="gray.200" _dark={{ bg: 'gray.700' }} />
-        <HeroStat
-          icon={<UserRound size={18} aria-hidden="true" />}
-          value={
-            isLoadingCounts
-              ? t('hero.loading')
-              : t('hero.athletes', { count: totalAthletes })
-          }
-        />
-        <Box
-          display={{ base: 'none', md: 'block' }}
-          w="1px"
-          bg="gray.200"
-          _dark={{ bg: 'gray.700' }}
-        />
         <Flex
           display={{ base: 'none', md: 'flex' }}
           align="center"
@@ -278,6 +255,29 @@ export default function TournamentHomeHero({
             </Flex>
           </>
         ) : null}
+        <Box
+          display={{ base: 'none', md: 'block' }}
+          w="1px"
+          bg="gray.200"
+          _dark={{ bg: 'gray.700' }}
+        />
+        <HeroStat
+          icon={<Users size={18} aria-hidden="true" />}
+          value={
+            isLoadingCounts
+              ? t('hero.loading')
+              : t('hero.teams', { count: totalTeams })
+          }
+        />
+        <Box w="1px" bg="gray.200" _dark={{ bg: 'gray.700' }} />
+        <HeroStat
+          icon={<UserRound size={18} aria-hidden="true" />}
+          value={
+            isLoadingCounts
+              ? t('hero.loading')
+              : t('hero.athletes', { count: totalAthletes })
+          }
+        />
       </Flex>
 
       {isCoverOpen && coverImage ? (

@@ -71,6 +71,8 @@ import { useResultsData } from './useResultsData';
 import { useRouter } from '@/i18n/config';
 import TournamentManageEmptyState from './TournamentManageEmptyState';
 
+const REFEREE_FILTER_TOAST_ID = 'referee-filter-toggle-toast';
+
 interface Props {
   tournament: Tournament;
   categories: Category[];
@@ -652,12 +654,14 @@ export default function ResultsPanel({
 
     if (enabled) {
       toaster.success({
+        id: REFEREE_FILTER_TOAST_ID,
         title: t.has('filters.refereeModeEnabled')
           ? t('filters.refereeModeEnabled')
           : t('filters.referee'),
       });
     } else {
       toaster.info({
+        id: REFEREE_FILTER_TOAST_ID,
         title: t.has('filters.refereeModeDisabled')
           ? t('filters.refereeModeDisabled')
           : t('filters.referee'),
@@ -718,6 +722,7 @@ export default function ResultsPanel({
                 active={filters.refereeOnly}
                 onToggle={handleToggleRefereeFilter}
                 title={t('filters.referee')}
+                size={32}
               >
                 <ShieldCheck size={16} />
               </TournamentIconToggle>
@@ -727,6 +732,7 @@ export default function ResultsPanel({
               active={showPlayerNames}
               onToggle={() => setShowPlayerNames((prev) => !prev)}
               title={t('showPlayerNames')}
+              size={32}
             />
 
             {canEdit && (
@@ -738,9 +744,9 @@ export default function ResultsPanel({
                 aria-label={tOverlay('title')}
                 title={tOverlay('title')}
                 flexShrink={0}
-                minW={9}
-                h={9}
-                w={9}
+                minW={8}
+                h={8}
+                w={8}
                 px={0}
                 borderRadius="md"
                 borderWidth="1px"

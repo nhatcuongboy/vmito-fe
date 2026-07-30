@@ -11,6 +11,8 @@ interface TournamentIconToggleProps {
   title: string;
   label?: string;
   fullWidthOnMobile?: boolean;
+  /** Square button size in px (icon-only variant). Defaults to 36. */
+  size?: number;
 }
 
 export default function TournamentIconToggle({
@@ -20,6 +22,7 @@ export default function TournamentIconToggle({
   title,
   label,
   fullWidthOnMobile = false,
+  size = 36,
 }: TournamentIconToggleProps) {
   const hasLabel = !!label;
 
@@ -39,16 +42,16 @@ export default function TournamentIconToggle({
       alignItems="center"
       justifyContent="center"
       gap={hasLabel ? 2 : 0}
-      h={9}
+      h={`${size}px`}
       w={
         hasLabel
           ? 'auto'
           : fullWidthOnMobile
-            ? { base: 'full', sm: '36px' }
-            : '36px'
+            ? { base: 'full', sm: `${size}px` }
+            : `${size}px`
       }
-      minW={hasLabel ? 'max-content' : undefined}
-      minH={9}
+      minW={hasLabel ? 'max-content' : `${size}px`}
+      minH={`${size}px`}
       px={hasLabel ? 3 : 0}
       py={0}
       borderRadius={hasLabel ? 'full' : 'md'}

@@ -25,6 +25,9 @@ import {
   MonitorPlay,
   NotebookText,
   GitBranch,
+  Tags,
+  Handshake,
+  Contact as ContactIcon,
 } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
 import {
@@ -721,7 +724,10 @@ export default function TournamentHomeTab({
 
       await navigator.clipboard.writeText(shareUrl);
       toaster.success({ title: t('share.success') });
-    } catch {
+    } catch (error) {
+      if (error instanceof DOMException && error.name === 'AbortError') {
+        return;
+      }
       toaster.error({ title: t('share.error') });
     }
   };
@@ -753,7 +759,7 @@ export default function TournamentHomeTab({
         onRetry={() => void homeMatches.retry()}
       />
 
-      <TournamentQuickActions slug={slug} status={effectiveStatus} />
+      <TournamentQuickActions slug={slug} />
 
       {/* Categories section */}
       <Box
@@ -770,9 +776,16 @@ export default function TournamentHomeTab({
         }}
       >
         <Flex justify="space-between" align="center" px={4} py={3}>
-          <Text fontWeight="semibold" fontSize="md">
-            {t('categories.title')}
-          </Text>
+          <Flex align="center" gap={2}>
+            <Tags
+              size={18}
+              color="var(--chakra-colors-green-600)"
+              aria-hidden="true"
+            />
+            <Text fontWeight="semibold" fontSize="md">
+              {t('categories.title')}
+            </Text>
+          </Flex>
           <HStack gap={1}>
             {canManageTournament && (
               <Box
@@ -946,10 +959,17 @@ export default function TournamentHomeTab({
             boxShadow: 'var(--tournament-shadow-soft)',
           }}
         >
-          <Flex justify="space-between" align="center" px={4} pt={4} pb={3}>
-            <Text fontWeight="bold" fontSize={{ base: 'lg', md: 'xl' }}>
-              {t('venues.title')}
-            </Text>
+          <Flex justify="space-between" align="center" px={4} pt={3} pb={3}>
+            <Flex align="center" gap={2}>
+              <MapPin
+                size={20}
+                color="var(--chakra-colors-blue-600)"
+                aria-hidden="true"
+              />
+              <Text fontWeight="semibold" fontSize="md">
+                {t('venues.title')}
+              </Text>
+            </Flex>
             <HStack gap={3}>
               {canManageTournament && (
                 <Button
@@ -958,7 +978,7 @@ export default function TournamentHomeTab({
                   borderRadius="full"
                   px={4}
                   size="sm"
-                  minH="44px"
+                  minH="36px"
                   onClick={handleManageVenues}
                 >
                   {t('venues.manage')}
@@ -1115,7 +1135,9 @@ export default function TournamentHomeTab({
           borderWidth="1px"
           borderColor="gray.200"
           borderRadius="xl"
-          p={4}
+          px={4}
+          pt={3}
+          pb={3}
           bg="white"
           _dark={{
             bg: 'var(--tournament-surface-raised, var(--chakra-colors-gray-800))',
@@ -1124,12 +1146,12 @@ export default function TournamentHomeTab({
             boxShadow: 'var(--tournament-shadow-soft)',
           }}
         >
-          <Flex justify="space-between" align="center" mb={3}>
+          <Flex justify="space-between" align="center" mb={2}>
             <HStack gap={2}>
               <Box color="green.600" _dark={{ color: 'green.300' }}>
                 <NotebookText size={18} aria-hidden="true" />
               </Box>
-              <Text fontWeight="semibold" fontSize="lg">
+              <Text fontWeight="semibold" fontSize="md">
                 {t('notes.title')}
               </Text>
             </HStack>
@@ -1137,8 +1159,8 @@ export default function TournamentHomeTab({
               <Box
                 as="button"
                 aria-label={t('notes.edit')}
-                w="44px"
-                h="44px"
+                w="32px"
+                h="32px"
                 display="flex"
                 borderRadius="md"
                 alignItems="center"
@@ -1153,7 +1175,7 @@ export default function TournamentHomeTab({
                 onClick={() => handleManageOption('name')}
               >
                 <Pencil
-                  size={16}
+                  size={15}
                   color="var(--chakra-colors-gray-500)"
                   aria-hidden="true"
                 />
@@ -1178,7 +1200,9 @@ export default function TournamentHomeTab({
           borderWidth="1px"
           borderColor="gray.200"
           borderRadius="xl"
-          p={4}
+          px={4}
+          pt={3}
+          pb={3}
           bg="white"
           _dark={{
             bg: 'var(--tournament-surface-raised, var(--chakra-colors-gray-800))',
@@ -1187,12 +1211,12 @@ export default function TournamentHomeTab({
             boxShadow: 'var(--tournament-shadow-soft)',
           }}
         >
-          <Flex justify="space-between" align="center" mb={3}>
+          <Flex justify="space-between" align="center" mb={2}>
             <HStack gap={2}>
               <Box color="red.500" _dark={{ color: 'red.300' }}>
                 <MonitorPlay size={18} aria-hidden="true" />
               </Box>
-              <Text fontWeight="semibold" fontSize="lg">
+              <Text fontWeight="semibold" fontSize="md">
                 {t('videos.title')}
               </Text>
             </HStack>
@@ -1200,8 +1224,8 @@ export default function TournamentHomeTab({
               <Box
                 as="button"
                 aria-label={t('videos.edit')}
-                w="44px"
-                h="44px"
+                w="32px"
+                h="32px"
                 display="flex"
                 borderRadius="md"
                 alignItems="center"
@@ -1216,7 +1240,7 @@ export default function TournamentHomeTab({
                 onClick={() => handleManageOption('videos')}
               >
                 <Pencil
-                  size={16}
+                  size={15}
                   color="var(--chakra-colors-gray-500)"
                   aria-hidden="true"
                 />
@@ -1255,7 +1279,9 @@ export default function TournamentHomeTab({
           borderWidth="1px"
           borderColor="gray.200"
           borderRadius="xl"
-          p={4}
+          px={4}
+          pt={3}
+          pb={3}
           bg="white"
           _dark={{
             bg: 'var(--tournament-surface-raised, var(--chakra-colors-gray-800))',
@@ -1264,16 +1290,23 @@ export default function TournamentHomeTab({
             boxShadow: 'var(--tournament-shadow-soft)',
           }}
         >
-          <Flex justify="space-between" align="center" mb={3}>
-            <Text fontWeight="semibold" fontSize="lg">
-              {t('sponsors.title')}
-            </Text>
+          <Flex justify="space-between" align="center" mb={2}>
+            <Flex align="center" gap={2}>
+              <Handshake
+                size={20}
+                color="var(--chakra-colors-purple-600)"
+                aria-hidden="true"
+              />
+              <Text fontWeight="semibold" fontSize="md">
+                {t('sponsors.title')}
+              </Text>
+            </Flex>
             {canManageTournament && (
               <Box
                 as="button"
                 aria-label={t('sponsors.manage')}
-                w="44px"
-                h="44px"
+                w="32px"
+                h="32px"
                 display="flex"
                 borderRadius="md"
                 alignItems="center"
@@ -1288,7 +1321,7 @@ export default function TournamentHomeTab({
                 onClick={() => handleManageOption('sponsors')}
               >
                 <Pencil
-                  size={16}
+                  size={15}
                   color="var(--chakra-colors-gray-500)"
                   aria-hidden="true"
                 />
@@ -1425,7 +1458,9 @@ export default function TournamentHomeTab({
           borderWidth="1px"
           borderColor="gray.200"
           borderRadius="xl"
-          p={4}
+          px={4}
+          pt={3}
+          pb={3}
           bg="white"
           _dark={{
             bg: 'var(--tournament-surface-raised, var(--chakra-colors-gray-800))',
@@ -1434,16 +1469,23 @@ export default function TournamentHomeTab({
             boxShadow: 'var(--tournament-shadow-soft)',
           }}
         >
-          <Flex justify="space-between" align="center" mb={3}>
-            <Text fontWeight="semibold" fontSize="lg">
-              {t('contact.title')}
-            </Text>
+          <Flex justify="space-between" align="center" mb={2}>
+            <Flex align="center" gap={2}>
+              <ContactIcon
+                size={20}
+                color="var(--chakra-colors-teal-600)"
+                aria-hidden="true"
+              />
+              <Text fontWeight="semibold" fontSize="md">
+                {t('contact.title')}
+              </Text>
+            </Flex>
             {canManageTournament ? (
               <Box
                 as="button"
                 aria-label={t('contact.edit')}
-                w="44px"
-                h="44px"
+                w="32px"
+                h="32px"
                 display="flex"
                 borderRadius="md"
                 alignItems="center"
@@ -1457,7 +1499,7 @@ export default function TournamentHomeTab({
                 onClick={() => handleManageOption('contact')}
               >
                 <Pencil
-                  size={16}
+                  size={15}
                   color="var(--chakra-colors-gray-500)"
                   aria-hidden="true"
                 />
