@@ -1,6 +1,6 @@
 'use client';
 
-import { forwardRef, type InputHTMLAttributes } from 'react';
+import { forwardRef, type InputHTMLAttributes, type MouseEvent } from 'react';
 import { Box, Text } from '@chakra-ui/react';
 import { CalendarDays } from 'lucide-react';
 
@@ -26,11 +26,20 @@ const LocalizedDateInput = forwardRef<
     ariaLabel,
     invalid = false,
     disabled,
+    onClick,
     ...inputProps
   },
   ref
 ) {
   const formattedValue = formatDateForLocale(displayValue, locale);
+
+  const handleClick = (event: MouseEvent<HTMLInputElement>) => {
+    onClick?.(event);
+
+    if (!event.defaultPrevented) {
+      event.currentTarget.showPicker?.();
+    }
+  };
 
   return (
     <Box
@@ -99,6 +108,7 @@ const LocalizedDateInput = forwardRef<
         aria-label={ariaLabel}
         aria-invalid={invalid || undefined}
         autoComplete="off"
+        onClick={handleClick}
         style={{
           position: 'absolute',
           inset: 0,
