@@ -38,7 +38,7 @@ import {
 import { TournamentService } from '@/lib/api/tournament.service';
 import { SportType, Tournament, TournamentStatus } from '@/lib/api/types';
 import { usePreferenceStore } from '@/stores/usePreferenceStore';
-import { Box, Flex, Heading, HStack, Text, VStack } from '@chakra-ui/react';
+import { Box, Flex, HStack, Text, VStack } from '@chakra-ui/react';
 import { Plus, Swords } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Suspense, useEffect, useState } from 'react';
@@ -435,17 +435,6 @@ function TournamentsContent() {
             title={t('noTournamentsFound')}
             description={
               filters.q || activeFilterCount ? t('noResultsDescription') : null
-            }
-            actions={
-              <Button
-                colorPalette="green"
-                size="sm"
-                borderRadius="full"
-                onClick={() => router.push('/host/tournaments/new')}
-              >
-                <Plus size={16} />
-                {t('createTournament')}
-              </Button>
             }
           />
         ) : (

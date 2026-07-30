@@ -101,11 +101,11 @@ export function HostTournamentRowSkeleton() {
 
 export function HostTournamentListSkeleton({ count = 5 }: { count?: number }) {
   return (
-    <VStack gap={4} align="stretch">
+    <SimpleGrid columns={{ base: 1, md: 2 }} gap={3}>
       {repeat(count).map((_, index) => (
         <HostTournamentRowSkeleton key={index} />
       ))}
-    </VStack>
+    </SimpleGrid>
   );
 }
 

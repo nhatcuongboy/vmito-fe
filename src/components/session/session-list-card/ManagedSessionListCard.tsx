@@ -47,6 +47,7 @@ export const ManagedSessionListCard = ({
   const [isShareImageOpen, setIsShareImageOpen] = useState(false);
   const deleteModal = useModal();
   const endModal = useModal();
+  const detailHref = `/sessions/${session.slug || session.id}`;
   const manageHref = `/host/sessions/${session.slug || session.id}`;
 
   const handleMutation = async (mutation: () => Promise<unknown>) => {
@@ -147,7 +148,7 @@ export const ManagedSessionListCard = ({
     <>
       <SessionListCard
         session={session}
-        href={manageHref}
+        href={detailHref}
         imagePriority={imagePriority}
         overlayBadge={statusBadge}
         identityRow={

@@ -38,6 +38,7 @@ import { Input } from '@/components/ui/Input';
 import VModal from '@/components/ui/VModal';
 import { ROUTES } from '@/constants';
 import { useRouter } from '@/i18n/config';
+import { useCanGoBack } from '@/hooks/useCanGoBack';
 import { TournamentService } from '@/lib/api/tournament.service';
 import { SportType, UserRole } from '@/lib/api/types';
 import { toaster } from '@/components/ui/toaster';
@@ -109,6 +110,7 @@ export default function NewTournamentPage() {
   const dateLocale =
     locale === 'vi' ? 'vi-VN' : locale === 'cn' ? 'zh-CN' : 'en-US';
   const router = useRouter();
+  const canGoBack = useCanGoBack();
   const [today, setToday] = useState('');
   const [isLeaveDialogOpen, setIsLeaveDialogOpen] = useState(false);
   const pendingNavigationRef = useRef<(() => void) | null>(null);
@@ -188,8 +190,10 @@ export default function NewTournamentPage() {
   );
 
   const handleBack = useCallback(() => {
-    requestNavigation(() => router.push(ROUTES.HOST.TOURNAMENTS.LIST));
-  }, [requestNavigation, router]);
+    requestNavigation(() =>
+      canGoBack ? router.back() : router.push(ROUTES.HOST.TOURNAMENTS.LIST)
+    );
+  }, [canGoBack, requestNavigation, router]);
 
   const handleConfirmLeave = useCallback(() => {
     const navigate = pendingNavigationRef.current;

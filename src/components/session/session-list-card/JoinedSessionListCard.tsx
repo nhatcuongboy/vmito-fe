@@ -36,6 +36,7 @@ export const JoinedSessionListCard = ({
   const viewModel = useSessionListCardViewModel(session);
   const registrationModal = useModal();
   const registrationStatus = session.players?.[0]?.registrationStatus;
+  const detailHref = `/sessions/${session.slug || session.id}`;
   const viewSessionHref = `/player/sessions/${session.slug || session.id}`;
 
   const overlayBadge = (() => {
@@ -96,7 +97,7 @@ export const JoinedSessionListCard = ({
     <>
       <SessionListCard
         session={session}
-        href={viewSessionHref}
+        href={detailHref}
         imagePriority={imagePriority}
         overlayBadge={overlayBadge}
         identityRow={<SessionListCardHostRow session={session} />}
@@ -107,7 +108,7 @@ export const JoinedSessionListCard = ({
             isFavorite={session.isFavorite}
             size="sm"
             variant={{ base: 'ghost', md: 'overlay' }}
-            returnUrl={viewSessionHref}
+            returnUrl={detailHref}
           />
         }
         actionFooter={
