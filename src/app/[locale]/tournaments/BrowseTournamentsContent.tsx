@@ -9,7 +9,7 @@ import TournamentFilterDrawer, {
   TTournamentPeriod,
 } from '@/components/tournament/TournamentFilterDrawer';
 import TournamentSortMenu from '@/components/tournament/TournamentSortMenu';
-import { TournamentStatusTabs } from '@/components/tournament/TournamentStatusTabs';
+import { TournamentStatusSelect } from '@/components/tournament/TournamentStatusSelect';
 import AppEmptyState from '@/components/ui/AppEmptyState';
 import AppErrorState from '@/components/ui/AppErrorState';
 import { useDisclosure } from '@/components/ui/ChakraHooks';
@@ -25,6 +25,7 @@ import {
   booleanField,
   stringArrayField,
   stringField,
+  type UrlFilterField,
   useUrlFilters,
 } from '@/hooks/useUrlFilters';
 import { useRouter } from '@/i18n/config';
@@ -42,9 +43,20 @@ import { Plus, Swords } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Suspense, useEffect, useState } from 'react';
 
+const statusArrayField = stringArrayField();
+const TOURNAMENT_STATUS_FIELD: UrlFilterField<string[]> = {
+  fromQuery: (raw) => {
+    if (raw === 'all') return [];
+    if (raw === null) return [TournamentStatus.PREPARING];
+    return statusArrayField.fromQuery(raw);
+  },
+  toQuery: (value) =>
+    value.length === 0 ? 'all' : statusArrayField.toQuery(value),
+};
+
 const TOURNAMENT_FILTERS_SCHEMA = {
   q: stringField(''),
-  status: stringArrayField(),
+  status: TOURNAMENT_STATUS_FIELD,
   period: stringField('all'),
   from: stringField(''),
   to: stringField(''),
@@ -123,8 +135,11 @@ function TournamentsContent() {
     districts: filters.district,
     sports,
   };
+  const isDefaultStatus =
+    statuses.length === 1 && statuses[0] === TournamentStatus.PREPARING;
+  const statusFilterCount = isDefaultStatus ? 0 : statuses.length;
   const activeFilterCount =
-    statuses.length +
+    statusFilterCount +
     (period !== 'all' ? 1 : 0) +
     filters.city.length +
     filters.district.length +
@@ -310,50 +325,48 @@ function TournamentsContent() {
           </Box>
         </Box>
 
-        {/* Title, result count, sort and create in a single row — these used
-            to be two right-aligned rows with ~60px of dead space between them
-            and no heading to anchor the page. */}
-        <Flex justify="space-between" align="flex-end" gap={3}>
-          <Box display={{ base: 'none', md: 'block' }} minW={0}>
-            <Heading size="lg" color="fg">
-              {t('title')}
-            </Heading>
+        {/* Top action row: Create tournament button on desktop (matching Find Sessions layout) */}
+        <Flex justify="flex-end" display={{ base: 'none', md: 'flex' }}>
+          <Button
+            colorPalette="green"
+            borderRadius="xl"
+            px={4}
+            py={2}
+            h="40px"
+            fontWeight="semibold"
+            aria-label={t('createTournament')}
+            onClick={() => router.push('/host/tournaments/new')}
+          >
+            <Plus size={18} />
+            <Text>{t('createTournament')}</Text>
+          </Button>
+        </Flex>
+
+        {/* Results header row: Result count on left, status select & sort menu on right */}
+        <Flex justify="space-between" align="center" gap={3} flexWrap="wrap">
+          <Box minW={0} display={{ base: 'none', md: 'block' }}>
             {!loading && !error && (
-              <Text fontSize="sm" color="fg.muted" mt={0.5}>
+              <Text fontSize="sm" color="fg.muted">
                 {t('resultCount', { count: tournaments.length })}
               </Text>
             )}
           </Box>
 
           <HStack gap={2} ml="auto" flexShrink={0}>
+            <TournamentStatusSelect
+              value={statuses}
+              onChange={(nextStatuses) => setFilters({ status: nextStatuses })}
+            />
+
             <TournamentSortMenu
               value={filters.sort}
               onChange={(nextSort) => setFilters({ sort: nextSort })}
             />
-
-            {/* Mobile had no way to create a tournament at all. */}
-            <Button
-              colorPalette="green"
-              size="sm"
-              borderRadius="full"
-              aria-label={t('createTournament')}
-              onClick={() => router.push('/host/tournaments/new')}
-            >
-              <Plus size={16} />
-              <Text display={{ base: 'none', md: 'inline' }}>
-                {t('createTournament')}
-              </Text>
-            </Button>
           </HStack>
         </Flex>
 
-        <TournamentStatusTabs
-          value={statuses}
-          onChange={(nextStatuses) => setFilters({ status: nextStatuses })}
-        />
-
-        {/* Status is represented by the tabs above, so it is not repeated here. */}
-        {activeFilterCount - statuses.length > 0 && (
+        {/* Status is represented by the select above, so it is not repeated here. */}
+        {activeFilterCount - statusFilterCount > 0 && (
           <Flex gap={2} flexWrap="wrap">
             {period !== 'all' && (
               <FilterChip

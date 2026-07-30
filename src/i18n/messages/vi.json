@@ -1660,7 +1660,7 @@
         }
       },
       "sort": {
-        "startDate": "Ngày gần nhất",
+        "startDate": "Gần nhất",
         "newest": "Mới tạo",
         "nameAsc": "Tên A-Z",
         "nameDesc": "Tên Z-A"
@@ -5190,7 +5190,11 @@
       "sessionConflict": "Bạn đã đăng xuất vì đã đăng nhập từ một thiết bị hoặc trình duyệt khác. Vui lòng đăng nhập lại.",
       "invalidEmail": "Email không hợp lệ",
       "emailRequired": "Vui lòng nhập email",
-      "passwordRequired": "Vui lòng nhập mật khẩu"
+      "passwordRequired": "Vui lòng nhập mật khẩu",
+      "authenticationErrorTitle": "Lỗi xác thực",
+      "invalidCallbackParameters": "Tham số callback không hợp lệ",
+      "redirectingToSignIn": "Đang chuyển hướng đến trang đăng nhập...",
+      "completingSignIn": "Đang hoàn tất đăng nhập..."
     },
     "signup": {
       "title": "Đăng ký",

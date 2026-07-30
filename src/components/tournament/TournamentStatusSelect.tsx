@@ -1,43 +1,32 @@
 'use client';
 
 import { Button } from '@/components/ui/chakra-compat';
+import { TournamentStatus } from '@/lib/api/types';
 import { Box, Flex, Text } from '@chakra-ui/react';
-import {
-  ArrowDownAZ,
-  ArrowUpDown,
-  CalendarArrowDown,
-  Check,
-  ChevronDown,
-} from 'lucide-react';
+import { Check, ChevronDown, ListFilter } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useEffect, useRef, useState } from 'react';
 
-export const TOURNAMENT_SORT_VALUES = [
-  'start_asc',
-  'newest',
-  'name_asc',
-  'name_desc',
-] as const;
+const QUICK_STATUSES: TournamentStatus[] = [
+  TournamentStatus.IN_PROGRESS,
+  TournamentStatus.PREPARING,
+  TournamentStatus.FINISHED,
+];
 
-export type TournamentSortValue = (typeof TOURNAMENT_SORT_VALUES)[number];
-
-interface TournamentSortMenuProps {
-  value: string;
-  onChange: (value: TournamentSortValue) => void;
+interface ITournamentStatusSelectProps {
+  value: TournamentStatus[];
+  onChange: (statuses: TournamentStatus[]) => void;
 }
 
-/**
- * Sort control for the tournament browse page. Hand-rolled rather than using
- * the Chakra popover so the trigger can stay a pill-shaped Button matching the
- * filter chips next to it.
- */
-export function TournamentSortMenu({
+export function TournamentStatusSelect({
   value,
   onChange,
-}: TournamentSortMenuProps) {
+}: ITournamentStatusSelectProps) {
   const t = useTranslations('pages.tournaments');
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  const hasMultipleStatuses = value.length > 1;
+  const selectedValue = value.length === 1 ? value[0] : '';
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -52,14 +41,16 @@ export function TournamentSortMenu({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [isOpen]);
 
-  const options = [
-    { value: 'start_asc', label: t('sort.startDate'), icon: CalendarArrowDown },
-    { value: 'newest', label: t('sort.newest'), icon: CalendarArrowDown },
-    { value: 'name_asc', label: t('sort.nameAsc'), icon: ArrowDownAZ },
-    { value: 'name_desc', label: t('sort.nameDesc'), icon: ArrowDownAZ },
-  ] as const;
-  const activeOption =
-    options.find((option) => option.value === value) ?? options[0];
+  const options: Array<{ value: TournamentStatus | ''; label: string }> = [
+    { value: '', label: t('filters.status.all') },
+    ...QUICK_STATUSES.map((status) => ({
+      value: status,
+      label: t(`filters.status.${status}`),
+    })),
+  ];
+  const activeOption = hasMultipleStatuses
+    ? { value: 'multiple', label: t('filters.status.title') }
+    : (options.find((option) => option.value === selectedValue) ?? options[0]);
 
   return (
     <Box position="relative" ref={containerRef}>
@@ -80,10 +71,10 @@ export function TournamentSortMenu({
         shadow="xs"
         _hover={{ bg: { base: 'gray.50', _dark: 'gray.700' } }}
         _active={{ bg: { base: 'gray.100', _dark: 'gray.600' } }}
-        aria-label={activeOption.label}
+        aria-label={t('filters.status.title')}
         onClick={() => setIsOpen((open) => !open)}
       >
-        <ArrowUpDown size={14} />
+        <ListFilter size={14} />
         <Text as="span">{activeOption.label}</Text>
         <ChevronDown
           size={13}
@@ -96,21 +87,20 @@ export function TournamentSortMenu({
       {isOpen && (
         <Box
           position="absolute"
-          right={0}
+          left={0}
           top="calc(100% + 6px)"
           bg="bg"
           border="1px solid"
           borderColor="border.subtle"
           borderRadius="xl"
           boxShadow="0 12px 32px rgba(15, 23, 42, 0.12)"
-          minW="190px"
+          minW="170px"
           py={1}
           overflow="hidden"
           zIndex={20}
         >
           {options.map((option) => {
-            const OptionIcon = option.icon;
-            const isSelected = option.value === activeOption.value;
+            const isSelected = option.value === selectedValue;
             return (
               <Flex
                 key={option.value}
@@ -124,11 +114,10 @@ export function TournamentSortMenu({
                 _dark={{ bg: isSelected ? 'green.900' : 'transparent' }}
                 _hover={{ bg: isSelected ? 'green.50' : 'bg.subtle' }}
                 onClick={() => {
-                  onChange(option.value);
+                  onChange(option.value ? [option.value] : []);
                   setIsOpen(false);
                 }}
               >
-                <OptionIcon size={14} />
                 <Text flex={1} fontSize="sm">
                   {option.label}
                 </Text>
@@ -142,4 +131,4 @@ export function TournamentSortMenu({
   );
 }
 
-export default TournamentSortMenu;
+export default TournamentStatusSelect;

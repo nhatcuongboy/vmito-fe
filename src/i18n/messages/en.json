@@ -5175,7 +5175,11 @@
       "sessionConflict": "You were logged out because you signed in from another device or browser. Please sign in again.",
       "invalidEmail": "Invalid email address",
       "emailRequired": "Please enter your email",
-      "passwordRequired": "Please enter your password"
+      "passwordRequired": "Please enter your password",
+      "authenticationErrorTitle": "Authentication Error",
+      "invalidCallbackParameters": "Invalid callback parameters",
+      "redirectingToSignIn": "Redirecting to sign in...",
+      "completingSignIn": "Completing sign in..."
     },
     "signup": {
       "title": "Sign Up",

@@ -52,6 +52,7 @@ import { useTournamentBottomNav } from '@/hooks/useTournamentBottomNav';
 import { useTournamentNavCache } from '@/hooks/useTournamentNavCache';
 import { writeTournamentNavCache } from '@/lib/tournamentNavCache';
 import TournamentTopBarMenu from '@/components/tournament/TournamentTopBarMenu';
+import TournamentSegmentSkeleton from '@/components/tournament/TournamentSegmentSkeleton';
 import {
   getTournamentPlayerCode,
   getUniqueTournamentPlayerCode,
@@ -60,7 +61,6 @@ import { getTournamentPlayerDisplayCode } from '@/lib/tournament/codes';
 import { TOP_BAR_HEIGHT_DESKTOP } from '@/constants';
 
 import {
-  TournamentContentSkeleton,
   TournamentMatchListSkeleton,
   TournamentTableSkeleton,
   TournamentTeamsSkeleton,
@@ -1014,14 +1014,14 @@ export default function TournamentPageShell({
         >
           {/* Desktop: real sidebar (skeleton header, real tabs) + content skeleton */}
           {renderDesktopTournamentFrame(
-            <TournamentContentSkeleton />,
+            <TournamentSegmentSkeleton activeSegment={activeSegment} />,
             null,
             false
           )}
 
           {/* Mobile: content skeleton only */}
           <Box display={{ base: 'block', md: 'none' }}>
-            <TournamentContentSkeleton />
+            <TournamentSegmentSkeleton activeSegment={activeSegment} />
           </Box>
         </PageLayout>
 

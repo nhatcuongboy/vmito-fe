@@ -5139,7 +5139,11 @@
       "sessionConflict": "您已退出登录，因为您已从另一台设备或浏览器登录。请重新登录。",
       "invalidEmail": "邮箱格式无效",
       "emailRequired": "请填写邮箱",
-      "passwordRequired": "请填写密码"
+      "passwordRequired": "请填写密码",
+      "authenticationErrorTitle": "身份验证错误",
+      "invalidCallbackParameters": "回调参数无效",
+      "redirectingToSignIn": "正在跳转到登录页面...",
+      "completingSignIn": "正在完成登录..."
     },
     "signup": {
       "title": "注册",
