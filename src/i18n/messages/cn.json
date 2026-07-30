@@ -347,6 +347,7 @@
     "status": {
       "all": "所有",
       "preparing": "准备中",
+      "expired": "已过期",
       "inProgress": "进行中",
       "finished": "已结束",
       "cancelled": "已取消"
@@ -714,6 +715,8 @@
     "checkOutThisSession": "Check out this session",
     "downloadImage": "下载图片",
     "imageDownloadSuccess": "图片下载成功",
+    "shareSession": "分享",
+    "moreActions": "更多操作",
     "downloadPortrait": "2:3",
     "downloadSocial": "4:5",
     "shareImageModal": {

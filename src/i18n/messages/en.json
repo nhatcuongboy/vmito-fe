@@ -731,6 +731,8 @@
     "checkOutThisSession": "Check out this session",
     "downloadImage": "Download image",
     "imageDownloadSuccess": "Image downloaded successfully",
+    "shareSession": "Share",
+    "moreActions": "More actions",
     "downloadPortrait": "2:3",
     "downloadSocial": "4:5",
     "shareImageModal": {

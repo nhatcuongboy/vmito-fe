@@ -6,9 +6,14 @@ import { Box, Grid, Icon, Text } from '@chakra-ui/react';
 import 'dayjs/locale/en';
 import 'dayjs/locale/vi';
 import { useLocale, useTranslations } from 'next-intl';
-import { useEffect, useState, useMemo } from 'react';
+import { Fragment, useEffect, useState, useMemo } from 'react';
 import SessionCard from './SessionCard';
-import { SessionCardSkeleton } from './SessionCardSkeleton';
+import {
+  SessionCardCompactSkeleton,
+  SessionCardSkeleton,
+} from './SessionCardSkeleton';
+import { ManagedSessionListCard } from './session-list-card/ManagedSessionListCard';
+import { JoinedSessionListCard } from './session-list-card/JoinedSessionListCard';
 import { RatingStatsProvider } from '@/contexts/RatingStatsContext';
 import { VModal } from '@/components/ui/VModal';
 import AppHostDetail from './AppHostDetail';
@@ -39,6 +44,8 @@ interface SessionsListProps {
   emptyStateDescription?: string;
   /** Show an "Add guest" button on cards where the user already has a registration */
   onAddGuest?: (session: ISession) => void;
+  /** Selects the compact card behavior without changing grid cards or legacy consumers */
+  listCardVariant?: 'legacy' | 'managed' | 'joined';
 }
 
 export default function SessionsList({
@@ -54,6 +61,7 @@ export default function SessionsList({
   emptyStateTitle,
   emptyStateDescription,
   onAddGuest,
+  listCardVariant = 'legacy',
 }: SessionsListProps) {
   const [internalViewMode] = useViewMode('sessions');
   const viewMode = externalViewMode ?? internalViewMode;
@@ -143,17 +151,33 @@ export default function SessionsList({
   }, [filteredSessions]);
 
   if (loading) {
+    const isNewCompactList =
+      viewMode === 'list' && listCardVariant !== 'legacy';
     return (
       <Grid
-        templateColumns={{
-          base: '1fr',
-          md: 'repeat(2, 1fr)',
-          lg: 'repeat(3, 1fr)',
-        }}
-        gap={6}
+        templateColumns={
+          isNewCompactList
+            ? {
+                base: 'minmax(0, 1fr)',
+                md: 'repeat(3, minmax(0, 1fr))',
+                lg: 'repeat(4, minmax(0, 1fr))',
+              }
+            : {
+                base: '1fr',
+                md: 'repeat(2, 1fr)',
+                lg: 'repeat(3, 1fr)',
+              }
+        }
+        gap={isNewCompactList ? { base: 2, md: 3 } : 6}
       >
         {Array.from({ length: 6 }).map((_, index) => (
-          <SessionCardSkeleton key={index} />
+          <Fragment key={index}>
+            {isNewCompactList ? (
+              <SessionCardCompactSkeleton display="flex" />
+            ) : (
+              <SessionCardSkeleton />
+            )}
+          </Fragment>
         ))}
       </Grid>
     );
@@ -193,38 +217,76 @@ export default function SessionsList({
         {filteredSessions.length > 0 && (
           <Grid
             templateColumns={
-              viewMode === 'list'
+              viewMode === 'list' && listCardVariant !== 'legacy'
                 ? {
-                    base: '1fr',
-                    sm: 'repeat(2, 1fr)',
-                    md: 'repeat(3, 1fr)',
-                    lg: 'repeat(4, 1fr)',
+                    base: 'minmax(0, 1fr)',
+                    md: 'repeat(3, minmax(0, 1fr))',
+                    lg: 'repeat(4, minmax(0, 1fr))',
                   }
-                : {
-                    base: '1fr',
-                    md: 'repeat(2, 1fr)',
-                    lg: 'repeat(3, 1fr)',
-                  }
+                : viewMode === 'list'
+                  ? {
+                      base: '1fr',
+                      sm: 'repeat(2, 1fr)',
+                      md: 'repeat(3, 1fr)',
+                      lg: 'repeat(4, 1fr)',
+                    }
+                  : {
+                      base: '1fr',
+                      md: 'repeat(2, 1fr)',
+                      lg: 'repeat(3, 1fr)',
+                    }
             }
-            gap={viewMode === 'list' ? 4 : 6}
+            gap={
+              viewMode === 'list' && listCardVariant !== 'legacy'
+                ? { base: 2, md: 3 }
+                : viewMode === 'list'
+                  ? 4
+                  : 6
+            }
           >
-            {filteredSessions.map((session) => (
-              <SessionCard
-                key={session.id}
-                session={session}
-                onDelete={mode === 'manage' ? handleDelete : undefined}
-                onRefresh={onRefresh}
-                mode={mode}
-                variant={viewMode !== 'map' ? viewMode : 'grid'}
-                onHostClick={() => {
-                  setSelectedSessionForDetail(session);
-                  setIsDetailModalOpen(true);
-                }}
-                showDownloadShareButtons={showDownloadShareButtons}
-                forceViewSessionButton={forceViewSessionButton}
-                onAddGuest={onAddGuest}
-              />
-            ))}
+            {filteredSessions.map((session, index) => {
+              if (viewMode === 'list' && listCardVariant === 'managed') {
+                return (
+                  <ManagedSessionListCard
+                    key={session.id}
+                    session={session}
+                    onDelete={handleDelete}
+                    onRefresh={onRefresh}
+                    imagePriority={index === 0}
+                  />
+                );
+              }
+
+              if (viewMode === 'list' && listCardVariant === 'joined') {
+                return (
+                  <JoinedSessionListCard
+                    key={session.id}
+                    session={session}
+                    onRefresh={onRefresh}
+                    onAddGuest={onAddGuest}
+                    imagePriority={index === 0}
+                  />
+                );
+              }
+
+              return (
+                <SessionCard
+                  key={session.id}
+                  session={session}
+                  onDelete={mode === 'manage' ? handleDelete : undefined}
+                  onRefresh={onRefresh}
+                  mode={mode}
+                  variant={viewMode !== 'map' ? viewMode : 'grid'}
+                  onHostClick={() => {
+                    setSelectedSessionForDetail(session);
+                    setIsDetailModalOpen(true);
+                  }}
+                  showDownloadShareButtons={showDownloadShareButtons}
+                  forceViewSessionButton={forceViewSessionButton}
+                  onAddGuest={onAddGuest}
+                />
+              );
+            })}
           </Grid>
         )}
       </>

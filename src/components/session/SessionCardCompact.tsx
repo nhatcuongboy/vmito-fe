@@ -1,39 +1,14 @@
 'use client';
 
-import { memo, useState } from 'react';
-import {
-  Avatar,
-  Badge,
-  Box,
-  Flex,
-  Icon,
-  Image,
-  Spinner,
-  Stack,
-  Text,
-} from '@chakra-ui/react';
-import { ArrowRight, Clock, Facebook, MapPin } from 'lucide-react';
-import { useLocale, useTranslations } from 'next-intl';
+import { memo } from 'react';
+import { Badge, Icon } from '@chakra-ui/react';
+import { Facebook } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { ISession } from '@/lib/api/types';
-import { Link } from '@/i18n/config';
 import { FavoriteButton } from '@/components/favorites/FavoriteButton';
-import { AppPlayerRating } from '@/components/rating';
-import { FeeService } from '@/lib/api/fee.service';
-import { useLevelLabel } from '@/hooks/useLevelLabel';
-import { getSkillLevelColor } from '@/lib/utils/skillLevel.utils';
-import {
-  VALID_LEVELS,
-  getLevelRank,
-  sortLevelsByRank,
-} from '@/constants/levels';
-import { useAppSettings } from '@/contexts/AppSettingsContext';
-import { normalizeImageUrl } from '@/lib/images/normalizeImageUrl';
-import { COMPACT_COVER_TRANSFORM } from '@/lib/images/coverTransforms';
-import { DEFAULT_COVER_PHOTO } from '@/constants';
-import { formatCompactSessionDate } from '@/utils/session-helpers';
-import { formatTimeRangeByDevicePreference } from '@/utils/time-helpers';
-import { formatVenueName } from '@/utils/venue-helpers';
-import { getSessionLocationName } from '@/utils/session-location';
+import { SessionListCard } from './session-list-card/SessionListCard';
+import { SessionListCardHostRow } from './session-list-card/SessionListCardHostRow';
+import { useSessionListCardViewModel } from './session-list-card/useSessionListCardViewModel';
 
 interface SessionCardCompactProps {
   session: ISession;
@@ -42,14 +17,6 @@ interface SessionCardCompactProps {
   imagePriority?: boolean;
 }
 
-/**
- * Marketplace-style compact card for the find-session page's list view.
- * Mobile: single-column horizontal rows (square photo left, info right);
- * md+: vertical cards (4:3 cover on top) in a 3–4 column grid. One overlay
- * badge + favorite heart, then title / time / venue / levels+price. No
- * action buttons — the whole card links to the session detail page.
- * Other pages keep the legacy list look via BaseSessionCard variant="list".
- */
 const SessionCardCompact = ({
   session,
   userRegistrationStatus = null,
@@ -57,551 +24,89 @@ const SessionCardCompact = ({
   imagePriority = false,
 }: SessionCardCompactProps) => {
   const t = useTranslations('session');
-  const tVenue = useTranslations('venue');
-  const locale = useLocale();
-  const { showNewAddress } = useAppSettings();
-  const { getLevelShortLabel } = useLevelLabel();
-  const [isLoading, setIsLoading] = useState(false);
-
+  const viewModel = useSessionListCardViewModel(session, distance);
   const cardHref = `/sessions/${session.slug || session.id}`;
 
-  const handleCardLinkClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
-    if (
-      event.defaultPrevented ||
-      event.metaKey ||
-      event.ctrlKey ||
-      event.shiftKey ||
-      event.altKey ||
-      event.button !== 0
-    ) {
-      return;
+  const overlayBadge = (() => {
+    if (userRegistrationStatus) {
+      return (
+        <Badge
+          colorPalette={
+            userRegistrationStatus === 'REJECTED' ? 'red' : 'yellow'
+          }
+          variant={userRegistrationStatus === 'APPROVED' ? 'subtle' : 'solid'}
+          borderWidth="1px"
+          borderColor={
+            userRegistrationStatus === 'APPROVED'
+              ? 'yellow.200'
+              : userRegistrationStatus === 'PENDING'
+                ? 'yellow.400'
+                : 'red.400'
+          }
+        >
+          {userRegistrationStatus === 'APPROVED'
+            ? t('registrationApproved')
+            : userRegistrationStatus === 'PENDING'
+              ? t('registrationPending')
+              : t('registrationRejected')}
+        </Badge>
+      );
     }
 
-    setIsLoading(true);
-    // Reset loading after a delay just in case navigation fails or user comes back
-    setTimeout(() => {
-      setIsLoading(false);
-    }, 5000);
-  };
+    if (viewModel.isCrawled) {
+      return (
+        <Badge
+          bg="blackAlpha.600"
+          _dark={{ bg: 'whiteAlpha.200' }}
+          color="white"
+          borderWidth="1px"
+          borderColor="whiteAlpha.200"
+          backdropFilter="blur(4px)"
+          gap={1}
+          px={1.5}
+          whiteSpace="nowrap"
+        >
+          <Icon as={Facebook} boxSize={3} flexShrink={0} />
+          {t('crawledBadge')}
+        </Badge>
+      );
+    }
 
-  // Slot availability (approved players only), same as FindSessionCard
-  const maxPlayers = session.numberOfCourts * session.maxPlayersPerCourt;
-  const approvedPlayersCount = session._count?.players || 0;
-  const availableSlots = maxPlayers - approvedPlayersCount;
-  const isFull = approvedPlayersCount >= maxPlayers;
-  const isCrawled = session.isCrawled === true;
-  const isExpired =
-    session.status === 'PREPARING' &&
-    session.endTime &&
-    new Date(session.endTime) < new Date();
+    if (viewModel.isExpired) return null;
 
-  // Single overlay badge, first match wins: the viewer's own registration
-  // state beats generic availability; crawled sessions get the Facebook
-  // attribution instead of a slot badge, since they have no managed slots;
-  // expired sessions get none.
-  let overlayBadge: React.ReactNode = null;
-  if (userRegistrationStatus) {
-    overlayBadge = (
+    return (
       <Badge
-        colorPalette={userRegistrationStatus === 'REJECTED' ? 'red' : 'yellow'}
-        variant={userRegistrationStatus === 'APPROVED' ? 'subtle' : 'solid'}
-        borderWidth="1px"
-        borderColor={
-          userRegistrationStatus === 'APPROVED'
-            ? 'yellow.200'
-            : userRegistrationStatus === 'PENDING'
-              ? 'yellow.400'
-              : 'red.400'
-        }
-      >
-        {userRegistrationStatus === 'APPROVED'
-          ? t('registrationApproved')
-          : userRegistrationStatus === 'PENDING'
-            ? t('registrationPending')
-            : t('registrationRejected')}
-      </Badge>
-    );
-  } else if (isCrawled) {
-    overlayBadge = (
-      <Badge
-        bg="blackAlpha.600"
-        _dark={{ bg: 'whiteAlpha.200' }}
-        color="white"
-        borderWidth="1px"
-        borderColor="whiteAlpha.200"
-        backdropFilter="blur(4px)"
-        gap={1}
-        px={1.5}
-        whiteSpace="nowrap"
-      >
-        <Icon as={Facebook} boxSize={3} flexShrink={0} />
-        {/* Short label on purpose: the mobile row's 120px thumbnail can't fit
-            "Bài đăng Facebook", and the cover's overflow:hidden would clip it
-            rather than wrap it. */}
-        {t('crawledBadge')}
-      </Badge>
-    );
-  } else if (!isExpired) {
-    overlayBadge = (
-      <Badge
-        colorPalette={isFull ? 'gray' : 'teal'}
+        colorPalette={viewModel.isFull ? 'gray' : 'teal'}
         variant="solid"
         borderWidth="1px"
-        borderColor={isFull ? 'gray.400' : 'teal.400'}
+        borderColor={viewModel.isFull ? 'gray.400' : 'teal.400'}
       >
-        {isFull
+        {viewModel.isFull
           ? t('slotsFull')
-          : t('slotsAvailable', { count: availableSlots })}
+          : t('slotsAvailable', { count: viewModel.availableSlots })}
       </Badge>
     );
-  }
-
-  // "Hôm nay, 20:00-22:00" / "T4 22/07, 20:00-22:00" — one line, must fit
-  // narrow md+ cards, so minimal date + no spaces around the time range dash
-  const dateLabel = formatCompactSessionDate(
-    session.startTime || session.createdAt,
-    locale,
-    { today: t('today'), tomorrow: t('tomorrow') },
-    { minimal: true }
-  );
-  const timeLabel = session.startTime
-    ? formatTimeRangeByDevicePreference(
-        session.startTime,
-        session.endTime
-      ).replace(' - ', '-')
-    : '';
-  const dateTimeLine = timeLabel ? `${dateLabel}, ${timeLabel}` : dateLabel;
-  const isRelativeDay = dateLabel === t('today') || dateLabel === t('tomorrow');
-
-  // "Tên Sân • Quận [• 1.2km]" — no full address on the compact card. The
-  // district/distance segment stays visible; only the name truncates.
-  const venueName = session.venue?.name
-    ? formatVenueName(
-        session.venue.name,
-        tVenue('nameFormat', { name: '{name}' })
-      )
-    : getSessionLocationName(session);
-  // Honor the global "show new address" setting, falling back to whichever
-  // side actually has data so the location segment is never silently
-  // dropped (e.g. a venue with only new-format admin data, district=null).
-  const rawDistrict = showNewAddress
-    ? session.venue?.newDistrict ||
-      session.venue?.district ||
-      session.customLocationDistrict
-    : session.venue?.district ||
-      session.venue?.newDistrict ||
-      session.customLocationDistrict;
-  const rawCity = showNewAddress
-    ? session.venue?.newCity ||
-      session.venue?.city ||
-      session.customLocationCity
-    : session.venue?.city ||
-      session.venue?.newCity ||
-      session.customLocationCity;
-  // "Phường Gò Vấp" → "Gò Vấp" (Chợ Tốt style), but keep the prefix for
-  // numbered wards where the bare remainder would be meaningless ("Phường 5")
-  const district = (rawDistrict || '').replace(
-    /^(Phường|Xã|Thị trấn)\s+(?=\D)/i,
-    ''
-  );
-  const distanceLabel =
-    distance !== undefined
-      ? distance < 1
-        ? `${Math.round(distance * 1000)}m`
-        : `${distance.toFixed(1)}km`
-      : undefined;
-  const venueSuffix = [district || rawCity, distanceLabel]
-    .filter(Boolean)
-    .join(' • ');
-
-  // Levels: min/max shown as a range (arrow) only when the selected levels
-  // are actually contiguous by rank — a range badge for a gappy selection
-  // (e.g. only "Yếu-" and "TB+" picked, skipping everything between) would
-  // visually claim the skipped middle levels are welcome too, which is wrong.
-  const uniqueLevels = sortLevelsByRank(
-    Array.from(new Set(session.requiredLevels || []))
-  );
-  const isAllLevels =
-    uniqueLevels.length === 0 || uniqueLevels.length >= VALID_LEVELS.length;
-  const minLevel = uniqueLevels[0];
-  const maxLevel = uniqueLevels[uniqueLevels.length - 1];
-  const isContiguous = uniqueLevels.every((level, i) => {
-    if (i === 0) return true;
-    const prevRank = getLevelRank(uniqueLevels[i - 1]);
-    const rank = getLevelRank(level);
-    return (
-      prevRank !== undefined && rank !== undefined && rank === prevRank + 1
-    );
-  });
-  const isLevelRange = !isAllLevels && uniqueLevels.length > 1 && isContiguous;
-  // Discrete (non-contiguous) multi-level selection: list actual picks
-  // instead of implying a span. Cap so the row can't overflow the card.
-  // Two, not three: at three the chips are all the same green and read as one
-  // undifferentiated block next to the price rather than as distinct levels.
-  const DISCRETE_LEVEL_CAP = 2;
-  const isDiscreteLevels =
-    !isAllLevels && uniqueLevels.length > 1 && !isContiguous;
-  const shownDiscreteLevels = isDiscreteLevels
-    ? uniqueLevels.slice(0, DISCRETE_LEVEL_CAP)
-    : [];
-  const extraDiscreteLevelCount = isDiscreteLevels
-    ? uniqueLevels.length - shownDiscreteLevels.length
-    : 0;
-  const hiddenDiscreteLevelLabels = uniqueLevels
-    .slice(DISCRETE_LEVEL_CAP)
-    .map(getLevelShortLabel)
-    .join(', ');
-
-  const displayHostName = session.hostName || session.host?.name || '';
-
-  const feeDisplayText = FeeService.getSessionFeeForCard(session);
+  })();
 
   return (
-    <Box
-      h="100%"
-      w="100%"
-      transition="transform 0.15s ease, opacity 0.15s ease"
-      _active={{ transform: 'scale(0.98)', opacity: 0.95 }}
-    >
-      <Box
-        position="relative"
-        borderWidth="1px"
-        // Shadow carries the card's separation; the border is only there to
-        // keep the edge defined in dark mode, so keep it faint rather than
-        // stacking two full-strength layers of chrome.
-        borderColor="border.subtle"
-        borderRadius="xl"
-        overflow="hidden"
-        bg="white"
-        _dark={{ bg: 'gray.800' }}
-        boxShadow="0 2px 8px rgba(0, 0, 0, 0.06), 0 1px 3px rgba(0, 0, 0, 0.04)"
-        transition="box-shadow 0.2s ease, border-color 0.2s ease"
-        _hover={{
-          // brand green (#179a3b), not Tailwind's emerald — the glow has to
-          // match the greens the card already uses for price and slot badge
-          boxShadow:
-            '0 8px 16px rgba(23, 154, 59, 0.12), 0 4px 12px rgba(0, 0, 0, 0.08)',
-          borderColor: 'green.200',
-        }}
-        display="flex"
-        // mobile: horizontal row (square photo left, info right, 1-col list);
-        // md+: vertical card (3:2 cover on top) for the 3–4 column grid
-        flexDirection={{ base: 'row', md: 'column' }}
-        height="100%"
-        cursor="pointer"
-      >
-        <Link
-          href={cardHref}
-          aria-label={session.name}
-          prefetch={false}
-          onClick={handleCardLinkClick}
-          style={{
-            position: 'absolute',
-            inset: 0,
-            display: 'block',
-            zIndex: 1,
-          }}
+    <SessionListCard
+      session={session}
+      href={cardHref}
+      distance={distance}
+      imagePriority={imagePriority}
+      overlayBadge={overlayBadge}
+      identityRow={<SessionListCardHostRow session={session} />}
+      cornerAction={
+        <FavoriteButton
+          type="SESSION"
+          targetId={session.id}
+          isFavorite={session.isFavorite}
+          size="sm"
+          variant={{ base: 'ghost', md: 'overlay' }}
+          returnUrl={cardHref}
         />
-
-        {/* Cover: thumbnail stretching to row height on mobile, 3:2 on md+.
-            Single overlay badge; heart sits at card level. */}
-        <Box
-          position="relative"
-          overflow="hidden"
-          flexShrink={0}
-          w={{ base: '120px', md: 'auto' }}
-          aspectRatio={{ base: 'auto', md: 3 / 2 }}
-        >
-          <Image
-            src={
-              normalizeImageUrl(session.coverPhoto, COMPACT_COVER_TRANSFORM) ||
-              DEFAULT_COVER_PHOTO
-            }
-            alt={session.name}
-            position="absolute"
-            inset={0}
-            w="100%"
-            h="100%"
-            objectFit="cover"
-            // Landscape cover photos get cropped hard by the tall mobile row;
-            // bias upward, where the court and players usually sit.
-            objectPosition="center 40%"
-            loading={imagePriority ? 'eager' : 'lazy'}
-            fetchPriority={imagePriority ? 'high' : 'low'}
-            decoding="async"
-            onError={(e) => {
-              // Hotlinked Facebook images can expire — fall back to default
-              const img = e.currentTarget as HTMLImageElement;
-              if (img.src !== DEFAULT_COVER_PHOTO) {
-                img.src = DEFAULT_COVER_PHOTO;
-              }
-            }}
-          />
-          {overlayBadge && (
-            <Box position="absolute" top={1.5} left={1.5} pointerEvents="none">
-              {overlayBadge}
-            </Box>
-          )}
-        </Box>
-
-        {/* Top-right of the card: over the cover on md+, over the body on
-            the mobile row layout (title reserves space via pr). Hence the
-            responsive variant — the overlay chrome (white pill + shadow) is
-            for sitting on a photo; on the white body it reads as a shadowed
-            white dot on white. */}
-        <Box position="absolute" top={2} right={2} zIndex={3}>
-          <FavoriteButton
-            type="SESSION"
-            targetId={session.id}
-            isFavorite={session.isFavorite}
-            size="sm"
-            variant={{ base: 'ghost', md: 'overlay' }}
-            returnUrl={cardHref}
-          />
-        </Box>
-
-        {/* Body: title / host / time / venue / levels + price */}
-        <Stack
-          p={{ base: 2.5, md: 3 }}
-          gap={{ base: 1, md: 1.5 }}
-          flex="1"
-          minW={0}
-        >
-          {/* Two lines: the name is the main decision signal and a single
-              truncated line cut most of it ("Cầu lông tối thứ 7 - Gia Định B…").
-              On md+ it also evens out card heights across the grid row. */}
-          <Text
-            fontWeight="semibold"
-            fontSize="md"
-            lineHeight={1.35}
-            lineClamp={2}
-            minW={0}
-            pr={{ base: 10, md: 0 }}
-          >
-            {session.name}
-          </Text>
-
-          {/* Session source right under the title: host avatar+name for both
-              app sessions and crawled FB posts. For crawled posts the avatar is
-              the author's FB profile picture and the name is their FB name. */}
-          {isCrawled
-            ? displayHostName && (
-                <Flex align="center" gap={1.5} minW={0}>
-                  <Avatar.Root size="2xs" bg="blue.500" flexShrink={0}>
-                    <Avatar.Fallback name={displayHostName}>
-                      {displayHostName.charAt(0).toUpperCase()}
-                    </Avatar.Fallback>
-                    {session.externalAuthorAvatar && (
-                      <Avatar.Image src={session.externalAuthorAvatar} alt="" />
-                    )}
-                  </Avatar.Root>
-                  <Text
-                    fontSize={{ base: 'xs', md: 'sm' }}
-                    fontWeight="normal"
-                    color="fg.muted"
-                    lineClamp={1}
-                    minW={0}
-                  >
-                    {displayHostName}
-                  </Text>
-                </Flex>
-              )
-            : displayHostName && (
-                <Flex align="center" gap={1.5} minW={0}>
-                  <Avatar.Root size="2xs" bg="brand.500" flexShrink={0}>
-                    <Avatar.Fallback name={displayHostName}>
-                      {displayHostName.charAt(0).toUpperCase()}
-                    </Avatar.Fallback>
-                    {session.host?.image && (
-                      <Avatar.Image
-                        src={normalizeImageUrl(session.host.image)}
-                        // Decorative — the host name is rendered right next to it
-                        alt=""
-                      />
-                    )}
-                  </Avatar.Root>
-                  <Text
-                    fontSize={{ base: 'xs', md: 'sm' }}
-                    fontWeight="normal"
-                    color="fg.muted"
-                    lineClamp={1}
-                    minW={0}
-                  >
-                    {displayHostName}
-                  </Text>
-                  <AppPlayerRating userId={session.hostId} size="xs" />
-                </Flex>
-              )}
-
-          <Flex align="center" gap={1} color="fg.muted">
-            <Icon as={Clock} boxSize={{ base: 3, md: 3.5 }} flexShrink={0} />
-            {/* Play time is a primary signal — darker/bolder than the other
-                meta lines, with an orange accent on today/tomorrow */}
-            <Text
-              fontSize={{ base: 'xs', md: 'sm' }}
-              fontWeight="semibold"
-              color="gray.700"
-              _dark={{ color: 'gray.200' }}
-              lineClamp={1}
-            >
-              {isRelativeDay ? (
-                <>
-                  <Text
-                    as="span"
-                    color="orange.500"
-                    _dark={{ color: 'orange.300' }}
-                  >
-                    {dateLabel}
-                  </Text>
-                  {timeLabel ? `, ${timeLabel}` : ''}
-                </>
-              ) : (
-                dateTimeLine
-              )}
-            </Text>
-          </Flex>
-
-          {(venueName || venueSuffix) && (
-            <Flex align="center" gap={1} color="fg.muted">
-              <Icon as={MapPin} boxSize={{ base: 3, md: 3.5 }} flexShrink={0} />
-              {venueName && (
-                <Text fontSize={{ base: 'xs', md: 'sm' }} truncate minW={0}>
-                  {venueName}
-                </Text>
-              )}
-              {venueSuffix && (
-                <Text
-                  fontSize={{ base: 'xs', md: 'sm' }}
-                  truncate
-                  flexShrink={0}
-                  maxW="75%"
-                >
-                  {venueName ? `• ${venueSuffix}` : venueSuffix}
-                </Text>
-              )}
-            </Flex>
-          )}
-
-          {/* wrap + ml-auto price: when the chip + price don't fit one line
-              the price drops to its own line, still right-aligned */}
-          <Flex
-            align="center"
-            wrap="wrap"
-            columnGap={1}
-            rowGap={0.5}
-            mt="auto"
-            pt={1}
-          >
-            <Flex align="center" gap={1} flexShrink={0}>
-              {isAllLevels ? (
-                <Badge
-                  colorPalette="gray"
-                  variant="subtle"
-                  fontSize="xs"
-                  px={1.5}
-                >
-                  {t('allLevelsShort')}
-                </Badge>
-              ) : isDiscreteLevels ? (
-                // Non-contiguous picks: list them, no arrow — an arrow would
-                // wrongly imply the skipped levels in between are welcome too
-                <>
-                  {shownDiscreteLevels.map((level) => (
-                    <Badge
-                      key={level}
-                      colorPalette={getSkillLevelColor([level]).colorPalette}
-                      variant="solid"
-                      fontSize="xs"
-                      px={1.5}
-                    >
-                      {getLevelShortLabel(level)}
-                    </Badge>
-                  ))}
-                  {extraDiscreteLevelCount > 0 && (
-                    <Badge
-                      colorPalette="gray"
-                      variant="subtle"
-                      fontSize="xs"
-                      px={1.5}
-                      // The capped levels aren't lost, just not shown — name
-                      // them so "+2" is answerable without opening the card
-                      title={hiddenDiscreteLevelLabels}
-                      aria-label={hiddenDiscreteLevelLabels}
-                    >
-                      +{extraDiscreteLevelCount}
-                    </Badge>
-                  )}
-                </>
-              ) : (
-                <>
-                  <Badge
-                    colorPalette={getSkillLevelColor([minLevel]).colorPalette}
-                    variant="solid"
-                    fontSize="xs"
-                    px={1.5}
-                  >
-                    {getLevelShortLabel(minLevel)}
-                  </Badge>
-                  {isLevelRange && (
-                    <>
-                      <Icon
-                        as={ArrowRight}
-                        boxSize={3}
-                        color="gray.400"
-                        _dark={{ color: 'gray.500' }}
-                        flexShrink={0}
-                      />
-                      <Badge
-                        colorPalette={
-                          getSkillLevelColor([maxLevel]).colorPalette
-                        }
-                        variant="solid"
-                        fontSize="xs"
-                        px={1.5}
-                      >
-                        {getLevelShortLabel(maxLevel)}
-                      </Badge>
-                    </>
-                  )}
-                </>
-              )}
-            </Flex>
-
-            {feeDisplayText && (
-              <Text
-                // Match the title's desktop scale while color and weight keep
-                // the price easy to scan without overpowering the hierarchy.
-                fontSize={{ base: 'sm', md: 'md' }}
-                fontWeight="bold"
-                color="green.600"
-                _dark={{ color: 'green.300' }}
-                whiteSpace="nowrap"
-                flexShrink={0}
-                ml="auto"
-              >
-                {feeDisplayText}
-              </Text>
-            )}
-          </Flex>
-        </Stack>
-
-        {/* Loading overlay — mirrors BaseSessionCard's tap feedback so the
-            card doesn't feel unresponsive during the route transition */}
-        {isLoading && (
-          <Flex
-            position="absolute"
-            inset={0}
-            bg="whiteAlpha.700"
-            _dark={{ bg: 'blackAlpha.700' }}
-            align="center"
-            justify="center"
-            zIndex={10}
-          >
-            <Spinner size="lg" color="green.500" />
-          </Flex>
-        )}
-      </Box>
-    </Box>
+      }
+    />
   );
 };
 

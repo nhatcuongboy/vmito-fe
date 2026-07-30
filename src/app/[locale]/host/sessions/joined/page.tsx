@@ -6,10 +6,20 @@ import { SessionService } from '@/lib/api/session.service';
 import { ISession, UserRole, SessionStatus } from '@/lib/api/types';
 import { Box, Flex, Grid, Spinner, Text } from '@chakra-ui/react';
 import { useTranslations } from 'next-intl';
-import { Suspense, useEffect, useState, useMemo, useRef } from 'react';
+import {
+  Fragment,
+  Suspense,
+  useEffect,
+  useState,
+  useMemo,
+  useRef,
+} from 'react';
 import { useInView } from 'react-intersection-observer';
 import SessionsList from '@/components/session/SessionsList';
-import { SessionCardSkeleton } from '@/components/session/SessionCardSkeleton';
+import {
+  SessionCardCompactSkeleton,
+  SessionCardSkeleton,
+} from '@/components/session/SessionCardSkeleton';
 import { useAuthStore } from '@/stores/useAuthStore';
 import PageLayout from '@/components/layout/PageLayout';
 import { useRouter } from '@/i18n/config';
@@ -359,6 +369,7 @@ function PlayerSessionsContent() {
             mode="view"
             onRefresh={fetchPlayerSessions}
             viewMode={viewMode}
+            listCardVariant="joined"
             forceViewSessionButton={true}
             showDownloadShareButtons={true}
             onAddGuest={handleAddGuestClick}
@@ -380,15 +391,29 @@ function PlayerSessionsContent() {
           {hasMore && filteredSessions.length >= PAGE_SIZE && !loading && (
             <Box ref={ref} mt={8} mb={10} width="full">
               <Grid
-                templateColumns={{
-                  base: '1fr',
-                  md: 'repeat(2, 1fr)',
-                  lg: 'repeat(3, 1fr)',
-                }}
-                gap={6}
+                templateColumns={
+                  viewMode === 'list'
+                    ? {
+                        base: 'minmax(0, 1fr)',
+                        md: 'repeat(3, minmax(0, 1fr))',
+                        lg: 'repeat(4, minmax(0, 1fr))',
+                      }
+                    : {
+                        base: '1fr',
+                        md: 'repeat(2, 1fr)',
+                        lg: 'repeat(3, 1fr)',
+                      }
+                }
+                gap={viewMode === 'list' ? { base: 2, md: 3 } : 6}
               >
                 {Array.from({ length: 3 }).map((_, index) => (
-                  <SessionCardSkeleton key={index} />
+                  <Fragment key={index}>
+                    {viewMode === 'list' ? (
+                      <SessionCardCompactSkeleton />
+                    ) : (
+                      <SessionCardSkeleton variant={viewMode} />
+                    )}
+                  </Fragment>
                 ))}
               </Grid>
               <Flex justify="center" mt={4}>

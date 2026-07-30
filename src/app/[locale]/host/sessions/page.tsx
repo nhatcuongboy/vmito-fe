@@ -7,10 +7,20 @@ import { Box, Flex, Grid, Spinner, Text } from '@chakra-ui/react';
 
 import { useAuthStore } from '@/stores/useAuthStore';
 import { useTranslations } from 'next-intl';
-import { Suspense, useEffect, useState, useMemo, useRef } from 'react';
+import {
+  Fragment,
+  Suspense,
+  useEffect,
+  useState,
+  useMemo,
+  useRef,
+} from 'react';
 import { useInView } from 'react-intersection-observer';
 import SessionsList from '@/components/session/SessionsList';
-import { SessionCardSkeleton } from '@/components/session/SessionCardSkeleton';
+import {
+  SessionCardCompactSkeleton,
+  SessionCardSkeleton,
+} from '@/components/session/SessionCardSkeleton';
 import PageLayout from '@/components/layout/PageLayout';
 import { useRouter } from '@/i18n/config';
 import { useSearchParams } from 'next/navigation';
@@ -420,6 +430,7 @@ function HostSessionsContent() {
             hasMoreSessions={hasMore}
             expiredCount={expiredCount ?? undefined}
             viewMode={viewMode}
+            listCardVariant="managed"
             showDownloadShareButtons={true}
             emptyStateTitle={
               sessionStatusTab === 'active'
@@ -462,15 +473,29 @@ function HostSessionsContent() {
           {hasMore && sessions.length >= PAGE_SIZE && !loading && (
             <Box ref={ref} mt={8} mb={10} width="full">
               <Grid
-                templateColumns={{
-                  base: '1fr',
-                  md: 'repeat(2, 1fr)',
-                  lg: 'repeat(3, 1fr)',
-                }}
-                gap={6}
+                templateColumns={
+                  viewMode === 'list'
+                    ? {
+                        base: 'minmax(0, 1fr)',
+                        md: 'repeat(3, minmax(0, 1fr))',
+                        lg: 'repeat(4, minmax(0, 1fr))',
+                      }
+                    : {
+                        base: '1fr',
+                        md: 'repeat(2, 1fr)',
+                        lg: 'repeat(3, 1fr)',
+                      }
+                }
+                gap={viewMode === 'list' ? { base: 2, md: 3 } : 6}
               >
                 {Array.from({ length: 3 }).map((_, index) => (
-                  <SessionCardSkeleton key={index} />
+                  <Fragment key={index}>
+                    {viewMode === 'list' ? (
+                      <SessionCardCompactSkeleton />
+                    ) : (
+                      <SessionCardSkeleton variant={viewMode} />
+                    )}
+                  </Fragment>
                 ))}
               </Grid>
               <Flex justify="center" mt={4}>
