@@ -90,6 +90,8 @@ export function isNavLinkActive(
 }
 
 const isAdmin = (ctx: NavContext) => ctx.user?.role === UserRole.ADMIN;
+const isAdminOrHost = (ctx: NavContext) =>
+  ctx.user?.role === UserRole.ADMIN || ctx.user?.role === UserRole.HOST;
 
 export const NAV_SECTIONS: NavSectionConfig[] = [
   {
@@ -150,13 +152,14 @@ export const NAV_SECTIONS: NavSectionConfig[] = [
         icon: CalendarCheck,
         label: (t) => t.nav('myRentals'),
         getHref: () => '/my/rentals',
+        isVisible: isAdminOrHost,
       },
       {
         key: 'managedVenueRentals',
         icon: CalendarDays,
         label: (t) => t.nav('managedVenueRentals'),
         getHref: () => '/manage/venues',
-        isVisible: (ctx) => ctx.hasManagedVenues,
+        isVisible: (ctx) => isAdminOrHost(ctx) && ctx.hasManagedVenues,
       },
       {
         key: 'tournaments',
