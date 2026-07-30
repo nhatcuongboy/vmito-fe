@@ -1634,7 +1634,8 @@
           "PREPARING": "Sắp diễn ra",
           "IN_PROGRESS": "Đang diễn ra",
           "FINISHED": "Đã kết thúc",
-          "CANCELLED": "Đã hủy"
+          "CANCELLED": "Đã hủy",
+          "all": "Tất cả"
         },
         "period": {
           "title": "Thời gian",
@@ -1657,7 +1658,7 @@
         }
       },
       "sort": {
-        "startDate": "Sắp diễn ra",
+        "startDate": "Ngày gần nhất",
         "newest": "Mới tạo",
         "nameAsc": "Tên A-Z",
         "nameDesc": "Tên Z-A"
@@ -1949,7 +1950,7 @@
           },
           "venues": {
             "title": "Địa điểm",
-            "manage": "Quản lý địa điểm",
+            "manage": "Quản lý",
             "directions": "Chỉ đường"
           },
           "contact": {
@@ -4338,7 +4339,19 @@
           "PARTICIPANTS": "Người chơi & đăng ký",
           "STRUCTURE": "Hạng mục & thể thức"
         }
-      }
+      },
+      "resultCount": "{count} giải đấu",
+      "card": {
+        "daysLeft": "Còn {days} ngày",
+        "startsToday": "Bắt đầu hôm nay",
+        "startsTomorrow": "Bắt đầu ngày mai",
+        "teams": "{count} đội",
+        "playersCount": "{count} người chơi",
+        "categoryCount": "{count} nội dung",
+        "moreCategories": "+{count}"
+      },
+      "loadError": "Lỗi tải giải đấu",
+      "retry": "Thử lại"
     },
     "join": {
       "title": "Tham gia kèo",
@@ -7143,7 +7156,10 @@
       "completeRefund": "Hoàn tất hoàn tiền",
       "confirmRefund": "Xác nhận đã hoàn tiền",
       "method": "Phương thức",
-      "methodValue": { "BANK_TRANSFER": "Chuyển khoản", "CASH": "Tiền mặt" },
+      "methodValue": {
+        "BANK_TRANSFER": "Chuyển khoản",
+        "CASH": "Tiền mặt"
+      },
       "purposeLabel": "Loại thanh toán",
       "purpose": {
         "DEPOSIT": "Đặt cọc",
@@ -7179,7 +7195,9 @@
         "balanceOverdue": "Phần còn lại quá hạn",
         "refundPending": "Chờ hoàn tiền"
       },
-      "messages": { "updated": "Đã cập nhật giao dịch" },
+      "messages": {
+        "updated": "Đã cập nhật giao dịch"
+      },
       "errors": {
         "action": "Không thể xử lý giao dịch",
         "invalidProof": "Chỉ nhận ảnh chứng từ tối đa 5 MB.",

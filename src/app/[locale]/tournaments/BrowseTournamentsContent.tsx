@@ -1,14 +1,17 @@
 'use client';
 
 import { AppSearchBar } from '@/components/common/AppSearchBar';
-import { FavoriteButton } from '@/components/favorites/FavoriteButton';
 import PageLayout from '@/components/layout/PageLayout';
 import { TournamentCardsGridSkeleton } from '@/components/tournament/skeletons';
+import TournamentCard from '@/components/tournament/TournamentCard';
 import TournamentFilterDrawer, {
   ITournamentBrowseFilters,
   TTournamentPeriod,
 } from '@/components/tournament/TournamentFilterDrawer';
+import TournamentSortMenu from '@/components/tournament/TournamentSortMenu';
+import { TournamentStatusTabs } from '@/components/tournament/TournamentStatusTabs';
 import AppEmptyState from '@/components/ui/AppEmptyState';
+import AppErrorState from '@/components/ui/AppErrorState';
 import { useDisclosure } from '@/components/ui/ChakraHooks';
 import { Button, SimpleGrid } from '@/components/ui/chakra-compat';
 import { FilterChip } from '@/components/ui/FilterChip';
@@ -25,31 +28,19 @@ import {
   useUrlFilters,
 } from '@/hooks/useUrlFilters';
 import { useRouter } from '@/i18n/config';
+import {
+  classifyApiError,
+  getUserFacingErrorMessage,
+  logApiError,
+  type ApiErrorKind,
+} from '@/lib/api/apiError';
 import { TournamentService } from '@/lib/api/tournament.service';
 import { SportType, Tournament, TournamentStatus } from '@/lib/api/types';
 import { usePreferenceStore } from '@/stores/usePreferenceStore';
-import { getPrimaryVenueDisplay } from '@/utils';
-import {
-  Badge,
-  Box,
-  Flex,
-  Heading,
-  Image,
-  Text,
-  VStack,
-} from '@chakra-ui/react';
-import {
-  ArrowDownAZ,
-  CalendarArrowDown,
-  Check,
-  ChevronDown,
-  Plus,
-  Swords,
-} from 'lucide-react';
-import { useLocale, useTranslations } from 'next-intl';
-import { Suspense, useEffect, useRef, useState } from 'react';
-
-const BADMINTON_PLACEHOLDER = '/icons/app-logo.png';
+import { Box, Flex, Heading, HStack, Text, VStack } from '@chakra-ui/react';
+import { Plus, Swords } from 'lucide-react';
+import { useTranslations } from 'next-intl';
+import { Suspense, useEffect, useState } from 'react';
 
 const TOURNAMENT_FILTERS_SCHEMA = {
   q: stringField(''),
@@ -99,23 +90,20 @@ const getDateBounds = (
   };
 };
 
-const isSameCalendarDay = (first: Date, second: Date) =>
-  first.getFullYear() === second.getFullYear() &&
-  first.getMonth() === second.getMonth() &&
-  first.getDate() === second.getDate();
-
 function TournamentsContent() {
   const t = useTranslations('pages.tournaments');
-  const locale = useLocale();
   const router = useRouter();
   const { preferredCity } = usePreferenceStore();
   const [tournaments, setTournaments] = useState<Tournament[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<{
+    kind: ApiErrorKind;
+    message: string;
+  } | null>(null);
+  const [reloadToken, setReloadToken] = useState(0);
   const [filters, setFilters] = useUrlFilters(TOURNAMENT_FILTERS_SCHEMA);
   const [keyword, setKeyword] = useState(filters.q);
   const { isOpen: showFilters, onToggle: toggleFilters } = useDisclosure(false);
-  const [isSortOpen, setIsSortOpen] = useState(false);
-  const sortRef = useRef<HTMLDivElement>(null);
 
   const statuses = filters.status.filter((status): status is TournamentStatus =>
     Object.values(TournamentStatus).includes(status as TournamentStatus)
@@ -170,6 +158,7 @@ function TournamentsContent() {
     const loadTournaments = async () => {
       try {
         setLoading(true);
+        setError(null);
         const dateBounds = getDateBounds(period, filters.from, filters.to);
         const selectedCities =
           filters.city.length > 0
@@ -205,8 +194,17 @@ function TournamentsContent() {
           publishedOnly: true,
         });
         if (isActive) setTournaments(data);
-      } catch (error) {
-        console.error('Error loading tournaments:', error);
+      } catch (caught) {
+        logApiError(caught);
+        // A failed fetch used to fall through to the "no tournaments found"
+        // empty state, which reads as "none exist" rather than "try again".
+        if (isActive) {
+          setTournaments([]);
+          setError({
+            kind: classifyApiError(caught),
+            message: getUserFacingErrorMessage(caught),
+          });
+        }
       } finally {
         if (isActive) setLoading(false);
       }
@@ -228,94 +226,15 @@ function TournamentsContent() {
     filters.sort,
     filters.favorite,
     preferredCity,
+    reloadToken,
   ]);
 
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (sortRef.current && !sortRef.current.contains(event.target as Node)) {
-        setIsSortOpen(false);
-      }
-    };
-    if (isSortOpen) document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [isSortOpen]);
-
-  const getStatusBadgeLabel = (status: TournamentStatus): string | null => {
-    if (status === TournamentStatus.PREPARING) return null;
-    return t(`filters.status.${status}`);
-  };
-
-  const getStatusBadgeColor = (status: TournamentStatus) => {
-    switch (status) {
-      case TournamentStatus.PREPARING:
-        return { bg: 'green.600', color: 'white' };
-      case TournamentStatus.IN_PROGRESS:
-        return { bg: 'blue.600', color: 'white' };
-      case TournamentStatus.FINISHED:
-        return { bg: 'gray.900', color: 'white' };
-      case TournamentStatus.CANCELLED:
-        return { bg: 'red.600', color: 'white' };
-    }
-  };
-
-  const formatDateRange = (startDate: Date, endDate: Date) => {
-    const start = new Date(startDate);
-    const end = new Date(endDate);
-    const fullFormatter = new Intl.DateTimeFormat(locale, {
-      weekday: 'short',
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric',
-    });
-    const shortFormatter = new Intl.DateTimeFormat(locale, {
-      weekday: 'short',
-      month: 'short',
-      day: 'numeric',
-    });
-    if (isSameCalendarDay(start, end)) return fullFormatter.format(start);
-    if (
-      start.getMonth() === end.getMonth() &&
-      start.getFullYear() === end.getFullYear()
-    ) {
-      return `${shortFormatter.format(start)} - ${fullFormatter.format(end)}`;
-    }
-    return `${fullFormatter.format(start)} - ${fullFormatter.format(end)}`;
-  };
-
-  const getLocationText = (tournament: Tournament) => {
-    const venue = getPrimaryVenueDisplay(tournament);
-    if (!venue) return null;
-    const parts: string[] = [];
-    if (venue.name) {
-      parts.push(venue.name);
-      const district = venue.newDistrict || venue.district;
-      const city = venue.newCity || venue.city;
-      if (district) parts.push(district);
-      if (city && city !== district) parts.push(city);
-    } else if (venue.address) {
-      parts.push(venue.address);
-    }
-    return parts.filter(Boolean).join(', ') || null;
-  };
-
-  const getCoverImage = (tournament: Tournament) => {
-    if (tournament.coverPhoto) return tournament.coverPhoto;
-    const venue = getPrimaryVenueDisplay(tournament);
-    if (venue?.coverPhoto) return venue.coverPhoto;
-    if (venue?.images?.length) return venue.images[0];
-    return BADMINTON_PLACEHOLDER;
-  };
-
-  const sortOptions = [
-    { value: 'start_asc', label: t('sort.startDate'), icon: CalendarArrowDown },
-    { value: 'newest', label: t('sort.newest'), icon: CalendarArrowDown },
-    { value: 'name_asc', label: t('sort.nameAsc'), icon: ArrowDownAZ },
-    { value: 'name_desc', label: t('sort.nameDesc'), icon: ArrowDownAZ },
-  ];
-  const activeSort =
-    sortOptions.find((option) => option.value === filters.sort) ??
-    sortOptions[0];
-  const ActiveSortIcon = activeSort.icon;
+  const handleFavoriteChange = (tournamentId: string, isFavorite: boolean) =>
+    setTournaments((current) =>
+      current.map((item) =>
+        item.id === tournamentId ? { ...item, isFavorite } : item
+      )
+    );
 
   const handleApplyFilters = (nextFilters: ITournamentBrowseFilters) => {
     setFilters({
@@ -366,7 +285,7 @@ function TournamentsContent() {
       _dark={{ bg: 'gray.900' }}
       minH="100vh"
     >
-      <VStack gap={6} alignItems="stretch">
+      <VStack gap={{ base: 3, md: 4 }} alignItems="stretch">
         <Box
           position="fixed"
           top={`calc(${TOP_BAR_HEIGHT_MOBILE}px + env(safe-area-inset-top))`}
@@ -391,96 +310,51 @@ function TournamentsContent() {
           </Box>
         </Box>
 
-        <Flex
-          justify="flex-end"
-          mt={2}
-          mb={3}
-          display={{ base: 'none', md: 'flex' }}
-        >
-          <Button
-            colorPalette="green"
-            size="sm"
-            onClick={() => router.push('/host/tournaments/new')}
-          >
-            <Plus size={16} />
-            {t('createTournament')}
-          </Button>
-        </Flex>
-
-        <Flex justify="flex-end" align="center" gap={2} minH="32px">
-          <Box position="relative" ref={sortRef}>
-            <Button
-              variant="outline"
-              size="sm"
-              borderRadius="full"
-              onClick={() => setIsSortOpen((value) => !value)}
-            >
-              <ActiveSortIcon size={14} />
-              <Text display={{ base: 'none', md: 'inline' }}>
-                {activeSort.label}
+        {/* Title, result count, sort and create in a single row — these used
+            to be two right-aligned rows with ~60px of dead space between them
+            and no heading to anchor the page. */}
+        <Flex justify="space-between" align="flex-end" gap={3}>
+          <Box display={{ base: 'none', md: 'block' }} minW={0}>
+            <Heading size="lg" color="fg">
+              {t('title')}
+            </Heading>
+            {!loading && !error && (
+              <Text fontSize="sm" color="fg.muted" mt={0.5}>
+                {t('resultCount', { count: tournaments.length })}
               </Text>
-              <ChevronDown size={14} />
-            </Button>
-            {isSortOpen && (
-              <Box
-                position="absolute"
-                right={0}
-                top="calc(100% + 6px)"
-                bg="bg"
-                border="1px solid"
-                borderColor="border"
-                borderRadius="md"
-                boxShadow="lg"
-                minW="190px"
-                py={1}
-                zIndex={20}
-              >
-                {sortOptions.map((option) => {
-                  const OptionIcon = option.icon;
-                  const isSelected = option.value === activeSort.value;
-                  return (
-                    <Flex
-                      key={option.value}
-                      align="center"
-                      gap={2}
-                      px={3}
-                      py={2}
-                      cursor="pointer"
-                      color={isSelected ? 'green.600' : 'fg'}
-                      bg={isSelected ? 'green.50' : 'transparent'}
-                      _dark={{ bg: isSelected ? 'green.900' : 'transparent' }}
-                      onClick={() => {
-                        setFilters({ sort: option.value });
-                        setIsSortOpen(false);
-                      }}
-                    >
-                      <OptionIcon size={14} />
-                      <Text flex={1} fontSize="sm">
-                        {option.label}
-                      </Text>
-                      {isSelected && <Check size={14} />}
-                    </Flex>
-                  );
-                })}
-              </Box>
             )}
           </Box>
+
+          <HStack gap={2} ml="auto" flexShrink={0}>
+            <TournamentSortMenu
+              value={filters.sort}
+              onChange={(nextSort) => setFilters({ sort: nextSort })}
+            />
+
+            {/* Mobile had no way to create a tournament at all. */}
+            <Button
+              colorPalette="green"
+              size="sm"
+              borderRadius="full"
+              aria-label={t('createTournament')}
+              onClick={() => router.push('/host/tournaments/new')}
+            >
+              <Plus size={16} />
+              <Text display={{ base: 'none', md: 'inline' }}>
+                {t('createTournament')}
+              </Text>
+            </Button>
+          </HStack>
         </Flex>
 
-        {activeFilterCount > 0 && (
+        <TournamentStatusTabs
+          value={statuses}
+          onChange={(nextStatuses) => setFilters({ status: nextStatuses })}
+        />
+
+        {/* Status is represented by the tabs above, so it is not repeated here. */}
+        {activeFilterCount - statuses.length > 0 && (
           <Flex gap={2} flexWrap="wrap">
-            {statuses.map((status) => (
-              <FilterChip
-                key={status}
-                label={t(`filters.status.${status}`)}
-                colorPalette="green"
-                onRemove={() =>
-                  setFilters({
-                    status: statuses.filter((value) => value !== status),
-                  })
-                }
-              />
-            ))}
             {period !== 'all' && (
               <FilterChip
                 label={t(`filters.period.${period}`)}
@@ -530,120 +404,50 @@ function TournamentsContent() {
 
         {loading ? (
           <TournamentCardsGridSkeleton />
+        ) : error ? (
+          <AppErrorState
+            minH={{ base: '300px', md: '340px' }}
+            type={error.kind === 'client' ? 'generic' : error.kind}
+            title={t('loadError')}
+            description={error.message}
+            retryLabel={t('retry')}
+            onRetry={() => setReloadToken((token) => token + 1)}
+          />
         ) : tournaments.length === 0 ? (
           <AppEmptyState
             minH={{ base: '300px', md: '340px' }}
-            icon={<Swords size={40} color="var(--chakra-colors-gray-400)" />}
+            bg="bg"
+            borderColor="green.100"
+            icon={<Swords size={40} color="var(--chakra-colors-green-400)" />}
             title={t('noTournamentsFound')}
             description={
               filters.q || activeFilterCount ? t('noResultsDescription') : null
             }
+            actions={
+              <Button
+                colorPalette="green"
+                size="sm"
+                borderRadius="full"
+                onClick={() => router.push('/host/tournaments/new')}
+              >
+                <Plus size={16} />
+                {t('createTournament')}
+              </Button>
+            }
           />
         ) : (
-          <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={5}>
-            {tournaments.map((tournament) => {
-              const coverImage = getCoverImage(tournament);
-              const isPlaceholder = coverImage === BADMINTON_PLACEHOLDER;
-              const badgeLabel = getStatusBadgeLabel(tournament.status);
-              const badgeColor = getStatusBadgeColor(tournament.status);
-              const locationText = getLocationText(tournament);
-              return (
-                <Box
-                  key={tournament.id}
-                  bg="bg"
-                  borderRadius="xl"
-                  overflow="hidden"
-                  border="1px solid"
-                  borderColor="border"
-                  cursor="pointer"
-                  transition="all 0.25s ease"
-                  _hover={{
-                    boxShadow: '0 8px 30px rgba(0, 0, 0, 0.1)',
-                    transform: 'translateY(-3px)',
-                  }}
-                  onClick={() =>
-                    router.push(
-                      `/tournament/${tournament.slug ?? tournament.id}`
-                    )
-                  }
-                >
-                  <Box
-                    position="relative"
-                    h="180px"
-                    bg="bg.muted"
-                    overflow="hidden"
-                  >
-                    <Image
-                      src={coverImage}
-                      alt={tournament.name}
-                      w="100%"
-                      h="100%"
-                      objectFit={isPlaceholder ? 'contain' : 'cover'}
-                      objectPosition="center"
-                      p={isPlaceholder ? 8 : 0}
-                      opacity={isPlaceholder ? 0.6 : 1}
-                    />
-                    {badgeLabel && (
-                      <Badge
-                        position="absolute"
-                        top={3}
-                        right={3}
-                        bg={badgeColor.bg}
-                        color={badgeColor.color}
-                        fontSize="xs"
-                        fontWeight="bold"
-                        px={3}
-                        py={1.5}
-                        borderRadius="md"
-                        shadow="md"
-                      >
-                        {badgeLabel}
-                      </Badge>
-                    )}
-                    <Box position="absolute" bottom={3} right={3} zIndex={3}>
-                      <FavoriteButton
-                        type="TOURNAMENT"
-                        targetId={tournament.id}
-                        isFavorite={tournament.isFavorite}
-                        returnUrl={`/tournament/${tournament.slug ?? tournament.id}`}
-                        onChange={(nextValue) =>
-                          setTournaments((current) =>
-                            current.map((item) =>
-                              item.id === tournament.id
-                                ? { ...item, isFavorite: nextValue }
-                                : item
-                            )
-                          )
-                        }
-                      />
-                    </Box>
-                  </Box>
-                  <Box p={4}>
-                    <VStack align="stretch" gap={2}>
-                      <Text fontSize="xs" color="fg.muted" fontWeight="medium">
-                        {formatDateRange(
-                          tournament.startDate,
-                          tournament.endDate
-                        )}
-                      </Text>
-                      <Heading
-                        size="sm"
-                        color="fg"
-                        fontWeight="bold"
-                        lineClamp={2}
-                      >
-                        {tournament.name}
-                      </Heading>
-                      {locationText && (
-                        <Text fontSize="xs" color="blue.600" lineClamp={2}>
-                          {locationText}
-                        </Text>
-                      )}
-                    </VStack>
-                  </Box>
-                </Box>
-              );
-            })}
+          <SimpleGrid
+            columns={{ base: 1, md: 2, lg: 3, xl: 4 }}
+            spacing={{ base: 3, md: 5 }}
+          >
+            {tournaments.map((tournament, index) => (
+              <TournamentCard
+                key={tournament.id}
+                tournament={tournament}
+                imagePriority={index < 4}
+                onFavoriteChange={handleFavoriteChange}
+              />
+            ))}
           </SimpleGrid>
         )}
       </VStack>

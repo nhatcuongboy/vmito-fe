@@ -9,6 +9,10 @@ interface AppEmptyStateProps {
   actions?: ReactNode;
   minH?: ConditionalValue<string | number>;
   maxW?: ConditionalValue<string | number>;
+  /** Override the default grey wash — e.g. on a tinted page background. */
+  bg?: ConditionalValue<string>;
+  /** Override the default grey dashed border to match the surrounding page. */
+  borderColor?: ConditionalValue<string>;
 }
 
 export default function AppEmptyState({
@@ -18,6 +22,8 @@ export default function AppEmptyState({
   actions,
   minH,
   maxW = '100%',
+  bg = 'linear-gradient(180deg, #fafafa 0%, #f5f5f5 100%)',
+  borderColor = 'gray.200',
 }: AppEmptyStateProps) {
   const resolvedDescription =
     description === undefined
@@ -27,14 +33,14 @@ export default function AppEmptyState({
   return (
     <Card
       variant="outline"
-      bg="linear-gradient(180deg, #fafafa 0%, #f5f5f5 100%)"
+      bg={bg}
       _dark={{
         bg: 'linear-gradient(180deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.01) 100%)',
         borderColor: 'gray.800',
       }}
       borderStyle="dashed"
       borderWidth="2px"
-      borderColor="gray.200"
+      borderColor={borderColor}
       borderRadius="2xl"
       width="100%"
       maxW={maxW}

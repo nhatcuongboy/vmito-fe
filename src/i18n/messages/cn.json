@@ -1604,7 +1604,8 @@
           "PREPARING": "即将开始",
           "IN_PROGRESS": "进行中",
           "FINISHED": "已结束",
-          "CANCELLED": "已取消"
+          "CANCELLED": "已取消",
+          "all": "全部"
         },
         "period": {
           "title": "时间",
@@ -4292,7 +4293,19 @@
           "PARTICIPANTS": "选手与报名",
           "STRUCTURE": "项目与赛制"
         }
-      }
+      },
+      "resultCount": "{count} 场比赛",
+      "card": {
+        "daysLeft": "还有 {days} 天",
+        "startsToday": "今天开始",
+        "startsTomorrow": "明天开始",
+        "teams": "{count} 支队伍",
+        "playersCount": "{count} 位选手",
+        "categoryCount": "{count} 个项目",
+        "moreCategories": "+{count}"
+      },
+      "loadError": "无法加载比赛",
+      "retry": "重试"
     },
     "join": {
       "title": "加入场次",
@@ -7082,9 +7095,16 @@
       "completeRefund": "完成退款",
       "confirmRefund": "确认退款完成",
       "method": "方式",
-      "methodValue": { "BANK_TRANSFER": "银行转账", "CASH": "现金" },
+      "methodValue": {
+        "BANK_TRANSFER": "银行转账",
+        "CASH": "现金"
+      },
       "purposeLabel": "付款类型",
-      "purpose": { "DEPOSIT": "定金", "BALANCE": "尾款", "REFUND": "退款" },
+      "purpose": {
+        "DEPOSIT": "定金",
+        "BALANCE": "尾款",
+        "REFUND": "退款"
+      },
       "depositStatus": {
         "UNPAID": "未付款",
         "SUBMITTED": "待审核",
@@ -7105,13 +7125,18 @@
         "EXPIRED": "已过期",
         "CANCELLED": "已取消"
       },
-      "filters": { "allPurposes": "所有类型", "allStatuses": "所有状态" },
+      "filters": {
+        "allPurposes": "所有类型",
+        "allStatuses": "所有状态"
+      },
       "dashboard": {
         "depositDue": "定金即将到期",
         "balanceOverdue": "尾款已逾期",
         "refundPending": "退款待处理"
       },
-      "messages": { "updated": "交易已更新" },
+      "messages": {
+        "updated": "交易已更新"
+      },
       "errors": {
         "action": "无法处理交易",
         "invalidProof": "请上传不超过 5 MB 的图片。",

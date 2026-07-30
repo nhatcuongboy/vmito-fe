@@ -1625,7 +1625,8 @@
           "PREPARING": "Upcoming",
           "IN_PROGRESS": "In progress",
           "FINISHED": "Finished",
-          "CANCELLED": "Cancelled"
+          "CANCELLED": "Cancelled",
+          "all": "All"
         },
         "period": {
           "title": "Time",
@@ -1940,7 +1941,7 @@
           },
           "venues": {
             "title": "Venues",
-            "manage": "Manage venues",
+            "manage": "Manage",
             "directions": "Directions"
           },
           "contact": {
@@ -4329,7 +4330,19 @@
           "PARTICIPANTS": "Players & registrations",
           "STRUCTURE": "Categories & format"
         }
-      }
+      },
+      "resultCount": "{count} tournaments",
+      "card": {
+        "daysLeft": "{days} days left",
+        "startsToday": "Starts today",
+        "startsTomorrow": "Starts tomorrow",
+        "teams": "{count} teams",
+        "playersCount": "{count} players",
+        "categoryCount": "{count} categories",
+        "moreCategories": "+{count}"
+      },
+      "loadError": "Couldn't load tournaments",
+      "retry": "Try again"
     },
     "join": {
       "title": "Join Session",
@@ -7122,7 +7135,10 @@
       "completeRefund": "Complete refund",
       "confirmRefund": "Confirm refund completed",
       "method": "Method",
-      "methodValue": { "BANK_TRANSFER": "Bank transfer", "CASH": "Cash" },
+      "methodValue": {
+        "BANK_TRANSFER": "Bank transfer",
+        "CASH": "Cash"
+      },
       "purposeLabel": "Payment purpose",
       "purpose": {
         "DEPOSIT": "Deposit",
@@ -7158,7 +7174,9 @@
         "balanceOverdue": "Balance overdue",
         "refundPending": "Refund pending"
       },
-      "messages": { "updated": "Transaction updated" },
+      "messages": {
+        "updated": "Transaction updated"
+      },
       "errors": {
         "action": "Unable to process the transaction",
         "invalidProof": "Upload an image no larger than 5 MB.",
