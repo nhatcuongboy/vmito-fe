@@ -1610,8 +1610,12 @@
           "moreActions": "Hành động khác",
           "categories": "Hạng mục",
           "draftBadge": "Bản nháp",
-          "publishedBadge": "Đã xuất bản"
+          "publishedBadge": "Đã xuất bản",
+          "viewDetail": "Xem chi tiết"
         },
+        "manageTab": "Quản lý giải",
+        "joinedTab": "Giải tham gia",
+        "createTab": "Tạo giải",
         "deleteConfirm": "Bạn có chắc chắn muốn xoá giải đấu này? Hành động này không thể hoàn tác.",
         "deleted": "Đã xoá giải đấu",
         "deleteFailed": "Xoá giải đấu thất bại",
@@ -1645,6 +1649,8 @@
           "IN_PROGRESS": "Đang diễn ra",
           "FINISHED": "Đã kết thúc",
           "CANCELLED": "Đã hủy",
+          "open": "Đang mở",
+          "requests": "Yêu cầu tham gia",
           "all": "Tất cả"
         },
         "period": {

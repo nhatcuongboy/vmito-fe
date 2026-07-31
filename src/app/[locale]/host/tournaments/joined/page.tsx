@@ -16,7 +16,7 @@ import {
   Portal,
   SimpleGrid,
 } from '@chakra-ui/react';
-import { Button, IconButton } from '@/components/ui/chakra-compat';
+import { IconButton } from '@/components/ui/chakra-compat';
 import PageLayout from '@/components/layout/PageLayout';
 import ProtectedRouteGuard from '@/components/guards/ProtectedRouteGuard';
 import { TournamentService } from '@/lib/api/tournament.service';
@@ -26,7 +26,6 @@ import { format } from 'date-fns';
 import { getPrimaryVenueDisplay } from '@/utils';
 import { vi as viLocale, enUS, zhCN } from 'date-fns/locale';
 import { useLocale, useTranslations } from 'next-intl';
-import { AppSearchBar } from '@/components/common/AppSearchBar';
 import { useRegisterTopBarSearch } from '@/contexts/TopBarSearchContext';
 import { HostTournamentListSkeleton } from '@/components/tournament/skeletons';
 import { TournamentStatusSelect } from '@/components/tournament/TournamentStatusSelect';
@@ -34,23 +33,19 @@ import TournamentSortMenu, {
   type TournamentSortValue,
 } from '@/components/tournament/TournamentSortMenu';
 import {
-  Trophy,
-  Plus,
-  MoreHorizontal,
-  Settings,
-  Trash2,
-  Calendar,
-  MapPin,
-  Layers,
-  Gavel,
-  Share2,
-} from 'lucide-react';
-import {
   HostTournamentsHeader,
   type HostTournamentMobileTab,
 } from '@/components/tournament/HostTournamentsHeader';
 import HostTournamentsNavPanel from '@/components/tournament/HostTournamentsNavPanel';
-import { ROUTES, TOP_BAR_HEIGHT_MOBILE } from '@/constants';
+import {
+  Trophy,
+  MoreHorizontal,
+  Settings,
+  Calendar,
+  MapPin,
+  Layers,
+  Share2,
+} from 'lucide-react';
 import { toaster } from '@/components/ui/toaster';
 import { useAuthStore } from '@/stores/useAuthStore';
 
@@ -113,32 +108,20 @@ function StatusBadge({
   );
 }
 
-function TournamentRow({
+function TournamentJoinedRow({
   tournament,
-  deleting,
-  onManage,
+  onOpen,
   onShare,
-  onDelete,
-  onOpenPublic,
   dateFormatted,
   statusLabel,
-  publishLabel,
   t,
-  showDelete = true,
-  isReferee = false,
 }: {
   tournament: Tournament;
-  deleting: boolean;
-  onManage: () => void;
+  onOpen: () => void;
   onShare: () => void;
-  onDelete: () => void;
-  onOpenPublic: () => void;
   dateFormatted: string;
   statusLabel: string;
-  publishLabel: string;
   t: (key: string) => string;
-  showDelete?: boolean;
-  isReferee?: boolean;
 }) {
   const theme = STATUS_THEME[tournament.status];
   const venueName = getPrimaryVenueDisplay(tournament)?.name;
@@ -162,7 +145,6 @@ function TournamentRow({
       position="relative"
       overflow="hidden"
       onClick={(e) => {
-        // Don't trigger navigation if clicking on action buttons
         const target = e.target as HTMLElement;
         if (
           target.closest('button') ||
@@ -171,10 +153,9 @@ function TournamentRow({
         ) {
           return;
         }
-        onOpenPublic();
+        onOpen();
       }}
     >
-      {/* status accent strip */}
       <Box
         position="absolute"
         left={0}
@@ -185,7 +166,6 @@ function TournamentRow({
       />
 
       <Flex gap={{ base: 3, md: 4 }} align="center" pl={2}>
-        {/* Cover or icon */}
         <Box
           w={{ base: '56px', md: '72px' }}
           h={{ base: '56px', md: '72px' }}
@@ -215,21 +195,9 @@ function TournamentRow({
           )}
         </Box>
 
-        {/* Main info */}
         <Box flex={1} minW={0}>
           <HStack gap={2} mb={1} align="center" flexWrap="wrap">
             <StatusBadge status={tournament.status} label={statusLabel} />
-            {!tournament.isPublished && (
-              <Badge
-                size="sm"
-                variant="outline"
-                colorPalette="orange"
-                borderRadius="full"
-                px={2}
-              >
-                {publishLabel}
-              </Badge>
-            )}
           </HStack>
           <Text
             fontWeight="bold"
@@ -268,7 +236,6 @@ function TournamentRow({
           </HStack>
         </Box>
 
-        {/* Actions */}
         <HStack gap={1} flexShrink={0}>
           <MenuRoot positioning={{ placement: 'bottom-end' }}>
             <MenuTrigger asChild>
@@ -276,7 +243,6 @@ function TournamentRow({
                 aria-label={t('card.moreActions')}
                 variant="ghost"
                 size="sm"
-                loading={deleting}
               >
                 <MoreHorizontal size={16} />
               </IconButton>
@@ -294,12 +260,10 @@ function TournamentRow({
                   borderColor="gray.200"
                   p={1}
                 >
-                  <MenuItem value="manage" onClick={onManage}>
+                  <MenuItem value="open" onClick={onOpen}>
                     <HStack gap={2}>
-                      {isReferee ? <Gavel size={16} /> : <Settings size={16} />}
-                      <Text>
-                        {isReferee ? t('card.referee') : t('card.manage')}
-                      </Text>
+                      <Settings size={16} />
+                      <Text>{t('card.viewDetail') || 'Xem chi tiết'}</Text>
                     </HStack>
                   </MenuItem>
                   <MenuItem value="share" onClick={onShare}>
@@ -308,14 +272,6 @@ function TournamentRow({
                       <Text>{t('card.share')}</Text>
                     </HStack>
                   </MenuItem>
-                  {showDelete && (
-                    <MenuItem value="delete" color="red.500" onClick={onDelete}>
-                      <HStack gap={2}>
-                        <Trash2 size={16} />
-                        <Text>{t('card.delete')}</Text>
-                      </HStack>
-                    </MenuItem>
-                  )}
                 </MenuContent>
               </MenuPositioner>
             </Portal>
@@ -326,7 +282,7 @@ function TournamentRow({
   );
 }
 
-export default function HostTournamentsPage() {
+export default function JoinedTournamentsPage() {
   const router = useRouter();
   const t = useTranslations('pages.tournaments.hostList');
   const tTournaments = useTranslations('pages.tournaments');
@@ -334,7 +290,6 @@ export default function HostTournamentsPage() {
   const locale = useLocale();
   const dateLocale = locale === 'vi' ? viLocale : locale === 'cn' ? zhCN : enUS;
   const user = useAuthStore((state) => state.user);
-  const isAdmin = user?.role === UserRole.ADMIN;
 
   const [tournaments, setTournaments] = useState<Tournament[]>([]);
   const [loading, setLoading] = useState(true);
@@ -345,7 +300,13 @@ export default function HostTournamentsPage() {
   ]);
   const [mobileTab, setMobileTab] = useState<HostTournamentMobileTab>('open');
   const [sort, setSort] = useState<TournamentSortValue>('start_asc');
-  const [deleting, setDeleting] = useState<string | null>(null);
+
+  useRegisterTopBarSearch({
+    placeholder: t('searchPlaceholder'),
+    value: search,
+    onChange: setSearch,
+    showFilter: false,
+  });
 
   const handleMobileTabChange = (tab: HostTournamentMobileTab) => {
     setMobileTab(tab);
@@ -358,48 +319,24 @@ export default function HostTournamentsPage() {
     }
   };
 
-  // Register desktop search bar in the top bar
-  useRegisterTopBarSearch({
-    placeholder: t('searchPlaceholder'),
-    value: search,
-    onChange: setSearch,
-    showFilter: false,
-  });
-
   const loadTournaments = useCallback(async () => {
     if (!user?.id) return;
 
     try {
       setLoading(true);
-      const data = isAdmin
-        ? await TournamentService.getManageableTournaments()
-        : await TournamentService.getMyTournaments();
+      // Fetch tournaments and filter client-side for joined tournaments
+      const data = await TournamentService.getMyTournaments();
       setTournaments(data);
     } catch (error: unknown) {
-      console.error('Failed to load tournaments:', error);
+      console.error('Failed to load joined tournaments:', error);
     } finally {
       setLoading(false);
     }
-  }, [isAdmin, user?.id]);
+  }, [user?.id]);
 
   useEffect(() => {
     void loadTournaments();
   }, [loadTournaments]);
-
-  const handleDelete = async (id: string) => {
-    if (!confirm(t('deleteConfirm'))) return;
-    try {
-      setDeleting(id);
-      await TournamentService.deleteTournament(id);
-      setTournaments((prev) => prev.filter((x) => x.id !== id));
-      toaster.success({ title: t('deleted') });
-    } catch (error: unknown) {
-      console.error('Failed to delete tournament:', error);
-      toaster.error({ title: t('deleteFailed') });
-    } finally {
-      setDeleting(null);
-    }
-  };
 
   const handleShare = async (tournament: Tournament) => {
     const shareUrl = `${window.location.origin}/${locale}/tournament/${tournament.slug}`;
@@ -465,14 +402,17 @@ export default function HostTournamentsPage() {
     }
   };
 
-  const handleCreate = () => router.push(ROUTES.HOST.TOURNAMENTS.NEW);
-
   return (
     <ProtectedRouteGuard
-      requiredRole={[UserRole.HOST, UserRole.ADMIN, UserRole.REFEREE]}
+      requiredRole={[
+        UserRole.PLAYER,
+        UserRole.HOST,
+        UserRole.ADMIN,
+        UserRole.REFEREE,
+      ]}
     >
       <PageLayout
-        title={isAdmin ? t('adminPageTitle') : t('pageTitle')}
+        title={t('joinedTab') || 'Giải tham gia'}
         mobileIcon={<Trophy size={20} />}
         showBackButton={true}
         onBack={() => router.back()}
@@ -488,24 +428,6 @@ export default function HostTournamentsPage() {
         mobileSubHeaderOffset="98px"
       >
         <Box mb={4}>
-          {user?.role !== UserRole.REFEREE && (
-            <Flex justify="flex-end" display={{ base: 'none', md: 'flex' }}>
-              <Button
-                colorPalette="green"
-                borderRadius="lg"
-                px={4}
-                py={2}
-                h="40px"
-                fontWeight="semibold"
-                aria-label={t('newTournament')}
-                onClick={handleCreate}
-              >
-                <Plus size={18} />
-                <Text>{t('newTournament')}</Text>
-              </Button>
-            </Flex>
-          )}
-
           <Flex
             justify="space-between"
             align="center"
@@ -566,64 +488,29 @@ export default function HostTournamentsPage() {
             <Text fontSize="lg" fontWeight="semibold" color="fg">
               {search || statuses.length > 0
                 ? t('noResultsTitle')
-                : isAdmin
-                  ? t('adminEmptyTitle')
-                  : t('emptyTitle')}
+                : 'Chưa có giải tham gia nào'}
             </Text>
             <Text color="fg.muted" maxW="420px">
               {search || statuses.length > 0
                 ? t('noResultsDesc')
-                : isAdmin
-                  ? t('adminEmptyDesc')
-                  : t('emptyDesc')}
+                : 'Các giải đấu bạn tham gia sẽ xuất hiện ở đây.'}
             </Text>
-            {!search &&
-              statuses.length === 0 &&
-              user?.role !== UserRole.REFEREE && (
-                <Button
-                  colorPalette="green"
-                  borderRadius="full"
-                  onClick={handleCreate}
-                  mt={2}
-                >
-                  <Plus size={16} style={{ marginRight: 6 }} />
-                  {t('createFirst')}
-                </Button>
-              )}
           </Flex>
         ) : (
           <SimpleGrid columns={{ base: 1, md: 2 }} gap={3}>
             {filtered.map((tournament) => (
-              <TournamentRow
+              <TournamentJoinedRow
                 key={tournament.id}
                 tournament={tournament}
-                deleting={deleting === tournament.id}
-                onManage={() => {
-                  if (user?.role === UserRole.REFEREE) {
-                    router.push(`/tournament/${tournament.slug}/referee`);
-                  } else {
-                    router.push(`/tournament/${tournament.slug}`);
-                  }
-                }}
+                onOpen={() => router.push(`/tournament/${tournament.slug}`)}
                 onShare={() => void handleShare(tournament)}
-                onOpenPublic={() => {
-                  if (user?.role === UserRole.REFEREE) {
-                    router.push(`/tournament/${tournament.slug}/referee`);
-                  } else {
-                    router.push(`/tournament/${tournament.slug}`);
-                  }
-                }}
-                onDelete={() => handleDelete(tournament.id)}
                 dateFormatted={format(
                   new Date(tournament.startDate),
                   'EEE, MMM d, yyyy',
                   { locale: dateLocale }
                 )}
                 statusLabel={statusLabelFor(tournament.status)}
-                publishLabel={t('card.draftBadge')}
                 t={t}
-                showDelete={user?.role !== UserRole.REFEREE}
-                isReferee={user?.role === UserRole.REFEREE}
               />
             ))}
           </SimpleGrid>

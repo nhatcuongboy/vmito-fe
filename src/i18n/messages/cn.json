@@ -1583,8 +1583,12 @@
           "moreActions": "更多操作",
           "categories": "类别",
           "draftBadge": "草稿",
-          "publishedBadge": "已发布"
+          "publishedBadge": "已发布",
+          "viewDetail": "查看详情"
         },
+        "manageTab": "管理赛事",
+        "joinedTab": "参赛赛事",
+        "createTab": "创建赛事",
         "deleteConfirm": "您确定要删除此锦标赛吗？此操作无法撤销。",
         "deleted": "锦标赛已删除",
         "deleteFailed": "删除锦标赛失败",
@@ -1616,6 +1620,8 @@
           "IN_PROGRESS": "进行中",
           "FINISHED": "已结束",
           "CANCELLED": "已取消",
+          "open": "开放中",
+          "requests": "参赛申请",
           "all": "全部"
         },
         "period": {

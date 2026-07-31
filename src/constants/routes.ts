@@ -55,6 +55,7 @@ export const ROUTES = {
     },
     TOURNAMENTS: {
       LIST: '/host/tournaments',
+      JOINED: '/host/tournaments/joined',
       NEW: '/host/tournaments/new',
       DETAIL: (id: string) => `/host/tournaments/${id}`,
       PLAYERS: (id: string) => `/host/tournaments/${id}/players`,

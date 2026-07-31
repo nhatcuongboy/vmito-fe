@@ -1601,8 +1601,12 @@
           "moreActions": "More actions",
           "categories": "Categories",
           "draftBadge": "Draft",
-          "publishedBadge": "Published"
+          "publishedBadge": "Published",
+          "viewDetail": "View details"
         },
+        "manageTab": "Managed Tournaments",
+        "joinedTab": "Joined Tournaments",
+        "createTab": "Create Tournament",
         "deleteConfirm": "Are you sure you want to delete this tournament? This action cannot be undone.",
         "deleted": "Tournament deleted",
         "deleteFailed": "Failed to delete tournament",
@@ -1636,6 +1640,8 @@
           "IN_PROGRESS": "In progress",
           "FINISHED": "Finished",
           "CANCELLED": "Cancelled",
+          "open": "Open",
+          "requests": "Join Requests",
           "all": "All"
         },
         "period": {
