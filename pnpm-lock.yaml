@@ -83,6 +83,9 @@ importers:
       browser-image-compression:
         specifier: ^2.0.2
         version: 2.0.2
+      canvas-confetti:
+        specifier: ^1.9.4
+        version: 1.9.4
       class-variance-authority:
         specifier: ^0.7.1
         version: 0.7.1
@@ -192,6 +195,9 @@ importers:
       '@tailwindcss/postcss':
         specifier: ^4
         version: 4.1.11
+      '@types/canvas-confetti':
+        specifier: ^1.9.0
+        version: 1.9.0
       '@types/google.maps':
         specifier: ^3.58.1
         version: 3.58.1
@@ -1719,6 +1725,9 @@ packages:
   '@tybys/wasm-util@0.10.1':
     resolution: {integrity: sha512-9tTaPJLSiejZKx+Bmog4uSubteqTvFrVrURwkmHixBo0G4seD0zUxp98E1DzUBJxLQ3NPwXrGKDiVjwx/DpPsg==}
 
+  '@types/canvas-confetti@1.9.0':
+    resolution: {integrity: sha512-aBGj/dULrimR1XDZLtG9JwxX1b4HPRF6CX9Yfwh3NvstZEm1ZL7RBnel4keCPSqs1ANRu1u2Aoz9R+VmtjYuTg==}
+
   '@types/cookie@0.6.0':
     resolution: {integrity: sha512-4Kh9a6B2bQciAhf7FSuMRRkUWecJgJu9nPnx3yzpsfXX/c50REIqpHY4C82bXP90qrLtXtkDxTZosYO3UpOwlA==}
 
@@ -2573,6 +2582,9 @@ packages:
 
   caniuse-lite@1.0.30001726:
     resolution: {integrity: sha512-VQAUIUzBiZ/UnlM28fSp2CRF3ivUn1BWEvxMcVTNwpw91Py1pGbPIyIKtd+tzct9C3ouceCVdGAXxZOpZAsgdw==}
+
+  canvas-confetti@1.9.4:
+    resolution: {integrity: sha512-yxQbJkAVrFXWNbTUjPqjF7G+g6pDotOUHGbkZq2NELZUMDpiJ85rIEazVb8GTaAptNW2miJAXbs1BtioA251Pw==}
 
   cfb@1.2.2:
     resolution: {integrity: sha512-KfdUZsSOw19/ObEWasvBP/Ac4reZvAGauZhs6S/gqNhXhI7cKwvlH7ulj+dOEYnca4bm4SGo8C1bTAQvnTjgQA==}
@@ -6893,6 +6905,8 @@ snapshots:
       tslib: 2.8.1
     optional: true
 
+  '@types/canvas-confetti@1.9.0': {}
+
   '@types/cookie@0.6.0': {}
 
   '@types/d3-array@3.2.2': {}
@@ -8120,6 +8134,8 @@ snapshots:
   camelize@1.0.1: {}
 
   caniuse-lite@1.0.30001726: {}
+
+  canvas-confetti@1.9.4: {}
 
   cfb@1.2.2:
     dependencies:

@@ -1568,7 +1568,7 @@
       "title": "Tournaments",
       "hostList": {
         "pageTitle": "My Tournaments",
-        "adminPageTitle": "All Tournaments",
+        "adminPageTitle": "Manage Tournaments",
         "subtitle": "Manage your tournaments, categories, and schedules — all in one place.",
         "newTournament": "Create tournament",
         "createFirst": "Create your first tournament",
@@ -1601,8 +1601,12 @@
           "moreActions": "More actions",
           "categories": "Categories",
           "draftBadge": "Draft",
-          "publishedBadge": "Published"
+          "publishedBadge": "Published",
+          "viewDetail": "View details"
         },
+        "manageTab": "Managed Tournaments",
+        "joinedTab": "Joined Tournaments",
+        "createTab": "Create Tournament",
         "deleteConfirm": "Are you sure you want to delete this tournament? This action cannot be undone.",
         "deleted": "Tournament deleted",
         "deleteFailed": "Failed to delete tournament",
@@ -1636,6 +1640,8 @@
           "IN_PROGRESS": "In progress",
           "FINISHED": "Finished",
           "CANCELLED": "Cancelled",
+          "open": "Open",
+          "requests": "Join Requests",
           "all": "All"
         },
         "period": {
@@ -5965,7 +5971,8 @@
     "noPosts": "No posts yet",
     "share": "Share",
     "changeCover": "Change cover",
-    "linkCopied": "Link copied"
+    "linkCopied": "Link copied",
+    "achievementsTab": "Achievements"
   },
   "notification": {
     "notifications": "Notifications",
@@ -7599,5 +7606,61 @@
     "resume": "Resume the tour",
     "finish": "Finish",
     "restartCta": "View interactive tour"
+  },
+  "leaderboard": {
+    "title": "Leaderboard",
+    "empty": "No ranking data yet",
+    "pointsUnit": "pts",
+    "you": "You",
+    "previous": "Prev",
+    "next": "Next",
+    "winStats": "Won {won}/{played} matches",
+    "periods": {
+      "week": "This week",
+      "month": "This month",
+      "year": "This year",
+      "all": "All time"
+    },
+    "tiers": {
+      "BRONZE": "Bronze",
+      "SILVER": "Silver",
+      "GOLD": "Gold",
+      "PLATINUM": "Platinum",
+      "DIAMOND": "Diamond"
+    },
+    "achievements": {
+      "loadError": "Failed to load achievements",
+      "toNextTier": "{points} pts to reach {tier}",
+      "maxTier": "You reached the highest tier!",
+      "wins": "Wins",
+      "draws": "Draws",
+      "losses": "Losses",
+      "matchesPlayed": "Matches played",
+      "tournamentTitles": "Tournament titles",
+      "tournamentRunnerUps": "Runner-ups",
+      "recentPoints": "Recent points",
+      "viewLeaderboard": "View leaderboard",
+      "noPointsYet": "No points yet. Play matches to earn points!",
+      "reasons": {
+        "SESSION_MATCH_WIN": "Session match win",
+        "SESSION_MATCH_DRAW": "Session match draw",
+        "SESSION_MATCH_LOSS": "Session match loss",
+        "SESSION_PARTICIPATION": "Session participation",
+        "TOURNAMENT_MATCH_WIN": "Tournament match win",
+        "TOURNAMENT_MATCH_DRAW": "Tournament match draw",
+        "TOURNAMENT_MATCH_LOSS": "Tournament match loss",
+        "TOURNAMENT_CHAMPION": "Tournament champion",
+        "TOURNAMENT_RUNNER_UP": "Tournament runner-up",
+        "TOURNAMENT_SEMIFINALIST": "Tournament semifinalist",
+        "ADJUSTMENT": "Adjustment"
+      }
+    },
+    "celebration": {
+      "points": "pts",
+      "total": "Total: {total} pts",
+      "rankUpTitle": "Rank up!",
+      "rankUpMessage": "Congrats! You reached {total} points and a new tier.",
+      "awesome": "Awesome!"
+    }
   }
 }

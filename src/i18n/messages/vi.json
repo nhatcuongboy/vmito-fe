@@ -1577,7 +1577,7 @@
       "title": "Giải đấu",
       "hostList": {
         "pageTitle": "Giải đấu của tôi",
-        "adminPageTitle": "Tất cả giải đấu",
+        "adminPageTitle": "Quản lý giải đấu",
         "subtitle": "Quản lý giải đấu, hạng mục và lịch thi đấu — tất cả ở một nơi.",
         "newTournament": "Tạo giải",
         "createFirst": "Tạo giải đấu đầu tiên",
@@ -1610,8 +1610,12 @@
           "moreActions": "Hành động khác",
           "categories": "Hạng mục",
           "draftBadge": "Bản nháp",
-          "publishedBadge": "Đã xuất bản"
+          "publishedBadge": "Đã xuất bản",
+          "viewDetail": "Xem chi tiết"
         },
+        "manageTab": "Quản lý giải",
+        "joinedTab": "Giải tham gia",
+        "createTab": "Tạo giải",
         "deleteConfirm": "Bạn có chắc chắn muốn xoá giải đấu này? Hành động này không thể hoàn tác.",
         "deleted": "Đã xoá giải đấu",
         "deleteFailed": "Xoá giải đấu thất bại",
@@ -1645,6 +1649,8 @@
           "IN_PROGRESS": "Đang diễn ra",
           "FINISHED": "Đã kết thúc",
           "CANCELLED": "Đã hủy",
+          "open": "Đang mở",
+          "requests": "Yêu cầu tham gia",
           "all": "Tất cả"
         },
         "period": {
@@ -5982,7 +5988,8 @@
     "noPosts": "Chưa có bài viết nào",
     "share": "Chia sẻ",
     "changeCover": "Đổi ảnh bìa",
-    "linkCopied": "Đã sao chép liên kết"
+    "linkCopied": "Đã sao chép liên kết",
+    "achievementsTab": "Thành tích"
   },
   "notification": {
     "notifications": "Thông báo",
@@ -7620,5 +7627,61 @@
     "resume": "Tiếp tục hướng dẫn",
     "finish": "Hoàn tất",
     "restartCta": "Xem hướng dẫn tương tác"
+  },
+  "leaderboard": {
+    "title": "Bảng xếp hạng",
+    "empty": "Chưa có dữ liệu xếp hạng",
+    "pointsUnit": "điểm",
+    "you": "Bạn",
+    "previous": "Trước",
+    "next": "Sau",
+    "winStats": "Thắng {won}/{played} trận",
+    "periods": {
+      "week": "Tuần này",
+      "month": "Tháng này",
+      "year": "Năm nay",
+      "all": "Toàn thời gian"
+    },
+    "tiers": {
+      "BRONZE": "Đồng",
+      "SILVER": "Bạc",
+      "GOLD": "Vàng",
+      "PLATINUM": "Bạch kim",
+      "DIAMOND": "Kim cương"
+    },
+    "achievements": {
+      "loadError": "Không tải được thành tích",
+      "toNextTier": "Còn {points} điểm để lên hạng {tier}",
+      "maxTier": "Bạn đã đạt hạng cao nhất!",
+      "wins": "Thắng",
+      "draws": "Hòa",
+      "losses": "Thua",
+      "matchesPlayed": "Trận đã đấu",
+      "tournamentTitles": "Vô địch giải",
+      "tournamentRunnerUps": "Á quân giải",
+      "recentPoints": "Điểm gần đây",
+      "viewLeaderboard": "Xem bảng xếp hạng",
+      "noPointsYet": "Chưa có điểm nào. Hãy tham gia trận đấu để tích điểm!",
+      "reasons": {
+        "SESSION_MATCH_WIN": "Thắng trận giao lưu",
+        "SESSION_MATCH_DRAW": "Hòa trận giao lưu",
+        "SESSION_MATCH_LOSS": "Thua trận giao lưu",
+        "SESSION_PARTICIPATION": "Tham gia buổi chơi",
+        "TOURNAMENT_MATCH_WIN": "Thắng trận giải đấu",
+        "TOURNAMENT_MATCH_DRAW": "Hòa trận giải đấu",
+        "TOURNAMENT_MATCH_LOSS": "Thua trận giải đấu",
+        "TOURNAMENT_CHAMPION": "Vô địch giải đấu",
+        "TOURNAMENT_RUNNER_UP": "Á quân giải đấu",
+        "TOURNAMENT_SEMIFINALIST": "Bán kết giải đấu",
+        "ADJUSTMENT": "Điều chỉnh"
+      }
+    },
+    "celebration": {
+      "points": "điểm",
+      "total": "Tổng: {total} điểm",
+      "rankUpTitle": "Lên hạng!",
+      "rankUpMessage": "Chúc mừng! Bạn đã đạt {total} điểm và thăng hạng mới.",
+      "awesome": "Tuyệt vời!"
+    }
   }
 }

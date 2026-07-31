@@ -9,6 +9,8 @@ const CUSTOM_BOTTOM_NAV_PATHS = [
   '/host/sessions',
   '/host/sessions/pending',
   '/host/sessions/joined',
+  '/host/tournaments',
+  '/host/tournaments/joined',
   '/my-clubs',
   '/my-clubs/managing',
   '/my-clubs/member',

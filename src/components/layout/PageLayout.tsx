@@ -31,6 +31,8 @@ interface PageLayoutProps extends Omit<ContainerProps, 'title'> {
   /** Override top bar variant. Auto-detected from pathname if not provided. */
   topBarVariant?: 'main' | 'secondary';
   subHeader?: ReactNode;
+  /** Mobile offset height for subHeader content. Defaults to '44px'. */
+  mobileSubHeaderOffset?: string;
   /** Hide the TopBar bottom border on mobile (for pages with search + sub menu) */
   hideTopBarBorder?: boolean;
   /** Force title to be centered on mobile regardless of path */
@@ -75,6 +77,7 @@ export default function PageLayout({
   minH,
   topBarVariant,
   subHeader,
+  mobileSubHeaderOffset = '44px',
   hideTopBarBorder = false,
   centerTitle = false,
   showTopBarMenuButton = true,
@@ -164,7 +167,7 @@ export default function PageLayout({
           base: hasSubHeader
             ? isDiscoveryPage
               ? `calc(${TOP_BAR_HEIGHT_MOBILE}px + env(safe-area-inset-top) + 112px)`
-              : `calc(${TOP_BAR_HEIGHT_MOBILE}px + env(safe-area-inset-top) + 44px)`
+              : `calc(${TOP_BAR_HEIGHT_MOBILE}px + env(safe-area-inset-top) + ${mobileSubHeaderOffset})`
             : `calc(${TOP_BAR_HEIGHT_MOBILE}px + env(safe-area-inset-top) + ${contentTopOffset})`,
           md: subHeader
             ? contentTopOffset

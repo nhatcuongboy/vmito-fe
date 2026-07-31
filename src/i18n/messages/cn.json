@@ -1550,7 +1550,7 @@
       "title": "锦标赛",
       "hostList": {
         "pageTitle": "我的锦标赛",
-        "adminPageTitle": "所有锦标赛",
+        "adminPageTitle": "管理锦标赛",
         "subtitle": "在一个地方管理您的锦标赛、类别和赛程。",
         "newTournament": "新建锦标赛",
         "createFirst": "创建您的第一个锦标赛",
@@ -1583,8 +1583,12 @@
           "moreActions": "更多操作",
           "categories": "类别",
           "draftBadge": "草稿",
-          "publishedBadge": "已发布"
+          "publishedBadge": "已发布",
+          "viewDetail": "查看详情"
         },
+        "manageTab": "管理赛事",
+        "joinedTab": "参赛赛事",
+        "createTab": "创建赛事",
         "deleteConfirm": "您确定要删除此锦标赛吗？此操作无法撤销。",
         "deleted": "锦标赛已删除",
         "deleteFailed": "删除锦标赛失败",
@@ -1616,6 +1620,8 @@
           "IN_PROGRESS": "进行中",
           "FINISHED": "已结束",
           "CANCELLED": "已取消",
+          "open": "开放中",
+          "requests": "参赛申请",
           "all": "全部"
         },
         "period": {
@@ -5924,7 +5930,8 @@
     "noPosts": "暂无动态",
     "share": "分享",
     "changeCover": "更换封面",
-    "linkCopied": "链接已复制"
+    "linkCopied": "链接已复制",
+    "achievementsTab": "成就"
   },
   "notification": {
     "notifications": "通知",
@@ -7558,5 +7565,61 @@
     "resume": "继续引导",
     "finish": "完成",
     "restartCta": "查看互动引导"
+  },
+  "leaderboard": {
+    "title": "排行榜",
+    "empty": "暂无排名数据",
+    "pointsUnit": "分",
+    "you": "你",
+    "previous": "上一页",
+    "next": "下一页",
+    "winStats": "胜 {won}/{played} 场",
+    "periods": {
+      "week": "本周",
+      "month": "本月",
+      "year": "今年",
+      "all": "总榜"
+    },
+    "tiers": {
+      "BRONZE": "青铜",
+      "SILVER": "白银",
+      "GOLD": "黄金",
+      "PLATINUM": "铂金",
+      "DIAMOND": "钻石"
+    },
+    "achievements": {
+      "loadError": "加载成就失败",
+      "toNextTier": "还差 {points} 分升至{tier}",
+      "maxTier": "你已达到最高段位！",
+      "wins": "胜",
+      "draws": "平",
+      "losses": "负",
+      "matchesPlayed": "已打场次",
+      "tournamentTitles": "冠军次数",
+      "tournamentRunnerUps": "亚军次数",
+      "recentPoints": "最近积分",
+      "viewLeaderboard": "查看排行榜",
+      "noPointsYet": "暂无积分，快去参加比赛赚积分吧！",
+      "reasons": {
+        "SESSION_MATCH_WIN": "约球比赛获胜",
+        "SESSION_MATCH_DRAW": "约球比赛平局",
+        "SESSION_MATCH_LOSS": "约球比赛失利",
+        "SESSION_PARTICIPATION": "参加活动",
+        "TOURNAMENT_MATCH_WIN": "锦标赛获胜",
+        "TOURNAMENT_MATCH_DRAW": "锦标赛平局",
+        "TOURNAMENT_MATCH_LOSS": "锦标赛失利",
+        "TOURNAMENT_CHAMPION": "锦标赛冠军",
+        "TOURNAMENT_RUNNER_UP": "锦标赛亚军",
+        "TOURNAMENT_SEMIFINALIST": "锦标赛四强",
+        "ADJUSTMENT": "调整"
+      }
+    },
+    "celebration": {
+      "points": "分",
+      "total": "总计：{total} 分",
+      "rankUpTitle": "升段啦！",
+      "rankUpMessage": "恭喜！你已达到 {total} 分并晋升新段位。",
+      "awesome": "太棒了！"
+    }
   }
 }

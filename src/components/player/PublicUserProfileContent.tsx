@@ -39,6 +39,7 @@ import { VModal, useModal } from '@/components/ui/VModal';
 import PublicHostedSessionCard from '@/components/player/PublicHostedSessionCard';
 import PublicUserProfileSkeleton from '@/components/player/PublicUserProfileSkeleton';
 import PublicUserFavoritesSection from '@/components/player/PublicUserFavoritesSection';
+import UserAchievementsSection from '@/components/player/UserAchievementsSection';
 import { UnderlineTabs } from '@/components/ui/UnderlineTabs';
 import { TOP_BAR_HEIGHT_DESKTOP, TOP_BAR_HEIGHT_MOBILE } from '@/constants';
 
@@ -50,7 +51,13 @@ const DEFAULT_PAGE = 1;
 const DEFAULT_LIMIT = 6;
 const REVIEWS_PREVIEW_SIZE = 3;
 type THostedTab = 'active' | 'ended' | 'all';
-type ProfileSection = 'posts' | 'hosted' | 'clubs' | 'reviews' | 'favorites';
+type ProfileSection =
+  | 'posts'
+  | 'achievements'
+  | 'hosted'
+  | 'clubs'
+  | 'reviews'
+  | 'favorites';
 
 const getHostedTab = (value: string | null): THostedTab => {
   if (value === 'active' || value === 'ended' || value === 'all') {
@@ -276,6 +283,7 @@ export default function PublicUserProfileContent({
 
   const sectionTabs: { key: ProfileSection; label: string }[] = [
     { key: 'posts', label: t('postsTab') },
+    { key: 'achievements', label: t('achievementsTab') },
     { key: 'hosted', label: t('hostedTab') },
     { key: 'clubs', label: t('clubsTab') },
     { key: 'reviews', label: t('reviewsTab') },
@@ -323,6 +331,13 @@ export default function PublicUserProfileContent({
 
           {/* Posts */}
           {activeSection === 'posts' && <UserPostsSection userId={userId} />}
+
+          {/* Achievements */}
+          {activeSection === 'achievements' && (
+            <Box px={3} pt={4}>
+              <UserAchievementsSection userId={userId} />
+            </Box>
+          )}
 
           {/* Hosted sessions */}
           {activeSection === 'hosted' && (
