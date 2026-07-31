@@ -1,32 +1,78 @@
 'use client';
 
-import { useEffect } from 'react';
-import {
-  Box,
-  Container,
-  Heading,
-  HStack,
-  Separator,
-  Text,
-  VStack,
-} from '@chakra-ui/react';
-import { useTranslations } from 'next-intl';
+import { Suspense, useEffect, useMemo } from 'react';
+import { Box, Container, Flex, Heading, Text, VStack } from '@chakra-ui/react';
+import { useLocale, useTranslations } from 'next-intl';
 import { LayoutDashboard } from 'lucide-react';
 import MainLayout from '@/components/layout/MainLayout';
 import { toaster } from '@/components/ui/toaster';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { useRouter } from '@/i18n/config';
 import { UserRole } from '@/lib/api/types';
-import UsersStatsSection from './_components/UsersStatsSection';
-import SessionsStatsSection from './_components/SessionsStatsSection';
-import TournamentsStatsSection from './_components/TournamentsStatsSection';
-import ClubsStatsSection from './_components/ClubsStatsSection';
-import VenuesStatsSection from './_components/VenuesStatsSection';
+import {
+  stringField,
+  type UrlFilterField,
+  useUrlFilters,
+} from '@/hooks/useUrlFilters';
+import DashboardActionQueue from './_components/DashboardActionQueue';
+import DashboardBreakdownPanels from './_components/DashboardBreakdownPanels';
+import DashboardGrowthPanel from './_components/DashboardGrowthPanel';
+import DashboardKpiGrid from './_components/DashboardKpiGrid';
+import DashboardToolbar from './_components/DashboardToolbar';
+import { useAdminDashboardStats } from './_hooks/useAdminDashboardStats';
+import {
+  DEFAULT_DASHBOARD_PERIOD,
+  type DashboardPeriod,
+  isDashboardPeriod,
+  resolveDashboardDateRange,
+  toDashboardQueryParams,
+} from './_utils/dashboardFilters';
+
+const periodField: UrlFilterField<DashboardPeriod> = {
+  fromQuery: (value) =>
+    value && isDashboardPeriod(value) ? value : DEFAULT_DASHBOARD_PERIOD,
+  toQuery: (value) => (value === DEFAULT_DASHBOARD_PERIOD ? null : value),
+};
+
+const DASHBOARD_FILTERS_SCHEMA = {
+  period: periodField,
+  from: stringField(''),
+  to: stringField(''),
+};
 
 export default function AdminDashboardPage() {
+  return (
+    <Suspense>
+      <AdminDashboardContent />
+    </Suspense>
+  );
+}
+
+function AdminDashboardContent() {
   const t = useTranslations('admin');
+  const locale = useLocale();
   const router = useRouter();
   const { isAuthenticated, isHydrated, user: currentUser } = useAuthStore();
+  const [filters, setFilters] = useUrlFilters(DASHBOARD_FILTERS_SCHEMA);
+  const dateRange = useMemo(
+    () => resolveDashboardDateRange(filters),
+    [filters]
+  );
+  const query = useMemo(
+    () => (dateRange ? toDashboardQueryParams(dateRange) : null),
+    [dateRange]
+  );
+  const isAdmin =
+    isHydrated && isAuthenticated && currentUser?.role === UserRole.ADMIN;
+  const {
+    users,
+    sessionsTournaments,
+    clubsVenues,
+    errors,
+    isLoading,
+    lastUpdatedAt,
+    reload,
+  } = useAdminDashboardStats(isAdmin ? query : null);
 
   useEffect(() => {
     if (!isHydrated) return;
@@ -45,58 +91,86 @@ export default function AdminDashboardPage() {
     return null;
   }
 
+  const rangeLabel =
+    filters.period === 'custom' && dateRange
+      ? new Intl.DateTimeFormat(locale, {
+          day: '2-digit',
+          month: '2-digit',
+          year: 'numeric',
+        }).formatRange(
+          new Date(`${filters.from}T00:00:00`),
+          new Date(`${filters.to}T00:00:00`)
+        )
+      : t(`dashboard.filters.${filters.period}`);
+
   return (
     <MainLayout title={t('dashboard.title')}>
-      <Container maxW="container.xl" py={8}>
-        <VStack gap={8} align="stretch">
-          <HStack gap={3}>
-            <Box
-              p={3}
-              borderRadius="lg"
-              bg="green.100"
-              _dark={{ bg: 'green.900/30' }}
-              color="green.600"
-            >
-              <LayoutDashboard size={24} />
-            </Box>
-            <Box>
-              <Heading size="lg">{t('dashboard.title')}</Heading>
-              <Text color="gray.600" _dark={{ color: 'gray.400' }}>
-                {t('dashboard.subtitle')}
-              </Text>
-            </Box>
-          </HStack>
+      <Box bg="bg.subtle" minH="100%">
+        <Container maxW="container.xl" py={{ base: 5, md: 8 }}>
+          <VStack gap={{ base: 5, md: 6 }} align="stretch">
+            <Flex align="center" gap={3}>
+              <Box
+                p={2.5}
+                borderRadius="lg"
+                bg="green.100"
+                _dark={{ bg: 'green.900/30' }}
+                color="green.600"
+                aria-hidden="true"
+              >
+                <LayoutDashboard size={24} />
+              </Box>
+              <Box minW={0}>
+                <Heading size="lg" textWrap="balance">
+                  {t('dashboard.title')}
+                </Heading>
+                <Text color="fg.muted" fontSize={{ base: 'sm', md: 'md' }}>
+                  {t('dashboard.subtitle')}
+                </Text>
+              </Box>
+            </Flex>
 
-          <Separator />
+            <DashboardToolbar
+              filters={filters}
+              isRangeValid={dateRange !== null}
+              isLoading={isLoading}
+              lastUpdatedAt={lastUpdatedAt}
+              onFiltersChange={setFilters}
+              onRefresh={reload}
+            />
 
-          <VStack gap={3} align="stretch">
-            <Heading size="md">{t('dashboard.users.sectionTitle')}</Heading>
-            <UsersStatsSection />
+            <DashboardKpiGrid
+              users={users}
+              sessionsTournaments={sessionsTournaments}
+              clubsVenues={clubsVenues}
+              isLoading={isLoading}
+              rangeLabel={rangeLabel}
+            />
+
+            <DashboardActionQueue data={clubsVenues} isLoading={isLoading} />
+
+            <DashboardGrowthPanel
+              users={users}
+              sessionsTournaments={sessionsTournaments}
+              isLoading={isLoading}
+              hasUsersError={errors.users}
+              hasSessionsError={errors.sessionsTournaments}
+              rangeLabel={rangeLabel}
+              onRetry={reload}
+            />
+
+            <DashboardBreakdownPanels
+              users={users}
+              sessionsTournaments={sessionsTournaments}
+              clubsVenues={clubsVenues}
+              isLoading={isLoading}
+              hasUsersError={errors.users}
+              hasSessionsError={errors.sessionsTournaments}
+              hasClubsError={errors.clubsVenues}
+              onRetry={reload}
+            />
           </VStack>
-
-          <VStack gap={3} align="stretch">
-            <Heading size="md">{t('dashboard.sessions.sectionTitle')}</Heading>
-            <SessionsStatsSection />
-          </VStack>
-
-          <VStack gap={3} align="stretch">
-            <Heading size="md">
-              {t('dashboard.tournaments.sectionTitle')}
-            </Heading>
-            <TournamentsStatsSection />
-          </VStack>
-
-          <VStack gap={3} align="stretch">
-            <Heading size="md">{t('dashboard.clubs.sectionTitle')}</Heading>
-            <ClubsStatsSection />
-          </VStack>
-
-          <VStack gap={3} align="stretch">
-            <Heading size="md">{t('dashboard.venues.sectionTitle')}</Heading>
-            <VenuesStatsSection />
-          </VStack>
-        </VStack>
-      </Container>
+        </Container>
+      </Box>
     </MainLayout>
   );
 }

@@ -5287,10 +5287,49 @@
       "loadError": "Không thể tải số liệu thống kê",
       "retry": "Thử lại",
       "last30Days": "30 ngày qua",
+      "lastUpdated": "Cập nhật lúc {time}",
+      "notUpdatedYet": "Đang chờ dữ liệu mới nhất",
+      "refresh": "Làm mới số liệu",
+      "emptyRange": "Không có dữ liệu trong khoảng đã chọn",
+      "chartSummary": "Biểu đồ {metric}",
+      "filters": {
+        "title": "Khoảng thời gian thống kê",
+        "7d": "7 ngày",
+        "30d": "30 ngày",
+        "90d": "90 ngày",
+        "custom": "Tùy chỉnh",
+        "from": "Từ ngày",
+        "to": "Đến ngày",
+        "invalidRange": "Chọn khoảng ngày hợp lệ, tối đa 365 ngày."
+      },
+      "actionQueue": {
+        "title": "Cần xử lý",
+        "description": "Các yêu cầu đang chờ quản trị viên xem xét.",
+        "reviewNow": "Mở danh sách để xem xét",
+        "allClear": "Không còn yêu cầu chờ xử lý"
+      },
+      "growth": {
+        "title": "Xu hướng tăng trưởng",
+        "description": "Dữ liệu mới phát sinh trong {range}."
+      },
+      "breakdown": {
+        "usersTitle": "Phân bổ người dùng",
+        "usersDescription": "Cơ cấu tài khoản hiện tại trên hệ thống.",
+        "operationsTitle": "Trạng thái vận hành",
+        "operationsDescription": "Phân bổ trạng thái của các nguồn lực chính.",
+        "role": "Vai trò",
+        "gender": "Giới tính",
+        "requests": "Yêu cầu",
+        "courts": "Sân"
+      },
+      "errors": {
+        "sectionUnavailable": "Phần dữ liệu này tạm thời chưa khả dụng. Các số liệu khác vẫn được giữ nguyên."
+      },
       "users": {
         "sectionTitle": "Người dùng",
         "total": "Tổng người dùng",
         "newInRange": "Người dùng mới",
+        "byRole": "Người dùng theo vai trò",
         "byGender": "Người dùng theo giới tính",
         "trend": "Xu hướng người dùng mới"
       },

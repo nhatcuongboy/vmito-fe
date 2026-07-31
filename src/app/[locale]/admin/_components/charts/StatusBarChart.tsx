@@ -1,6 +1,7 @@
 'use client';
 
-import { Box, Text } from '@chakra-ui/react';
+import { Box, Skeleton, Text } from '@chakra-ui/react';
+import { useLocale } from 'next-intl';
 import {
   Bar,
   BarChart,
@@ -22,6 +23,8 @@ interface StatusBarChartProps {
   data: StatusDatum[];
   color?: string;
   emptyLabel?: string;
+  isLoading?: boolean;
+  ariaLabel?: string;
 }
 
 export default function StatusBarChart({
@@ -29,19 +32,24 @@ export default function StatusBarChart({
   data,
   color = '#16a34a',
   emptyLabel = 'Chưa có dữ liệu',
+  isLoading = false,
+  ariaLabel,
 }: StatusBarChartProps) {
+  const locale = useLocale();
   const gridColor = useColorModeValue('#e2e8f0', '#2d3748');
   const textColor = useColorModeValue('#718096', '#a0aec0');
   const tooltipBg = useColorModeValue('#ffffff', '#1a202c');
 
   return (
-    <Box>
+    <Box role="img" aria-label={ariaLabel ?? title} aria-busy={isLoading}>
       <Text fontSize="sm" fontWeight="semibold" mb={2}>
         {title}
       </Text>
-      {data.length === 0 ? (
+      {isLoading ? (
+        <Skeleton height="240px" borderRadius="md" />
+      ) : data.length === 0 ? (
         <Box
-          h="200px"
+          h="240px"
           display="flex"
           alignItems="center"
           justifyContent="center"
@@ -51,10 +59,12 @@ export default function StatusBarChart({
           </Text>
         </Box>
       ) : (
-        <ResponsiveContainer width="100%" height={200}>
+        <ResponsiveContainer width="100%" height={240}>
           <BarChart
             data={data}
-            margin={{ top: 4, right: 8, left: 4, bottom: 0 }}
+            layout="vertical"
+            margin={{ top: 4, right: 20, left: 4, bottom: 0 }}
+            accessibilityLayer
           >
             <CartesianGrid
               strokeDasharray="3 3"
@@ -62,18 +72,25 @@ export default function StatusBarChart({
               vertical={false}
             />
             <XAxis
-              dataKey="label"
-              tick={{ fontSize: 12, fill: textColor }}
-              axisLine={{ stroke: gridColor }}
-              tickLine={false}
-            />
-            <YAxis
+              type="number"
               allowDecimals={false}
               tick={{ fontSize: 12, fill: textColor }}
               axisLine={{ stroke: gridColor }}
               tickLine={false}
             />
+            <YAxis
+              type="category"
+              dataKey="label"
+              width={112}
+              tick={{ fontSize: 12, fill: textColor }}
+              axisLine={{ stroke: gridColor }}
+              tickLine={false}
+              tickFormatter={(label: string) =>
+                label.length > 18 ? `${label.slice(0, 17)}…` : label
+              }
+            />
             <Tooltip
+              formatter={(value) => Number(value).toLocaleString(locale)}
               contentStyle={{
                 background: tooltipBg,
                 border: `1px solid ${gridColor}`,
@@ -84,8 +101,8 @@ export default function StatusBarChart({
             <Bar
               dataKey="count"
               fill={color}
-              radius={[4, 4, 0, 0]}
-              maxBarSize={48}
+              radius={[0, 4, 4, 0]}
+              maxBarSize={28}
             />
           </BarChart>
         </ResponsiveContainer>

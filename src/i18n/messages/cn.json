@@ -5230,6 +5230,44 @@
       "loadError": "加载统计数据失败",
       "retry": "重试",
       "last30Days": "最近30天",
+      "lastUpdated": "更新于 {time}",
+      "notUpdatedYet": "正在等待最新数据",
+      "refresh": "刷新统计数据",
+      "emptyRange": "所选日期范围内没有数据",
+      "chartSummary": "{metric}图表",
+      "filters": {
+        "title": "统计周期",
+        "7d": "7天",
+        "30d": "30天",
+        "90d": "90天",
+        "custom": "自定义",
+        "from": "开始日期",
+        "to": "结束日期",
+        "invalidRange": "请选择不超过365天的有效日期范围。"
+      },
+      "actionQueue": {
+        "title": "待处理",
+        "description": "等待管理员审核的申请。",
+        "reviewNow": "打开列表进行审核",
+        "allClear": "没有待处理的申请"
+      },
+      "growth": {
+        "title": "增长趋势",
+        "description": "{range}内的新增活动。"
+      },
+      "breakdown": {
+        "usersTitle": "用户分布",
+        "usersDescription": "系统当前账户构成。",
+        "operationsTitle": "运营状态",
+        "operationsDescription": "核心资源的状态分布。",
+        "role": "角色",
+        "gender": "性别",
+        "requests": "申请",
+        "courts": "球场"
+      },
+      "errors": {
+        "sectionUnavailable": "此部分数据暂时不可用，其他统计数据仍会保留。"
+      },
       "users": {
         "sectionTitle": "用户",
         "total": "用户总数",
@@ -5237,6 +5275,18 @@
         "byRole": "按角色划分的用户",
         "byGender": "按性别划分的用户",
         "trend": "新增用户趋势"
+      },
+      "sessions": {
+        "sectionTitle": "场次"
+      },
+      "tournaments": {
+        "sectionTitle": "赛事"
+      },
+      "clubs": {
+        "sectionTitle": "俱乐部"
+      },
+      "venues": {
+        "sectionTitle": "场馆"
       },
       "sessionsTournaments": {
         "sectionTitle": "场次与赛事",

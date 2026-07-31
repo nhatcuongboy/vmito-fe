@@ -1,6 +1,7 @@
 'use client';
 
-import { Box, Text } from '@chakra-ui/react';
+import { Box, Skeleton, Text } from '@chakra-ui/react';
+import { useLocale } from 'next-intl';
 import {
   CartesianGrid,
   Line,
@@ -22,30 +23,36 @@ interface TrendLineChartProps {
   data: TrendPoint[];
   color?: string;
   emptyLabel?: string;
+  isLoading?: boolean;
+  ariaLabel?: string;
 }
-
-const formatBucketLabel = (bucket: string) =>
-  new Date(bucket).toLocaleDateString('vi-VN', {
-    day: '2-digit',
-    month: '2-digit',
-  });
 
 export default function TrendLineChart({
   title,
   data,
   color = '#16a34a',
   emptyLabel = 'Chưa có dữ liệu',
+  isLoading = false,
+  ariaLabel,
 }: TrendLineChartProps) {
+  const locale = useLocale();
   const gridColor = useColorModeValue('#e2e8f0', '#2d3748');
   const textColor = useColorModeValue('#718096', '#a0aec0');
   const tooltipBg = useColorModeValue('#ffffff', '#1a202c');
+  const formatBucketLabel = (bucket: string) =>
+    new Intl.DateTimeFormat(locale, {
+      day: '2-digit',
+      month: '2-digit',
+    }).format(new Date(bucket));
 
   return (
-    <Box>
+    <Box role="img" aria-label={ariaLabel ?? title} aria-busy={isLoading}>
       <Text fontSize="sm" fontWeight="semibold" mb={2}>
         {title}
       </Text>
-      {data.length === 0 ? (
+      {isLoading ? (
+        <Skeleton height="220px" borderRadius="md" />
+      ) : data.length === 0 ? (
         <Box
           h="220px"
           display="flex"
@@ -61,6 +68,7 @@ export default function TrendLineChart({
           <LineChart
             data={data}
             margin={{ top: 4, right: 8, left: 4, bottom: 0 }}
+            accessibilityLayer
           >
             <CartesianGrid strokeDasharray="3 3" stroke={gridColor} />
             <XAxis
@@ -78,6 +86,7 @@ export default function TrendLineChart({
             />
             <Tooltip
               labelFormatter={(label) => formatBucketLabel(String(label))}
+              formatter={(value) => Number(value).toLocaleString(locale)}
               contentStyle={{
                 background: tooltipBg,
                 border: `1px solid ${gridColor}`,

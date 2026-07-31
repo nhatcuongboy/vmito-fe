@@ -5272,10 +5272,49 @@
       "loadError": "Failed to load statistics",
       "retry": "Retry",
       "last30Days": "Last 30 days",
+      "lastUpdated": "Updated at {time}",
+      "notUpdatedYet": "Waiting for the latest data",
+      "refresh": "Refresh statistics",
+      "emptyRange": "No data in the selected date range",
+      "chartSummary": "Chart of {metric}",
+      "filters": {
+        "title": "Reporting period",
+        "7d": "7 days",
+        "30d": "30 days",
+        "90d": "90 days",
+        "custom": "Custom",
+        "from": "From",
+        "to": "To",
+        "invalidRange": "Select a valid date range of up to 365 days."
+      },
+      "actionQueue": {
+        "title": "Needs attention",
+        "description": "Requests waiting for an administrator review.",
+        "reviewNow": "Open the list to review",
+        "allClear": "No requests are waiting"
+      },
+      "growth": {
+        "title": "Growth trends",
+        "description": "New activity during {range}."
+      },
+      "breakdown": {
+        "usersTitle": "User breakdown",
+        "usersDescription": "Current account distribution across the system.",
+        "operationsTitle": "Operational status",
+        "operationsDescription": "Status distribution of core resources.",
+        "role": "Role",
+        "gender": "Gender",
+        "requests": "Requests",
+        "courts": "Courts"
+      },
+      "errors": {
+        "sectionUnavailable": "This data is temporarily unavailable. Other statistics remain visible."
+      },
       "users": {
         "sectionTitle": "Users",
         "total": "Total Users",
         "newInRange": "New Users",
+        "byRole": "Users by Role",
         "byGender": "Users by Gender",
         "trend": "New Users Trend"
       },
