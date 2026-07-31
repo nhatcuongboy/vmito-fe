@@ -2,13 +2,19 @@
 
 import { Box, Text } from '@chakra-ui/react';
 import { Image } from '@/components/ui/chakra-compat';
-import { LucideIcon, PanelLeftClose, PanelLeftOpen } from 'lucide-react';
+import {
+  ListChecks,
+  LucideIcon,
+  PanelLeftClose,
+  PanelLeftOpen,
+} from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 import { Tournament } from '@/lib/api/types';
 import SidebarNav from '@/components/ui/SidebarNav';
 import { useLocale, useTranslations } from 'next-intl';
 import { getPrimaryVenueDisplay } from '@/utils';
 import { FavoriteEngagementControl } from '@/components/favorites/FavoriteEngagementControl';
+import { notifyTournamentGuideToggle } from '@/lib/tournamentGuideEvents';
 
 interface SidebarTab {
   id: number;
@@ -25,6 +31,7 @@ interface TournamentSidebarProps {
   onTabChange: (tabIndex: number) => void;
   showStatusBadge?: boolean;
   showFavorite?: boolean;
+  showGuideToggle?: boolean;
   variant?: 'card' | 'embedded';
 }
 
@@ -35,9 +42,11 @@ export default function TournamentSidebar({
   onTabChange,
   showStatusBadge = false,
   showFavorite = false,
+  showGuideToggle = false,
   variant = 'card',
 }: TournamentSidebarProps) {
   const t = useTranslations('pages.tournaments.detail.publicationStatus');
+  const navigation = useTranslations('navigation');
   const locale = useLocale();
   const [isCollapsed, setIsCollapsed] = useState(false);
 
@@ -79,6 +88,40 @@ export default function TournamentSidebar({
   return (
     <SidebarNav
       header={header}
+      footer={
+        showGuideToggle ? (
+          <Box px={isCollapsed ? 1.5 : 2} pb={4}>
+            <Box
+              asChild
+              aria-label={navigation('tournamentGuide')}
+              title={isCollapsed ? navigation('tournamentGuide') : undefined}
+              display="flex"
+              alignItems="center"
+              justifyContent={isCollapsed ? 'center' : 'flex-start'}
+              gap={isCollapsed ? 0 : 3}
+              w="full"
+              px={isCollapsed ? 0 : 3}
+              py={2.5}
+              borderRadius="lg"
+              color="gray.600"
+              fontSize="sm"
+              fontWeight="medium"
+              transition="all 0.15s"
+              _hover={{ bg: 'green.50', color: 'green.700' }}
+              _dark={{
+                color: 'gray.400',
+                _hover: { bg: 'rgba(34, 197, 94, 0.14)', color: 'green.100' },
+              }}
+              onClick={notifyTournamentGuideToggle}
+            >
+              <button type="button">
+                <ListChecks size={19} />
+                {!isCollapsed && <Text>{navigation('tournamentGuide')}</Text>}
+              </button>
+            </Box>
+          </Box>
+        ) : undefined
+      }
       items={tabs}
       activeId={activeTab}
       onItemClick={(id) => onTabChange(Number(id))}
@@ -114,8 +157,8 @@ function TournamentSidebarHeader({
   const formattedDate = new Date(tournament.startDate).toLocaleDateString(
     locale,
     {
-      weekday: 'short',
-      month: 'short',
+      weekday: 'long',
+      month: 'long',
       day: 'numeric',
       year: 'numeric',
     }

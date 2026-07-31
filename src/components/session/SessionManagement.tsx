@@ -17,6 +17,7 @@ import {
 } from '@chakra-ui/react';
 import { RefreshCw, RotateCcw, Square, Target } from 'lucide-react';
 import { useEffect, useState, useCallback } from 'react';
+import { useTranslations } from 'next-intl';
 import { toaster } from '@/components/ui/toaster';
 
 interface SessionManagementProps {
@@ -65,6 +66,7 @@ interface RealTimeData {
 export default function SessionManagement({
   sessionId,
 }: SessionManagementProps) {
+  const t = useTranslations('session');
   const { getLevelShortLabel } = useLevelLabel();
   const [realTimeData, setRealTimeData] = useState<RealTimeData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -83,11 +85,11 @@ export default function SessionManagement({
       setRealTimeData(data);
     } catch (error) {
       console.error('Error fetching real-time data:', error);
-      toaster.error({ title: 'Failed to fetch session status' });
+      toaster.error({ title: t('fetchStatusFailed') });
     } finally {
       setLoading(false);
     }
-  }, [sessionId, loading]);
+  }, [sessionId, loading, t]);
 
   // Auto-refresh effect
   useEffect(() => {

@@ -9,6 +9,7 @@
     "finish": "Start Exploring"
   },
   "navigation": {
+    "tournamentGuide": "Tournament setup guide",
     "dashboard": "Dashboard",
     "host": "Manage Sessions",
     "join": "Join",
@@ -95,6 +96,7 @@
     "loadMore": "Load more",
     "navigating": "Navigating...",
     "error": "Error",
+    "browserNotSupportLocation": "Browser does not support geolocation",
     "success": "Success",
     "notAvailable": "N/A",
     "unknown": "Unknown",
@@ -229,6 +231,7 @@
     "change": "Change",
     "uploading": "Uploading...",
     "pleaseSelectImageFile": "Please select an image file",
+    "imageProcessFailed": "Failed to process image",
     "fileSizeTooLarge": "File size must be less than 5MB",
     "imageProcessingFailed": "Failed to process image. Please try another file.",
     "tooManyFiles": "You can only select up to {max} images",
@@ -278,6 +281,7 @@
     "resultsCount": "{count} results"
   },
   "session": {
+    "fetchStatusFailed": "Failed to fetch session status",
     "session": "Session",
     "title": "Badminton Session",
     "resultsCount": "{count} sessions",
@@ -440,6 +444,7 @@
       "courtNumberUnique": "Court numbers must be unique",
       "atLeastOneCourt": "At least one court is required",
       "sessionCreateFailed": "Failed to create session",
+      "bulkCreationFailed": "Failed to create sessions",
       "sessionCreatedSuccessfully": "Session created successfully!",
       "sessionUpdatedSuccessfully": "Session updated successfully",
       "failedToUpdateSession": "Failed to update session",
@@ -5608,6 +5613,9 @@
     "venueRequests": "Venue Requests"
   },
   "PlayerDetailModal": {
+    "statusSetToWaiting": "Player status set to Waiting",
+    "statusSetToInactive": "Player status set to Inactive",
+    "updateStatusFailed": "Failed to update player status",
     "status": "Status",
     "playerDetails": "Player Details",
     "levelDescription": "Level Description",
@@ -5979,6 +5987,9 @@
     "markAsRead": "Mark as read",
     "markAllAsRead": "Mark all as read",
     "delete": "Delete",
+    "cancel": "Cancel",
+    "deleteConfirmTitle": "Delete notification?",
+    "deleteConfirmDescription": "The notification “{title}” will be permanently deleted. Do you want to continue?",
     "new": "New",
     "broadcastNotifications": "Broadcast Notifications",
     "broadcastDescription": "Send a notification to all users in the system",

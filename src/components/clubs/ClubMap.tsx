@@ -21,6 +21,7 @@ import {
 } from '@chakra-ui/react';
 import { MapPin, Info, Navigation, Users, Locate } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import useMapPinIcon from '@/hooks/useMapPinIcon';
 import { toaster } from '@/components/ui/toaster';
 import {
@@ -50,6 +51,7 @@ export default function ClubMap({
   clubs,
   userLocation: initialUserLocation,
 }: ClubMapProps) {
+  const t = useTranslations('common');
   const router = useRouter();
   const [selectedVenueId, setSelectedVenueId] = useState<string | null>(null);
   const [hoveredVenueId, setHoveredVenueId] = useState<string | null>(null);
@@ -190,7 +192,7 @@ export default function ClubMap({
               'Vui lòng cho phép truy cập vị trí trong cài đặt trình duyệt';
           }
           toaster.create({
-            title: 'Lỗi',
+            title: t('error'),
             description: errorMessage,
             type: 'error',
             duration: 3000,
@@ -200,13 +202,13 @@ export default function ClubMap({
     } else {
       setIsLocating(false);
       toaster.create({
-        title: 'Lỗi',
-        description: 'Trình duyệt không hỗ trợ định vị',
+        title: t('error'),
+        description: t('browserNotSupportLocation'),
         type: 'error',
         duration: 3000,
       });
     }
-  }, [mapInstance]);
+  }, [mapInstance, t]);
 
   if (loadError) {
     return (

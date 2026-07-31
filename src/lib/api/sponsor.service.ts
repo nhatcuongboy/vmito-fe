@@ -1,4 +1,5 @@
 import { toaster } from '@/components/ui/toaster';
+import { getToastMessage } from '@/lib/i18n/toastMessages';
 import { api, ApiResponse } from './base';
 import { Sponsor, CreateSponsorRequest, UpdateSponsorRequest } from './types';
 
@@ -28,7 +29,7 @@ export const SponsorService = {
       data
     );
     if (options?.showToast !== false) {
-      toaster.success({ title: 'Sponsor created successfully' });
+      toaster.success({ title: getToastMessage('sponsorCreatedSuccessfully') });
     }
     return response.data.data!;
   },
@@ -44,7 +45,7 @@ export const SponsorService = {
       data
     );
     if (options?.showToast !== false) {
-      toaster.success({ title: 'Sponsor updated successfully' });
+      toaster.success({ title: getToastMessage('sponsorUpdatedSuccessfully') });
     }
     return response.data.data!;
   },
@@ -52,6 +53,6 @@ export const SponsorService = {
   // Delete sponsor
   deleteSponsor: async (id: string): Promise<void> => {
     await api.delete<ApiResponse<null>>(`/sponsors/${id}`);
-    toaster.success({ title: 'Sponsor deleted successfully' });
+    toaster.success({ title: getToastMessage('sponsorDeletedSuccessfully') });
   },
 };

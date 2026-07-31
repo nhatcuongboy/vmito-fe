@@ -12,6 +12,12 @@ import {
   MenuContent,
   MenuItem,
 } from '@chakra-ui/react';
+import {
+  motion,
+  useDragControls,
+  useMotionValue,
+  type PanInfo,
+} from 'framer-motion';
 import { Button, IconButton, HStack } from '@/components/ui/chakra-compat';
 import {
   Check,
@@ -34,6 +40,7 @@ import {
 } from './useTournamentSetupSteps';
 import { useTournamentProgress } from './useTournamentProgress';
 import { buildRunSteps, GuideCategoryRow, RunStepId } from './guideModel';
+import { subscribeTournamentGuideToggle } from '@/lib/tournamentGuideEvents';
 
 interface Props {
   tournament: Tournament;
@@ -42,6 +49,21 @@ interface Props {
 
 const storageKey = (slug: string, suffix: string) =>
   `vmito.tournament.${slug}.${suffix}`;
+
+type Corner = 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';
+const CORNER_STORAGE_KEY = 'vmito.tournamentGuide.corner';
+const CORNER_OFFSET = '24px';
+const CORNER_STYLE: Record<Corner, React.CSSProperties> = {
+  'top-left': { top: CORNER_OFFSET, left: CORNER_OFFSET },
+  'top-right': { top: CORNER_OFFSET, right: CORNER_OFFSET },
+  'bottom-left': { bottom: CORNER_OFFSET, left: CORNER_OFFSET },
+  'bottom-right': { bottom: CORNER_OFFSET, right: CORNER_OFFSET },
+};
+const isCorner = (value: string | null): value is Corner =>
+  value === 'top-left' ||
+  value === 'top-right' ||
+  value === 'bottom-left' ||
+  value === 'bottom-right';
 
 function StepCircle({ done, label }: { done: boolean; label: string }) {
   return (
@@ -80,6 +102,9 @@ export default function TournamentGuideWidget({
   // SSR-safe persisted UI state; null = not hydrated yet (render nothing)
   const [dismissed, setDismissed] = useState<boolean | null>(null);
   const [collapsed, setCollapsed] = useState(false);
+  // Screen corner is a device preference, not per-tournament, so it's stored
+  // under a global (non-slug-scoped) localStorage key.
+  const [corner, setCorner] = useState<Corner>('bottom-right');
   useEffect(() => {
     setDismissed(
       window.localStorage.getItem(storageKey(slug, 'guideDismissed')) === 'true'
@@ -87,7 +112,49 @@ export default function TournamentGuideWidget({
     setCollapsed(
       window.localStorage.getItem(storageKey(slug, 'guideCollapsed')) === 'true'
     );
+    const storedCorner = window.localStorage.getItem(CORNER_STORAGE_KEY);
+    if (isCorner(storedCorner)) setCorner(storedCorner);
   }, [slug]);
+
+  // Reopen from the slide-out menu's toggle icon even if previously dismissed.
+  useEffect(
+    () =>
+      subscribeTournamentGuideToggle(() => {
+        window.localStorage.removeItem(storageKey(slug, 'guideDismissed'));
+        setDismissed(false);
+        setCollapsed((cur) => {
+          if (!cur) return cur;
+          window.localStorage.setItem(
+            storageKey(slug, 'guideCollapsed'),
+            'false'
+          );
+          return false;
+        });
+      }),
+    [slug]
+  );
+
+  const dragControls = useDragControls();
+  const dragX = useMotionValue(0);
+  const dragY = useMotionValue(0);
+  const handleDragEnd = (
+    _event: MouseEvent | TouchEvent | PointerEvent,
+    info: PanInfo
+  ) => {
+    const isRight = info.point.x > window.innerWidth / 2;
+    const isBottom = info.point.y > window.innerHeight / 2;
+    const next: Corner = isBottom
+      ? isRight
+        ? 'bottom-right'
+        : 'bottom-left'
+      : isRight
+        ? 'top-right'
+        : 'top-left';
+    setCorner(next);
+    window.localStorage.setItem(CORNER_STORAGE_KEY, next);
+    dragX.set(0);
+    dragY.set(0);
+  };
 
   const handleDismiss = () => {
     window.localStorage.setItem(storageKey(slug, 'guideDismissed'), 'true');
@@ -325,174 +392,206 @@ export default function TournamentGuideWidget({
 
   return (
     <>
-      <Box
-        position="fixed"
-        bottom="24px"
-        right="24px"
-        w="360px"
-        zIndex={1200}
-        display={{ base: 'none', md: 'block' }}
-        borderRadius="2xl"
-        overflow="hidden"
-        borderWidth="1px"
-        borderColor="gray.200"
-        boxShadow="0 12px 40px rgba(0, 0, 0, 0.18)"
-        bg="white"
-        _dark={{
-          bg: 'var(--tournament-surface-raised, var(--chakra-colors-gray-800))',
-          borderColor:
-            'var(--tournament-border, var(--chakra-colors-gray-700))',
-        }}
-      >
-        {/* Green header (matches the dashboard setup banner) */}
-        <Box bg="green.600" px={4} pt={3} pb={3} _dark={{ bg: 'green.700' }}>
-          <Flex align="center" gap={2}>
-            <Text
-              color="white"
-              fontWeight="bold"
-              fontSize="md"
-              flex="1"
-              lineClamp={1}
+      <Box display={{ base: 'none', md: 'block' }}>
+        <motion.div
+          drag
+          dragListener={false}
+          dragControls={dragControls}
+          dragMomentum={false}
+          dragElastic={0}
+          onDragEnd={handleDragEnd}
+          style={{
+            position: 'fixed',
+            zIndex: 1200,
+            width: 360,
+            x: dragX,
+            y: dragY,
+            ...CORNER_STYLE[corner],
+          }}
+        >
+          <Box
+            borderRadius="2xl"
+            overflow="hidden"
+            borderWidth="1px"
+            borderColor="gray.200"
+            boxShadow="0 12px 40px rgba(0, 0, 0, 0.18)"
+            bg="white"
+            _dark={{
+              bg: 'var(--tournament-surface-raised, var(--chakra-colors-gray-800))',
+              borderColor:
+                'var(--tournament-border, var(--chakra-colors-gray-700))',
+            }}
+          >
+            {/* Green header (matches the dashboard setup banner); also the drag handle */}
+            <Box
+              bg="green.600"
+              px={4}
+              pt={3}
+              pb={3}
+              cursor="grab"
+              _dark={{ bg: 'green.700' }}
+              onPointerDown={(e: React.PointerEvent) => dragControls.start(e)}
             >
-              {headerTitle}
-            </Text>
-            <MenuRoot positioning={{ placement: 'top-end' }}>
-              <MenuTrigger asChild>
+              <Flex align="center" gap={2}>
+                <Text
+                  color="white"
+                  fontWeight="bold"
+                  fontSize="md"
+                  flex="1"
+                  lineClamp={1}
+                >
+                  {headerTitle}
+                </Text>
+                <MenuRoot positioning={{ placement: 'top-end' }}>
+                  <MenuTrigger asChild>
+                    <IconButton
+                      aria-label={t('guide.moreActions')}
+                      variant="ghost"
+                      size="xs"
+                      color="white"
+                      _hover={{ bg: 'whiteAlpha.300' }}
+                      onPointerDown={(e: React.PointerEvent) =>
+                        e.stopPropagation()
+                      }
+                    >
+                      <MoreVertical size={16} />
+                    </IconButton>
+                  </MenuTrigger>
+                  <Portal>
+                    <MenuPositioner zIndex={2000}>
+                      <MenuContent
+                        minW="180px"
+                        zIndex={2001}
+                        bg="white"
+                        _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
+                        boxShadow="lg"
+                        borderRadius="lg"
+                        borderWidth="1px"
+                        borderColor="gray.200"
+                        p={1}
+                      >
+                        <MenuItem value="dismiss" onClick={handleDismiss}>
+                          <HStack gap={2}>
+                            <X size={16} />
+                            <Text>{t('guide.menu.dismiss')}</Text>
+                          </HStack>
+                        </MenuItem>
+                      </MenuContent>
+                    </MenuPositioner>
+                  </Portal>
+                </MenuRoot>
                 <IconButton
-                  aria-label={t('guide.moreActions')}
+                  aria-label={
+                    collapsed ? t('guide.expand') : t('guide.collapse')
+                  }
                   variant="ghost"
                   size="xs"
                   color="white"
                   _hover={{ bg: 'whiteAlpha.300' }}
+                  onClick={toggleCollapsed}
+                  onPointerDown={(e: React.PointerEvent) => e.stopPropagation()}
                 >
-                  <MoreVertical size={16} />
-                </IconButton>
-              </MenuTrigger>
-              <Portal>
-                <MenuPositioner zIndex={2000}>
-                  <MenuContent
-                    minW="180px"
-                    zIndex={2001}
-                    bg="white"
-                    _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
-                    boxShadow="lg"
-                    borderRadius="lg"
-                    borderWidth="1px"
-                    borderColor="gray.200"
-                    p={1}
-                  >
-                    <MenuItem value="dismiss" onClick={handleDismiss}>
-                      <HStack gap={2}>
-                        <X size={16} />
-                        <Text>{t('guide.menu.dismiss')}</Text>
-                      </HStack>
-                    </MenuItem>
-                  </MenuContent>
-                </MenuPositioner>
-              </Portal>
-            </MenuRoot>
-            <IconButton
-              aria-label={collapsed ? t('guide.expand') : t('guide.collapse')}
-              variant="ghost"
-              size="xs"
-              color="white"
-              _hover={{ bg: 'whiteAlpha.300' }}
-              onClick={toggleCollapsed}
-            >
-              {collapsed ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
-            </IconButton>
-          </Flex>
-          <Box
-            mt={2}
-            h="5px"
-            borderRadius="full"
-            bg="whiteAlpha.300"
-            overflow="hidden"
-          >
-            <Box
-              h="full"
-              w={`${progressPercent}%`}
-              bg="white"
-              borderRadius="full"
-              transition="width 0.3s"
-            />
-          </Box>
-        </Box>
-
-        {/* Body */}
-        {!collapsed && (
-          <>
-            <Text
-              px={4}
-              pt={2.5}
-              pb={1.5}
-              fontSize="sm"
-              bg="green.50"
-              color="gray.700"
-              _dark={{ bg: 'rgba(34, 197, 94, 0.14)', color: 'green.100' }}
-            >
-              {t('guide.progress', {
-                completed: progressCompleted,
-                total: progressTotal,
-              })}
-            </Text>
-            <Box maxH="50vh" overflowY="auto" pt={1} pb={2}>
-              {phase === 'setup'
-                ? SETUP_STEP_IDS.map((id, index) =>
-                    renderStepRow({
-                      id,
-                      index,
-                      done: completionMap[id],
-                      title: t(`steps.${id}.title`),
-                      description: t(`steps.${id}.description`),
-                      action: {
-                        label: t(`steps.${id}.action`),
-                        onClick: () => {
-                          const option = SETUP_STEP_MANAGE_OPTION[id];
-                          goToManage(option ? `?option=${option}` : '');
-                        },
-                      },
-                    })
-                  )
-                : (runSteps ?? []).map((step, index) =>
-                    renderStepRow({
-                      id: step.id,
-                      index,
-                      done: step.done,
-                      title: t(`guide.steps.${step.id}.title`),
-                      description: t(`guide.steps.${step.id}.description`),
-                      rows: step.rows
-                        ? renderCategoryRows(step.id, step.rows)
-                        : undefined,
-                      action:
-                        step.id === 'startPlayoffs'
-                          ? {
-                              label: t('guide.steps.startPlayoffs.action'),
-                              onClick: () => {
-                                const target = progress?.categories.find(
-                                  (c) =>
-                                    c.hasEliminationStage && !c.elimGenerated
-                                );
-                                goToManage(
-                                  `?option=rounds${
-                                    target
-                                      ? `&categoryId=${target.categoryId}`
-                                      : ''
-                                  }`
-                                );
-                              },
-                            }
-                          : step.id === 'finish' && !step.done
-                            ? {
-                                label: t('guide.steps.finish.action'),
-                                onClick: finishModal.onOpen,
-                              }
-                            : undefined,
-                    })
+                  {collapsed ? (
+                    <ChevronUp size={16} />
+                  ) : (
+                    <ChevronDown size={16} />
                   )}
+                </IconButton>
+              </Flex>
+              <Box
+                mt={2}
+                h="5px"
+                borderRadius="full"
+                bg="whiteAlpha.300"
+                overflow="hidden"
+              >
+                <Box
+                  h="full"
+                  w={`${progressPercent}%`}
+                  bg="white"
+                  borderRadius="full"
+                  transition="width 0.3s"
+                />
+              </Box>
             </Box>
-          </>
-        )}
+
+            {/* Body */}
+            {!collapsed && (
+              <>
+                <Text
+                  px={4}
+                  pt={2.5}
+                  pb={1.5}
+                  fontSize="sm"
+                  bg="green.50"
+                  color="gray.700"
+                  _dark={{ bg: 'rgba(34, 197, 94, 0.14)', color: 'green.100' }}
+                >
+                  {t('guide.progress', {
+                    completed: progressCompleted,
+                    total: progressTotal,
+                  })}
+                </Text>
+                <Box maxH="50vh" overflowY="auto" pt={1} pb={2}>
+                  {phase === 'setup'
+                    ? SETUP_STEP_IDS.map((id, index) =>
+                        renderStepRow({
+                          id,
+                          index,
+                          done: completionMap[id],
+                          title: t(`steps.${id}.title`),
+                          description: t(`steps.${id}.description`),
+                          action: {
+                            label: t(`steps.${id}.action`),
+                            onClick: () => {
+                              const option = SETUP_STEP_MANAGE_OPTION[id];
+                              goToManage(option ? `?option=${option}` : '');
+                            },
+                          },
+                        })
+                      )
+                    : (runSteps ?? []).map((step, index) =>
+                        renderStepRow({
+                          id: step.id,
+                          index,
+                          done: step.done,
+                          title: t(`guide.steps.${step.id}.title`),
+                          description: t(`guide.steps.${step.id}.description`),
+                          rows: step.rows
+                            ? renderCategoryRows(step.id, step.rows)
+                            : undefined,
+                          action:
+                            step.id === 'startPlayoffs'
+                              ? {
+                                  label: t('guide.steps.startPlayoffs.action'),
+                                  onClick: () => {
+                                    const target = progress?.categories.find(
+                                      (c) =>
+                                        c.hasEliminationStage &&
+                                        !c.elimGenerated
+                                    );
+                                    goToManage(
+                                      `?option=rounds${
+                                        target
+                                          ? `&categoryId=${target.categoryId}`
+                                          : ''
+                                      }`
+                                    );
+                                  },
+                                }
+                              : step.id === 'finish' && !step.done
+                                ? {
+                                    label: t('guide.steps.finish.action'),
+                                    onClick: finishModal.onOpen,
+                                  }
+                                : undefined,
+                        })
+                      )}
+                </Box>
+              </>
+            )}
+          </Box>
+        </motion.div>
       </Box>
 
       {/* Finish tournament confirm (mirrors TournamentStatusBanner) */}

@@ -22,6 +22,7 @@ import ScheduleTypeModal from './schedule/ScheduleTypeModal';
 import ManageScheduleModal from './schedule/ManageScheduleModal';
 import NextAvailableCourtModal from './schedule/NextAvailableCourtModal';
 import TournamentManageEmptyState from './TournamentManageEmptyState';
+import { notifyTournamentProgressChanged } from '@/components/tournament/guide/progressEvents';
 
 interface SchedulePanelProps {
   categories: Category[];
@@ -178,6 +179,7 @@ export default function SchedulePanel({
       const matches = await TournamentService.getAllMatches(tournament.id);
       setAllMatches(matches);
       await checkGroupStageCompletion();
+      notifyTournamentProgressChanged();
     } catch {
       // ignore
     }

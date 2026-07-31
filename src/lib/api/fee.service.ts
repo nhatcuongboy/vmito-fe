@@ -1,4 +1,5 @@
 import { toaster } from '@/components/ui/toaster';
+import { getToastMessage } from '@/lib/i18n/toastMessages';
 import { api, ApiResponse } from './base';
 import {
   SessionFeeConfig,
@@ -32,7 +33,7 @@ export const FeeService = {
       `/sessions/${sessionId}/fee-config`,
       data
     );
-    toaster.success({ title: 'Đã cấu hình phí thành công' });
+    toaster.success({ title: getToastMessage('feeConfiguredSuccessfully') });
     return response.data.data!;
   },
 
@@ -45,14 +46,14 @@ export const FeeService = {
       `/sessions/${sessionId}/fee-config`,
       data
     );
-    toaster.success({ title: 'Đã cập nhật phí thành công' });
+    toaster.success({ title: getToastMessage('feeUpdatedSuccessfully') });
     return response.data.data!;
   },
 
   // Delete fee config
   deleteSessionFeeConfig: async (sessionId: string): Promise<void> => {
     await api.delete(`/sessions/${sessionId}/fee-config`);
-    toaster.success({ title: 'Đã xóa cấu hình phí' });
+    toaster.success({ title: getToastMessage('feeConfigDeleted') });
   },
 
   // Recalculate all payments based on latest fee config

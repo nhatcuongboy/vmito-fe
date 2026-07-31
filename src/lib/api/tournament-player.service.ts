@@ -1,4 +1,5 @@
 import { toaster } from '@/components/ui/toaster';
+import { getToastMessage } from '@/lib/i18n/toastMessages';
 import { api, ApiResponse, dedupGet } from './base';
 import { TournamentPlayer, CategoryMatch, GenderType } from './types';
 
@@ -77,7 +78,7 @@ export const TournamentPlayerService = {
       data
     );
     if (options?.showToast !== false) {
-      toaster.success({ title: 'Player created successfully' });
+      toaster.success({ title: getToastMessage('playerCreatedSuccessfully') });
     }
     return response.data.data!;
   },
@@ -93,7 +94,7 @@ export const TournamentPlayerService = {
       { rows }
     );
     if (options?.showToast !== false) {
-      toaster.success({ title: 'Players created successfully' });
+      toaster.success({ title: getToastMessage('playersCreatedSuccessfully') });
     }
     return response.data.data!;
   },
@@ -109,7 +110,7 @@ export const TournamentPlayerService = {
       data
     );
     if (options?.showToast !== false) {
-      toaster.success({ title: 'Player updated successfully' });
+      toaster.success({ title: getToastMessage('playerUpdatedSuccessfully') });
     }
     return response.data.data!;
   },
@@ -121,7 +122,7 @@ export const TournamentPlayerService = {
   ): Promise<void> => {
     await api.delete<ApiResponse<null>>(`/tournament-players/${id}`);
     if (options?.showToast !== false) {
-      toaster.success({ title: 'Player deleted successfully' });
+      toaster.success({ title: getToastMessage('playerDeletedSuccessfully') });
     }
   },
 };

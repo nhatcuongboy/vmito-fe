@@ -38,6 +38,7 @@ interface PostAvatarProps {
    * false so existing usages stay unchanged.
    */
   bordered?: boolean;
+  ringVariant?: 'gradient' | 'solid';
 }
 
 /**
@@ -51,6 +52,7 @@ export function PostAvatar({
   size = 44,
   className = '',
   bordered = false,
+  ringVariant = 'gradient',
 }: PostAvatarProps) {
   const initial = name?.trim().charAt(0).toUpperCase() || '?';
   const fontSize = Math.max(12, Math.round(size * 0.4));
@@ -81,17 +83,21 @@ export function PostAvatar({
     return circle;
   }
 
-  // Instagram-style: gradient ring with a white gap between ring and avatar.
+  // Newsfeed uses a gradient with a gap; compact surfaces can use a solid ring.
   const ringWidth = Math.max(2, Math.round(size * 0.06));
-  const gapWidth = Math.max(2, Math.round(size * 0.045));
+  const gapWidth =
+    ringVariant === 'gradient' ? Math.max(2, Math.round(size * 0.045)) : 0;
   const colors =
     RING_GRADIENTS[hashString(name || '?') % RING_GRADIENTS.length];
-  const ringGradient = `conic-gradient(from 0deg, ${[...colors, colors[0]].join(', ')})`;
+  const ringBackground =
+    ringVariant === 'gradient'
+      ? `conic-gradient(from 0deg, ${[...colors, colors[0]].join(', ')})`
+      : colors[1] || colors[0];
 
   return (
     <span
       className="relative flex shrink-0 items-center justify-center rounded-full"
-      style={{ padding: ringWidth, background: ringGradient }}
+      style={{ padding: ringWidth, background: ringBackground }}
     >
       <span
         className="flex items-center justify-center rounded-full bg-white dark:bg-gray-900"

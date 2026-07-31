@@ -599,8 +599,8 @@ export default function TournamentHomeTab({
   const formattedDate = new Date(tournament.startDate).toLocaleDateString(
     locale,
     {
-      weekday: 'short',
-      month: 'short',
+      weekday: 'long',
+      month: 'long',
       day: 'numeric',
       year: 'numeric',
     }
@@ -609,7 +609,7 @@ export default function TournamentHomeTab({
     locale,
     {
       weekday: 'long',
-      month: 'short',
+      month: 'long',
       day: 'numeric',
       year: 'numeric',
     }

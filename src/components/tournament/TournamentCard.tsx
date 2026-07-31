@@ -28,14 +28,14 @@ const formatDateRange = (startDate: Date, endDate: Date, locale: string) => {
   const start = new Date(startDate);
   const end = new Date(endDate);
   const fullFormatter = new Intl.DateTimeFormat(locale, {
-    weekday: 'short',
-    month: 'short',
+    weekday: 'long',
+    month: 'long',
     day: 'numeric',
     year: 'numeric',
   });
   const shortFormatter = new Intl.DateTimeFormat(locale, {
-    weekday: 'short',
-    month: 'short',
+    weekday: 'long',
+    month: 'long',
     day: 'numeric',
   });
   if (isSameCalendarDay(start, end)) return fullFormatter.format(start);

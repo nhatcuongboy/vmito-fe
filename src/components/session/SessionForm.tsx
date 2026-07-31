@@ -515,9 +515,7 @@ export default function SessionForm({
           });
 
           if (!bulkResult.success || bulkResult.sessions.length === 0) {
-            throw new Error(
-              t('validation.bulkCreationFailed') || 'Failed to create sessions'
-            );
+            throw new Error(t('validation.bulkCreationFailed'));
           }
 
           // Use the first session as the main session to navigate to
@@ -526,8 +524,8 @@ export default function SessionForm({
 
           // Show success message with count
           toaster.success({
-            title: t('bulkCreation.success') || 'Sessions created successfully',
-            description: `${bulkResult.sessionsCreated} ${t('bulkCreation.sessionsCreated') || 'sessions created'}`,
+            title: t('bulkCreation.success'),
+            description: `${bulkResult.sessionsCreated} ${t('bulkCreation.sessionsCreated')}`,
           });
         }
       }

@@ -6,7 +6,7 @@ import { Badge, Box, Flex, Image, Text } from '@chakra-ui/react';
 import { CalendarDays, MapPin, Share2, UserRound, Users } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
-import { FavoriteEngagementControl } from '@/components/favorites/FavoriteEngagementControl';
+import { FavoriteButton } from '@/components/favorites/FavoriteButton';
 import { Tournament, TournamentStatus } from '@/lib/api/types';
 
 const AppLightbox = dynamic(() => import('@/components/ui/AppLightbox'));
@@ -159,12 +159,13 @@ export default function TournamentHomeHero({
             <Share2 size={17} aria-hidden="true" />
           </Box>
           {showFavorite ? (
-            <FavoriteEngagementControl
+            <FavoriteButton
               type="TOURNAMENT"
               targetId={tournament.id}
-              initialIsFavorite={tournament.isFavorite}
-              returnUrl={`/tournament/${slug}`}
+              isFavorite={tournament.isFavorite}
+              size="sm"
               variant="overlay-dark"
+              returnUrl={`/tournament/${slug}`}
             />
           ) : null}
         </Flex>

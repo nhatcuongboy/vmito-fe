@@ -49,6 +49,7 @@ import ContactPanel from './panels/ContactPanel';
 import DeletePanel from './panels/DeletePanel';
 
 import DuplicateTournamentModal from './DuplicateTournamentModal';
+import { notifyTournamentProgressChanged } from '../guide/progressEvents';
 
 interface TournamentManageProps {
   tournament: Tournament;
@@ -295,7 +296,10 @@ export default function TournamentManage({
             tournamentId={tournament.id}
             sportType={tournament.sportType}
             categories={categories}
-            onCategoriesChange={loadCategories}
+            onCategoriesChange={() => {
+              loadCategories();
+              notifyTournamentProgressChanged();
+            }}
           />
         );
       case 'format':
@@ -309,6 +313,7 @@ export default function TournamentManage({
             onOpenCategoriesPanel={() => handleItemClick('categories')}
             onCategoryUpdated={() => {
               void loadCategories();
+              notifyTournamentProgressChanged();
             }}
           />
         );
@@ -318,7 +323,10 @@ export default function TournamentManage({
             categories={categories}
             selectedCategory={selectedCategory}
             onSelectCategory={handleSelectCategory}
-            onCategoryUpdated={loadCategories}
+            onCategoryUpdated={() => {
+              loadCategories();
+              notifyTournamentProgressChanged();
+            }}
             onOpenCategoriesPanel={() => handleItemClick('categories')}
           />
         );
@@ -332,7 +340,12 @@ export default function TournamentManage({
           />
         );
       case 'venues':
-        return <VenuePanel tournament={tournament} />;
+        return (
+          <VenuePanel
+            tournament={tournament}
+            onTournamentChanged={notifyTournamentProgressChanged}
+          />
+        );
       case 'schedule':
         return (
           <SchedulePanel

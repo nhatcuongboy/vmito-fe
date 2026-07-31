@@ -1,5 +1,6 @@
 {
   "navigation": {
+    "tournamentGuide": "赛事设置指南",
     "dashboard": "仪表盘",
     "host": "主办方",
     "join": "加入",
@@ -86,6 +87,7 @@
     "loadMore": "加载更多",
     "navigating": "正在导航...",
     "error": "错误",
+    "browserNotSupportLocation": "浏览器不支持定位",
     "success": "成功",
     "notAvailable": "N/A",
     "unknown": "未知",
@@ -220,6 +222,7 @@
     "change": "更改",
     "uploading": "上传中...",
     "pleaseSelectImageFile": "请选择图片文件",
+    "imageProcessFailed": "无法处理图片",
     "fileSizeTooLarge": "文件大小必须小于 5MB",
     "imageProcessingFailed": "处理图片失败。请尝试其他文件。",
     "uploadImage": "Upload Image",
@@ -268,6 +271,7 @@
     "resultsCount": "{count} 个结果"
   },
   "session": {
+    "fetchStatusFailed": "无法获取场次状态",
     "session": "场次",
     "title": "羽毛球场次",
     "resultsCount": "{count} 个场次",
@@ -428,6 +432,7 @@
       "courtNumberUnique": "场地编号必须唯一",
       "atLeastOneCourt": "至少需要一个场地",
       "sessionCreateFailed": "创建场次失败",
+      "bulkCreationFailed": "无法创建场次",
       "sessionCreatedSuccessfully": "场次创建成功！",
       "sessionUpdatedSuccessfully": "场次更新成功",
       "failedToUpdateSession": "更新场次失败",
@@ -5567,6 +5572,9 @@
     "venueRequests": "场地请求"
   },
   "PlayerDetailModal": {
+    "statusSetToWaiting": "玩家状态已设为等待中",
+    "statusSetToInactive": "玩家状态已设为未激活",
+    "updateStatusFailed": "更新玩家状态失败",
     "status": "状态",
     "playerDetails": "玩家详情",
     "levelDescription": "水平描述",
@@ -5938,6 +5946,9 @@
     "markAsRead": "标记为已读",
     "markAllAsRead": "全部标记为已读",
     "delete": "删除",
+    "cancel": "取消",
+    "deleteConfirmTitle": "删除通知？",
+    "deleteConfirmDescription": "通知“{title}”将被永久删除。是否继续？",
     "new": "新",
     "broadcastNotifications": "广播通知",
     "broadcastDescription": "向系统中的所有用户发送通知",

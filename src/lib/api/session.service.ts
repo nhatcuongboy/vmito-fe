@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { toaster } from '@/components/ui/toaster';
+import { getToastMessage } from '@/lib/i18n/toastMessages';
 import { api, ApiResponse } from './base';
 import {
   ISession,
@@ -408,7 +409,9 @@ export const SessionService = {
         migrationResults: any;
       }>
     >(`/sessions/${id}/migrate-end`);
-    toaster.success({ title: 'ISession migration completed successfully' });
+    toaster.success({
+      title: getToastMessage('sessionMigrationCompletedSuccessfully'),
+    });
     return response.data.data!;
   },
 

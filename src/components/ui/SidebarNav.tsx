@@ -24,6 +24,8 @@ export interface SidebarNavSection {
 interface SidebarNavProps {
   /** Header slot: any content rendered above nav items (image, entity info, etc.) */
   header?: ReactNode;
+  /** Footer slot rendered below the scrollable navigation items. */
+  footer?: ReactNode;
   /** Flat list of nav items OR grouped sections */
   items?: SidebarNavItem[];
   sections?: SidebarNavSection[];
@@ -55,6 +57,7 @@ interface SidebarNavProps {
  */
 export default function SidebarNav({
   header,
+  footer,
   items,
   sections,
   activeId,
@@ -234,6 +237,8 @@ export default function SidebarNav({
           </Box>
         ))}
       </Box>
+
+      {footer && <Box flexShrink={0}>{footer}</Box>}
     </Box>
   );
 }

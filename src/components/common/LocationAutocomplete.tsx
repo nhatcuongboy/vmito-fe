@@ -65,9 +65,9 @@ const LocationAutocompleteInner = ({
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const nextValue = controlledValue ?? defaultValue;
-    if (nextValue !== value) setValue(nextValue, false);
-  }, [controlledValue, defaultValue, setValue, value]);
+    if (controlledValue === undefined) return; // uncontrolled: don't fight typing
+    if (controlledValue !== value) setValue(controlledValue, false);
+  }, [controlledValue, setValue, value]);
 
   const handleSelect = async (
     address: string,

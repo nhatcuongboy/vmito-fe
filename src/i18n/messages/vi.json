@@ -9,6 +9,7 @@
     "finish": "Bắt đầu khám phá"
   },
   "navigation": {
+    "tournamentGuide": "Hướng dẫn thiết lập giải đấu",
     "dashboard": "Bảng điều khiển",
     "host": "Quản lý kèo",
     "join": "Tham gia",
@@ -94,6 +95,7 @@
     "loadMore": "Xem thêm",
     "navigating": "Đang điều hướng...",
     "error": "Lỗi",
+    "browserNotSupportLocation": "Trình duyệt không hỗ trợ định vị",
     "success": "Thành công",
     "notAvailable": "N/A",
     "notSpecified": "Chưa xác định",
@@ -229,6 +231,7 @@
     "change": "Thay đổi",
     "uploading": "Đang tải lên...",
     "pleaseSelectImageFile": "Vui lòng chọn file ảnh",
+    "imageProcessFailed": "Không thể xử lý hình ảnh",
     "fileSizeTooLarge": "Kích thước file phải nhỏ hơn 5MB",
     "imageProcessingFailed": "Không thể xử lý ảnh. Vui lòng thử file khác.",
     "tooManyFiles": "Bạn chỉ có thể chọn tối đa {max} ảnh",
@@ -279,6 +282,7 @@
     "resultsCount": "{count} kết quả"
   },
   "session": {
+    "fetchStatusFailed": "Không thể tải trạng thái kèo",
     "session": "Kèo",
     "title": "Kèo cầu lông",
     "resultsCount": "{count} kèo",
@@ -441,6 +445,7 @@
       "courtNumberUnique": "Số sân phải là duy nhất",
       "atLeastOneCourt": "Ít nhất một sân là bắt buộc",
       "sessionCreateFailed": "Không thể tạo kèo",
+      "bulkCreationFailed": "Không thể tạo các kèo",
       "sessionCreatedSuccessfully": "Tạo kèo thành công!",
       "sessionUpdatedSuccessfully": "Cập nhật kèo thành công",
       "failedToUpdateSession": "Không thể cập nhật kèo",
@@ -5623,6 +5628,9 @@
     "venueRequests": "Yêu cầu sân"
   },
   "PlayerDetailModal": {
+    "statusSetToWaiting": "Đã chuyển trạng thái người chơi sang Đang chờ",
+    "statusSetToInactive": "Đã chuyển trạng thái người chơi sang Không hoạt động",
+    "updateStatusFailed": "Cập nhật trạng thái người chơi thất bại",
     "status": "Trạng thái",
     "playerDetails": "Chi tiết người chơi",
     "levelDescription": "Mô tả trình độ",
@@ -5996,6 +6004,9 @@
     "markAsRead": "Đánh dấu đã đọc",
     "markAllAsRead": "Đọc tất cả",
     "delete": "Xóa",
+    "cancel": "Hủy",
+    "deleteConfirmTitle": "Xóa thông báo?",
+    "deleteConfirmDescription": "Thông báo “{title}” sẽ bị xóa vĩnh viễn. Bạn có muốn tiếp tục?",
     "new": "Mới",
     "broadcastNotifications": "Gửi thông báo",
     "broadcastDescription": "Gửi thông báo đến tất cả người dùng trong hệ thống",

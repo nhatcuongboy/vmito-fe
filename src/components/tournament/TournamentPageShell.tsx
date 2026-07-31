@@ -43,6 +43,7 @@ import {
 } from 'lucide-react';
 import TournamentDashboard from '@/components/tournament/TournamentDashboard';
 import TournamentGuideWidget from '@/components/tournament/guide/TournamentGuideWidget';
+import { subscribeTournamentProgressChanged } from '@/components/tournament/guide/progressEvents';
 import TournamentHomeTab from '@/components/tournament/TournamentHomeTab';
 import TournamentManage from '@/components/tournament/manage/TournamentManage';
 import TournamentSidebar from '@/components/tournament/TournamentSidebar';
@@ -735,6 +736,20 @@ export default function TournamentPageShell({
     }
   }, [slug]);
 
+  // Keep the tournament object fresh when setup-affecting mutations happen
+  // elsewhere on the page (Manage tab panels), so the setup guide widget's
+  // step completion stays in sync without a full reload.
+  useEffect(() => {
+    if (!slug) return;
+    return subscribeTournamentProgressChanged(() => {
+      TournamentService.getTournament(slug)
+        .then(setTournament)
+        .catch((error) => {
+          console.error('Error refreshing tournament:', error);
+        });
+    });
+  }, [slug]);
+
   useEffect(() => {
     const tournamentId = tournament?.id;
 
@@ -958,6 +973,7 @@ export default function TournamentPageShell({
           onTabChange={handleTabChange}
           showStatusBadge={showStatusBadge}
           showFavorite={false}
+          showGuideToggle={isHostOrAdmin}
           variant="embedded"
         />
         <Box
@@ -1078,7 +1094,7 @@ export default function TournamentPageShell({
           isLoadingCategories={loadingTeams}
           canManageTournament={isHostOrAdmin}
           slug={slug}
-          showFavoriteOverlay={false}
+          showFavoriteOverlay
         />
       )}
       {activeTab === 1 && (

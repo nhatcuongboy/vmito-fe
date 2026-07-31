@@ -13,6 +13,7 @@ import {
 } from '@chakra-ui/react';
 import { Button } from '@/components/ui/chakra-compat';
 import { ImagePlus, Link, Upload, X } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import AppImageGalleryPicker from '@/components/AppImageGalleryPicker';
 import { Input } from '@/components/ui/Input';
 import { toaster } from '@/components/ui/toaster';
@@ -53,6 +54,7 @@ const AppSingleImageUpload = ({
   showUrlInput = true,
   compact = false,
 }: AppSingleImageUploadProps) => {
+  const t = useTranslations('common');
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [isDragActive, setIsDragActive] = useState(false);
@@ -80,7 +82,7 @@ const AppSingleImageUpload = ({
 
     const imageFile = files.find((file) => file.type.startsWith('image/'));
     if (!imageFile) {
-      toaster.error({ title: 'Vui lòng chọn file hình ảnh' });
+      toaster.error({ title: t('pleaseSelectImageFile') });
       return;
     }
 
@@ -99,7 +101,7 @@ const AppSingleImageUpload = ({
         publicId: uploadedImage.publicId,
       });
     } catch {
-      toaster.error({ title: 'Không thể xử lý hình ảnh' });
+      toaster.error({ title: t('imageProcessFailed') });
     } finally {
       setIsUploading(false);
       if (fileInputRef.current) fileInputRef.current.value = '';

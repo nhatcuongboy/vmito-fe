@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { toaster } from '@/components/ui/toaster';
+import { getToastMessage } from '@/lib/i18n/toastMessages';
 import { api, ApiResponse } from './base';
 import {
   Court,
@@ -115,7 +116,7 @@ export const CourtService = {
       `/courts/${courtId}`,
       data
     );
-    toaster.success({ title: 'Court updated successfully' });
+    toaster.success({ title: getToastMessage('courtUpdatedSuccessfully') });
     return response.data.data!;
   },
 
@@ -135,7 +136,11 @@ export const CourtService = {
       })
     );
     const updatedCourts = await Promise.all(updatePromises);
-    toaster.success({ title: `${courts.length} courts updated successfully` });
+    toaster.success({
+      title: getToastMessage('courtsUpdatedSuccessfully', {
+        count: courts.length,
+      }),
+    });
     return updatedCourts;
   },
 

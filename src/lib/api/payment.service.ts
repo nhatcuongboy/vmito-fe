@@ -1,4 +1,5 @@
 import { toaster } from '@/components/ui/toaster';
+import { getToastMessage } from '@/lib/i18n/toastMessages';
 import { api, ApiResponse } from './base';
 import {
   PaymentRecord,
@@ -34,7 +35,7 @@ export const PaymentService = {
       `/payments/${paymentId}/submit`,
       data
     );
-    toaster.success({ title: 'Đã gửi yêu cầu thanh toán' });
+    toaster.success({ title: getToastMessage('paymentRequestSent') });
     return response.data.data!;
   },
 
@@ -115,7 +116,7 @@ export const PaymentService = {
       `/payments/${paymentId}/approve`,
       data || {}
     );
-    toaster.success({ title: 'Đã duyệt thanh toán' });
+    toaster.success({ title: getToastMessage('paymentApproved') });
     return response.data.data!;
   },
 
@@ -128,7 +129,7 @@ export const PaymentService = {
       `/payments/${paymentId}/reject`,
       data
     );
-    toaster.success({ title: 'Đã từ chối thanh toán' });
+    toaster.success({ title: getToastMessage('paymentRejected') });
     return response.data.data!;
   },
 
@@ -140,7 +141,11 @@ export const PaymentService = {
       '/payments/bulk-approve',
       { paymentIds }
     );
-    toaster.success({ title: `Đã duyệt ${paymentIds.length} thanh toán` });
+    toaster.success({
+      title: getToastMessage('paymentsApproved', {
+        count: paymentIds.length,
+      }),
+    });
     return response.data.data || [];
   },
 
@@ -172,7 +177,9 @@ export const PaymentService = {
       `/sessions/${sessionId}/payments/split`,
       { totalAmount }
     );
-    toaster.success({ title: 'Đã tính và phân bổ phí chia đều' });
+    toaster.success({
+      title: getToastMessage('feesCalculatedAndSplitSuccessfully'),
+    });
     return response.data.data || [];
   },
 

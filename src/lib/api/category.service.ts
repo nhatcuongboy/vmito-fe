@@ -64,7 +64,7 @@ export const CategoryService = {
       `/tournaments/${tournamentId}/categories`,
       data
     );
-    toaster.success({ title: 'Category created successfully' });
+    toaster.success({ title: getToastMessage('categoryCreatedSuccessfully') });
     return response.data.data!;
   },
 
@@ -89,7 +89,7 @@ export const CategoryService = {
   // Delete category
   deleteCategory: async (id: string): Promise<void> => {
     await api.delete<ApiResponse<null>>(`/categories/${id}`);
-    toaster.success({ title: 'Category deleted successfully' });
+    toaster.success({ title: getToastMessage('categoryDeletedSuccessfully') });
   },
 
   // Registration management
@@ -132,7 +132,9 @@ export const CategoryService = {
       data
     );
     if (options?.showToast !== false) {
-      toaster.success({ title: 'Registration created successfully' });
+      toaster.success({
+        title: getToastMessage('registrationCreatedSuccessfully'),
+      });
     }
     return response.data.data!;
   },
@@ -162,7 +164,7 @@ export const CategoryService = {
       `/categories/${categoryId}/registrations/${registrationId}/convert-to-pair`,
       data
     );
-    toaster.success({ title: 'Team roster saved successfully' });
+    toaster.success({ title: getToastMessage('teamRosterSavedSuccessfully') });
     return response.data.data!;
   },
 
@@ -173,7 +175,9 @@ export const CategoryService = {
     await api.delete<ApiResponse<null>>(
       `/categories/${categoryId}/registrations/${registrationId}`
     );
-    toaster.success({ title: 'Registration removed successfully' });
+    toaster.success({
+      title: getToastMessage('registrationRemovedSuccessfully'),
+    });
   },
 
   // Match management
@@ -212,21 +216,21 @@ export const CategoryService = {
       data
     );
     if (options?.showToast !== false) {
-      toaster.success({ title: 'Match updated successfully' });
+      toaster.success({ title: getToastMessage('matchUpdatedSuccessfully') });
     }
     return response.data.data!;
   },
 
   deleteMatch: async (id: string): Promise<void> => {
     await api.delete<ApiResponse<null>>(`/category-matches/${id}`);
-    toaster.success({ title: 'Match deleted successfully' });
+    toaster.success({ title: getToastMessage('matchDeletedSuccessfully') });
   },
 
   startMatch: async (id: string): Promise<CategoryMatch> => {
     const response = await api.post<ApiResponse<CategoryMatch>>(
       `/category-matches/${id}/start`
     );
-    toaster.success({ title: 'Match started' });
+    toaster.success({ title: getToastMessage('matchStarted') });
     return response.data.data!;
   },
 
@@ -271,7 +275,9 @@ export const CategoryService = {
         { skipGlobalError: true }
       );
       if (options?.showToast !== false) {
-        toaster.success({ title: 'Match result reset successfully' });
+        toaster.success({
+          title: getToastMessage('matchResultResetSuccessfully'),
+        });
       }
       return response.data.data!;
     } catch (error) {
@@ -286,7 +292,9 @@ export const CategoryService = {
         resetPayload
       );
       if (options?.showToast !== false) {
-        toaster.success({ title: 'Match result reset successfully' });
+        toaster.success({
+          title: getToastMessage('matchResultResetSuccessfully'),
+        });
       }
       return response.data.data!;
     }
@@ -350,7 +358,7 @@ export const CategoryService = {
       { refereeId }
     );
     if (options?.showToast !== false) {
-      toaster.success({ title: 'Referee assigned' });
+      toaster.success({ title: getToastMessage('refereeAssigned') });
     }
     return response.data.data!;
   },
@@ -363,7 +371,7 @@ export const CategoryService = {
       `/category-matches/${matchId}/referee`
     );
     if (options?.showToast !== false) {
-      toaster.success({ title: 'Referee unassigned' });
+      toaster.success({ title: getToastMessage('refereeUnassigned') });
     }
     return response.data.data!;
   },
@@ -410,7 +418,7 @@ export const CategoryService = {
     const response = await api.post<ApiResponse<GroupStandingsResponse>>(
       `/categories/${categoryId}/groups/${groupId}/calculate-standings`
     );
-    toaster.success({ title: 'Standings recalculated' });
+    toaster.success({ title: getToastMessage('standingsRecalculated') });
     return response.data.data!;
   },
 
@@ -433,7 +441,7 @@ export const CategoryService = {
       `/categories/${categoryId}/groups`
     );
     if (options?.showToast !== false) {
-      toaster.success({ title: 'Groups created successfully' });
+      toaster.success({ title: getToastMessage('groupsCreatedSuccessfully') });
     }
     return response.data.data!;
   },
@@ -454,7 +462,7 @@ export const CategoryService = {
       `/categories/${categoryId}/groups/${groupId}`,
       data
     );
-    toaster.success({ title: 'Group updated successfully' });
+    toaster.success({ title: getToastMessage('groupUpdatedSuccessfully') });
     return response.data.data!;
   },
 
@@ -467,7 +475,7 @@ export const CategoryService = {
       `/categories/${categoryId}/groups/${groupId}`
     );
     if (options?.showToast !== false) {
-      toaster.success({ title: 'Group deleted successfully' });
+      toaster.success({ title: getToastMessage('groupDeletedSuccessfully') });
     }
   },
 
@@ -481,7 +489,9 @@ export const CategoryService = {
       `/categories/${categoryId}/groups/${groupId}/registrations`,
       { categoryRegistrationId: registrationId }
     );
-    toaster.success({ title: 'Registration assigned to group successfully' });
+    toaster.success({
+      title: getToastMessage('registrationAssignedToGroupSuccessfully'),
+    });
     return response.data.data!;
   },
 
@@ -493,7 +503,9 @@ export const CategoryService = {
     await api.delete<ApiResponse<null>>(
       `/categories/${categoryId}/groups/${groupId}/registrations/${registrationId}`
     );
-    toaster.success({ title: 'Registration removed from group successfully' });
+    toaster.success({
+      title: getToastMessage('registrationRemovedFromGroupSuccessfully'),
+    });
   },
 
   bulkAssignRegistrationsToGroup: async (
@@ -508,7 +520,9 @@ export const CategoryService = {
     );
     if (options?.showToast !== false) {
       toaster.success({
-        title: `Successfully assigned ${registrationIds.length} registration(s) to group`,
+        title: getToastMessage('registrationsAssignedToGroupSuccessfully', {
+          count: registrationIds.length,
+        }),
       });
     }
     return response.data.data!;
@@ -523,7 +537,9 @@ export const CategoryService = {
       ApiResponse<Record<string, CategoryGroupRegistration[]>>
     >(`/categories/${categoryId}/groups/auto-assign`, requestOptions);
     if (showToast !== false) {
-      toaster.success({ title: 'Teams auto-assigned to groups successfully' });
+      toaster.success({
+        title: getToastMessage('teamsAutoAssignedSuccessfully'),
+      });
     }
     return response.data.data!;
   },
@@ -536,7 +552,7 @@ export const CategoryService = {
     const response = await api.post<ApiResponse<CategoryMatch[]>>(
       `/categories/${categoryId}/groups/${groupId}/generate-matches`
     );
-    toaster.success({ title: 'Matches generated successfully' });
+    toaster.success({ title: getToastMessage('matchesGeneratedSuccessfully') });
     return response.data.data!;
   },
 
@@ -578,7 +594,9 @@ export const CategoryService = {
       forceReplaceScheduledMatches: options?.forceReplaceScheduledMatches,
     });
     if (options?.showToast !== false) {
-      toaster.success({ title: 'All matches generated successfully' });
+      toaster.success({
+        title: getToastMessage('allMatchesGeneratedSuccessfully'),
+      });
     }
     return response.data.data!;
   },
@@ -604,7 +622,9 @@ export const CategoryService = {
       `/categories/${categoryId}/generate-elimination-shells`
     );
     if (options?.showToast !== false) {
-      toaster.success({ title: 'Elimination bracket generated successfully' });
+      toaster.success({
+        title: getToastMessage('eliminationBracketGeneratedSuccessfully'),
+      });
     }
     return response.data.data ?? [];
   },
@@ -618,7 +638,9 @@ export const CategoryService = {
       `/categories/${categoryId}/complete-group-stage`
     );
     if (options?.showToast !== false) {
-      toaster.success({ title: 'Group stage completed successfully' });
+      toaster.success({
+        title: getToastMessage('groupStageCompletedSuccessfully'),
+      });
     }
     return response.data.data!;
   },
