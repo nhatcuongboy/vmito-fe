@@ -696,6 +696,7 @@ export default function NotificationBell({
                         >
                           {/* Orange left accent */}
                           <Box
+                            aria-hidden
                             position="absolute"
                             left={0}
                             top={0}
@@ -857,6 +858,7 @@ export default function NotificationBell({
                           }}
                         >
                           <Box
+                            aria-hidden
                             position="absolute"
                             left={0}
                             top={0}
@@ -1008,6 +1010,7 @@ export default function NotificationBell({
                           }}
                         >
                           <Box
+                            aria-hidden
                             position="absolute"
                             left={0}
                             top={0}
@@ -1165,11 +1168,12 @@ export default function NotificationBell({
                         {/* Unread left accent */}
                         {isUnread && (
                           <Box
+                            aria-hidden
                             position="absolute"
                             left={0}
                             top={0}
                             bottom={0}
-                            width="4px"
+                            width="3px"
                             bg="green.500"
                             borderRadius="0 2px 2px 0"
                           />
