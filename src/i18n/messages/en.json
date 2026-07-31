@@ -1568,7 +1568,7 @@
       "title": "Tournaments",
       "hostList": {
         "pageTitle": "My Tournaments",
-        "adminPageTitle": "All Tournaments",
+        "adminPageTitle": "Manage Tournaments",
         "subtitle": "Manage your tournaments, categories, and schedules — all in one place.",
         "newTournament": "Create tournament",
         "createFirst": "Create your first tournament",

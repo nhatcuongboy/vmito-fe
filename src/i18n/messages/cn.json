@@ -1550,7 +1550,7 @@
       "title": "锦标赛",
       "hostList": {
         "pageTitle": "我的锦标赛",
-        "adminPageTitle": "所有锦标赛",
+        "adminPageTitle": "管理锦标赛",
         "subtitle": "在一个地方管理您的锦标赛、类别和赛程。",
         "newTournament": "新建锦标赛",
         "createFirst": "创建您的第一个锦标赛",
