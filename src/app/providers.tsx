@@ -141,6 +141,7 @@ import { TopBarSearchProvider } from '@/contexts/TopBarSearchContext';
 import { Toaster } from '@/components/ui/toaster';
 import { GlobalErrorModal } from '@/components/ui/GlobalErrorModal';
 import GlobalCourtCallModal from '@/components/session/GlobalCourtCallModal';
+import PointsCelebration from '@/components/leaderboard/PointsCelebration';
 import TourController from '@/components/tour/TourController';
 
 // Custom system configuration for badminton app
@@ -159,6 +160,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
                   <Toaster />
                   <GlobalErrorModal />
                   <GlobalCourtCallModal />
+                  <PointsCelebration />
                   <TourController />
                 </SocketProvider>
               </AuthProvider>
