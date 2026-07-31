@@ -4,13 +4,15 @@ import type { ReactNode } from 'react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Badge, Box, Flex, Heading, HStack, Text } from '@chakra-ui/react';
 import {
-  BarChart3,
+  Calculator,
   Check,
+  ChevronRight,
   GitBranch,
   ListTree,
   Minus,
   RefreshCw,
   RotateCcw,
+  Tags,
   Trophy,
   X,
 } from 'lucide-react';
@@ -39,7 +41,7 @@ import PublicDoubleEliminationBracket from '@/components/tournament/PublicDouble
 import PlayerNamesToggle from '@/components/tournament/PlayerNamesToggle';
 import { Link } from '@/i18n/config';
 import { usePathname, useSearchParams } from 'next/navigation';
-import { Button, LegacySelect, VStack } from '@/components/ui/chakra-compat';
+import { Button, VSelect, VStack } from '@/components/ui/chakra-compat';
 import { TournamentTableSkeleton } from '@/components/tournament/skeletons';
 import { VModal } from '@/components/ui/VModal';
 import { useTournamentSocket } from '@/hooks/useTournamentSocket';
@@ -605,18 +607,10 @@ export default function PublicTournamentStandingsTab({
           {t('title')}
         </Heading>
 
-        <HStack
-          gap={2}
-          w={{ base: 'full', md: 'auto' }}
-          justify={{ base: 'space-between', md: 'flex-end' }}
-        >
+        <HStack gap={2} w={{ base: 'full', md: 'auto' }} justify="flex-end">
           {categories.length > 1 && (
-            <Box
-              flex={{ base: 1, md: '0 0 auto' }}
-              minW={{ base: '0', md: '260px' }}
-              maxW={{ base: '260px', md: '260px' }}
-            >
-              <LegacySelect
+            <Box w={{ base: 'full', md: '260px' }} minW={0}>
+              <VSelect
                 aria-label={t('categoryFilter')}
                 value={selectedCategoryId}
                 onChange={(event) => setSelectedCategoryId(event.target.value)}
@@ -630,16 +624,9 @@ export default function PublicTournamentStandingsTab({
                     {getCategoryLabel(category)}
                   </option>
                 ))}
-              </LegacySelect>
+              </VSelect>
             </Box>
           )}
-          <Box display={{ base: 'none', md: 'block' }}>
-            <PlayerNamesToggle
-              active={showPlayerNames}
-              onToggle={() => setShowPlayerNames((prev) => !prev)}
-              title={t('showPlayerNames')}
-            />
-          </Box>
         </HStack>
       </Flex>
 
@@ -647,26 +634,9 @@ export default function PublicTournamentStandingsTab({
         align={{ base: 'stretch', md: 'center' }}
         justify="space-between"
         direction={{ base: 'column', md: 'row' }}
-        gap={2}
+        gap={3}
         mb={{ base: 3, md: 4 }}
       >
-        <Box flexShrink={0} order={{ base: 2, md: 1 }}>
-          {stageView === 'pool' && (
-            <Box w={{ base: 'full', md: 'fit-content' }} minW={{ md: '120px' }}>
-              <LegacySelect
-                value={standingView}
-                onChange={(event) =>
-                  setStandingView(event.target.value as StandingView)
-                }
-                size="sm"
-              >
-                <option value="pools">{t('pools')}</option>
-                <option value="overall">{t('overall')}</option>
-              </LegacySelect>
-            </Box>
-          )}
-        </Box>
-
         <Flex
           p={0.5}
           gap={0.5}
@@ -675,7 +645,7 @@ export default function PublicTournamentStandingsTab({
           borderColor="gray.200"
           borderRadius="lg"
           bg="white"
-          ml={{ base: 0, md: 'auto' }}
+          ml={0}
           shadow="sm"
           h="fit-content"
           _dark={{
@@ -684,7 +654,7 @@ export default function PublicTournamentStandingsTab({
               'var(--tournament-border, var(--chakra-colors-gray-700))',
           }}
           flexShrink={0}
-          order={{ base: 1, md: 2 }}
+          order={{ base: 1, md: 1 }}
         >
           <Button
             flex={{ base: 1, md: 'initial' }}
@@ -697,7 +667,7 @@ export default function PublicTournamentStandingsTab({
             onClick={() => setStageView('pool')}
           >
             <HStack gap={2} justify="center">
-              <ListTree size={15} />
+              <ListTree size={15} aria-hidden="true" />
               <Text>{t('poolPlay')}</Text>
             </HStack>
           </Button>
@@ -712,10 +682,42 @@ export default function PublicTournamentStandingsTab({
             onClick={() => setStageView('playoffs')}
           >
             <HStack gap={2} justify="center">
-              <GitBranch size={15} />
+              <GitBranch size={15} aria-hidden="true" />
               <Text>{t('playoffs')}</Text>
             </HStack>
           </Button>
+        </Flex>
+
+        <Flex
+          order={{ base: 2, md: 2 }}
+          w={{ base: 'full', md: 'auto' }}
+          gap={2}
+          justify="flex-end"
+          align="center"
+          flexWrap="wrap"
+          flexShrink={0}
+        >
+          {stageView === 'pool' && (
+            <Box flex={{ base: '1 1 160px', md: '0 0 110px' }} minW={0}>
+              <VSelect
+                aria-label={t('pools')}
+                value={standingView}
+                onChange={(event) =>
+                  setStandingView(event.target.value as StandingView)
+                }
+                size="sm"
+              >
+                <option value="pools">{t('pools')}</option>
+                <option value="overall">{t('overall')}</option>
+              </VSelect>
+            </Box>
+          )}
+
+          <PlayerNamesToggle
+            active={showPlayerNames}
+            onToggle={() => setShowPlayerNames((prev) => !prev)}
+            title={t('showPlayerNames')}
+          />
         </Flex>
       </Flex>
 
@@ -760,29 +762,13 @@ export default function PublicTournamentStandingsTab({
         ) : (
           <VStack align="stretch" gap={6}>
             {visiblePlayoffCategories.map(
-              (
-                { category, groupStageMatchCount, matches: categoryMatches },
-                categoryIndex
-              ) => (
+              ({
+                category,
+                groupStageMatchCount,
+                matches: categoryMatches,
+              }) => (
                 <Box key={category.id}>
-                  <Flex align="center" justify="space-between" mb={3}>
-                    <Heading
-                      size="sm"
-                      color="gray.600"
-                      _dark={{ color: 'gray.300' }}
-                    >
-                      {getCategoryLabel(category)}
-                    </Heading>
-                    {categoryIndex === 0 && (
-                      <Box display={{ base: 'block', md: 'none' }}>
-                        <PlayerNamesToggle
-                          active={showPlayerNames}
-                          onToggle={() => setShowPlayerNames((prev) => !prev)}
-                          title={t('showPlayerNames')}
-                        />
-                      </Box>
-                    )}
-                  </Flex>
+                  <CategorySectionHeading category={category} />
                   {category.format === CategoryFormat.DOUBLE_ELIMINATION ? (
                     <PublicDoubleEliminationBracket
                       category={category}
@@ -814,26 +800,9 @@ export default function PublicTournamentStandingsTab({
         </Text>
       ) : standingView === 'overall' ? (
         <VStack align="stretch" gap={6}>
-          {visibleOverallRows.map((block, blockIndex) => (
+          {visibleOverallRows.map((block) => (
             <Box key={block.category.id}>
-              <Flex align="center" justify="space-between" mb={3}>
-                <Heading
-                  size="sm"
-                  color="gray.600"
-                  _dark={{ color: 'gray.300' }}
-                >
-                  {getCategoryLabel(block.category)}
-                </Heading>
-                {blockIndex === 0 && (
-                  <Box display={{ base: 'block', md: 'none' }}>
-                    <PlayerNamesToggle
-                      active={showPlayerNames}
-                      onToggle={() => setShowPlayerNames((prev) => !prev)}
-                      title={t('showPlayerNames')}
-                    />
-                  </Box>
-                )}
-              </Flex>
+              <CategorySectionHeading category={block.category} />
 
               {block.rows.length === 0 ? (
                 <Text
@@ -849,7 +818,6 @@ export default function PublicTournamentStandingsTab({
                   rows={block.rows}
                   rankKey="overallRank"
                   showGroup
-                  title={getCategoryLabel(block.category)}
                   showPlayerNames={showPlayerNames}
                   t={t}
                 />
@@ -859,26 +827,9 @@ export default function PublicTournamentStandingsTab({
         </VStack>
       ) : (
         <VStack align="stretch" gap={6}>
-          {visibleBlocks.map((block, blockIndex) => (
+          {visibleBlocks.map((block) => (
             <Box key={block.category.id}>
-              <Flex align="center" justify="space-between" mb={3}>
-                <Heading
-                  size="sm"
-                  color="gray.600"
-                  _dark={{ color: 'gray.300' }}
-                >
-                  {getCategoryLabel(block.category)}
-                </Heading>
-                {blockIndex === 0 && (
-                  <Box display={{ base: 'block', md: 'none' }}>
-                    <PlayerNamesToggle
-                      active={showPlayerNames}
-                      onToggle={() => setShowPlayerNames((prev) => !prev)}
-                      title={t('showPlayerNames')}
-                    />
-                  </Box>
-                )}
-              </Flex>
+              <CategorySectionHeading category={block.category} />
 
               {block.groups.length === 0 ? (
                 <Text
@@ -960,11 +911,43 @@ export default function PublicTournamentStandingsTab({
         <VStack align="stretch" gap={3} mt={6}>
           <Button
             variant="outline"
-            size="lg"
             colorPalette="gray"
+            w="full"
+            h={12}
+            px={3}
+            justifyContent="space-between"
+            borderColor="gray.200"
+            bg="white"
+            boxShadow="sm"
             onClick={() => setIsRankingInfoOpen(true)}
+            _hover={{ bg: 'green.50', borderColor: 'green.300' }}
+            _dark={{
+              bg: 'var(--tournament-surface-raised, var(--chakra-colors-gray-800))',
+              borderColor: 'gray.700',
+              _hover: { bg: 'green.950', borderColor: 'green.700' },
+            }}
           >
-            <BarChart3 size={18} /> {t('rankingsExplained')}
+            <HStack gap={2.5} minW={0} textAlign="left">
+              <Flex
+                w={8}
+                h={8}
+                align="center"
+                justify="center"
+                borderRadius="md"
+                bg="green.50"
+                color="green.600"
+                flexShrink={0}
+                _dark={{ bg: 'green.900', color: 'green.200' }}
+              >
+                <Calculator size={17} aria-hidden="true" />
+              </Flex>
+              <Text fontWeight="semibold">{t('rankingsExplained')}</Text>
+            </HStack>
+            <ChevronRight
+              size={18}
+              color="var(--chakra-colors-green-600)"
+              aria-hidden="true"
+            />
           </Button>
         </VStack>
       )}
@@ -1236,6 +1219,62 @@ function RankingInfoRow({
           {description}
         </Text>
       </Box>
+    </Flex>
+  );
+}
+
+function CategorySectionHeading({ category }: { category: Category }) {
+  return (
+    <Flex align="center" gap={3} mb={3} minW={0}>
+      <HStack
+        gap={2}
+        px={3}
+        py={1.5}
+        flexShrink={0}
+        borderWidth="1px"
+        borderColor="gray.200"
+        borderRadius="full"
+        bg="white"
+        boxShadow="0 2px 8px rgba(15, 23, 42, 0.05)"
+        _dark={{
+          bg: 'var(--tournament-surface-raised, var(--chakra-colors-gray-800))',
+          borderColor: 'gray.700',
+          boxShadow: 'var(--tournament-shadow-soft)',
+        }}
+      >
+        <Flex
+          w={6}
+          h={6}
+          align="center"
+          justify="center"
+          borderRadius="full"
+          bg="green.50"
+          color="green.600"
+          _dark={{ bg: 'green.950', color: 'green.300' }}
+        >
+          <Tags size={13} aria-hidden="true" />
+        </Flex>
+        <Text
+          as="h2"
+          fontSize="md"
+          fontWeight="700"
+          color="gray.800"
+          lineHeight="short"
+          whiteSpace="nowrap"
+          _dark={{ color: 'gray.100' }}
+        >
+          {getCategoryLabel(category)}
+        </Text>
+      </HStack>
+      <Box
+        h="1px"
+        flex={1}
+        minW={4}
+        bgGradient="to-r"
+        gradientFrom="green.200"
+        gradientTo="transparent"
+        _dark={{ gradientFrom: 'green.800' }}
+      />
     </Flex>
   );
 }

@@ -9,6 +9,7 @@
     "finish": "Bắt đầu khám phá"
   },
   "navigation": {
+    "tournamentGuide": "Hướng dẫn thiết lập giải đấu",
     "dashboard": "Bảng điều khiển",
     "host": "Quản lý kèo",
     "join": "Tham gia",
@@ -94,6 +95,7 @@
     "loadMore": "Xem thêm",
     "navigating": "Đang điều hướng...",
     "error": "Lỗi",
+    "browserNotSupportLocation": "Trình duyệt không hỗ trợ định vị",
     "success": "Thành công",
     "notAvailable": "N/A",
     "notSpecified": "Chưa xác định",
@@ -229,6 +231,7 @@
     "change": "Thay đổi",
     "uploading": "Đang tải lên...",
     "pleaseSelectImageFile": "Vui lòng chọn file ảnh",
+    "imageProcessFailed": "Không thể xử lý hình ảnh",
     "fileSizeTooLarge": "Kích thước file phải nhỏ hơn 5MB",
     "imageProcessingFailed": "Không thể xử lý ảnh. Vui lòng thử file khác.",
     "tooManyFiles": "Bạn chỉ có thể chọn tối đa {max} ảnh",
@@ -279,6 +282,7 @@
     "resultsCount": "{count} kết quả"
   },
   "session": {
+    "fetchStatusFailed": "Không thể tải trạng thái kèo",
     "session": "Kèo",
     "title": "Kèo cầu lông",
     "resultsCount": "{count} kèo",
@@ -441,6 +445,7 @@
       "courtNumberUnique": "Số sân phải là duy nhất",
       "atLeastOneCourt": "Ít nhất một sân là bắt buộc",
       "sessionCreateFailed": "Không thể tạo kèo",
+      "bulkCreationFailed": "Không thể tạo các kèo",
       "sessionCreatedSuccessfully": "Tạo kèo thành công!",
       "sessionUpdatedSuccessfully": "Cập nhật kèo thành công",
       "failedToUpdateSession": "Không thể cập nhật kèo",
@@ -733,6 +738,8 @@
     "checkOutThisSession": "Xem qua kèo này",
     "downloadImage": "Tải ảnh",
     "imageDownloadSuccess": "Đã tải ảnh thành công",
+    "shareSession": "Chia sẻ",
+    "moreActions": "Hành động khác",
     "downloadPortrait": "Tỷ lệ 2:3",
     "downloadSocial": "Tỷ lệ 4:5",
     "shareImageModal": {
@@ -1572,7 +1579,7 @@
         "pageTitle": "Giải đấu của tôi",
         "adminPageTitle": "Tất cả giải đấu",
         "subtitle": "Quản lý giải đấu, hạng mục và lịch thi đấu — tất cả ở một nơi.",
-        "newTournament": "Tạo giải đấu",
+        "newTournament": "Tạo giải",
         "createFirst": "Tạo giải đấu đầu tiên",
         "searchPlaceholder": "Tìm giải đấu...",
         "emptyTitle": "Chưa có giải đấu nào",
@@ -1598,6 +1605,7 @@
           "manage": "Quản lý",
           "referee": "Điều hành",
           "openPublic": "Mở trang công khai",
+          "share": "Chia sẻ",
           "delete": "Xoá",
           "moreActions": "Hành động khác",
           "categories": "Hạng mục",
@@ -1606,13 +1614,15 @@
         },
         "deleteConfirm": "Bạn có chắc chắn muốn xoá giải đấu này? Hành động này không thể hoàn tác.",
         "deleted": "Đã xoá giải đấu",
-        "deleteFailed": "Xoá giải đấu thất bại"
+        "deleteFailed": "Xoá giải đấu thất bại",
+        "shareSuccess": "Đã sao chép link giải đấu",
+        "shareFailed": "Không thể chia sẻ giải đấu"
       },
       "allTournaments": "Tất cả giải đấu",
-      "createTournament": "Tạo giải đấu",
+      "createTournament": "Tạo giải",
       "createSample": "Tạo mẫu",
       "creating": "Đang tạo...",
-      "sampleCreatedSuccess": "Tạo giải đấu mẫu thành công!",
+      "sampleCreatedSuccess": "Tạo giải mẫu thành công!",
       "searchPlaceholder": "Tìm kiếm giải đấu...",
       "allStatus": "Tất cả trạng thái",
       "status": {
@@ -1634,7 +1644,8 @@
           "PREPARING": "Sắp diễn ra",
           "IN_PROGRESS": "Đang diễn ra",
           "FINISHED": "Đã kết thúc",
-          "CANCELLED": "Đã hủy"
+          "CANCELLED": "Đã hủy",
+          "all": "Tất cả"
         },
         "period": {
           "title": "Thời gian",
@@ -1657,7 +1668,7 @@
         }
       },
       "sort": {
-        "startDate": "Sắp diễn ra",
+        "startDate": "Gần nhất",
         "newest": "Mới tạo",
         "nameAsc": "Tên A-Z",
         "nameDesc": "Tên Z-A"
@@ -1696,23 +1707,52 @@
         "matches": "Trận đấu"
       },
       "create": {
-        "title": "Tạo giải đấu",
-        "createNewTournament": "Tạo giải đấu mới",
+        "title": "Tạo giải",
+        "createNewTournament": "Tạo giải mới",
+        "introEyebrow": "Khởi tạo giải đấu",
+        "introDescription": "Bắt đầu giải đấu chuyên nghiệp của bạn.",
         "basicInformation": "Thông tin cơ bản",
+        "formDescription": "Điền thông tin để người tham gia dễ dàng nhận biết giải đấu của bạn.",
         "tournamentName": "Tên giải đấu",
-        "enterTournamentName": "Nhập tên giải đấu",
-        "creating": "Đang tạo...",
+        "tournamentNameHelper": "Chọn tên ngắn gọn, dễ nhớ và có thể nhận biết mùa giải.",
+        "enterTournamentName": "Ví dụ: Giải cầu lông mùa hè 2026…",
+        "creating": "Đang tạo…",
         "fillAllFields": "Vui lòng điền đầy đủ các trường bắt buộc",
+        "createFailed": "Không thể tạo giải đấu. Vui lòng kiểm tra và thử lại.",
         "startDate": "Ngày bắt đầu",
         "endDate": "Ngày kết thúc",
+        "datePlaceholder": "Ngày / tháng / năm",
+        "schedule": "Thời gian diễn ra",
         "venue": "Địa điểm",
-        "locationPlaceholder": "Sự kiện sẽ diễn ra ở đâu?",
+        "optional": "Không bắt buộc",
+        "locationHelper": "Tìm địa điểm trên bản đồ hoặc nhập tên địa điểm thủ công.",
+        "locationPlaceholder": "Tìm sân hoặc nhập địa điểm…",
+        "selectedVenue": "Đã chọn địa điểm",
+        "clearVenue": "Xóa",
         "cancel": "Hủy",
-        "createTournament": "Tạo giải đấu",
+        "createTournament": "Tạo giải",
         "sport": "Môn thi đấu",
+        "sportHelper": "Chọn môn thi đấu chính của giải.",
+        "nextStepsTitle": "Bạn có thể hoàn thiện sau",
+        "nextStepsDescription": "Sau khi tạo, hãy bổ sung hạng mục, thể thức, vận động viên và lịch thi đấu trong trang quản lý.",
         "sports": {
           "BADMINTON": "Cầu lông",
           "PICKLEBALL": "Pickleball"
+        },
+        "validation": {
+          "nameRequired": "Hãy nhập tên giải đấu.",
+          "startDateRequired": "Hãy chọn ngày bắt đầu.",
+          "endDateRequired": "Hãy chọn ngày kết thúc.",
+          "startDatePast": "Ngày bắt đầu không thể nằm trong quá khứ.",
+          "endBeforeStart": "Ngày kết thúc phải bằng hoặc sau ngày bắt đầu."
+        },
+        "unsaved": {
+          "title": "Rời khỏi trang tạo giải?",
+          "description": "Bạn đang có thay đổi chưa được lưu.",
+          "body": "Nếu rời khỏi trang, những thông tin bạn vừa nhập sẽ bị mất.",
+          "stay": "Tiếp tục chỉnh sửa",
+          "leave": "Rời khỏi trang",
+          "close": "Đóng hộp thoại"
         }
       },
       "detail": {
@@ -1771,7 +1811,7 @@
           "overall": "Tổng thể",
           "showPlayerNames": "Tên VĐV",
           "showPlayerNamesBadge": "Hiện tên VĐV",
-          "rankingsExplained": "Cách tính xếp hạng",
+          "rankingsExplained": "Cách tính bảng xếp hạng",
           "rankingsExplanation": "Bảng xếp hạng được sắp theo điểm, sau đó lần lượt xét hiệu số, điểm ghi được, số trận thắng và số trận đã chơi. Mục Tổng thể gộp các đội trong những bảng đang hiển thị và xếp lại theo cùng thứ tự này.",
           "viewGames": "Xem trận đấu",
           "emptyPlayoffs": "Chưa có trận vòng loại trực tiếp nào để hiển thị.",
@@ -1853,6 +1893,45 @@
             "viewStandings": "Bảng xếp hạng",
             "viewShowcase": "Showcase"
           },
+          "status": {
+            "PREPARING": "Sắp diễn ra",
+            "IN_PROGRESS": "Đang diễn ra",
+            "FINISHED": "Đã kết thúc",
+            "CANCELLED": "Đã hủy"
+          },
+          "hero": {
+            "loading": "Đang cập nhật…",
+            "teams": "{count} đội",
+            "athletes": "{count} VĐV",
+            "share": "Chia sẻ giải đấu",
+            "viewCover": "Xem ảnh bìa"
+          },
+          "pulse": {
+            "live": "Trực tiếp",
+            "liveTitle": "Trận đấu đang diễn ra",
+            "liveDescription": "Theo dõi tỷ số mới nhất của giải.",
+            "nextTitle": "Trận đấu tiếp theo",
+            "nextDescription": "Lịch thi đấu mới nhất đã sẵn sàng.",
+            "finishedTitle": "Giải đấu đã khép lại",
+            "finishedDescription": "Xem bảng xếp hạng và những gương mặt chiến thắng.",
+            "preparingTitle": "Giải đấu đang được chuẩn bị",
+            "preparingDescription": "Khám phá các hạng mục và thể lệ trước giờ thi đấu.",
+            "cancelledTitle": "Giải đấu đã bị hủy",
+            "cancelledDescription": "Xem lịch thi đấu để biết thêm thông tin.",
+            "viewLive": "Xem điểm live",
+            "viewSchedule": "Xem lịch thi đấu",
+            "viewResults": "Xem kết quả",
+            "viewCategories": "Xem hạng mục",
+            "court": "Sân",
+            "versus": "đấu",
+            "errorTitle": "Chưa tải được nhịp giải đấu",
+            "errorDescription": "Hãy thử tải lại thông tin trận đấu.",
+            "retry": "Thử lại"
+          },
+          "share": {
+            "success": "Đã sao chép link giải đấu",
+            "error": "Không thể chia sẻ giải đấu"
+          },
           "categories": {
             "title": "Hạng mục",
             "manage": "Quản lý hạng mục",
@@ -1881,7 +1960,7 @@
           },
           "venues": {
             "title": "Địa điểm",
-            "manage": "Quản lý địa điểm",
+            "manage": "Quản lý",
             "directions": "Chỉ đường"
           },
           "contact": {
@@ -1889,6 +1968,7 @@
             "name": "Tên",
             "email": "Email",
             "phone": "Số điện thoại",
+            "edit": "Chỉnh sửa thông tin liên hệ",
             "empty": "Chưa có thông tin liên hệ."
           },
           "sponsors": {
@@ -1900,6 +1980,16 @@
             "title": "Nhà vô địch",
             "subtitle": "Kết quả chung cuộc đã có.",
             "viewAll": "Xem tất cả nhà vô địch"
+          },
+          "organizerCompletion": {
+            "title": "Hoàn thiện trang giải đấu",
+            "description": "Bổ sung nội dung còn thiếu để trang công khai hấp dẫn và hữu ích hơn.",
+            "items": {
+              "name": "Thêm ghi chú",
+              "videos": "Thêm video",
+              "sponsors": "Thêm nhà tài trợ",
+              "contact": "Thêm liên hệ"
+            }
           }
         },
         "dashboard": {
@@ -2693,10 +2783,6 @@
             "dates": {
               "title": "Ngày thi đấu"
             },
-            "location": {
-              "title": "Địa điểm",
-              "noLocation": "Chưa có địa điểm"
-            },
             "visibility": {
               "title": "Hiển thị",
               "description": "Kiểm soát ai có thể xem giải đấu."
@@ -3328,7 +3414,14 @@
               "newCourt": "Sân mới",
               "removeCourt": "Xóa sân",
               "removeCourtConfirm": "Xóa",
-              "removeCourtWarning": "\"{name}\" đang có {count} trận đã phân sân/khung giờ trong lịch. Xóa sân sẽ gỡ các phân sân này khi lưu. Tiếp tục?"
+              "removeCourtWarning": "\"{name}\" đang có {count} trận đã phân sân/khung giờ trong lịch. Xóa sân sẽ gỡ các phân sân này khi lưu. Tiếp tục?",
+              "primaryBadge": "Địa điểm chính",
+              "setAsPrimary": "Đặt làm địa điểm chính",
+              "primaryUpdated": "Đã cập nhật địa điểm chính",
+              "primaryError": "Không thể đặt địa điểm chính",
+              "clearAddress": "Xóa địa chỉ",
+              "changeAddress": "Đổi địa điểm",
+              "selectFromSuggestions": "Chọn một địa điểm từ danh sách gợi ý"
             },
             "schedule": {
               "title": "Lịch thi đấu",
@@ -3391,22 +3484,6 @@
                 "noChanges": "Không có thay đổi để lưu",
                 "updateFailed": "Cập nhật ngày tổ chức thất bại"
               }
-            },
-            "location": {
-              "title": "Địa điểm",
-              "description": "Chọn địa điểm chính hiển thị trên trang public của giải đấu",
-              "clearSelection": "Xóa lựa chọn",
-              "save": "Lưu",
-              "cancel": "Hủy",
-              "success": "Cập nhật địa điểm thành công",
-              "errors": {
-                "noChanges": "Không có thay đổi để lưu",
-                "updateFailed": "Cập nhật địa điểm thất bại",
-                "loadFailed": "Không tải được danh sách địa điểm"
-              },
-              "empty": "Giải đấu chưa có địa điểm nào. Hãy thêm địa điểm trong tab Địa điểm thi đấu trước.",
-              "goToVenues": "Quản lý địa điểm",
-              "inlineHint": "Địa điểm chỉ có địa chỉ — cần liên kết với danh bạ sân để đặt làm địa điểm chính"
             },
             "banner": {
               "title": "Ảnh bìa giải đấu",
@@ -4066,6 +4143,8 @@
           "searchPlaceholder": "Tìm tên VĐV hoặc đội",
           "referee": "Trọng tài",
           "refereeOnlyLabel": "Trận đấu của tôi",
+          "refereeModeEnabled": "Đã bật chế độ Trọng tài",
+          "refereeModeDisabled": "Đã tắt chế độ Trọng tài",
           "clear": "Xóa lọc",
           "apply": "Áp dụng",
           "empty": "Không có trận nào khớp bộ lọc.",
@@ -4257,7 +4336,19 @@
           "PARTICIPANTS": "Người chơi & đăng ký",
           "STRUCTURE": "Hạng mục & thể thức"
         }
-      }
+      },
+      "resultCount": "{count} giải đấu",
+      "card": {
+        "daysLeft": "Còn {days} ngày",
+        "startsToday": "Bắt đầu hôm nay",
+        "startsTomorrow": "Bắt đầu ngày mai",
+        "teams": "{count} đội",
+        "playersCount": "{count} người chơi",
+        "categoryCount": "{count} nội dung",
+        "moreCategories": "+{count}"
+      },
+      "loadError": "Lỗi tải giải đấu",
+      "retry": "Thử lại"
     },
     "join": {
       "title": "Tham gia kèo",
@@ -4989,7 +5080,7 @@
     "allowNewPlayers": "Cho phép người chơi mới",
     "yes": "Có",
     "no": "Không",
-    "shareResultsButton": "Chia sẻ kết quả lên bảng tin",
+    "shareResultsButton": "Chia sẻ lên bảng tin",
     "shareResultsConfirmTitle": "Chia sẻ kết quả",
     "shareResultsConfirmMessage": "Đăng bảng xếp hạng của buổi chơi này lên bảng tin?",
     "shareResultsSuccess": "Đã chia sẻ kết quả lên bảng tin",
@@ -5094,7 +5185,11 @@
       "sessionConflict": "Bạn đã đăng xuất vì đã đăng nhập từ một thiết bị hoặc trình duyệt khác. Vui lòng đăng nhập lại.",
       "invalidEmail": "Email không hợp lệ",
       "emailRequired": "Vui lòng nhập email",
-      "passwordRequired": "Vui lòng nhập mật khẩu"
+      "passwordRequired": "Vui lòng nhập mật khẩu",
+      "authenticationErrorTitle": "Lỗi xác thực",
+      "invalidCallbackParameters": "Tham số callback không hợp lệ",
+      "redirectingToSignIn": "Đang chuyển hướng đến trang đăng nhập...",
+      "completingSignIn": "Đang hoàn tất đăng nhập..."
     },
     "signup": {
       "title": "Đăng ký",
@@ -5184,6 +5279,44 @@
       "loadError": "Không thể tải số liệu thống kê",
       "retry": "Thử lại",
       "last30Days": "30 ngày qua",
+      "lastUpdated": "Cập nhật lúc {time}",
+      "notUpdatedYet": "Đang chờ dữ liệu mới nhất",
+      "refresh": "Làm mới số liệu",
+      "emptyRange": "Không có dữ liệu trong khoảng đã chọn",
+      "chartSummary": "Biểu đồ {metric}",
+      "filters": {
+        "title": "Khoảng thời gian thống kê",
+        "7d": "7 ngày",
+        "30d": "30 ngày",
+        "90d": "90 ngày",
+        "custom": "Tùy chỉnh",
+        "from": "Từ ngày",
+        "to": "Đến ngày",
+        "invalidRange": "Chọn khoảng ngày hợp lệ, tối đa 365 ngày."
+      },
+      "actionQueue": {
+        "title": "Cần xử lý",
+        "description": "Các yêu cầu đang chờ quản trị viên xem xét.",
+        "reviewNow": "Mở danh sách để xem xét",
+        "allClear": "Không còn yêu cầu chờ xử lý"
+      },
+      "growth": {
+        "title": "Xu hướng tăng trưởng",
+        "description": "Dữ liệu mới phát sinh trong {range}."
+      },
+      "breakdown": {
+        "usersTitle": "Phân bổ người dùng",
+        "usersDescription": "Cơ cấu tài khoản hiện tại trên hệ thống.",
+        "operationsTitle": "Trạng thái vận hành",
+        "operationsDescription": "Phân bổ trạng thái của các nguồn lực chính.",
+        "role": "Vai trò",
+        "gender": "Giới tính",
+        "requests": "Yêu cầu",
+        "courts": "Sân"
+      },
+      "errors": {
+        "sectionUnavailable": "Phần dữ liệu này tạm thời chưa khả dụng. Các số liệu khác vẫn được giữ nguyên."
+      },
       "users": {
         "sectionTitle": "Người dùng",
         "total": "Tổng người dùng",
@@ -5192,8 +5325,19 @@
         "byGender": "Người dùng theo giới tính",
         "trend": "Xu hướng người dùng mới"
       },
+      "sessions": {
+        "sectionTitle": "Kèo"
+      },
+      "tournaments": {
+        "sectionTitle": "Giải đấu"
+      },
+      "clubs": {
+        "sectionTitle": "Câu lạc bộ"
+      },
+      "venues": {
+        "sectionTitle": "Địa điểm"
+      },
       "sessionsTournaments": {
-        "sectionTitle": "Kèo & Giải đấu",
         "totalSessions": "Tổng số kèo",
         "totalTournaments": "Tổng số giải đấu",
         "sessionsByStatus": "Kèo theo trạng thái",
@@ -5202,7 +5346,6 @@
         "tournamentsTrend": "Xu hướng giải đấu mới"
       },
       "clubsVenues": {
-        "sectionTitle": "Câu lạc bộ & Địa điểm",
         "totalClubs": "Tổng số câu lạc bộ",
         "pendingClubs": "Câu lạc bộ chờ duyệt",
         "clubsByStatus": "Câu lạc bộ theo trạng thái",
@@ -5472,6 +5615,9 @@
     "venueRequests": "Yêu cầu sân"
   },
   "PlayerDetailModal": {
+    "statusSetToWaiting": "Đã chuyển trạng thái người chơi sang Đang chờ",
+    "statusSetToInactive": "Đã chuyển trạng thái người chơi sang Không hoạt động",
+    "updateStatusFailed": "Cập nhật trạng thái người chơi thất bại",
     "status": "Trạng thái",
     "playerDetails": "Chi tiết người chơi",
     "levelDescription": "Mô tả trình độ",
@@ -5845,6 +5991,9 @@
     "markAsRead": "Đánh dấu đã đọc",
     "markAllAsRead": "Đọc tất cả",
     "delete": "Xóa",
+    "cancel": "Hủy",
+    "deleteConfirmTitle": "Xóa thông báo?",
+    "deleteConfirmDescription": "Thông báo “{title}” sẽ bị xóa vĩnh viễn. Bạn có muốn tiếp tục?",
     "new": "Mới",
     "broadcastNotifications": "Gửi thông báo",
     "broadcastDescription": "Gửi thông báo đến tất cả người dùng trong hệ thống",
@@ -5871,6 +6020,7 @@
     "approve": "Duyệt",
     "reject": "Từ chối",
     "approvalSession": "Kèo",
+    "approvalViewSession": "Xem chi tiết kèo {name}",
     "approvalLevel": "Trình độ",
     "approvalPlayer": "Vị trí đăng ký",
     "approvalSlotCount": "Số slot đăng ký",
@@ -5879,6 +6029,10 @@
     "approvalSubmittedPrefix": "Gửi yêu cầu",
     "approvalViewProfile": "Xem hồ sơ",
     "approveSuccess": "Đã duyệt yêu cầu",
+    "confirmApproveTitle": "Duyệt yêu cầu?",
+    "confirmApproveDescription": "Người gửi sẽ được chấp nhận tham gia. Bạn có muốn tiếp tục?",
+    "confirmRejectTitle": "Từ chối yêu cầu?",
+    "confirmRejectDescription": "Yêu cầu này sẽ bị từ chối. Bạn có muốn tiếp tục?",
     "club": {
       "creationPending": "Yêu cầu tạo nhóm của bạn đang được xem xét",
       "creationSuccess": "Nhóm đã được tạo thành công",
@@ -6054,6 +6208,18 @@
     "viewAllSessions": "Xem tất cả kèo",
     "shareConfirmTitle": "Chia sẻ bài viết",
     "shareConfirmDescription": "Bạn có muốn chia sẻ bài viết này về bảng tin của mình?",
+    "shareModalTitle": "Chia sẻ bài viết",
+    "shareToFeed": "Chia sẻ lên bảng tin",
+    "shareToFeedDesc": "Đăng lại bài viết này lên bảng tin của bạn",
+    "copyLink": "Sao chép liên kết",
+    "copyLinkDesc": "Sao chép đường dẫn bài viết",
+    "linkCopied": "Đã sao chép liên kết",
+    "copyLinkError": "Không thể sao chép liên kết",
+    "shareFacebook": "Facebook",
+    "shareZalo": "Zalo",
+    "shareX": "X (Twitter)",
+    "shareNative": "Chia sẻ khác…",
+    "shareDefaultText": "Xem bài viết này trên Vmito",
     "deleteCommentConfirmTitle": "Xóa bình luận?",
     "deleteCommentConfirmDescription": "Bình luận này sẽ bị xóa vĩnh viễn.",
     "originalPostUnavailable": "Nội dung gốc không còn tồn tại.",
@@ -6061,12 +6227,12 @@
     "refreshing": "Đang làm mới...",
     "activity": {
       "SESSION_CREATED": "{author} vừa tạo kèo mới",
-      "SESSION_RESULTS": "{author} đã chia sẻ kết quả buổi chơi {session}",
-      "CLUB_CREATED": "{author} vừa tạo câu lạc bộ {club}",
-      "CLUB_UPDATED": "{author} đã cập nhật thông tin câu lạc bộ {club}",
-      "CLUB_MEMBER_JOINED": "{author} đã tham gia câu lạc bộ {club}",
-      "TOURNAMENT_CREATED": "{author} vừa tạo giải đấu {tournament}",
-      "TOURNAMENT_FINISHED": "Giải đấu {tournament} đã kết thúc",
+      "SESSION_RESULTS": "{author} đã chia sẻ kết quả buổi chơi <b>{session}</b>",
+      "CLUB_CREATED": "{author} vừa tạo câu lạc bộ <b>{club}</b>",
+      "CLUB_UPDATED": "{author} đã cập nhật thông tin câu lạc bộ <b>{club}</b>",
+      "CLUB_MEMBER_JOINED": "{author} đã tham gia câu lạc bộ <b>{club}</b>",
+      "TOURNAMENT_CREATED": "{author} vừa tạo giải đấu <b>{tournament}</b>",
+      "TOURNAMENT_FINISHED": "Giải đấu <b>{tournament}</b> đã kết thúc",
       "AVATAR_UPDATED": "{author} đã cập nhật ảnh đại diện",
       "USER_RATED": "{author} đã đánh giá {rated}",
       "champion": "Vô địch",
@@ -6074,7 +6240,10 @@
       "standingsRank": "Hạng",
       "standingsPlayer": "Người chơi",
       "standingsMatches": "Số trận",
+      "standingsWinRate": "Tỷ lệ thắng",
+      "standingsMatchesShort": "{count} trận",
       "andMorePlayers": "và {count} người chơi khác",
+      "showLess": "Thu gọn",
       "viewSession": "Xem kèo",
       "viewClub": "Xem CLB",
       "viewTournament": "Xem giải đấu",
@@ -6194,8 +6363,11 @@
     "roleUpdatedSuccessfully": "Cập nhật vai trò thành công",
     "requestApprovedSuccessfully": "Đã duyệt yêu cầu",
     "requestRejectedSuccessfully": "Đã từ chối yêu cầu",
+    "confirmApproveTitle": "Duyệt yêu cầu?",
     "confirmApprove": "Duyệt yêu cầu tham gia này?",
+    "confirmRejectTitle": "Từ chối yêu cầu?",
     "confirmReject": "Từ chối yêu cầu tham gia này?",
+    "memberActionFailed": "Không thể thực hiện thao tác. Vui lòng thử lại.",
     "manageClubs": "Quản lý nhóm",
     "manageYourClubs": "Quản lý các nhóm của bạn",
     "createClub": "Tạo nhóm",
@@ -6212,10 +6384,13 @@
     "failedToUpdateClub": "Không thể cập nhật nhóm",
     "failedToLoadClub": "Không thể tải thông tin nhóm",
     "addClubMember": "Thêm thành viên",
+    "searchUserLabel": "Tìm người dùng",
     "searchUserPlaceholder": "Tìm theo tên hoặc email...",
+    "searchUsersFailed": "Không thể tìm người dùng. Vui lòng thử lại.",
     "alreadyMember": "Đã là thành viên",
     "noUsersFound": "Không tìm thấy người dùng",
     "noClubMembersYet": "Chưa có thành viên nào",
+    "noMembersYet": "Chưa có thành viên nào",
     "addFirstMember": "Thêm thành viên đầu tiên",
     "clubMemberAddedSuccess": "Đã thêm thành viên thành công",
     "failedToAddClubMember": "Không thể thêm thành viên",
@@ -6223,6 +6398,7 @@
     "clubMemberRemovedSuccess": "Đã xóa thành viên thành công",
     "failedToRemoveClubMember": "Không thể xóa thành viên",
     "memberDetails": "Thông tin thành viên",
+    "roleSelectLabel": "Vai trò thành viên",
     "viewProfile": "Xem trang cá nhân",
     "removeFromClub": "Xóa khỏi nhóm",
     "confirmRemoveMemberTitle": "Xóa thành viên",
@@ -7047,7 +7223,10 @@
       "completeRefund": "Hoàn tất hoàn tiền",
       "confirmRefund": "Xác nhận đã hoàn tiền",
       "method": "Phương thức",
-      "methodValue": { "BANK_TRANSFER": "Chuyển khoản", "CASH": "Tiền mặt" },
+      "methodValue": {
+        "BANK_TRANSFER": "Chuyển khoản",
+        "CASH": "Tiền mặt"
+      },
       "purposeLabel": "Loại thanh toán",
       "purpose": {
         "DEPOSIT": "Đặt cọc",
@@ -7083,7 +7262,9 @@
         "balanceOverdue": "Phần còn lại quá hạn",
         "refundPending": "Chờ hoàn tiền"
       },
-      "messages": { "updated": "Đã cập nhật giao dịch" },
+      "messages": {
+        "updated": "Đã cập nhật giao dịch"
+      },
       "errors": {
         "action": "Không thể xử lý giao dịch",
         "invalidProof": "Chỉ nhận ảnh chứng từ tối đa 5 MB.",

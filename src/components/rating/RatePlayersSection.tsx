@@ -97,6 +97,13 @@ export const RatePlayersSection = ({
     return null;
   }
 
+  // Rating players is a host-only action. Non-hosts (e.g. admins viewing another
+  // host's session) get empty eligibility, which would otherwise render a wall
+  // of "cannot rate" badges.
+  if (eligibility && !eligibility.isHost) {
+    return null;
+  }
+
   return (
     <>
       <Box

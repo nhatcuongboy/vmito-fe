@@ -507,8 +507,8 @@ function getMatchStatusTone(
   if (match.status === MatchStatus.FINISHED) {
     return {
       label: t('status.FINISHED'),
-      colorPalette: 'gray',
-      variant: 'solid',
+      colorPalette: 'green',
+      variant: 'subtle',
       icon: Check,
     } as const;
   }

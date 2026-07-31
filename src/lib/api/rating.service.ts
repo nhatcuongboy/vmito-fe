@@ -1,4 +1,5 @@
 import { toaster } from '@/components/ui/toaster';
+import { getToastMessage } from '@/lib/i18n/toastMessages';
 import { api, ApiResponse } from './base';
 import {
   Rating,
@@ -16,7 +17,7 @@ export const RatingService = {
   // Create a rating (player→host or host→player)
   createRating: async (data: CreateRatingRequest): Promise<Rating> => {
     const response = await api.post<ApiResponse<Rating>>('/ratings', data);
-    toaster.success({ title: 'Đã gửi đánh giá thành công' });
+    toaster.success({ title: getToastMessage('ratingSubmittedSuccessfully') });
     return response.data.data!;
   },
 

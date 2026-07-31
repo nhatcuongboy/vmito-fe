@@ -9,6 +9,7 @@
     "finish": "Start Exploring"
   },
   "navigation": {
+    "tournamentGuide": "Tournament setup guide",
     "dashboard": "Dashboard",
     "host": "Manage Sessions",
     "join": "Join",
@@ -95,6 +96,7 @@
     "loadMore": "Load more",
     "navigating": "Navigating...",
     "error": "Error",
+    "browserNotSupportLocation": "Browser does not support geolocation",
     "success": "Success",
     "notAvailable": "N/A",
     "unknown": "Unknown",
@@ -229,6 +231,7 @@
     "change": "Change",
     "uploading": "Uploading...",
     "pleaseSelectImageFile": "Please select an image file",
+    "imageProcessFailed": "Failed to process image",
     "fileSizeTooLarge": "File size must be less than 5MB",
     "imageProcessingFailed": "Failed to process image. Please try another file.",
     "tooManyFiles": "You can only select up to {max} images",
@@ -278,6 +281,7 @@
     "resultsCount": "{count} results"
   },
   "session": {
+    "fetchStatusFailed": "Failed to fetch session status",
     "session": "Session",
     "title": "Badminton Session",
     "resultsCount": "{count} sessions",
@@ -440,6 +444,7 @@
       "courtNumberUnique": "Court numbers must be unique",
       "atLeastOneCourt": "At least one court is required",
       "sessionCreateFailed": "Failed to create session",
+      "bulkCreationFailed": "Failed to create sessions",
       "sessionCreatedSuccessfully": "Session created successfully!",
       "sessionUpdatedSuccessfully": "Session updated successfully",
       "failedToUpdateSession": "Failed to update session",
@@ -731,6 +736,8 @@
     "checkOutThisSession": "Check out this session",
     "downloadImage": "Download image",
     "imageDownloadSuccess": "Image downloaded successfully",
+    "shareSession": "Share",
+    "moreActions": "More actions",
     "downloadPortrait": "2:3",
     "downloadSocial": "4:5",
     "shareImageModal": {
@@ -1563,7 +1570,7 @@
         "pageTitle": "My Tournaments",
         "adminPageTitle": "All Tournaments",
         "subtitle": "Manage your tournaments, categories, and schedules — all in one place.",
-        "newTournament": "New tournament",
+        "newTournament": "Create tournament",
         "createFirst": "Create your first tournament",
         "searchPlaceholder": "Search tournaments...",
         "emptyTitle": "No tournaments yet",
@@ -1589,6 +1596,7 @@
           "manage": "Manage",
           "referee": "Officiate",
           "openPublic": "Open public page",
+          "share": "Share",
           "delete": "Delete",
           "moreActions": "More actions",
           "categories": "Categories",
@@ -1597,7 +1605,9 @@
         },
         "deleteConfirm": "Are you sure you want to delete this tournament? This action cannot be undone.",
         "deleted": "Tournament deleted",
-        "deleteFailed": "Failed to delete tournament"
+        "deleteFailed": "Failed to delete tournament",
+        "shareSuccess": "Tournament link copied",
+        "shareFailed": "Failed to share tournament"
       },
       "allTournaments": "All Tournaments",
       "createTournament": "Create Tournament",
@@ -1625,7 +1635,8 @@
           "PREPARING": "Upcoming",
           "IN_PROGRESS": "In progress",
           "FINISHED": "Finished",
-          "CANCELLED": "Cancelled"
+          "CANCELLED": "Cancelled",
+          "all": "All"
         },
         "period": {
           "title": "Time",
@@ -1689,21 +1700,50 @@
       "create": {
         "title": "Create Tournament",
         "createNewTournament": "Create New Tournament",
+        "introEyebrow": "Set Up Your Tournament",
+        "introDescription": "Start with the essentials.",
         "basicInformation": "Basic Information",
+        "formDescription": "Add the details participants need to recognize your tournament.",
         "tournamentName": "Tournament Name",
-        "enterTournamentName": "Enter tournament name",
-        "creating": "Creating...",
+        "tournamentNameHelper": "Choose a short, memorable name that identifies the season.",
+        "enterTournamentName": "Example: Summer Badminton Open 2026…",
+        "creating": "Creating…",
         "fillAllFields": "Please fill in all required fields",
+        "createFailed": "We could not create the tournament. Check the details and try again.",
         "startDate": "Start Date",
         "endDate": "End Date",
+        "datePlaceholder": "Month / day / year",
+        "schedule": "Tournament Dates",
         "venue": "Location",
-        "locationPlaceholder": "Where will the event take place?",
+        "optional": "Optional",
+        "locationHelper": "Search the map or enter a location manually.",
+        "locationPlaceholder": "Search for a venue or enter a location…",
+        "selectedVenue": "Selected Location",
+        "clearVenue": "Clear",
         "cancel": "Cancel",
         "createTournament": "Create Tournament",
         "sport": "Sport",
+        "sportHelper": "Choose the tournament's primary sport.",
+        "nextStepsTitle": "Finish the Setup Later",
+        "nextStepsDescription": "After creating the tournament, add categories, formats, players, and schedules from the management page.",
         "sports": {
           "BADMINTON": "Badminton",
           "PICKLEBALL": "Pickleball"
+        },
+        "validation": {
+          "nameRequired": "Enter a tournament name.",
+          "startDateRequired": "Choose a start date.",
+          "endDateRequired": "Choose an end date.",
+          "startDatePast": "The start date cannot be in the past.",
+          "endBeforeStart": "The end date must be on or after the start date."
+        },
+        "unsaved": {
+          "title": "Leave Tournament Setup?",
+          "description": "You have unsaved changes.",
+          "body": "If you leave this page, the information you entered will be lost.",
+          "stay": "Keep Editing",
+          "leave": "Leave Page",
+          "close": "Close dialog"
         }
       },
       "detail": {
@@ -1844,6 +1884,45 @@
             "viewStandings": "View Standings",
             "viewShowcase": "Showcase"
           },
+          "status": {
+            "PREPARING": "Coming Up",
+            "IN_PROGRESS": "In Progress",
+            "FINISHED": "Finished",
+            "CANCELLED": "Cancelled"
+          },
+          "hero": {
+            "loading": "Updating…",
+            "teams": "{count} teams",
+            "athletes": "{count} athletes",
+            "share": "Share tournament",
+            "viewCover": "View cover photo"
+          },
+          "pulse": {
+            "live": "Live",
+            "liveTitle": "Match in Progress",
+            "liveDescription": "Follow the latest live score.",
+            "nextTitle": "Up Next",
+            "nextDescription": "The latest match schedule is ready.",
+            "finishedTitle": "Tournament Complete",
+            "finishedDescription": "See the final standings and tournament winners.",
+            "preparingTitle": "Tournament Preparations Underway",
+            "preparingDescription": "Explore the categories and rules before play begins.",
+            "cancelledTitle": "Tournament Cancelled",
+            "cancelledDescription": "View the schedule for more information.",
+            "viewLive": "View Live Score",
+            "viewSchedule": "View Schedule",
+            "viewResults": "View Results",
+            "viewCategories": "View Categories",
+            "court": "Court",
+            "versus": "vs",
+            "errorTitle": "Tournament Activity Unavailable",
+            "errorDescription": "Try loading the match information again.",
+            "retry": "Try Again"
+          },
+          "share": {
+            "success": "Tournament link copied",
+            "error": "Could not share the tournament"
+          },
           "categories": {
             "title": "Categories",
             "manage": "Manage categories",
@@ -1872,7 +1951,7 @@
           },
           "venues": {
             "title": "Venues",
-            "manage": "Manage venues",
+            "manage": "Manage",
             "directions": "Directions"
           },
           "contact": {
@@ -1880,6 +1959,7 @@
             "name": "Name",
             "email": "Email",
             "phone": "Phone",
+            "edit": "Edit contact information",
             "empty": "No contact information yet."
           },
           "sponsors": {
@@ -1891,6 +1971,16 @@
             "title": "Champions",
             "subtitle": "Final results are in.",
             "viewAll": "View all winners"
+          },
+          "organizerCompletion": {
+            "title": "Complete Your Tournament Page",
+            "description": "Add the missing details to make the public page more useful and engaging.",
+            "items": {
+              "name": "Add notes",
+              "videos": "Add videos",
+              "sponsors": "Add sponsors",
+              "contact": "Add contact"
+            }
           }
         },
         "dashboard": {
@@ -2684,10 +2774,6 @@
             "dates": {
               "title": "Dates"
             },
-            "location": {
-              "title": "Location",
-              "noLocation": "No location set"
-            },
             "visibility": {
               "title": "Visibility",
               "description": "Control who can see this tournament."
@@ -3319,7 +3405,14 @@
               "newCourt": "New court",
               "removeCourt": "Remove court",
               "removeCourtConfirm": "Remove",
-              "removeCourtWarning": "\"{name}\" has {count} assigned matches/schedule slots. Removing it will drop those assignments when you save. Continue?"
+              "removeCourtWarning": "\"{name}\" has {count} assigned matches/schedule slots. Removing it will drop those assignments when you save. Continue?",
+              "primaryBadge": "Main location",
+              "setAsPrimary": "Set as main location",
+              "primaryUpdated": "Main location updated",
+              "primaryError": "Failed to set the main location",
+              "clearAddress": "Clear address",
+              "changeAddress": "Change location",
+              "selectFromSuggestions": "Pick a place from the suggestions"
             },
             "schedule": {
               "title": "Schedule",
@@ -3382,22 +3475,6 @@
                 "noChanges": "No changes to save",
                 "updateFailed": "Failed to update tournament dates"
               }
-            },
-            "location": {
-              "title": "Tournament Location",
-              "description": "Choose the primary venue shown on the public tournament page",
-              "clearSelection": "Clear selection",
-              "save": "Save",
-              "cancel": "Cancel",
-              "success": "Tournament location updated successfully",
-              "errors": {
-                "noChanges": "No changes to save",
-                "updateFailed": "Failed to update tournament location",
-                "loadFailed": "Failed to load venues"
-              },
-              "empty": "No venues linked to this tournament yet. Add venues in the Competition venues tab first.",
-              "goToVenues": "Manage venues",
-              "inlineHint": "Address-only venue — link it to a venue in the directory to set it as primary"
             },
             "banner": {
               "title": "Tournament Cover Photo",
@@ -4057,6 +4134,8 @@
           "searchPlaceholder": "Search player or team",
           "referee": "Referee",
           "refereeOnlyLabel": "My matches",
+          "refereeModeEnabled": "Referee mode enabled",
+          "refereeModeDisabled": "Referee mode disabled",
           "clear": "Clear filters",
           "apply": "Apply",
           "empty": "No matches match these filters.",
@@ -4248,7 +4327,19 @@
           "PARTICIPANTS": "Players & registrations",
           "STRUCTURE": "Categories & format"
         }
-      }
+      },
+      "resultCount": "{count} tournaments",
+      "card": {
+        "daysLeft": "{days} days left",
+        "startsToday": "Starts today",
+        "startsTomorrow": "Starts tomorrow",
+        "teams": "{count} teams",
+        "playersCount": "{count} players",
+        "categoryCount": "{count} categories",
+        "moreCategories": "+{count}"
+      },
+      "loadError": "Couldn't load tournaments",
+      "retry": "Try again"
     },
     "join": {
       "title": "Join Session",
@@ -4974,7 +5065,7 @@
     "allowNewPlayers": "Allow New Players",
     "yes": "Yes",
     "no": "No",
-    "shareResultsButton": "Share results to newsfeed",
+    "shareResultsButton": "Share to newsfeed",
     "shareResultsConfirmTitle": "Share results",
     "shareResultsConfirmMessage": "Post this session's rankings to the newsfeed?",
     "shareResultsSuccess": "Results shared to the newsfeed",
@@ -5079,7 +5170,11 @@
       "sessionConflict": "You were logged out because you signed in from another device or browser. Please sign in again.",
       "invalidEmail": "Invalid email address",
       "emailRequired": "Please enter your email",
-      "passwordRequired": "Please enter your password"
+      "passwordRequired": "Please enter your password",
+      "authenticationErrorTitle": "Authentication Error",
+      "invalidCallbackParameters": "Invalid callback parameters",
+      "redirectingToSignIn": "Redirecting to sign in...",
+      "completingSignIn": "Completing sign in..."
     },
     "signup": {
       "title": "Sign Up",
@@ -5169,6 +5264,44 @@
       "loadError": "Failed to load statistics",
       "retry": "Retry",
       "last30Days": "Last 30 days",
+      "lastUpdated": "Updated at {time}",
+      "notUpdatedYet": "Waiting for the latest data",
+      "refresh": "Refresh statistics",
+      "emptyRange": "No data in the selected date range",
+      "chartSummary": "Chart of {metric}",
+      "filters": {
+        "title": "Reporting period",
+        "7d": "7 days",
+        "30d": "30 days",
+        "90d": "90 days",
+        "custom": "Custom",
+        "from": "From",
+        "to": "To",
+        "invalidRange": "Select a valid date range of up to 365 days."
+      },
+      "actionQueue": {
+        "title": "Needs attention",
+        "description": "Requests waiting for an administrator review.",
+        "reviewNow": "Open the list to review",
+        "allClear": "No requests are waiting"
+      },
+      "growth": {
+        "title": "Growth trends",
+        "description": "New activity during {range}."
+      },
+      "breakdown": {
+        "usersTitle": "User breakdown",
+        "usersDescription": "Current account distribution across the system.",
+        "operationsTitle": "Operational status",
+        "operationsDescription": "Status distribution of core resources.",
+        "role": "Role",
+        "gender": "Gender",
+        "requests": "Requests",
+        "courts": "Courts"
+      },
+      "errors": {
+        "sectionUnavailable": "This data is temporarily unavailable. Other statistics remain visible."
+      },
       "users": {
         "sectionTitle": "Users",
         "total": "Total Users",
@@ -5177,8 +5310,19 @@
         "byGender": "Users by Gender",
         "trend": "New Users Trend"
       },
+      "sessions": {
+        "sectionTitle": "Sessions"
+      },
+      "tournaments": {
+        "sectionTitle": "Tournaments"
+      },
+      "clubs": {
+        "sectionTitle": "Clubs"
+      },
+      "venues": {
+        "sectionTitle": "Venues"
+      },
       "sessionsTournaments": {
-        "sectionTitle": "Sessions & Tournaments",
         "totalSessions": "Total Sessions",
         "totalTournaments": "Total Tournaments",
         "sessionsByStatus": "Sessions by Status",
@@ -5187,7 +5331,6 @@
         "tournamentsTrend": "New Tournaments Trend"
       },
       "clubsVenues": {
-        "sectionTitle": "Clubs & Venues",
         "totalClubs": "Total Clubs",
         "pendingClubs": "Pending Clubs",
         "clubsByStatus": "Clubs by Status",
@@ -5457,6 +5600,9 @@
     "venueRequests": "Venue Requests"
   },
   "PlayerDetailModal": {
+    "statusSetToWaiting": "Player status set to Waiting",
+    "statusSetToInactive": "Player status set to Inactive",
+    "updateStatusFailed": "Failed to update player status",
     "status": "Status",
     "playerDetails": "Player Details",
     "levelDescription": "Level Description",
@@ -5828,6 +5974,9 @@
     "markAsRead": "Mark as read",
     "markAllAsRead": "Mark all as read",
     "delete": "Delete",
+    "cancel": "Cancel",
+    "deleteConfirmTitle": "Delete notification?",
+    "deleteConfirmDescription": "The notification “{title}” will be permanently deleted. Do you want to continue?",
     "new": "New",
     "broadcastNotifications": "Broadcast Notifications",
     "broadcastDescription": "Send a notification to all users in the system",
@@ -5854,6 +6003,7 @@
     "approve": "Approve",
     "reject": "Reject",
     "approvalSession": "Badminton Session",
+    "approvalViewSession": "View session {name}",
     "approvalLevel": "Skill Level",
     "approvalPlayer": "Registered slot",
     "approvalSlotCount": "Slots registered",
@@ -5862,6 +6012,10 @@
     "approvalSubmittedPrefix": "Requested",
     "approvalViewProfile": "View profile",
     "approveSuccess": "Request approved",
+    "confirmApproveTitle": "Approve request?",
+    "confirmApproveDescription": "The applicant will be accepted. Do you want to continue?",
+    "confirmRejectTitle": "Reject request?",
+    "confirmRejectDescription": "This request will be rejected. Do you want to continue?",
     "club": {
       "creationPending": "Your club creation request is under review",
       "creationSuccess": "Club created successfully",
@@ -6037,6 +6191,18 @@
     "viewAllSessions": "View all sessions",
     "shareConfirmTitle": "Share post",
     "shareConfirmDescription": "Share this post to your feed?",
+    "shareModalTitle": "Share post",
+    "shareToFeed": "Share to newsfeed",
+    "shareToFeedDesc": "Repost this to your newsfeed",
+    "copyLink": "Copy link",
+    "copyLinkDesc": "Copy the post link",
+    "linkCopied": "Link copied",
+    "copyLinkError": "Could not copy the link",
+    "shareFacebook": "Facebook",
+    "shareZalo": "Zalo",
+    "shareX": "X (Twitter)",
+    "shareNative": "Share via…",
+    "shareDefaultText": "Check out this post on Vmito",
     "deleteCommentConfirmTitle": "Delete comment?",
     "deleteCommentConfirmDescription": "This comment will be permanently deleted.",
     "originalPostUnavailable": "The original content is no longer available.",
@@ -6044,12 +6210,12 @@
     "refreshing": "Refreshing...",
     "activity": {
       "SESSION_CREATED": "{author} created a new session",
-      "SESSION_RESULTS": "{author} shared the results of {session}",
-      "CLUB_CREATED": "{author} created the club {club}",
-      "CLUB_UPDATED": "{author} updated the club {club}",
-      "CLUB_MEMBER_JOINED": "{author} joined the club {club}",
-      "TOURNAMENT_CREATED": "{author} created the tournament {tournament}",
-      "TOURNAMENT_FINISHED": "The tournament {tournament} has finished",
+      "SESSION_RESULTS": "{author} shared the results of <b>{session}</b>",
+      "CLUB_CREATED": "{author} created the club <b>{club}</b>",
+      "CLUB_UPDATED": "{author} updated the club <b>{club}</b>",
+      "CLUB_MEMBER_JOINED": "{author} joined the club <b>{club}</b>",
+      "TOURNAMENT_CREATED": "{author} created the tournament <b>{tournament}</b>",
+      "TOURNAMENT_FINISHED": "The tournament <b>{tournament}</b> has finished",
       "AVATAR_UPDATED": "{author} updated their profile photo",
       "USER_RATED": "{author} rated {rated}",
       "champion": "Champion",
@@ -6057,7 +6223,10 @@
       "standingsRank": "Rank",
       "standingsPlayer": "Player",
       "standingsMatches": "Matches",
+      "standingsWinRate": "Win Rate",
+      "standingsMatchesShort": "{count} matches",
       "andMorePlayers": "and {count} more players",
+      "showLess": "Show less",
       "viewSession": "View session",
       "viewClub": "View club",
       "viewTournament": "View tournament",
@@ -6175,8 +6344,11 @@
     "roleUpdatedSuccessfully": "Role updated successfully",
     "requestApprovedSuccessfully": "Join request approved",
     "requestRejectedSuccessfully": "Join request rejected",
+    "confirmApproveTitle": "Approve request?",
     "confirmApprove": "Approve this join request?",
+    "confirmRejectTitle": "Reject request?",
     "confirmReject": "Reject this join request?",
+    "memberActionFailed": "The action could not be completed. Please try again.",
     "manageClubs": "Manage Clubs",
     "manageYourClubs": "Manage your clubs",
     "createClub": "Create Club",
@@ -6193,10 +6365,13 @@
     "failedToUpdateClub": "Failed to update club",
     "failedToLoadClub": "Failed to load club",
     "addClubMember": "Add Member",
+    "searchUserLabel": "Find a user",
     "searchUserPlaceholder": "Search by name or email...",
+    "searchUsersFailed": "Users could not be found. Please try again.",
     "alreadyMember": "Already a member",
     "noUsersFound": "No users found",
     "noClubMembersYet": "No members yet",
+    "noMembersYet": "No members yet",
     "addFirstMember": "Add first member",
     "clubMemberAddedSuccess": "Member added successfully",
     "failedToAddClubMember": "Failed to add member",
@@ -6204,6 +6379,7 @@
     "clubMemberRemovedSuccess": "Member removed successfully",
     "failedToRemoveClubMember": "Failed to remove member",
     "memberDetails": "Member details",
+    "roleSelectLabel": "Member role",
     "viewProfile": "View profile",
     "removeFromClub": "Remove from club",
     "confirmRemoveMemberTitle": "Remove member",
@@ -7026,7 +7202,10 @@
       "completeRefund": "Complete refund",
       "confirmRefund": "Confirm refund completed",
       "method": "Method",
-      "methodValue": { "BANK_TRANSFER": "Bank transfer", "CASH": "Cash" },
+      "methodValue": {
+        "BANK_TRANSFER": "Bank transfer",
+        "CASH": "Cash"
+      },
       "purposeLabel": "Payment purpose",
       "purpose": {
         "DEPOSIT": "Deposit",
@@ -7062,7 +7241,9 @@
         "balanceOverdue": "Balance overdue",
         "refundPending": "Refund pending"
       },
-      "messages": { "updated": "Transaction updated" },
+      "messages": {
+        "updated": "Transaction updated"
+      },
       "errors": {
         "action": "Unable to process the transaction",
         "invalidProof": "Upload an image no larger than 5 MB.",

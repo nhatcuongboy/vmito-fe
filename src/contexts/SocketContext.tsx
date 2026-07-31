@@ -37,6 +37,8 @@ export enum SessionEventType {
   NOTIFICATION_RECEIVED = 'notification_received',
   FAVORITE_UPDATED = 'favorite_updated',
   POST_LIKE_UPDATED = 'post_like_updated',
+  POST_COMMENT_CREATED = 'post_comment_created',
+  POST_COMMENT_DELETED = 'post_comment_deleted',
 }
 
 // All session-related event types for listening

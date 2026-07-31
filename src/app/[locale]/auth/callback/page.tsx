@@ -54,7 +54,7 @@ function AuthCallbackContent() {
         router.replace(redirectPath);
       }, 0);
     } else {
-      setError('Invalid callback parameters');
+      setError(t('invalidCallbackParameters'));
       // Redirect to signin after 3 seconds
       setTimeout(() => {
         router.replace('/auth/signin');
@@ -64,7 +64,7 @@ function AuthCallbackContent() {
 
   if (error) {
     return (
-      <MainLayout title="Authentication Error">
+      <MainLayout title={t('authenticationErrorTitle')}>
         <Box
           minH="100vh"
           display="flex"
@@ -76,7 +76,7 @@ function AuthCallbackContent() {
             <Text color="red.500" fontSize="xl">
               {error}
             </Text>
-            <Text color="fg.muted">Redirecting to sign in...</Text>
+            <Text color="fg.muted">{t('redirectingToSignIn')}</Text>
           </VStack>
         </Box>
       </MainLayout>
@@ -93,7 +93,7 @@ function AuthCallbackContent() {
     >
       <VStack gap={4}>
         <Spinner size="xl" color="green.500" />
-        <Text color="fg.muted">Completing sign in...</Text>
+        <Text color="fg.muted">{t('completingSignIn')}</Text>
       </VStack>
     </Box>
   );

@@ -19,6 +19,7 @@ import type { Post } from '@/types/post';
 import { CommentSection } from './CommentSection';
 import { PostAvatar } from './PostAvatar';
 import { ActivityPostContent } from './ActivityPostContent';
+import { SharePostModal } from './SharePostModal';
 import { postsService } from '@/lib/api/posts.service';
 import { toaster } from '@/components/ui/toaster';
 import VModal from '@/components/ui/VModal';
@@ -53,6 +54,12 @@ interface PostLikeUpdatedPayload {
   likeCount: number;
   actorId: string;
   isLiked: boolean;
+}
+
+interface PostCommentUpdatedPayload {
+  postId: string;
+  commentCount: number;
+  actorId: string;
 }
 
 function PostMediaImage({ src, alt, className, onClick }: PostMediaImageProps) {
@@ -144,6 +151,41 @@ export function PostCard({
   }, [currentUserId, isConnected, localPost.id, socket]);
 
   useEffect(() => {
+    if (!socket || !isConnected) return;
+
+    const postId = localPost.id;
+    const handleCommentCountUpdated = (data: PostCommentUpdatedPayload) => {
+      if (data.postId !== postId || !Number.isFinite(data.commentCount)) return;
+
+      setLocalPost((prev) => {
+        const prevCounts = prev._count ?? { likes: 0, comments: 0, shares: 0 };
+
+        return {
+          ...prev,
+          _count: {
+            ...prevCounts,
+            comments: Math.max(0, data.commentCount),
+          },
+        };
+      });
+    };
+
+    socket.on(SessionEventType.POST_COMMENT_CREATED, handleCommentCountUpdated);
+    socket.on(SessionEventType.POST_COMMENT_DELETED, handleCommentCountUpdated);
+
+    return () => {
+      socket.off(
+        SessionEventType.POST_COMMENT_CREATED,
+        handleCommentCountUpdated
+      );
+      socket.off(
+        SessionEventType.POST_COMMENT_DELETED,
+        handleCommentCountUpdated
+      );
+    };
+  }, [isConnected, localPost.id, socket]);
+
+  useEffect(() => {
     if (!showMenu) return;
     const handleClickOutside = (event: MouseEvent) => {
       if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
@@ -231,11 +273,6 @@ export function PostCard({
     setIsDeleting(true);
     try {
       await postsService.deletePost(localPost.id);
-      toaster.create({
-        title: t('success'),
-        description: t('deleteSuccess'),
-        type: 'success',
-      });
       setShowDeleteConfirm(false);
       if (onPostDeleted) {
         onPostDeleted(localPost.id);
@@ -324,6 +361,7 @@ export function PostCard({
             name={localPost.author.name}
             image={localPost.author.image}
             size={40}
+            bordered
           />
         </Link>
         <div className="min-w-0 flex-1">
@@ -674,21 +712,13 @@ export function PostCard({
         </p>
       </VModal>
 
-      <VModal
+      <SharePostModal
         isOpen={showShareConfirm}
         onClose={() => setShowShareConfirm(false)}
-        title={t('shareConfirmTitle')}
-        size="sm"
-        primaryActionText={t('share')}
-        secondaryActionText={t('cancel')}
-        onPrimaryAction={handleShare}
-        isPrimaryLoading={isSharing}
-        isSecondaryDisabled={isSharing}
-      >
-        <p className="text-sm text-gray-600 dark:text-gray-300">
-          {t('shareConfirmDescription')}
-        </p>
-      </VModal>
+        post={localPost}
+        onRepost={handleShare}
+        isReposting={isSharing}
+      />
     </Box>
   );
 }

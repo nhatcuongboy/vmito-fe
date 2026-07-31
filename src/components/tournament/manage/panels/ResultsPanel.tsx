@@ -51,6 +51,8 @@ import { ModeButton } from '@/components/ui/ModeButton';
 import { ResultMatchCard, makeScheduleMatchCardDomId } from './ResultMatchCard';
 import { ResultsCalendarView } from './ResultsCalendarView';
 import { ResultsFilterDrawer } from './ResultsFilterDrawer';
+import PlayerNamesToggle from '@/components/tournament/PlayerNamesToggle';
+import TournamentIconToggle from '@/components/tournament/TournamentIconToggle';
 import {
   CATEGORY_COLORS,
   ChipOption,
@@ -68,6 +70,8 @@ import {
 import { useResultsData } from './useResultsData';
 import { useRouter } from '@/i18n/config';
 import TournamentManageEmptyState from './TournamentManageEmptyState';
+
+const REFEREE_FILTER_TOAST_ID = 'referee-filter-toggle-toast';
 
 interface Props {
   tournament: Tournament;
@@ -644,6 +648,27 @@ export default function ResultsPanel({
   const canShowRefereeFilter =
     refereeAccess.canRefereeAny || refereeAccess.hasOwnAssignments;
 
+  const handleToggleRefereeFilter = () => {
+    const enabled = !filters.refereeOnly;
+    setFilters((prev) => ({ ...prev, refereeOnly: enabled }));
+
+    if (enabled) {
+      toaster.success({
+        id: REFEREE_FILTER_TOAST_ID,
+        title: t.has('filters.refereeModeEnabled')
+          ? t('filters.refereeModeEnabled')
+          : t('filters.referee'),
+      });
+    } else {
+      toaster.info({
+        id: REFEREE_FILTER_TOAST_ID,
+        title: t.has('filters.refereeModeDisabled')
+          ? t('filters.refereeModeDisabled')
+          : t('filters.referee'),
+      });
+    }
+  };
+
   return (
     <Box>
       <Flex direction="column" gap={3} mb={5}>
@@ -670,7 +695,12 @@ export default function ResultsPanel({
             )}
           </Box>
 
-          <Box w={{ base: 'full', md: '360px' }} minW={0}>
+          <Box
+            w={{ base: 'calc(100% + 32px)', md: 'full' }}
+            mx={{ base: '-16px', md: 0 }}
+            flex="1"
+            minW={0}
+          >
             <AppSearchBar
               value={filters.query}
               onChange={(value) =>
@@ -688,55 +718,57 @@ export default function ResultsPanel({
         <Flex align="center" justify="space-between" gap={3} w="full">
           <Flex align="center" gap={2}>
             {canShowRefereeFilter && (
-              <Button
-                size="sm"
-                variant="outline"
-                colorPalette={filters.refereeOnly ? 'green' : 'gray'}
-                bg={filters.refereeOnly ? 'green.500' : 'transparent'}
-                color={filters.refereeOnly ? 'white' : undefined}
-                borderWidth="2px"
-                borderColor={filters.refereeOnly ? 'green.500' : 'green.200'}
-                onClick={() =>
-                  setFilters((prev) => ({
-                    ...prev,
-                    refereeOnly: !prev.refereeOnly,
-                  }))
-                }
-                aria-label={t('filters.referee')}
-                flexShrink={0}
-                w="auto"
-                minW="fit-content"
-                h={9}
-                px={3}
-                gap={1.5}
-                borderRadius="full"
-                transition="all 0.15s ease"
-                _hover={{
-                  bg: filters.refereeOnly ? 'green.600' : 'gray.100',
-                  borderColor: filters.refereeOnly ? 'green.600' : 'green.300',
-                }}
+              <TournamentIconToggle
+                active={filters.refereeOnly}
+                onToggle={handleToggleRefereeFilter}
+                title={t('filters.referee')}
+                size={32}
               >
-                <ShieldCheck size={15} />
-                <Text fontSize="sm" fontWeight="semibold">
-                  {t('filters.referee')}
-                </Text>
-              </Button>
+                <ShieldCheck size={16} />
+              </TournamentIconToggle>
             )}
+
+            <PlayerNamesToggle
+              active={showPlayerNames}
+              onToggle={() => setShowPlayerNames((prev) => !prev)}
+              title={t('showPlayerNames')}
+              size={32}
+            />
 
             {canEdit && (
               <Button
-                display={{ base: 'none', md: 'inline-flex' }}
                 size="sm"
                 variant="outline"
                 colorPalette="gray"
                 onClick={() => setIsOverlayLinksOpen(true)}
                 aria-label={tOverlay('title')}
+                title={tOverlay('title')}
                 flexShrink={0}
-                h={9}
-                w={9}
+                minW={8}
+                h={8}
+                w={8}
                 px={0}
+                borderRadius="md"
+                borderWidth="1px"
+                borderColor="gray.300"
+                bg="white"
+                color="gray.600"
+                boxShadow="sm"
+                transition="all 0.15s ease"
+                _hover={{
+                  bg: 'gray.100',
+                  borderColor: 'gray.300',
+                }}
+                _dark={{
+                  borderColor: 'gray.600',
+                  bg: 'gray.800',
+                  color: 'gray.300',
+                  _hover: {
+                    bg: 'gray.700',
+                  },
+                }}
               >
-                <MonitorPlay size={15} />
+                <MonitorPlay size={16} />
               </Button>
             )}
           </Flex>
@@ -749,7 +781,7 @@ export default function ResultsPanel({
             p={0}
           >
             <Flex
-              p={0.5}
+              p={0}
               gap={0.5}
               borderWidth="1px"
               borderColor="gray.200"
@@ -940,9 +972,6 @@ export default function ResultsPanel({
         statusOptions={statusOptions}
         teamOptions={teamOptions}
         onToggle={updateFilterList}
-        showPlayerNames={showPlayerNames}
-        onTogglePlayerNames={() => setShowPlayerNames((prev) => !prev)}
-        showRefereeFilter={canShowRefereeFilter}
       />
 
       <OverlayLinksModal

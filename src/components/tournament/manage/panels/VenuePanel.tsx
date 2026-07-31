@@ -1,15 +1,15 @@
 'use client';
 
 import { Box, Flex, Heading, Text } from '@chakra-ui/react';
-import { IconButton, Button, VStack } from '@/components/ui/chakra-compat';
-import { MapPin, Plus, Edit2, Trash2 } from 'lucide-react';
+import { Button, VStack } from '@/components/ui/chakra-compat';
+import { MapPin, Plus } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Tournament, TournamentVenue } from '@/lib/api/types';
 import { useState, useEffect, useCallback } from 'react';
 import VenueConfigModal from './VenueConfigModal';
+import VenueCard from './venues/VenueCard';
 import { TournamentService } from '@/lib/api/tournament.service';
 import { toaster } from '@/components/ui/toaster';
-import VenueMapPin from '@/components/venue/VenueMapPin';
 import { VModal } from '@/components/ui/VModal';
 import { TournamentMatchListSkeleton } from '@/components/tournament/skeletons';
 
@@ -31,6 +31,7 @@ export default function VenuePanel({
     undefined
   );
   const [removingId, setRemovingId] = useState<string | null>(null);
+  const [settingPrimaryId, setSettingPrimaryId] = useState<string | null>(null);
   const [confirmRemoveVenue, setConfirmRemoveVenue] =
     useState<TournamentVenue | null>(null);
 
@@ -88,6 +89,25 @@ export default function VenuePanel({
   const handleAddNew = () => {
     setEditingVenue(undefined);
     setIsConfigModalOpen(true);
+  };
+
+  const handleSetPrimary = async (tournamentVenue: TournamentVenue) => {
+    try {
+      setSettingPrimaryId(tournamentVenue.id);
+      await TournamentService.setPrimaryVenue(
+        tournament.id,
+        tournamentVenue.id
+      );
+      setVenues((prev) =>
+        prev.map((v) => ({ ...v, isPrimary: v.id === tournamentVenue.id }))
+      );
+      toaster.success({ title: t('primaryUpdated') });
+      onTournamentChanged?.();
+    } catch {
+      toaster.error({ title: t('primaryError') });
+    } finally {
+      setSettingPrimaryId(null);
+    }
   };
 
   return (
@@ -149,147 +169,15 @@ export default function VenuePanel({
       ) : (
         <VStack gap={4} align="stretch">
           {venues.map((tv) => (
-            <Box
+            <VenueCard
               key={tv.id}
-              borderWidth="1px"
-              borderColor="gray.200"
-              borderRadius="2xl"
-              overflow="hidden"
-              bg="white"
-              _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
-            >
-              {/* Map Section */}
-              <Box
-                h="200px"
-                position="relative"
-                w="full"
-                borderRadius="2xl"
-                overflow="hidden"
-              >
-                {(tv.venue?.lat ?? tv.lat) && (tv.venue?.lng ?? tv.lng) ? (
-                  <VenueMapPin
-                    lat={(tv.venue?.lat ?? tv.lat)!}
-                    lng={(tv.venue?.lng ?? tv.lng)!}
-                    height="200px"
-                    zoom={15}
-                  />
-                ) : (
-                  <Flex
-                    h="full"
-                    w="full"
-                    align="center"
-                    justify="center"
-                    bg="gray.100"
-                    _dark={{ bg: 'gray.900' }}
-                  >
-                    <MapPin size={40} color="#A0AEC0" />
-                  </Flex>
-                )}
-              </Box>
-
-              {/* Venue Info */}
-              <Flex justify="space-between" align="start" p={4}>
-                <Box flex="1">
-                  <Flex align="center" gap={2} mb={1}>
-                    <Text
-                      fontWeight="bold"
-                      fontSize="md"
-                      color="gray.800"
-                      _dark={{ color: 'gray.100' }}
-                    >
-                      {tv.venue?.name ?? tv.name}
-                    </Text>
-                    {(tv.venue?.acronym ?? tv.acronym) && (
-                      <Box
-                        bg="gray.100"
-                        px={2}
-                        py={0.5}
-                        borderRadius="md"
-                        _dark={{ bg: 'gray.700' }}
-                      >
-                        <Text
-                          fontSize="xs"
-                          fontWeight="semibold"
-                          color="gray.600"
-                          _dark={{ color: 'gray.300' }}
-                        >
-                          {tv.venue?.acronym ?? tv.acronym}
-                        </Text>
-                      </Box>
-                    )}
-                  </Flex>
-                  {(tv.venue?.address ?? tv.address) && (
-                    <Text
-                      fontSize="sm"
-                      color="gray.500"
-                      mb={1}
-                      _dark={{ color: 'gray.400' }}
-                    >
-                      {tv.venue?.address ?? tv.address}
-                      {(tv.venue?.city ?? tv.city)
-                        ? `, ${tv.venue?.city ?? tv.city}`
-                        : ''}
-                    </Text>
-                  )}
-                  {tv.courts && tv.courts.length > 0 && (
-                    <Text
-                      fontSize="xs"
-                      color="gray.400"
-                      mb={2}
-                      _dark={{ color: 'gray.500' }}
-                    >
-                      {tv.courts.length} {t('courtsCount')}:{' '}
-                      {tv.courts
-                        .map(
-                          (c) => c.courtName || `${t('court')} ${c.courtNumber}`
-                        )
-                        .join(', ')}
-                    </Text>
-                  )}
-                  {(tv.venue?.lat ?? tv.lat) && (tv.venue?.lng ?? tv.lng) && (
-                    <Button
-                      as="a"
-                      href={`https://www.google.com/maps/dir/?api=1&destination=${tv.venue?.lat ?? tv.lat},${tv.venue?.lng ?? tv.lng}`}
-                      variant="outline"
-                      size="xs"
-                      colorPalette="green"
-                      mt={2}
-                      onClick={(event) => {
-                        event.preventDefault();
-                        window.open(
-                          `https://www.google.com/maps/dir/?api=1&destination=${tv.venue?.lat ?? tv.lat},${tv.venue?.lng ?? tv.lng}`,
-                          '_blank',
-                          'noopener,noreferrer'
-                        );
-                      }}
-                    >
-                      <MapPin size={14} />
-                      {t('viewOnGoogleMaps')}
-                    </Button>
-                  )}
-                </Box>
-
-                <Flex align="center" gap={1}>
-                  <IconButton
-                    aria-label={t('editVenue')}
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => handleEdit(tv)}
-                  >
-                    <Edit2 size={16} />
-                  </IconButton>
-                  <IconButton
-                    aria-label={t('removeVenue')}
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => handleRemove(tv)}
-                    loading={removingId === tv.id}
-                  >
-                    <Trash2 size={16} />
-                  </IconButton>
-                </Flex>
-              </Flex>
-            </Box>
+              tournamentVenue={tv}
+              isRemoving={removingId === tv.id}
+              isSettingPrimary={settingPrimaryId === tv.id}
+              onEdit={handleEdit}
+              onRemove={handleRemove}
+              onSetPrimary={handleSetPrimary}
+            />
           ))}
         </VStack>
       )}

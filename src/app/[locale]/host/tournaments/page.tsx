@@ -7,7 +7,6 @@ import {
   Text,
   Badge,
   HStack,
-  VStack,
   Image,
   MenuRoot,
   MenuTrigger,
@@ -15,6 +14,7 @@ import {
   MenuItem,
   MenuPositioner,
   Portal,
+  SimpleGrid,
 } from '@chakra-ui/react';
 import { Button, IconButton } from '@/components/ui/chakra-compat';
 import PageLayout from '@/components/layout/PageLayout';
@@ -29,10 +29,13 @@ import { useLocale, useTranslations } from 'next-intl';
 import { AppSearchBar } from '@/components/common/AppSearchBar';
 import { useRegisterTopBarSearch } from '@/contexts/TopBarSearchContext';
 import { HostTournamentListSkeleton } from '@/components/tournament/skeletons';
+import { TournamentStatusSelect } from '@/components/tournament/TournamentStatusSelect';
+import TournamentSortMenu, {
+  type TournamentSortValue,
+} from '@/components/tournament/TournamentSortMenu';
 import {
   Trophy,
   Plus,
-  ExternalLink,
   MoreHorizontal,
   Settings,
   Trash2,
@@ -40,12 +43,11 @@ import {
   MapPin,
   Layers,
   Gavel,
+  Share2,
 } from 'lucide-react';
 import { ROUTES } from '@/constants';
 import { toaster } from '@/components/ui/toaster';
 import { useAuthStore } from '@/stores/useAuthStore';
-
-type TStatusFilter = 'all' | TournamentStatus;
 
 const STATUS_THEME: Record<
   TournamentStatus,
@@ -106,67 +108,11 @@ function StatusBadge({
   );
 }
 
-function FilterPill({
-  active,
-  onClick,
-  label,
-  count,
-}: {
-  active: boolean;
-  onClick: () => void;
-  label: string;
-  count: number;
-}) {
-  return (
-    <Box
-      as="button"
-      onClick={onClick}
-      px={3.5}
-      py={1.5}
-      borderRadius="full"
-      borderWidth="1px"
-      borderColor={active ? 'green.500' : 'gray.200'}
-      bg={active ? 'green.500' : 'white'}
-      color={active ? 'white' : 'fg'}
-      _dark={{
-        bg: active ? 'green.500' : 'gray.800',
-        borderColor: active ? 'green.500' : 'gray.700',
-        color: active ? 'white' : 'fg',
-      }}
-      fontSize="sm"
-      fontWeight="medium"
-      transition="all 0.15s"
-      cursor="pointer"
-      _hover={{
-        borderColor: active ? 'green.500' : 'green.300',
-      }}
-    >
-      <HStack gap={2} align="center">
-        <Text>{label}</Text>
-        <Box
-          px={1.5}
-          minW="20px"
-          textAlign="center"
-          borderRadius="full"
-          fontSize="xs"
-          fontWeight="bold"
-          bg={active ? 'whiteAlpha.300' : 'gray.100'}
-          color={active ? 'white' : 'fg.muted'}
-          _dark={{
-            bg: active ? 'whiteAlpha.300' : 'gray.700',
-          }}
-        >
-          {count}
-        </Box>
-      </HStack>
-    </Box>
-  );
-}
-
 function TournamentRow({
   tournament,
   deleting,
   onManage,
+  onShare,
   onDelete,
   onOpenPublic,
   dateFormatted,
@@ -179,6 +125,7 @@ function TournamentRow({
   tournament: Tournament;
   deleting: boolean;
   onManage: () => void;
+  onShare: () => void;
   onDelete: () => void;
   onOpenPublic: () => void;
   dateFormatted: string;
@@ -318,30 +265,6 @@ function TournamentRow({
 
         {/* Actions */}
         <HStack gap={1} flexShrink={0}>
-          <Button
-            size="sm"
-            colorPalette="green"
-            variant="solid"
-            borderRadius="full"
-            onClick={onManage}
-            display={{ base: 'none', md: 'inline-flex' }}
-            loading={deleting}
-          >
-            {isReferee ? (
-              <Gavel size={14} style={{ marginRight: 6 }} />
-            ) : (
-              <Settings size={14} style={{ marginRight: 6 }} />
-            )}
-            {isReferee ? t('card.referee') : t('card.manage')}
-          </Button>
-          <IconButton
-            aria-label={t('card.openPublic')}
-            variant="ghost"
-            size="sm"
-            onClick={onOpenPublic}
-          >
-            <ExternalLink size={16} />
-          </IconButton>
           <MenuRoot positioning={{ placement: 'bottom-end' }}>
             <MenuTrigger asChild>
               <IconButton
@@ -374,6 +297,12 @@ function TournamentRow({
                       </Text>
                     </HStack>
                   </MenuItem>
+                  <MenuItem value="share" onClick={onShare}>
+                    <HStack gap={2}>
+                      <Share2 size={16} />
+                      <Text>{t('card.share')}</Text>
+                    </HStack>
+                  </MenuItem>
                   {showDelete && (
                     <MenuItem value="delete" color="red.500" onClick={onDelete}>
                       <HStack gap={2}>
@@ -395,6 +324,7 @@ function TournamentRow({
 export default function HostTournamentsPage() {
   const router = useRouter();
   const t = useTranslations('pages.tournaments.hostList');
+  const tTournaments = useTranslations('pages.tournaments');
   const tStatus = useTranslations('pages.tournaments.status');
   const locale = useLocale();
   const dateLocale = locale === 'vi' ? viLocale : locale === 'cn' ? zhCN : enUS;
@@ -404,7 +334,10 @@ export default function HostTournamentsPage() {
   const [tournaments, setTournaments] = useState<Tournament[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
-  const [statusFilter, setStatusFilter] = useState<TStatusFilter>('all');
+  const [statuses, setStatuses] = useState<TournamentStatus[]>([
+    TournamentStatus.PREPARING,
+  ]);
+  const [sort, setSort] = useState<TournamentSortValue>('start_asc');
   const [deleting, setDeleting] = useState<string | null>(null);
 
   // Register desktop search bar in the top bar
@@ -450,31 +383,54 @@ export default function HostTournamentsPage() {
     }
   };
 
-  const stats = useMemo(() => {
-    return {
-      total: tournaments.length,
-      draft: tournaments.filter((x) => x.status === TournamentStatus.PREPARING)
-        .length,
-      inProgress: tournaments.filter(
-        (x) => x.status === TournamentStatus.IN_PROGRESS
-      ).length,
-      finished: tournaments.filter(
-        (x) => x.status === TournamentStatus.FINISHED
-      ).length,
-      cancelled: tournaments.filter(
-        (x) => x.status === TournamentStatus.CANCELLED
-      ).length,
-    };
-  }, [tournaments]);
+  const handleShare = async (tournament: Tournament) => {
+    const shareUrl = `${window.location.origin}/${locale}/tournament/${tournament.slug}`;
+
+    try {
+      if (navigator.share) {
+        await navigator.share({
+          title: tournament.name,
+          text: tournament.name,
+          url: shareUrl,
+        });
+        return;
+      }
+
+      await navigator.clipboard.writeText(shareUrl);
+      toaster.success({ title: t('shareSuccess') });
+    } catch (error) {
+      if (error instanceof DOMException && error.name === 'AbortError') return;
+      toaster.error({ title: t('shareFailed') });
+    }
+  };
 
   const filtered = useMemo(() => {
-    return tournaments.filter((x) => {
+    const matchingTournaments = tournaments.filter((x) => {
       const matchesSearch = x.name.toLowerCase().includes(search.toLowerCase());
       const matchesStatus =
-        statusFilter === 'all' ? true : x.status === statusFilter;
+        statuses.length === 0 || statuses.includes(x.status);
       return matchesSearch && matchesStatus;
     });
-  }, [tournaments, search, statusFilter]);
+
+    return matchingTournaments.sort((first, second) => {
+      switch (sort) {
+        case 'newest':
+          return (
+            new Date(second.createdAt).getTime() -
+            new Date(first.createdAt).getTime()
+          );
+        case 'name_asc':
+          return first.name.localeCompare(second.name, locale);
+        case 'name_desc':
+          return second.name.localeCompare(first.name, locale);
+        case 'start_asc':
+          return (
+            new Date(first.startDate).getTime() -
+            new Date(second.startDate).getTime()
+          );
+      }
+    });
+  }, [locale, search, sort, statuses, tournaments]);
 
   const statusLabelFor = (status: TournamentStatus): string => {
     switch (status) {
@@ -501,10 +457,9 @@ export default function HostTournamentsPage() {
         title={isAdmin ? t('adminPageTitle') : t('pageTitle')}
         mobileIcon={<Trophy size={20} />}
       >
-        {/* Search + Create button */}
         <Box mb={4}>
-          <Flex gap={2} align="center" mx={{ base: '-16px', md: 0 }}>
-            <Box flex={1} display={{ base: 'block', md: 'none' }}>
+          <Flex gap={0} align="center" display={{ base: 'flex', md: 'none' }}>
+            <Box flex={1} minW={0} ml="-16px">
               <AppSearchBar
                 placeholder={t('searchPlaceholder')}
                 value={search}
@@ -513,73 +468,60 @@ export default function HostTournamentsPage() {
               />
             </Box>
             {user?.role !== UserRole.REFEREE && (
-              <>
-                <Button
-                  colorPalette="green"
-                  size="md"
-                  borderRadius="full"
-                  onClick={handleCreate}
-                  boxShadow="md"
-                  flexShrink={0}
-                  display={{ base: 'none', md: 'flex' }}
-                >
-                  <Plus size={18} style={{ marginRight: 6 }} />
-                  {t('newTournament')}
-                </Button>
-                <IconButton
-                  colorPalette="green"
-                  size="md"
-                  borderRadius="full"
-                  onClick={handleCreate}
-                  boxShadow="md"
-                  flexShrink={0}
-                  display={{ base: 'flex', md: 'none' }}
-                  aria-label={t('newTournament')}
-                >
-                  <Plus size={20} />
-                </IconButton>
-              </>
+              <Button
+                colorPalette="green"
+                borderRadius="lg"
+                h="44px"
+                px={3}
+                fontWeight="semibold"
+                flexShrink={0}
+                aria-label={t('newTournament')}
+                onClick={handleCreate}
+              >
+                <Plus size={18} />
+                <Text>{t('newTournament')}</Text>
+              </Button>
             )}
           </Flex>
-          <HStack
-            gap={2}
-            mt={4}
+
+          {user?.role !== UserRole.REFEREE && (
+            <Flex justify="flex-end" display={{ base: 'none', md: 'flex' }}>
+              <Button
+                colorPalette="green"
+                borderRadius="lg"
+                px={4}
+                py={2}
+                h="40px"
+                fontWeight="semibold"
+                aria-label={t('newTournament')}
+                onClick={handleCreate}
+              >
+                <Plus size={18} />
+                <Text>{t('newTournament')}</Text>
+              </Button>
+            </Flex>
+          )}
+
+          <Flex
+            justify="space-between"
+            align="center"
+            gap={3}
+            mt={{ base: 3, md: 4 }}
             flexWrap="wrap"
-            overflowX={{ base: 'auto', md: 'visible' }}
           >
-            <FilterPill
-              active={statusFilter === 'all'}
-              onClick={() => setStatusFilter('all')}
-              label={t('filters.all')}
-              count={stats.total}
-            />
-            <FilterPill
-              active={statusFilter === TournamentStatus.PREPARING}
-              onClick={() => setStatusFilter(TournamentStatus.PREPARING)}
-              label={t('filters.draft')}
-              count={stats.draft}
-            />
-            <FilterPill
-              active={statusFilter === TournamentStatus.IN_PROGRESS}
-              onClick={() => setStatusFilter(TournamentStatus.IN_PROGRESS)}
-              label={t('filters.inProgress')}
-              count={stats.inProgress}
-            />
-            <FilterPill
-              active={statusFilter === TournamentStatus.FINISHED}
-              onClick={() => setStatusFilter(TournamentStatus.FINISHED)}
-              label={t('filters.finished')}
-              count={stats.finished}
-            />
-            {stats.cancelled > 0 && (
-              <FilterPill
-                active={statusFilter === TournamentStatus.CANCELLED}
-                onClick={() => setStatusFilter(TournamentStatus.CANCELLED)}
-                label={t('filters.cancelled')}
-                count={stats.cancelled}
-              />
-            )}
-          </HStack>
+            <Box minW={0} display={{ base: 'none', md: 'block' }}>
+              {!loading && (
+                <Text fontSize="sm" color="fg.muted">
+                  {tTournaments('resultCount', { count: filtered.length })}
+                </Text>
+              )}
+            </Box>
+
+            <HStack gap={2} ml="auto" flexShrink={0}>
+              <TournamentStatusSelect value={statuses} onChange={setStatuses} />
+              <TournamentSortMenu value={sort} onChange={setSort} />
+            </HStack>
+          </Flex>
         </Box>
 
         {/* List */}
@@ -613,21 +555,21 @@ export default function HostTournamentsPage() {
               <Trophy size={32} />
             </Flex>
             <Text fontSize="lg" fontWeight="semibold" color="fg">
-              {search || statusFilter !== 'all'
+              {search || statuses.length > 0
                 ? t('noResultsTitle')
                 : isAdmin
                   ? t('adminEmptyTitle')
                   : t('emptyTitle')}
             </Text>
             <Text color="fg.muted" maxW="420px">
-              {search || statusFilter !== 'all'
+              {search || statuses.length > 0
                 ? t('noResultsDesc')
                 : isAdmin
                   ? t('adminEmptyDesc')
                   : t('emptyDesc')}
             </Text>
             {!search &&
-              statusFilter === 'all' &&
+              statuses.length === 0 &&
               user?.role !== UserRole.REFEREE && (
                 <Button
                   colorPalette="green"
@@ -641,7 +583,7 @@ export default function HostTournamentsPage() {
               )}
           </Flex>
         ) : (
-          <VStack gap={3} align="stretch">
+          <SimpleGrid columns={{ base: 1, md: 2 }} gap={3}>
             {filtered.map((tournament) => (
               <TournamentRow
                 key={tournament.id}
@@ -654,6 +596,7 @@ export default function HostTournamentsPage() {
                     router.push(`/tournament/${tournament.slug}`);
                   }
                 }}
+                onShare={() => void handleShare(tournament)}
                 onOpenPublic={() => {
                   if (user?.role === UserRole.REFEREE) {
                     router.push(`/tournament/${tournament.slug}/referee`);
@@ -674,7 +617,7 @@ export default function HostTournamentsPage() {
                 isReferee={user?.role === UserRole.REFEREE}
               />
             ))}
-          </VStack>
+          </SimpleGrid>
         )}
       </PageLayout>
     </ProtectedRouteGuard>

@@ -14,6 +14,7 @@ import {
   Badge,
 } from '@chakra-ui/react';
 import { Button } from '@/components/ui/chakra-compat';
+import AppConfirmDialog from '@/components/ui/AppConfirmDialog';
 import {
   LuBell,
   LuCheckCheck,
@@ -139,6 +140,9 @@ export default function NotificationBell({
   );
   const [pendingCount, setPendingCount] = useState(0);
   const [isMarkingAll, setIsMarkingAll] = useState(false);
+  const [notificationToDelete, setNotificationToDelete] =
+    useState<INotification | null>(null);
+  const [isDeletingNotification, setIsDeletingNotification] = useState(false);
   const pendingRequestsFetchedAtRef = useRef<number | null>(null);
   const clubJoinRequestsFetchedAtRef = useRef<number | null>(null);
   const venueRequestsFetchedAtRef = useRef<number | null>(null);
@@ -336,9 +340,35 @@ export default function NotificationBell({
     }
   };
 
-  const handleDeleteNotification = (e: React.MouseEvent, id: string) => {
+  const handleDeleteNotification = (
+    e: React.MouseEvent,
+    notification: INotification
+  ) => {
     e.stopPropagation();
-    deleteNotification(id);
+    setNotificationToDelete(notification);
+  };
+
+  const handleConfirmDeleteNotification = async () => {
+    if (!notificationToDelete) return;
+
+    try {
+      setIsDeletingNotification(true);
+      await deleteNotification(notificationToDelete.id);
+      setNotificationToDelete(null);
+    } finally {
+      setIsDeletingNotification(false);
+    }
+  };
+
+  const handleRowKeyDown = (
+    event: React.KeyboardEvent<HTMLElement>,
+    onActivate: () => void
+  ) => {
+    if (event.target !== event.currentTarget) return;
+    if (event.key !== 'Enter' && event.key !== ' ') return;
+
+    event.preventDefault();
+    onActivate();
   };
 
   const handleMarkAllAsRead = async () => {
@@ -455,6 +485,8 @@ export default function NotificationBell({
 
   const totalBadgeCount =
     unreadCount + pendingCount + clubJoinRequests.length + venueRequests.length;
+  const pendingApprovalCount =
+    pendingCount + clubJoinRequests.length + venueRequests.length;
   const isPanelLoading =
     isLoading ||
     isPendingLoading ||
@@ -468,737 +500,845 @@ export default function NotificationBell({
     !isPanelLoading;
 
   return (
-    <PopoverRoot
-      positioning={{ placement: 'bottom-end', offset: { mainAxis: 10 } }}
-      open={isOpen}
-      onOpenChange={(e) => handleOpenChange(e.open)}
-    >
-      <PopoverTrigger asChild>
-        <Box position="relative" display="inline-block" cursor="pointer">
-          <IconButton
-            aria-label="Notifications"
-            size={{ base: 'sm', md: 'md' }}
-            minW={{ base: '36px', md: '40px' }}
-            h={{ base: '36px', md: '40px' }}
-            borderRadius="full"
-            color={isOpen ? 'green.600' : 'black'}
-            bg={isOpen ? 'green.50' : 'gray.100'}
-            border="1px solid"
-            borderColor={isOpen ? 'green.200' : 'gray.200'}
-            boxShadow="sm"
-            _dark={{
-              color: isOpen ? 'green.200' : 'white',
-              bg: isOpen ? 'green.950' : 'gray.800',
-              borderColor: isOpen ? 'green.800' : 'gray.700',
-            }}
-            _hover={{
-              bg: isOpen ? 'green.100' : 'gray.200',
-              borderColor: isOpen ? 'green.300' : 'gray.300',
-              transform: 'translateY(-1px)',
-              boxShadow: isOpen
-                ? '0 4px 12px rgba(34,197,94,0.15)'
-                : '0 4px 12px rgba(0,0,0,0.08)',
-              _dark: {
-                bg: isOpen ? 'green.900' : 'gray.700',
-                borderColor: isOpen ? 'green.700' : 'gray.600',
-                boxShadow: 'none',
-              },
-            }}
-            _active={{ transform: 'translateY(0) scale(0.96)' }}
-            transition="all 0.2s ease"
-          >
-            <FaBell size={16} />
-          </IconButton>
-
-          {totalBadgeCount > 0 && (
-            <Box
-              position="absolute"
-              top="-4px"
-              right="-4px"
-              minW="18px"
-              h="18px"
-              bg="red.500"
-              color="white"
-              borderRadius="full"
-              border="2px solid white"
-              _dark={{ borderColor: 'gray.900' }}
-              display="flex"
-              alignItems="center"
-              justifyContent="center"
-              fontSize="9px"
-              fontWeight="bold"
-              px={1}
-              pointerEvents="none"
-            >
-              {formatBadgeCount(totalBadgeCount)}
-            </Box>
-          )}
-        </Box>
-      </PopoverTrigger>
-
-      <PopoverContent
-        width="420px"
-        maxW="95vw"
-        boxShadow="0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04)"
-        borderRadius="2xl"
-        bg="white"
-        _dark={{ bg: 'gray.900', borderColor: 'gray.700' }}
-        p={0}
-        overflow="hidden"
+    <>
+      <PopoverRoot
+        positioning={{ placement: 'bottom-end', offset: { mainAxis: 10 } }}
+        open={isOpen}
+        onOpenChange={(e) => handleOpenChange(e.open)}
       >
-        {/* Header */}
-        <PopoverHeader
-          borderBottomWidth="1px"
-          borderColor="gray.100"
-          _dark={{ borderColor: 'gray.800' }}
-          px={4}
-          py={3}
-        >
-          <Flex justify="space-between" align="center">
-            <HStack gap={2}>
-              <Heading size="xs" fontSize="md" fontWeight="bold">
-                {t('notifications')}
-              </Heading>
-              {totalBadgeCount > 0 && (
-                <Badge
-                  bg="red.500"
-                  color="white"
-                  borderRadius="full"
-                  fontSize="10px"
-                  px="7px"
-                  py="1px"
-                  lineHeight="normal"
-                  title={t('allNotificationCount')}
-                >
-                  {formatBadgeCount(totalBadgeCount)}
-                </Badge>
-              )}
-            </HStack>
-            <Button
-              size="xs"
-              variant="ghost"
-              colorPalette="brand"
-              onClick={handleMarkAllAsRead}
-              loading={isMarkingAll}
-              fontSize="xs"
-              h="24px"
-              opacity={unreadCount > 0 ? 1 : 0.35}
-              disabled={unreadCount === 0 || isMarkingAll}
+        <PopoverTrigger asChild>
+          <Box position="relative" display="inline-block" cursor="pointer">
+            <IconButton
+              aria-label="Notifications"
+              size={{ base: 'sm', md: 'md' }}
+              minW={{ base: '36px', md: '40px' }}
+              h={{ base: '36px', md: '40px' }}
+              borderRadius="full"
+              color={isOpen ? 'green.600' : 'black'}
+              bg={isOpen ? 'green.50' : 'gray.100'}
+              border="1px solid"
+              borderColor={isOpen ? 'green.200' : 'gray.200'}
+              boxShadow="sm"
+              _dark={{
+                color: isOpen ? 'green.200' : 'white',
+                bg: isOpen ? 'green.950' : 'gray.800',
+                borderColor: isOpen ? 'green.800' : 'gray.700',
+              }}
+              _hover={{
+                bg: isOpen ? 'green.100' : 'gray.200',
+                borderColor: isOpen ? 'green.300' : 'gray.300',
+                transform: 'translateY(-1px)',
+                boxShadow: isOpen
+                  ? '0 4px 12px rgba(34,197,94,0.15)'
+                  : '0 4px 12px rgba(0,0,0,0.08)',
+                _dark: {
+                  bg: isOpen ? 'green.900' : 'gray.700',
+                  borderColor: isOpen ? 'green.700' : 'gray.600',
+                  boxShadow: 'none',
+                },
+              }}
+              _active={{ transform: 'translateY(0) scale(0.96)' }}
+              transition="background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease"
             >
-              <LuCheckCheck size={14} style={{ marginRight: '4px' }} />
-              {t('markAllAsRead')}
-            </Button>
-          </Flex>
-        </PopoverHeader>
+              <FaBell size={16} />
+            </IconButton>
 
-        <PopoverBody p={0}>
-          <Box maxH="500px" overflowY="auto">
-            {isPanelLoading && unifiedItems.length === 0 ? (
-              <VStack gap={0} align="stretch" p={1}>
-                {[...Array(5)].map((_, i) => (
-                  <NotificationSkeleton key={i} />
-                ))}
-              </VStack>
-            ) : isEmpty ? (
-              <VStack gap={3} p={10} color="gray.400">
-                <LuInbox size={48} strokeWidth={1} />
-                <Text fontSize="sm" fontWeight="medium">
-                  {t('noNotifications')}
-                </Text>
-              </VStack>
-            ) : (
-              <Stack gap={0}>
-                {unifiedItems.map((item) => {
-                  if (item.kind === 'sessionApproval') {
-                    const request = item.data;
-                    const allSlots = item.allSlots;
-                    const slotCount = allSlots.length;
-                    return (
-                      <Box
-                        key={`approval-${request.id}`}
-                        onClick={() => handleApprovalClick(request, allSlots)}
-                        w="100%"
-                        px={4}
-                        py={3}
-                        bg="orange.50/40"
-                        borderBottom="1px solid"
-                        borderColor="orange.100"
-                        _dark={{
-                          bg: 'rgba(251,146,60,0.07)',
-                          borderColor: 'rgba(251,146,60,0.15)',
-                        }}
-                        transition="background-color 0.15s ease, border-color 0.15s ease"
-                        _hover={{
-                          bg: 'orange.50',
-                          _dark: { bg: 'rgba(251,146,60,0.12)' },
-                          cursor: 'pointer',
-                        }}
-                        position="relative"
-                      >
-                        {/* Orange left accent */}
+            {totalBadgeCount > 0 && (
+              <Box
+                position="absolute"
+                top="-4px"
+                right="-4px"
+                minW="18px"
+                h="18px"
+                bg="red.500"
+                color="white"
+                borderRadius="full"
+                border="2px solid white"
+                _dark={{ borderColor: 'gray.900' }}
+                display="flex"
+                alignItems="center"
+                justifyContent="center"
+                fontSize="10px"
+                fontWeight="bold"
+                px={1}
+                pointerEvents="none"
+              >
+                {formatBadgeCount(totalBadgeCount)}
+              </Box>
+            )}
+          </Box>
+        </PopoverTrigger>
+
+        <PopoverContent
+          width="420px"
+          maxW="95vw"
+          boxShadow="0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04)"
+          borderRadius="2xl"
+          bg="white"
+          _dark={{ bg: 'gray.900', borderColor: 'gray.700' }}
+          p={0}
+          overflow="hidden"
+        >
+          {/* Header */}
+          <PopoverHeader
+            borderBottomWidth="1px"
+            borderColor="gray.100"
+            _dark={{ borderColor: 'gray.800' }}
+            px={4}
+            py={3}
+          >
+            <VStack align="stretch" gap={1.5}>
+              <Flex justify="space-between" align="center">
+                <Heading size="xs" fontSize="md" fontWeight="bold">
+                  {t('notifications')}
+                </Heading>
+                <Button
+                  size="xs"
+                  variant="ghost"
+                  colorPalette="brand"
+                  onClick={handleMarkAllAsRead}
+                  loading={isMarkingAll}
+                  fontSize="xs"
+                  h="32px"
+                  opacity={unreadCount > 0 ? 1 : 0.35}
+                  disabled={unreadCount === 0 || isMarkingAll}
+                >
+                  <LuCheckCheck size={14} style={{ marginRight: '4px' }} />
+                  {t('markAllAsRead')}
+                </Button>
+              </Flex>
+              {(unreadCount > 0 || pendingApprovalCount > 0) && (
+                <HStack gap={1.5}>
+                  {unreadCount > 0 && (
+                    <Badge
+                      colorPalette="green"
+                      borderRadius="full"
+                      fontSize="10px"
+                      px={2}
+                      py="2px"
+                      aria-label={`${unreadCount} ${t('unreadNotifications')}`}
+                    >
+                      {unreadCount} {t('new')}
+                    </Badge>
+                  )}
+                  {pendingApprovalCount > 0 && (
+                    <Badge
+                      colorPalette="orange"
+                      borderRadius="full"
+                      fontSize="10px"
+                      px={2}
+                      py="2px"
+                      aria-label={`${pendingApprovalCount} ${t('approvalRequestsTab')}`}
+                    >
+                      {pendingApprovalCount} {t('approvalPending')}
+                    </Badge>
+                  )}
+                </HStack>
+              )}
+            </VStack>
+          </PopoverHeader>
+
+          <PopoverBody p={0}>
+            <Box maxH="500px" overflowY="auto">
+              {isPanelLoading && unifiedItems.length === 0 ? (
+                <VStack gap={0} align="stretch" p={1}>
+                  {[...Array(5)].map((_, i) => (
+                    <NotificationSkeleton key={i} />
+                  ))}
+                </VStack>
+              ) : isEmpty ? (
+                <VStack gap={3} p={10} color="gray.400">
+                  <LuInbox size={48} strokeWidth={1} />
+                  <Text fontSize="sm" fontWeight="medium">
+                    {t('noNotifications')}
+                  </Text>
+                </VStack>
+              ) : (
+                <Stack gap={0}>
+                  {unifiedItems.map((item) => {
+                    if (item.kind === 'sessionApproval') {
+                      const request = item.data;
+                      const allSlots = item.allSlots;
+                      const slotCount = allSlots.length;
+                      return (
                         <Box
-                          position="absolute"
-                          left={0}
-                          top={0}
-                          bottom={0}
-                          width="3px"
-                          bg="orange.400"
-                          borderRadius="0 2px 2px 0"
-                        />
-
-                        <HStack gap={3} align="start">
-                          {/* Requester avatar */}
-                          <PostAvatar
-                            name={request.name || request.user?.name || '?'}
-                            image={request.user?.image}
-                            size={36}
-                            className="mt-px"
+                          key={`approval-${request.id}`}
+                          onClick={() => handleApprovalClick(request, allSlots)}
+                          onKeyDown={(event) =>
+                            handleRowKeyDown(event, () =>
+                              handleApprovalClick(request, allSlots)
+                            )
+                          }
+                          role="button"
+                          tabIndex={0}
+                          w="100%"
+                          px={4}
+                          py={3}
+                          bg="orange.50/40"
+                          borderBottom="1px solid"
+                          borderColor="orange.100"
+                          _dark={{
+                            bg: 'rgba(251,146,60,0.07)',
+                            borderColor: 'rgba(251,146,60,0.15)',
+                          }}
+                          transition="background-color 0.15s ease, border-color 0.15s ease"
+                          _hover={{
+                            bg: 'orange.50',
+                            _dark: { bg: 'rgba(251,146,60,0.12)' },
+                            cursor: 'pointer',
+                          }}
+                          position="relative"
+                          _focusVisible={{
+                            outline: '2px solid',
+                            outlineColor: 'orange.500',
+                            outlineOffset: '-2px',
+                          }}
+                        >
+                          {/* Orange left accent */}
+                          <Box
+                            aria-hidden
+                            position="absolute"
+                            left={0}
+                            top={0}
+                            bottom={0}
+                            width="3px"
+                            bg="orange.400"
+                            borderRadius="0 2px 2px 0"
                           />
 
-                          {/* Content — same 3-row structure as regular notifications */}
-                          <VStack align="start" gap={0.5} flex={1} minW={0}>
-                            {/* Row 1: name + badge */}
-                            <HStack gap={1.5} w="100%" align="center">
-                              <Text
-                                fontSize="sm"
-                                fontWeight="semibold"
-                                color="gray.900"
-                                _dark={{ color: 'white' }}
-                                lineHeight="short"
-                                flex={1}
-                                truncate
-                              >
-                                {request.name}
-                              </Text>
-                              <Badge
-                                bg="orange.400"
-                                color="white"
-                                size="xs"
-                                borderRadius="md"
-                                px={1.5}
-                                fontSize="9px"
-                                flexShrink={0}
-                                lineHeight="normal"
-                                py="1px"
-                              >
-                                {t('approvalPending')}
-                              </Badge>
-                            </HStack>
-
-                            {/* Row 2: session info + slot count */}
-                            <Text
-                              fontSize="xs"
-                              color="gray.500"
-                              _dark={{ color: 'fg.subtle' }}
-                              lineHeight="normal"
-                              truncate
-                              w="100%"
-                            >
-                              {request.session.name} · Lv.{request.level} ·{' '}
-                              {dayjs(request.session.startTime).format('DD/MM')}
-                              ,{' '}
-                              {formatTimeByDevicePreference(
-                                request.session.startTime
-                              )}
-                              {slotCount > 1 && ` · ${slotCount} slot`}
-                            </Text>
-
-                            {/* Row 3: action buttons */}
-                            <HStack
-                              gap={1.5}
-                              mt={0.5}
-                              w="100%"
-                              onClick={(e) => e.stopPropagation()}
-                            >
-                              <Button
-                                size="xs"
-                                colorPalette="red"
-                                variant="subtle"
-                                onClick={(e) =>
-                                  handleApprovalAction(e, allSlots, 'REJECTED')
-                                }
-                                disabled={pendingActionLoading === request.id}
-                                h="24px"
-                                fontSize="xs"
-                                px={3}
-                                _dark={{
-                                  bg: 'red.900/60',
-                                  color: 'red.300',
-                                  _hover: { bg: 'red.800/80' },
-                                }}
-                              >
-                                {t('reject')}
-                              </Button>
-                              <Button
-                                size="xs"
-                                colorPalette="green"
-                                onClick={(e) =>
-                                  handleApprovalAction(e, allSlots, 'APPROVED')
-                                }
-                                loading={pendingActionLoading === request.id}
-                                h="24px"
-                                fontSize="xs"
-                                px={3}
-                              >
-                                {t('approve')}
-                              </Button>
-                            </HStack>
-                          </VStack>
-                        </HStack>
-                      </Box>
-                    );
-                  }
-
-                  if (item.kind === 'clubJoinRequest') {
-                    const request = item.data;
-                    return (
-                      <Box
-                        key={`club-join-${request.id}`}
-                        onClick={() => handleClubJoinRequestClick(request)}
-                        w="100%"
-                        px={4}
-                        py={3}
-                        bg="blue.50/40"
-                        borderBottom="1px solid"
-                        borderColor="blue.100"
-                        _dark={{
-                          bg: 'rgba(59,130,246,0.07)',
-                          borderColor: 'rgba(59,130,246,0.15)',
-                        }}
-                        transition="background-color 0.15s ease, border-color 0.15s ease"
-                        _hover={{
-                          bg: 'blue.50',
-                          _dark: { bg: 'rgba(59,130,246,0.12)' },
-                          cursor: 'pointer',
-                        }}
-                        position="relative"
-                      >
-                        <Box
-                          position="absolute"
-                          left={0}
-                          top={0}
-                          bottom={0}
-                          width="3px"
-                          bg="blue.400"
-                          borderRadius="0 2px 2px 0"
-                        />
-
-                        <HStack gap={3} align="start">
-                          <PostAvatar
-                            name={request.user.name}
-                            image={request.user.image}
-                            size={36}
-                            className="mt-px"
-                          />
-
-                          <VStack align="start" gap={0.5} flex={1} minW={0}>
-                            <HStack gap={1.5} w="100%" align="center">
-                              <Text
-                                fontSize="sm"
-                                fontWeight="semibold"
-                                color="gray.900"
-                                _dark={{ color: 'white' }}
-                                lineHeight="short"
-                                flex={1}
-                                truncate
-                              >
-                                {request.user.name}
-                              </Text>
-                              <Badge
-                                bg="blue.400"
-                                color="white"
-                                size="xs"
-                                borderRadius="md"
-                                px={1.5}
-                                fontSize="9px"
-                                flexShrink={0}
-                                lineHeight="normal"
-                                py="1px"
-                              >
-                                {t('clubJoinRequestBadge')}
-                              </Badge>
-                            </HStack>
-
-                            <Text
-                              fontSize="xs"
-                              color="gray.500"
-                              _dark={{ color: 'fg.subtle' }}
-                              lineHeight="normal"
-                              lineClamp={2}
-                              w="100%"
-                            >
-                              {t('clubJoinRequestMessage', {
-                                clubName:
-                                  request.club?.name || t('unknownClub'),
-                              })}
-                            </Text>
-
-                            <HStack
-                              gap={1.5}
-                              mt={0.5}
-                              w="100%"
-                              onClick={(e) => e.stopPropagation()}
-                            >
-                              <Button
-                                size="xs"
-                                colorPalette="red"
-                                variant="subtle"
-                                onClick={(e) =>
-                                  handleClubJoinRequestAction(
-                                    e,
-                                    request,
-                                    'REJECTED'
-                                  )
-                                }
-                                disabled={clubActionLoading === request.id}
-                                h="24px"
-                                fontSize="xs"
-                                px={3}
-                                _dark={{
-                                  bg: 'red.900/60',
-                                  color: 'red.300',
-                                  _hover: { bg: 'red.800/80' },
-                                }}
-                              >
-                                {t('reject')}
-                              </Button>
-                              <Button
-                                size="xs"
-                                colorPalette="green"
-                                onClick={(e) =>
-                                  handleClubJoinRequestAction(
-                                    e,
-                                    request,
-                                    'APPROVED'
-                                  )
-                                }
-                                loading={clubActionLoading === request.id}
-                                h="24px"
-                                fontSize="xs"
-                                px={3}
-                              >
-                                {t('approve')}
-                              </Button>
-                            </HStack>
-                          </VStack>
-                        </HStack>
-                      </Box>
-                    );
-                  }
-
-                  if (item.kind === 'venueRequest') {
-                    const request = item.data;
-                    return (
-                      <Box
-                        key={`venue-request-${request.id}`}
-                        onClick={() => handleVenueRequestClick(request)}
-                        w="100%"
-                        px={4}
-                        py={3}
-                        bg="purple.50/40"
-                        borderBottom="1px solid"
-                        borderColor="purple.100"
-                        _dark={{
-                          bg: 'rgba(168,85,247,0.07)',
-                          borderColor: 'rgba(168,85,247,0.15)',
-                        }}
-                        transition="background-color 0.15s ease, border-color 0.15s ease"
-                        _hover={{
-                          bg: 'purple.50',
-                          _dark: { bg: 'rgba(168,85,247,0.12)' },
-                          cursor: 'pointer',
-                        }}
-                        position="relative"
-                      >
-                        <Box
-                          position="absolute"
-                          left={0}
-                          top={0}
-                          bottom={0}
-                          width="3px"
-                          bg="purple.400"
-                          borderRadius="0 2px 2px 0"
-                        />
-
-                        <HStack gap={3} align="start">
-                          {request.submittedBy ? (
+                          <HStack gap={3} align="start">
+                            {/* Requester avatar */}
                             <PostAvatar
-                              name={request.submittedBy.name}
-                              image={request.submittedBy.image}
+                              name={request.name || request.user?.name || '?'}
+                              image={request.user?.image}
                               size={36}
                               className="mt-px"
+                              bordered
+                              ringVariant="solid"
+                            />
+
+                            {/* Content — same 3-row structure as regular notifications */}
+                            <VStack align="start" gap={0.5} flex={1} minW={0}>
+                              {/* Row 1: name + badge */}
+                              <HStack gap={1.5} w="100%" align="center">
+                                <Text
+                                  fontSize="sm"
+                                  fontWeight="semibold"
+                                  color="gray.900"
+                                  _dark={{ color: 'white' }}
+                                  lineHeight="short"
+                                  flex={1}
+                                  truncate
+                                >
+                                  {request.name}
+                                </Text>
+                                <Badge
+                                  bg="orange.400"
+                                  color="white"
+                                  size="xs"
+                                  borderRadius="md"
+                                  px={1.5}
+                                  fontSize="10px"
+                                  flexShrink={0}
+                                  lineHeight="normal"
+                                  py="1px"
+                                >
+                                  {t('approvalPending')}
+                                </Badge>
+                              </HStack>
+
+                              {/* Row 2: session info + slot count */}
+                              <Text
+                                fontSize="xs"
+                                color="gray.500"
+                                _dark={{ color: 'fg.subtle' }}
+                                lineHeight="normal"
+                                truncate
+                                w="100%"
+                              >
+                                {request.session.name} · Lv.{request.level} ·{' '}
+                                {dayjs(request.session.startTime).format(
+                                  'DD/MM'
+                                )}
+                                ,{' '}
+                                {formatTimeByDevicePreference(
+                                  request.session.startTime
+                                )}
+                                {slotCount > 1 && ` · ${slotCount} slot`}
+                              </Text>
+
+                              {/* Row 3: action buttons */}
+                              <HStack
+                                gap={1.5}
+                                mt={0.5}
+                                w="100%"
+                                onClick={(e) => e.stopPropagation()}
+                              >
+                                <Button
+                                  size="xs"
+                                  colorPalette="red"
+                                  variant="subtle"
+                                  onClick={(e) =>
+                                    handleApprovalAction(
+                                      e,
+                                      allSlots,
+                                      'REJECTED'
+                                    )
+                                  }
+                                  disabled={pendingActionLoading === request.id}
+                                  h="32px"
+                                  fontSize="xs"
+                                  px={3}
+                                  _dark={{
+                                    bg: 'red.900/60',
+                                    color: 'red.300',
+                                    _hover: { bg: 'red.800/80' },
+                                  }}
+                                >
+                                  {t('reject')}
+                                </Button>
+                                <Button
+                                  size="xs"
+                                  colorPalette="green"
+                                  onClick={(e) =>
+                                    handleApprovalAction(
+                                      e,
+                                      allSlots,
+                                      'APPROVED'
+                                    )
+                                  }
+                                  loading={pendingActionLoading === request.id}
+                                  h="32px"
+                                  fontSize="xs"
+                                  px={3}
+                                >
+                                  {t('approve')}
+                                </Button>
+                              </HStack>
+                            </VStack>
+                          </HStack>
+                        </Box>
+                      );
+                    }
+
+                    if (item.kind === 'clubJoinRequest') {
+                      const request = item.data;
+                      return (
+                        <Box
+                          key={`club-join-${request.id}`}
+                          onClick={() => handleClubJoinRequestClick(request)}
+                          onKeyDown={(event) =>
+                            handleRowKeyDown(event, () =>
+                              handleClubJoinRequestClick(request)
+                            )
+                          }
+                          role="button"
+                          tabIndex={0}
+                          w="100%"
+                          px={4}
+                          py={3}
+                          bg="blue.50/40"
+                          borderBottom="1px solid"
+                          borderColor="blue.100"
+                          _dark={{
+                            bg: 'rgba(59,130,246,0.07)',
+                            borderColor: 'rgba(59,130,246,0.15)',
+                          }}
+                          transition="background-color 0.15s ease, border-color 0.15s ease"
+                          _hover={{
+                            bg: 'blue.50',
+                            _dark: { bg: 'rgba(59,130,246,0.12)' },
+                            cursor: 'pointer',
+                          }}
+                          position="relative"
+                          _focusVisible={{
+                            outline: '2px solid',
+                            outlineColor: 'blue.500',
+                            outlineOffset: '-2px',
+                          }}
+                        >
+                          <Box
+                            aria-hidden
+                            position="absolute"
+                            left={0}
+                            top={0}
+                            bottom={0}
+                            width="3px"
+                            bg="blue.400"
+                            borderRadius="0 2px 2px 0"
+                          />
+
+                          <HStack gap={3} align="start">
+                            <PostAvatar
+                              name={request.user.name}
+                              image={request.user.image}
+                              size={36}
+                              className="mt-px"
+                              bordered
+                              ringVariant="solid"
+                            />
+
+                            <VStack align="start" gap={0.5} flex={1} minW={0}>
+                              <HStack gap={1.5} w="100%" align="center">
+                                <Text
+                                  fontSize="sm"
+                                  fontWeight="semibold"
+                                  color="gray.900"
+                                  _dark={{ color: 'white' }}
+                                  lineHeight="short"
+                                  flex={1}
+                                  truncate
+                                >
+                                  {request.user.name}
+                                </Text>
+                                <Badge
+                                  bg="blue.400"
+                                  color="white"
+                                  size="xs"
+                                  borderRadius="md"
+                                  px={1.5}
+                                  fontSize="10px"
+                                  flexShrink={0}
+                                  lineHeight="normal"
+                                  py="1px"
+                                >
+                                  {t('clubJoinRequestBadge')}
+                                </Badge>
+                              </HStack>
+
+                              <Text
+                                fontSize="xs"
+                                color="gray.500"
+                                _dark={{ color: 'fg.subtle' }}
+                                lineHeight="normal"
+                                lineClamp={2}
+                                w="100%"
+                              >
+                                {t('clubJoinRequestMessage', {
+                                  clubName:
+                                    request.club?.name || t('unknownClub'),
+                                })}
+                              </Text>
+
+                              <HStack
+                                gap={1.5}
+                                mt={0.5}
+                                w="100%"
+                                onClick={(e) => e.stopPropagation()}
+                              >
+                                <Button
+                                  size="xs"
+                                  colorPalette="red"
+                                  variant="subtle"
+                                  onClick={(e) =>
+                                    handleClubJoinRequestAction(
+                                      e,
+                                      request,
+                                      'REJECTED'
+                                    )
+                                  }
+                                  disabled={clubActionLoading === request.id}
+                                  h="32px"
+                                  fontSize="xs"
+                                  px={3}
+                                  _dark={{
+                                    bg: 'red.900/60',
+                                    color: 'red.300',
+                                    _hover: { bg: 'red.800/80' },
+                                  }}
+                                >
+                                  {t('reject')}
+                                </Button>
+                                <Button
+                                  size="xs"
+                                  colorPalette="green"
+                                  onClick={(e) =>
+                                    handleClubJoinRequestAction(
+                                      e,
+                                      request,
+                                      'APPROVED'
+                                    )
+                                  }
+                                  loading={clubActionLoading === request.id}
+                                  h="32px"
+                                  fontSize="xs"
+                                  px={3}
+                                >
+                                  {t('approve')}
+                                </Button>
+                              </HStack>
+                            </VStack>
+                          </HStack>
+                        </Box>
+                      );
+                    }
+
+                    if (item.kind === 'venueRequest') {
+                      const request = item.data;
+                      return (
+                        <Box
+                          key={`venue-request-${request.id}`}
+                          onClick={() => handleVenueRequestClick(request)}
+                          onKeyDown={(event) =>
+                            handleRowKeyDown(event, () =>
+                              handleVenueRequestClick(request)
+                            )
+                          }
+                          role="button"
+                          tabIndex={0}
+                          w="100%"
+                          px={4}
+                          py={3}
+                          bg="purple.50/40"
+                          borderBottom="1px solid"
+                          borderColor="purple.100"
+                          _dark={{
+                            bg: 'rgba(168,85,247,0.07)',
+                            borderColor: 'rgba(168,85,247,0.15)',
+                          }}
+                          transition="background-color 0.15s ease, border-color 0.15s ease"
+                          _hover={{
+                            bg: 'purple.50',
+                            _dark: { bg: 'rgba(168,85,247,0.12)' },
+                            cursor: 'pointer',
+                          }}
+                          position="relative"
+                          _focusVisible={{
+                            outline: '2px solid',
+                            outlineColor: 'purple.500',
+                            outlineOffset: '-2px',
+                          }}
+                        >
+                          <Box
+                            aria-hidden
+                            position="absolute"
+                            left={0}
+                            top={0}
+                            bottom={0}
+                            width="3px"
+                            bg="purple.400"
+                            borderRadius="0 2px 2px 0"
+                          />
+
+                          <HStack gap={3} align="start">
+                            {request.submittedBy ? (
+                              <PostAvatar
+                                name={request.submittedBy.name}
+                                image={request.submittedBy.image}
+                                size={36}
+                                className="mt-px"
+                                bordered
+                                ringVariant="solid"
+                              />
+                            ) : (
+                              <Box
+                                w="40px"
+                                h="40px"
+                                borderRadius="xl"
+                                bg="purple.100"
+                                borderWidth="1px"
+                                borderColor="purple.200"
+                                _dark={{
+                                  bg: 'rgba(168,85,247,0.25)',
+                                  borderColor: 'purple.400',
+                                }}
+                                display="flex"
+                                alignItems="center"
+                                justifyContent="center"
+                                color="purple.500"
+                                flexShrink={0}
+                                mt="1px"
+                              >
+                                <LuMapPin size={17} />
+                              </Box>
+                            )}
+
+                            <VStack align="start" gap={0.5} flex={1} minW={0}>
+                              <HStack gap={1.5} w="100%" align="center">
+                                <Text
+                                  fontSize="sm"
+                                  fontWeight="semibold"
+                                  color="gray.900"
+                                  _dark={{ color: 'white' }}
+                                  lineHeight="short"
+                                  flex={1}
+                                  truncate
+                                >
+                                  {request.payload.name ||
+                                    request.venue?.name ||
+                                    t('venueRequestUntitled')}
+                                </Text>
+                                <Badge
+                                  bg="purple.400"
+                                  color="white"
+                                  size="xs"
+                                  borderRadius="md"
+                                  px={1.5}
+                                  fontSize="10px"
+                                  flexShrink={0}
+                                  lineHeight="normal"
+                                  py="1px"
+                                >
+                                  {request.type === 'CREATE'
+                                    ? t('venueRequestCreateBadge')
+                                    : t('venueRequestUpdateBadge')}
+                                </Badge>
+                              </HStack>
+
+                              <Text
+                                fontSize="xs"
+                                color="gray.500"
+                                _dark={{ color: 'fg.subtle' }}
+                                lineHeight="normal"
+                                lineClamp={2}
+                                w="100%"
+                              >
+                                {t('venueRequestMessage', {
+                                  name: request.submittedBy?.name || '-',
+                                })}
+                              </Text>
+
+                              <Text
+                                fontSize="xs"
+                                fontWeight="medium"
+                                color="purple.600"
+                                _dark={{ color: 'purple.300' }}
+                                mt={0.5}
+                              >
+                                {formatTimeAgo(request.createdAt)}
+                              </Text>
+                            </VStack>
+                          </HStack>
+                        </Box>
+                      );
+                    }
+
+                    // Regular notification
+                    const notification = item.data;
+                    const Icon = getNotificationIcon(
+                      notification.type,
+                      typeof notification.data?.action === 'string'
+                        ? notification.data.action
+                        : undefined
+                    );
+                    const isUnread = !notification.isRead;
+                    const { displayTitle, displayMessage } =
+                      getNotificationDisplay(notification);
+                    const relatedUser =
+                      getNotificationRelatedUser(notification);
+
+                    return (
+                      <Box
+                        key={notification.id}
+                        onClick={() => handleNotificationClick(notification)}
+                        onKeyDown={(event) =>
+                          handleRowKeyDown(event, () =>
+                            handleNotificationClick(notification)
+                          )
+                        }
+                        tabIndex={0}
+                        w="100%"
+                        px={4}
+                        py={3}
+                        bg={isUnread ? 'green.50' : 'transparent'}
+                        borderBottom="1px solid"
+                        borderColor={isUnread ? 'green.100' : 'gray.50'}
+                        _dark={{
+                          bg: isUnread ? 'green.900/30' : 'transparent',
+                          borderColor: isUnread ? 'green.800/60' : 'gray.800',
+                        }}
+                        transition="background-color 0.15s ease, border-color 0.15s ease"
+                        _hover={{
+                          bg: isUnread ? 'green.100' : 'gray.50',
+                          _dark: {
+                            bg: isUnread
+                              ? 'green.900/50'
+                              : 'rgba(255,255,255,0.05)',
+                          },
+                          cursor: 'pointer',
+                        }}
+                        position="relative"
+                        role="button"
+                        _focusVisible={{
+                          outline: '2px solid',
+                          outlineColor: 'green.500',
+                          outlineOffset: '-2px',
+                        }}
+                      >
+                        {/* Unread left accent */}
+                        {isUnread && (
+                          <Box
+                            aria-hidden
+                            position="absolute"
+                            left={0}
+                            top={0}
+                            bottom={0}
+                            width="3px"
+                            bg="green.500"
+                            borderRadius="0 2px 2px 0"
+                          />
+                        )}
+
+                        <HStack gap={3} align="start">
+                          {/* Related user avatar, or type icon as fallback */}
+                          {relatedUser ? (
+                            <PostAvatar
+                              name={relatedUser.name}
+                              image={relatedUser.image}
+                              size={36}
+                              className="mt-px"
+                              bordered
+                              ringVariant="solid"
                             />
                           ) : (
                             <Box
-                              w="36px"
-                              h="36px"
+                              w="40px"
+                              h="40px"
                               borderRadius="xl"
-                              bg="purple.100"
+                              bg={isUnread ? 'white' : 'green.50'}
                               borderWidth="1px"
-                              borderColor="purple.200"
+                              borderColor={isUnread ? 'green.200' : 'green.100'}
                               _dark={{
-                                bg: 'rgba(168,85,247,0.25)',
-                                borderColor: 'purple.400',
+                                bg: isUnread ? 'green.800' : 'green.900/30',
+                                borderColor: isUnread
+                                  ? 'green.500'
+                                  : 'green.700',
                               }}
                               display="flex"
                               alignItems="center"
                               justifyContent="center"
-                              color="purple.500"
+                              color={isUnread ? 'green.600' : 'green.500'}
+                              boxShadow={isUnread ? 'sm' : 'none'}
                               flexShrink={0}
                               mt="1px"
                             >
-                              <LuMapPin size={17} />
+                              <Icon
+                                size={17}
+                                strokeWidth={isUnread ? 2.5 : 2}
+                              />
                             </Box>
                           )}
 
                           <VStack align="start" gap={0.5} flex={1} minW={0}>
-                            <HStack gap={1.5} w="100%" align="center">
+                            {/* Title row */}
+                            <HStack
+                              justify="space-between"
+                              w="100%"
+                              align="center"
+                            >
                               <Text
                                 fontSize="sm"
-                                fontWeight="semibold"
-                                color="gray.900"
-                                _dark={{ color: 'white' }}
+                                fontWeight={isUnread ? 'bold' : 'medium'}
+                                color={isUnread ? 'green.900' : 'gray.700'}
+                                _dark={{
+                                  color: isUnread ? 'white' : 'gray.300',
+                                }}
                                 lineHeight="short"
                                 flex={1}
                                 truncate
                               >
-                                {request.payload.name ||
-                                  request.venue?.name ||
-                                  t('venueRequestUntitled')}
+                                {displayTitle}
                               </Text>
-                              <Badge
-                                bg="purple.400"
-                                color="white"
-                                size="xs"
-                                borderRadius="md"
-                                px={1.5}
-                                fontSize="9px"
-                                flexShrink={0}
-                                lineHeight="normal"
-                                py="1px"
-                              >
-                                {request.type === 'CREATE'
-                                  ? t('venueRequestCreateBadge')
-                                  : t('venueRequestUpdateBadge')}
-                              </Badge>
+                              {isUnread && (
+                                <Box
+                                  w="8px"
+                                  h="8px"
+                                  bg="green.500"
+                                  borderRadius="full"
+                                  flexShrink={0}
+                                  ml={1.5}
+                                  boxShadow="0 0 0 2px white"
+                                  _dark={{
+                                    boxShadow:
+                                      '0 0 0 2px var(--chakra-colors-gray-900)',
+                                  }}
+                                />
+                              )}
                             </HStack>
 
+                            {/* Message */}
                             <Text
                               fontSize="xs"
-                              color="gray.500"
-                              _dark={{ color: 'fg.subtle' }}
+                              color={isUnread ? 'gray.700' : 'gray.500'}
+                              _dark={{
+                                color: isUnread ? 'fg.subtle' : 'gray.400',
+                              }}
                               lineHeight="normal"
                               lineClamp={2}
-                              w="100%"
                             >
-                              {t('venueRequestMessage', {
-                                name: request.submittedBy?.name || '-',
-                              })}
+                              {displayMessage}
                             </Text>
 
-                            <Text
-                              fontSize="10px"
-                              fontWeight="medium"
-                              color="purple.600"
-                              _dark={{ color: 'purple.300' }}
-                              mt={0.5}
-                            >
-                              {formatTimeAgo(request.createdAt)}
-                            </Text>
+                            {/* Footer: time + delete */}
+                            <HStack justify="space-between" w="100%" mt={0.5}>
+                              <Text
+                                fontSize="xs"
+                                fontWeight={isUnread ? 'semibold' : 'medium'}
+                                color={isUnread ? 'green.600' : 'gray.500'}
+                                _dark={{
+                                  color: isUnread ? 'green.400' : 'gray.400',
+                                }}
+                              >
+                                {formatTimeAgo(notification.createdAt)}
+                              </Text>
+
+                              <IconButton
+                                aria-label={t('delete')}
+                                size="xs"
+                                variant="ghost"
+                                colorPalette="red"
+                                color="gray.400"
+                                _hover={{ color: 'red.500', bg: 'red.50' }}
+                                _dark={{
+                                  color: 'gray.500',
+                                  _hover: {
+                                    color: 'red.300',
+                                    bg: 'rgba(248,113,113,0.12)',
+                                  },
+                                }}
+                                onClick={(e) =>
+                                  handleDeleteNotification(e, notification)
+                                }
+                                h="32px"
+                                w="32px"
+                                borderRadius="md"
+                              >
+                                <LuTrash2 size={12} />
+                              </IconButton>
+                            </HStack>
                           </VStack>
                         </HStack>
                       </Box>
                     );
-                  }
+                  })}
 
-                  // Regular notification
-                  const notification = item.data;
-                  const Icon = getNotificationIcon(
-                    notification.type,
-                    typeof notification.data?.action === 'string'
-                      ? notification.data.action
-                      : undefined
-                  );
-                  const isUnread = !notification.isRead;
-                  const { displayTitle, displayMessage } =
-                    getNotificationDisplay(notification);
-                  const relatedUser = getNotificationRelatedUser(notification);
+                  {isPanelLoading && unifiedItems.length > 0 && (
+                    <VStack gap={0} align="stretch" p={1}>
+                      <NotificationSkeleton />
+                      <NotificationSkeleton />
+                    </VStack>
+                  )}
+                </Stack>
+              )}
+            </Box>
+          </PopoverBody>
+        </PopoverContent>
+      </PopoverRoot>
 
-                  return (
-                    <Box
-                      key={notification.id}
-                      onClick={() => handleNotificationClick(notification)}
-                      w="100%"
-                      px={4}
-                      py={3}
-                      bg={isUnread ? 'green.50' : 'transparent'}
-                      borderBottom="1px solid"
-                      borderColor={isUnread ? 'green.100' : 'gray.50'}
-                      _dark={{
-                        bg: isUnread ? 'green.900/30' : 'transparent',
-                        borderColor: isUnread ? 'green.800/60' : 'gray.800',
-                      }}
-                      transition="background-color 0.15s ease, border-color 0.15s ease"
-                      _hover={{
-                        bg: isUnread ? 'green.100' : 'gray.50',
-                        _dark: {
-                          bg: isUnread
-                            ? 'green.900/50'
-                            : 'rgba(255,255,255,0.05)',
-                        },
-                        cursor: 'pointer',
-                      }}
-                      position="relative"
-                      role="group"
-                    >
-                      {/* Unread left accent */}
-                      {isUnread && (
-                        <Box
-                          position="absolute"
-                          left={0}
-                          top={0}
-                          bottom={0}
-                          width="4px"
-                          bg="green.500"
-                          borderRadius="0 2px 2px 0"
-                        />
-                      )}
-
-                      <HStack gap={3} align="start">
-                        {/* Related user avatar, or type icon as fallback */}
-                        {relatedUser ? (
-                          <PostAvatar
-                            name={relatedUser.name}
-                            image={relatedUser.image}
-                            size={36}
-                            className="mt-px"
-                          />
-                        ) : (
-                          <Box
-                            w="36px"
-                            h="36px"
-                            borderRadius="xl"
-                            bg={isUnread ? 'white' : 'green.50'}
-                            borderWidth="1px"
-                            borderColor={isUnread ? 'green.200' : 'green.100'}
-                            _dark={{
-                              bg: isUnread ? 'green.800' : 'green.900/30',
-                              borderColor: isUnread ? 'green.500' : 'green.700',
-                            }}
-                            display="flex"
-                            alignItems="center"
-                            justifyContent="center"
-                            color={isUnread ? 'green.600' : 'green.500'}
-                            boxShadow={isUnread ? 'sm' : 'none'}
-                            flexShrink={0}
-                            mt="1px"
-                          >
-                            <Icon size={17} strokeWidth={isUnread ? 2.5 : 2} />
-                          </Box>
-                        )}
-
-                        <VStack align="start" gap={0.5} flex={1} minW={0}>
-                          {/* Title row */}
-                          <HStack
-                            justify="space-between"
-                            w="100%"
-                            align="center"
-                          >
-                            <Text
-                              fontSize="sm"
-                              fontWeight={isUnread ? 'bold' : 'medium'}
-                              color={isUnread ? 'green.900' : 'gray.700'}
-                              _dark={{ color: isUnread ? 'white' : 'gray.300' }}
-                              lineHeight="short"
-                              flex={1}
-                              truncate
-                            >
-                              {displayTitle}
-                            </Text>
-                            {isUnread && (
-                              <Box
-                                w="8px"
-                                h="8px"
-                                bg="green.500"
-                                borderRadius="full"
-                                flexShrink={0}
-                                ml={1.5}
-                                boxShadow="0 0 0 2px white"
-                                _dark={{
-                                  boxShadow:
-                                    '0 0 0 2px var(--chakra-colors-gray-900)',
-                                }}
-                              />
-                            )}
-                          </HStack>
-
-                          {/* Message */}
-                          <Text
-                            fontSize="xs"
-                            color={isUnread ? 'gray.700' : 'gray.500'}
-                            _dark={{
-                              color: isUnread ? 'fg.subtle' : 'gray.400',
-                            }}
-                            lineHeight="normal"
-                            lineClamp={2}
-                          >
-                            {displayMessage}
-                          </Text>
-
-                          {/* Footer: time + delete */}
-                          <HStack justify="space-between" w="100%" mt={0.5}>
-                            <Text
-                              fontSize="10px"
-                              fontWeight={isUnread ? 'semibold' : 'medium'}
-                              color={isUnread ? 'green.600' : 'gray.500'}
-                              _dark={{
-                                color: isUnread ? 'green.400' : 'gray.400',
-                              }}
-                            >
-                              {formatTimeAgo(notification.createdAt)}
-                            </Text>
-
-                            <IconButton
-                              aria-label={t('delete')}
-                              size="xs"
-                              variant="ghost"
-                              colorPalette="red"
-                              color="gray.400"
-                              _hover={{ color: 'red.500', bg: 'red.50' }}
-                              _dark={{
-                                color: 'gray.500',
-                                _hover: {
-                                  color: 'red.300',
-                                  bg: 'rgba(248,113,113,0.12)',
-                                },
-                              }}
-                              onClick={(e) =>
-                                handleDeleteNotification(e, notification.id)
-                              }
-                              h="22px"
-                              w="22px"
-                              borderRadius="md"
-                            >
-                              <LuTrash2 size={12} />
-                            </IconButton>
-                          </HStack>
-                        </VStack>
-                      </HStack>
-                    </Box>
-                  );
-                })}
-
-                {isPanelLoading && unifiedItems.length > 0 && (
-                  <VStack gap={0} align="stretch" p={1}>
-                    <NotificationSkeleton />
-                    <NotificationSkeleton />
-                  </VStack>
-                )}
-              </Stack>
-            )}
-          </Box>
-        </PopoverBody>
-      </PopoverContent>
-    </PopoverRoot>
+      <AppConfirmDialog
+        isOpen={notificationToDelete !== null}
+        title={t('deleteConfirmTitle')}
+        body={t('deleteConfirmDescription', {
+          title: notificationToDelete
+            ? getNotificationDisplay(notificationToDelete).displayTitle
+            : '',
+        })}
+        confirmLabel={t('delete')}
+        cancelLabel={t('cancel')}
+        isLoading={isDeletingNotification}
+        onConfirm={handleConfirmDeleteNotification}
+        onClose={() => setNotificationToDelete(null)}
+      />
+    </>
   );
 }

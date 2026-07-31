@@ -1,5 +1,6 @@
 import axios, { type AxiosRequestConfig, type AxiosResponse } from 'axios';
 import { toaster } from '@/components/ui/toaster';
+import { getToastMessage } from '@/lib/i18n/toastMessages';
 import { getUserFacingErrorMessage, logApiError } from './apiError';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { useAppStore } from '@/stores/useAppStore';
@@ -149,7 +150,9 @@ api.interceptors.response.use(
 
         // Only show toast and redirect if not already on auth pages
         if (!window.location.pathname.includes('/auth/')) {
-          toaster.error({ title: 'Session expired. Please login again.' });
+          toaster.error({
+            title: getToastMessage('sessionExpiredPleaseLoginAgain'),
+          });
           // Delay redirect to allow toast to show
           setTimeout(() => {
             window.location.href = '/auth/signin';

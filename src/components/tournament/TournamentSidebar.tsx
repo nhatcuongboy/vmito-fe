@@ -2,13 +2,19 @@
 
 import { Box, Text } from '@chakra-ui/react';
 import { Image } from '@/components/ui/chakra-compat';
-import { LucideIcon, PanelLeftClose, PanelLeftOpen } from 'lucide-react';
+import {
+  ListChecks,
+  LucideIcon,
+  PanelLeftClose,
+  PanelLeftOpen,
+} from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 import { Tournament } from '@/lib/api/types';
 import SidebarNav from '@/components/ui/SidebarNav';
 import { useLocale, useTranslations } from 'next-intl';
 import { getPrimaryVenueDisplay } from '@/utils';
 import { FavoriteEngagementControl } from '@/components/favorites/FavoriteEngagementControl';
+import { TournamentGuideButton } from './TournamentGuideButton';
 
 interface SidebarTab {
   id: number;
@@ -25,6 +31,7 @@ interface TournamentSidebarProps {
   onTabChange: (tabIndex: number) => void;
   showStatusBadge?: boolean;
   showFavorite?: boolean;
+  showGuideToggle?: boolean;
   variant?: 'card' | 'embedded';
 }
 
@@ -35,9 +42,11 @@ export default function TournamentSidebar({
   onTabChange,
   showStatusBadge = false,
   showFavorite = false,
+  showGuideToggle = false,
   variant = 'card',
 }: TournamentSidebarProps) {
   const t = useTranslations('pages.tournaments.detail.publicationStatus');
+  const navigation = useTranslations('navigation');
   const locale = useLocale();
   const [isCollapsed, setIsCollapsed] = useState(false);
 
@@ -79,6 +88,13 @@ export default function TournamentSidebar({
   return (
     <SidebarNav
       header={header}
+      footer={
+        showGuideToggle ? (
+          <Box px={isCollapsed ? 1.5 : 2} pb={4}>
+            <TournamentGuideButton isCollapsed={isCollapsed} />
+          </Box>
+        ) : undefined
+      }
       items={tabs}
       activeId={activeTab}
       onItemClick={(id) => onTabChange(Number(id))}
@@ -114,8 +130,8 @@ function TournamentSidebarHeader({
   const formattedDate = new Date(tournament.startDate).toLocaleDateString(
     locale,
     {
-      weekday: 'short',
-      month: 'short',
+      weekday: 'long',
+      month: 'long',
       day: 'numeric',
       year: 'numeric',
     }

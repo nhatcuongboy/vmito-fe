@@ -42,7 +42,8 @@ export const ROUTES = {
       CREATE: '/host/clubs/create',
       DETAIL: (id: string) => `/host/clubs/${id}`,
       EDIT: (id: string) => `/host/clubs/${id}/edit`,
-      MEMBERS: (id: string) => `/host/clubs/${id}/members`,
+      MEMBERS: (id: string, tab?: 'members' | 'requests') =>
+        `/host/clubs/${id}/members${tab ? `?tab=${tab}` : ''}`,
       FEES: (id: string) => `/host/clubs/${id}/fees`,
     },
     PENDING_JOIN_REQUESTS: '/host/sessions/pending',

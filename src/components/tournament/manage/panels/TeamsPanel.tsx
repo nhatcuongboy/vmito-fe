@@ -41,6 +41,7 @@ import {
   getRegistrationPlayerIds,
 } from '@/lib/tournament/teamRoster';
 import TournamentManageEmptyState from './TournamentManageEmptyState';
+import { notifyTournamentProgressChanged } from '@/components/tournament/guide/progressEvents';
 
 interface TeamsPanelProps {
   categories: Category[];
@@ -332,6 +333,7 @@ export default function TeamsPanel({
         });
       }
       await loadRegistrations(activeCategory.id);
+      notifyTournamentProgressChanged();
       setAddName('');
       setAddMultiText('');
       setSelectedPlayerIds([]);
@@ -463,6 +465,7 @@ export default function TeamsPanel({
         deletingReg.id
       );
       await loadRegistrations(activeCategory.id);
+      notifyTournamentProgressChanged();
       deleteModal.onClose();
     } catch (error) {
       console.error('Error deleting team:', error);

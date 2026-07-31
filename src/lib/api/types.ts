@@ -1292,10 +1292,17 @@ export interface Tournament {
     id: string;
     name: string;
     email: string;
+    image?: string | null;
   };
   venue?: Venue;
   venueId?: string | null;
   tournamentVenues?: TournamentVenue[];
+  /**
+   * Fully populated by the tournament detail endpoint. The browse list only
+   * selects `id`/`name`/`type` (see `tournaments.service.ts` findAll), so code
+   * running against list data must read no more than
+   * {@link TournamentCategorySummary}.
+   */
   categories?: Category[];
   umpires?: TournamentUmpire[];
   scoringDevices?: TournamentScoringDevice[];
@@ -1339,6 +1346,9 @@ export enum CategoryFormat {
   ROUND_ROBIN_TO_SE = 'ROUND_ROBIN_TO_SE',
   DOUBLE_ELIMINATION = 'DOUBLE_ELIMINATION',
 }
+
+/** The subset of {@link Category} the tournament browse list returns. */
+export type TournamentCategorySummary = Pick<Category, 'id' | 'name' | 'type'>;
 
 export interface Category {
   id: string;
@@ -1564,6 +1574,8 @@ export interface TournamentVenue {
   /** Linked to an existing Venue record. Optional when using inline address. */
   venueId?: string;
   venue?: Venue;
+  /** Main location on public pages. Works for inline venues too. */
+  isPrimary?: boolean;
   /** Inline address fields — used when venueId is absent (address-only mode). */
   name?: string;
   acronym?: string;
@@ -1928,6 +1940,9 @@ export interface UserRatingStats {
 }
 
 export interface SessionRatingEligibility {
+  isHost?: boolean; // Viewer is the session host
+  isPlayer?: boolean; // Viewer is a player in the session
+  isFinished?: boolean; // Session has finished
   canRateHost: boolean;
   hasRatedHost: boolean;
   hostRating?: Rating;

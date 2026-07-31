@@ -34,7 +34,7 @@ export const TournamentPairService = {
       `/tournaments/${tournamentId}/pairs`,
       data
     );
-    toaster.success({ title: 'Pair created successfully' });
+    toaster.success({ title: getToastMessage('pairCreatedSuccessfully') });
     return response.data.data!;
   },
 
@@ -59,7 +59,7 @@ export const TournamentPairService = {
   // Delete pair
   deletePair: async (id: string): Promise<void> => {
     await api.delete<ApiResponse<null>>(`/tournament-pairs/${id}`);
-    toaster.success({ title: 'Pair deleted successfully' });
+    toaster.success({ title: getToastMessage('pairDeletedSuccessfully') });
   },
 
   getPairMatches: async (id: string) => {

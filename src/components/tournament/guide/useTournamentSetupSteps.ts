@@ -12,11 +12,11 @@ export type SetupStepId =
   | 'publish';
 
 export const SETUP_STEP_IDS: SetupStepId[] = [
+  'venue',
   'categories',
   'format',
   'teams',
   'rounds',
-  'venue',
   'schedule',
   'publish',
 ];

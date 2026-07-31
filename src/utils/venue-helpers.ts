@@ -184,13 +184,15 @@ export const getTournamentVenueDisplay = (
 });
 
 /**
- * The tournament's primary venue for display: the denormalized primary
- * pointer (tournament.venue) when set, otherwise the first TournamentVenue
- * (which may be inline/address-only). Null when the tournament has no venue.
+ * The tournament's main location for display: the venue flagged isPrimary
+ * (works for inline/address-only rows), then the denormalized pointer
+ * (tournament.venue), then the first venue. Null when there is no venue.
  */
 export const getPrimaryVenueDisplay = (
   tournament: Pick<Tournament, 'venue' | 'tournamentVenues'>
 ): VenueDisplay | null => {
+  const primary = tournament.tournamentVenues?.find((tv) => tv.isPrimary);
+  if (primary) return getTournamentVenueDisplay(primary);
   if (tournament.venue) return mapVenue(tournament.venue);
   const first = tournament.tournamentVenues?.[0];
   return first ? getTournamentVenueDisplay(first) : null;

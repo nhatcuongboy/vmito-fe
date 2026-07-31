@@ -1,5 +1,6 @@
 import PageLayout from '@/components/layout/PageLayout';
 import TournamentLoadingBottomTabs from '@/components/tournament/TournamentLoadingBottomTabs';
+import TournamentSegmentSkeleton from '@/components/tournament/TournamentSegmentSkeleton';
 import { TournamentShellSkeleton } from '@/components/tournament/skeletons';
 
 export default function Loading() {
@@ -20,7 +21,7 @@ export default function Loading() {
           md: '24px',
         }}
       >
-        <TournamentShellSkeleton />
+        <TournamentShellSkeleton content={<TournamentSegmentSkeleton />} />
       </PageLayout>
 
       <TournamentLoadingBottomTabs />

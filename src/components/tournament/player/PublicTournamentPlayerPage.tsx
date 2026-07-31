@@ -36,6 +36,7 @@ import TournamentProfileHero, {
 
 interface PlayerCategorySummary {
   id: string;
+  registrationId: string;
   name: string;
   type: CategoryType;
   teamName: string;
@@ -155,6 +156,7 @@ const buildPlayerCategories = async (
 
       return {
         id: category.id,
+        registrationId: playerRegistration.id,
         name: getCategoryName(category, categoryTypeLabels),
         type: category.type,
         teamName: getRegistrationName(playerRegistration, defaultTeamName),
@@ -520,7 +522,7 @@ export default function PublicTournamentPlayerPage() {
                         cursor="pointer"
                         onClick={() =>
                           router.push(
-                            `/tournament/${tournamentId}/category/${category.id}`
+                            `/t/${tournamentId}/team/${category.registrationId.toLowerCase()}`
                           )
                         }
                         _hover={{

@@ -137,8 +137,7 @@ export function getActiveFilterCount(filters: ResultFilters) {
     filters.teamIds.length +
     (filters.dateFrom ? 1 : 0) +
     (filters.dateTo ? 1 : 0) +
-    (filters.query.trim() ? 1 : 0) +
-    (filters.refereeOnly ? 1 : 0)
+    (filters.query.trim() ? 1 : 0)
   );
 }
 

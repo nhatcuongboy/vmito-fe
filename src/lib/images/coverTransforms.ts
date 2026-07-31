@@ -15,3 +15,10 @@ export const COMPACT_COVER_TRANSFORM = {
   cloudinaryWidth: 600,
   cloudinaryHeight: 400,
 } as const;
+
+// 640x360 = 16:9 at 2x DPR for the widest render (~320px at lg 3-col).
+// TournamentCard — 16:9 because tournament posters are banner-shaped.
+export const TOURNAMENT_COVER_TRANSFORM = {
+  cloudinaryWidth: 640,
+  cloudinaryHeight: 360,
+} as const;

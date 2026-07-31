@@ -157,6 +157,29 @@
     --tournament-shadow-soft: 0 14px 34px rgba(0, 0, 0, 0.26);
   }
 
+  @keyframes tournament-live-pulse {
+    0%,
+    100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+    50% {
+      opacity: 0.55;
+      transform: scale(1.35);
+    }
+  }
+
+  .tournament-live-dot {
+    animation: tournament-live-pulse 1.6s ease-in-out infinite;
+    transform-origin: center;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .tournament-live-dot {
+      animation: none;
+    }
+  }
+
   .dark .tournament-topbar {
     background: linear-gradient(
       180deg,

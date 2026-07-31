@@ -737,34 +737,33 @@ export default function SessionOverviewTab({
         </Box>
       )}
 
-      {/* Share results to newsfeed - Show when session is FINISHED */}
-      {session.status === SessionStatus.FINISHED && (
-        <Box mt={4}>
-          <Button
-            colorPalette="green"
-            variant="outline"
-            leftIcon={<Share2 size={16} />}
-            onClick={() => setIsShareResultsConfirmOpen(true)}
-          >
-            {t('shareResultsButton')}
-          </Button>
-        </Box>
-      )}
-
       <Box mt={8}>
-        <Flex align="center" gap={2} mb={4}>
-          <Heading size="md">{t('playersTab.playerStatistics')}</Heading>
-          <IconButton
-            aria-label={t('playersTab.rankingInfoAriaLabel')}
-            size="xs"
-            variant="ghost"
-            colorPalette="green"
-            minW="28px"
-            h="28px"
-            borderRadius="full"
-            icon={<Info size={15} />}
-            onClick={() => setIsRankingInfoOpen(true)}
-          />
+        <Flex align="center" justify="space-between" gap={3} mb={4} wrap="wrap">
+          <Flex align="center" gap={2}>
+            <Heading size="md">{t('playersTab.playerStatistics')}</Heading>
+            <IconButton
+              aria-label={t('playersTab.rankingInfoAriaLabel')}
+              size="xs"
+              variant="ghost"
+              colorPalette="green"
+              minW="28px"
+              h="28px"
+              borderRadius="full"
+              icon={<Info size={15} />}
+              onClick={() => setIsRankingInfoOpen(true)}
+            />
+          </Flex>
+          {session.status === SessionStatus.FINISHED && (
+            <Button
+              colorPalette="green"
+              variant="solid"
+              size="sm"
+              leftIcon={<Share2 size={16} />}
+              onClick={() => setIsShareResultsConfirmOpen(true)}
+            >
+              {t('shareResultsButton')}
+            </Button>
+          )}
         </Flex>
         <SessionPlayers sessionId={session.id} session={session} />
       </Box>

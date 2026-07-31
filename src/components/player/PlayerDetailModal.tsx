@@ -88,12 +88,12 @@ export const PlayerDetailModal = ({
       toaster.success({
         title:
           player.status === 'INACTIVE'
-            ? 'Player status set to Waiting'
-            : 'Player status set to Inactive',
+            ? t('statusSetToWaiting')
+            : t('statusSetToInactive'),
       });
     } catch (error) {
       console.error('Failed to toggle player status:', error);
-      toaster.error({ title: 'Failed to update player status' });
+      toaster.error({ title: t('updateStatusFailed') });
     } finally {
       setIsToggling(false);
     }

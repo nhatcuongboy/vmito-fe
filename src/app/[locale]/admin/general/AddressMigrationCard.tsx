@@ -17,6 +17,7 @@ import {
 } from '@chakra-ui/react';
 import { MapPin } from 'lucide-react';
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 
 type RunMode = 'dryRun' | 'apply';
 
@@ -48,6 +49,7 @@ function Stat({
 }
 
 export function AddressMigrationCard() {
+  const t = useTranslations('common');
   const [rescan, setRescan] = useState(false);
   const [running, setRunning] = useState<RunMode | null>(null);
   const [result, setResult] = useState<MigrateAddressesResult | null>(null);
@@ -79,7 +81,7 @@ export function AddressMigrationCard() {
     } catch (error) {
       console.error('Migration failed:', error);
       toaster.error({
-        title: 'Lỗi',
+        title: t('error'),
         description: 'Chạy migration thất bại',
       });
     } finally {

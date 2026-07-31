@@ -22,6 +22,7 @@ import {
 } from '@/lib/api/types';
 import { ScheduleGeneratorService } from '@/lib/api/schedule-generator.service';
 import { toaster } from '@/components/ui/toaster';
+import { getToastMessage } from '@/lib/i18n/toastMessages';
 
 // ===== Local time slot with client-side ID =====
 export interface ILocalTimeSlot {
@@ -300,7 +301,7 @@ export const ScheduleGenerationProvider = ({
       );
       setPreviewMatches(preview.matches);
     } catch (error) {
-      toaster.error({ title: 'Failed to load preview' });
+      toaster.error({ title: getToastMessage('previewLoadFailed') });
     } finally {
       setIsLoadingPreview(false);
     }
@@ -330,7 +331,7 @@ export const ScheduleGenerationProvider = ({
 
         return result;
       } catch (error) {
-        toaster.error({ title: 'Failed to update match' });
+        toaster.error({ title: getToastMessage('matchUpdateFailed') });
         return { success: false };
       }
     },
@@ -354,7 +355,7 @@ export const ScheduleGenerationProvider = ({
       }
       return false;
     } catch (error) {
-      toaster.error({ title: 'Failed to save schedule' });
+      toaster.error({ title: getToastMessage('scheduleSaveFailed') });
       return false;
     } finally {
       setIsSaving(false);

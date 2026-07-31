@@ -92,6 +92,7 @@ export function DiscoveryTabNav() {
               bg={isFavoriteActive ? 'green.50' : 'transparent'}
               color={isFavoriteActive ? 'green.600' : 'fg.muted'}
               transition="all 0.2s"
+              cursor="pointer"
               _hover={{
                 bg: isFavoriteActive ? 'green.100' : 'gray.50',
                 color: isFavoriteActive ? 'green.700' : 'fg',

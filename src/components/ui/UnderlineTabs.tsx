@@ -76,6 +76,7 @@ export function UnderlineTabs({
                 fontWeight={active ? '600' : '500'}
                 fontSize="sm"
                 mb="-1px"
+                cursor="pointer"
               >
                 <Text as="span">{tab.label}</Text>
                 {tab.badge !== undefined && tab.badge !== null && (

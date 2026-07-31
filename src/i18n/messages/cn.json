@@ -1,5 +1,6 @@
 {
   "navigation": {
+    "tournamentGuide": "赛事设置指南",
     "dashboard": "仪表盘",
     "host": "主办方",
     "join": "加入",
@@ -86,6 +87,7 @@
     "loadMore": "加载更多",
     "navigating": "正在导航...",
     "error": "错误",
+    "browserNotSupportLocation": "浏览器不支持定位",
     "success": "成功",
     "notAvailable": "N/A",
     "unknown": "未知",
@@ -220,6 +222,7 @@
     "change": "更改",
     "uploading": "上传中...",
     "pleaseSelectImageFile": "请选择图片文件",
+    "imageProcessFailed": "无法处理图片",
     "fileSizeTooLarge": "文件大小必须小于 5MB",
     "imageProcessingFailed": "处理图片失败。请尝试其他文件。",
     "uploadImage": "Upload Image",
@@ -268,6 +271,7 @@
     "resultsCount": "{count} 个结果"
   },
   "session": {
+    "fetchStatusFailed": "无法获取场次状态",
     "session": "场次",
     "title": "羽毛球场次",
     "resultsCount": "{count} 个场次",
@@ -347,6 +351,7 @@
     "status": {
       "all": "所有",
       "preparing": "准备中",
+      "expired": "已过期",
       "inProgress": "进行中",
       "finished": "已结束",
       "cancelled": "已取消"
@@ -427,6 +432,7 @@
       "courtNumberUnique": "场地编号必须唯一",
       "atLeastOneCourt": "至少需要一个场地",
       "sessionCreateFailed": "创建场次失败",
+      "bulkCreationFailed": "无法创建场次",
       "sessionCreatedSuccessfully": "场次创建成功！",
       "sessionUpdatedSuccessfully": "场次更新成功",
       "failedToUpdateSession": "更新场次失败",
@@ -714,6 +720,8 @@
     "checkOutThisSession": "Check out this session",
     "downloadImage": "下载图片",
     "imageDownloadSuccess": "图片下载成功",
+    "shareSession": "分享",
+    "moreActions": "更多操作",
     "downloadPortrait": "2:3",
     "downloadSocial": "4:5",
     "shareImageModal": {
@@ -1570,6 +1578,7 @@
           "manage": "管理",
           "referee": "执法",
           "openPublic": "打开公开页面",
+          "share": "分享",
           "delete": "删除",
           "moreActions": "更多操作",
           "categories": "类别",
@@ -1578,7 +1587,9 @@
         },
         "deleteConfirm": "您确定要删除此锦标赛吗？此操作无法撤销。",
         "deleted": "锦标赛已删除",
-        "deleteFailed": "删除锦标赛失败"
+        "deleteFailed": "删除锦标赛失败",
+        "shareSuccess": "锦标赛链接已复制",
+        "shareFailed": "无法分享锦标赛"
       },
       "allTournaments": "所有锦标赛",
       "createSample": "创建示例",
@@ -1604,7 +1615,8 @@
           "PREPARING": "即将开始",
           "IN_PROGRESS": "进行中",
           "FINISHED": "已结束",
-          "CANCELLED": "已取消"
+          "CANCELLED": "已取消",
+          "all": "全部"
         },
         "period": {
           "title": "时间",
@@ -1669,22 +1681,51 @@
       "create": {
         "title": "创建锦标赛",
         "createNewTournament": "创建新锦标赛",
+        "introEyebrow": "设置锦标赛",
+        "introDescription": "先填写最重要的信息。",
         "basicInformation": "基本信息",
+        "formDescription": "填写参赛者识别锦标赛所需的信息。",
         "tournamentName": "锦标赛名称",
-        "enterTournamentName": "输入锦标赛名称",
-        "creating": "正在创建...",
+        "tournamentNameHelper": "请选择简短、易记并能体现赛季的名称。",
+        "enterTournamentName": "例如：2026 夏季羽毛球公开赛…",
+        "creating": "正在创建…",
         "fillAllFields": "请填写所有必填字段",
+        "createFailed": "无法创建锦标赛。请检查信息后重试。",
         "startDate": "开始日期",
         "endDate": "结束日期",
+        "datePlaceholder": "年 / 月 / 日",
+        "schedule": "比赛日期",
         "venue": "场地",
-        "locationPlaceholder": "活动将在哪里举行？",
+        "optional": "选填",
+        "locationHelper": "在地图上搜索或手动输入地点。",
+        "locationPlaceholder": "搜索场地或输入地点…",
+        "selectedVenue": "已选地点",
+        "clearVenue": "清除",
         "selectVenue": "-- 选择场地 --",
         "cancel": "取消",
         "createTournament": "创建锦标赛",
         "sport": "比赛项目",
+        "sportHelper": "选择锦标赛的主要比赛项目。",
+        "nextStepsTitle": "稍后继续完善",
+        "nextStepsDescription": "创建后，可在管理页面添加组别、赛制、选手和赛程。",
         "sports": {
           "BADMINTON": "羽毛球",
           "PICKLEBALL": "匹克球"
+        },
+        "validation": {
+          "nameRequired": "请输入锦标赛名称。",
+          "startDateRequired": "请选择开始日期。",
+          "endDateRequired": "请选择结束日期。",
+          "startDatePast": "开始日期不能早于今天。",
+          "endBeforeStart": "结束日期必须等于或晚于开始日期。"
+        },
+        "unsaved": {
+          "title": "离开锦标赛设置？",
+          "description": "您有尚未保存的更改。",
+          "body": "离开此页面后，您刚才输入的信息将会丢失。",
+          "stay": "继续编辑",
+          "leave": "离开页面",
+          "close": "关闭对话框"
         }
       },
       "detail": {
@@ -1825,6 +1866,45 @@
             "viewStandings": "查看排名",
             "viewShowcase": "展示"
           },
+          "status": {
+            "PREPARING": "即将开始",
+            "IN_PROGRESS": "进行中",
+            "FINISHED": "已结束",
+            "CANCELLED": "已取消"
+          },
+          "hero": {
+            "loading": "正在更新…",
+            "teams": "{count} 支队伍",
+            "athletes": "{count} 名运动员",
+            "share": "分享赛事",
+            "viewCover": "查看封面图"
+          },
+          "pulse": {
+            "live": "直播",
+            "liveTitle": "比赛进行中",
+            "liveDescription": "关注赛事最新比分。",
+            "nextTitle": "下一场比赛",
+            "nextDescription": "最新比赛日程已准备就绪。",
+            "finishedTitle": "赛事已结束",
+            "finishedDescription": "查看最终排名和赛事冠军。",
+            "preparingTitle": "赛事准备中",
+            "preparingDescription": "比赛开始前查看类别和竞赛规则。",
+            "cancelledTitle": "赛事已取消",
+            "cancelledDescription": "查看日程了解更多信息。",
+            "viewLive": "查看实时比分",
+            "viewSchedule": "查看日程",
+            "viewResults": "查看结果",
+            "viewCategories": "查看类别",
+            "court": "球场",
+            "versus": "对阵",
+            "errorTitle": "无法加载赛事动态",
+            "errorDescription": "请重试加载比赛信息。",
+            "retry": "重试"
+          },
+          "share": {
+            "success": "已复制赛事链接",
+            "error": "无法分享赛事"
+          },
           "categories": {
             "title": "类别",
             "manage": "管理类别",
@@ -1861,6 +1941,7 @@
             "name": "姓名",
             "email": "邮箱",
             "phone": "电话",
+            "edit": "编辑联系信息",
             "empty": "暂无联系信息。"
           },
           "sponsors": {
@@ -1872,6 +1953,16 @@
             "title": "冠军",
             "subtitle": "最终成绩已公布。",
             "viewAll": "查看全部优胜者"
+          },
+          "organizerCompletion": {
+            "title": "完善赛事页面",
+            "description": "补充缺失信息，让公开页面更实用、更有吸引力。",
+            "items": {
+              "name": "添加备注",
+              "videos": "添加视频",
+              "sponsors": "添加赞助商",
+              "contact": "添加联系方式"
+            }
           }
         },
         "dashboard": {
@@ -2665,10 +2756,6 @@
             "dates": {
               "title": "日期"
             },
-            "location": {
-              "title": "地点",
-              "noLocation": "未设置地点"
-            },
             "visibility": {
               "title": "可见性",
               "description": "控制谁可以查看此锦标赛。"
@@ -3282,7 +3369,14 @@
               "newCourt": "新场地",
               "removeCourt": "删除场地",
               "removeCourtConfirm": "删除",
-              "removeCourtWarning": "\"{name}\" 已有 {count} 场已分配的比赛/时段。删除后保存时将取消这些分配。继续吗？"
+              "removeCourtWarning": "\"{name}\" 已有 {count} 场已分配的比赛/时段。删除后保存时将取消这些分配。继续吗？",
+              "primaryBadge": "主要地点",
+              "setAsPrimary": "设为主要地点",
+              "primaryUpdated": "主要地点已更新",
+              "primaryError": "无法设置主要地点",
+              "clearAddress": "清除地址",
+              "changeAddress": "更换地点",
+              "selectFromSuggestions": "请从建议列表中选择一个地点"
             },
             "schedule": {
               "title": "赛程",
@@ -3345,22 +3439,6 @@
                 "noChanges": "没有更改需要保存",
                 "updateFailed": "更新锦标赛日期失败"
               }
-            },
-            "location": {
-              "title": "锦标赛地点",
-              "description": "选择在锦标赛公开页面上显示的主要场地",
-              "clearSelection": "清除选择",
-              "save": "保存",
-              "cancel": "取消",
-              "success": "锦标赛地点更新成功",
-              "errors": {
-                "noChanges": "没有更改需要保存",
-                "updateFailed": "更新锦标赛地点失败",
-                "loadFailed": "加载场地列表失败"
-              },
-              "empty": "该锦标赛尚未关联任何场地。请先在比赛场地标签中添加场地。",
-              "goToVenues": "管理场地",
-              "inlineHint": "仅有地址的场地 — 需关联场地目录后才能设为主要场地"
             },
             "banner": {
               "title": "锦标赛封面图片",
@@ -4020,6 +4098,8 @@
           "searchPlaceholder": "搜索选手或队伍",
           "referee": "裁判",
           "refereeOnlyLabel": "我的比赛",
+          "refereeModeEnabled": "已开启裁判模式",
+          "refereeModeDisabled": "已关闭裁判模式",
           "clear": "清除筛选",
           "apply": "应用",
           "empty": "没有符合筛选条件的比赛。",
@@ -4211,7 +4291,19 @@
           "PARTICIPANTS": "选手与报名",
           "STRUCTURE": "项目与赛制"
         }
-      }
+      },
+      "resultCount": "{count} 场比赛",
+      "card": {
+        "daysLeft": "还有 {days} 天",
+        "startsToday": "今天开始",
+        "startsTomorrow": "明天开始",
+        "teams": "{count} 支队伍",
+        "playersCount": "{count} 位选手",
+        "categoryCount": "{count} 个项目",
+        "moreCategories": "+{count}"
+      },
+      "loadError": "无法加载比赛",
+      "retry": "重试"
     },
     "join": {
       "title": "加入场次",
@@ -4937,7 +5029,7 @@
     "allowNewPlayers": "允许新玩家",
     "yes": "是",
     "no": "否",
-    "shareResultsButton": "分享成绩到动态",
+    "shareResultsButton": "分享到动态",
     "shareResultsConfirmTitle": "分享成绩",
     "shareResultsConfirmMessage": "将本次球局的排名发布到动态？",
     "shareResultsSuccess": "成绩已分享到动态",
@@ -5130,6 +5222,44 @@
       "loadError": "加载统计数据失败",
       "retry": "重试",
       "last30Days": "最近30天",
+      "lastUpdated": "更新于 {time}",
+      "notUpdatedYet": "正在等待最新数据",
+      "refresh": "刷新统计数据",
+      "emptyRange": "所选日期范围内没有数据",
+      "chartSummary": "{metric}图表",
+      "filters": {
+        "title": "统计周期",
+        "7d": "7天",
+        "30d": "30天",
+        "90d": "90天",
+        "custom": "自定义",
+        "from": "开始日期",
+        "to": "结束日期",
+        "invalidRange": "请选择不超过365天的有效日期范围。"
+      },
+      "actionQueue": {
+        "title": "待处理",
+        "description": "等待管理员审核的申请。",
+        "reviewNow": "打开列表进行审核",
+        "allClear": "没有待处理的申请"
+      },
+      "growth": {
+        "title": "增长趋势",
+        "description": "{range}内的新增活动。"
+      },
+      "breakdown": {
+        "usersTitle": "用户分布",
+        "usersDescription": "系统当前账户构成。",
+        "operationsTitle": "运营状态",
+        "operationsDescription": "核心资源的状态分布。",
+        "role": "角色",
+        "gender": "性别",
+        "requests": "申请",
+        "courts": "球场"
+      },
+      "errors": {
+        "sectionUnavailable": "此部分数据暂时不可用，其他统计数据仍会保留。"
+      },
       "users": {
         "sectionTitle": "用户",
         "total": "用户总数",
@@ -5137,6 +5267,18 @@
         "byRole": "按角色划分的用户",
         "byGender": "按性别划分的用户",
         "trend": "新增用户趋势"
+      },
+      "sessions": {
+        "sectionTitle": "场次"
+      },
+      "tournaments": {
+        "sectionTitle": "赛事"
+      },
+      "clubs": {
+        "sectionTitle": "俱乐部"
+      },
+      "venues": {
+        "sectionTitle": "场馆"
       },
       "sessionsTournaments": {
         "sectionTitle": "场次与赛事",
@@ -5417,6 +5559,9 @@
     "venueRequests": "场地请求"
   },
   "PlayerDetailModal": {
+    "statusSetToWaiting": "玩家状态已设为等待中",
+    "statusSetToInactive": "玩家状态已设为未激活",
+    "updateStatusFailed": "更新玩家状态失败",
     "status": "状态",
     "playerDetails": "玩家详情",
     "levelDescription": "水平描述",
@@ -5788,6 +5933,9 @@
     "markAsRead": "标记为已读",
     "markAllAsRead": "全部标记为已读",
     "delete": "删除",
+    "cancel": "取消",
+    "deleteConfirmTitle": "删除通知？",
+    "deleteConfirmDescription": "通知“{title}”将被永久删除。是否继续？",
     "new": "新",
     "broadcastNotifications": "广播通知",
     "broadcastDescription": "向系统中的所有用户发送通知",
@@ -5814,6 +5962,7 @@
     "approve": "批准",
     "reject": "拒绝",
     "approvalSession": "场次",
+    "approvalViewSession": "查看场次 {name}",
     "approvalLevel": "等级",
     "approvalPlayer": "报名位置",
     "approvalSlotCount": "注册槽数",
@@ -5822,6 +5971,10 @@
     "approvalSubmittedPrefix": "提交申请",
     "approvalViewProfile": "查看资料",
     "approveSuccess": "请求已批准",
+    "confirmApproveTitle": "批准请求？",
+    "confirmApproveDescription": "申请人将获准加入。是否继续？",
+    "confirmRejectTitle": "拒绝请求？",
+    "confirmRejectDescription": "此请求将被拒绝。是否继续？",
     "rejectSuccess": "请求已拒绝",
     "approvalActionFailed": "操作失败",
     "club": {
@@ -5997,6 +6150,18 @@
     "viewAllSessions": "查看全部活动",
     "shareConfirmTitle": "分享帖子",
     "shareConfirmDescription": "要将此帖子分享到您的动态吗？",
+    "shareModalTitle": "分享帖子",
+    "shareToFeed": "分享到动态",
+    "shareToFeedDesc": "将此帖子转发到您的动态",
+    "copyLink": "复制链接",
+    "copyLinkDesc": "复制帖子链接",
+    "linkCopied": "已复制链接",
+    "copyLinkError": "无法复制链接",
+    "shareFacebook": "Facebook",
+    "shareZalo": "Zalo",
+    "shareX": "X (Twitter)",
+    "shareNative": "其他方式分享…",
+    "shareDefaultText": "来看看 Vmito 上的这条帖子",
     "deleteCommentConfirmTitle": "删除评论？",
     "deleteCommentConfirmDescription": "此评论将被永久删除。",
     "originalPostUnavailable": "原始内容已不存在。",
@@ -6004,12 +6169,12 @@
     "refreshing": "正在刷新...",
     "activity": {
       "SESSION_CREATED": "{author} 创建了新球局",
-      "SESSION_RESULTS": "{author} 分享了 {session} 的成绩",
-      "CLUB_CREATED": "{author} 创建了俱乐部 {club}",
-      "CLUB_UPDATED": "{author} 更新了俱乐部 {club} 的信息",
-      "CLUB_MEMBER_JOINED": "{author} 加入了俱乐部 {club}",
-      "TOURNAMENT_CREATED": "{author} 创建了赛事 {tournament}",
-      "TOURNAMENT_FINISHED": "赛事 {tournament} 已结束",
+      "SESSION_RESULTS": "{author} 分享了 <b>{session}</b> 的成绩",
+      "CLUB_CREATED": "{author} 创建了俱乐部 <b>{club}</b>",
+      "CLUB_UPDATED": "{author} 更新了俱乐部 <b>{club}</b> 的信息",
+      "CLUB_MEMBER_JOINED": "{author} 加入了俱乐部 <b>{club}</b>",
+      "TOURNAMENT_CREATED": "{author} 创建了赛事 <b>{tournament}</b>",
+      "TOURNAMENT_FINISHED": "赛事 <b>{tournament}</b> 已结束",
       "AVATAR_UPDATED": "{author} 更新了头像",
       "USER_RATED": "{author} 评价了 {rated}",
       "champion": "冠军",
@@ -6017,7 +6182,10 @@
       "standingsRank": "排名",
       "standingsPlayer": "球员",
       "standingsMatches": "场次",
+      "standingsWinRate": "胜率",
+      "standingsMatchesShort": "{count} 场",
       "andMorePlayers": "以及另外 {count} 名球员",
+      "showLess": "收起",
       "viewSession": "查看球局",
       "viewClub": "查看俱乐部",
       "viewTournament": "查看赛事",
@@ -6135,8 +6303,11 @@
     "roleUpdatedSuccessfully": "角色更新成功",
     "requestApprovedSuccessfully": "加入申请已批准",
     "requestRejectedSuccessfully": "加入申请已拒绝",
+    "confirmApproveTitle": "批准请求？",
     "confirmApprove": "批准此加入申请？",
+    "confirmRejectTitle": "拒绝请求？",
     "confirmReject": "拒绝此加入申请？",
+    "memberActionFailed": "无法完成操作，请重试。",
     "manageClubs": "管理俱乐部",
     "manageYourClubs": "管理您的俱乐部",
     "createClub": "创建俱乐部",
@@ -6153,10 +6324,13 @@
     "failedToUpdateClub": "更新俱乐部失败",
     "failedToLoadClub": "加载俱乐部失败",
     "addClubMember": "添加俱乐部成员",
+    "searchUserLabel": "查找用户",
     "searchUserPlaceholder": "按姓名或邮箱搜索...",
+    "searchUsersFailed": "无法查找用户，请重试。",
     "alreadyMember": "已是成员",
     "noUsersFound": "未找到用户",
     "noClubMembersYet": "暂无成员",
+    "noMembersYet": "暂无成员",
     "addFirstMember": "添加第一位成员",
     "clubMemberAddedSuccess": "成员已成功添加",
     "failedToAddClubMember": "添加成员失败",
@@ -6164,6 +6338,7 @@
     "clubMemberRemovedSuccess": "成员已成功移除",
     "failedToRemoveClubMember": "移除成员失败",
     "memberDetails": "成员信息",
+    "roleSelectLabel": "成员角色",
     "viewProfile": "查看个人主页",
     "removeFromClub": "移出俱乐部",
     "confirmRemoveMemberTitle": "移除成员",
@@ -6986,9 +7161,16 @@
       "completeRefund": "完成退款",
       "confirmRefund": "确认退款完成",
       "method": "方式",
-      "methodValue": { "BANK_TRANSFER": "银行转账", "CASH": "现金" },
+      "methodValue": {
+        "BANK_TRANSFER": "银行转账",
+        "CASH": "现金"
+      },
       "purposeLabel": "付款类型",
-      "purpose": { "DEPOSIT": "定金", "BALANCE": "尾款", "REFUND": "退款" },
+      "purpose": {
+        "DEPOSIT": "定金",
+        "BALANCE": "尾款",
+        "REFUND": "退款"
+      },
       "depositStatus": {
         "UNPAID": "未付款",
         "SUBMITTED": "待审核",
@@ -7009,13 +7191,18 @@
         "EXPIRED": "已过期",
         "CANCELLED": "已取消"
       },
-      "filters": { "allPurposes": "所有类型", "allStatuses": "所有状态" },
+      "filters": {
+        "allPurposes": "所有类型",
+        "allStatuses": "所有状态"
+      },
       "dashboard": {
         "depositDue": "定金即将到期",
         "balanceOverdue": "尾款已逾期",
         "refundPending": "退款待处理"
       },
-      "messages": { "updated": "交易已更新" },
+      "messages": {
+        "updated": "交易已更新"
+      },
       "errors": {
         "action": "无法处理交易",
         "invalidProof": "请上传不超过 5 MB 的图片。",

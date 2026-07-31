@@ -10,15 +10,7 @@ import {
   DrawerHeader,
 } from '@/components/ui/ChakraDrawer';
 import { useTranslations } from 'next-intl';
-import {
-  Check,
-  CircleSlash,
-  Clock,
-  Flag,
-  RotateCcw,
-  ShieldCheck,
-  X,
-} from 'lucide-react';
+import { Check, CircleSlash, Clock, Flag, RotateCcw, X } from 'lucide-react';
 
 import {
   ChipOption,
@@ -39,9 +31,6 @@ export function ResultsFilterDrawer({
   statusOptions,
   teamOptions,
   onToggle,
-  showPlayerNames,
-  onTogglePlayerNames,
-  showRefereeFilter,
 }: {
   isOpen: boolean;
   onClose: () => void;
@@ -56,9 +45,6 @@ export function ResultsFilterDrawer({
     key: K,
     value: ResultFilters[K][number]
   ) => void;
-  showPlayerNames: boolean;
-  onTogglePlayerNames: () => void;
-  showRefereeFilter: boolean;
 }) {
   const t = useTranslations('pages.tournaments.manualScore');
 
@@ -85,38 +71,6 @@ export function ResultsFilterDrawer({
         </DrawerHeader>
         <DrawerBody>
           <VStack align="stretch" gap={6}>
-            <Flex gap={2} wrap="wrap">
-              <Button
-                size="md"
-                variant={showPlayerNames ? 'solid' : 'outline'}
-                colorPalette={showPlayerNames ? 'green' : 'gray'}
-                borderRadius="full"
-                onClick={onTogglePlayerNames}
-              >
-                {t('showPlayerNamesBadge')}
-              </Button>
-
-              {showRefereeFilter && (
-                <Button
-                  size="md"
-                  variant={filters.refereeOnly ? 'solid' : 'outline'}
-                  colorPalette={filters.refereeOnly ? 'green' : 'gray'}
-                  borderRadius="full"
-                  borderWidth="2px"
-                  borderColor={filters.refereeOnly ? 'green.500' : 'green.200'}
-                  onClick={() =>
-                    setFilters((prev) => ({
-                      ...prev,
-                      refereeOnly: !prev.refereeOnly,
-                    }))
-                  }
-                  leftIcon={<ShieldCheck size={16} />}
-                >
-                  {t('filters.referee')}
-                </Button>
-              )}
-            </Flex>
-
             <FilterSection title={t('filters.categories')}>
               <ChipGroup
                 options={categoryOptions}

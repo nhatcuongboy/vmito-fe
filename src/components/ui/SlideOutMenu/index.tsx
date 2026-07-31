@@ -8,11 +8,12 @@ import {
   Text,
   useBreakpointValue,
 } from '@chakra-ui/react';
-import { LogIn, UserPlus } from 'lucide-react';
+import { ListChecks, LogIn, UserPlus } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Fragment, Suspense, useEffect, useState, type ReactNode } from 'react';
 import LanguageSwitcher from '@/components/ui/LanguageSwitcher';
 import { NextLinkButton } from '@/components/ui/NextLinkButton';
+import { Button } from '@/components/ui/chakra-compat';
 import ThemeSwitcher from '@/components/ui/ThemeSwitcher';
 import { VTooltip } from '@/components/ui/VTooltip';
 import {
@@ -27,6 +28,7 @@ import { useCanAccessHostFeatures } from '@/hooks/useCanAccessHostFeatures';
 import { usePathname } from '@/i18n/config';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { VenueRentalService } from '@/lib/api/venue-rental.service';
+import { TournamentGuideButton } from '@/components/tournament/TournamentGuideButton';
 import {
   isNavLinkActive,
   NAV_SECTIONS,
@@ -144,6 +146,19 @@ function AuthActions({
         </NextLinkButton>
       </VTooltip>
     </Stack>
+  );
+}
+
+/** Desktop-only entry point to reopen the tournament setup guide widget. */
+function TournamentGuideToggleButton({
+  isCollapsed,
+}: {
+  isCollapsed: boolean;
+}) {
+  return (
+    <Box display={{ base: 'none', md: 'block' }} mb={4}>
+      <TournamentGuideButton isCollapsed={isCollapsed} />
+    </Box>
   );
 }
 
@@ -302,6 +317,10 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
 
             {/* Footer */}
             <Box pt={4}>
+              {/^\/tournament\/[^/]+/.test(pathname) && (
+                <TournamentGuideToggleButton isCollapsed={isCollapsed} />
+              )}
+
               {showAuthActions && (
                 <AuthActions isCollapsed={isCollapsed} onClose={onClose} />
               )}
@@ -310,7 +329,6 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
                 <>
                   <Text fontSize="xs" color="gray.500" textAlign="center">
                     {`© ${new Date().getFullYear()} ${common('appName')}. All Rights Reserved!`}
-                    Đơn vị chủ quản: HỘ KINH DOANH LÊ THANH HỒNG NHỰT
                   </Text>
                   <Text
                     fontSize="xs"

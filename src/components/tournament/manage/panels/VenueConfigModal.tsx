@@ -2,7 +2,7 @@
 
 import { Box, Flex, Text, Input } from '@chakra-ui/react';
 import { VStack, IconButton, Button } from '@/components/ui/chakra-compat';
-import { Plus, Trash2 } from 'lucide-react';
+import { MapPin, Plus, Trash2 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useEffect, useState } from 'react';
 import { TournamentService } from '@/lib/api/tournament.service';
@@ -51,6 +51,12 @@ export default function VenueConfigModal({
   // Venue search / select
   const [selectedVenue, setSelectedVenue] = useState<Venue | null>(null);
   const [location, setLocation] = useState<LocationData | null>(null);
+  /** Raw text in the address box. Controlled so re-opening the modal for a
+   *  different venue never shows the previous one's address. */
+  const [addressQuery, setAddressQuery] = useState('');
+  /** True only after the host asked to change the address, so the search box
+   *  grabs focus then but not when the modal simply opens. */
+  const [shouldFocusAddress, setShouldFocusAddress] = useState(false);
 
   // Extra fields
   const [name, setName] = useState('');
@@ -76,6 +82,7 @@ export default function VenueConfigModal({
           setLocation(null);
           setName(existingTournamentVenue.venue!.name ?? '');
           setAcronym(existingTournamentVenue.venue!.acronym ?? '');
+          setAddressQuery(existingTournamentVenue.venue!.address ?? '');
         } else {
           // Inline mode: address stored directly on TournamentVenue
           setSelectedVenue(null);
@@ -90,6 +97,7 @@ export default function VenueConfigModal({
           });
           setName(existingTournamentVenue.name ?? '');
           setAcronym(existingTournamentVenue.acronym ?? '');
+          setAddressQuery(existingTournamentVenue.address ?? '');
         }
         const existingCourts = existingTournamentVenue.courts ?? [];
         if (existingCourts.length > 0) {
@@ -108,10 +116,12 @@ export default function VenueConfigModal({
       } else {
         setSelectedVenue(null);
         setLocation(null);
+        setAddressQuery('');
         setName('');
         setAcronym('');
         setCourts([{ courtName: '', usageCount: 0 }]);
       }
+      setShouldFocusAddress(false);
       setConfirmRemoveIndex(null);
     }
   }, [isOpen, existingTournamentVenue]);
@@ -119,8 +129,19 @@ export default function VenueConfigModal({
   const handleLocationSelect = (nextLocation: LocationData) => {
     setSelectedVenue(null);
     setLocation(nextLocation);
+    setAddressQuery(nextLocation.address);
+    setShouldFocusAddress(false);
     setName(nextLocation.name);
     setAcronym('');
+  };
+
+  /** Backs the "change location" action: an address search box only helps when
+   *  it is empty, and name, acronym and courts are left untouched. */
+  const handleClearAddress = () => {
+    setSelectedVenue(null);
+    setLocation(null);
+    setAddressQuery('');
+    setShouldFocusAddress(true);
   };
 
   const handleAddCourt = () => {
@@ -153,9 +174,17 @@ export default function VenueConfigModal({
     });
   };
 
+  const hasAddress = !!selectedVenue || !!location;
+  /** Typed something but never picked a suggestion — no coordinates to save. */
+  const isAddressUnconfirmed = !hasAddress && addressQuery.trim().length > 0;
+
   const handleSave = async () => {
-    if (!selectedVenue && !location) {
-      toaster.error({ title: t('nameRequired') });
+    if (!hasAddress) {
+      toaster.error({
+        title: isAddressUnconfirmed
+          ? t('selectFromSuggestions')
+          : t('nameRequired'),
+      });
       return;
     }
     if (!name.trim()) {
@@ -263,19 +292,68 @@ export default function VenueConfigModal({
       isPrimaryLoading={isSaving}
     >
       <VStack gap={4} align="stretch">
-        {/* Inline suggestions stay visible inside the modal scroll container. */}
-        <LocationAutocomplete
-          onSelect={handleLocationSelect}
-          defaultValue={
-            existingTournamentVenue?.venue?.address ??
-            existingTournamentVenue?.address ??
-            existingTournamentVenue?.venue?.name ??
-            existingTournamentVenue?.name
-          }
-          placeholder={t('address')}
-          suggestionsPlacement="inline"
-          suggestionsMaxH="220px"
-        />
+        {hasAddress ? (
+          <Flex
+            align="flex-start"
+            gap={3}
+            borderWidth="1px"
+            borderColor="gray.200"
+            borderRadius="12px"
+            px={4}
+            py={3}
+            bg="gray.50"
+            _dark={{ bg: 'gray.700', borderColor: 'gray.600' }}
+          >
+            <Box color="gray.500" mt="2px" flexShrink={0}>
+              <MapPin size={18} />
+            </Box>
+            <Box flex="1" minW={0}>
+              <Text fontSize="sm" fontWeight="medium" lineClamp={1}>
+                {selectedVenue?.name ?? location?.name}
+              </Text>
+              <Text
+                fontSize="xs"
+                color="gray.500"
+                _dark={{ color: 'gray.400' }}
+                lineClamp={2}
+              >
+                {selectedVenue?.address ?? location?.address}
+              </Text>
+              <Button
+                variant="plain"
+                size="xs"
+                px={0}
+                mt={1}
+                height="auto"
+                color="brand.500"
+                onClick={handleClearAddress}
+              >
+                {t('changeAddress')}
+              </Button>
+            </Box>
+          </Flex>
+        ) : (
+          <Box>
+            {/* Inline suggestions stay visible inside the modal scroll container. */}
+            <LocationAutocomplete
+              onSelect={handleLocationSelect}
+              value={addressQuery}
+              onInputChange={setAddressQuery}
+              onClear={handleClearAddress}
+              isClearable
+              clearAriaLabel={t('clearAddress')}
+              autoFocus={shouldFocusAddress}
+              placeholder={t('address')}
+              suggestionsPlacement="inline"
+              suggestionsMaxH="220px"
+            />
+            {isAddressUnconfirmed && (
+              <Text fontSize="xs" color="orange.500" mt={1}>
+                {t('selectFromSuggestions')}
+              </Text>
+            )}
+          </Box>
+        )}
 
         {/* Name */}
         <Input

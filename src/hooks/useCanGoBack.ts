@@ -10,10 +10,15 @@ export const useCanGoBack = (): boolean => {
   const [canGoBack, setCanGoBack] = useState(false);
 
   useEffect(() => {
-    // performance.navigation.type 0 = normal navigate (link/JS)
-    // history.length > 1 alone is unreliable (browsers seed it at 1-2)
-    // Combine with the Next.js-internal referrer: if the document has a
-    // same-origin referrer, the user came from another page in the app.
+    // history.length > 1 covers SPA (client-side) navigation — Next.js
+    // increments it on every router.push / <Link> click, but a fresh
+    // direct-URL open starts at 1.
+    if (window.history.length > 1) {
+      setCanGoBack(true);
+      return;
+    }
+    // Fallback: full-page HTTP navigation from within the same origin
+    // (e.g. a hard-refresh after following an in-app link externally).
     const referrer = document.referrer;
     if (referrer) {
       try {

@@ -57,8 +57,8 @@ export const AuthService = {
     // Clear per-user product tour progress so it doesn't leak to the next
     // account signing in on the same browser.
     useTourStore.getState().reset();
-    // Onboarding/city preferences are user-scoped; reset them too so a new
-    // user gets a clean onboarding flow.
+    // Reset onboarding/AI-creation flags so a new user gets a clean
+    // onboarding flow; preferredCity is intentionally kept (see store).
     usePreferenceStore.getState().resetPreferences();
   },
 

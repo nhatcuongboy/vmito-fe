@@ -96,7 +96,9 @@ export const TournamentService = {
       `/tournaments/${id}`,
       data
     );
-    toaster.success({ title: 'Tournament updated successfully' });
+    toaster.success({
+      title: getToastMessage('tournamentUpdatedSuccessfully'),
+    });
     return response.data.data!;
   },
 
@@ -118,7 +120,7 @@ export const TournamentService = {
       `/tournaments/${id}`,
       { isPublished: false }
     );
-    toaster.success({ title: 'Tournament set to draft' });
+    toaster.success({ title: getToastMessage('tournamentSetToDraft') });
     return response.data.data!;
   },
 
@@ -131,14 +133,16 @@ export const TournamentService = {
       `/tournaments/${id}`,
       { status }
     );
-    toaster.success({ title: 'Tournament status updated' });
+    toaster.success({ title: getToastMessage('tournamentStatusUpdated') });
     return response.data.data!;
   },
 
   // Delete tournament
   deleteTournament: async (id: string): Promise<void> => {
     await api.delete<ApiResponse<null>>(`/tournaments/${id}`);
-    toaster.success({ title: 'Tournament deleted successfully' });
+    toaster.success({
+      title: getToastMessage('tournamentDeletedSuccessfully'),
+    });
   },
 
   duplicateTournament: async (
@@ -173,7 +177,7 @@ export const TournamentService = {
       `/tournaments/${tournamentId}/umpires`,
       data
     );
-    toaster.success({ title: 'Umpire added successfully' });
+    toaster.success({ title: getToastMessage('umpireAddedSuccessfully') });
     return response.data.data!;
   },
 
@@ -185,13 +189,13 @@ export const TournamentService = {
       `/tournament-umpires/${id}`,
       data
     );
-    toaster.success({ title: 'Umpire updated successfully' });
+    toaster.success({ title: getToastMessage('umpireUpdatedSuccessfully') });
     return response.data.data!;
   },
 
   deleteUmpire: async (id: string): Promise<void> => {
     await api.delete<ApiResponse<null>>(`/tournament-umpires/${id}`);
-    toaster.success({ title: 'Umpire deleted successfully' });
+    toaster.success({ title: getToastMessage('umpireDeletedSuccessfully') });
   },
 
   // Link an umpire to a user account by email (promotes them to a referee).
@@ -203,7 +207,7 @@ export const TournamentService = {
       `/tournament-umpires/${umpireId}/link-account`,
       { email }
     );
-    toaster.success({ title: 'Referee account linked' });
+    toaster.success({ title: getToastMessage('refereeAccountLinked') });
     return response.data.data!;
   },
 
@@ -211,7 +215,7 @@ export const TournamentService = {
     const response = await api.delete<ApiResponse<TournamentUmpire>>(
       `/tournament-umpires/${umpireId}/link-account`
     );
-    toaster.success({ title: 'Referee account unlinked' });
+    toaster.success({ title: getToastMessage('refereeAccountUnlinked') });
     return response.data.data!;
   },
 
@@ -257,7 +261,9 @@ export const TournamentService = {
       `/tournaments/${tournamentId}/scoring-devices`,
       data
     );
-    toaster.success({ title: 'Scoring device added successfully' });
+    toaster.success({
+      title: getToastMessage('scoringDeviceAddedSuccessfully'),
+    });
     return response.data.data!;
   },
 
@@ -269,13 +275,17 @@ export const TournamentService = {
       `/tournament-scoring-devices/${id}`,
       data
     );
-    toaster.success({ title: 'Scoring device updated successfully' });
+    toaster.success({
+      title: getToastMessage('scoringDeviceUpdatedSuccessfully'),
+    });
     return response.data.data!;
   },
 
   deleteScoringDevice: async (id: string): Promise<void> => {
     await api.delete<ApiResponse<null>>(`/tournament-scoring-devices/${id}`);
-    toaster.success({ title: 'Scoring device deleted successfully' });
+    toaster.success({
+      title: getToastMessage('scoringDeviceDeletedSuccessfully'),
+    });
   },
 
   // Court management
@@ -298,7 +308,7 @@ export const TournamentService = {
       `/tournaments/${tournamentId}/courts`,
       data
     );
-    toaster.success({ title: 'Court added successfully' });
+    toaster.success({ title: getToastMessage('courtAddedSuccessfully') });
     return response.data.data!;
   },
 
@@ -310,13 +320,13 @@ export const TournamentService = {
       `/tournament-courts/${id}`,
       data
     );
-    toaster.success({ title: 'Court updated successfully' });
+    toaster.success({ title: getToastMessage('courtUpdatedSuccessfully') });
     return response.data.data!;
   },
 
   deleteCourt: async (id: string): Promise<void> => {
     await api.delete<ApiResponse<null>>(`/tournament-courts/${id}`);
-    toaster.success({ title: 'Court deleted successfully' });
+    toaster.success({ title: getToastMessage('courtDeletedSuccessfully') });
   },
 
   // All matches across categories
@@ -420,5 +430,16 @@ export const TournamentService = {
     await api.delete<ApiResponse<null>>(
       `/tournaments/${tournamentId}/venues/${venueId}`
     );
+  },
+
+  /** Elects the venue shown as the main location. Works for inline venues. */
+  setPrimaryVenue: async (
+    tournamentId: string,
+    tournamentVenueId: string
+  ): Promise<TournamentVenue> => {
+    const response = await api.patch<ApiResponse<TournamentVenue>>(
+      `/tournaments/${tournamentId}/venues/${tournamentVenueId}/primary`
+    );
+    return response.data.data!;
   },
 };

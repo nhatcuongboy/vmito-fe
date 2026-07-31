@@ -1,17 +1,15 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Badge, Box, Flex, Grid, Heading, Text } from '@chakra-ui/react';
-import { Award, Crown, Medal, RotateCcw } from 'lucide-react';
+import { Award, Crown, Medal, RotateCcw, Trophy } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
 import { CategoryService } from '@/lib/api/category.service';
-import { TournamentService } from '@/lib/api/tournament.service';
 import {
   Category,
   CategoryMatch,
   CategoryStandingsResponse,
-  Tournament,
 } from '@/lib/api/types';
 import {
   computePodium,
@@ -22,15 +20,17 @@ import {
 import { Button, LegacySelect, VStack } from '@/components/ui/chakra-compat';
 import { TournamentTableSkeleton } from '@/components/tournament/skeletons';
 import PlayerNamesToggle from '@/components/tournament/PlayerNamesToggle';
-import { useTournamentSocket } from '@/hooks/useTournamentSocket';
 
 interface PublicTournamentWinnersTabProps {
-  tournament: Tournament;
   categories: Category[];
+  matches: CategoryMatch[];
+  matchesLoading: boolean;
+  matchesError: boolean;
+  resultsVersion: number;
+  onRetryMatches: () => Promise<unknown>;
 }
 
 const ALL_CATEGORIES_VALUE = 'all';
-const REALTIME_REFRESH_DELAY_MS = 500;
 
 const RANK_STYLE: Record<
   PodiumRank,
@@ -74,48 +74,43 @@ function getCategoryLabel(category: Category) {
 }
 
 export default function PublicTournamentWinnersTab({
-  tournament,
   categories,
+  matches,
+  matchesLoading,
+  matchesError,
+  resultsVersion,
+  onRetryMatches,
 }: PublicTournamentWinnersTabProps) {
   const t = useTranslations('pages.tournaments.detail.winnersTab');
-  const [matches, setMatches] = useState<CategoryMatch[]>([]);
   const [standingsByCategory, setStandingsByCategory] = useState<
     Map<string, CategoryStandingsResponse>
   >(new Map());
   const [selectedCategoryId, setSelectedCategoryId] =
     useState(ALL_CATEGORIES_VALUE);
   const [showPlayerNames, setShowPlayerNames] = useState(true);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
-  const realtimeRefreshTimeoutRef = useRef<ReturnType<
-    typeof setTimeout
-  > | null>(null);
+  const [standingsLoading, setStandingsLoading] = useState(true);
+  const [standingsError, setStandingsError] = useState(false);
 
-  const load = useCallback(
+  const loadStandings = useCallback(
     async (options?: { silent?: boolean }) => {
       if (categories.length === 0) {
-        setMatches([]);
         setStandingsByCategory(new Map());
-        setLoading(false);
-        setError(false);
+        setStandingsLoading(false);
+        setStandingsError(false);
         return;
       }
 
       try {
         if (!options?.silent) {
-          setLoading(true);
+          setStandingsLoading(true);
         }
-        setError(false);
-        const [allMatches, standingsList] = await Promise.all([
-          TournamentService.getAllMatches(tournament.id),
-          Promise.all(
-            categories.map(async (category) => ({
-              categoryId: category.id,
-              standings: await CategoryService.getAllStandings(category.id),
-            }))
-          ),
-        ]);
-        setMatches(allMatches);
+        setStandingsError(false);
+        const standingsList = await Promise.all(
+          categories.map(async (category) => ({
+            categoryId: category.id,
+            standings: await CategoryService.getAllStandings(category.id),
+          }))
+        );
         setStandingsByCategory(
           new Map(
             standingsList.map((item) => [item.categoryId, item.standings])
@@ -123,44 +118,18 @@ export default function PublicTournamentWinnersTab({
         );
       } catch (loadError) {
         console.error('Error loading tournament winners:', loadError);
-        setError(true);
-        setMatches([]);
+        setStandingsError(true);
         setStandingsByCategory(new Map());
       } finally {
-        setLoading(false);
+        setStandingsLoading(false);
       }
     },
-    [categories, tournament.id]
+    [categories]
   );
 
   useEffect(() => {
-    void load();
-  }, [load]);
-
-  const scheduleRealtimeRefresh = useCallback(() => {
-    if (realtimeRefreshTimeoutRef.current) {
-      clearTimeout(realtimeRefreshTimeoutRef.current);
-    }
-
-    realtimeRefreshTimeoutRef.current = setTimeout(() => {
-      realtimeRefreshTimeoutRef.current = null;
-      void load({ silent: true });
-    }, REALTIME_REFRESH_DELAY_MS);
-  }, [load]);
-
-  useEffect(() => {
-    return () => {
-      if (realtimeRefreshTimeoutRef.current) {
-        clearTimeout(realtimeRefreshTimeoutRef.current);
-      }
-    };
-  }, []);
-
-  useTournamentSocket(tournament.id, {
-    onMatchEnded: scheduleRealtimeRefresh,
-    onTournamentEnded: scheduleRealtimeRefresh,
-    onReconnect: () => void load({ silent: true }),
-  });
+    void loadStandings({ silent: resultsVersion > 0 });
+  }, [loadStandings, resultsVersion]);
 
   const allPodiums = useMemo(
     () =>
@@ -180,17 +149,18 @@ export default function PublicTournamentWinnersTab({
     );
   }, [allPodiums, selectedCategoryId]);
 
-  if (loading) {
+  if (matchesLoading || standingsLoading) {
     return <TournamentTableSkeleton rows={3} columns={3} />;
   }
 
   return (
     <Box
       borderWidth="1px"
-      borderColor="gray.200"
+      borderColor="yellow.200"
       borderRadius="xl"
       bg="white"
       overflow="hidden"
+      boxShadow="0 18px 42px rgba(120, 53, 15, 0.08)"
       _dark={{
         bg: 'var(--tournament-surface-raised, var(--chakra-colors-gray-800))',
         borderColor: 'var(--tournament-border, var(--chakra-colors-gray-700))',
@@ -201,16 +171,37 @@ export default function PublicTournamentWinnersTab({
         align={{ base: 'stretch', md: 'center' }}
         justify="space-between"
         direction={{ base: 'column', md: 'row' }}
-        gap={{ base: 2.5, md: 3 }}
-        p={4}
-        pb={3}
+        gap={{ base: 2, md: 3 }}
+        p={3}
+        bg="linear-gradient(135deg, rgba(254, 249, 195, 0.9), rgba(255, 247, 237, 0.72))"
+        borderBottomWidth="1px"
+        borderColor="yellow.100"
+        _dark={{
+          bg: 'linear-gradient(135deg, rgba(245, 158, 11, 0.16), rgba(249, 115, 22, 0.08))',
+          borderColor: 'rgba(245, 158, 11, 0.2)',
+        }}
       >
         <Flex
           align="center"
           justify="space-between"
           w={{ base: '100%', md: 'auto' }}
         >
-          <Heading size="md">{t('title')}</Heading>
+          <Flex align="center" gap={2.5}>
+            <Flex
+              align="center"
+              justify="center"
+              w="36px"
+              h="36px"
+              borderRadius="lg"
+              bg="white"
+              color="yellow.600"
+              boxShadow="0 8px 18px rgba(120, 53, 15, 0.1)"
+              _dark={{ bg: 'rgba(7, 17, 29, 0.7)', color: 'yellow.300' }}
+            >
+              <Trophy size={18} aria-hidden="true" />
+            </Flex>
+            <Heading size="md">{t('title')}</Heading>
+          </Flex>
           {/* Mobile-only toggle on the right of title */}
           <Box display={{ base: 'block', md: 'none' }}>
             <PlayerNamesToggle
@@ -258,7 +249,7 @@ export default function PublicTournamentWinnersTab({
         </Flex>
       </Flex>
 
-      {error ? (
+      {matchesError || standingsError ? (
         <Flex direction="column" align="center" gap={3} px={4} pt={2} pb={5}>
           <Text
             color="gray.500"
@@ -267,7 +258,13 @@ export default function PublicTournamentWinnersTab({
           >
             {t('error')}
           </Text>
-          <Button size="sm" variant="outline" onClick={() => void load()}>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() =>
+              void Promise.all([onRetryMatches(), loadStandings()])
+            }
+          >
             <RotateCcw size={14} /> {t('retry')}
           </Button>
         </Flex>
@@ -278,7 +275,7 @@ export default function PublicTournamentWinnersTab({
           </Text>
         </Box>
       ) : (
-        <VStack align="stretch" gap={4} px={4} pb={4}>
+        <VStack align="stretch" gap={3} px={3} pb={3}>
           {podiums.map((podium) => (
             <CategoryPodiumCard
               key={podium.category.id}
@@ -312,18 +309,18 @@ function CategoryPodiumCard({
   return (
     <Box
       borderWidth="1px"
-      borderColor="gray.100"
+      borderColor="yellow.100"
       borderRadius="xl"
-      bg="gray.50"
-      px={{ base: 3, md: 4 }}
-      py={{ base: 3, md: 4 }}
+      bg="linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(255, 251, 235, 0.72))"
+      px={{ base: 2.5, md: 4 }}
+      py={{ base: 2.5, md: 4 }}
       _dark={{
         bg: 'var(--tournament-surface-muted, var(--chakra-colors-gray-900))',
         borderColor: 'var(--tournament-border, var(--chakra-colors-gray-700))',
         boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.04)',
       }}
     >
-      <Flex align="center" justify="space-between" gap={2} mb={4}>
+      <Flex align="center" justify="space-between" gap={2} mb={3}>
         <Heading
           size={{ base: 'sm', md: 'md' }}
           color="gray.800"
@@ -348,7 +345,7 @@ function CategoryPodiumCard({
       ) : (
         <Grid
           templateColumns={{ base: '1fr', md: 'repeat(3, minmax(0, 1fr))' }}
-          gap={{ base: 2.5, md: 3 }}
+          gap={{ base: 2, md: 3 }}
           alignItems="stretch"
         >
           {entries.map((entry, index) => (
@@ -385,9 +382,9 @@ function PodiumCard({
       direction={{ base: 'row', md: 'column' }}
       align={{ base: 'center', md: 'flex-start' }}
       justify="space-between"
-      gap={{ base: 3, md: 3 }}
-      px={{ base: 3.5, md: 4 }}
-      py={{ base: 3.5, md: 4 }}
+      gap={{ base: 2.5, md: 3 }}
+      px={{ base: 3, md: 4 }}
+      py={{ base: 2.5, md: 4 }}
       borderWidth="1px"
       borderColor={style.border}
       borderLeftWidth={{ base: '4px', md: '1px' }}
@@ -397,6 +394,20 @@ function PodiumCard({
       borderRadius="xl"
       bg={style.bg}
       minH={{ md: '150px' }}
+      boxShadow={
+        entry.rank === 1
+          ? '0 16px 32px rgba(202, 138, 4, 0.12)'
+          : '0 8px 20px rgba(15, 23, 42, 0.04)'
+      }
+      transform={entry.rank === 1 ? { md: 'translateY(-2px)' } : undefined}
+      transition="border-color 180ms ease, box-shadow 180ms ease, transform 180ms ease"
+      _hover={{
+        transform: entry.rank === 1 ? 'translateY(-3px)' : 'translateY(-1px)',
+        boxShadow:
+          entry.rank === 1
+            ? '0 20px 38px rgba(202, 138, 4, 0.16)'
+            : '0 12px 26px rgba(15, 23, 42, 0.08)',
+      }}
       _dark={{
         bg: style.darkBg,
         borderColor: style.darkBorder,
@@ -404,8 +415,8 @@ function PodiumCard({
       }}
     >
       <Flex
-        w={{ base: 10, md: 11 }}
-        h={{ base: 10, md: 11 }}
+        w={{ base: 9, md: 11 }}
+        h={{ base: 9, md: 11 }}
         align="center"
         justify="center"
         borderRadius="full"
@@ -418,12 +429,12 @@ function PodiumCard({
           borderColor: style.darkBorder,
         }}
       >
-        <Icon size={entry.rank === 1 ? 22 : 19} color={style.iconColor} />
+        <Icon size={entry.rank === 1 ? 20 : 18} color={style.iconColor} />
       </Flex>
 
       <Box minW={0} flex="1" w="full">
         <Text
-          fontSize={{ base: 'xs', md: 'sm' }}
+          fontSize="xs"
           fontWeight="700"
           color="gray.500"
           textTransform="uppercase"
@@ -433,14 +444,14 @@ function PodiumCard({
           {rankLabel}
         </Text>
         {playerLines.length > 0 ? (
-          <VStack align="stretch" gap={0.5} mt={1}>
+          <VStack align="stretch" gap={0.5} mt={0.75}>
             {playerLines.map((name, index) => (
               <Text
                 key={`${entry.rank}-${index}-${name}`}
                 fontSize={{ base: 'md', md: 'lg' }}
-                fontWeight="800"
+                fontWeight="750"
                 color="gray.900"
-                lineHeight="1.2"
+                lineHeight="1.18"
                 lineClamp={1}
                 _dark={{ color: 'gray.50' }}
               >
@@ -452,9 +463,9 @@ function PodiumCard({
           <Text
             mt={0.5}
             fontSize={{ base: 'xl', md: entry.rank === 1 ? '2xl' : 'xl' }}
-            fontWeight="800"
+            fontWeight="750"
             color="gray.900"
-            lineHeight="1.2"
+            lineHeight="1.18"
             lineClamp={2}
             _dark={{ color: 'gray.50' }}
           >

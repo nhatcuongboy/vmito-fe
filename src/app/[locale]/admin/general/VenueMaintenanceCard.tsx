@@ -14,6 +14,7 @@ import {
 } from '@chakra-ui/react';
 import { Wrench } from 'lucide-react';
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 
 type Job = 'searchTerms' | 'slugs';
 
@@ -38,6 +39,7 @@ const JOBS: {
 ];
 
 export function VenueMaintenanceCard() {
+  const t = useTranslations('common');
   const [running, setRunning] = useState<Job | null>(null);
   const [results, setResults] = useState<Partial<Record<Job, BackfillResult>>>(
     {}
@@ -51,7 +53,10 @@ export function VenueMaintenanceCard() {
       toaster.success({ title: res.message });
     } catch (error) {
       console.error(`${job.key} backfill failed:`, error);
-      toaster.error({ title: 'Lỗi', description: `${job.label} thất bại` });
+      toaster.error({
+        title: t('error'),
+        description: `${job.label} thất bại`,
+      });
     } finally {
       setRunning(null);
     }
