@@ -12,7 +12,9 @@ import {
   VStack,
 } from '@chakra-ui/react';
 import { Button, Card, CardBody } from '@/components/ui/chakra-compat';
-import { LuArrowLeft, LuCheck } from 'react-icons/lu';
+import PostAvatar from '@/components/post/PostAvatar';
+import { Link } from '@/i18n/config';
+import { LuArrowLeft, LuCheck, LuX } from 'react-icons/lu';
 
 export type TRequestAccent = 'orange' | 'blue' | 'purple';
 
@@ -118,7 +120,7 @@ export const RequestInfoRow = ({
     <Box mt={0.5} color="gray.500" flexShrink={0}>
       {icon}
     </Box>
-    <VStack align="start" gap={0} minW={0}>
+    <VStack align="start" gap={0} minW={0} flex={1}>
       <Text fontSize="xs" color="gray.500">
         {label}
       </Text>
@@ -129,6 +131,116 @@ export const RequestInfoRow = ({
       )}
     </VStack>
   </HStack>
+);
+
+interface AppRequestApplicantCardProps {
+  name: string;
+  image?: string | null;
+  status: ReactNode;
+  summary?: ReactNode;
+  submittedText?: string | null;
+  submittedTitle?: string;
+  profileHref?: string;
+  profileLabel?: string;
+  children?: ReactNode;
+}
+
+export const AppRequestApplicantCard = ({
+  name,
+  image,
+  status,
+  summary,
+  submittedText,
+  submittedTitle,
+  profileHref,
+  profileLabel,
+  children,
+}: AppRequestApplicantCardProps) => (
+  <Card mb={4} overflow="hidden">
+    <CardBody p={{ base: 4, md: 5 }}>
+      <VStack align="stretch" gap={4}>
+        <Flex align="flex-start" gap={3}>
+          {profileHref ? (
+            <Link href={profileHref} aria-label={profileLabel ?? name}>
+              <PostAvatar name={name} image={image} size={52} />
+            </Link>
+          ) : (
+            <PostAvatar name={name} image={image} size={52} />
+          )}
+
+          <Box flex={1} minW={0}>
+            <Flex align="flex-start" justify="space-between" gap={3}>
+              <Box minW={0}>
+                {profileHref ? (
+                  <Link href={profileHref}>
+                    <Text
+                      as="h2"
+                      fontSize={{ base: 'lg', md: 'xl' }}
+                      fontWeight="bold"
+                      lineHeight="short"
+                      lineClamp={2}
+                      _hover={{ color: 'green.600' }}
+                      _focusVisible={{
+                        outline: '2px solid',
+                        outlineColor: 'green.500',
+                        outlineOffset: '2px',
+                      }}
+                    >
+                      {name}
+                    </Text>
+                  </Link>
+                ) : (
+                  <Text
+                    as="h2"
+                    fontSize={{ base: 'lg', md: 'xl' }}
+                    fontWeight="bold"
+                    lineHeight="short"
+                    lineClamp={2}
+                  >
+                    {name}
+                  </Text>
+                )}
+                {summary && (
+                  <Box mt={1} color="fg.muted" fontSize="sm">
+                    {summary}
+                  </Box>
+                )}
+              </Box>
+              <Box flexShrink={0}>{status}</Box>
+            </Flex>
+
+            <Flex mt={2} gap={2} align="center" justify="space-between">
+              {submittedText && (
+                <Text fontSize="xs" color="fg.subtle" title={submittedTitle}>
+                  {submittedText}
+                </Text>
+              )}
+              {profileHref && profileLabel && (
+                <Link href={profileHref}>
+                  <Text
+                    fontSize="sm"
+                    fontWeight="semibold"
+                    color="green.600"
+                    whiteSpace="nowrap"
+                    _dark={{ color: 'green.300' }}
+                    _hover={{ textDecoration: 'underline' }}
+                  >
+                    {profileLabel}
+                  </Text>
+                </Link>
+              )}
+            </Flex>
+          </Box>
+        </Flex>
+
+        {children && (
+          <Box pt={4} borderTopWidth="1px" borderColor="border.muted" minW={0}>
+            {children}
+          </Box>
+        )}
+      </VStack>
+    </CardBody>
+  </Card>
 );
 
 interface RequestActionBarProps {
@@ -146,29 +258,50 @@ export const RequestActionBar = ({
   onApprove,
   loadingAction,
 }: RequestActionBarProps) => (
-  <Flex gap={3}>
-    <Button
-      flex={1}
-      size="lg"
-      colorPalette="red"
-      variant="outline"
-      onClick={onReject}
-      loading={loadingAction === 'REJECTED'}
-      disabled={loadingAction !== null}
-    >
-      {rejectLabel}
-    </Button>
-    <Button
-      flex={1}
-      size="lg"
-      colorPalette="green"
-      onClick={onApprove}
-      loading={loadingAction === 'APPROVED'}
-      disabled={loadingAction !== null}
-    >
-      {approveLabel}
-    </Button>
-  </Flex>
+  <Box
+    position={{ base: 'sticky', md: 'static' }}
+    bottom={{ base: 'calc(env(safe-area-inset-bottom) + 12px)', md: 'auto' }}
+    zIndex="docked"
+    p={{ base: 2, md: 0 }}
+    mx={{ base: -2, md: 0 }}
+    bg={{ base: 'bg', md: 'transparent' }}
+    borderWidth={{ base: '1px', md: '0' }}
+    borderColor="border.muted"
+    borderRadius="lg"
+    shadow={{ base: 'md', md: 'none' }}
+  >
+    <Flex gap={3} justify={{ md: 'flex-end' }}>
+      <Button
+        flex={{ base: 1, md: 'none' }}
+        minW={{ md: '140px' }}
+        h="48px"
+        size="md"
+        px={{ base: 4, md: 6 }}
+        colorPalette="red"
+        variant="outline"
+        onClick={onReject}
+        loading={loadingAction === 'REJECTED'}
+        disabled={loadingAction !== null}
+      >
+        <LuX size={18} aria-hidden="true" />
+        {rejectLabel}
+      </Button>
+      <Button
+        flex={{ base: 1, md: 'none' }}
+        minW={{ md: '140px' }}
+        h="48px"
+        size="md"
+        px={{ base: 4, md: 6 }}
+        colorPalette="green"
+        onClick={onApprove}
+        loading={loadingAction === 'APPROVED'}
+        disabled={loadingAction !== null}
+      >
+        <LuCheck size={18} aria-hidden="true" />
+        {approveLabel}
+      </Button>
+    </Flex>
+  </Box>
 );
 
 export const RequestLoadingState = () => (

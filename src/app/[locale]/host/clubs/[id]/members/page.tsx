@@ -1,39 +1,10 @@
 'use client';
-import { Input } from '@/components/ui/Input';
 
-import React, { useEffect, useState, useCallback } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
-import {
-  Box,
-  Flex,
-  Heading,
-  Text,
-  VStack,
-  HStack,
-  Avatar,
-  InputGroup,
-  useDisclosure,
-  DialogRoot,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogBody,
-  DialogCloseTrigger,
-  Tabs,
-  Badge,
-} from '@chakra-ui/react';
-import { Button, IconButton, VSelect } from '@/components/ui/chakra-compat';
-import {
-  Trash2,
-  Search,
-  Plus,
-  UserCheck,
-  UserX,
-  Users,
-  ClipboardList,
-} from 'lucide-react';
+import { Text, useDisclosure } from '@chakra-ui/react';
 import { useRouter } from '@/i18n/config';
-import { useParams } from 'next/navigation';
+import { useParams, useSearchParams } from 'next/navigation';
 import { ClubsService } from '@/lib/api/clubs.service';
 import {
   IClub,
@@ -44,31 +15,34 @@ import {
   EJoinRequestStatus,
 } from '@/types/club';
 import { toaster } from '@/components/ui/toaster';
-import LoadingSpinner from '@/components/ui/loading-spinner';
 import PageLayout from '@/components/layout/PageLayout';
+import AppConfirmDialog from '@/components/ui/AppConfirmDialog';
+import { useConfirmAction } from '@/hooks/useConfirmAction';
+import { ROUTES } from '@/constants';
+import AddClubMemberDialog from './components/AddClubMemberDialog';
+import ClubMembersSkeleton from './components/ClubMembersSkeleton';
+import ClubMembersView from './components/ClubMembersView';
+
+type TConfirmedAction =
+  | { type: 'remove'; member: IClubMember }
+  | { type: 'approve'; request: IClubJoinRequest }
+  | { type: 'reject'; request: IClubJoinRequest };
 
 const GroupMembersPage = () => {
   const t = useTranslations('clubs');
-  const t_clubs = useTranslations('clubs');
-  const roleLabelMap: Record<EMemberRole, string> = {
-    [EMemberRole.ADMIN]: t_clubs('memberRole.admin'),
-    [EMemberRole.MODERATOR]: t_clubs('memberRole.moderator'),
-    [EMemberRole.MEMBER]: t_clubs('memberRole.member'),
-  };
   const router = useRouter();
   const params = useParams();
+  const searchParams = useSearchParams();
   const groupId = params.id as string;
+  const activeTab =
+    searchParams.get('tab') === 'requests' ? 'requests' : 'members';
 
   const [group, setGroup] = useState<IClub | null>(null);
   const [members, setMembers] = useState<IClubMember[]>([]);
   const [joinRequests, setJoinRequests] = useState<IClubJoinRequest[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [searchResults, setSearchResults] = useState<IClubUserSearchResult[]>(
-    []
-  );
-  const [isSearching, setIsSearching] = useState(false);
-  const [activeTab, setActiveTab] = useState<string | null>('members');
+  const [updatingRoleId, setUpdatingRoleId] = useState<string | null>(null);
+  const confirmAction = useConfirmAction<TConfirmedAction>();
 
   const { open: isOpen, onOpen, onClose } = useDisclosure();
 
@@ -99,435 +73,194 @@ const GroupMembersPage = () => {
     }
   }, [groupId, loadData]);
 
-  const handleSearch = async () => {
-    if (!searchQuery.trim()) return;
-    try {
-      setIsSearching(true);
-      const results = await ClubsService.searchUsers(searchQuery, groupId);
-      setSearchResults(results);
-    } catch (error) {
-      console.error('Search failed:', error);
-    } finally {
-      setIsSearching(false);
-    }
-  };
+  const handleSearch = (query: string): Promise<IClubUserSearchResult[]> =>
+    ClubsService.searchUsers(query, groupId);
 
   const handleAddMember = async (userId: string) => {
     try {
-      await ClubsService.addMemberToClub(groupId, userId);
+      const member = await ClubsService.addMemberToClub(groupId, userId);
       toaster.success({ title: t('clubMemberAddedSuccess') });
-      loadData();
-      setSearchResults((prev) => prev.filter((u) => u.id !== userId));
+      setMembers((current) => [member, ...current]);
     } catch (error) {
       console.error('Failed to add member:', error);
       toaster.error({ title: t('failedToAddClubMember') });
-    }
-  };
-
-  const handleRemoveMember = async (userId: string) => {
-    if (!confirm(t('confirmRemoveMember'))) return;
-
-    try {
-      await ClubsService.removeMemberFromClub(groupId, userId);
-      toaster.success({ title: t('clubMemberRemovedSuccess') });
-      setMembers((prev) => prev.filter((m) => m.userId !== userId));
-    } catch (error) {
-      console.error('Failed to remove member:', error);
-      toaster.error({ title: t('failedToRemoveClubMember') });
+      throw error;
     }
   };
 
   const handleUpdateRole = async (userId: string, role: EMemberRole) => {
     try {
-      await ClubsService.updateMemberRole(groupId, userId, role);
+      setUpdatingRoleId(userId);
+      const updatedMember = await ClubsService.updateMemberRole(
+        groupId,
+        userId,
+        role
+      );
       toaster.success({ title: t('roleUpdatedSuccessfully') });
-      setMembers((prev) =>
-        prev.map((m) => (m.userId === userId ? { ...m, role } : m))
+      setMembers((current) =>
+        current.map((member) =>
+          member.userId === userId ? updatedMember : member
+        )
       );
     } catch (error) {
       console.error('Failed to update role:', error);
       toaster.error({ title: t('failedToUpdateClub') });
+    } finally {
+      setUpdatingRoleId(null);
     }
   };
 
-  const handleApproveRequest = async (requestId: string) => {
-    if (!confirm(t_clubs('confirmApprove'))) return;
-    try {
-      await ClubsService.approveJoinRequest(groupId, requestId);
-      toaster.success({ title: t('requestApprovedSuccessfully') });
-      loadData();
-    } catch (error) {
-      console.error('Failed to approve request:', error);
-    }
-  };
+  const handleConfirmAction = () => {
+    confirmAction.run(async (target) => {
+      if (target.type === 'remove') {
+        await ClubsService.removeMemberFromClub(groupId, target.member.userId);
+        setMembers((current) =>
+          current.filter((member) => member.id !== target.member.id)
+        );
+        toaster.success({ title: t('clubMemberRemovedSuccess') });
+        return;
+      }
 
-  const handleRejectRequest = async (requestId: string) => {
-    if (!confirm(t_clubs('confirmReject'))) return;
-    try {
-      await ClubsService.rejectJoinRequest(groupId, requestId);
+      if (target.type === 'approve') {
+        const approvedMember = await ClubsService.approveJoinRequest(
+          groupId,
+          target.request.id
+        );
+        setJoinRequests((current) =>
+          current.filter((request) => request.id !== target.request.id)
+        );
+        if ('user' in approvedMember) {
+          setMembers((current) => [approvedMember, ...current]);
+        } else {
+          setMembers(await ClubsService.getClubMembers(groupId));
+        }
+        toaster.success({ title: t('requestApprovedSuccessfully') });
+        return;
+      }
+
+      await ClubsService.rejectJoinRequest(groupId, target.request.id);
+      setJoinRequests((current) =>
+        current.filter((request) => request.id !== target.request.id)
+      );
       toaster.success({ title: t('requestRejectedSuccessfully') });
-      setJoinRequests((prev) => prev.filter((r) => r.id !== requestId));
-    } catch (error) {
-      console.error('Failed to reject request:', error);
-    }
+    }, t('memberActionFailed'));
   };
+
+  const confirmationTarget = confirmAction.target;
+  const memberIds = new Set(members.map((member) => member.userId));
+  const removingMemberId =
+    confirmAction.isRunning && confirmationTarget?.type === 'remove'
+      ? confirmationTarget.member.id
+      : undefined;
+  const loadingRequestId =
+    confirmationTarget?.type !== 'remove'
+      ? confirmationTarget?.request.id
+      : undefined;
+  const loadingRequestAction =
+    confirmAction.isRunning && confirmationTarget?.type !== 'remove'
+      ? confirmationTarget?.type === 'approve'
+        ? 'APPROVED'
+        : 'REJECTED'
+      : null;
 
   if (isLoading) {
     return (
       <PageLayout
         title={t('manageMembers')}
-        maxW="container.md"
+        maxW="6xl"
+        showBackButton
+        backHref={ROUTES.HOST.CLUBS.DETAIL(groupId)}
+        centerTitle
         isLoading={true}
-        loadingComponent={<LoadingSpinner />}
+        loadingComponent={<ClubMembersSkeleton />}
       />
     );
   }
 
   if (!group) {
     return (
-      <PageLayout title={t('manageMembers')} maxW="container.md">
+      <PageLayout
+        title={t('manageMembers')}
+        maxW="3xl"
+        showBackButton
+        backHref={ROUTES.HOST.CLUBS.DETAIL(groupId)}
+        centerTitle
+      >
         <Text>{t('clubNotFound')}</Text>
       </PageLayout>
     );
   }
 
   return (
-    <PageLayout title={group.name} maxW="container.lg">
-      <Flex
-        mb={8}
-        align="center"
-        justify="space-between"
-        direction={{ base: 'column', md: 'row' }}
-        gap={4}
-      >
-        <Flex align="center">
-          <Button variant="ghost" onClick={() => router.back()} mr={4}>
-            {t('back')}
-          </Button>
-          <Box>
-            <Heading size="lg">{group.name}</Heading>
-            <Text color="fg.muted" display="flex" alignItems="center" gap={2}>
-              <Users size={16} /> {members.length} {t('members')}
-              {joinRequests.length > 0 && (
-                <Badge
-                  colorPalette="orange"
-                  variant="solid"
-                  borderRadius="full"
-                  fontSize="xs"
-                >
-                  {joinRequests.length} {t_clubs('pendingRequest')}
-                </Badge>
-              )}
-            </Text>
-          </Box>
-        </Flex>
-        <Button leftIcon={<Plus />} colorPalette="green" onClick={onOpen}>
-          {t('addMember')}
-        </Button>
-      </Flex>
+    <PageLayout
+      title={t('manageMembers')}
+      maxW="6xl"
+      showBackButton
+      backHref={ROUTES.HOST.CLUBS.DETAIL(groupId)}
+      centerTitle
+    >
+      <ClubMembersView
+        groupId={groupId}
+        group={group}
+        members={members}
+        joinRequests={joinRequests}
+        activeTab={activeTab}
+        updatingRoleId={updatingRoleId}
+        removingMemberId={removingMemberId}
+        loadingRequestId={loadingRequestId}
+        loadingRequestAction={loadingRequestAction}
+        onTabChange={(tab) =>
+          router.replace(ROUTES.HOST.CLUBS.MEMBERS(groupId, tab))
+        }
+        onOpenAdd={onOpen}
+        onUpdateRole={handleUpdateRole}
+        onRemove={(member) => confirmAction.request({ type: 'remove', member })}
+        onApprove={(request) =>
+          confirmAction.request({ type: 'approve', request })
+        }
+        onReject={(request) =>
+          confirmAction.request({ type: 'reject', request })
+        }
+      />
 
-      <Tabs.Root
-        value={activeTab}
-        onValueChange={(e) => setActiveTab(e.value)}
-        variant="enclosed"
-      >
-        <Tabs.List>
-          <Tabs.Trigger value="members" gap={2}>
-            <Users size={16} />
-            {t('allMembers')}
-          </Tabs.Trigger>
-          <Tabs.Trigger value="requests" gap={2}>
-            <ClipboardList size={16} />
-            {t_clubs('joinRequests')}
-            {joinRequests.length > 0 && (
-              <Badge colorPalette="orange" size="xs" borderRadius="full">
-                {joinRequests.length}
-              </Badge>
-            )}
-          </Tabs.Trigger>
-        </Tabs.List>
+      <AddClubMemberDialog
+        isOpen={isOpen}
+        memberIds={memberIds}
+        onClose={onClose}
+        onSearch={handleSearch}
+        onAdd={handleAddMember}
+      />
 
-        <Tabs.Content value="members" pt={6}>
-          <VStack gap={4} align="stretch">
-            {members.length === 0 ? (
-              <Box
-                p={8}
-                textAlign="center"
-                bg="bg.muted"
-                _dark={{ bg: 'gray.900/40' }}
-                borderRadius="lg"
-              >
-                <Text color="fg.muted">{t('noMembersYet')}</Text>
-                <Button
-                  mt={4}
-                  colorPalette="green"
-                  variant="plain"
-                  onClick={onOpen}
-                >
-                  {t('addFirstMember')}
-                </Button>
-              </Box>
-            ) : (
-              members.map((member) => (
-                <Flex
-                  key={member.id}
-                  p={4}
-                  bg="bg"
-                  _dark={{ bg: 'gray.800' }}
-                  borderRadius="lg"
-                  borderWidth="1px"
-                  align="center"
-                  justify="space-between"
-                  shadow="sm"
-                >
-                  <HStack gap={4} flex="1">
-                    <Avatar.Root>
-                      <Avatar.Fallback>
-                        {member.user.name?.slice(0, 2).toUpperCase()}
-                      </Avatar.Fallback>
-                      <Avatar.Image src={member.user.image} />
-                    </Avatar.Root>
-                    <Box>
-                      <HStack gap={2}>
-                        <Text fontWeight="bold">{member.user.name}</Text>
-                        <Badge
-                          size="xs"
-                          colorPalette={
-                            member.role === EMemberRole.ADMIN
-                              ? 'orange'
-                              : member.role === EMemberRole.MODERATOR
-                                ? 'blue'
-                                : 'gray'
-                          }
-                        >
-                          {roleLabelMap[member.role]}
-                        </Badge>
-                      </HStack>
-                      <Text fontSize="sm" color="fg.muted">
-                        {member.user.email}
-                      </Text>
-                      <HStack mt={1} gap={4}>
-                        <Text
-                          fontSize="xs"
-                          color="green.500"
-                          display="flex"
-                          alignItems="center"
-                          gap={1}
-                        >
-                          <UserCheck size={12} /> {t_clubs('attendance')}:{' '}
-                          {member.attendanceCount}
-                        </Text>
-                        {member.user.level && (
-                          <Text fontSize="xs" color="green.500">
-                            Lv.{member.user.level}
-                          </Text>
-                        )}
-                      </HStack>
-                    </Box>
-                  </HStack>
-
-                  <HStack gap={4}>
-                    <Box w="140px">
-                      <VSelect
-                        size="sm"
-                        value={member.role}
-                        onChange={(e) =>
-                          handleUpdateRole(
-                            member.userId,
-                            e.target.value as EMemberRole
-                          )
-                        }
-                      >
-                        <option value={EMemberRole.MEMBER}>
-                          {t_clubs('memberRole.member')}
-                        </option>
-                        <option value={EMemberRole.MODERATOR}>
-                          {t_clubs('memberRole.moderator')}
-                        </option>
-                        <option value={EMemberRole.ADMIN}>
-                          {t_clubs('memberRole.admin')}
-                        </option>
-                      </VSelect>
-                    </Box>
-                    <IconButton
-                      icon={<Trash2 size={18} />}
-                      aria-label="Remove member"
-                      colorPalette="red"
-                      variant="ghost"
-                      onClick={() => handleRemoveMember(member.userId)}
-                    />
-                  </HStack>
-                </Flex>
-              ))
-            )}
-          </VStack>
-        </Tabs.Content>
-
-        <Tabs.Content value="requests" pt={6}>
-          <VStack gap={4} align="stretch">
-            {joinRequests.length === 0 ? (
-              <Box
-                p={8}
-                textAlign="center"
-                bg="bg.muted"
-                _dark={{ bg: 'gray.900/40' }}
-                borderRadius="lg"
-              >
-                <ClipboardList
-                  size={48}
-                  color="#CBD5E0"
-                  style={{ margin: '0 auto 16px' }}
-                />
-                <Text color="fg.muted">
-                  {t_clubs('noPendingRequest') || 'No pending join requests'}
-                </Text>
-              </Box>
-            ) : (
-              joinRequests.map((request) => (
-                <Flex
-                  key={request.id}
-                  p={4}
-                  bg="bg"
-                  _dark={{ bg: 'gray.800' }}
-                  borderRadius="lg"
-                  borderWidth="1px"
-                  align="center"
-                  justify="space-between"
-                  shadow="sm"
-                >
-                  <HStack gap={4} flex="1">
-                    <Avatar.Root>
-                      <Avatar.Fallback>
-                        {request.user.name?.slice(0, 2).toUpperCase()}
-                      </Avatar.Fallback>
-                      <Avatar.Image src={request.user.image} />
-                    </Avatar.Root>
-                    <Box>
-                      <Text fontWeight="bold">{request.user.name}</Text>
-                      <Text fontSize="sm" color="fg.muted">
-                        {request.user.email}
-                      </Text>
-                      {request.message && (
-                        <Box
-                          mt={2}
-                          p={2}
-                          bg="bg.muted"
-                          _dark={{ bg: 'gray.700' }}
-                          borderRadius="md"
-                          fontSize="xs"
-                          fontStyle="italic"
-                        >
-                          "{request.message}"
-                        </Box>
-                      )}
-                      <Text fontSize="xs" color="fg.muted" mt={1}>
-                        {new Date(request.createdAt).toLocaleDateString()}
-                      </Text>
-                    </Box>
-                  </HStack>
-
-                  <HStack gap={2}>
-                    <Button
-                      size="sm"
-                      leftIcon={<UserCheck size={16} />}
-                      colorPalette="green"
-                      onClick={() => handleApproveRequest(request.id)}
-                    >
-                      {t_clubs('approve')}
-                    </Button>
-                    <Button
-                      size="sm"
-                      leftIcon={<UserX size={16} />}
-                      variant="outline"
-                      colorPalette="red"
-                      onClick={() => handleRejectRequest(request.id)}
-                    >
-                      {t_clubs('reject')}
-                    </Button>
-                  </HStack>
-                </Flex>
-              ))
-            )}
-          </VStack>
-        </Tabs.Content>
-      </Tabs.Root>
-
-      <DialogRoot
-        open={isOpen}
-        onOpenChange={(e) => !e.open && onClose()}
-        size="lg"
-      >
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>{t('addClubMember')}</DialogTitle>
-          </DialogHeader>
-          <DialogCloseTrigger />
-          <DialogBody pb={6}>
-            <HStack mb={4}>
-              <InputGroup startElement={<Search size={16} color="#CBD5E0" />}>
-                <Input
-                  placeholder={t('searchUserPlaceholder')}
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
-                />
-              </InputGroup>
-              <Button onClick={handleSearch} loading={isSearching}>
-                {t('search')}
-              </Button>
-            </HStack>
-
-            <VStack align="stretch" gap={2} maxH="300px" overflowY="auto">
-              {searchResults.map((user) => {
-                const isMember = members.some((m) => m.userId === user.id);
-                return (
-                  <Flex
-                    key={user.id}
-                    p={3}
-                    borderRadius="md"
-                    _hover={{ bg: 'gray.50', _dark: { bg: 'gray.700' } }}
-                    align="center"
-                    justify="space-between"
-                  >
-                    <HStack>
-                      <Avatar.Root size="sm">
-                        <Avatar.Fallback>
-                          {user.name?.slice(0, 2).toUpperCase()}
-                        </Avatar.Fallback>
-                        <Avatar.Image src={user.image} />
-                      </Avatar.Root>
-                      <Box>
-                        <Text fontWeight="medium">{user.name}</Text>
-                        <Text fontSize="xs" color="fg.muted">
-                          {user.email}
-                        </Text>
-                      </Box>
-                    </HStack>
-                    {isMember ? (
-                      <Text fontSize="xs" color="green.500" fontWeight="bold">
-                        {t('alreadyMember')}
-                      </Text>
-                    ) : (
-                      <Button
-                        size="xs"
-                        colorPalette="green"
-                        onClick={() => handleAddMember(user.id)}
-                      >
-                        {t('add')}
-                      </Button>
-                    )}
-                  </Flex>
-                );
-              })}
-              {searchQuery && searchResults.length === 0 && !isSearching && (
-                <Text textAlign="center" color="fg.muted" py={4}>
-                  {t('noUsersFound')}
-                </Text>
-              )}
-            </VStack>
-          </DialogBody>
-        </DialogContent>
-      </DialogRoot>
+      <AppConfirmDialog
+        isOpen={confirmationTarget !== null}
+        title={
+          confirmationTarget?.type === 'remove'
+            ? t('confirmRemoveMemberTitle')
+            : confirmationTarget?.type === 'approve'
+              ? t('confirmApproveTitle')
+              : t('confirmRejectTitle')
+        }
+        body={
+          confirmationTarget?.type === 'remove'
+            ? t('confirmRemoveClubMember')
+            : confirmationTarget?.type === 'approve'
+              ? t('confirmApprove')
+              : t('confirmReject')
+        }
+        confirmLabel={
+          confirmationTarget?.type === 'remove'
+            ? t('remove')
+            : confirmationTarget?.type === 'approve'
+              ? t('approve')
+              : t('reject')
+        }
+        cancelLabel={t('cancel')}
+        colorPalette={confirmationTarget?.type === 'approve' ? 'green' : 'red'}
+        isLoading={confirmAction.isRunning}
+        error={confirmAction.error}
+        onConfirm={handleConfirmAction}
+        onClose={confirmAction.close}
+      />
     </PageLayout>
   );
 };
