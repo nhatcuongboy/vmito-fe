@@ -16,7 +16,6 @@ import {
 import { useTranslations } from 'next-intl';
 import { Tournament, Category } from '@/lib/api/types';
 import ManageMenuItem from './ManageMenuItem';
-import PublishStatusBanner from './PublishStatusBanner';
 import { getPrimaryVenueDisplay } from '@/utils';
 
 interface OrganizeTabProps {
@@ -44,12 +43,6 @@ export default function OrganizeTab({
 
   return (
     <VStack gap={2.5} align="stretch">
-      {/* Publish status banner - always visible */}
-      <PublishStatusBanner
-        tournament={tournament}
-        onUpdate={onTournamentUpdate}
-      />
-
       {/* Teams */}
       <ManageMenuItem
         icon={Users}

@@ -2774,10 +2774,6 @@
             "dates": {
               "title": "Dates"
             },
-            "location": {
-              "title": "Location",
-              "noLocation": "No location set"
-            },
             "visibility": {
               "title": "Visibility",
               "description": "Control who can see this tournament."
@@ -3409,7 +3405,14 @@
               "newCourt": "New court",
               "removeCourt": "Remove court",
               "removeCourtConfirm": "Remove",
-              "removeCourtWarning": "\"{name}\" has {count} assigned matches/schedule slots. Removing it will drop those assignments when you save. Continue?"
+              "removeCourtWarning": "\"{name}\" has {count} assigned matches/schedule slots. Removing it will drop those assignments when you save. Continue?",
+              "primaryBadge": "Main location",
+              "setAsPrimary": "Set as main location",
+              "primaryUpdated": "Main location updated",
+              "primaryError": "Failed to set the main location",
+              "clearAddress": "Clear address",
+              "changeAddress": "Change location",
+              "selectFromSuggestions": "Pick a place from the suggestions"
             },
             "schedule": {
               "title": "Schedule",
@@ -3472,22 +3475,6 @@
                 "noChanges": "No changes to save",
                 "updateFailed": "Failed to update tournament dates"
               }
-            },
-            "location": {
-              "title": "Tournament Location",
-              "description": "Choose the primary venue shown on the public tournament page",
-              "clearSelection": "Clear selection",
-              "save": "Save",
-              "cancel": "Cancel",
-              "success": "Tournament location updated successfully",
-              "errors": {
-                "noChanges": "No changes to save",
-                "updateFailed": "Failed to update tournament location",
-                "loadFailed": "Failed to load venues"
-              },
-              "empty": "No venues linked to this tournament yet. Add venues in the Competition venues tab first.",
-              "goToVenues": "Manage venues",
-              "inlineHint": "Address-only venue — link it to a venue in the directory to set it as primary"
             },
             "banner": {
               "title": "Tournament Cover Photo",

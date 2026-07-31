@@ -1574,6 +1574,8 @@ export interface TournamentVenue {
   /** Linked to an existing Venue record. Optional when using inline address. */
   venueId?: string;
   venue?: Venue;
+  /** Main location on public pages. Works for inline venues too. */
+  isPrimary?: boolean;
   /** Inline address fields — used when venueId is absent (address-only mode). */
   name?: string;
   acronym?: string;

@@ -28,7 +28,7 @@ import { useCanAccessHostFeatures } from '@/hooks/useCanAccessHostFeatures';
 import { usePathname } from '@/i18n/config';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { VenueRentalService } from '@/lib/api/venue-rental.service';
-import { notifyTournamentGuideToggle } from '@/lib/tournamentGuideEvents';
+import { TournamentGuideButton } from '@/components/tournament/TournamentGuideButton';
 import {
   isNavLinkActive,
   NAV_SECTIONS,
@@ -155,32 +155,9 @@ function TournamentGuideToggleButton({
 }: {
   isCollapsed: boolean;
 }) {
-  const nav = useTranslations('navigation');
-  const label = nav('tournamentGuide');
-
   return (
     <Box display={{ base: 'none', md: 'block' }} mb={4}>
-      <VTooltip
-        content={label}
-        positioning={TOOLTIP_POSITIONING}
-        disabled={!isCollapsed}
-        showArrow
-        openDelay={TOOLTIP_OPEN_DELAY}
-      >
-        <Button
-          variant="ghost"
-          justifyContent={isCollapsed ? 'center' : 'flex-start'}
-          onClick={() => notifyTournamentGuideToggle()}
-          w="full"
-          px={isCollapsed ? 0 : 4}
-          color="fg"
-        >
-          <Flex align="center" gap={3} w="full">
-            <ListChecks size={18} />
-            {!isCollapsed && <Text>{label}</Text>}
-          </Flex>
-        </Button>
-      </VTooltip>
+      <TournamentGuideButton isCollapsed={isCollapsed} />
     </Box>
   );
 }

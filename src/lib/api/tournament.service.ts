@@ -431,4 +431,15 @@ export const TournamentService = {
       `/tournaments/${tournamentId}/venues/${venueId}`
     );
   },
+
+  /** Elects the venue shown as the main location. Works for inline venues. */
+  setPrimaryVenue: async (
+    tournamentId: string,
+    tournamentVenueId: string
+  ): Promise<TournamentVenue> => {
+    const response = await api.patch<ApiResponse<TournamentVenue>>(
+      `/tournaments/${tournamentId}/venues/${tournamentVenueId}/primary`
+    );
+    return response.data.data!;
+  },
 };

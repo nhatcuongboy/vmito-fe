@@ -14,7 +14,7 @@ import SidebarNav from '@/components/ui/SidebarNav';
 import { useLocale, useTranslations } from 'next-intl';
 import { getPrimaryVenueDisplay } from '@/utils';
 import { FavoriteEngagementControl } from '@/components/favorites/FavoriteEngagementControl';
-import { notifyTournamentGuideToggle } from '@/lib/tournamentGuideEvents';
+import { TournamentGuideButton } from './TournamentGuideButton';
 
 interface SidebarTab {
   id: number;
@@ -91,34 +91,7 @@ export default function TournamentSidebar({
       footer={
         showGuideToggle ? (
           <Box px={isCollapsed ? 1.5 : 2} pb={4}>
-            <Box
-              asChild
-              aria-label={navigation('tournamentGuide')}
-              title={isCollapsed ? navigation('tournamentGuide') : undefined}
-              display="flex"
-              alignItems="center"
-              justifyContent={isCollapsed ? 'center' : 'flex-start'}
-              gap={isCollapsed ? 0 : 3}
-              w="full"
-              px={isCollapsed ? 0 : 3}
-              py={2.5}
-              borderRadius="lg"
-              color="gray.600"
-              fontSize="sm"
-              fontWeight="medium"
-              transition="all 0.15s"
-              _hover={{ bg: 'green.50', color: 'green.700' }}
-              _dark={{
-                color: 'gray.400',
-                _hover: { bg: 'rgba(34, 197, 94, 0.14)', color: 'green.100' },
-              }}
-              onClick={notifyTournamentGuideToggle}
-            >
-              <button type="button">
-                <ListChecks size={19} />
-                {!isCollapsed && <Text>{navigation('tournamentGuide')}</Text>}
-              </button>
-            </Box>
+            <TournamentGuideButton isCollapsed={isCollapsed} />
           </Box>
         ) : undefined
       }

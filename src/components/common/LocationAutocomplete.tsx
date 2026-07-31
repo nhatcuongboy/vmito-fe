@@ -2,7 +2,7 @@
 
 import { Box, Text, Spinner } from '@chakra-ui/react';
 import { Input } from '@/components/ui/Input';
-import { MapPin } from 'lucide-react';
+import { MapPin, X } from 'lucide-react';
 import usePlacesAutocomplete, {
   getGeocode,
   getLatLng,
@@ -31,9 +31,37 @@ interface LocationAutocompleteProps {
   ariaLabel?: string;
   inputName?: string;
   isDisabled?: boolean;
+  autoFocus?: boolean;
   suggestionsPlacement?: 'absolute' | 'inline';
   suggestionsMaxH?: string;
+  /** Shows a × button that empties the field. */
+  isClearable?: boolean;
+  /** Accessible name for the × button. Required when isClearable. */
+  clearAriaLabel?: string;
+  /** Fired after the field is emptied, by the × button or by Escape. */
+  onClear?: () => void;
 }
+
+/** Renders the × affordance; the wrapper re-enables clicks the Input turns off. */
+const ClearButton = ({
+  label,
+  onClick,
+}: {
+  label?: string;
+  onClick: () => void;
+}) => (
+  <Box asChild pointerEvents="auto">
+    <button
+      type="button"
+      aria-label={label}
+      onMouseDown={(event) => event.preventDefault()}
+      onClick={onClick}
+      style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}
+    >
+      <X size={16} />
+    </button>
+  </Box>
+);
 
 const LocationAutocompleteInner = ({
   onSelect,
@@ -44,8 +72,12 @@ const LocationAutocompleteInner = ({
   ariaLabel,
   inputName,
   isDisabled = false,
+  autoFocus = false,
   suggestionsPlacement = 'absolute',
   suggestionsMaxH = '200px',
+  isClearable = false,
+  clearAriaLabel,
+  onClear,
 }: LocationAutocompleteProps) => {
   const {
     ready,
@@ -63,6 +95,7 @@ const LocationAutocompleteInner = ({
   });
 
   const containerRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (controlledValue === undefined) return; // uncontrolled: don't fight typing
@@ -114,6 +147,27 @@ const LocationAutocompleteInner = ({
     setValue(nextValue);
     onInputChange?.(nextValue);
   };
+
+  const handleClear = () => {
+    setValue('', false);
+    clearSuggestions();
+    onInputChange?.('');
+    onClear?.();
+    inputRef.current?.focus();
+  };
+
+  // Escape closes the suggestions first, then empties the field — the same
+  // two-step users expect from a browser search box.
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key !== 'Escape') return;
+    event.stopPropagation();
+    if (status === 'OK') {
+      clearSuggestions();
+      return;
+    }
+    if (isClearable && value) handleClear();
+  };
+
   const isInlineSuggestions = suggestionsPlacement === 'inline';
 
   // Click outside to close info
@@ -136,16 +190,24 @@ const LocationAutocompleteInner = ({
   return (
     <Box ref={containerRef} position="relative" width="full">
       <Input
+        ref={inputRef}
         name={inputName}
         aria-label={ariaLabel}
         autoComplete="off"
+        autoFocus={autoFocus}
         value={value}
         onChange={handleInputCheck}
+        onKeyDown={handleKeyDown}
         placeholder={placeholder}
         disabled={!ready || isDisabled}
         bg="white"
         _dark={{ bg: 'gray.800' }}
         leftElement={<MapPin color="gray" size={18} />}
+        rightElement={
+          isClearable && value && !isDisabled ? (
+            <ClearButton label={clearAriaLabel} onClick={handleClear} />
+          ) : undefined
+        }
       />
 
       {status === 'OK' && (
@@ -215,12 +277,14 @@ export default function LocationAutocomplete(props: LocationAutocompleteProps) {
     libraries: LIBRARIES,
   });
 
+  const manualValue = props.onInputChange ? (props.value ?? '') : undefined;
   const manualInput = (
     <Input
       name={props.inputName}
       aria-label={props.ariaLabel}
       autoComplete="off"
-      value={props.onInputChange ? (props.value ?? '') : undefined}
+      autoFocus={props.autoFocus}
+      value={manualValue}
       defaultValue={props.onInputChange ? undefined : props.defaultValue}
       onChange={(event) => props.onInputChange?.(event.target.value)}
       placeholder={props.placeholder}
@@ -228,6 +292,17 @@ export default function LocationAutocomplete(props: LocationAutocompleteProps) {
       _dark={{ bg: 'gray.800' }}
       disabled={props.isDisabled}
       leftElement={<MapPin color="gray" size={18} />}
+      rightElement={
+        props.isClearable && manualValue && !props.isDisabled ? (
+          <ClearButton
+            label={props.clearAriaLabel}
+            onClick={() => {
+              props.onInputChange?.('');
+              props.onClear?.();
+            }}
+          />
+        ) : undefined
+      }
     />
   );
 

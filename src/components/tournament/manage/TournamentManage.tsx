@@ -42,7 +42,6 @@ import SponsorsPanel from './panels/SponsorsPanel';
 import NamePanel from './panels/NamePanel';
 import DatesPanel from './panels/DatesPanel';
 import VisibilityPanel from './panels/VisibilityPanel';
-import LocationPanel from './panels/LocationPanel';
 import BannerPanel from './panels/BannerPanel';
 import VideosPanel from './panels/VideosPanel';
 import ContactPanel from './panels/ContactPanel';
@@ -61,7 +60,6 @@ const SETTINGS_ITEMS = new Set([
   'name',
   'dates',
   'visibility',
-  'location',
   'banner',
   'videos',
   'contact',
@@ -70,6 +68,13 @@ const SETTINGS_ITEMS = new Set([
   'delete',
   'publish',
 ]);
+
+// The "location" settings panel was merged into the venues panel; old links
+// and bookmarks must still resolve.
+const OPTION_ALIASES: Record<string, string> = { location: 'venues' };
+
+const resolveOption = (option: string | null) =>
+  option ? (OPTION_ALIASES[option] ?? option) : option;
 
 const getManageTabForItem = (item: string | null) =>
   item && SETTINGS_ITEMS.has(item) ? 'settings' : 'organize';
@@ -145,10 +150,10 @@ export default function TournamentManage({
   const [selectedItem, setSelectedItem] = useState<string | null>(() => {
     const option = searchParams.get('option');
     if (option === 'registration') return null;
-    return option ?? 'teams';
+    return resolveOption(option) ?? 'teams';
   });
   const [activeManageTab, setActiveManageTab] = useState(() =>
-    getManageTabForItem(searchParams.get('option') ?? 'teams')
+    getManageTabForItem(resolveOption(searchParams.get('option')) ?? 'teams')
   );
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(
     null
@@ -215,8 +220,14 @@ export default function TournamentManage({
       setSelectedItem(null);
       return;
     }
-    setSelectedItem(option ?? 'teams');
-  }, [searchParams]);
+    const resolved = resolveOption(option);
+    setSelectedItem(resolved ?? 'teams');
+    if (option && resolved !== option) {
+      const params = new URLSearchParams(searchParams.toString());
+      params.set('option', resolved!);
+      router.replace(`?${params.toString()}`, { scroll: false });
+    }
+  }, [searchParams, router]);
 
   useEffect(() => {
     setActiveManageTab(getManageTabForItem(selectedItem));
@@ -397,13 +408,6 @@ export default function TournamentManage({
             onTournamentUpdate={onTournamentUpdate}
           />
         );
-      case 'location':
-        return (
-          <LocationPanel
-            tournament={tournament}
-            onTournamentUpdate={onTournamentUpdate}
-          />
-        );
       case 'banner':
         return (
           <BannerPanel
@@ -482,7 +486,7 @@ export default function TournamentManage({
           }}
         >
           <TabsList
-            bg="green.50"
+            bg="green.50/80"
             borderRadius="xl"
             p={1}
             mb={3}
@@ -490,28 +494,37 @@ export default function TournamentManage({
             flexShrink={0}
             borderWidth="1px"
             borderColor="green.100"
-            boxShadow="0 8px 22px rgba(22, 163, 74, 0.12)"
+            boxShadow="0 4px 12px rgba(22, 163, 74, 0.08)"
             _dark={{
-              bg: 'var(--tournament-surface, var(--chakra-colors-gray-800))',
-              borderColor:
-                'var(--tournament-border, var(--chakra-colors-gray-700))',
-              boxShadow: 'var(--tournament-shadow-soft, none)',
+              bg: 'gray.800/90',
+              borderColor: 'gray.700',
+              boxShadow: 'none',
             }}
             css={{
               '& [data-state="active"]': {
                 background: 'var(--chakra-colors-green-600)',
-                color: 'white',
-                boxShadow: '0 8px 18px rgba(22, 163, 74, 0.26)',
+                color: '#ffffff !important',
+                boxShadow: '0 4px 14px rgba(22, 163, 74, 0.3)',
               },
               '& [data-state="active"]:hover': {
                 background: 'var(--chakra-colors-green-700)',
               },
               '& [data-state="inactive"]': {
-                color: 'var(--chakra-colors-green-900)',
+                color: 'var(--chakra-colors-green-800)',
               },
               '& [data-state="inactive"]:hover': {
                 background: 'rgba(187, 247, 208, 0.6)',
+                color: 'var(--chakra-colors-green-950)',
               },
+              '.dark & [data-state="inactive"], [data-theme="dark"] & [data-state="inactive"], [data-mode="dark"] & [data-state="inactive"], html.dark & [data-state="inactive"]':
+                {
+                  color: 'var(--chakra-colors-gray-300, #d1d5db) !important',
+                },
+              '.dark & [data-state="inactive"]:hover, [data-theme="dark"] & [data-state="inactive"]:hover, [data-mode="dark"] & [data-state="inactive"]:hover, html.dark & [data-state="inactive"]:hover':
+                {
+                  background: 'rgba(255, 255, 255, 0.1) !important',
+                  color: '#ffffff !important',
+                },
             }}
           >
             <TabsTrigger

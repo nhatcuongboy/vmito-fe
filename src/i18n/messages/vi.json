@@ -2783,10 +2783,6 @@
             "dates": {
               "title": "Ngày thi đấu"
             },
-            "location": {
-              "title": "Địa điểm",
-              "noLocation": "Chưa có địa điểm"
-            },
             "visibility": {
               "title": "Hiển thị",
               "description": "Kiểm soát ai có thể xem giải đấu."
@@ -3418,7 +3414,14 @@
               "newCourt": "Sân mới",
               "removeCourt": "Xóa sân",
               "removeCourtConfirm": "Xóa",
-              "removeCourtWarning": "\"{name}\" đang có {count} trận đã phân sân/khung giờ trong lịch. Xóa sân sẽ gỡ các phân sân này khi lưu. Tiếp tục?"
+              "removeCourtWarning": "\"{name}\" đang có {count} trận đã phân sân/khung giờ trong lịch. Xóa sân sẽ gỡ các phân sân này khi lưu. Tiếp tục?",
+              "primaryBadge": "Địa điểm chính",
+              "setAsPrimary": "Đặt làm địa điểm chính",
+              "primaryUpdated": "Đã cập nhật địa điểm chính",
+              "primaryError": "Không thể đặt địa điểm chính",
+              "clearAddress": "Xóa địa chỉ",
+              "changeAddress": "Đổi địa điểm",
+              "selectFromSuggestions": "Chọn một địa điểm từ danh sách gợi ý"
             },
             "schedule": {
               "title": "Lịch thi đấu",
@@ -3481,22 +3484,6 @@
                 "noChanges": "Không có thay đổi để lưu",
                 "updateFailed": "Cập nhật ngày tổ chức thất bại"
               }
-            },
-            "location": {
-              "title": "Địa điểm",
-              "description": "Chọn địa điểm chính hiển thị trên trang public của giải đấu",
-              "clearSelection": "Xóa lựa chọn",
-              "save": "Lưu",
-              "cancel": "Hủy",
-              "success": "Cập nhật địa điểm thành công",
-              "errors": {
-                "noChanges": "Không có thay đổi để lưu",
-                "updateFailed": "Cập nhật địa điểm thất bại",
-                "loadFailed": "Không tải được danh sách địa điểm"
-              },
-              "empty": "Giải đấu chưa có địa điểm nào. Hãy thêm địa điểm trong tab Địa điểm thi đấu trước.",
-              "goToVenues": "Quản lý địa điểm",
-              "inlineHint": "Địa điểm chỉ có địa chỉ — cần liên kết với danh bạ sân để đặt làm địa điểm chính"
             },
             "banner": {
               "title": "Ảnh bìa giải đấu",

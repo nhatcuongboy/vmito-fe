@@ -4,7 +4,6 @@ import { VStack } from '@/components/ui/chakra-compat';
 import {
   Pencil,
   Calendar,
-  MapPin,
   Globe,
   Image,
   Copy,
@@ -18,7 +17,6 @@ import { Tournament } from '@/lib/api/types';
 import { useAuthStore } from '@/stores/useAuthStore';
 import ManageMenuItem from './ManageMenuItem';
 import TournamentStatusBanner from './TournamentStatusBanner';
-import { getPrimaryVenueDisplay } from '@/utils';
 
 interface SettingsTabProps {
   tournament: Tournament;
@@ -48,11 +46,6 @@ export default function SettingsTab({
       year: 'numeric',
     }
   );
-
-  const primaryVenue = getPrimaryVenueDisplay(tournament);
-  const location = primaryVenue
-    ? primaryVenue.newCity || primaryVenue.city || primaryVenue.address
-    : undefined;
 
   return (
     <VStack gap={2.5} align="stretch">
@@ -89,15 +82,6 @@ export default function SettingsTab({
         description={formattedDate}
         isActive={selectedItem === 'dates'}
         onClick={() => onItemClick('dates')}
-      />
-
-      {/* Location */}
-      <ManageMenuItem
-        icon={MapPin}
-        title={t('settings.location.title')}
-        description={location || t('settings.location.noLocation')}
-        isActive={selectedItem === 'location'}
-        onClick={() => onItemClick('location')}
       />
 
       {/* Visibility */}

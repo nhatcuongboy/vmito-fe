@@ -2756,10 +2756,6 @@
             "dates": {
               "title": "日期"
             },
-            "location": {
-              "title": "地点",
-              "noLocation": "未设置地点"
-            },
             "visibility": {
               "title": "可见性",
               "description": "控制谁可以查看此锦标赛。"
@@ -3373,7 +3369,14 @@
               "newCourt": "新场地",
               "removeCourt": "删除场地",
               "removeCourtConfirm": "删除",
-              "removeCourtWarning": "\"{name}\" 已有 {count} 场已分配的比赛/时段。删除后保存时将取消这些分配。继续吗？"
+              "removeCourtWarning": "\"{name}\" 已有 {count} 场已分配的比赛/时段。删除后保存时将取消这些分配。继续吗？",
+              "primaryBadge": "主要地点",
+              "setAsPrimary": "设为主要地点",
+              "primaryUpdated": "主要地点已更新",
+              "primaryError": "无法设置主要地点",
+              "clearAddress": "清除地址",
+              "changeAddress": "更换地点",
+              "selectFromSuggestions": "请从建议列表中选择一个地点"
             },
             "schedule": {
               "title": "赛程",
@@ -3436,22 +3439,6 @@
                 "noChanges": "没有更改需要保存",
                 "updateFailed": "更新锦标赛日期失败"
               }
-            },
-            "location": {
-              "title": "锦标赛地点",
-              "description": "选择在锦标赛公开页面上显示的主要场地",
-              "clearSelection": "清除选择",
-              "save": "保存",
-              "cancel": "取消",
-              "success": "锦标赛地点更新成功",
-              "errors": {
-                "noChanges": "没有更改需要保存",
-                "updateFailed": "更新锦标赛地点失败",
-                "loadFailed": "加载场地列表失败"
-              },
-              "empty": "该锦标赛尚未关联任何场地。请先在比赛场地标签中添加场地。",
-              "goToVenues": "管理场地",
-              "inlineHint": "仅有地址的场地 — 需关联场地目录后才能设为主要场地"
             },
             "banner": {
               "title": "锦标赛封面图片",
