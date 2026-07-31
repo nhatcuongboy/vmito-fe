@@ -18,8 +18,10 @@ import { useAuthStore } from '@/stores/useAuthStore';
 import { useRouter } from '@/i18n/config';
 import { UserRole } from '@/lib/api/types';
 import UsersStatsSection from './_components/UsersStatsSection';
-import SessionsTournamentsStatsSection from './_components/SessionsTournamentsStatsSection';
-import ClubsVenuesStatsSection from './_components/ClubsVenuesStatsSection';
+import SessionsStatsSection from './_components/SessionsStatsSection';
+import TournamentsStatsSection from './_components/TournamentsStatsSection';
+import ClubsStatsSection from './_components/ClubsStatsSection';
+import VenuesStatsSection from './_components/VenuesStatsSection';
 
 export default function AdminDashboardPage() {
   const t = useTranslations('admin');
@@ -73,17 +75,25 @@ export default function AdminDashboardPage() {
           </VStack>
 
           <VStack gap={3} align="stretch">
-            <Heading size="md">
-              {t('dashboard.sessionsTournaments.sectionTitle')}
-            </Heading>
-            <SessionsTournamentsStatsSection />
+            <Heading size="md">{t('dashboard.sessions.sectionTitle')}</Heading>
+            <SessionsStatsSection />
           </VStack>
 
           <VStack gap={3} align="stretch">
             <Heading size="md">
-              {t('dashboard.clubsVenues.sectionTitle')}
+              {t('dashboard.tournaments.sectionTitle')}
             </Heading>
-            <ClubsVenuesStatsSection />
+            <TournamentsStatsSection />
+          </VStack>
+
+          <VStack gap={3} align="stretch">
+            <Heading size="md">{t('dashboard.clubs.sectionTitle')}</Heading>
+            <ClubsStatsSection />
+          </VStack>
+
+          <VStack gap={3} align="stretch">
+            <Heading size="md">{t('dashboard.venues.sectionTitle')}</Heading>
+            <VenuesStatsSection />
           </VStack>
         </VStack>
       </Container>

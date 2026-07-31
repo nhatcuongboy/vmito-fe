@@ -3,13 +3,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Card, SimpleGrid, VStack } from '@chakra-ui/react';
 import { useTranslations } from 'next-intl';
-import {
-  Users,
-  MapPin,
-  ClipboardList,
-  Hourglass,
-  LayoutGrid,
-} from 'lucide-react';
+import { MapPin, ClipboardList, LayoutGrid } from 'lucide-react';
 import AppErrorState from '@/components/ui/AppErrorState';
 import { ROUTES } from '@/constants';
 import {
@@ -19,7 +13,7 @@ import {
 import StatCard from './StatCard';
 import StatusBarChart from './charts/StatusBarChart';
 
-export default function ClubsVenuesStatsSection() {
+export default function VenuesStatsSection() {
   const t = useTranslations('admin');
   const [data, setData] = useState<ClubVenueStatsResponse | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -53,26 +47,10 @@ export default function ClubsVenuesStatsSection() {
   }
 
   const statusLabel = (status: string) => t(`dashboard.statusLabels.${status}`);
-  const pendingClubs =
-    data?.clubs?.byStatus?.find((s) => s.status === 'PENDING')?.count ?? 0;
 
   return (
     <VStack gap={4} align="stretch">
-      <SimpleGrid columns={{ base: 1, sm: 2, lg: 5 }} gap={4}>
-        <StatCard
-          icon={Users}
-          label={t('dashboard.clubsVenues.totalClubs')}
-          value={data?.clubs?.total ?? 0}
-          isLoading={isLoading}
-        />
-        <StatCard
-          icon={Hourglass}
-          label={t('dashboard.clubsVenues.pendingClubs')}
-          value={pendingClubs}
-          colorPalette="orange"
-          isLoading={isLoading}
-          href={ROUTES.ADMIN.CLUBS}
-        />
+      <SimpleGrid columns={{ base: 1, sm: 2, lg: 3 }} gap={4}>
         <StatCard
           icon={MapPin}
           label={t('dashboard.clubsVenues.totalVenues')}
@@ -99,14 +77,7 @@ export default function ClubsVenuesStatsSection() {
 
       <Card.Root>
         <Card.Body>
-          <SimpleGrid columns={{ base: 1, lg: 2 }} gap={6}>
-            <StatusBarChart
-              title={t('dashboard.clubsVenues.clubsByStatus')}
-              data={(data?.clubs?.byStatus ?? []).map((s) => ({
-                label: statusLabel(s.status),
-                count: s.count,
-              }))}
-            />
+          <SimpleGrid columns={{ base: 1, lg: 3 }} gap={6}>
             <StatusBarChart
               title={t('dashboard.clubsVenues.venuesByStatus')}
               data={(data?.venues?.byStatus ?? []).map((s) => ({
@@ -115,21 +86,6 @@ export default function ClubsVenuesStatsSection() {
               }))}
               color="#2563eb"
             />
-          </SimpleGrid>
-        </Card.Body>
-      </Card.Root>
-
-      <Card.Root>
-        <Card.Body>
-          <SimpleGrid columns={{ base: 1, lg: 2 }} gap={6}>
-            <StatusBarChart
-              title={t('dashboard.clubsVenues.courtsByStatus')}
-              data={(data?.courts?.byStatus ?? []).map((s) => ({
-                label: statusLabel(s.status),
-                count: s.count,
-              }))}
-              color="#0d9488"
-            />
             <StatusBarChart
               title={t('dashboard.clubsVenues.venueRequestsByStatus')}
               data={(data?.venues?.requestsByStatus ?? []).map((s) => ({
@@ -137,6 +93,14 @@ export default function ClubsVenuesStatsSection() {
                 count: s.count,
               }))}
               color="#ea580c"
+            />
+            <StatusBarChart
+              title={t('dashboard.clubsVenues.courtsByStatus')}
+              data={(data?.courts?.byStatus ?? []).map((s) => ({
+                label: statusLabel(s.status),
+                count: s.count,
+              }))}
+              color="#0d9488"
             />
           </SimpleGrid>
         </Card.Body>

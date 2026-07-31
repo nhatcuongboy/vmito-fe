@@ -5276,12 +5276,22 @@
         "sectionTitle": "Users",
         "total": "Total Users",
         "newInRange": "New Users",
-        "byRole": "Users by Role",
         "byGender": "Users by Gender",
         "trend": "New Users Trend"
       },
+      "sessions": {
+        "sectionTitle": "Sessions"
+      },
+      "tournaments": {
+        "sectionTitle": "Tournaments"
+      },
+      "clubs": {
+        "sectionTitle": "Clubs"
+      },
+      "venues": {
+        "sectionTitle": "Venues"
+      },
       "sessionsTournaments": {
-        "sectionTitle": "Sessions & Tournaments",
         "totalSessions": "Total Sessions",
         "totalTournaments": "Total Tournaments",
         "sessionsByStatus": "Sessions by Status",
@@ -5290,7 +5300,6 @@
         "tournamentsTrend": "New Tournaments Trend"
       },
       "clubsVenues": {
-        "sectionTitle": "Clubs & Venues",
         "totalClubs": "Total Clubs",
         "pendingClubs": "Pending Clubs",
         "clubsByStatus": "Clubs by Status",

@@ -5291,12 +5291,22 @@
         "sectionTitle": "Người dùng",
         "total": "Tổng người dùng",
         "newInRange": "Người dùng mới",
-        "byRole": "Người dùng theo vai trò",
         "byGender": "Người dùng theo giới tính",
         "trend": "Xu hướng người dùng mới"
       },
+      "sessions": {
+        "sectionTitle": "Kèo"
+      },
+      "tournaments": {
+        "sectionTitle": "Giải đấu"
+      },
+      "clubs": {
+        "sectionTitle": "Câu lạc bộ"
+      },
+      "venues": {
+        "sectionTitle": "Địa điểm"
+      },
       "sessionsTournaments": {
-        "sectionTitle": "Kèo & Giải đấu",
         "totalSessions": "Tổng số kèo",
         "totalTournaments": "Tổng số giải đấu",
         "sessionsByStatus": "Kèo theo trạng thái",
@@ -5305,7 +5315,6 @@
         "tournamentsTrend": "Xu hướng giải đấu mới"
       },
       "clubsVenues": {
-        "sectionTitle": "Câu lạc bộ & Địa điểm",
         "totalClubs": "Tổng số câu lạc bộ",
         "pendingClubs": "Câu lạc bộ chờ duyệt",
         "clubsByStatus": "Câu lạc bộ theo trạng thái",

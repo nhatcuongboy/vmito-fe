@@ -3,19 +3,19 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Card, SimpleGrid, VStack } from '@chakra-ui/react';
 import { useTranslations } from 'next-intl';
-import { Users, UserPlus } from 'lucide-react';
+import { CalendarDays } from 'lucide-react';
 import AppErrorState from '@/components/ui/AppErrorState';
 import {
   DashboardService,
-  UserStatsResponse,
+  SessionTournamentStatsResponse,
 } from '@/lib/api/dashboard.service';
 import StatCard from './StatCard';
 import TrendLineChart from './charts/TrendLineChart';
 import StatusBarChart from './charts/StatusBarChart';
 
-export default function UsersStatsSection() {
+export default function SessionsStatsSection() {
   const t = useTranslations('admin');
-  const [data, setData] = useState<UserStatsResponse | null>(null);
+  const [data, setData] = useState<SessionTournamentStatsResponse | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(false);
 
@@ -23,7 +23,7 @@ export default function UsersStatsSection() {
     setIsLoading(true);
     setError(false);
     try {
-      const result = await DashboardService.getUserStats();
+      const result = await DashboardService.getSessionTournamentStats();
       setData(result);
     } catch {
       setError(true);
@@ -46,21 +46,15 @@ export default function UsersStatsSection() {
     );
   }
 
+  const statusLabel = (status: string) => t(`sessions.status.${status}`);
+
   return (
     <VStack gap={4} align="stretch">
       <SimpleGrid columns={{ base: 1, sm: 2 }} gap={4}>
         <StatCard
-          icon={Users}
-          label={t('dashboard.users.total')}
-          value={data?.total ?? 0}
-          isLoading={isLoading}
-        />
-        <StatCard
-          icon={UserPlus}
-          label={t('dashboard.users.newInRange')}
-          value={data?.newInRange ?? 0}
-          sublabel={t('dashboard.last30Days')}
-          colorPalette="blue"
+          icon={CalendarDays}
+          label={t('dashboard.sessionsTournaments.totalSessions')}
+          value={data?.sessions?.total ?? 0}
           isLoading={isLoading}
         />
       </SimpleGrid>
@@ -69,16 +63,15 @@ export default function UsersStatsSection() {
         <Card.Body>
           <SimpleGrid columns={{ base: 1, lg: 2 }} gap={6}>
             <TrendLineChart
-              title={t('dashboard.users.trend')}
-              data={data?.trend ?? []}
+              title={t('dashboard.sessionsTournaments.sessionsTrend')}
+              data={data?.sessions?.trend ?? []}
             />
             <StatusBarChart
-              title={t('dashboard.users.byGender')}
-              data={(data?.byGender ?? []).map((g) => ({
-                label: t(`dashboard.genderLabels.${g.gender ?? 'UNSPECIFIED'}`),
-                count: g.count,
+              title={t('dashboard.sessionsTournaments.sessionsByStatus')}
+              data={(data?.sessions?.byStatus ?? []).map((s) => ({
+                label: statusLabel(s.status),
+                count: s.count,
               }))}
-              color="#db2777"
             />
           </SimpleGrid>
         </Card.Body>
