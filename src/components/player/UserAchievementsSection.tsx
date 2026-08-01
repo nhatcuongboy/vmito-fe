@@ -106,22 +106,7 @@ export default function UserAchievementsSection({
           borderWidth="1px"
           borderColor={tierColor.solid}
           bg="bg.panel"
-          position="relative"
         >
-          <Box
-            as="button"
-            position="absolute"
-            top={2}
-            right={2}
-            fontSize="lg"
-            lineHeight={1}
-            opacity={0.7}
-            aria-label={tLb('rules.title')}
-            onClick={() => setIsRulesOpen(true)}
-            _hover={{ opacity: 1 }}
-          >
-            ℹ️
-          </Box>
           <Text fontSize="4xl" lineHeight={1}>
             {TIER_ICONS[data.tier]}
           </Text>
@@ -182,7 +167,7 @@ export default function UserAchievementsSection({
                 {tLb(`periods.${period}`)}
               </Text>
               <Text fontSize="lg" fontWeight="800">
-                {rank?.rank ? `#${rank.rank}` : '—'}
+                {rank?.rank ? t('rank', { rank: rank.rank }) : '—'}
               </Text>
               <Text fontSize="xs" color="fg.muted">
                 {rank?.points ?? 0} {tLb('pointsUnit')}
@@ -202,10 +187,10 @@ export default function UserAchievementsSection({
           color="#dc2626"
         />
         <StatCard label={t('matchesPlayed')} value={data.stats.matchesPlayed} />
-        <StatCard
+        {/* <StatCard
           label={t('sessionsHosted')}
           value={data.stats.sessionsHosted}
-        />
+        /> */}
         <StatCard
           label={t('tournamentTitles')}
           value={data.stats.tournamentTitles}
@@ -222,11 +207,30 @@ export default function UserAchievementsSection({
           <Text fontWeight="700" fontSize="sm">
             {t('recentPoints')}
           </Text>
-          <Link href="/leaderboard">
-            <Text fontSize="xs" color="brand.600" fontWeight="600">
-              {t('viewLeaderboard')}
-            </Text>
-          </Link>
+          <Flex align="center" gap={2}>
+            <Box
+              as="button"
+              fontSize="md"
+              lineHeight={1}
+              opacity={0.7}
+              aria-label={tLb('rules.title')}
+              onClick={() => setIsRulesOpen(true)}
+              _hover={{ opacity: 1 }}
+              cursor="pointer"
+            >
+              ℹ️
+            </Box>
+            <Link href="/leaderboard">
+              <Text
+                fontSize="xs"
+                color="brand.600"
+                fontWeight="600"
+                textDecoration="underline"
+              >
+                {t('viewLeaderboard')}
+              </Text>
+            </Link>
+          </Flex>
         </Flex>
         {data.recentTransactions.length === 0 ? (
           <Text fontSize="sm" color="fg.muted" textAlign="center" py={6}>

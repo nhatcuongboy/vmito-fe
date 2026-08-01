@@ -7659,16 +7659,43 @@
   "leaderboard": {
     "title": "Leaderboard",
     "empty": "No ranking data yet",
+    "emptyDescription": "Join and finish a few matches to appear on this leaderboard.",
     "pointsUnit": "pts",
     "you": "You",
     "previous": "Prev",
     "next": "Next",
     "winStats": "Won {won}/{played} matches",
+    "winRate": "Win rate: {rate}% ({won}/{played})",
+    "noMatches": "No matches played yet",
+    "totalPointsCaption": "{points} pts all time",
+    "tierName": "{name} tier",
     "periods": {
-      "week": "This week",
-      "month": "This month",
+      "week": "Week",
+      "month": "Month",
+      "season": "Season",
       "year": "This year",
       "all": "All time"
+    },
+    "periodPicker": {
+      "currentWeek": "This week",
+      "currentMonth": "This month",
+      "currentSeason": "This season",
+      "week": "Week {week}",
+      "month": "{month}/{year}",
+      "year": "Year {year}",
+      "seasons": {
+        "1": "Spring {year}",
+        "2": "Summer {year}",
+        "3": "Autumn {year}",
+        "4": "Winter {year}"
+      }
+    },
+    "countdown": {
+      "endsIn": "Ends in:",
+      "days": "{count}d",
+      "hours": "{count}h",
+      "minutes": "{count}m",
+      "closed": "Closed"
     },
     "tiers": {
       "BRONZE": "Bronze",
@@ -7679,6 +7706,7 @@
     },
     "achievements": {
       "loadError": "Failed to load achievements",
+      "rank": "Rank {rank}",
       "toNextTier": "{points} pts to reach {tier}",
       "maxTier": "You reached the highest tier!",
       "wins": "Wins",
@@ -7727,6 +7755,7 @@
         "notCrawled": "You created the session on Vmito — imported sessions do not count",
         "minPlayers": "At least 4 players with a Vmito account actually played at least one match"
       },
+      "hostSeparate": "Hosting points are tracked on a separate host ranking. They do not count toward the player leaderboard or your tier.",
       "note": "Each session or match is counted only once. A host who also plays still earns participation points."
     }
   }

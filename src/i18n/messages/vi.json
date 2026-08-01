@@ -978,7 +978,7 @@
       "subtitle": "Nền tảng hiện đại cho người yêu cầu lông",
       "mission": {
         "title": "Sứ mệnh của chúng tôi",
-        "description": "Đơn giản hóa việc quản lý các buổi chơi cầu lông và kết nối người chơi với những sân chơi tốt nhất."
+        "description": "Đơn giản hóa việc quản lý các kèo cầu lông và kết nối người chơi với những sân chơi tốt nhất."
       },
       "hero": {
         "title": "Cầu Lông Đơn Giản Hóa",
@@ -1000,7 +1000,7 @@
           "features": {
             "find": {
               "title": "Tìm Kèo Tức Thì",
-              "description": "Khám phá các buổi chơi phù hợp với trình độ và lịch trình của bạn."
+              "description": "Khám phá các kèo phù hợp với trình độ và lịch trình của bạn."
             },
             "fairPlay": {
               "title": "Xoay Tua Công Bằng",
@@ -1014,11 +1014,11 @@
         },
         "hosts": {
           "title": "Cho Chủ Sân/Host",
-          "description": "Công cụ mạnh mẽ để quản lý buổi chơi hiệu quả và giữ chân người chơi.",
+          "description": "Công cụ mạnh mẽ để quản lý kèo hiệu quả và giữ chân người chơi.",
           "features": {
             "manage": {
               "title": "Quản Lý Dễ Dàng",
-              "description": "Tạo các buổi chơi định kỳ, quản lý sân và xử lý phí tham gia tại một nơi."
+              "description": "Tạo các kèo định kỳ, quản lý sân và xử lý phí tham gia tại một nơi."
             },
             "tools": {
               "title": "Công Cụ Thông Minh",
@@ -1075,14 +1075,14 @@
         },
         "q3": {
           "question": "Tôi có thể đặt sân qua ứng dụng không?",
-          "answer": "Hiện tại, chúng tôi tập trung vào quản lý buổi chơi. Tính năng đặt sân sẽ sớm ra mắt."
+          "answer": "Hiện tại, chúng tôi tập trung vào quản lý kèo. Tính năng đặt sân sẽ sớm ra mắt."
         }
       }
     },
     "guide": {
       "hero": {
         "title": "Hướng Dẫn Sử Dụng",
-        "subtitle": "Khám phá tất cả tính năng của Vmito — từ tìm kèo, tham gia buổi chơi đến tổ chức giải đấu cầu lông."
+        "subtitle": "Khám phá tất cả tính năng của Vmito — từ tìm kèo, tham gia kèo đến tổ chức giải đấu cầu lông."
       },
       "toc": {
         "title": "Mục lục",
@@ -1112,19 +1112,19 @@
       },
       "sessions": {
         "title": "Buổi Chơi (Session)",
-        "subtitle": "Tìm kiếm, tham gia hoặc tổ chức buổi chơi cầu lông dễ dàng.",
+        "subtitle": "Tìm kiếm, tham gia hoặc tổ chức kèo cầu lông dễ dàng.",
         "player": {
           "badge": "Người chơi",
           "search": {
-            "title": "Tìm kiếm buổi chơi",
-            "description": "Duyệt danh sách các buổi chơi đang mở. Tìm theo khu vực, thời gian, số người chơi."
+            "title": "Tìm kiếm kèo",
+            "description": "Duyệt danh sách các kèo đang mở. Tìm theo khu vực, thời gian, số người chơi."
           },
           "filter": {
             "title": "Lọc nâng cao",
             "description": "Lọc theo trình độ, phí (cố định/chia đều), khoảng giá, thời gian trong ngày. Bộ lọc được lưu lại."
           },
           "join": {
-            "title": "Tham gia buổi chơi",
+            "title": "Tham gia kèo",
             "description": "Gửi yêu cầu tham gia → Chờ host duyệt → Xác nhận → Xem trạng thái. Có thể tham gia bằng mã code."
           },
           "cancel": {
@@ -1135,7 +1135,7 @@
         "host": {
           "badge": "Người tổ chức",
           "create": {
-            "title": "Tạo buổi chơi mới",
+            "title": "Tạo kèo mới",
             "description": "Thiết lập tên, mô tả, thời gian, địa điểm (có GPS), ảnh bìa, loại trận đấu và phí tham gia."
           },
           "managePlayers": {
@@ -1151,8 +1151,8 @@
             "description": "Hệ thống tự động phân bổ người chơi vào các sân dựa trên trình độ và sở thích."
           },
           "finish": {
-            "title": "Kết thúc buổi chơi",
-            "description": "Đánh dấu buổi chơi hoàn tất. Xem lịch sử buổi chơi đã kết thúc và thống kê."
+            "title": "Kết thúc kèo",
+            "description": "Đánh dấu kèo hoàn tất. Xem lịch sử kèo đã kết thúc và thống kê."
           }
         }
       },
@@ -1200,7 +1200,7 @@
       },
       "payments": {
         "title": "Thanh Toán",
-        "subtitle": "Quản lý phí buổi chơi minh bạch và dễ dàng.",
+        "subtitle": "Quản lý phí kèo minh bạch và dễ dàng.",
         "models": {
           "fixed": {
             "title": "Phí cố định",
@@ -1259,19 +1259,19 @@
         },
         "fees": {
           "title": "Phí câu lạc bộ",
-          "description": "Thiết lập và quản lý phí thành viên, phí buổi chơi dành riêng cho CLB."
+          "description": "Thiết lập và quản lý phí thành viên, phí kèo dành riêng cho CLB."
         }
       },
       "ratings": {
         "title": "Đánh Giá",
         "subtitle": "Xây dựng cộng đồng chất lượng thông qua hệ thống đánh giá.",
         "rate": {
-          "title": "Đánh giá sau buổi chơi",
-          "description": "Đánh giá host từ 1-5 sao sau mỗi buổi chơi. Thêm nhận xét để chia sẻ trải nghiệm."
+          "title": "Đánh giá sau kèo",
+          "description": "Đánh giá host từ 1-5 sao sau mỗi kèo. Thêm nhận xét để chia sẻ trải nghiệm."
         },
         "review": {
           "title": "Nhận xét & bình luận",
-          "description": "Để lại nhận xét chi tiết về buổi chơi. Đọc đánh giá của người chơi khác trước khi tham gia."
+          "description": "Để lại nhận xét chi tiết về kèo. Đọc đánh giá của người chơi khác trước khi tham gia."
         },
         "stats": {
           "title": "Thống kê đánh giá",
@@ -1283,7 +1283,7 @@
         "subtitle": "Những mẹo giúp bạn tận dụng tối đa Vmito.",
         "notifications": {
           "title": "Bật thông báo",
-          "description": "Bật thông báo đẩy để không bỏ lỡ lời mời, cập nhật buổi chơi và kết quả giải đấu."
+          "description": "Bật thông báo đẩy để không bỏ lỡ lời mời, cập nhật kèo và kết quả giải đấu."
         },
         "pwa": {
           "title": "Cài đặt ứng dụng",
@@ -1294,8 +1294,8 @@
           "description": "Bộ lọc tìm kiếm được lưu tự động. Mở app là thấy ngay kèo phù hợp với bạn."
         },
         "share": {
-          "title": "Chia sẻ buổi chơi",
-          "description": "Chia sẻ link buổi chơi hoặc mã tham gia cho bạn bè để mời họ cùng tham gia."
+          "title": "Chia sẻ kèo",
+          "description": "Chia sẻ link kèo hoặc mã tham gia cho bạn bè để mời họ cùng tham gia."
         },
         "language": {
           "title": "Đa ngôn ngữ",
@@ -5089,7 +5089,7 @@
     "no": "Không",
     "shareResultsButton": "Chia sẻ lên bảng tin",
     "shareResultsConfirmTitle": "Chia sẻ kết quả",
-    "shareResultsConfirmMessage": "Đăng bảng xếp hạng của buổi chơi này lên bảng tin?",
+    "shareResultsConfirmMessage": "Đăng bảng xếp hạng của kèo này lên bảng tin?",
     "shareResultsSuccess": "Đã chia sẻ kết quả lên bảng tin",
     "shareResultsError": "Không thể chia sẻ kết quả"
   },
@@ -6099,7 +6099,7 @@
     "rejectSuccess": "Đã từ chối yêu cầu",
     "approvalActionFailed": "Thao tác thất bại",
     "approvalPending": "Chờ duyệt",
-    "sessionRequestDetailTitle": "Yêu cầu tham gia buổi chơi",
+    "sessionRequestDetailTitle": "Yêu cầu tham gia kèo",
     "clubRequestDetailTitle": "Yêu cầu tham gia nhóm",
     "venueRequestDetailTitle": "Yêu cầu về sân",
     "approvalNotFound": "Không tìm thấy yêu cầu",
@@ -6283,7 +6283,7 @@
     "refreshing": "Đang làm mới...",
     "activity": {
       "SESSION_CREATED": "{author} vừa tạo kèo mới",
-      "SESSION_RESULTS": "{author} đã chia sẻ kết quả buổi chơi <b>{session}</b>",
+      "SESSION_RESULTS": "{author} đã chia sẻ kết quả kèo <b>{session}</b>",
       "CLUB_CREATED": "{author} vừa tạo câu lạc bộ <b>{club}</b>",
       "CLUB_UPDATED": "{author} đã cập nhật thông tin câu lạc bộ <b>{club}</b>",
       "CLUB_MEMBER_JOINED": "{author} đã tham gia câu lạc bộ <b>{club}</b>",
@@ -6336,7 +6336,7 @@
     "noClubsFoundDescription": "Thử điều chỉnh tìm kiếm của bạn hoặc quay lại sau để xem các nhóm mới",
     "members": "thành viên",
     "session": "buổi",
-    "sessions": "buổi chơi",
+    "sessions": "kèo",
     "active": "Đang hoạt động",
     "viewDetails": "Xem chi tiết",
     "hostedBy": "Chủ nhóm:",
@@ -7680,16 +7680,43 @@
   "leaderboard": {
     "title": "Bảng xếp hạng",
     "empty": "Chưa có dữ liệu xếp hạng",
+    "emptyDescription": "Hãy tham gia và hoàn thành vài trận đấu để xuất hiện trên bảng xếp hạng này.",
     "pointsUnit": "điểm",
     "you": "Bạn",
     "previous": "Trước",
     "next": "Sau",
     "winStats": "Thắng {won}/{played} trận",
+    "winRate": "Tỉ lệ thắng: {rate}% ({won}/{played})",
+    "noMatches": "Chưa đấu trận nào",
+    "totalPointsCaption": "Tổng {points} điểm",
+    "tierName": "Hạng {name}",
     "periods": {
-      "week": "Tuần này",
-      "month": "Tháng này",
+      "week": "Tuần",
+      "month": "Tháng",
+      "season": "Mùa",
       "year": "Năm nay",
-      "all": "Toàn thời gian"
+      "all": "All time"
+    },
+    "periodPicker": {
+      "currentWeek": "Tuần này",
+      "currentMonth": "Tháng này",
+      "currentSeason": "Mùa này",
+      "week": "Tuần {week}",
+      "month": "Tháng {month}/{year}",
+      "year": "Năm {year}",
+      "seasons": {
+        "1": "Mùa Xuân {year}",
+        "2": "Mùa Hè {year}",
+        "3": "Mùa Thu {year}",
+        "4": "Mùa Đông {year}"
+      }
+    },
+    "countdown": {
+      "endsIn": "Kết thúc sau:",
+      "days": "{count} ngày",
+      "hours": "{count} giờ",
+      "minutes": "{count} phút",
+      "closed": "Đã chốt"
     },
     "tiers": {
       "BRONZE": "Đồng",
@@ -7700,6 +7727,7 @@
     },
     "achievements": {
       "loadError": "Không tải được thành tích",
+      "rank": "Hạng {rank}",
       "toNextTier": "Còn {points} điểm để lên hạng {tier}",
       "maxTier": "Bạn đã đạt hạng cao nhất!",
       "wins": "Thắng",
@@ -7715,7 +7743,7 @@
         "SESSION_MATCH_WIN": "Thắng trận giao lưu",
         "SESSION_MATCH_DRAW": "Hòa trận giao lưu",
         "SESSION_MATCH_LOSS": "Thua trận giao lưu",
-        "SESSION_PARTICIPATION": "Tham gia buổi chơi",
+        "SESSION_PARTICIPATION": "Tham gia kèo",
         "TOURNAMENT_MATCH_WIN": "Thắng trận giải đấu",
         "TOURNAMENT_MATCH_DRAW": "Hòa trận giải đấu",
         "TOURNAMENT_MATCH_LOSS": "Thua trận giải đấu",
@@ -7748,6 +7776,7 @@
         "notCrawled": "Kèo do bạn tạo trên Vmito, không phải kèo sưu tầm từ nguồn ngoài",
         "minPlayers": "Có ít nhất 4 người chơi đã đăng nhập Vmito và thực sự thi đấu tối thiểu 1 trận"
       },
+      "hostSeparate": "Điểm tổ chức được tính riêng cho chủ kèo, không cộng vào bảng xếp hạng người chơi và không ảnh hưởng tới hạng của bạn.",
       "note": "Mỗi kèo hoặc trận đấu chỉ được tính điểm một lần. Chủ kèo có tham gia thi đấu vẫn được cộng thêm điểm tham gia."
     }
   }

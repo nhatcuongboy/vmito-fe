@@ -7618,16 +7618,43 @@
   "leaderboard": {
     "title": "排行榜",
     "empty": "暂无排名数据",
+    "emptyDescription": "参加并完成几场比赛即可登上排行榜。",
     "pointsUnit": "分",
     "you": "你",
     "previous": "上一页",
     "next": "下一页",
     "winStats": "胜 {won}/{played} 场",
+    "winRate": "胜率：{rate}%（{won}/{played}）",
+    "noMatches": "尚未参赛",
+    "totalPointsCaption": "累计 {points} 分",
+    "tierName": "{name}段位",
     "periods": {
-      "week": "本周",
-      "month": "本月",
+      "week": "周",
+      "month": "月",
+      "season": "赛季",
       "year": "今年",
       "all": "总榜"
+    },
+    "periodPicker": {
+      "currentWeek": "本周",
+      "currentMonth": "本月",
+      "currentSeason": "本赛季",
+      "week": "第 {week} 周",
+      "month": "{year} 年 {month} 月",
+      "year": "{year} 年",
+      "seasons": {
+        "1": "{year} 春季",
+        "2": "{year} 夏季",
+        "3": "{year} 秋季",
+        "4": "{year} 冬季"
+      }
+    },
+    "countdown": {
+      "endsIn": "结束倒计时：",
+      "days": "{count} 天",
+      "hours": "{count} 小时",
+      "minutes": "{count} 分钟",
+      "closed": "已结算"
     },
     "tiers": {
       "BRONZE": "青铜",
@@ -7638,6 +7665,7 @@
     },
     "achievements": {
       "loadError": "加载成就失败",
+      "rank": "第 {rank} 名",
       "toNextTier": "还差 {points} 分升至{tier}",
       "maxTier": "你已达到最高段位！",
       "wins": "胜",
@@ -7686,6 +7714,7 @@
         "notCrawled": "该约球由你在 Vmito 创建，外部导入的约球不计",
         "minPlayers": "至少有 4 位已注册 Vmito 的球员实际参加了至少 1 场比赛"
       },
+      "hostSeparate": "组织积分单独计入组织者榜单，不计入球员排行榜，也不影响你的段位。",
       "note": "每场约球或比赛只计一次分。组织者若同时上场，仍可获得参与积分。"
     }
   }

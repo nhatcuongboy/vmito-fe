@@ -18,8 +18,10 @@ const SESSION_RULES: { reason: string; points: number }[] = [
   { reason: 'SESSION_MATCH_DRAW', points: 5 },
   { reason: 'SESSION_MATCH_LOSS', points: 2 },
   { reason: 'SESSION_PARTICIPATION', points: 5 },
-  { reason: 'SESSION_HOSTED', points: 15 },
 ];
+
+/** Ranked on its own host board, never added to the player ranking. */
+const HOST_RULE = { reason: 'SESSION_HOSTED', points: 15 };
 
 const TOURNAMENT_RULES: { reason: string; points: number }[] = [
   { reason: 'TOURNAMENT_MATCH_WIN', points: 20 },
@@ -75,7 +77,7 @@ export default function PointsRulesModal({
               ))}
             </RuleGroup>
 
-            <Box
+            {/* <Box
               p={3}
               borderRadius="lg"
               bg="bg.muted"
@@ -85,7 +87,11 @@ export default function PointsRulesModal({
               <Text fontSize="sm" fontWeight="700" mb={2}>
                 {t('hostTitle')}
               </Text>
-              <VStack align="stretch" gap={1.5}>
+              <RuleRow
+                label={tReason(HOST_RULE.reason)}
+                points={HOST_RULE.points}
+              />
+              <VStack align="stretch" gap={1.5} pt={2}>
                 {HOST_CONDITION_KEYS.map((key) => (
                   <HStack key={key} align="flex-start" gap={2}>
                     <Text fontSize="xs" lineHeight="1.5" color="green.500">
@@ -97,7 +103,10 @@ export default function PointsRulesModal({
                   </HStack>
                 ))}
               </VStack>
-            </Box>
+              <Text fontSize="xs" color="fg.muted" pt={2} lineHeight="1.5">
+                {t('hostSeparate')}
+              </Text>
+            </Box> */}
 
             <RuleGroup title={t('tournamentGroup')}>
               {TOURNAMENT_RULES.map((rule) => (
