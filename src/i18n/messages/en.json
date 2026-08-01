@@ -7732,7 +7732,12 @@
         "ADJUSTMENT": "Adjustment",
         "SESSION_HOSTED": "Hosted a session"
       },
-      "sessionsHosted": "Sessions hosted"
+      "sessionsHosted": "Sessions hosted",
+      "downloadCard": "Download achievement card",
+      "cardBadge": "Vmito Achievement",
+      "cardFooter": "Track your achievements at vmito.com",
+      "imageDownloadSuccess": "Image downloaded successfully",
+      "imageDownloadError": "Failed to download image"
     },
     "celebration": {
       "points": "pts",

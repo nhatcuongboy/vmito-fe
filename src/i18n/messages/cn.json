@@ -7691,7 +7691,12 @@
         "ADJUSTMENT": "调整",
         "SESSION_HOSTED": "组织约球"
       },
-      "sessionsHosted": "组织场次"
+      "sessionsHosted": "组织场次",
+      "downloadCard": "下载成就卡片",
+      "cardBadge": "Vmito 成就",
+      "cardFooter": "在 vmito.com 查看你的成就",
+      "imageDownloadSuccess": "图片下载成功",
+      "imageDownloadError": "图片下载失败"
     },
     "celebration": {
       "points": "分",

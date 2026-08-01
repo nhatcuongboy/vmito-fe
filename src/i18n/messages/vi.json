@@ -7753,7 +7753,12 @@
         "ADJUSTMENT": "Điều chỉnh",
         "SESSION_HOSTED": "Tổ chức kèo"
       },
-      "sessionsHosted": "Kèo đã tổ chức"
+      "sessionsHosted": "Kèo đã tổ chức",
+      "downloadCard": "Tải thẻ thành tích",
+      "cardBadge": "Thành tích Vmito",
+      "cardFooter": "Theo dõi thành tích tại: vmito.com/vi/leaderboard",
+      "imageDownloadSuccess": "Đã tải ảnh thành công",
+      "imageDownloadError": "Không tải được ảnh"
     },
     "celebration": {
       "points": "điểm",
