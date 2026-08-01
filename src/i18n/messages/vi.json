@@ -55,7 +55,8 @@
     "levelDescriptions": "Mô tả trình độ",
     "feedback": "Liên hệ & Báo lỗi",
     "newsfeed": "Bảng tin",
-    "sessionsManagement": "Quản lý kèo (Admin)"
+    "sessionsManagement": "Quản lý kèo (Admin)",
+    "pointsAdmin": "Điểm & xếp hạng"
   },
   "search": {
     "title": "Tìm kiếm",
@@ -5618,7 +5619,55 @@
     "bulkCreateSuccess": "Tạo địa điểm hàng loạt thành công",
     "bulkVenuesProcessed": "địa điểm đã xử lý",
     "bulkCreateError": "Không thể tạo địa điểm hàng loạt",
-    "venueRequests": "Yêu cầu sân"
+    "venueRequests": "Yêu cầu sân",
+    "points": {
+      "title": "Quản lý điểm & xếp hạng",
+      "subtitle": "Xem quy tắc tính điểm, thống kê hệ thống và chạy lại backfill",
+      "refresh": "Làm mới",
+      "loadError": "Không thể tải dữ liệu điểm số",
+      "stats": {
+        "title": "Thống kê hệ thống điểm",
+        "description": "Số liệu hiện tại trong cơ sở dữ liệu",
+        "rankedUsers": "Người dùng có điểm",
+        "totalTransactions": "Giao dịch điểm",
+        "totalPoints": "Tổng điểm đã cộng",
+        "lastAwardedAt": "Lần cộng điểm gần nhất",
+        "finishedSessions": "Kèo đã kết thúc",
+        "finishedMatches": "Trận đã kết thúc",
+        "finishedTournaments": "Giải đã kết thúc",
+        "never": "Chưa có"
+      },
+      "rules": {
+        "title": "Quy tắc tính điểm",
+        "description": "Giá trị điểm và mốc hạng đang áp dụng",
+        "reason": "Lý do cộng điểm",
+        "points": "Điểm",
+        "transactions": "Số giao dịch",
+        "awardedPoints": "Điểm đã cộng",
+        "hostTitle": "Điều kiện cộng điểm cho chủ kèo",
+        "hostRule": "Kèo đã kết thúc, không phải kèo sưu tầm từ nguồn ngoài, có chủ kèo là tài khoản thật, và có tối thiểu {count} người chơi đã đăng nhập Vmito thực sự thi đấu ít nhất 1 trận.",
+        "tierTitle": "Mốc hạng",
+        "tier": "Hạng",
+        "minPoints": "Điểm tối thiểu",
+        "users": "Số người dùng",
+        "sourceNote": "Các giá trị này được khai báo trong mã nguồn backend (points.constants.ts). Sau khi thay đổi, hãy deploy lại rồi chạy backfill."
+      },
+      "backfill": {
+        "title": "Chạy lại backfill",
+        "description": "Tính lại điểm từ toàn bộ kèo, trận đấu và giải đấu đã kết thúc",
+        "hint": "An toàn khi chạy nhiều lần: các giao dịch đã tồn tại sẽ được bỏ qua, sau đó tổng điểm và hạng của mọi người dùng được dựng lại.",
+        "run": "Chạy backfill",
+        "cancel": "Hủy",
+        "confirmTitle": "Chạy backfill điểm số?",
+        "confirmBody": "Hệ thống sẽ quét toàn bộ lịch sử để bổ sung các giao dịch điểm còn thiếu và tính lại tổng điểm, hạng của người dùng. Thao tác này có thể mất một lúc với dữ liệu lớn.",
+        "success": "Backfill hoàn tất",
+        "successDetail": "Đã thêm {inserted} giao dịch, cập nhật {users} người dùng",
+        "error": "Chạy backfill thất bại",
+        "candidates": "Bản ghi quét được",
+        "inserted": "Giao dịch mới",
+        "usersUpdated": "Người dùng cập nhật"
+      }
+    }
   },
   "PlayerDetailModal": {
     "statusSetToWaiting": "Đã chuyển trạng thái người chơi sang Đang chờ",

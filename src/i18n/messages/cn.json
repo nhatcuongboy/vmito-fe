@@ -46,7 +46,8 @@
     "levelDescriptions": "等级描述",
     "sessionsManagement": "管理场次",
     "feedback": "反馈",
-    "newsfeed": "动态"
+    "newsfeed": "动态",
+    "pointsAdmin": "积分与排名"
   },
   "search": {
     "title": "搜索",
@@ -5562,7 +5563,55 @@
     "bulkCreateSuccess": "批量场地已创建",
     "bulkVenuesProcessed": "个场地已处理",
     "bulkCreateError": "批量创建场地失败",
-    "venueRequests": "场地请求"
+    "venueRequests": "场地请求",
+    "points": {
+      "title": "积分与排名管理",
+      "subtitle": "查看积分规则、系统统计并重新执行回填",
+      "refresh": "刷新",
+      "loadError": "无法加载积分数据",
+      "stats": {
+        "title": "积分系统统计",
+        "description": "数据库中的当前数据",
+        "rankedUsers": "有积分的用户",
+        "totalTransactions": "积分记录",
+        "totalPoints": "已发放总积分",
+        "lastAwardedAt": "最近一次加分",
+        "finishedSessions": "已结束约球",
+        "finishedMatches": "已结束比赛",
+        "finishedTournaments": "已结束赛事",
+        "never": "暂无"
+      },
+      "rules": {
+        "title": "积分规则",
+        "description": "当前生效的积分值与段位门槛",
+        "reason": "加分原因",
+        "points": "积分",
+        "transactions": "记录数",
+        "awardedPoints": "已发放积分",
+        "hostTitle": "组织者加分条件",
+        "hostRule": "约球已结束、非外部导入、组织者为真实账号，且至少有 {count} 位已注册 Vmito 的球员实际参加了至少 1 场比赛。",
+        "tierTitle": "段位门槛",
+        "tier": "段位",
+        "minPoints": "最低积分",
+        "users": "用户数",
+        "sourceNote": "这些数值定义在后端源码（points.constants.ts）中。修改后需重新部署，然后执行回填。"
+      },
+      "backfill": {
+        "title": "重新执行回填",
+        "description": "根据所有已结束的约球、比赛与赛事重新计算积分",
+        "hint": "可重复执行：已存在的记录会被跳过，随后重建所有用户的总积分与段位。",
+        "run": "执行回填",
+        "cancel": "取消",
+        "confirmTitle": "执行积分回填？",
+        "confirmBody": "系统将扫描全部历史数据，补齐缺失的积分记录，并重建用户总积分与段位。数据量大时可能需要一些时间。",
+        "success": "回填完成",
+        "successDetail": "新增 {inserted} 条记录，更新 {users} 位用户",
+        "error": "回填失败",
+        "candidates": "扫描记录",
+        "inserted": "新增记录",
+        "usersUpdated": "更新用户"
+      }
+    }
   },
   "PlayerDetailModal": {
     "statusSetToWaiting": "玩家状态已设为等待中",

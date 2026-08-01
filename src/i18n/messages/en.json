@@ -55,7 +55,8 @@
     "levelDescriptions": "Level Descriptions",
     "sessionsManagement": "Manage Sessions (Admin)",
     "feedback": "Feedback",
-    "newsfeed": "Newsfeed"
+    "newsfeed": "Newsfeed",
+    "pointsAdmin": "Points & ranking"
   },
   "search": {
     "title": "Search",
@@ -5603,7 +5604,55 @@
     "bulkCreateSuccess": "Bulk venues created",
     "bulkVenuesProcessed": "venues processed",
     "bulkCreateError": "Failed to create venues in bulk",
-    "venueRequests": "Venue Requests"
+    "venueRequests": "Venue Requests",
+    "points": {
+      "title": "Points & ranking",
+      "subtitle": "Review scoring rules, system stats and re-run the backfill",
+      "refresh": "Refresh",
+      "loadError": "Could not load points data",
+      "stats": {
+        "title": "Points system stats",
+        "description": "Current figures in the database",
+        "rankedUsers": "Users with points",
+        "totalTransactions": "Point transactions",
+        "totalPoints": "Total points awarded",
+        "lastAwardedAt": "Last award",
+        "finishedSessions": "Finished sessions",
+        "finishedMatches": "Finished matches",
+        "finishedTournaments": "Finished tournaments",
+        "never": "None yet"
+      },
+      "rules": {
+        "title": "Scoring rules",
+        "description": "Point values and tier thresholds currently in effect",
+        "reason": "Reason",
+        "points": "Points",
+        "transactions": "Transactions",
+        "awardedPoints": "Points awarded",
+        "hostTitle": "Hosting points conditions",
+        "hostRule": "The session has finished, is not an imported session, has a real host account, and at least {count} players with a Vmito account actually played one match or more.",
+        "tierTitle": "Tier thresholds",
+        "tier": "Tier",
+        "minPoints": "Minimum points",
+        "users": "Users",
+        "sourceNote": "These values are declared in the backend source (points.constants.ts). After changing them, redeploy and then run the backfill."
+      },
+      "backfill": {
+        "title": "Re-run backfill",
+        "description": "Recompute points from every finished session, match and tournament",
+        "hint": "Safe to run repeatedly: existing transactions are skipped, then every user total and tier is rebuilt.",
+        "run": "Run backfill",
+        "cancel": "Cancel",
+        "confirmTitle": "Run the points backfill?",
+        "confirmBody": "The system will scan the full history, insert any missing point transactions and rebuild user totals and tiers. This can take a while on large datasets.",
+        "success": "Backfill completed",
+        "successDetail": "Inserted {inserted} transactions, updated {users} users",
+        "error": "Backfill failed",
+        "candidates": "Records scanned",
+        "inserted": "New transactions",
+        "usersUpdated": "Users updated"
+      }
+    }
   },
   "PlayerDetailModal": {
     "statusSetToWaiting": "Player status set to Waiting",

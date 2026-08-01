@@ -160,6 +160,7 @@ export const ROUTES = {
     FEEDBACK: '/admin/feedback',
     GENERAL: '/admin/general',
     LEVEL_DESCRIPTIONS: '/admin/level-descriptions',
+    POINTS: '/admin/points',
     VENUES: '/admin/venues',
     VENUE_PRICING: (venueId: string) => `/admin/venues/${venueId}/pricing`,
     VENUE_RENTAL_SETTINGS: (venueId: string) =>
@@ -204,6 +205,7 @@ export const ROUTE_GROUPS = {
     ROUTES.ADMIN.FEEDBACK,
     ROUTES.ADMIN.GENERAL,
     ROUTES.ADMIN.LEVEL_DESCRIPTIONS,
+    ROUTES.ADMIN.POINTS,
     ROUTES.ADMIN.CLUBS,
     ROUTES.SETTINGS,
     ROUTES.FEEDBACK,
@@ -243,6 +245,7 @@ export const ROUTE_GROUPS = {
     ROUTES.ADMIN.NOTIFICATIONS,
     ROUTES.ADMIN.FEEDBACK,
     ROUTES.ADMIN.LEVEL_DESCRIPTIONS,
+    ROUTES.ADMIN.POINTS,
     ROUTES.ADMIN.CLUBS,
   ],
 
@@ -354,6 +357,7 @@ export const BREADCRUMB_LABELS: Record<string, string> = {
   [ROUTES.ADMIN.NOTIFICATIONS]: 'Notifications',
   [ROUTES.ADMIN.FEEDBACK]: 'Feedback',
   [ROUTES.ADMIN.LEVEL_DESCRIPTIONS]: 'Level Descriptions',
+  [ROUTES.ADMIN.POINTS]: 'Points & Ranking',
   [ROUTES.ADMIN.CLUBS]: 'Club Approval',
 };
 

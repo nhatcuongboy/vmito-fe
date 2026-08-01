@@ -68,6 +68,43 @@ export interface IUserAchievements {
   recentTransactions: IPointTransaction[];
 }
 
+export interface IPointValueRow {
+  reason: string;
+  points: number;
+  transactions: number;
+  totalPoints: number;
+}
+
+export interface ITierRow {
+  tier: TRankingTier;
+  minPoints: number;
+  users: number;
+}
+
+export interface IPointsAdminOverview {
+  config: {
+    hostMinActivePlayers: number;
+    pointValues: IPointValueRow[];
+    tiers: ITierRow[];
+  };
+  stats: {
+    totalTransactions: number;
+    totalPoints: number;
+    rankedUsers: number;
+    lastOccurredAt: string | null;
+    lastAwardedAt: string | null;
+    finishedSessions: number;
+    finishedMatches: number;
+    finishedTournaments: number;
+  };
+}
+
+export interface IBackfillResult {
+  candidates: number;
+  inserted: number;
+  usersUpdated: number;
+}
+
 export const RankingService = {
   getLeaderboard: async (params?: {
     period?: TLeaderboardPeriod;
@@ -94,6 +131,22 @@ export const RankingService = {
   getUserAchievements: async (userId: string): Promise<IUserAchievements> => {
     const response = await api.get<ApiResponse<IUserAchievements>>(
       `/leaderboard/users/${userId}/achievements`
+    );
+    return response.data.data!;
+  },
+
+  /** Admin only. */
+  getAdminOverview: async (): Promise<IPointsAdminOverview> => {
+    const response = await api.get<ApiResponse<IPointsAdminOverview>>(
+      '/leaderboard/admin/overview'
+    );
+    return response.data.data!;
+  },
+
+  /** Admin only. Idempotent: existing transactions are skipped. */
+  runBackfill: async (): Promise<IBackfillResult> => {
+    const response = await api.post<ApiResponse<IBackfillResult>>(
+      '/leaderboard/backfill'
     );
     return response.data.data!;
   },
