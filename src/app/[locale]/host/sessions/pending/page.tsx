@@ -1,6 +1,6 @@
 'use client';
 
-import { Suspense, useCallback, useEffect, useState } from 'react';
+import { Suspense, useCallback, useEffect, useMemo, useState } from 'react';
 import {
   Box,
   Badge,
@@ -22,6 +22,8 @@ import dayjs from '@/lib/dayjs';
 import PageLayout from '@/components/layout/PageLayout';
 import HostSessionsNavPanel from '@/components/session/HostSessionsNavPanel';
 import { StatusTabSwitch } from '@/components/session/StatusTabSwitch';
+import SessionFilters from '@/components/session/SessionFilters';
+import { ISessionFilterState } from '@/components/session/SessionFilters.types';
 import {
   ROUTES,
   TOP_BAR_HEIGHT_MOBILE,
@@ -40,6 +42,8 @@ function PendingJoinRequestsContent({
   page,
   totalPages,
   setPage,
+  searchQuery,
+  onSearchChange,
 }: {
   total: number;
   requests: PendingRequest[];
@@ -55,29 +59,54 @@ function PendingJoinRequestsContent({
   page: number;
   totalPages: number;
   setPage: (page: number) => void;
+  searchQuery: string;
+  onSearchChange: (query: string) => void;
 }) {
   const router = useRouter();
   const t = useTranslations('common');
   const tSession = useTranslations('session');
 
+  const handleFilterChange = useCallback(
+    (newFilters: ISessionFilterState) => {
+      const q = newFilters.searchQuery || '';
+      if (q !== searchQuery) {
+        onSearchChange(q);
+      }
+    },
+    [searchQuery, onSearchChange]
+  );
+
+  const filteredRequests = useMemo(() => {
+    if (!searchQuery?.trim()) return requests;
+    const q = searchQuery.toLowerCase().trim();
+    return requests.filter((r) => {
+      const name = r.name?.toLowerCase() || '';
+      const sessionName = r.session?.name?.toLowerCase() || '';
+      const venueName = r.session?.venue?.name?.toLowerCase() || '';
+      const playerNum = r.playerNumber ? `#${r.playerNumber}` : '';
+      return (
+        name.includes(q) ||
+        sessionName.includes(q) ||
+        venueName.includes(q) ||
+        playerNum.includes(q)
+      );
+    });
+  }, [requests, searchQuery]);
+
   return (
     <Box flex={1} minW={0}>
-      <Box
-        position="sticky"
-        top={{
-          base: `calc(${TOP_BAR_HEIGHT_MOBILE}px + env(safe-area-inset-top))`,
-          md: `calc(${TOP_BAR_HEIGHT_DESKTOP}px + env(safe-area-inset-top))`,
-        }}
-        left={0}
-        right={0}
-        width="100vw"
-        marginLeft="calc(50% - 50vw)"
-        zIndex={100}
-        bg="transparent"
-        pb={2}
-        transition="all 0.2s"
-      >
-        <Box maxW="1280px" mx="auto">
+      <SessionFilters
+        onFilterChange={handleFilterChange}
+        showStatusFilter={false}
+        showDateFilter={false}
+        showSearchFilter={true}
+        showLevelFilter={false}
+        showTimeFilter={false}
+        showFeeFilter={false}
+        resultCount={total}
+        hideCreateOnMobile={true}
+        hideSearchOnDesktop={true}
+        topAddon={
           <StatusTabSwitch
             activeTab="pending"
             pendingCount={total}
@@ -94,14 +123,14 @@ function PendingJoinRequestsContent({
               }
             }}
           />
-        </Box>
-      </Box>
+        }
+      />
 
       {loading ? (
         <Center py={20}>
           <Spinner size="lg" />
         </Center>
-      ) : requests.length === 0 && total === 0 ? (
+      ) : filteredRequests.length === 0 && total === 0 ? (
         <Center py={20}>
           <EmptyState.Root>
             <EmptyState.Content>
@@ -126,7 +155,7 @@ function PendingJoinRequestsContent({
             <Text color="fg.muted">
               {t('pendingRequests', { count: total })}
             </Text>
-            {requests.length > 0 && (
+            {filteredRequests.length > 0 && (
               <Flex gap={2}>
                 <Button
                   size="sm"
@@ -152,7 +181,7 @@ function PendingJoinRequestsContent({
           </Flex>
 
           <Flex direction="column" gap={4}>
-            {requests.map((request: PendingRequest) => (
+            {filteredRequests.map((request: PendingRequest) => (
               <Card
                 key={request.id}
                 cursor="pointer"
@@ -165,17 +194,12 @@ function PendingJoinRequestsContent({
                 transition="background 0.2s"
               >
                 <CardBody>
-                  <Flex
-                    justify="space-between"
-                    align="center"
-                    wrap="wrap"
-                    gap={4}
-                  >
-                    <Box>
-                      <Text fontWeight="bold" fontSize="lg">
+                  <Flex justify="space-between" align="center" gap={4}>
+                    <Box flex={1} minW={0}>
+                      <Text fontWeight="bold" fontSize="lg" truncate>
                         {request.name || t('unknown')}
                       </Text>
-                      <Text fontSize="sm" color="fg.muted">
+                      <Text fontSize="sm" color="fg.muted" truncate>
                         {tSession('session')}:{' '}
                         {request.session?.venue?.name || request.session?.name}{' '}
                         -{' '}
@@ -187,7 +211,7 @@ function PendingJoinRequestsContent({
                             )}`
                           : '--'}
                       </Text>
-                      <Flex gap={2} mt={1}>
+                      <Flex gap={2} mt={1} flexWrap="wrap">
                         {request.level && (
                           <Badge colorPalette="purple">
                             Level {request.level}
@@ -196,45 +220,47 @@ function PendingJoinRequestsContent({
                         <Badge>Player #{request.playerNumber}</Badge>
                       </Flex>
                     </Box>
-                    <Flex
-                      gap={2}
-                      onClick={(e) => e.stopPropagation()}
-                      align="center"
-                    >
-                      <Button
-                        size="sm"
-                        colorPalette="red"
-                        variant="outline"
-                        onClick={() =>
-                          handleAction(
-                            request.id,
-                            request.sessionId,
-                            'REJECTED'
-                          )
-                        }
-                        disabled={
-                          actionLoading === request.id || !!batchActionLoading
-                        }
+                    <Flex align="center" gap={2} flexShrink={0}>
+                      <Flex
+                        gap={2}
+                        onClick={(e) => e.stopPropagation()}
+                        align="center"
                       >
-                        {t('reject')}
-                      </Button>
-                      <Button
-                        size="sm"
-                        colorPalette="green"
-                        onClick={() =>
-                          handleAction(
-                            request.id,
-                            request.sessionId,
-                            'APPROVED'
-                          )
-                        }
-                        loading={actionLoading === request.id}
-                        disabled={!!batchActionLoading}
-                      >
-                        {t('approve')}
-                      </Button>
+                        <Button
+                          size="sm"
+                          colorPalette="red"
+                          variant="outline"
+                          onClick={() =>
+                            handleAction(
+                              request.id,
+                              request.sessionId,
+                              'REJECTED'
+                            )
+                          }
+                          disabled={
+                            actionLoading === request.id || !!batchActionLoading
+                          }
+                        >
+                          {t('reject')}
+                        </Button>
+                        <Button
+                          size="sm"
+                          colorPalette="green"
+                          onClick={() =>
+                            handleAction(
+                              request.id,
+                              request.sessionId,
+                              'APPROVED'
+                            )
+                          }
+                          loading={actionLoading === request.id}
+                          disabled={!!batchActionLoading}
+                        >
+                          {t('approve')}
+                        </Button>
+                      </Flex>
+                      <ChevronRight size={20} color="gray" />
                     </Flex>
-                    <ChevronRight size={20} color="gray" />
                   </Flex>
                 </CardBody>
               </Card>
@@ -285,12 +311,17 @@ export default function PendingJoinRequestsPage() {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
   const [total, setTotal] = useState(0);
+  const [searchQuery, setSearchQuery] = useState('');
   const limit = 20;
 
   const fetchRequests = useCallback(async () => {
     try {
       setLoading(true);
-      const result = await PlayerService.getPendingRequests({ page, limit });
+      const result = await PlayerService.getPendingRequests({
+        page,
+        limit,
+        searchQuery: searchQuery || undefined,
+      });
       setRequests(result.data);
       setTotalPages(result.totalPages);
       setTotal(result.total);
@@ -300,7 +331,7 @@ export default function PendingJoinRequestsPage() {
     } finally {
       setLoading(false);
     }
-  }, [page, t]);
+  }, [page, limit, searchQuery, t]);
 
   useEffect(() => {
     fetchRequests();
@@ -357,6 +388,8 @@ export default function PendingJoinRequestsPage() {
           }}
           maxW="full"
           px={{ base: '24px', md: 0 }}
+          hideTopBarBorder={true}
+          centerTitle
         >
           <Flex
             gap={6}
@@ -378,6 +411,11 @@ export default function PendingJoinRequestsPage() {
                 page={page}
                 totalPages={totalPages}
                 setPage={setPage}
+                searchQuery={searchQuery}
+                onSearchChange={(q) => {
+                  setSearchQuery(q);
+                  setPage(1);
+                }}
               />
             </Box>
           </Flex>

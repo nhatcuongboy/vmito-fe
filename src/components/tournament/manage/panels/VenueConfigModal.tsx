@@ -208,14 +208,16 @@ export default function VenueConfigModal({
         // --- Linked mode: user selected an existing verified venue ---
         const venueId = selectedVenue.id;
 
-        // If editing and the venue changed, remove the old link first
+        // If editing and the venue changed, remove the old record first.
+        // `venueId` is only set for a previously-linked venue — an inline
+        // one is identified by its own TournamentVenue id instead.
         if (
           existingTournamentVenue &&
           existingTournamentVenue.venueId !== venueId
         ) {
           await TournamentService.removeVenue(
             tournamentId,
-            existingTournamentVenue.venueId!
+            existingTournamentVenue.venueId ?? existingTournamentVenue.id
           );
         }
 
@@ -225,11 +227,14 @@ export default function VenueConfigModal({
         });
       } else {
         // --- Inline mode: store address directly, no venues table record ---
-        if (existingTournamentVenue && existingTournamentVenue.venueId) {
-          // Was previously linked — remove the old venue link
+        // addVenue always creates a fresh TournamentVenue here (no in-place
+        // update for inline data), so the previous record — linked or
+        // inline — must always be removed first to avoid leaving a
+        // duplicate/orphaned venue behind.
+        if (existingTournamentVenue) {
           await TournamentService.removeVenue(
             tournamentId,
-            existingTournamentVenue.venueId
+            existingTournamentVenue.venueId ?? existingTournamentVenue.id
           );
         }
 

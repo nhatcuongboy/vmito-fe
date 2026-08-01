@@ -55,7 +55,8 @@
     "levelDescriptions": "Level Descriptions",
     "sessionsManagement": "Manage Sessions (Admin)",
     "feedback": "Feedback",
-    "newsfeed": "Newsfeed"
+    "newsfeed": "Newsfeed",
+    "pointsAdmin": "Points & ranking"
   },
   "search": {
     "title": "Search",
@@ -5603,7 +5604,55 @@
     "bulkCreateSuccess": "Bulk venues created",
     "bulkVenuesProcessed": "venues processed",
     "bulkCreateError": "Failed to create venues in bulk",
-    "venueRequests": "Venue Requests"
+    "venueRequests": "Venue Requests",
+    "points": {
+      "title": "Points & ranking",
+      "subtitle": "Review scoring rules, system stats and re-run the backfill",
+      "refresh": "Refresh",
+      "loadError": "Could not load points data",
+      "stats": {
+        "title": "Points system stats",
+        "description": "Current figures in the database",
+        "rankedUsers": "Users with points",
+        "totalTransactions": "Point transactions",
+        "totalPoints": "Total points awarded",
+        "lastAwardedAt": "Last award",
+        "finishedSessions": "Finished sessions",
+        "finishedMatches": "Finished matches",
+        "finishedTournaments": "Finished tournaments",
+        "never": "None yet"
+      },
+      "rules": {
+        "title": "Scoring rules",
+        "description": "Point values and tier thresholds currently in effect",
+        "reason": "Reason",
+        "points": "Points",
+        "transactions": "Transactions",
+        "awardedPoints": "Points awarded",
+        "hostTitle": "Hosting points conditions",
+        "hostRule": "The session has finished, is not an imported session, has a real host account, and at least {count} players with a Vmito account actually played one match or more.",
+        "tierTitle": "Tier thresholds",
+        "tier": "Tier",
+        "minPoints": "Minimum points",
+        "users": "Users",
+        "sourceNote": "These values are declared in the backend source (points.constants.ts). After changing them, redeploy and then run the backfill."
+      },
+      "backfill": {
+        "title": "Re-run backfill",
+        "description": "Recompute points from every finished session, match and tournament",
+        "hint": "Safe to run repeatedly: existing transactions are skipped, then every user total and tier is rebuilt.",
+        "run": "Run backfill",
+        "cancel": "Cancel",
+        "confirmTitle": "Run the points backfill?",
+        "confirmBody": "The system will scan the full history, insert any missing point transactions and rebuild user totals and tiers. This can take a while on large datasets.",
+        "success": "Backfill completed",
+        "successDetail": "Inserted {inserted} transactions, updated {users} users",
+        "error": "Backfill failed",
+        "candidates": "Records scanned",
+        "inserted": "New transactions",
+        "usersUpdated": "Users updated"
+      }
+    }
   },
   "PlayerDetailModal": {
     "statusSetToWaiting": "Player status set to Waiting",
@@ -7610,16 +7659,43 @@
   "leaderboard": {
     "title": "Leaderboard",
     "empty": "No ranking data yet",
+    "emptyDescription": "Join and finish a few matches to appear on this leaderboard.",
     "pointsUnit": "pts",
     "you": "You",
     "previous": "Prev",
     "next": "Next",
     "winStats": "Won {won}/{played} matches",
+    "winRate": "Win rate: {rate}% ({won}/{played})",
+    "noMatches": "No matches played yet",
+    "totalPointsCaption": "{points} pts all time",
+    "tierName": "{name} tier",
     "periods": {
-      "week": "This week",
-      "month": "This month",
+      "week": "Week",
+      "month": "Month",
+      "season": "Season",
       "year": "This year",
       "all": "All time"
+    },
+    "periodPicker": {
+      "currentWeek": "This week",
+      "currentMonth": "This month",
+      "currentSeason": "This season",
+      "week": "Week {week}",
+      "month": "{month}/{year}",
+      "year": "Year {year}",
+      "seasons": {
+        "1": "Spring {year}",
+        "2": "Summer {year}",
+        "3": "Autumn {year}",
+        "4": "Winter {year}"
+      }
+    },
+    "countdown": {
+      "endsIn": "Ends in:",
+      "days": "{count}d",
+      "hours": "{count}h",
+      "minutes": "{count}m",
+      "closed": "Closed"
     },
     "tiers": {
       "BRONZE": "Bronze",
@@ -7630,6 +7706,7 @@
     },
     "achievements": {
       "loadError": "Failed to load achievements",
+      "rank": "Rank {rank}",
       "toNextTier": "{points} pts to reach {tier}",
       "maxTier": "You reached the highest tier!",
       "wins": "Wins",
@@ -7652,8 +7729,15 @@
         "TOURNAMENT_CHAMPION": "Tournament champion",
         "TOURNAMENT_RUNNER_UP": "Tournament runner-up",
         "TOURNAMENT_SEMIFINALIST": "Tournament semifinalist",
-        "ADJUSTMENT": "Adjustment"
-      }
+        "ADJUSTMENT": "Adjustment",
+        "SESSION_HOSTED": "Hosted a session"
+      },
+      "sessionsHosted": "Sessions hosted",
+      "downloadCard": "Download achievement card",
+      "cardBadge": "Vmito Achievement",
+      "cardFooter": "Track your achievements at vmito.com",
+      "imageDownloadSuccess": "Image downloaded successfully",
+      "imageDownloadError": "Failed to download image"
     },
     "celebration": {
       "points": "pts",
@@ -7661,6 +7745,23 @@
       "rankUpTitle": "Rank up!",
       "rankUpMessage": "Congrats! You reached {total} points and a new tier.",
       "awesome": "Awesome!"
+    },
+    "rules": {
+      "trigger": "How points work",
+      "title": "How points & ranks work",
+      "intro": "Points are awarded automatically when a session or tournament ends. You never lose points for losing.",
+      "sessionGroup": "Sessions",
+      "tournamentGroup": "Tournaments",
+      "tierGroup": "Tiers",
+      "fromPoints": "from {points} pts",
+      "hostTitle": "Hosting points are awarded when",
+      "hostConditions": {
+        "finished": "The session has finished (cancelled or ongoing sessions do not count)",
+        "notCrawled": "You created the session on Vmito — imported sessions do not count",
+        "minPlayers": "At least 4 players with a Vmito account actually played at least one match"
+      },
+      "hostSeparate": "Hosting points are tracked on a separate host ranking. They do not count toward the player leaderboard or your tier.",
+      "note": "Each session or match is counted only once. A host who also plays still earns participation points."
     }
   }
 }

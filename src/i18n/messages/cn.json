@@ -46,7 +46,8 @@
     "levelDescriptions": "等级描述",
     "sessionsManagement": "管理场次",
     "feedback": "反馈",
-    "newsfeed": "动态"
+    "newsfeed": "动态",
+    "pointsAdmin": "积分与排名"
   },
   "search": {
     "title": "搜索",
@@ -5562,7 +5563,55 @@
     "bulkCreateSuccess": "批量场地已创建",
     "bulkVenuesProcessed": "个场地已处理",
     "bulkCreateError": "批量创建场地失败",
-    "venueRequests": "场地请求"
+    "venueRequests": "场地请求",
+    "points": {
+      "title": "积分与排名管理",
+      "subtitle": "查看积分规则、系统统计并重新执行回填",
+      "refresh": "刷新",
+      "loadError": "无法加载积分数据",
+      "stats": {
+        "title": "积分系统统计",
+        "description": "数据库中的当前数据",
+        "rankedUsers": "有积分的用户",
+        "totalTransactions": "积分记录",
+        "totalPoints": "已发放总积分",
+        "lastAwardedAt": "最近一次加分",
+        "finishedSessions": "已结束约球",
+        "finishedMatches": "已结束比赛",
+        "finishedTournaments": "已结束赛事",
+        "never": "暂无"
+      },
+      "rules": {
+        "title": "积分规则",
+        "description": "当前生效的积分值与段位门槛",
+        "reason": "加分原因",
+        "points": "积分",
+        "transactions": "记录数",
+        "awardedPoints": "已发放积分",
+        "hostTitle": "组织者加分条件",
+        "hostRule": "约球已结束、非外部导入、组织者为真实账号，且至少有 {count} 位已注册 Vmito 的球员实际参加了至少 1 场比赛。",
+        "tierTitle": "段位门槛",
+        "tier": "段位",
+        "minPoints": "最低积分",
+        "users": "用户数",
+        "sourceNote": "这些数值定义在后端源码（points.constants.ts）中。修改后需重新部署，然后执行回填。"
+      },
+      "backfill": {
+        "title": "重新执行回填",
+        "description": "根据所有已结束的约球、比赛与赛事重新计算积分",
+        "hint": "可重复执行：已存在的记录会被跳过，随后重建所有用户的总积分与段位。",
+        "run": "执行回填",
+        "cancel": "取消",
+        "confirmTitle": "执行积分回填？",
+        "confirmBody": "系统将扫描全部历史数据，补齐缺失的积分记录，并重建用户总积分与段位。数据量大时可能需要一些时间。",
+        "success": "回填完成",
+        "successDetail": "新增 {inserted} 条记录，更新 {users} 位用户",
+        "error": "回填失败",
+        "candidates": "扫描记录",
+        "inserted": "新增记录",
+        "usersUpdated": "更新用户"
+      }
+    }
   },
   "PlayerDetailModal": {
     "statusSetToWaiting": "玩家状态已设为等待中",
@@ -7569,16 +7618,43 @@
   "leaderboard": {
     "title": "排行榜",
     "empty": "暂无排名数据",
+    "emptyDescription": "参加并完成几场比赛即可登上排行榜。",
     "pointsUnit": "分",
     "you": "你",
     "previous": "上一页",
     "next": "下一页",
     "winStats": "胜 {won}/{played} 场",
+    "winRate": "胜率：{rate}%（{won}/{played}）",
+    "noMatches": "尚未参赛",
+    "totalPointsCaption": "累计 {points} 分",
+    "tierName": "{name}段位",
     "periods": {
-      "week": "本周",
-      "month": "本月",
+      "week": "周",
+      "month": "月",
+      "season": "赛季",
       "year": "今年",
       "all": "总榜"
+    },
+    "periodPicker": {
+      "currentWeek": "本周",
+      "currentMonth": "本月",
+      "currentSeason": "本赛季",
+      "week": "第 {week} 周",
+      "month": "{year} 年 {month} 月",
+      "year": "{year} 年",
+      "seasons": {
+        "1": "{year} 春季",
+        "2": "{year} 夏季",
+        "3": "{year} 秋季",
+        "4": "{year} 冬季"
+      }
+    },
+    "countdown": {
+      "endsIn": "结束倒计时：",
+      "days": "{count} 天",
+      "hours": "{count} 小时",
+      "minutes": "{count} 分钟",
+      "closed": "已结算"
     },
     "tiers": {
       "BRONZE": "青铜",
@@ -7589,6 +7665,7 @@
     },
     "achievements": {
       "loadError": "加载成就失败",
+      "rank": "第 {rank} 名",
       "toNextTier": "还差 {points} 分升至{tier}",
       "maxTier": "你已达到最高段位！",
       "wins": "胜",
@@ -7611,8 +7688,15 @@
         "TOURNAMENT_CHAMPION": "锦标赛冠军",
         "TOURNAMENT_RUNNER_UP": "锦标赛亚军",
         "TOURNAMENT_SEMIFINALIST": "锦标赛四强",
-        "ADJUSTMENT": "调整"
-      }
+        "ADJUSTMENT": "调整",
+        "SESSION_HOSTED": "组织约球"
+      },
+      "sessionsHosted": "组织场次",
+      "downloadCard": "下载成就卡片",
+      "cardBadge": "Vmito 成就",
+      "cardFooter": "在 vmito.com 查看你的成就",
+      "imageDownloadSuccess": "图片下载成功",
+      "imageDownloadError": "图片下载失败"
     },
     "celebration": {
       "points": "分",
@@ -7620,6 +7704,23 @@
       "rankUpTitle": "升段啦！",
       "rankUpMessage": "恭喜！你已达到 {total} 分并晋升新段位。",
       "awesome": "太棒了！"
+    },
+    "rules": {
+      "trigger": "积分规则",
+      "title": "积分与段位规则",
+      "intro": "约球或赛事结束后系统会自动加分，输球不会扣分。",
+      "sessionGroup": "约球",
+      "tournamentGroup": "赛事",
+      "tierGroup": "段位",
+      "fromPoints": "{points} 分起",
+      "hostTitle": "获得组织积分的条件",
+      "hostConditions": {
+        "finished": "约球已结束（取消或进行中的约球不计）",
+        "notCrawled": "该约球由你在 Vmito 创建，外部导入的约球不计",
+        "minPlayers": "至少有 4 位已注册 Vmito 的球员实际参加了至少 1 场比赛"
+      },
+      "hostSeparate": "组织积分单独计入组织者榜单，不计入球员排行榜，也不影响你的段位。",
+      "note": "每场约球或比赛只计一次分。组织者若同时上场，仍可获得参与积分。"
     }
   }
 }

@@ -1,6 +1,7 @@
 'use client';
 
 import { Badge } from '@chakra-ui/react';
+import { Shield } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { TRankingTier } from '@/lib/api/ranking.service';
 
@@ -23,31 +24,45 @@ export const TIER_ICONS: Record<TRankingTier, string> = {
   DIAMOND: '💎',
 };
 
+const ICON_SIZE = { sm: 12, md: 14, lg: 18 } as const;
+
 interface TierBadgeProps {
   tier: TRankingTier;
   size?: 'sm' | 'md' | 'lg';
   showIcon?: boolean;
 }
 
+/** Account tier earned from all-time points — not the rank within a period. */
 export default function TierBadge({
   tier,
   size = 'sm',
   showIcon = true,
 }: TierBadgeProps) {
-  const t = useTranslations('leaderboard.tiers');
+  const t = useTranslations('leaderboard');
   const colors = TIER_COLORS[tier];
 
   return (
     <Badge
+      display="inline-flex"
+      alignItems="center"
+      gap={1}
       style={{ backgroundColor: colors.bg, color: colors.color }}
       fontSize={size === 'lg' ? 'md' : size === 'md' ? 'sm' : 'xs'}
       px={size === 'lg' ? 3 : 2}
       py={size === 'lg' ? 1 : 0.5}
       borderRadius="full"
       fontWeight="700"
+      whiteSpace="nowrap"
     >
-      {showIcon ? `${TIER_ICONS[tier]} ` : ''}
-      {t(tier)}
+      {showIcon && (
+        <Shield
+          size={ICON_SIZE[size]}
+          fill={colors.solid}
+          strokeWidth={1.5}
+          color={colors.color}
+        />
+      )}
+      {t('tierName', { name: t(`tiers.${tier}`) })}
     </Badge>
   );
 }

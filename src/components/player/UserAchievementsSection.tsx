@@ -1,13 +1,25 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Box, Flex, Grid, Spinner, Text, VStack } from '@chakra-ui/react';
+import {
+  Box,
+  Button,
+  Flex,
+  Grid,
+  Spinner,
+  Text,
+  VStack,
+} from '@chakra-ui/react';
 import { motion, animate } from 'framer-motion';
+import { Download } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import TierBadge, {
   TIER_COLORS,
   TIER_ICONS,
 } from '@/components/leaderboard/TierBadge';
+import PointsRulesModal from '@/components/leaderboard/PointsRulesModal';
+import AchievementShareCard from '@/components/player/AchievementShareCard';
+import { useDownloadElementImage } from '@/hooks/useDownloadElementImage';
 import {
   IUserAchievements,
   RankingService,
@@ -19,16 +31,37 @@ const PERIODS: TLeaderboardPeriod[] = ['week', 'month', 'year', 'all'];
 
 interface UserAchievementsSectionProps {
   userId: string;
+  /** Only the profile owner can download their own achievement card. */
+  isOwner?: boolean;
+  userName?: string;
+  userImage?: string | null;
 }
 
 export default function UserAchievementsSection({
   userId,
+  isOwner = false,
+  userName,
+  userImage,
 }: UserAchievementsSectionProps) {
   const t = useTranslations('leaderboard.achievements');
   const tLb = useTranslations('leaderboard');
   const [data, setData] = useState<IUserAchievements | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [displayPoints, setDisplayPoints] = useState(0);
+  const [isRulesOpen, setIsRulesOpen] = useState(false);
+  const { downloadElementImage, isDownloading } = useDownloadElementImage();
+  const shareCardElementId = `achievement-share-card-${userId}`;
+
+  const handleDownloadCard = () => {
+    downloadElementImage(
+      shareCardElementId,
+      `ThanhTich-${userId.slice(0, 8)}.png`,
+      {
+        success: t('imageDownloadSuccess'),
+        error: t('imageDownloadError'),
+      }
+    );
+  };
 
   useEffect(() => {
     let cancelled = false;
@@ -88,6 +121,10 @@ export default function UserAchievementsSection({
 
   return (
     <VStack align="stretch" gap={4} pb={8}>
+      <PointsRulesModal
+        isOpen={isRulesOpen}
+        onClose={() => setIsRulesOpen(false)}
+      />
       {/* Tier + total points hero */}
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
@@ -161,7 +198,7 @@ export default function UserAchievementsSection({
                 {tLb(`periods.${period}`)}
               </Text>
               <Text fontSize="lg" fontWeight="800">
-                {rank?.rank ? `#${rank.rank}` : '—'}
+                {rank?.rank ? t('rank', { rank: rank.rank }) : '—'}
               </Text>
               <Text fontSize="xs" color="fg.muted">
                 {rank?.points ?? 0} {tLb('pointsUnit')}
@@ -181,6 +218,10 @@ export default function UserAchievementsSection({
           color="#dc2626"
         />
         <StatCard label={t('matchesPlayed')} value={data.stats.matchesPlayed} />
+        {/* <StatCard
+          label={t('sessionsHosted')}
+          value={data.stats.sessionsHosted}
+        /> */}
         <StatCard
           label={t('tournamentTitles')}
           value={data.stats.tournamentTitles}
@@ -191,17 +232,53 @@ export default function UserAchievementsSection({
         />
       </Grid>
 
+      {isOwner && (
+        <Button
+          size="sm"
+          variant="outline"
+          colorPalette="green"
+          alignSelf="center"
+          borderRadius="full"
+          px={5}
+          shadow="sm"
+          loading={isDownloading}
+          onClick={handleDownloadCard}
+        >
+          <Download size={16} />
+          {t('downloadCard')}
+        </Button>
+      )}
+
       {/* Recent point history */}
       <Box>
         <Flex justify="space-between" align="center" mb={2}>
           <Text fontWeight="700" fontSize="sm">
             {t('recentPoints')}
           </Text>
-          <Link href="/leaderboard">
-            <Text fontSize="xs" color="brand.600" fontWeight="600">
-              {t('viewLeaderboard')}
-            </Text>
-          </Link>
+          <Flex align="center" gap={2}>
+            <Box
+              as="button"
+              fontSize="md"
+              lineHeight={1}
+              opacity={0.7}
+              aria-label={tLb('rules.title')}
+              onClick={() => setIsRulesOpen(true)}
+              _hover={{ opacity: 1 }}
+              cursor="pointer"
+            >
+              ℹ️
+            </Box>
+            <Link href="/leaderboard">
+              <Text
+                fontSize="xs"
+                color="brand.600"
+                fontWeight="600"
+                textDecoration="underline"
+              >
+                {t('viewLeaderboard')}
+              </Text>
+            </Link>
+          </Flex>
         </Flex>
         {data.recentTransactions.length === 0 ? (
           <Text fontSize="sm" color="fg.muted" textAlign="center" py={6}>
@@ -240,6 +317,17 @@ export default function UserAchievementsSection({
           </VStack>
         )}
       </Box>
+
+      {isOwner && (
+        <Box position="absolute" left="-9999px" top="-9999px">
+          <AchievementShareCard
+            elementId={shareCardElementId}
+            userName={userName || ''}
+            userImage={userImage}
+            achievements={data}
+          />
+        </Box>
+      )}
     </VStack>
   );
 }

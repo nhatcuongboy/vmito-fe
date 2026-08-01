@@ -335,7 +335,12 @@ export default function PublicUserProfileContent({
           {/* Achievements */}
           {activeSection === 'achievements' && (
             <Box px={3} pt={4}>
-              <UserAchievementsSection userId={userId} />
+              <UserAchievementsSection
+                userId={userId}
+                isOwner={isOwner}
+                userName={profile.name}
+                userImage={profile.image}
+              />
             </Box>
           )}
 

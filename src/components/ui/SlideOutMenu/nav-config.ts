@@ -14,6 +14,7 @@ import {
   Search,
   ShieldCheck,
   SlidersHorizontal,
+  Sparkles,
   Swords,
   Trophy,
   Users,
@@ -247,6 +248,12 @@ export const NAV_SECTIONS: NavSectionConfig[] = [
         icon: Award,
         label: (t) => t.nav('levelDescriptions'),
         getHref: () => ROUTES.ADMIN.LEVEL_DESCRIPTIONS,
+      },
+      {
+        key: 'adminPoints',
+        icon: Sparkles,
+        label: (t) => t.nav('pointsAdmin'),
+        getHref: () => ROUTES.ADMIN.POINTS,
       },
       {
         key: 'adminVenues',

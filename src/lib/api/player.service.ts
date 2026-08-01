@@ -255,6 +255,7 @@ export const PlayerService = {
   getPendingRequests: async (filters?: {
     page?: number;
     limit?: number;
+    searchQuery?: string;
   }): Promise<{
     data: PendingRequest[];
     total: number;
@@ -264,6 +265,10 @@ export const PlayerService = {
     const params = new URLSearchParams();
     if (filters?.page) params.append('page', filters.page.toString());
     if (filters?.limit) params.append('limit', filters.limit.toString());
+    if (filters?.searchQuery) {
+      params.append('searchQuery', filters.searchQuery);
+      params.append('search', filters.searchQuery);
+    }
 
     const url = params.toString()
       ? `/players/pending-requests?${params.toString()}`
