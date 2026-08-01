@@ -7611,8 +7611,10 @@
         "TOURNAMENT_CHAMPION": "锦标赛冠军",
         "TOURNAMENT_RUNNER_UP": "锦标赛亚军",
         "TOURNAMENT_SEMIFINALIST": "锦标赛四强",
-        "ADJUSTMENT": "调整"
-      }
+        "ADJUSTMENT": "调整",
+        "SESSION_HOSTED": "组织约球"
+      },
+      "sessionsHosted": "组织场次"
     },
     "celebration": {
       "points": "分",
@@ -7620,6 +7622,22 @@
       "rankUpTitle": "升段啦！",
       "rankUpMessage": "恭喜！你已达到 {total} 分并晋升新段位。",
       "awesome": "太棒了！"
+    },
+    "rules": {
+      "trigger": "积分规则",
+      "title": "积分与段位规则",
+      "intro": "约球或赛事结束后系统会自动加分，输球不会扣分。",
+      "sessionGroup": "约球",
+      "tournamentGroup": "赛事",
+      "tierGroup": "段位",
+      "fromPoints": "{points} 分起",
+      "hostTitle": "获得组织积分的条件",
+      "hostConditions": {
+        "finished": "约球已结束（取消或进行中的约球不计）",
+        "notCrawled": "该约球由你在 Vmito 创建，外部导入的约球不计",
+        "minPlayers": "至少有 4 位已注册 Vmito 的球员实际参加了至少 1 场比赛"
+      },
+      "note": "每场约球或比赛只计一次分。组织者若同时上场，仍可获得参与积分。"
     }
   }
 }

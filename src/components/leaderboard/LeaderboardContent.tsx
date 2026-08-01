@@ -16,6 +16,7 @@ import { useTranslations } from 'next-intl';
 import PageLayout from '@/components/layout/PageLayout';
 import { UnderlineTabs } from '@/components/ui/UnderlineTabs';
 import TierBadge, { TIER_COLORS } from '@/components/leaderboard/TierBadge';
+import PointsRulesModal from '@/components/leaderboard/PointsRulesModal';
 import {
   ILeaderboardEntry,
   ILeaderboardResponse,
@@ -39,6 +40,7 @@ export default function LeaderboardContent() {
   const [page, setPage] = useState(1);
   const [data, setData] = useState<ILeaderboardResponse | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isRulesOpen, setIsRulesOpen] = useState(false);
 
   const fetchData = useCallback(async () => {
     setIsLoading(true);
@@ -72,7 +74,30 @@ export default function LeaderboardContent() {
   const rest = page === 1 ? entries.slice(3) : entries;
 
   return (
-    <PageLayout title={t('title')} maxW="640px">
+    <PageLayout
+      title={t('title')}
+      maxW="640px"
+      rightContent={
+        <Button
+          size="sm"
+          variant="ghost"
+          borderRadius="full"
+          aria-label={t('rules.title')}
+          onClick={() => setIsRulesOpen(true)}
+        >
+          <HStack gap={1}>
+            <Text fontSize="md">ℹ️</Text>
+            <Text fontSize="sm" display={{ base: 'none', md: 'block' }}>
+              {t('rules.trigger')}
+            </Text>
+          </HStack>
+        </Button>
+      }
+    >
+      <PointsRulesModal
+        isOpen={isRulesOpen}
+        onClose={() => setIsRulesOpen(false)}
+      />
       <UnderlineTabs
         items={PERIODS.map((p) => ({ id: p, label: t(`periods.${p}`) }))}
         activeId={period}

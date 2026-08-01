@@ -7652,8 +7652,10 @@
         "TOURNAMENT_CHAMPION": "Tournament champion",
         "TOURNAMENT_RUNNER_UP": "Tournament runner-up",
         "TOURNAMENT_SEMIFINALIST": "Tournament semifinalist",
-        "ADJUSTMENT": "Adjustment"
-      }
+        "ADJUSTMENT": "Adjustment",
+        "SESSION_HOSTED": "Hosted a session"
+      },
+      "sessionsHosted": "Sessions hosted"
     },
     "celebration": {
       "points": "pts",
@@ -7661,6 +7663,22 @@
       "rankUpTitle": "Rank up!",
       "rankUpMessage": "Congrats! You reached {total} points and a new tier.",
       "awesome": "Awesome!"
+    },
+    "rules": {
+      "trigger": "How points work",
+      "title": "How points & ranks work",
+      "intro": "Points are awarded automatically when a session or tournament ends. You never lose points for losing.",
+      "sessionGroup": "Sessions",
+      "tournamentGroup": "Tournaments",
+      "tierGroup": "Tiers",
+      "fromPoints": "from {points} pts",
+      "hostTitle": "Hosting points are awarded when",
+      "hostConditions": {
+        "finished": "The session has finished (cancelled or ongoing sessions do not count)",
+        "notCrawled": "You created the session on Vmito — imported sessions do not count",
+        "minPlayers": "At least 4 players with a Vmito account actually played at least one match"
+      },
+      "note": "Each session or match is counted only once. A host who also plays still earns participation points."
     }
   }
 }

@@ -61,6 +61,7 @@ export interface IUserAchievements {
     losses: number;
     matchesPlayed: number;
     sessionsPlayed: number;
+    sessionsHosted: number;
     tournamentTitles: number;
     tournamentRunnerUps: number;
   };

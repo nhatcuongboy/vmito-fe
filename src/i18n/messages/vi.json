@@ -7673,8 +7673,10 @@
         "TOURNAMENT_CHAMPION": "Vô địch giải đấu",
         "TOURNAMENT_RUNNER_UP": "Á quân giải đấu",
         "TOURNAMENT_SEMIFINALIST": "Bán kết giải đấu",
-        "ADJUSTMENT": "Điều chỉnh"
-      }
+        "ADJUSTMENT": "Điều chỉnh",
+        "SESSION_HOSTED": "Tổ chức kèo"
+      },
+      "sessionsHosted": "Kèo đã tổ chức"
     },
     "celebration": {
       "points": "điểm",
@@ -7682,6 +7684,22 @@
       "rankUpTitle": "Lên hạng!",
       "rankUpMessage": "Chúc mừng! Bạn đã đạt {total} điểm và thăng hạng mới.",
       "awesome": "Tuyệt vời!"
+    },
+    "rules": {
+      "trigger": "Cách tính điểm",
+      "title": "Cách tính điểm & xếp hạng",
+      "intro": "Điểm được cộng tự động khi kèo hoặc giải đấu kết thúc. Điểm cũ không bị mất khi bạn thua.",
+      "sessionGroup": "Kèo cầu lông",
+      "tournamentGroup": "Giải đấu",
+      "tierGroup": "Các hạng",
+      "fromPoints": "từ {points} điểm",
+      "hostTitle": "Điểm tổ chức kèo được cộng khi",
+      "hostConditions": {
+        "finished": "Kèo đã kết thúc (không tính kèo bị hủy hoặc đang diễn ra)",
+        "notCrawled": "Kèo do bạn tạo trên Vmito, không phải kèo sưu tầm từ nguồn ngoài",
+        "minPlayers": "Có ít nhất 4 người chơi đã đăng nhập Vmito và thực sự thi đấu tối thiểu 1 trận"
+      },
+      "note": "Mỗi kèo hoặc trận đấu chỉ được tính điểm một lần. Chủ kèo có tham gia thi đấu vẫn được cộng thêm điểm tham gia."
     }
   }
 }

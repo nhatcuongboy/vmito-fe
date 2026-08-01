@@ -8,6 +8,7 @@ import TierBadge, {
   TIER_COLORS,
   TIER_ICONS,
 } from '@/components/leaderboard/TierBadge';
+import PointsRulesModal from '@/components/leaderboard/PointsRulesModal';
 import {
   IUserAchievements,
   RankingService,
@@ -29,6 +30,7 @@ export default function UserAchievementsSection({
   const [data, setData] = useState<IUserAchievements | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [displayPoints, setDisplayPoints] = useState(0);
+  const [isRulesOpen, setIsRulesOpen] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -88,6 +90,10 @@ export default function UserAchievementsSection({
 
   return (
     <VStack align="stretch" gap={4} pb={8}>
+      <PointsRulesModal
+        isOpen={isRulesOpen}
+        onClose={() => setIsRulesOpen(false)}
+      />
       {/* Tier + total points hero */}
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
@@ -100,7 +106,22 @@ export default function UserAchievementsSection({
           borderWidth="1px"
           borderColor={tierColor.solid}
           bg="bg.panel"
+          position="relative"
         >
+          <Box
+            as="button"
+            position="absolute"
+            top={2}
+            right={2}
+            fontSize="lg"
+            lineHeight={1}
+            opacity={0.7}
+            aria-label={tLb('rules.title')}
+            onClick={() => setIsRulesOpen(true)}
+            _hover={{ opacity: 1 }}
+          >
+            ℹ️
+          </Box>
           <Text fontSize="4xl" lineHeight={1}>
             {TIER_ICONS[data.tier]}
           </Text>
@@ -181,6 +202,10 @@ export default function UserAchievementsSection({
           color="#dc2626"
         />
         <StatCard label={t('matchesPlayed')} value={data.stats.matchesPlayed} />
+        <StatCard
+          label={t('sessionsHosted')}
+          value={data.stats.sessionsHosted}
+        />
         <StatCard
           label={t('tournamentTitles')}
           value={data.stats.tournamentTitles}
