@@ -1,6 +1,13 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
-import { DEFAULT_USE_AI_FOR_CREATION } from '@/constants';
+import { FEATURE_FLAG_DEFAULTS } from '@/constants';
+import { useFeatureFlagsStore } from './useFeatureFlagsStore';
+
+/** Reads the live flag when available, falling back to the default before
+ *  it loads — matches the value this store was seeded/reset with. */
+const getDefaultUseAiForCreation = () =>
+  useFeatureFlagsStore.getState().flags.DEFAULT_USE_AI_FOR_CREATION ??
+  FEATURE_FLAG_DEFAULTS.DEFAULT_USE_AI_FOR_CREATION;
 
 interface PreferenceState {
   preferredCity: string | null;
@@ -24,7 +31,7 @@ export const usePreferenceStore = create<PreferenceState>()(
       preferredCity: null,
       preferredDistricts: [],
       onboardingCompleted: false,
-      useAiForCreation: DEFAULT_USE_AI_FOR_CREATION,
+      useAiForCreation: getDefaultUseAiForCreation(),
       _hasHydrated: false,
 
       setPreferredCity: (city) => set({ preferredCity: city }),
@@ -46,7 +53,7 @@ export const usePreferenceStore = create<PreferenceState>()(
       resetPreferences: () =>
         set({
           onboardingCompleted: false,
-          useAiForCreation: DEFAULT_USE_AI_FOR_CREATION,
+          useAiForCreation: getDefaultUseAiForCreation(),
         }),
     }),
     {

@@ -2,6 +2,7 @@
 
 import { ChakraProvider, createSystem, defaultConfig } from '@chakra-ui/react';
 import AuthProvider from '@/components/providers/AuthProvider';
+import FeatureFlagsProvider from '@/components/providers/FeatureFlagsProvider';
 import { ThemeProviderWrapper } from '@/components/ui/color-mode-provider';
 
 // Custom system configuration for badminton app
@@ -155,14 +156,16 @@ export function Providers({ children }: { children: React.ReactNode }) {
           <SidebarProvider>
             <TopBarSearchProvider>
               <AuthProvider>
-                <SocketProvider>
-                  {children}
-                  <Toaster />
-                  <GlobalErrorModal />
-                  <GlobalCourtCallModal />
-                  <PointsCelebration />
-                  <TourController />
-                </SocketProvider>
+                <FeatureFlagsProvider>
+                  <SocketProvider>
+                    {children}
+                    <Toaster />
+                    <GlobalErrorModal />
+                    <GlobalCourtCallModal />
+                    <PointsCelebration />
+                    <TourController />
+                  </SocketProvider>
+                </FeatureFlagsProvider>
               </AuthProvider>
             </TopBarSearchProvider>
           </SidebarProvider>

@@ -1,17 +1,14 @@
 /**
- * Feature flags for the application.
- * Set PLAYER_VIP_ENABLED to true to allow PLAYER role
- * to access all HOST features (clubs management, dashboard,
- * courts, matches, payment tabs, etc.).
+ * Fallback values used only until `useFeatureFlagsStore` finishes loading the
+ * live flags from GET /feature-flags (or if that request fails). The source
+ * of truth is now the `feature_flags` DB table on the backend, not this file
+ * — update flag values there, not here.
  */
-export const PLAYER_VIP_ENABLED = true;
-
-/**
- * Default behavior for session creation.
- * If true, "Create Session" buttons will open the AI modal.
- * If false, they will navigate directly to the manual creation page.
- */
-export const DEFAULT_USE_AI_FOR_CREATION =
-  process.env.NEXT_PUBLIC_DEFAULT_USE_AI_FOR_CREATION === 'false'
-    ? false
-    : true;
+export const FEATURE_FLAG_DEFAULTS = {
+  /** Allows PLAYER/REFEREE roles to access HOST features (clubs management,
+   *  dashboard, courts, matches, payment tabs, etc.). */
+  PLAYER_VIP_ENABLED: true,
+  /** If true, "Create Session" buttons open the AI modal by default instead
+   *  of navigating directly to the manual creation page. */
+  DEFAULT_USE_AI_FOR_CREATION: true,
+} as const;

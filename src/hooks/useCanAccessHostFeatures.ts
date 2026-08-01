@@ -1,19 +1,23 @@
 import { useAuthStore } from '@/stores/useAuthStore';
+import { useFeatureFlagsStore } from '@/stores/useFeatureFlagsStore';
 import { UserRole } from '@/lib/api/types';
-import { PLAYER_VIP_ENABLED } from '@/constants/feature-flags';
 
 /**
  * Hook to check if the current user can access HOST features.
- * Returns true for HOST, ADMIN, or PLAYER/REFEREE when PLAYER_VIP_ENABLED is true.
+ * Returns true for HOST, ADMIN, or PLAYER/REFEREE when the PLAYER_VIP_ENABLED
+ * feature flag is on.
  */
 export const useCanAccessHostFeatures = () => {
   const { user } = useAuthStore();
+  const playerVipEnabled = useFeatureFlagsStore(
+    (s) => s.flags.PLAYER_VIP_ENABLED
+  );
 
   const canAccessHostFeatures =
     user?.role === UserRole.HOST ||
     user?.role === UserRole.ADMIN ||
     ((user?.role === UserRole.PLAYER || user?.role === UserRole.REFEREE) &&
-      PLAYER_VIP_ENABLED);
+      playerVipEnabled);
 
   return { canAccessHostFeatures };
 };
@@ -26,4 +30,4 @@ export const canRoleAccessHostFeatures = (role?: string): boolean =>
   role === UserRole.HOST ||
   role === UserRole.ADMIN ||
   ((role === UserRole.PLAYER || role === UserRole.REFEREE) &&
-    PLAYER_VIP_ENABLED);
+    useFeatureFlagsStore.getState().flags.PLAYER_VIP_ENABLED);
