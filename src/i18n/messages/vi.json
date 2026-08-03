@@ -5163,6 +5163,7 @@
     "playerCount": "{count} người chơi",
     "playerCountSingular": "{count} người chơi",
     "exportImage": "Xuất ảnh",
+    "exportTitleFallback": "Chi tiết phiên giao lưu",
     "mvpBadgeTooltipWinRate": "Tỷ lệ thắng: {winRate}%",
     "mvpBadgeTooltipWins": "Số trận thắng: {wins}/{totalMatches}",
     "mvpBadgeTooltipMinMatches": "Đủ điều kiện: chơi ≥ {minMatches} trận"

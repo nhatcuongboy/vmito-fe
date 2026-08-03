@@ -4,6 +4,12 @@ import { useCallback, useRef, useState } from 'react';
 // See useDownloadSessionImage.ts for why modern-screenshot over html-to-image
 import { domToBlob, type Options } from 'modern-screenshot';
 import { toaster } from '@/components/ui/toaster';
+import {
+  getElementCaptureSize,
+  isIOS,
+  needsWarmupRender,
+  normalizeClonedNode,
+} from '@/utils/dom-capture';
 
 interface DownloadMessages {
   success: string;
@@ -18,34 +24,6 @@ interface UseDownloadElementImageReturn {
   ) => Promise<void>;
   isDownloading: boolean;
 }
-
-// Covers iPhone/iPod/iPad, including iPadOS 13+ which reports as MacIntel
-const isIOS = () =>
-  typeof navigator !== 'undefined' &&
-  (/iPad|iPhone|iPod/.test(navigator.userAgent) ||
-    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1));
-
-// WebKit engines (all iOS browsers + desktop Safari) need a warm-up render
-// before images come out correctly; Chromium/Firefox don't
-const needsWarmupRender = () =>
-  isIOS() ||
-  (typeof navigator !== 'undefined' &&
-    /^((?!chrome|android).)*safari/i.test(navigator.userAgent));
-
-const getElementCaptureSize = (element: HTMLElement) => {
-  const rect = element.getBoundingClientRect();
-  const width = Math.ceil(
-    rect.width || element.scrollWidth || element.offsetWidth
-  );
-  const height = Math.ceil(
-    rect.height || element.scrollHeight || element.offsetHeight
-  );
-
-  return {
-    width: width > 0 ? width : undefined,
-    height: height > 0 ? height : undefined,
-  };
-};
 
 /** Generic sibling of useDownloadSessionImage for non-session DOM captures (e.g. profile share cards). */
 export const useDownloadElementImage = (): UseDownloadElementImageReturn => {
@@ -91,6 +69,7 @@ export const useDownloadElementImage = (): UseDownloadElementImageReturn => {
           style: {
             maxWidth: 'none',
           },
+          onCloneEachNode: normalizeClonedNode,
         };
 
         if (needsWarmupRender() && hasRemoteImages) {

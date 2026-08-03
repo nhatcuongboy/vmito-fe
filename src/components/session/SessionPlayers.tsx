@@ -927,7 +927,9 @@ const SessionPlayers: React.FC<SessionPlayersProps> = ({
         `${window.location.origin}/${currentLocale}/sessions/${session.id}`,
         {
           margin: 0,
-          width: 48,
+          // Rendered at 36px and captured at scale 3, so generate 108px+ of
+          // real modules instead of upscaling a 48px bitmap
+          width: 144,
           color: {
             dark: '#179a3b', // green.600
             light: '#FFFFFF',
@@ -967,12 +969,29 @@ const SessionPlayers: React.FC<SessionPlayersProps> = ({
     return sessionDetailT('waitTimeBadgeMinutes', { minutes });
   };
 
+  const exportTitle = session?.name || t('exportTitleFallback');
+  // Header lines are locked to one line, so long text gets a smaller font
+  // instead of being truncated
+  const exportTitleFontSize =
+    exportTitle.length > 46 ? 'md' : exportTitle.length > 34 ? 'lg' : 'xl';
+
+  const exportVenue = session?.location
+    ? session.venue?.name || session.location.split(',')[0]
+    : '';
+  const exportMetaLength = (session?.startTime ? 30 : 0) + exportVenue.length;
+  const exportMetaFontSize =
+    exportMetaLength > 82 ? 'xs' : exportMetaLength > 66 ? 'sm' : 'md';
+
   const handleExport = (e: React.MouseEvent) => {
     e.stopPropagation();
     downloadSessionImage(
       session || ({ id: sessionId } as ISession),
       'session-stats-export-area',
-      'ThongKeTranDau'
+      'ThongKeTranDau',
+      // Slack for a row that re-wraps inside the capture; the card background
+      // is flat, so unused slack is invisible. scale 3 (2100px wide) keeps the
+      // small table text sharp — the card is only laid out at 700px.
+      { extraHeight: 24, scale: 3 }
     );
   };
 
@@ -1030,25 +1049,42 @@ const SessionPlayers: React.FC<SessionPlayersProps> = ({
         >
           <VStack align="stretch" gap={2}>
             <Box borderBottom="2px solid" borderColor="green.100" pb={2}>
-              <VStack align="center" gap={1.5}>
+              <VStack align="stretch" gap={1.5} w="full">
+                {/* The PNG is rendered from a clone whose box sizes are frozen
+                    from this live DOM, and some devices lay text out a few
+                    pixels wider inside that render. A box shrink-wrapped
+                    around its text has no room for that and drops the last
+                    glyph (or wraps and overlaps the row below), so every line
+                    here is one full-width nowrap block: the slack absorbs the
+                    difference and the ellipsis only kicks in for text that is
+                    genuinely too long. */}
                 <Text
-                  fontSize="xl"
+                  fontSize={exportTitleFontSize}
                   fontWeight="bold"
                   color="green.600"
                   textAlign="center"
+                  w="full"
+                  lineHeight="1.4"
+                  whiteSpace="nowrap"
+                  overflow="hidden"
+                  textOverflow="ellipsis"
                 >
-                  {session?.name || 'Chi tiết phiên giao lưu'}
+                  {exportTitle}
                 </Text>
 
-                <HStack
-                  gap={6}
+                {/* One block, not a flex row: flex items shrink-wrap their
+                    text and would be clipped by the same pixel drift */}
+                <Text
                   color="fg.muted"
-                  fontSize="md"
-                  justify="center"
+                  fontSize={exportMetaFontSize}
+                  textAlign="center"
+                  w="full"
                   whiteSpace="nowrap"
+                  overflow="hidden"
+                  textOverflow="ellipsis"
                 >
                   {session?.startTime && (
-                    <Text textAlign="center">
+                    <Text as="span">
                       🕒{' '}
                       {formatTimeRangeByDevicePreference(
                         session.startTime,
@@ -1065,13 +1101,12 @@ const SessionPlayers: React.FC<SessionPlayersProps> = ({
                       })}
                     </Text>
                   )}
-                  {session?.location && (
-                    <Text textAlign="center">
-                      📍{' '}
-                      {session?.venue?.name || session.location.split(',')[0]}
+                  {exportVenue && (
+                    <Text as="span" ml={session?.startTime ? 6 : 0}>
+                      📍 {exportVenue}
                     </Text>
                   )}
-                </HStack>
+                </Text>
               </VStack>
             </Box>
 
@@ -1082,6 +1117,7 @@ const SessionPlayers: React.FC<SessionPlayersProps> = ({
                 mb={1}
                 color="green.700"
                 fontWeight="bold"
+                whiteSpace="nowrap"
               >
                 📊 THỐNG KÊ NGƯỜI CHƠI
               </Heading>
@@ -1111,12 +1147,16 @@ const SessionPlayers: React.FC<SessionPlayersProps> = ({
             <Flex justify="flex-end" align="center" pt={2} pb={0} w="full">
               <HStack gap={3} align="center">
                 <HStack gap={2.5} align="center">
-                  <VStack align="flex-end" gap={0}>
+                  {/* Fixed width instead of shrink-to-fit, for the same
+                      pixel-drift slack as the header lines */}
+                  <VStack align="stretch" gap={0} w="190px">
                     <Text
                       fontSize="xs"
                       fontWeight="bold"
                       color="green.600"
                       lineHeight="1"
+                      textAlign="right"
+                      whiteSpace="nowrap"
                     >
                       Vmito App
                     </Text>
@@ -1126,6 +1166,8 @@ const SessionPlayers: React.FC<SessionPlayersProps> = ({
                       fontWeight="medium"
                       lineHeight="1"
                       mt="1px"
+                      textAlign="right"
+                      whiteSpace="nowrap"
                     >
                       Nền tảng quản lý giao lưu cầu lông
                     </Text>

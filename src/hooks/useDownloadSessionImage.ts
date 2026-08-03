@@ -9,6 +9,12 @@ import { domToBlob, type Options } from 'modern-screenshot';
 import { ISession } from '@/lib/api/types';
 import { toaster } from '@/components/ui/toaster';
 import { useTranslations } from 'next-intl';
+import {
+  getElementCaptureSize,
+  isIOS,
+  needsWarmupRender,
+  normalizeClonedNode,
+} from '@/utils/dom-capture';
 
 interface UseDownloadSessionImageReturn {
   downloadSessionImage: (
@@ -23,38 +29,20 @@ interface UseDownloadSessionImageReturn {
       // several MB for no visible benefit; the stats table is flat text/color,
       // where PNG stays small and avoids JPEG artifacts around text edges
       imageType?: 'png' | 'jpeg';
+      // Extra pixels appended below the measured element. Text can render
+      // slightly wider inside the capture than in the live DOM and wrap onto
+      // an extra line; the slack keeps that from clipping the last row.
+      // Only safe on cards with a flat background — it is filled with the
+      // element's background color.
+      extraHeight?: number;
+      // Pixel ratio of the output. Share-card templates are already authored
+      // at 1080px+ so 2 is plenty; the stats table is laid out at 700px and
+      // needs more to keep its small text crisp when zoomed or printed.
+      scale?: number;
     }
   ) => Promise<void>;
   isDownloading: boolean;
 }
-
-// Covers iPhone/iPod/iPad, including iPadOS 13+ which reports as MacIntel
-const isIOS = () =>
-  typeof navigator !== 'undefined' &&
-  (/iPad|iPhone|iPod/.test(navigator.userAgent) ||
-    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1));
-
-// WebKit engines (all iOS browsers + desktop Safari) need a warm-up render
-// before images come out correctly; Chromium/Firefox don't
-const needsWarmupRender = () =>
-  isIOS() ||
-  (typeof navigator !== 'undefined' &&
-    /^((?!chrome|android).)*safari/i.test(navigator.userAgent));
-
-const getElementCaptureSize = (element: HTMLElement) => {
-  const rect = element.getBoundingClientRect();
-  const width = Math.ceil(
-    rect.width || element.scrollWidth || element.offsetWidth
-  );
-  const height = Math.ceil(
-    rect.height || element.scrollHeight || element.offsetHeight
-  );
-
-  return {
-    width: width > 0 ? width : undefined,
-    height: height > 0 ? height : undefined,
-  };
-};
 
 export const useDownloadSessionImage = (): UseDownloadSessionImageReturn => {
   const [isDownloading, setIsDownloading] = useState(false);
@@ -73,6 +61,8 @@ export const useDownloadSessionImage = (): UseDownloadSessionImageReturn => {
         themeId?: string;
         ratio?: string;
         imageType?: 'png' | 'jpeg';
+        extraHeight?: number;
+        scale?: number;
       }
     ) => {
       if (isDownloadingRef.current) return;
@@ -109,12 +99,17 @@ export const useDownloadSessionImage = (): UseDownloadSessionImageReturn => {
           (img) => img.src && !img.src.startsWith('data:')
         );
         const captureSize = getElementCaptureSize(element);
+        const extraHeight = options?.extraHeight ?? 0;
         const baseCaptureOptions: Options = {
           ...captureSize,
+          height: captureSize.height
+            ? captureSize.height + extraHeight
+            : undefined,
           fetch: { bypassingCache: true },
           style: {
             maxWidth: 'none',
           },
+          onCloneEachNode: normalizeClonedNode,
         };
 
         if (needsWarmupRender() && hasRemoteImages) {
@@ -129,7 +124,8 @@ export const useDownloadSessionImage = (): UseDownloadSessionImageReturn => {
         const blob = await domToBlob(element, {
           ...baseCaptureOptions,
           backgroundColor: elementBackgroundColor,
-          scale: 2, // Ensure good quality on mobile/high-DPI screens
+          // Ensure good quality on mobile/high-DPI screens
+          scale: options?.scale ?? 2,
           type: mimeType,
           quality: imageType === 'jpeg' ? 0.92 : undefined,
         });
