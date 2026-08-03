@@ -166,7 +166,8 @@ export const RankingService = {
     if (params?.cursor) query.append('cursor', params.cursor);
     const suffix = query.toString() ? `?${query.toString()}` : '';
     const response = await api.get<ApiResponse<IPointTransactionsResponse>>(
-      `/leaderboard/users/${userId}/point-transactions${suffix}`
+      `/leaderboard/users/${userId}/point-transactions${suffix}`,
+      { skipGlobalError: true }
     );
     return response.data.data!;
   },

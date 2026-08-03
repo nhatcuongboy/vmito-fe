@@ -88,20 +88,6 @@ export default function UserAchievementsSection({
         if (cancelled) return;
         setData(result);
         setRecentTransactions(result.recentTransactions);
-
-        RankingService.getUserPointTransactions(userId, {
-          limit: POINT_TRANSACTIONS_LIMIT,
-        })
-          .then((transactionsPage) => {
-            if (cancelled) return;
-            setRecentTransactions(transactionsPage.items);
-            setRecentTransactionsCursor(transactionsPage.nextCursor);
-            setHasMoreRecentTransactions(transactionsPage.hasMore);
-          })
-          .catch(() => {
-            if (cancelled) return;
-            setHasMoreRecentTransactions(false);
-          });
       })
       .catch(() => {
         if (!cancelled) setData(null);
@@ -169,7 +155,6 @@ export default function UserAchievementsSection({
   }
 
   const tierColor = TIER_COLORS[data.tier];
-  const allTimeRank = data.ranks.find((r) => r.period === 'all')?.rank;
   const progress = data.nextTier
     ? Math.min(
         100,
@@ -216,28 +201,6 @@ export default function UserAchievementsSection({
               )}
               <Avatar.Fallback name={userName || ''} />
             </Avatar.Root>
-            {allTimeRank && (
-              <Flex
-                position="absolute"
-                right="-2px"
-                bottom="-5px"
-                align="center"
-                justify="center"
-                minW="30px"
-                h="30px"
-                px={2}
-                borderRadius="full"
-                bg={tierColor.solid}
-                color="white"
-                border="3px solid"
-                borderColor="bg.panel"
-                fontSize="sm"
-                fontWeight="900"
-                lineHeight={1}
-              >
-                {allTimeRank}
-              </Flex>
-            )}
           </Box>
 
           {userName && (
