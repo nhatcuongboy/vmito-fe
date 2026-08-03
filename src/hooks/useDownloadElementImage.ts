@@ -2,7 +2,7 @@
 
 import { useCallback, useRef, useState } from 'react';
 // See useDownloadSessionImage.ts for why modern-screenshot over html-to-image
-import { domToBlob } from 'modern-screenshot';
+import { domToBlob, type Options } from 'modern-screenshot';
 import { toaster } from '@/components/ui/toaster';
 
 interface DownloadMessages {
@@ -31,6 +31,21 @@ const needsWarmupRender = () =>
   isIOS() ||
   (typeof navigator !== 'undefined' &&
     /^((?!chrome|android).)*safari/i.test(navigator.userAgent));
+
+const getElementCaptureSize = (element: HTMLElement) => {
+  const rect = element.getBoundingClientRect();
+  const width = Math.ceil(
+    rect.width || element.scrollWidth || element.offsetWidth
+  );
+  const height = Math.ceil(
+    rect.height || element.scrollHeight || element.offsetHeight
+  );
+
+  return {
+    width: width > 0 ? width : undefined,
+    height: height > 0 ? height : undefined,
+  };
+};
 
 /** Generic sibling of useDownloadSessionImage for non-session DOM captures (e.g. profile share cards). */
 export const useDownloadElementImage = (): UseDownloadElementImageReturn => {
@@ -69,17 +84,26 @@ export const useDownloadElementImage = (): UseDownloadElementImageReturn => {
         const hasRemoteImages = Array.from(images).some(
           (img) => img.src && !img.src.startsWith('data:')
         );
+        const captureSize = getElementCaptureSize(element);
+        const baseCaptureOptions: Options = {
+          ...captureSize,
+          fetch: { bypassingCache: true },
+          style: {
+            maxWidth: 'none',
+          },
+        };
+
         if (needsWarmupRender() && hasRemoteImages) {
-          await domToBlob(element, { fetch: { bypassingCache: true } });
+          await domToBlob(element, baseCaptureOptions);
         }
 
         const elementBackgroundColor =
           window.getComputedStyle(element).backgroundColor || '#ffffff';
 
         const blob = await domToBlob(element, {
+          ...baseCaptureOptions,
           backgroundColor: elementBackgroundColor,
           scale: 2,
-          fetch: { bypassingCache: true },
           type: 'image/png',
         });
         if (!blob) {

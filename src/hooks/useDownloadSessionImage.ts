@@ -5,7 +5,7 @@ import { useState, useCallback, useRef } from 'react';
 // computed style properties per node on WebKit (no cssText fast path there),
 // which made exports take ~15s on iOS; modern-screenshot only inlines styles
 // that differ from per-tag defaults, so Safari performs like Chrome
-import { domToBlob } from 'modern-screenshot';
+import { domToBlob, type Options } from 'modern-screenshot';
 import { ISession } from '@/lib/api/types';
 import { toaster } from '@/components/ui/toaster';
 import { useTranslations } from 'next-intl';
@@ -40,6 +40,21 @@ const needsWarmupRender = () =>
   isIOS() ||
   (typeof navigator !== 'undefined' &&
     /^((?!chrome|android).)*safari/i.test(navigator.userAgent));
+
+const getElementCaptureSize = (element: HTMLElement) => {
+  const rect = element.getBoundingClientRect();
+  const width = Math.ceil(
+    rect.width || element.scrollWidth || element.offsetWidth
+  );
+  const height = Math.ceil(
+    rect.height || element.scrollHeight || element.offsetHeight
+  );
+
+  return {
+    width: width > 0 ? width : undefined,
+    height: height > 0 ? height : undefined,
+  };
+};
 
 export const useDownloadSessionImage = (): UseDownloadSessionImageReturn => {
   const [isDownloading, setIsDownloading] = useState(false);
@@ -93,8 +108,17 @@ export const useDownloadSessionImage = (): UseDownloadSessionImageReturn => {
         const hasRemoteImages = Array.from(images).some(
           (img) => img.src && !img.src.startsWith('data:')
         );
+        const captureSize = getElementCaptureSize(element);
+        const baseCaptureOptions: Options = {
+          ...captureSize,
+          fetch: { bypassingCache: true },
+          style: {
+            maxWidth: 'none',
+          },
+        };
+
         if (needsWarmupRender() && hasRemoteImages) {
-          await domToBlob(element, { fetch: { bypassingCache: true } });
+          await domToBlob(element, baseCaptureOptions);
         }
 
         const elementBackgroundColor =
@@ -103,9 +127,9 @@ export const useDownloadSessionImage = (): UseDownloadSessionImageReturn => {
         const mimeType = imageType === 'jpeg' ? 'image/jpeg' : 'image/png';
 
         const blob = await domToBlob(element, {
+          ...baseCaptureOptions,
           backgroundColor: elementBackgroundColor,
           scale: 2, // Ensure good quality on mobile/high-DPI screens
-          fetch: { bypassingCache: true },
           type: mimeType,
           quality: imageType === 'jpeg' ? 0.92 : undefined,
         });

@@ -495,10 +495,15 @@ export default function SessionShareImageModal({
       )}
 
       <Box
-        position="absolute"
-        left="-9999px"
-        top="-9999px"
+        position="fixed"
+        left={0}
+        top={0}
+        zIndex={-1}
         pointerEvents="none"
+        aria-hidden="true"
+        css={{
+          contain: 'layout style paint',
+        }}
       >
         <SessionShareCard
           session={session}

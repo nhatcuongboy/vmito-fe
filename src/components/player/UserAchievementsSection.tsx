@@ -319,7 +319,17 @@ export default function UserAchievementsSection({
       </Box>
 
       {isOwner && (
-        <Box position="absolute" left="-9999px" top="-9999px">
+        <Box
+          position="fixed"
+          left={0}
+          top={0}
+          zIndex={-1}
+          pointerEvents="none"
+          aria-hidden="true"
+          css={{
+            contain: 'layout style paint',
+          }}
+        >
           <AchievementShareCard
             elementId={shareCardElementId}
             userName={userName || ''}
