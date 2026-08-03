@@ -383,7 +383,6 @@ export default function CitySelector({
                     <Search size={14} />
                   </Box>
                   <Input
-                    autoFocus
                     id="city-selector-search"
                     name="city-selector-search"
                     autoComplete="off"
