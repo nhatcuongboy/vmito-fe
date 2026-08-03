@@ -17,6 +17,7 @@ import { IClub } from '@/types/club';
 import { FavoriteEngagementControl } from '@/components/favorites/FavoriteEngagementControl';
 import { IconButton } from '@/components/ui/chakra-compat';
 import { toaster } from '@/components/ui/toaster';
+import { DETAIL_PAGE_MAX_W } from '@/constants';
 
 interface IClubDetailHeroProps {
   club: IClub;
@@ -64,7 +65,7 @@ export const ClubDetailHero = ({
   };
 
   return (
-    <Container maxW="container.xl" px={0}>
+    <Container maxW={DETAIL_PAGE_MAX_W} px={0}>
       <Box
         position="relative"
         // Full-bleed hero on mobile: cancel the PageLayout's 24px side

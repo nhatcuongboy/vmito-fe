@@ -87,6 +87,8 @@ export default function UserProfileHeader({
   const displayCoverUrl = coverUrl || DEFAULT_COVER_PHOTO;
   const joinedAt = profile.createdAt;
   const phone = profile.phone;
+  const ratingCount = ratingStats?.totalRatings ?? 0;
+  const hasRatings = ratingCount > 0;
 
   const genderLabel = useMemo(() => {
     if (!profile.gender) return '';
@@ -129,15 +131,6 @@ export default function UserProfileHeader({
       });
     }
 
-    if (joinedAt) {
-      items.push({
-        key: 'joinedAt',
-        icon: <CalendarDays size={16} />,
-        value: t('joinedDateLabel', { date: formatDate(joinedAt, locale) }),
-        valueWeight: 'medium',
-      });
-    }
-
     items.push({
       key: 'hostedSessions',
       icon: <Trophy size={16} />,
@@ -154,26 +147,34 @@ export default function UserProfileHeader({
       valueWeight: 'semibold',
     });
 
-    items.push({
-      key: 'reviews',
-      icon: <Star size={16} />,
-      label: `${t('reviews')}:`,
-      value: ratingStats?.totalRatings ?? 0,
-      valueWeight: 'semibold',
-    });
+    if (hasRatings) {
+      items.push({
+        key: 'reviews',
+        icon: <Star size={16} />,
+        label: `${t('reviews')}:`,
+        value: ratingCount,
+        valueWeight: 'semibold',
+      });
+    }
 
     return items;
   }, [
     phone,
     genderLabel,
-    joinedAt,
-    locale,
     t,
     tCommon,
     allHostedSessionsCount,
     profile.joinedSessionsCount,
-    ratingStats?.totalRatings,
+    hasRatings,
+    ratingCount,
   ]);
+
+  const joinedAtItem = joinedAt
+    ? {
+        icon: <CalendarDays size={16} />,
+        value: t('joinedDateLabel', { date: formatDate(joinedAt, locale) }),
+      }
+    : null;
 
   const cover = useImageUpload({
     uploader: AdminService.uploadCover,
@@ -259,6 +260,7 @@ export default function UserProfileHeader({
 
   return (
     <Box
+      position="relative"
       borderWidth="1px"
       borderColor="gray.200"
       borderRadius="2xl"
@@ -371,6 +373,37 @@ export default function UserProfileHeader({
         )}
       </Box>
 
+      {isOwner && (
+        <Button
+          size="xs"
+          variant="outline"
+          onClick={onEdit}
+          position="absolute"
+          top={{
+            base: 'calc(180px + 12px)',
+            md: 'calc(220px + 12px)',
+          }}
+          right={{ base: 3, sm: 5 }}
+          zIndex={2}
+          borderRadius="full"
+          px={3}
+          fontWeight="semibold"
+          color="gray.700"
+          bg="white"
+          borderColor="gray.300"
+          boxShadow="sm"
+          _dark={{
+            color: 'gray.100',
+            bg: 'gray.800',
+            borderColor: 'gray.600',
+          }}
+          _hover={{ bg: 'gray.50', _dark: { bg: 'gray.700' } }}
+        >
+          <Pencil size={12} />
+          {tCommon('edit')}
+        </Button>
+      )}
+
       {/* Centered avatar overlapping the cover, Facebook-style */}
       <Flex direction="column" align="center" px={5}>
         <Box position="relative" mt="-48px" zIndex={1}>
@@ -447,37 +480,28 @@ export default function UserProfileHeader({
           {displayName}
         </Text>
 
-        <StarRatingDisplay
-          rating={ratingStats?.averageRating || 0}
-          count={ratingStats?.totalRatings || 0}
-          variant="compact"
-          size="sm"
-        />
-
-        {isOwner && (
-          <Button
-            size="xs"
-            variant="outline"
-            onClick={onEdit}
-            mt={2}
-            borderRadius="full"
-            px={4}
-            fontWeight="semibold"
-            color="gray.700"
-            borderColor="gray.300"
-            _dark={{ color: 'gray.100', borderColor: 'gray.600' }}
-            _hover={{ bg: 'gray.50', _dark: { bg: 'gray.700' } }}
-          >
-            <Pencil size={12} />
-            {tCommon('edit')}
-          </Button>
-        )}
+        {hasRatings ? (
+          <StarRatingDisplay
+            rating={ratingStats?.averageRating || 0}
+            count={ratingCount}
+            showCount={false}
+            variant="compact"
+            size="sm"
+          />
+        ) : null}
       </Flex>
 
-      <Box px={5} pb={5} pt={3}>
+      <Box
+        px={5}
+        pb={{ base: 5, md: 6 }}
+        pt={{ base: 3, md: 4 }}
+        maxW="640px"
+        mx="auto"
+        w="full"
+      >
         <SimpleGrid
-          columns={{ base: 1, sm: 2 }}
-          columnGap={8}
+          columns={{ base: 1, md: 2 }}
+          columnGap={{ base: 0, md: 12 }}
           rowGap={2.5}
           width="full"
         >
@@ -505,6 +529,22 @@ export default function UserProfileHeader({
               </Text>
             </HStack>
           ))}
+
+          {joinedAtItem ? (
+            <HStack gap={2.5} align="center">
+              <Box color="gray.400" _dark={{ color: 'gray.500' }}>
+                {joinedAtItem.icon}
+              </Box>
+              <Text
+                fontSize="sm"
+                fontWeight="medium"
+                color="gray.700"
+                _dark={{ color: 'gray.200' }}
+              >
+                {joinedAtItem.value}
+              </Text>
+            </HStack>
+          ) : null}
         </SimpleGrid>
       </Box>
 

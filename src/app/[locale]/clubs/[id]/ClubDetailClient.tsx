@@ -4,11 +4,9 @@ import { useState, useEffect, useCallback } from 'react';
 import {
   Box,
   Container,
-  Flex,
   Heading,
   Text,
   HStack,
-  Spinner,
   Image,
   Grid,
   Tabs,
@@ -23,7 +21,8 @@ import { IClub, EMemberRole, EJoinRequestStatus } from '@/types/club';
 import { toaster } from '@/components/ui/toaster';
 import { useAuthStore } from '@/stores/useAuthStore';
 import PageLayout from '@/components/layout/PageLayout';
-import { DEFAULT_COVER_PHOTO, ROUTES } from '@/constants';
+import DetailPageSkeleton from '@/components/layout/DetailPageSkeleton';
+import { DEFAULT_COVER_PHOTO, DETAIL_PAGE_MAX_W, ROUTES } from '@/constants';
 import {
   DEFAULT_CLUB_TAB,
   isClubDetailTab,
@@ -191,18 +190,12 @@ export default function ClubDetailClient({
   };
 
   if (isLoading) {
-    return (
-      <PageLayout title={t('clubs.clubDetails')}>
-        <Flex justify="center" align="center" minH="400px">
-          <Spinner size="xl" colorPalette="green" />
-        </Flex>
-      </PageLayout>
-    );
+    return <DetailPageSkeleton title={t('clubs.clubDetails')} />;
   }
 
   if (!club) {
     return (
-      <PageLayout title={t('common.error')}>
+      <PageLayout title={t('common.error')} maxW={DETAIL_PAGE_MAX_W}>
         <Container maxW="container.md" py={16} textAlign="center">
           <Heading mb={4}>{t('common.error')}</Heading>
           <Button
@@ -252,11 +245,12 @@ export default function ClubDetailClient({
           </Text>
         </HStack>
       }
+      maxW={DETAIL_PAGE_MAX_W}
     >
       <ClubDetailHero club={club} clubDisplayImage={clubDisplayImage} />
 
       {/* Navigation Tabs & Content */}
-      <Container maxW="container.xl" pb={8} px={0}>
+      <Container maxW={DETAIL_PAGE_MAX_W} pb={8} px={0}>
         <Tabs.Root
           value={activeTab}
           onValueChange={(e) => handleTabChange(e.value)}

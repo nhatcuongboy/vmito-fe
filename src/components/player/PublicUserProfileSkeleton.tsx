@@ -11,6 +11,7 @@ import {
 import { useTranslations } from 'next-intl';
 import PageLayout from '@/components/layout/PageLayout';
 import { NewsfeedSkeleton } from '@/components/post/PostCardSkeleton';
+import { DETAIL_PAGE_MAX_W } from '@/constants';
 
 export default function PublicUserProfileSkeleton() {
   const t = useTranslations('userProfilePage');
@@ -19,6 +20,7 @@ export default function PublicUserProfileSkeleton() {
     <PageLayout
       title={t('title')}
       showBackButton={true}
+      maxW={DETAIL_PAGE_MAX_W}
       bg="gray.50"
       _dark={{ bg: 'gray.900' }}
     >

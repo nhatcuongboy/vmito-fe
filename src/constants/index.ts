@@ -10,6 +10,7 @@ export const BOTTOM_TAB_HEIGHT = 64;
 
 export const CONTAINER_PX = '24px';
 export const CONTENT_PT_OFFSET = '16px';
+export const DETAIL_PAGE_MAX_W = '1095px';
 
 export const SIDEBAR_WIDTH_EXPANDED = 240;
 export const SIDEBAR_WIDTH_COLLAPSED = 72;
