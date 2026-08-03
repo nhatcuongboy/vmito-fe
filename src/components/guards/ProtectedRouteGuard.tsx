@@ -3,7 +3,7 @@
 import { useAuthStore, useAuthHydration } from '@/stores/useAuthStore';
 import { useRouter } from '@/i18n/config';
 import { useEffect } from 'react';
-import { Box, Spinner, Text, VStack } from '@chakra-ui/react';
+import { Box, Text, VStack } from '@chakra-ui/react';
 import { Button } from '@/components/ui/chakra-compat';
 import { useTranslations } from 'next-intl';
 import { canRoleAccessHostFeatures } from '@/hooks/useCanAccessHostFeatures';
@@ -14,6 +14,7 @@ interface ProtectedRouteGuardProps {
   children: React.ReactNode;
   redirectTo?: string;
   requiredRole?: string[];
+  requireAccessToken?: boolean;
 }
 
 /**
@@ -25,22 +26,25 @@ export default function ProtectedRouteGuard({
   children,
   redirectTo = '/auth/signin',
   requiredRole = [],
+  requireAccessToken = false,
 }: ProtectedRouteGuardProps) {
-  const { user, isAuthenticated, isLoading } = useAuthStore();
+  const { user, accessToken, isAuthenticated, isLoading } = useAuthStore();
   const isHydrated = useAuthHydration();
   const router = useRouter();
   const t = useTranslations('auth.guard');
+  const hasAuthenticatedSession =
+    isAuthenticated && (!requireAccessToken || Boolean(accessToken));
 
   useEffect(() => {
     // Wait for hydration before checking auth
     if (!isHydrated) return;
 
     // If not logged in, redirect to signin
-    if (!isAuthenticated) {
+    if (!hasAuthenticatedSession) {
       // next-intl router automatically handles locale prefix
       router.push(redirectTo);
     }
-  }, [isHydrated, isAuthenticated, router, redirectTo]);
+  }, [isHydrated, hasAuthenticatedSession, router, redirectTo]);
 
   // Check role permission if required
   // REFEREE keeps normal PLAYER access, plus referee-specific routes elsewhere.
@@ -70,7 +74,7 @@ export default function ProtectedRouteGuard({
   }
 
   // If not logged in, show loading while redirecting
-  if (!isAuthenticated) {
+  if (!hasAuthenticatedSession) {
     return <AppSplashScreen label={t('redirectingToSignIn')} />;
   }
 
