@@ -908,9 +908,8 @@ export default function SessionInfo({
           {playerStats && playerAchievementExportId && (
             <Box
               position="fixed"
-              left={0}
+              left="-10000px"
               top={0}
-              zIndex={-1}
               pointerEvents="none"
               aria-hidden="true"
               css={{
