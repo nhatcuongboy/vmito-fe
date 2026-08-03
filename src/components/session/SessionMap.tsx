@@ -16,7 +16,6 @@ import {
   Button,
   VStack,
   HStack,
-  Spinner,
   Center,
   Badge,
   Separator,
@@ -33,6 +32,7 @@ import {
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import useMapPinIcon from '@/hooks/useMapPinIcon';
+import MapLoadingSkeleton from '@/components/common/MapLoadingSkeleton';
 import { format } from 'date-fns';
 import { toaster } from '@/components/ui/toaster';
 import { useTranslations } from 'next-intl';
@@ -339,11 +339,7 @@ export default function SessionMap({
   }
 
   if (!isLoaded) {
-    return (
-      <Center h="400px">
-        <Spinner size="xl" color="green.500" />
-      </Center>
-    );
+    return <MapLoadingSkeleton />;
   }
 
   return (

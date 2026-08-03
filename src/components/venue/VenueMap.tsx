@@ -16,7 +16,6 @@ import {
   Button,
   VStack,
   HStack,
-  Spinner,
   Center,
   IconButton,
 } from '@chakra-ui/react';
@@ -24,6 +23,7 @@ import { MapPin, Info, Navigation, Locate } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import useMapPinIcon from '@/hooks/useMapPinIcon';
+import MapLoadingSkeleton from '@/components/common/MapLoadingSkeleton';
 import { toaster } from '@/components/ui/toaster';
 import { Image } from '@/components/ui/chakra-compat';
 import {
@@ -187,11 +187,7 @@ export default function VenueMap({
   }
 
   if (!isLoaded) {
-    return (
-      <Center h="400px">
-        <Spinner size="xl" color="green.500" />
-      </Center>
-    );
+    return <MapLoadingSkeleton />;
   }
 
   return (

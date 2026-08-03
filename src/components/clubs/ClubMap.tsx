@@ -15,7 +15,6 @@ import {
   Text,
   VStack,
   HStack,
-  Spinner,
   Center,
   Badge,
   Separator,
@@ -25,6 +24,7 @@ import { MapPin, Info, Navigation, Users, Locate } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import useMapPinIcon from '@/hooks/useMapPinIcon';
+import MapLoadingSkeleton from '@/components/common/MapLoadingSkeleton';
 import { toaster } from '@/components/ui/toaster';
 import {
   TOP_BAR_HEIGHT_MOBILE,
@@ -237,11 +237,7 @@ export default function ClubMap({
   }
 
   if (!isLoaded) {
-    return (
-      <Center h="400px">
-        <Spinner size="xl" color="green.500" />
-      </Center>
-    );
+    return <MapLoadingSkeleton />;
   }
 
   return (

@@ -85,6 +85,7 @@ import {
 } from './SessionCardSkeleton';
 import { SESSION_RESULTS_LAYOUT } from './find-session-results-layout';
 import { getFullRowSkeletonDisplay } from '@/components/common/infinite-loading-layout';
+import MapLoadingSkeleton from '@/components/common/MapLoadingSkeleton';
 import SessionSearchBar from './SessionSearchBar';
 import ResultsHeader from './ResultsHeader';
 import { useRegisterTopBarSearch } from '@/contexts/TopBarSearchContext';
@@ -1047,25 +1048,31 @@ export default function FindSessionList({
 
       {/* Results List */}
       {loading ? (
-        <Grid
-          templateColumns={sessionResultsLayout.templateColumns}
-          gap={sessionResultsLayout.gap}
-        >
-          {/* Grid mode: tall cards, so mobile only needs 2 to fill the
+        viewMode === 'map' ? (
+          <Box paddingBottom={`${BOTTOM_TAB_HEIGHT}px`}>
+            <MapLoadingSkeleton />
+          </Box>
+        ) : (
+          <Grid
+            templateColumns={sessionResultsLayout.templateColumns}
+            gap={sessionResultsLayout.gap}
+          >
+            {/* Grid mode: tall cards, so mobile only needs 2 to fill the
               viewport. List mode is a single column of short ~140px rows on
               mobile, so it needs more rows to avoid a big empty gap below. */}
-          {Array.from({ length: 6 }).map((_, index) =>
-            viewMode === 'list' ? (
-              <SessionCardCompactSkeleton key={index} display="flex" />
-            ) : (
-              <SessionCardSkeleton
-                key={index}
-                variant={viewMode}
-                display={{ base: index < 2 ? 'flex' : 'none', md: 'flex' }}
-              />
-            )
-          )}
-        </Grid>
+            {Array.from({ length: 6 }).map((_, index) =>
+              viewMode === 'list' ? (
+                <SessionCardCompactSkeleton key={index} display="flex" />
+              ) : (
+                <SessionCardSkeleton
+                  key={index}
+                  variant={viewMode}
+                  display={{ base: index < 2 ? 'flex' : 'none', md: 'flex' }}
+                />
+              )
+            )}
+          </Grid>
+        )
       ) : error ? (
         <AppErrorState
           minH={{ base: '280px', md: '320px' }}

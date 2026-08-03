@@ -7,7 +7,6 @@ import {
   Heading,
   HStack,
   SimpleGrid,
-  Skeleton,
   Text,
   VStack,
 } from '@chakra-ui/react';
@@ -60,6 +59,7 @@ import { AppSearchBar } from '@/components/common/AppSearchBar';
 import { useRegisterTopBarSearch } from '@/contexts/TopBarSearchContext';
 import { useSearchParams } from 'next/navigation';
 import { getFullRowSkeletonDisplay } from '@/components/common/infinite-loading-layout';
+import MapLoadingSkeleton from '@/components/common/MapLoadingSkeleton';
 
 const LoginPromptModal = dynamic(
   () => import('@/components/auth/LoginPromptModal'),
@@ -1068,10 +1068,7 @@ function BrowseClubsContent() {
       {isLoading && clubs.length === 0 ? (
         viewMode === 'map' ? (
           <Box paddingBottom={`${BOTTOM_TAB_HEIGHT}px`}>
-            <Skeleton
-              height={{ base: '360px', md: '520px' }}
-              borderRadius="2xl"
-            />
+            <MapLoadingSkeleton />
           </Box>
         ) : (
           <SimpleGrid columns={CLUB_RESULT_GRID_COLUMNS} gap={4}>
@@ -1110,10 +1107,7 @@ function BrowseClubsContent() {
       ) : viewMode === 'map' ? (
         isLoadingFullDetails && fullClubs.length === 0 ? (
           <Box paddingBottom={`${BOTTOM_TAB_HEIGHT}px`}>
-            <Skeleton
-              height={{ base: '360px', md: '520px' }}
-              borderRadius="2xl"
-            />
+            <MapLoadingSkeleton />
           </Box>
         ) : (
           <Box paddingBottom={`${BOTTOM_TAB_HEIGHT}px`}>

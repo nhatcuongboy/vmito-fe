@@ -63,6 +63,7 @@ import { usePreferenceStore } from '@/stores/usePreferenceStore';
 import { usePathname, useRouter } from '@/i18n/config';
 import { useRegisterTopBarSearch } from '@/contexts/TopBarSearchContext';
 import { getFullRowSkeletonDisplay } from '@/components/common/infinite-loading-layout';
+import MapLoadingSkeleton from '@/components/common/MapLoadingSkeleton';
 
 const LoginPromptModal = dynamic(
   () => import('@/components/auth/LoginPromptModal'),
@@ -1011,11 +1012,17 @@ export default function VenueSearchList() {
 
       {/* Results */}
       {loading ? (
-        <Grid templateColumns={VENUE_RESULT_GRID_COLUMNS} gap={4}>
-          {Array.from({ length: 6 }).map((_, i) => (
-            <VenueCardSkeleton key={i} variant={venueCardVariant} />
-          ))}
-        </Grid>
+        viewMode === 'map' ? (
+          <Box paddingBottom={`${BOTTOM_TAB_HEIGHT}px`}>
+            <MapLoadingSkeleton />
+          </Box>
+        ) : (
+          <Grid templateColumns={VENUE_RESULT_GRID_COLUMNS} gap={4}>
+            {Array.from({ length: 6 }).map((_, i) => (
+              <VenueCardSkeleton key={i} variant={venueCardVariant} />
+            ))}
+          </Grid>
+        )
       ) : error ? (
         <Box
           p={4}
