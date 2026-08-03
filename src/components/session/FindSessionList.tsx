@@ -8,10 +8,9 @@ import { classifyApiError, type ApiErrorKind } from '@/lib/api/apiError';
 import { useLevelLabel } from '@/hooks/useLevelLabel';
 import { VModal } from '@/components/ui/VModal';
 import { ROUTES, TIME_RANGES, BOTTOM_TAB_HEIGHT } from '@/constants';
-import {
-  VIETNAM_CITIES,
-  normalizeCityForApi,
-} from '@/constants/vietnam-locations';
+import { VIETNAM_CITIES } from '@/constants/vietnam-locations';
+import { cityCodeToApiName } from '@/lib/preferred-city';
+import { getSessionHour } from '@/utils/time-helpers';
 import { RatingStatsProvider } from '@/contexts/RatingStatsContext';
 import { useRouter } from '@/i18n/config';
 import { ExtractedSessionData } from '@/lib/api/ai.service';
@@ -132,6 +131,11 @@ export type SessionUrlFilters = ReturnType<
 
 interface FindSessionListProps {
   initialSessions?: ISession[];
+  /** The city filter the server used when it fetched `initialSessions`. The
+   * saved city preference lives in localStorage, so the server can only guess
+   * it from a mirrored cookie — when its guess turns out to be wrong we drop
+   * the seed rather than show the user a list from the wrong city. */
+  initialSessionsCity?: string | null;
   mode: 'browse' | 'auto';
   onModeChange: (mode: 'browse' | 'auto') => void;
   /** Saved view-mode preference from the request cookie (read server-side)
@@ -141,6 +145,7 @@ interface FindSessionListProps {
 
 export default function FindSessionList({
   initialSessions = [],
+  initialSessionsCity = null,
   mode,
   onModeChange,
   serverViewMode,
@@ -152,6 +157,7 @@ export default function FindSessionList({
   // first client fetch as a silent revalidation instead of swapping the
   // (LCP) cards out for skeletons
   const silentRevalidateRef = useRef(initialSessions.length > 0);
+  const isFirstFetchRef = useRef(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
@@ -246,7 +252,21 @@ export default function FindSessionList({
   const tVenue = useTranslations('venue');
   const { getLevelShortLabel } = useLevelLabel();
   const { user } = useAuthStore();
-  const { useAiForCreation, preferredCity } = usePreferenceStore();
+  const {
+    useAiForCreation,
+    preferredCity,
+    _hasHydrated: preferencesHydrated,
+  } = usePreferenceStore();
+
+  // The `city` value sent to the API: explicit filter first, saved preference
+  // otherwise. Derived once so the server can be told which city it seeded the
+  // page with and we can detect a mismatch.
+  const effectiveCity = useMemo(() => {
+    if (filters.cities.length > 0) {
+      return filters.cities.map(cityCodeToApiName).filter(Boolean).join(',');
+    }
+    return cityCodeToApiName(preferredCity) ?? '';
+  }, [filters.cities, preferredCity]);
 
   const { ref, inView } = useInView({
     threshold: 0.1,
@@ -282,6 +302,19 @@ export default function FindSessionList({
         loadingMoreRef.current = true;
         setLoadingMore(true);
       } else {
+        // Only keep the server-rendered cards on screen while revalidating if
+        // they answer the same question this request does. When the resolved
+        // city differs from the one the server guessed, showing them until the
+        // response lands means the user reads a list from another city and
+        // then watches it be replaced — skeletons are the honest state.
+        if (
+          isFirstFetchRef.current &&
+          effectiveCity !== (initialSessionsCity ?? '')
+        ) {
+          silentRevalidateRef.current = false;
+          setSessions([]);
+        }
+        isFirstFetchRef.current = false;
         if (!silentRevalidateRef.current) {
           setLoading(true);
         }
@@ -305,21 +338,7 @@ export default function FindSessionList({
         date: filters.date,
         searchQuery: filters.searchQuery,
         // Send City NAME(s) instead of CODE(s) — comma-separated for multi-select
-        city:
-          filters.cities.length > 0
-            ? filters.cities
-                .map((code) => {
-                  const name =
-                    VIETNAM_CITIES.find((c) => c.code === code)?.name ?? code;
-                  return normalizeCityForApi(name);
-                })
-                .join(',')
-            : preferredCity
-              ? normalizeCityForApi(
-                  VIETNAM_CITIES.find((c) => c.code === preferredCity)?.name ??
-                    preferredCity
-                )
-              : undefined,
+        city: effectiveCity || undefined,
         // Send cleaned District name(s) — comma-separated for multi-select
         district:
           filters.districts.length > 0
@@ -374,7 +393,7 @@ export default function FindSessionList({
       if (filters.timeRanges.length > 0) {
         filteredData = filteredData.filter((session) => {
           if (!session.startTime) return false;
-          const hour = new Date(session.startTime).getHours();
+          const hour = getSessionHour(session.startTime);
           return filters.timeRanges.some((rangeKey) => {
             const rangeDef = TIME_RANGES.find((r) => r.key === rangeKey);
             if (!rangeDef) return false;
@@ -458,11 +477,17 @@ export default function FindSessionList({
   };
 
   useEffect(() => {
+    // The saved city lives in localStorage, so preferredCity is null until the
+    // store rehydrates. Firing before then requests the whole country and then
+    // immediately re-requests the user's city — two round trips and a visible
+    // list swap for a filter we already know is coming.
+    if (!preferencesHydrated) return;
     // Filters from drawer are applied via Submit button (batch update).
     // Search query is debounced at the input level (SessionSearchBar).
     fetchSessions();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
+    preferencesHydrated,
     filters.date,
     filters.cities,
     filters.districts,
@@ -481,7 +506,7 @@ export default function FindSessionList({
     sortBy,
     refreshKey,
     viewMode, // re-fetch with larger limit when switching to/from map mode
-    preferredCity,
+    effectiveCity,
     urlFilters.favorite,
   ]);
 

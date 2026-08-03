@@ -2,6 +2,15 @@
  * Helper functions for time formatting and calculations
  */
 
+import dayjs from '@/lib/dayjs';
+
+/** Session times are venue-local (all venues are in Vietnam). Formatting them
+ * in this fixed zone rather than the runtime's own zone is what keeps the
+ * server-rendered HTML byte-identical to the client render — Node runs in UTC
+ * in production, so `Date#getHours()` produced times 7 hours off in the first
+ * paint and every card visibly jumped on hydration. */
+export const SESSION_TIMEZONE = 'Asia/Ho_Chi_Minh';
+
 export interface CourtElapsedTimeTranslations {
   lessThanMinute: string;
   oneMinute: string;
@@ -113,17 +122,21 @@ export const is24HourFormat = (): boolean => {
 };
 
 /**
- * Format time string in 24h format (HH:mm), always — regardless of OS/locale setting.
+ * Format time string in 24h format (HH:mm), always — regardless of OS/locale
+ * setting, and always in the venue's zone rather than the viewer's.
  * @param dateString - Time string or Date object
  * @returns Formatted time string, e.g. "20:00"
  */
 export const formatTimeByDevicePreference = (
   dateString: string | Date
 ): string => {
-  const date = new Date(dateString);
-  const h = date.getHours().toString().padStart(2, '0');
-  const m = date.getMinutes().toString().padStart(2, '0');
-  return `${h}:${m}`;
+  return dayjs(dateString).tz(SESSION_TIMEZONE).format('HH:mm');
+};
+
+/** Hour-of-day of a session time in the venue's zone — for time-range filters,
+ * which must bucket a session the same way regardless of where it is evaluated. */
+export const getSessionHour = (dateString: string | Date): number => {
+  return dayjs(dateString).tz(SESSION_TIMEZONE).hour();
 };
 
 /**
