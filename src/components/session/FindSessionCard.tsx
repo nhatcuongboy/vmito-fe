@@ -223,7 +223,7 @@ const FindSessionCard = ({
   const availableSlots = maxPlayers - approvedPlayersCount;
   const slotAvailabilityBadge = !isExpired ? (
     <Badge
-      {...TOP_LEFT_BADGE_PROPS}
+      {...(isCompact ? TOP_LEFT_BADGE_PROPS : {})}
       colorPalette={isFull ? 'gray' : 'teal'}
       variant="solid"
       borderWidth="1px"
@@ -264,7 +264,7 @@ const FindSessionCard = ({
   // "Bài đăng Facebook" badge for crawled Facebook sessions
   const crawledBadge = isCrawled ? (
     <Badge
-      {...TOP_LEFT_BADGE_PROPS}
+      {...(isCompact ? TOP_LEFT_BADGE_PROPS : {})}
       bg="#1877F2"
       color="white"
       borderWidth="1px"

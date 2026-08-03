@@ -898,6 +898,7 @@
     },
     "loadMore": "Load More",
     "loadingMore": "Loading More...",
+    "endOfResults": "You've reached the end of the results.",
     "confirmEndSession": "Confirm End Session",
     "confirmEndSessionMessage": "Are you sure you want to end this session? This action cannot be undone and will end all ongoing matches.",
     "endSession": "End Session",

@@ -83,9 +83,13 @@ import {
   SessionCardSkeleton,
   SessionCardCompactSkeleton,
 } from './SessionCardSkeleton';
+import { SESSION_RESULTS_LAYOUT } from './find-session-results-layout';
+import { getFullRowSkeletonDisplay } from '@/components/common/infinite-loading-layout';
 import SessionSearchBar from './SessionSearchBar';
 import ResultsHeader from './ResultsHeader';
 import { useRegisterTopBarSearch } from '@/contexts/TopBarSearchContext';
+import { toaster } from '@/components/ui/toaster';
+import { getUserLocation } from '@/lib/utils/geolocation.utils';
 
 // Map view pulls in @react-google-maps/api (~150KB) — load it only when the
 // user switches to map mode instead of shipping it with the initial page
@@ -245,7 +249,9 @@ export default function FindSessionList({
 
   const { ref, inView } = useInView({
     threshold: 0.1,
-    rootMargin: '100px',
+    // Start the request before the user reaches the absolute bottom, so the
+    // loading row is less likely to enter the viewport while they are moving.
+    rootMargin: '400px 0px',
   });
 
   const loadingMoreRef = useRef(false);
@@ -412,11 +418,7 @@ export default function FindSessionList({
       }
 
       // In map mode: no infinite scroll — all data already fetched
-      setHasMore(
-        !isMapMode &&
-          currentPage < pagination.totalPages &&
-          filteredData.length > 0
-      );
+      setHasMore(!isMapMode && currentPage < pagination.totalPages);
 
       // Fetch user specific data
       if (user) {
@@ -499,6 +501,28 @@ export default function FindSessionList({
   // Handler for search query
   const handleSearchQueryChange = (val: string) => {
     setUrlFilters({ q: val });
+  };
+
+  const handleSortChange = async (value: SessionSortBy) => {
+    if (value !== 'distance') {
+      // Choosing another order must disable the independent “Gần tôi” filter,
+      // which otherwise continues to override the selected sort in the API.
+      setUrlFilters({ sort: value, near: false });
+      return;
+    }
+
+    try {
+      const location = userLocation ?? (await getUserLocation());
+      setUserLocation(location);
+      // The API needs both the coordinates and this flag to calculate the
+      // distance field and rank the full result set by proximity.
+      setUrlFilters({ sort: 'distance', near: true });
+    } catch (error) {
+      toaster.error({
+        title: t('filters.locationPermissionDenied'),
+        description: error instanceof Error ? error.message : undefined,
+      });
+    }
   };
 
   const handleSubmitFilters = () => {
@@ -641,6 +665,15 @@ export default function FindSessionList({
     }
   }, [sessions, sortBy]);
 
+  // Map is rendered separately; these are the two card layouts that share
+  // responsive column and load-more skeleton configuration.
+  const sessionResultsViewMode = viewMode === 'list' ? 'list' : 'grid';
+  const sessionResultsLayout = SESSION_RESULTS_LAYOUT[sessionResultsViewMode];
+  const loadMoreSkeletonDisplay = getFullRowSkeletonDisplay(
+    sortedSessions.length,
+    sessionResultsLayout.columnCounts
+  );
+
   // Extract unique host IDs for batch rating stats loading
   const hostIds = useMemo(() => {
     const ids = sortedSessions
@@ -707,7 +740,7 @@ export default function FindSessionList({
         onModeChange={onModeChange}
         isLoading={loading}
         sortBy={sortBy}
-        onSortChange={(value) => setUrlFilters({ sort: value })}
+        onSortChange={handleSortChange}
         viewMode={viewMode}
         setViewMode={setViewMode}
       >
@@ -1015,22 +1048,8 @@ export default function FindSessionList({
       {/* Results List */}
       {loading ? (
         <Grid
-          templateColumns={
-            viewMode === 'list'
-              ? {
-                  // 1 col of horizontal cards on mobile; minmax(0, 1fr) so
-                  // nowrap text can't widen the tracks past the viewport
-                  base: 'minmax(0, 1fr)',
-                  md: 'repeat(3, minmax(0, 1fr))',
-                  lg: 'repeat(4, minmax(0, 1fr))',
-                }
-              : {
-                  base: 'minmax(0, 1fr)',
-                  md: 'repeat(2, 1fr)',
-                  lg: 'repeat(3, 1fr)',
-                }
-          }
-          gap={viewMode === 'list' ? { base: 2, md: 3 } : 6}
+          templateColumns={sessionResultsLayout.templateColumns}
+          gap={sessionResultsLayout.gap}
         >
           {/* Grid mode: tall cards, so mobile only needs 2 to fill the
               viewport. List mode is a single column of short ~140px rows on
@@ -1086,22 +1105,8 @@ export default function FindSessionList({
       ) : (
         <RatingStatsProvider userIds={hostIds}>
           <Grid
-            templateColumns={
-              viewMode === 'list'
-                ? {
-                    // 1 col of horizontal cards on mobile; minmax(0, 1fr) so
-                    // nowrap text can't widen the tracks past the viewport
-                    base: 'minmax(0, 1fr)',
-                    md: 'repeat(3, minmax(0, 1fr))',
-                    lg: 'repeat(4, minmax(0, 1fr))',
-                  }
-                : {
-                    base: 'minmax(0, 1fr)',
-                    md: 'repeat(2, 1fr)',
-                    lg: 'repeat(3, 1fr)',
-                  }
-            }
-            gap={viewMode === 'list' ? { base: 2, md: 3 } : 6}
+            templateColumns={sessionResultsLayout.templateColumns}
+            gap={sessionResultsLayout.gap}
           >
             {sortedSessions.map((session, index) =>
               viewMode === 'list' ? (
@@ -1136,42 +1141,61 @@ export default function FindSessionList({
                 />
               )
             )}
-
-            {/* Load-more skeletons: same grid so they fill the remaining
-                slots of a partial last row instead of starting a new one */}
-            {hasMore &&
-              Array.from({ length: 3 }).map((_, index) =>
-                viewMode === 'list' ? (
-                  <SessionCardCompactSkeleton
-                    key={`load-more-${index}`}
-                    display={{
-                      base: index < 2 ? 'flex' : 'none',
-                      md: 'flex',
-                    }}
-                  />
-                ) : (
-                  <SessionCardSkeleton
-                    key={`load-more-${index}`}
-                    variant={viewMode}
-                    display={{
-                      base: index < 1 ? 'flex' : 'none',
-                      md: index < 2 ? 'flex' : 'none',
-                      lg: 'flex',
-                    }}
-                  />
-                )
-              )}
           </Grid>
+
+          {/* Load-more skeletons always begin in their own complete row,
+              preventing a pending result from appearing beside real cards. */}
+          {loadingMore && (
+            <Grid
+              mt={sessionResultsLayout.gap}
+              display={loadMoreSkeletonDisplay}
+              templateColumns={sessionResultsLayout.templateColumns}
+              gap={sessionResultsLayout.gap}
+              aria-busy="true"
+              overflowAnchor="none"
+            >
+              {sessionResultsLayout.loadMoreSkeletonDisplays.map(
+                (display, index) =>
+                  sessionResultsViewMode === 'list' ? (
+                    <SessionCardCompactSkeleton
+                      key={`load-more-${index}`}
+                      display={display}
+                    />
+                  ) : (
+                    <SessionCardSkeleton
+                      key={`load-more-${index}`}
+                      variant="grid"
+                      display={display}
+                    />
+                  )
+              )}
+            </Grid>
+          )}
 
           {/* Infinite Scroll Trigger */}
           {hasMore && (
-            <Box ref={ref} mt={4} mb={10} width="full">
-              <Flex justify="center">
-                <Text color="gray.500" fontSize="sm">
-                  {t('loadingMore') || 'Đang tải thêm...'}
-                </Text>
-              </Flex>
+            <Box ref={ref} mt={4} mb={10} width="full" overflowAnchor="none">
+              {loadingMore && (
+                <Flex justify="center" role="status" aria-live="polite">
+                  <Text color="gray.500" fontSize="sm">
+                    {t('loadingMore') || 'Đang tải thêm...'}
+                  </Text>
+                </Flex>
+              )}
             </Box>
+          )}
+          {!hasMore && !loadingMore && sortedSessions.length > 0 && (
+            <Flex
+              justify="center"
+              mt={6}
+              mb={10}
+              overflowAnchor="none"
+              role="status"
+            >
+              <Text color="gray.500" fontSize="sm">
+                {t('endOfResults')}
+              </Text>
+            </Flex>
           )}
         </RatingStatsProvider>
       )}

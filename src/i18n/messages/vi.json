@@ -900,6 +900,7 @@
     },
     "loadMore": "Xem thêm",
     "loadingMore": "Đang tải thêm...",
+    "endOfResults": "Bạn đã xem hết kết quả.",
     "confirmEndSession": "Xác nhận kết thúc kèo",
     "confirmEndSessionMessage": "Bạn có chắc chắn muốn kết thúc kèo này? Hành động này không thể hoàn tác và sẽ kết thúc tất cả các trận đấu đang diễn ra.",
     "endSession": "Kết thúc kèo",

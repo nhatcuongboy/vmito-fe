@@ -59,6 +59,7 @@ import { useDebounce } from '@/hooks/useDebounce';
 import { AppSearchBar } from '@/components/common/AppSearchBar';
 import { useRegisterTopBarSearch } from '@/contexts/TopBarSearchContext';
 import { useSearchParams } from 'next/navigation';
+import { getFullRowSkeletonDisplay } from '@/components/common/infinite-loading-layout';
 
 const LoginPromptModal = dynamic(
   () => import('@/components/auth/LoginPromptModal'),
@@ -67,6 +68,13 @@ const LoginPromptModal = dynamic(
 
 const CLUB_SKELETON_COUNT = 6;
 const CLUB_MAP_PAGE_SIZE = 500;
+const CLUB_RESULT_GRID_COLUMNS = { base: 1, md: 2, lg: 3 };
+const CLUB_RESULT_COLUMN_COUNTS = { base: 1, md: 2, lg: 3 };
+const CLUB_LOAD_MORE_SKELETON_DISPLAYS = [
+  { base: 'flex', md: 'flex', lg: 'flex' },
+  { base: 'none', md: 'flex', lg: 'flex' },
+  { base: 'none', md: 'none', lg: 'flex' },
+];
 
 type ClubMapClub = (IClub | IClubListItem) & {
   scheduleVenues?: IClubVenue[];
@@ -230,7 +238,8 @@ function BrowseClubsContent() {
 
   const { ref, inView } = useInView({
     threshold: 0.1,
-    rootMargin: '100px',
+    // Load before reaching the absolute bottom to minimize visible loading.
+    rootMargin: '400px 0px',
   });
 
   // Sync pending filters when drawer opens
@@ -631,6 +640,10 @@ function BrowseClubsContent() {
   const sortButtonLabel = sortByDistance ? 'Gần tôi' : activeSortOption.label;
   const SortButtonIcon = sortByDistance ? MapPin : activeSortOption.icon;
   const skeletonVariant = viewMode === 'list' ? 'list' : 'grid';
+  const loadMoreSkeletonDisplay = getFullRowSkeletonDisplay(
+    clubs.length,
+    CLUB_RESULT_COLUMN_COUNTS
+  );
 
   // Register desktop search bar in the top bar
   useRegisterTopBarSearch({
@@ -1061,7 +1074,7 @@ function BrowseClubsContent() {
             />
           </Box>
         ) : (
-          <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} gap={4}>
+          <SimpleGrid columns={CLUB_RESULT_GRID_COLUMNS} gap={4}>
             {Array.from({ length: CLUB_SKELETON_COUNT }).map((_, index) => (
               <ClubCardSkeleton
                 key={`club-skeleton-${index}`}
@@ -1109,7 +1122,7 @@ function BrowseClubsContent() {
         )
       ) : (
         <>
-          <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} gap={4}>
+          <SimpleGrid columns={CLUB_RESULT_GRID_COLUMNS} gap={4}>
             {clubs.map((club) => (
               <ClubCard
                 key={club.id}
@@ -1128,22 +1141,56 @@ function BrowseClubsContent() {
             ))}
           </SimpleGrid>
 
+          {isLoadingMore && (
+            <SimpleGrid
+              mt={8}
+              display={loadMoreSkeletonDisplay}
+              columns={CLUB_RESULT_GRID_COLUMNS}
+              gap={4}
+              aria-busy="true"
+              overflowAnchor="none"
+            >
+              {CLUB_LOAD_MORE_SKELETON_DISPLAYS.map((display, index) => (
+                <Box
+                  key={`club-load-more-skeleton-${index}`}
+                  display={display}
+                  width="100%"
+                >
+                  <ClubCardSkeleton variant={skeletonVariant} />
+                </Box>
+              ))}
+            </SimpleGrid>
+          )}
+
           {hasMore && (
-            <Box ref={ref} mt={8} mb={10} width="full">
-              <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} gap={4}>
-                {Array.from({ length: 3 }).map((_, index) => (
-                  <ClubCardSkeleton
-                    key={`club-load-more-skeleton-${index}`}
-                    variant={skeletonVariant}
-                  />
-                ))}
-              </SimpleGrid>
-              <Flex justify="center" mt={4}>
-                <Text color="gray.500" fontSize="sm">
-                  Đang tải thêm...
-                </Text>
-              </Flex>
+            <Box
+              ref={ref}
+              mt={isLoadingMore ? 4 : 8}
+              mb={10}
+              width="full"
+              overflowAnchor="none"
+            >
+              {isLoadingMore && (
+                <Flex justify="center" role="status" aria-live="polite">
+                  <Text color="gray.500" fontSize="sm">
+                    {t('session.loadingMore')}
+                  </Text>
+                </Flex>
+              )}
             </Box>
+          )}
+          {!hasMore && !isLoading && !isLoadingMore && clubs.length > 0 && (
+            <Flex
+              justify="center"
+              mt={6}
+              mb={10}
+              overflowAnchor="none"
+              role="status"
+            >
+              <Text color="gray.500" fontSize="sm">
+                {t('session.endOfResults')}
+              </Text>
+            </Flex>
           )}
         </>
       )}
@@ -1167,7 +1214,7 @@ export default function BrowseClubsPage() {
         fallback={
           <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} gap={4}>
             {Array.from({ length: CLUB_SKELETON_COUNT }).map((_, index) => (
-              <ClubCardSkeleton key={`club-suspense-${index}`} />
+              <ClubCardSkeleton key={`club-suspense-${index}`} variant="list" />
             ))}
           </SimpleGrid>
         }

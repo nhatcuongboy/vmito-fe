@@ -1,8 +1,41 @@
 'use client';
 
-import { Box, Flex, Skeleton, Stack } from '@chakra-ui/react';
+import { Box, Flex, Skeleton, SkeletonCircle, Stack } from '@chakra-ui/react';
 
-export default function VenueCardSkeleton() {
+interface VenueCardSkeletonProps {
+  variant?: 'grid' | 'list';
+}
+
+export default function VenueCardSkeleton({
+  variant = 'grid',
+}: VenueCardSkeletonProps) {
+  if (variant === 'list') {
+    return (
+      <Box
+        bg="white"
+        _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
+        borderRadius="2xl"
+        borderWidth="1px"
+        borderColor="gray.200"
+        overflow="hidden"
+        width="100%"
+      >
+        {/* Matches the list card's 140px cover and compact information row. */}
+        <Skeleton height="140px" width="100%" />
+        <Flex px={4} py={4} gap={4} align="center">
+          <SkeletonCircle size="52px" flexShrink={0} />
+          <Box flex="1" minW={0}>
+            <Skeleton height="20px" width="55%" mb={2} borderRadius="md" />
+            <Skeleton height="14px" width="90%" mb={1.5} borderRadius="md" />
+            <Skeleton height="14px" width="72%" mb={2} borderRadius="md" />
+            <Skeleton height="14px" width="42%" borderRadius="md" />
+          </Box>
+          <Skeleton height="20px" width="20px" borderRadius="sm" />
+        </Flex>
+      </Box>
+    );
+  }
+
   return (
     <Box
       bg="white"
@@ -11,7 +44,14 @@ export default function VenueCardSkeleton() {
       borderWidth="1px"
       borderColor="gray.200"
       overflow="hidden"
+      width="100%"
+      display="flex"
+      flexDirection="column"
+      h="100%"
     >
+      {/* Matches the grid card's fixed cover image. */}
+      <Skeleton height="140px" width="100%" flexShrink={0} />
+
       {/* Header Section */}
       <Box px={5} pt={5} pb={3}>
         <Flex justify="space-between" align="flex-start" gap={3} mb={3}>
@@ -68,9 +108,18 @@ export default function VenueCardSkeleton() {
       {/* Contact Section */}
       <Box h="1px" bg="gray.100" _dark={{ bg: 'gray.700' }} mx={5} />
       <Box px={5} py={3}>
-        <Flex gap={3}>
-          <Skeleton height="36px" flex="1" borderRadius="lg" />
-          <Skeleton height="36px" flex="1" borderRadius="lg" />
+        <Flex gap={2} justify="flex-end">
+          <Skeleton height="36px" width="36px" borderRadius="lg" />
+          <Skeleton height="36px" width="36px" borderRadius="lg" />
+          <Skeleton height="36px" width="36px" borderRadius="lg" />
+        </Flex>
+      </Box>
+
+      {/* Grid card action footer. */}
+      <Box h="1px" bg="gray.100" _dark={{ bg: 'gray.700' }} mx={5} />
+      <Box px={5} py={4}>
+        <Flex justify="flex-end">
+          <Skeleton height="40px" width="208px" borderRadius="md" />
         </Flex>
       </Box>
     </Box>

@@ -62,6 +62,7 @@ import { useAuthStore } from '@/stores/useAuthStore';
 import { usePreferenceStore } from '@/stores/usePreferenceStore';
 import { usePathname, useRouter } from '@/i18n/config';
 import { useRegisterTopBarSearch } from '@/contexts/TopBarSearchContext';
+import { getFullRowSkeletonDisplay } from '@/components/common/infinite-loading-layout';
 
 const LoginPromptModal = dynamic(
   () => import('@/components/auth/LoginPromptModal'),
@@ -72,6 +73,17 @@ const OPEN_VENUE_CREATE_REQUEST_ACTION = 'openVenueCreateRequest';
 
 const PAGE_SIZE = 12;
 const MAP_PAGE_SIZE = 500; // fetch all for map view
+const VENUE_RESULT_GRID_COLUMNS = {
+  base: '1fr',
+  md: 'repeat(2, 1fr)',
+  lg: 'repeat(3, 1fr)',
+};
+const VENUE_RESULT_COLUMN_COUNTS = { base: 1, md: 2, lg: 3 };
+const VENUE_LOAD_MORE_SKELETON_DISPLAYS = [
+  { base: 'flex', md: 'flex', lg: 'flex' },
+  { base: 'none', md: 'flex', lg: 'flex' },
+  { base: 'none', md: 'none', lg: 'flex' },
+];
 
 // Sort option definition
 interface ISortOption {
@@ -169,6 +181,11 @@ export default function VenueSearchList() {
 
   // Use URL-synced view mode
   const [viewMode, _setViewMode] = useViewMode('venues', 'list');
+  const venueCardVariant = viewMode === 'list' ? 'list' : 'grid';
+  const loadMoreSkeletonDisplay = getFullRowSkeletonDisplay(
+    venues.length,
+    VENUE_RESULT_COLUMN_COUNTS
+  );
 
   // Local keyword state drives the search input; synced to URL with debounce.
   const [keyword, setKeyword] = useState(filters.q);
@@ -179,18 +196,33 @@ export default function VenueSearchList() {
     lng: number;
   } | null>(null);
 
-  // Auto-fetch user location on mount when default sort is 'distance'
+  // A distance-based result is only valid after the browser has returned a
+  // position. Do not start a fallback request here: it can resolve after the
+  // distance request and replace its results.
   useEffect(() => {
-    if (filters.sort === 'distance' && !userLocation) {
-      getUserLocation()
-        .then((loc) => setUserLocation(loc))
-        .catch(() => {
-          // If location is denied, fall back to relevance
-          setFilters({ sort: 'relevance' });
-        });
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    const needsUserLocation = filters.sort === 'distance' || filters.near;
+    if (!needsUserLocation || userLocation) return;
+
+    let cancelled = false;
+    getUserLocation()
+      .then((location) => {
+        if (!cancelled) setUserLocation(location);
+      })
+      .catch(() => {
+        if (!cancelled) {
+          // If location is denied or unavailable, make the fallback explicit.
+          setFilters({ sort: 'relevance', near: false });
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [filters.near, filters.sort, setFilters, userLocation]);
+
+  const latestVenueRequestRef = useRef(0);
+
+  const requiresUserLocation = filters.sort === 'distance' || filters.near;
 
   // Pending filters (for drawer)
   const [pendingCities, setPendingCities] = useState<string[]>([]);
@@ -217,7 +249,8 @@ export default function VenueSearchList() {
 
   const { ref, inView } = useInView({
     threshold: 0.1,
-    rootMargin: '100px',
+    // Load before reaching the absolute bottom to minimize visible loading.
+    rootMargin: '400px 0px',
   });
 
   // Stable string keys for array filters — used in useEffect dependency arrays.
@@ -237,12 +270,16 @@ export default function VenueSearchList() {
 
   // Plain function (not useCallback) to always read the latest `page` state
   const fetchVenues = async (isLoadMore = false) => {
+    if (isLoadMore && loadingMoreRef.current) return;
+
+    const requestId = ++latestVenueRequestRef.current;
     try {
       if (isLoadMore) {
-        if (loadingMoreRef.current) return;
         loadingMoreRef.current = true;
         setLoadingMore(true);
       } else {
+        loadingMoreRef.current = false;
+        setLoadingMore(false);
         setLoading(true);
         setPage(1);
         if (typeof window !== 'undefined') {
@@ -300,16 +337,14 @@ export default function VenueSearchList() {
         apiFilters.lng = userLocation.lng;
         apiFilters.sortBy = 'distance';
         apiFilters.sortOrder = 'asc';
-      } else if (filters.sort === 'distance' && !userLocation) {
-        // Location not yet available, fallback to relevance
-        apiFilters.sortBy = 'relevance';
-        apiFilters.sortOrder = 'desc';
       } else {
         apiFilters.sortBy = activeSortOption.sortBy;
         apiFilters.sortOrder = activeSortOption.sortOrder;
       }
 
       const result = await VenueService.searchVenues(apiFilters);
+      if (requestId !== latestVenueRequestRef.current) return;
+
       setTotalCount(result.pagination.total);
       const venueData = result.data;
 
@@ -325,13 +360,13 @@ export default function VenueSearchList() {
       }
 
       // In map mode: no infinite scroll — all data already fetched
-      setHasMore(
-        !isMapMode && result.data.length === PAGE_SIZE && venueData.length > 0
-      );
+      setHasMore(!isMapMode && currentPage < result.pagination.totalPages);
     } catch (err) {
+      if (requestId !== latestVenueRequestRef.current) return;
       setError('Không thể tải danh sách sân. Vui lòng thử lại.');
       console.error(err);
     } finally {
+      if (requestId !== latestVenueRequestRef.current) return;
       if (isLoadMore) {
         loadingMoreRef.current = false;
         setLoadingMore(false);
@@ -366,6 +401,16 @@ export default function VenueSearchList() {
 
   // Fetch whenever URL-applied filters, sort, or user location change.
   useEffect(() => {
+    if (requiresUserLocation && !userLocation) {
+      // Invalidate an earlier request so its response cannot replace the
+      // distance-sorted list while browser geolocation is still resolving.
+      latestVenueRequestRef.current += 1;
+      loadingMoreRef.current = false;
+      setLoadingMore(false);
+      setLoading(true);
+      return;
+    }
+
     fetchVenues();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
@@ -378,6 +423,7 @@ export default function VenueSearchList() {
     viewMode, // re-fetch with larger limit when switching to/from map mode
     preferredCity,
     filters.favorite,
+    requiresUserLocation,
   ]);
 
   // Trigger load more when in view
@@ -965,16 +1011,9 @@ export default function VenueSearchList() {
 
       {/* Results */}
       {loading ? (
-        <Grid
-          templateColumns={{
-            base: '1fr',
-            md: 'repeat(2, 1fr)',
-            lg: 'repeat(3, 1fr)',
-          }}
-          gap={4}
-        >
+        <Grid templateColumns={VENUE_RESULT_GRID_COLUMNS} gap={4}>
           {Array.from({ length: 6 }).map((_, i) => (
-            <VenueCardSkeleton key={i} />
+            <VenueCardSkeleton key={i} variant={venueCardVariant} />
           ))}
         </Grid>
       ) : error ? (
@@ -1018,19 +1057,12 @@ export default function VenueSearchList() {
         </Box>
       ) : (
         <>
-          <Grid
-            templateColumns={{
-              base: '1fr',
-              md: 'repeat(2, 1fr)',
-              lg: 'repeat(3, 1fr)',
-            }}
-            gap={4}
-          >
+          <Grid templateColumns={VENUE_RESULT_GRID_COLUMNS} gap={4}>
             {venues.map((venue) => (
               <VenueCard
                 key={venue.id}
                 venue={venue}
-                variant={viewMode === 'list' ? 'list' : 'grid'}
+                variant={venueCardVariant}
                 showVerifiedBadge={false}
                 onFavoriteChange={(venueId, isFavorite) => {
                   setVenues((prev) =>
@@ -1045,27 +1077,58 @@ export default function VenueSearchList() {
             ))}
           </Grid>
 
+          {/* Load-more skeletons always begin in their own complete row. */}
+          {loadingMore && (
+            <Grid
+              mt={8}
+              display={loadMoreSkeletonDisplay}
+              templateColumns={VENUE_RESULT_GRID_COLUMNS}
+              gap={4}
+              aria-busy="true"
+              overflowAnchor="none"
+            >
+              {VENUE_LOAD_MORE_SKELETON_DISPLAYS.map((display, index) => (
+                <Box
+                  key={`venue-load-more-skeleton-${index}`}
+                  display={display}
+                  width="100%"
+                >
+                  <VenueCardSkeleton variant={venueCardVariant} />
+                </Box>
+              ))}
+            </Grid>
+          )}
+
           {/* Infinite Scroll Trigger */}
           {hasMore && (
-            <Box ref={ref} mt={8} mb={10} width="full">
-              <Grid
-                templateColumns={{
-                  base: '1fr',
-                  md: 'repeat(2, 1fr)',
-                  lg: 'repeat(3, 1fr)',
-                }}
-                gap={4}
-              >
-                {Array.from({ length: 3 }).map((_, i) => (
-                  <VenueCardSkeleton key={i} />
-                ))}
-              </Grid>
-              <Flex justify="center" mt={4}>
-                <Text color="gray.500" fontSize="sm">
-                  Đang tải thêm...
-                </Text>
-              </Flex>
+            <Box
+              ref={ref}
+              mt={loadingMore ? 4 : 8}
+              mb={10}
+              width="full"
+              overflowAnchor="none"
+            >
+              {loadingMore && (
+                <Flex justify="center" role="status" aria-live="polite">
+                  <Text color="gray.500" fontSize="sm">
+                    {t('session.loadingMore')}
+                  </Text>
+                </Flex>
+              )}
             </Box>
+          )}
+          {!hasMore && !loadingMore && venues.length > 0 && (
+            <Flex
+              justify="center"
+              mt={6}
+              mb={10}
+              overflowAnchor="none"
+              role="status"
+            >
+              <Text color="gray.500" fontSize="sm">
+                {t('session.endOfResults')}
+              </Text>
+            </Flex>
           )}
         </>
       )}

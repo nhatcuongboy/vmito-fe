@@ -3,16 +3,20 @@
 import { Avatar, Box, Flex, SimpleGrid, Text, VStack } from '@chakra-ui/react';
 import { Feather, Trophy } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import TierBadge, {
-  TIER_COLORS,
-  TIER_ICONS,
-} from '@/components/leaderboard/TierBadge';
+import TierBadge, { TIER_COLORS } from '@/components/leaderboard/TierBadge';
+import { normalizeImageUrl } from '@/lib/images/normalizeImageUrl';
 import {
   IUserAchievements,
   TLeaderboardPeriod,
 } from '@/lib/api/ranking.service';
 
 const PERIODS: TLeaderboardPeriod[] = ['week', 'month', 'year', 'all'];
+const EXPORT_AVATAR_SIZE = 192;
+const NEXT_IMAGE_ALLOWED_AVATAR_HOSTS = new Set([
+  'lh3.googleusercontent.com',
+  'platform-lookaside.fbsbx.com',
+  'res.cloudinary.com',
+]);
 
 interface AchievementShareCardProps {
   elementId: string;
@@ -20,6 +24,37 @@ interface AchievementShareCardProps {
   userImage?: string | null;
   achievements: IUserAchievements;
 }
+
+const getExportAvatarSrc = (src?: string | null) => {
+  const normalizedSrc =
+    normalizeImageUrl(src, {
+      cloudinaryWidth: EXPORT_AVATAR_SIZE,
+      cloudinaryHeight: EXPORT_AVATAR_SIZE,
+    }) ?? src;
+
+  if (!normalizedSrc || typeof window === 'undefined') return normalizedSrc;
+  if (/^(data|blob):/.test(normalizedSrc)) return normalizedSrc;
+  if (normalizedSrc.startsWith('/')) return normalizedSrc;
+
+  try {
+    const url = new URL(normalizedSrc);
+    if (
+      url.protocol === 'https:' &&
+      NEXT_IMAGE_ALLOWED_AVATAR_HOSTS.has(url.hostname)
+    ) {
+      const params = new URLSearchParams({
+        url: normalizedSrc,
+        w: String(EXPORT_AVATAR_SIZE),
+        q: '90',
+      });
+      return `${window.location.origin}/_next/image?${params.toString()}`;
+    }
+  } catch {
+    return normalizedSrc;
+  }
+
+  return normalizedSrc;
+};
 
 /** Off-screen, capture-only card — see UserAchievementsSection for the download trigger. */
 export default function AchievementShareCard({
@@ -31,6 +66,7 @@ export default function AchievementShareCard({
   const t = useTranslations('leaderboard.achievements');
   const tLb = useTranslations('leaderboard');
   const tierColor = TIER_COLORS[achievements.tier];
+  const exportAvatarSrc = getExportAvatarSrc(userImage);
 
   const stats = [
     { label: t('wins'), value: achievements.stats.wins },
@@ -94,12 +130,24 @@ export default function AchievementShareCard({
             </Text>
           </Flex>
 
-          <Avatar.Root size="2xl" border="3px solid white" zIndex={1}>
-            {userImage && (
-              <Avatar.Image
-                src={userImage}
-                objectFit="cover"
-                crossOrigin="anonymous"
+          <Avatar.Root
+            size="2xl"
+            border="3px solid white"
+            overflow="hidden"
+            zIndex={1}
+          >
+            {exportAvatarSrc && (
+              // eslint-disable-next-line @next/next/no-img-element -- DOM export needs a plain img node for modern-screenshot.
+              <img
+                src={exportAvatarSrc}
+                alt={userName}
+                loading="eager"
+                decoding="sync"
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  objectFit: 'cover',
+                }}
               />
             )}
             <Avatar.Fallback name={userName} />

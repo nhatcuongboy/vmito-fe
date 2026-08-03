@@ -882,6 +882,7 @@
     },
     "loadMore": "Load More",
     "loadingMore": "Loading More...",
+    "endOfResults": "您已查看全部结果。",
     "confirmEndSession": "确认结束场次",
     "confirmEndSessionMessage": "您确定要结束此场次吗？此操作无法撤销，且将结束所有正在进行的比赛。",
     "endSession": "结束场次",
