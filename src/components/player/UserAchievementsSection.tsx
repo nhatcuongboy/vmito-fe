@@ -11,7 +11,7 @@ import {
   VStack,
 } from '@chakra-ui/react';
 import { motion, animate } from 'framer-motion';
-import { Download } from 'lucide-react';
+import { Award, Download } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import TierBadge, {
   TIER_COLORS,
@@ -19,15 +19,18 @@ import TierBadge, {
 } from '@/components/leaderboard/TierBadge';
 import PointsRulesModal from '@/components/leaderboard/PointsRulesModal';
 import AchievementShareCard from '@/components/player/AchievementShareCard';
+import { ROUTES } from '@/constants';
 import { useDownloadElementImage } from '@/hooks/useDownloadElementImage';
 import {
   IUserAchievements,
+  IPointTransaction,
   RankingService,
   TLeaderboardPeriod,
 } from '@/lib/api/ranking.service';
 import { Link } from '@/i18n/config';
 
 const PERIODS: TLeaderboardPeriod[] = ['week', 'month', 'year', 'all'];
+const POINT_TRANSACTIONS_LIMIT = 10;
 
 interface UserAchievementsSectionProps {
   userId: string;
@@ -49,6 +52,16 @@ export default function UserAchievementsSection({
   const [isLoading, setIsLoading] = useState(true);
   const [displayPoints, setDisplayPoints] = useState(0);
   const [isRulesOpen, setIsRulesOpen] = useState(false);
+  const [recentTransactions, setRecentTransactions] = useState<
+    IPointTransaction[]
+  >([]);
+  const [recentTransactionsCursor, setRecentTransactionsCursor] = useState<
+    string | null
+  >(null);
+  const [hasMoreRecentTransactions, setHasMoreRecentTransactions] =
+    useState(false);
+  const [isLoadingMoreTransactions, setIsLoadingMoreTransactions] =
+    useState(false);
   const { downloadElementImage, isDownloading } = useDownloadElementImage();
   const shareCardElementId = `achievement-share-card-${userId}`;
 
@@ -66,9 +79,28 @@ export default function UserAchievementsSection({
   useEffect(() => {
     let cancelled = false;
     setIsLoading(true);
+    setRecentTransactions([]);
+    setRecentTransactionsCursor(null);
+    setHasMoreRecentTransactions(false);
     RankingService.getUserAchievements(userId)
       .then((result) => {
-        if (!cancelled) setData(result);
+        if (cancelled) return;
+        setData(result);
+        setRecentTransactions(result.recentTransactions);
+
+        RankingService.getUserPointTransactions(userId, {
+          limit: POINT_TRANSACTIONS_LIMIT,
+        })
+          .then((transactionsPage) => {
+            if (cancelled) return;
+            setRecentTransactions(transactionsPage.items);
+            setRecentTransactionsCursor(transactionsPage.nextCursor);
+            setHasMoreRecentTransactions(transactionsPage.hasMore);
+          })
+          .catch(() => {
+            if (cancelled) return;
+            setHasMoreRecentTransactions(false);
+          });
       })
       .catch(() => {
         if (!cancelled) setData(null);
@@ -80,6 +112,33 @@ export default function UserAchievementsSection({
       cancelled = true;
     };
   }, [userId]);
+
+  const handleLoadMoreTransactions = async () => {
+    if (isLoadingMoreTransactions || !hasMoreRecentTransactions) return;
+
+    setIsLoadingMoreTransactions(true);
+    try {
+      const transactionsPage = await RankingService.getUserPointTransactions(
+        userId,
+        {
+          limit: POINT_TRANSACTIONS_LIMIT,
+          cursor: recentTransactionsCursor,
+        }
+      );
+      setRecentTransactions((current) => [
+        ...current,
+        ...transactionsPage.items.filter(
+          (nextTx) => !current.some((tx) => tx.id === nextTx.id)
+        ),
+      ]);
+      setRecentTransactionsCursor(transactionsPage.nextCursor);
+      setHasMoreRecentTransactions(transactionsPage.hasMore);
+    } catch {
+      setHasMoreRecentTransactions(false);
+    } finally {
+      setIsLoadingMoreTransactions(false);
+    }
+  };
 
   // Count-up animation for total points
   useEffect(() => {
@@ -181,23 +240,30 @@ export default function UserAchievementsSection({
       </motion.div>
 
       {/* Ranks per period */}
-      <Grid templateColumns="repeat(4, 1fr)" gap={2}>
+      <Grid templateColumns="repeat(4, minmax(0, 1fr))" gap={2}>
         {PERIODS.map((period) => {
           const rank = data.ranks.find((r) => r.period === period);
           return (
             <VStack
               key={period}
               gap={0.5}
-              p={2.5}
+              p={{ base: 2, sm: 2.5 }}
               borderWidth="1px"
               borderColor="border.subtle"
               borderRadius="lg"
               bg="bg.panel"
+              minW={0}
             >
               <Text fontSize="xs" color="fg.muted">
                 {tLb(`periods.${period}`)}
               </Text>
-              <Text fontSize="lg" fontWeight="800">
+              <Text
+                fontSize={{ base: 'md', sm: 'lg' }}
+                fontWeight="800"
+                lineHeight={1.15}
+                textAlign="center"
+                whiteSpace="nowrap"
+              >
                 {rank?.rank ? t('rank', { rank: rank.rank }) : '—'}
               </Text>
               <Text fontSize="xs" color="fg.muted">
@@ -207,6 +273,21 @@ export default function UserAchievementsSection({
           );
         })}
       </Grid>
+
+      <Link href={ROUTES.LEADERBOARD}>
+        <Button
+          size="sm"
+          variant="outline"
+          colorPalette="green"
+          alignSelf="center"
+          borderRadius="full"
+          px={5}
+          shadow="sm"
+        >
+          <Award size={16} />
+          {t('viewLeaderboard')}
+        </Button>
+      </Link>
 
       {/* Match stats */}
       <Grid templateColumns="repeat(3, 1fr)" gap={2}>
@@ -255,38 +336,26 @@ export default function UserAchievementsSection({
           <Text fontWeight="700" fontSize="sm">
             {t('recentPoints')}
           </Text>
-          <Flex align="center" gap={2}>
-            <Box
-              as="button"
-              fontSize="md"
-              lineHeight={1}
-              opacity={0.7}
-              aria-label={tLb('rules.title')}
-              onClick={() => setIsRulesOpen(true)}
-              _hover={{ opacity: 1 }}
-              cursor="pointer"
-            >
-              ℹ️
-            </Box>
-            <Link href="/leaderboard">
-              <Text
-                fontSize="xs"
-                color="brand.600"
-                fontWeight="600"
-                textDecoration="underline"
-              >
-                {t('viewLeaderboard')}
-              </Text>
-            </Link>
-          </Flex>
+          <Box
+            as="button"
+            fontSize="md"
+            lineHeight={1}
+            opacity={0.7}
+            aria-label={tLb('rules.title')}
+            onClick={() => setIsRulesOpen(true)}
+            _hover={{ opacity: 1 }}
+            cursor="pointer"
+          >
+            ℹ️
+          </Box>
         </Flex>
-        {data.recentTransactions.length === 0 ? (
+        {recentTransactions.length === 0 ? (
           <Text fontSize="sm" color="fg.muted" textAlign="center" py={6}>
             {t('noPointsYet')}
           </Text>
         ) : (
           <VStack align="stretch" gap={1.5}>
-            {data.recentTransactions.map((tx) => (
+            {recentTransactions.map((tx) => (
               <Flex
                 key={tx.id}
                 align="center"
@@ -314,6 +383,19 @@ export default function UserAchievementsSection({
                 </Text>
               </Flex>
             ))}
+            {hasMoreRecentTransactions && (
+              <Button
+                size="sm"
+                variant="ghost"
+                colorPalette="green"
+                alignSelf="center"
+                mt={1}
+                loading={isLoadingMoreTransactions}
+                onClick={handleLoadMoreTransactions}
+              >
+                {t('loadMorePoints')}
+              </Button>
+            )}
           </VStack>
         )}
       </Box>

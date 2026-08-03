@@ -7,6 +7,7 @@
     "home": "发现场次",
     "tournaments": "锦标赛",
     "browseTournaments": "浏览锦标赛",
+    "leaderboard": "排行榜",
     "browse": "统计分析",
     "statistics": "统计分析",
     "users": "用户",
@@ -7675,6 +7676,7 @@
       "tournamentTitles": "冠军次数",
       "tournamentRunnerUps": "亚军次数",
       "recentPoints": "最近积分",
+      "loadMorePoints": "加载更多积分",
       "viewLeaderboard": "查看排行榜",
       "noPointsYet": "暂无积分，快去参加比赛赚积分吧！",
       "reasons": {

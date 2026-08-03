@@ -45,13 +45,15 @@ import { usePathname, useRouter } from '@/i18n/config';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { usePreferenceStore } from '@/stores/usePreferenceStore';
 import { ClubsService } from '@/lib/api/clubs.service';
+import { VenueService } from '@/lib/api/venue.service';
+import { Venue } from '@/lib/api/types';
 import ClubCard from '@/components/clubs/ClubCard';
 import ClubCardSkeleton from '@/components/clubs/ClubCardSkeleton';
 import ClubMap from '@/components/clubs/ClubMap';
 import AppViewModeToggle from '@/components/common/AppViewModeToggle';
 import AppEmptyState from '@/components/ui/AppEmptyState';
 import { useViewMode } from '@/hooks/useViewMode';
-import { IClubListItem, IClub } from '@/types/club';
+import { IClubListItem, IClub, IClubVenue } from '@/types/club';
 import PageLayout from '@/components/layout/PageLayout';
 import { useDebounce } from '@/hooks/useDebounce';
 import { AppSearchBar } from '@/components/common/AppSearchBar';
@@ -64,6 +66,80 @@ const LoginPromptModal = dynamic(
 );
 
 const CLUB_SKELETON_COUNT = 6;
+const CLUB_MAP_PAGE_SIZE = 500;
+
+type ClubMapClub = (IClub | IClubListItem) & {
+  scheduleVenues?: IClubVenue[];
+};
+
+const normalizeVenueLookupText = (value?: string | null) =>
+  (value || '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/đ/g, 'd')
+    .replace(/Đ/g, 'D')
+    .toLowerCase()
+    .replace(/\s+/g, ' ')
+    .trim();
+
+const parseVenueFromScheduleNote = (note?: string | null) => {
+  if (!note) return null;
+
+  const [rawName, ...rawAddressParts] = note
+    .split('|')
+    .map((part) => part.trim());
+  const name = rawName || '';
+  if (!name) return null;
+
+  return {
+    name,
+    address: rawAddressParts.join(' | ').trim(),
+    note,
+  };
+};
+
+const hasVenueCoordinates = (venue?: Pick<IClubVenue, 'lat' | 'lng'> | null) =>
+  typeof venue?.lat === 'number' && typeof venue?.lng === 'number';
+
+const toClubVenue = (venue: Venue): IClubVenue => ({
+  id: venue.id,
+  name: venue.name,
+  address: venue.address,
+  district: venue.district,
+  city: venue.city,
+  newAddress: venue.newAddress,
+  newDistrict: venue.newDistrict,
+  newCity: venue.newCity,
+  lat: venue.lat,
+  lng: venue.lng,
+});
+
+const findBestVenueMatch = (
+  candidates: Venue[],
+  target: { name: string; address?: string }
+) => {
+  const targetName = normalizeVenueLookupText(target.name);
+  const targetAddress = normalizeVenueLookupText(target.address);
+
+  return (
+    candidates.find((venue) => {
+      const venueName = normalizeVenueLookupText(venue.name);
+      const venueAddress = normalizeVenueLookupText(venue.address);
+
+      if (venueName !== targetName) return false;
+      if (!targetAddress) return true;
+
+      return (
+        venueAddress.includes(targetAddress) ||
+        targetAddress.includes(venueAddress)
+      );
+    }) ||
+    candidates.find(
+      (venue) => normalizeVenueLookupText(venue.name) === targetName
+    ) ||
+    null
+  );
+};
 
 interface IClubSortOption {
   value: string;
@@ -116,7 +192,7 @@ function BrowseClubsContent() {
   const [viewMode] = useViewMode('clubs', 'list');
 
   const [clubs, setClubs] = useState<IClubListItem[]>([]);
-  const [fullClubs, setFullClubs] = useState<IClub[]>([]);
+  const [fullClubs, setFullClubs] = useState<ClubMapClub[]>([]);
   const [totalCount, setTotalCount] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
@@ -214,6 +290,9 @@ function BrowseClubsContent() {
 
   const fetchClubs = async (pageNum: number, append = false) => {
     try {
+      const isMapMode = viewMode === 'map';
+      const currentPage = append && !isMapMode ? pageNum : 1;
+
       if (append) {
         if (loadingMoreRef.current) return;
         loadingMoreRef.current = true;
@@ -232,8 +311,8 @@ function BrowseClubsContent() {
         cities.length > 0 ? cities : preferredCity ? [preferredCity] : [];
 
       const params: Record<string, string | number | boolean | undefined> = {
-        page: pageNum,
-        limit: 12,
+        page: currentPage,
+        limit: isMapMode ? CLUB_MAP_PAGE_SIZE : 12,
         search: debouncedSearch || undefined,
         city:
           effectiveCities.length === 1
@@ -290,22 +369,23 @@ function BrowseClubsContent() {
         });
       }
 
-      if (append) {
+      if (append && !isMapMode) {
         setClubs((prev) => {
           const existingIds = new Set(prev.map((club) => club.id));
           const newClubs = items.filter((club) => !existingIds.has(club.id));
           return [...prev, ...newClubs];
         });
-        setPage(pageNum);
+        setPage(currentPage);
       } else {
         setClubs(items);
+        setPage(1);
         if (typeof window !== 'undefined') {
           window.scrollTo({ top: 0, behavior: 'smooth' });
         }
       }
 
       setTotalCount(response.total);
-      setHasMore(pageNum < (response.totalPages || 0));
+      setHasMore(!isMapMode && currentPage < (response.totalPages || 0));
     } catch (error) {
       console.error('Failed to fetch clubs:', error);
       if (!append) {
@@ -334,6 +414,7 @@ function BrowseClubsContent() {
     sort,
     userLocation,
     preferredCity,
+    viewMode,
   ]);
 
   // Trigger load more when the sentinel is close to the viewport.
@@ -350,17 +431,102 @@ function BrowseClubsContent() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [inView, hasMore, isLoading, isLoadingMore, page]);
 
-  // Fetch full club details when in map mode
+  // Fetch full club details and resolve schedule venues when in map mode.
   useEffect(() => {
     if (viewMode === 'map' && clubs.length > 0) {
+      setFullClubs(clubs);
+
       const fetchFullDetails = async () => {
         setIsLoadingFullDetails(true);
         try {
-          const detailsPromises = clubs.map((club) =>
+          const detailsPromises = clubs.map(async (club) =>
             ClubsService.getClubDetails(club.id)
+              .then((detail) => ({
+                ...detail,
+                defaultVenue: detail.defaultVenue || club.defaultVenue,
+              }))
+              .catch((error) => {
+                console.error('Failed to fetch club details:', club.id, error);
+                return club;
+              })
           );
           const details = await Promise.all(detailsPromises);
-          setFullClubs(details);
+          const venueSearchCache = new Map<string, Promise<Venue[]>>();
+
+          const searchVenuesByName = (name: string) => {
+            const key = normalizeVenueLookupText(name);
+            if (!venueSearchCache.has(key)) {
+              venueSearchCache.set(
+                key,
+                VenueService.searchVenues({
+                  keyword: name,
+                  limit: 10,
+                  sortBy: 'relevance',
+                })
+                  .then((result) => result.data ?? [])
+                  .catch((error) => {
+                    console.error('Failed to resolve club venue:', name, error);
+                    return [];
+                  })
+              );
+            }
+
+            return venueSearchCache.get(key)!;
+          };
+
+          const enrichedDetails = await Promise.all(
+            details.map(async (club): Promise<ClubMapClub> => {
+              const venuesById = new Map<string, IClubVenue>();
+              const addVenue = (venue?: IClubVenue | null) => {
+                if (!venue || !hasVenueCoordinates(venue)) return;
+                venuesById.set(venue.id, venue);
+              };
+
+              addVenue(club.defaultVenue);
+
+              if ('scheduleVenues' in club) {
+                club.scheduleVenues?.forEach(addVenue);
+              }
+
+              const scheduleVenueNotes = Array.from(
+                new Map(
+                  (club.schedules || [])
+                    .map((schedule) =>
+                      parseVenueFromScheduleNote(schedule.notes)
+                    )
+                    .filter(
+                      (
+                        item
+                      ): item is {
+                        name: string;
+                        address: string;
+                        note: string;
+                      } => Boolean(item)
+                    )
+                    .map((item) => [item.note, item] as const)
+                ).values()
+              );
+
+              const resolvedVenues = await Promise.all(
+                scheduleVenueNotes.map(async (venueNote) => {
+                  const candidates = await searchVenuesByName(venueNote.name);
+                  const match = findBestVenueMatch(candidates, venueNote);
+                  return match && hasVenueCoordinates(match)
+                    ? toClubVenue(match)
+                    : null;
+                })
+              );
+
+              resolvedVenues.forEach(addVenue);
+
+              return {
+                ...club,
+                scheduleVenues: Array.from(venuesById.values()),
+              };
+            })
+          );
+
+          setFullClubs(enrichedDetails);
         } catch (error) {
           console.error('Failed to fetch full club details:', error);
         } finally {
@@ -368,6 +534,8 @@ function BrowseClubsContent() {
         }
       };
       fetchFullDetails();
+    } else if (viewMode === 'map') {
+      setFullClubs([]);
     }
   }, [viewMode, clubs]);
 
@@ -927,7 +1095,7 @@ function BrowseClubsContent() {
           }
         />
       ) : viewMode === 'map' ? (
-        isLoadingFullDetails ? (
+        isLoadingFullDetails && fullClubs.length === 0 ? (
           <Box paddingBottom={`${BOTTOM_TAB_HEIGHT}px`}>
             <Skeleton
               height={{ base: '360px', md: '520px' }}

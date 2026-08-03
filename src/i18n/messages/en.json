@@ -16,6 +16,7 @@
     "home": "Find Sessions",
     "tournaments": "Tournaments",
     "browseTournaments": "Find Tournaments",
+    "leaderboard": "Leaderboard",
     "browse": "Analysis",
     "statistics": "Statistics",
     "users": "Users",
@@ -7716,6 +7717,7 @@
       "tournamentTitles": "Tournament titles",
       "tournamentRunnerUps": "Runner-ups",
       "recentPoints": "Recent points",
+      "loadMorePoints": "Load more points",
       "viewLeaderboard": "View leaderboard",
       "noPointsYet": "No points yet. Play matches to earn points!",
       "reasons": {

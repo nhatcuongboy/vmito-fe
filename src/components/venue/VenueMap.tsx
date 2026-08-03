@@ -6,6 +6,8 @@ import {
   useJsApiLoader,
   MarkerF,
   InfoWindowF,
+  OverlayViewF,
+  OVERLAY_MOUSE_TARGET,
 } from '@react-google-maps/api';
 import { Venue } from '@/lib/api/types';
 import {
@@ -109,6 +111,10 @@ export default function VenueMap({
   });
 
   const { iconOptions: markerIconOptions } = useMapPinIcon({ isLoaded });
+  const hoveredVenue = useMemo(
+    () => venues.find((venue) => venue.id === hoveredVenueId),
+    [hoveredVenueId, venues]
+  );
 
   const center = useMemo(() => {
     if (currentUserLocation) return currentUserLocation;
@@ -197,15 +203,6 @@ export default function VenueMap({
       borderColor="gray.100"
       position="relative"
     >
-      {/* Custom styles for venue marker labels on desktop */}
-      <style>{`
-        .venue-marker-label {
-          white-space: nowrap !important;
-          font-family: inherit;
-          text-shadow: 1px 1px 2px white, -1px -1px 2px white, 1px -1px 2px white, -1px 1px 2px white !important;
-        }
-      `}</style>
-
       {/* Location Button */}
       <IconButton
         aria-label="Vị trí của bạn"
@@ -266,20 +263,45 @@ export default function VenueMap({
             onClick={() => setSelectedVenue(venue)}
             onMouseOver={() => setHoveredVenueId(venue.id)}
             onMouseOut={() => setHoveredVenueId(null)}
-            label={
-              isDesktop && hoveredVenueId === venue.id
-                ? {
-                    text: venue.name,
-                    color: '#15803d',
-                    fontWeight: '700',
-                    fontSize: '13px',
-                    className: 'venue-marker-label',
-                  }
-                : undefined
-            }
             icon={markerIconOptions ?? undefined}
           />
         ))}
+
+        {isDesktop && hoveredVenue?.lat && hoveredVenue.lng && (
+          <OverlayViewF
+            position={{
+              lat: hoveredVenue.lat,
+              lng: hoveredVenue.lng,
+            }}
+            mapPaneName={OVERLAY_MOUSE_TARGET}
+            getPixelPositionOffset={(width, height) => ({
+              x: -(width / 2),
+              y: -(height + 52),
+            })}
+          >
+            <Box
+              bg="white"
+              color="green.700"
+              border="1px solid"
+              borderColor="green.100"
+              borderRadius="md"
+              boxShadow="0 2px 8px rgba(15, 23, 42, 0.18)"
+              fontSize="13px"
+              fontWeight="700"
+              lineHeight="1.2"
+              maxW="240px"
+              overflow="hidden"
+              px={2}
+              py={1}
+              pointerEvents="none"
+              textAlign="center"
+              textOverflow="ellipsis"
+              whiteSpace="nowrap"
+            >
+              {hoveredVenue.name}
+            </Box>
+          </OverlayViewF>
+        )}
 
         {/* Info Window */}
         {selectedVenue && selectedVenue.lat && selectedVenue.lng && (

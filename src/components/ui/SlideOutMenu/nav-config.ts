@@ -125,6 +125,12 @@ export const NAV_SECTIONS: NavSectionConfig[] = [
         getHref: () => ROUTES.BROWSE.TOURNAMENTS.LIST,
       },
       {
+        key: 'leaderboard',
+        icon: Award,
+        label: (t) => t.nav('leaderboard'),
+        getHref: () => ROUTES.LEADERBOARD,
+      },
+      {
         key: 'newsfeed',
         icon: Newspaper,
         label: (t) => t.nav('newsfeed'),

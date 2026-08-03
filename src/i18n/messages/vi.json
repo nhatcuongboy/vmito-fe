@@ -17,6 +17,7 @@
     "notAvailable": "—",
     "tournaments": "Giải đấu",
     "browseTournaments": "Tìm giải",
+    "leaderboard": "Bảng xếp hạng",
     "browse": "Thống kê",
     "statistics": "Thống kê",
     "users": "Người dùng",
@@ -7737,6 +7738,7 @@
       "tournamentTitles": "Vô địch giải",
       "tournamentRunnerUps": "Á quân giải",
       "recentPoints": "Điểm gần đây",
+      "loadMorePoints": "Xem thêm điểm",
       "viewLeaderboard": "Xem bảng xếp hạng",
       "noPointsYet": "Chưa có điểm nào. Hãy tham gia trận đấu để tích điểm!",
       "reasons": {
