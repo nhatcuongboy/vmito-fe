@@ -53,6 +53,7 @@ import {
   arePlayersTiedForRanking,
   rankPlayerStatistics,
 } from '@/utils/session-player-ranking';
+import { useFeatureFlagsStore } from '@/stores/useFeatureFlagsStore';
 
 interface SessionPlayersProps {
   sessionId: string;
@@ -194,6 +195,7 @@ const StatsTable = ({
   t,
   exportMode = false,
   showGenderMvp = false,
+  showShuttlecockCount = false,
   visibleColumns,
   sortConfig: externalSortConfig = null,
   onSort,
@@ -205,6 +207,7 @@ const StatsTable = ({
   t: ReturnType<typeof useTranslations<'SessionPlayers'>>;
   exportMode?: boolean;
   showGenderMvp?: boolean;
+  showShuttlecockCount?: boolean;
   visibleColumns?: StatsColumnKey[];
   sortConfig?: ISortConfig<keyof PlayerStatistics> | null;
   onSort?: (config: ISortConfig<keyof PlayerStatistics> | null) => void;
@@ -350,8 +353,13 @@ const StatsTable = ({
     handleSort(key as keyof PlayerStatistics);
 
   const visibleColumnSet = useMemo(
-    () => new Set(visibleColumns || ALL_STATS_COLUMNS),
-    [visibleColumns]
+    () =>
+      new Set(
+        (visibleColumns || ALL_STATS_COLUMNS).filter(
+          (column) => column !== 'shuttlecock' || showShuttlecockCount
+        )
+      ),
+    [visibleColumns, showShuttlecockCount]
   );
 
   // Helper properties to reduce spacing on table cells
@@ -864,6 +872,9 @@ const SessionPlayers: React.FC<SessionPlayersProps> = ({
 }) => {
   const t = useTranslations('SessionPlayers');
   const sessionDetailT = useTranslations('SessionDetail');
+  const showShuttlecockCount = useFeatureFlagsStore(
+    (state) => state.flags.SHOW_SHUTTLECOCK_COUNT
+  );
   const [stats, setStats] = useState<PlayerStatistics[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -1091,6 +1102,7 @@ const SessionPlayers: React.FC<SessionPlayersProps> = ({
                   t={t}
                   exportMode={true}
                   showGenderMvp={showGenderMvp}
+                  showShuttlecockCount={showShuttlecockCount}
                   visibleColumns={exportColumns}
                   sortConfig={sortConfig}
                 />
@@ -1186,6 +1198,7 @@ const SessionPlayers: React.FC<SessionPlayersProps> = ({
             onPlayerClick={handlePlayerClick}
             t={t}
             showGenderMvp={showGenderMvp}
+            showShuttlecockCount={showShuttlecockCount}
             sortConfig={sortConfig}
             onSort={setSortConfig}
           />
@@ -1234,7 +1247,10 @@ const SessionPlayers: React.FC<SessionPlayersProps> = ({
                       <Text fontSize="xs" color="fg.muted">
                         {t('exportColumnsDescription')}
                       </Text>
-                      {ALL_STATS_COLUMNS.map((column) => (
+                      {ALL_STATS_COLUMNS.filter(
+                        (column) =>
+                          column !== 'shuttlecock' || showShuttlecockCount
+                      ).map((column) => (
                         <Checkbox
                           key={column}
                           checked={exportColumns.includes(column)}

@@ -11,4 +11,6 @@ export const FEATURE_FLAG_DEFAULTS = {
   /** If true, "Create Session" buttons open the AI modal by default instead
    *  of navigating directly to the manual creation page. */
   DEFAULT_USE_AI_FOR_CREATION: true,
+  /** Controls the shuttlecock-count input and related statistics/export column. */
+  SHOW_SHUTTLECOCK_COUNT: false,
 } as const;
