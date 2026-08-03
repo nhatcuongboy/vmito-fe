@@ -386,7 +386,10 @@ export default function UserProfileHeader({
           right={{ base: 3, sm: 5 }}
           zIndex={2}
           borderRadius="full"
-          px={3}
+          h="30px"
+          minW="auto"
+          px={2.5}
+          fontSize="xs"
           fontWeight="semibold"
           color="gray.700"
           bg="white"
@@ -399,7 +402,7 @@ export default function UserProfileHeader({
           }}
           _hover={{ bg: 'gray.50', _dark: { bg: 'gray.700' } }}
         >
-          <Pencil size={12} />
+          <Pencil size={11} />
           {tCommon('edit')}
         </Button>
       )}

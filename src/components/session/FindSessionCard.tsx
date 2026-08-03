@@ -29,6 +29,20 @@ const LoginPromptModal = dynamic(
 const MyRegistrationModal = dynamic(() => import('./MyRegistrationModal'), {
   ssr: false,
 });
+
+const TOP_LEFT_BADGE_PROPS = {
+  display: 'inline-flex',
+  alignItems: 'center',
+  h: '32px',
+  px: 3,
+  py: 0,
+  borderRadius: 'md',
+  fontSize: 'sm',
+  lineHeight: 1,
+  fontWeight: '600',
+  whiteSpace: 'nowrap',
+} as const;
+
 interface FindSessionCardProps {
   session: ISession;
   variant?: ViewMode;
@@ -209,6 +223,7 @@ const FindSessionCard = ({
   const availableSlots = maxPlayers - approvedPlayersCount;
   const slotAvailabilityBadge = !isExpired ? (
     <Badge
+      {...TOP_LEFT_BADGE_PROPS}
       colorPalette={isFull ? 'gray' : 'teal'}
       variant="solid"
       borderWidth="1px"
@@ -246,15 +261,16 @@ const FindSessionCard = ({
     </Badge>
   ) : null;
 
-  // "Bài đăng Facebook" badge for crawled Facebook sessions (translucent gray to balance visual weight)
+  // "Bài đăng Facebook" badge for crawled Facebook sessions
   const crawledBadge = isCrawled ? (
     <Badge
-      bg="blackAlpha.600"
-      _dark={{ bg: 'whiteAlpha.200' }}
+      {...TOP_LEFT_BADGE_PROPS}
+      bg="#1877F2"
       color="white"
       borderWidth="1px"
-      borderColor="whiteAlpha.200"
+      borderColor="#8bb9ff"
       backdropFilter="blur(4px)"
+      boxShadow="0 2px 8px rgba(24, 119, 242, 0.28)"
       gap={1}
     >
       <Icon as={Facebook} boxSize={3} />

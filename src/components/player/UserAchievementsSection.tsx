@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import {
+  Avatar,
   Box,
   Button,
   Flex,
@@ -168,6 +169,7 @@ export default function UserAchievementsSection({
   }
 
   const tierColor = TIER_COLORS[data.tier];
+  const allTimeRank = data.ranks.find((r) => r.period === 'all')?.rank;
   const progress = data.nextTier
     ? Math.min(
         100,
@@ -190,23 +192,84 @@ export default function UserAchievementsSection({
         animate={{ opacity: 1, scale: 1 }}
       >
         <VStack
-          gap={2}
+          gap={3}
           p={5}
           borderRadius="xl"
           borderWidth="1px"
           borderColor={tierColor.solid}
           bg="bg.panel"
         >
-          <Text fontSize="4xl" lineHeight={1}>
-            {TIER_ICONS[data.tier]}
-          </Text>
-          <TierBadge tier={data.tier} size="lg" showIcon={false} />
-          <Text fontSize="3xl" fontWeight="900" lineHeight={1.1}>
-            {displayPoints}
-          </Text>
-          <Text fontSize="sm" color="fg.muted">
-            {tLb('pointsUnit')}
-          </Text>
+          <Box position="relative">
+            <Avatar.Root
+              w="86px"
+              h="86px"
+              border="4px solid"
+              borderColor={tierColor.bg}
+              bg="bg.muted"
+            >
+              {userImage && (
+                <Avatar.Image
+                  src={userImage}
+                  objectFit="cover"
+                  crossOrigin="anonymous"
+                />
+              )}
+              <Avatar.Fallback name={userName || ''} />
+            </Avatar.Root>
+            {allTimeRank && (
+              <Flex
+                position="absolute"
+                right="-2px"
+                bottom="-5px"
+                align="center"
+                justify="center"
+                minW="30px"
+                h="30px"
+                px={2}
+                borderRadius="full"
+                bg={tierColor.solid}
+                color="white"
+                border="3px solid"
+                borderColor="bg.panel"
+                fontSize="sm"
+                fontWeight="900"
+                lineHeight={1}
+              >
+                {allTimeRank}
+              </Flex>
+            )}
+          </Box>
+
+          {userName && (
+            <Text
+              fontSize="lg"
+              fontWeight="800"
+              color="fg"
+              lineHeight={1.2}
+              textAlign="center"
+              lineClamp={1}
+              maxW="100%"
+            >
+              {userName}
+            </Text>
+          )}
+
+          {!userName && (
+            <Text fontSize="4xl" lineHeight={1}>
+              {TIER_ICONS[data.tier]}
+            </Text>
+          )}
+
+          <Flex align="baseline" justify="center" gap={2}>
+            <Text fontSize="4xl" fontWeight="900" lineHeight={1}>
+              {displayPoints}
+            </Text>
+            <Text fontSize="sm" color="fg.muted">
+              {tLb('pointsUnit')}
+            </Text>
+          </Flex>
+
+          <TierBadge tier={data.tier} size="lg" />
 
           {/* Progress to next tier */}
           <Box w="100%" pt={1}>
@@ -274,21 +337,6 @@ export default function UserAchievementsSection({
         })}
       </Grid>
 
-      <Link href={ROUTES.LEADERBOARD}>
-        <Button
-          size="sm"
-          variant="outline"
-          colorPalette="green"
-          alignSelf="center"
-          borderRadius="full"
-          px={5}
-          shadow="sm"
-        >
-          <Award size={16} />
-          {t('viewLeaderboard')}
-        </Button>
-      </Link>
-
       {/* Match stats */}
       <Grid templateColumns="repeat(3, 1fr)" gap={2}>
         <StatCard label={t('wins')} value={data.stats.wins} color="#16a34a" />
@@ -313,22 +361,36 @@ export default function UserAchievementsSection({
         />
       </Grid>
 
-      {isOwner && (
-        <Button
-          size="sm"
-          variant="outline"
-          colorPalette="green"
-          alignSelf="center"
-          borderRadius="full"
-          px={5}
-          shadow="sm"
-          loading={isDownloading}
-          onClick={handleDownloadCard}
-        >
-          <Download size={16} />
-          {t('downloadCard')}
-        </Button>
-      )}
+      <VStack gap={2} align="center">
+        {isOwner && (
+          <Button
+            size="sm"
+            variant="outline"
+            colorPalette="green"
+            borderRadius="full"
+            px={5}
+            shadow="sm"
+            loading={isDownloading}
+            onClick={handleDownloadCard}
+          >
+            <Download size={16} />
+            {t('downloadCard')}
+          </Button>
+        )}
+        <Link href={ROUTES.LEADERBOARD}>
+          <Button
+            size="sm"
+            variant="outline"
+            colorPalette="green"
+            borderRadius="full"
+            px={5}
+            shadow="sm"
+          >
+            <Award size={16} />
+            {t('viewLeaderboard')}
+          </Button>
+        </Link>
+      </VStack>
 
       {/* Recent point history */}
       <Box>
