@@ -20,7 +20,7 @@ export default function RankRow({ entry, isMe, onClick }: RankRowProps) {
   return (
     <Flex
       align="center"
-      gap={3}
+      gap={{ base: 2, md: 3 }}
       p={3}
       borderWidth="1px"
       borderColor={isMe ? 'brand.400' : 'border.subtle'}
@@ -30,7 +30,13 @@ export default function RankRow({ entry, isMe, onClick }: RankRowProps) {
       onClick={onClick}
       _hover={{ bg: isMe ? 'brand.100' : 'bg.subtle' }}
     >
-      <Text w="32px" textAlign="center" fontWeight="700" color="fg.muted">
+      <Text
+        w={{ base: '24px', md: '32px' }}
+        flexShrink={0}
+        textAlign="center"
+        fontWeight="700"
+        color="fg.muted"
+      >
         {entry.rank}
       </Text>
       <Avatar.Root size="sm">
@@ -53,20 +59,37 @@ export default function RankRow({ entry, isMe, onClick }: RankRowProps) {
             </Text>
           )}
         </HStack>
-        <Text fontSize="xs" color="fg.muted">
-          {winRate === null
-            ? t('noMatches')
-            : t('winRate', {
-                rate: winRate,
+        {winRate === null ? (
+          <Text fontSize="xs" lineHeight="short" color="fg.muted">
+            {t('noMatches')}
+          </Text>
+        ) : (
+          <Box fontSize="xs" lineHeight="short" color="fg.muted">
+            <Text>{t('winRate', { rate: winRate })}</Text>
+            <Text>
+              {t('matchRecord', {
                 won: entry.matchesWon,
                 played: entry.matchesPlayed,
               })}
-        </Text>
+            </Text>
+          </Box>
+        )}
       </Box>
       <TierBadge tier={entry.tier} />
-      <Text fontWeight="800" fontSize="md" minW="48px" textAlign="right">
-        {entry.points}
-      </Text>
+      <Flex
+        align="baseline"
+        justify="flex-end"
+        gap={1}
+        minW={{ base: '58px', md: '64px' }}
+        flexShrink={0}
+      >
+        <Text fontWeight="800" fontSize="md" textAlign="right">
+          {entry.points}
+        </Text>
+        <Text fontSize="xs" color="fg.muted">
+          {t('pointsUnit')}
+        </Text>
+      </Flex>
     </Flex>
   );
 }

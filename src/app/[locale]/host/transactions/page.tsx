@@ -5,7 +5,6 @@ import {
   Box,
   Badge,
   Container,
-  Heading,
   IconButton,
   Input,
   Text,
@@ -13,12 +12,15 @@ import {
   HStack,
   SimpleGrid,
   VStack,
+  Wrap,
+  WrapItem,
 } from '@chakra-ui/react';
 import { useLocale, useTranslations } from 'next-intl';
 import {
   ArrowUpDown,
   Banknote,
   Calendar,
+  CalendarDays,
   Check,
   CheckCheck,
   Landmark,
@@ -52,18 +54,48 @@ import {
 } from '@/lib/api/types';
 import { toaster } from '@/components/ui/toaster';
 
-type DateFilter = 'all' | 'today' | 'week' | 'month' | 'year';
+type DatePreset = 'today' | 'week' | 'month' | 'year';
+type DateFilter = 'all' | DatePreset | 'custom';
 type SortBy = 'totalAmount' | 'pendingAmount' | 'latest' | 'name' | 'sessions';
+
+interface CustomDateRange {
+  from: string; // ISO date string YYYY-MM-DD
+  to: string; // ISO date string YYYY-MM-DD
+}
 
 function paymentDate(payment: PaymentRecord): Date {
   return new Date(payment.session?.startTime ?? payment.createdAt);
 }
 
-function isWithinDateFilter(payment: PaymentRecord, filter: DateFilter) {
-  if (filter === 'all') return true;
+function isWithinDateFilter(
+  payment: PaymentRecord,
+  filter: DateFilter,
+  customRange?: CustomDateRange,
+  selectedPresets?: DatePreset[]
+) {
+  if (filter === 'all' && (!selectedPresets || selectedPresets.length === 0))
+    return true;
   const date = dayjs(paymentDate(payment));
-  const start = dayjs().startOf(filter === 'today' ? 'day' : filter);
-  return !date.isBefore(start);
+
+  if (filter === 'custom' && customRange) {
+    const from = dayjs(customRange.from).startOf('day');
+    const to = dayjs(customRange.to).endOf('day');
+    return !date.isBefore(from) && !date.isAfter(to);
+  }
+
+  if (selectedPresets && selectedPresets.length > 0) {
+    return selectedPresets.some((preset) => {
+      const start = dayjs().startOf(preset === 'today' ? 'day' : preset);
+      return !date.isBefore(start);
+    });
+  }
+
+  if (filter !== 'all' && filter !== 'custom') {
+    const start = dayjs().startOf(filter === 'today' ? 'day' : filter);
+    return !date.isBefore(start);
+  }
+
+  return true;
 }
 
 function latestPaymentAt(payments: PaymentRecord[] | undefined): number {
@@ -157,21 +189,37 @@ function HostTransactionsContent() {
     'all'
   );
   const [dateFilter, setDateFilter] = useState<DateFilter>('all');
+  const [selectedPreset, setSelectedPreset] = useState<DatePreset | null>(null);
+  const [customRange, setCustomRange] = useState<CustomDateRange>({
+    from: '',
+    to: '',
+  });
   const [sortBy, setSortBy] = useState<SortBy>('totalAmount');
   const [showFilters, setShowFilters] = useState(false);
 
+  const hasDateFilter = dateFilter !== 'all' || selectedPreset !== null;
+
   const hasActiveFilters =
-    searchQuery.trim() !== '' || statusFilter !== 'all' || dateFilter !== 'all';
+    searchQuery.trim() !== '' || statusFilter !== 'all' || hasDateFilter;
   const activeFilterCount =
     (statusFilter !== 'all' ? 1 : 0) +
-    (dateFilter !== 'all' ? 1 : 0) +
+    (hasDateFilter ? 1 : 0) +
     (sortBy !== 'totalAmount' ? 1 : 0);
 
   const handleClearFilters = () => {
     setSearchQuery('');
     setStatusFilter('all');
     setDateFilter('all');
+    setSelectedPreset(null);
+    setCustomRange({ from: '', to: '' });
     setSortBy('totalAmount');
+  };
+
+  const handleSelectPreset = (preset: DatePreset) => {
+    // Toggle off if already selected
+    setSelectedPreset((prev) => (prev === preset ? null : preset));
+    setDateFilter('all');
+    setCustomRange({ from: '', to: '' });
   };
 
   // Recompute each summary's totals from the already-loaded per-user payments,
@@ -180,19 +228,30 @@ function HostTransactionsContent() {
   // are dropped once a specific range is selected — we have no breakdown to
   // filter them correctly, so hiding is safer than showing stale totals.
   const dateFilteredSummaries = useMemo(() => {
-    if (dateFilter === 'all') return summaries;
+    const noDateFilter =
+      (dateFilter === 'all' && selectedPreset === null) ||
+      (dateFilter === 'custom' && (!customRange.from || !customRange.to));
+    if (noDateFilter) return summaries;
+
+    const activePresets = selectedPreset ? [selectedPreset] : [];
 
     return summaries
       .map((summary) => {
         const payments = paymentDetailsByUser[summary.userId];
         if (!payments) return null;
         const inRange = payments.filter((p) =>
-          isWithinDateFilter(p, dateFilter)
+          isWithinDateFilter(p, dateFilter, customRange, activePresets)
         );
         return summarizeUserPayments(summary, inRange);
       })
       .filter((summary): summary is HostTransactionSummary => Boolean(summary));
-  }, [summaries, paymentDetailsByUser, dateFilter]);
+  }, [
+    summaries,
+    paymentDetailsByUser,
+    dateFilter,
+    selectedPreset,
+    customRange,
+  ]);
 
   const filteredSummaries = useMemo(() => {
     const filtered = dateFilteredSummaries.filter((s) => {
@@ -486,13 +545,6 @@ function HostTransactionsContent() {
 
   return (
     <Container maxW="container.md">
-      <HStack mb={6}>
-        <Box color="green.600" _dark={{ color: 'green.400' }}>
-          <Receipt size={24} />
-        </Box>
-        <Heading size="lg">{t('transactionHistory')}</Heading>
-      </HStack>
-
       <Text color="fg.muted" mb={4}>
         {t('hostTransactionsDescription')}
       </Text>
@@ -525,8 +577,10 @@ function HostTransactionsContent() {
           <Box position="relative">
             <IconButton
               size="sm"
-              variant={showFilters ? 'solid' : 'outline'}
-              colorPalette={activeFilterCount > 0 ? 'green' : 'gray'}
+              variant={
+                showFilters || activeFilterCount > 0 ? 'solid' : 'subtle'
+              }
+              colorPalette="green"
               aria-label={t('toggleFilters')}
               onClick={() => setShowFilters((prev) => !prev)}
             >
@@ -554,44 +608,147 @@ function HostTransactionsContent() {
         </HStack>
 
         {showFilters && (
-          <SimpleGrid columns={{ base: 1, sm: 3 }} gap={2}>
-            <VSelect
-              value={statusFilter}
-              onChange={(e) =>
-                setStatusFilter(e.target.value as 'all' | 'pending' | 'paid')
-              }
-              size="sm"
-              leftElement={<ListFilter size={14} />}
+          <VStack gap={2} align="stretch">
+            <SimpleGrid columns={{ base: 1, sm: 2 }} gap={2}>
+              <VSelect
+                value={statusFilter}
+                onChange={(e) =>
+                  setStatusFilter(e.target.value as 'all' | 'pending' | 'paid')
+                }
+                size="sm"
+                leftElement={<ListFilter size={14} />}
+              >
+                <option value="all">{t('filterAll')}</option>
+                <option value="pending">{t('filterHasPending')}</option>
+                <option value="paid">{t('filterAllPaid')}</option>
+              </VSelect>
+              <VSelect
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value as SortBy)}
+                size="sm"
+                leftElement={<ArrowUpDown size={14} />}
+              >
+                <option value="totalAmount">{t('sortTotalAmount')}</option>
+                <option value="pendingAmount">{t('sortPendingAmount')}</option>
+                <option value="latest">{t('sortLatest')}</option>
+                <option value="name">{t('sortNameAZ')}</option>
+                <option value="sessions">{t('sortMostSessions')}</option>
+              </VSelect>
+            </SimpleGrid>
+
+            {/* Advanced date filter */}
+            <Box
+              border="1px solid"
+              borderColor="gray.200"
+              _dark={{ borderColor: 'gray.700', bg: 'gray.800' }}
+              borderRadius="lg"
+              p={3}
+              bg="white"
             >
-              <option value="all">{t('filterAll')}</option>
-              <option value="pending">{t('filterHasPending')}</option>
-              <option value="paid">{t('filterAllPaid')}</option>
-            </VSelect>
-            <VSelect
-              value={dateFilter}
-              onChange={(e) => setDateFilter(e.target.value as DateFilter)}
-              size="sm"
-              leftElement={<Calendar size={14} />}
-            >
-              <option value="all">{t('dateFilterAll')}</option>
-              <option value="today">{t('dateFilterToday')}</option>
-              <option value="week">{t('dateFilterWeek')}</option>
-              <option value="month">{t('dateFilterMonth')}</option>
-              <option value="year">{t('dateFilterYear')}</option>
-            </VSelect>
-            <VSelect
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value as SortBy)}
-              size="sm"
-              leftElement={<ArrowUpDown size={14} />}
-            >
-              <option value="totalAmount">{t('sortTotalAmount')}</option>
-              <option value="pendingAmount">{t('sortPendingAmount')}</option>
-              <option value="latest">{t('sortLatest')}</option>
-              <option value="name">{t('sortNameAZ')}</option>
-              <option value="sessions">{t('sortMostSessions')}</option>
-            </VSelect>
-          </SimpleGrid>
+              <HStack mb={2} gap={1}>
+                <CalendarDays size={14} />
+                <Text fontSize="xs" fontWeight="semibold" color="fg.muted">
+                  Khoảng thời gian
+                </Text>
+              </HStack>
+
+              {/* Preset chips - multi-select */}
+              <Wrap gap={2} mb={3}>
+                {(['today', 'week', 'month', 'year'] as DatePreset[]).map(
+                  (preset) => {
+                    const labels: Record<DatePreset, string> = {
+                      today: t('dateFilterToday'),
+                      week: t('dateFilterWeek'),
+                      month: t('dateFilterMonth'),
+                      year: t('dateFilterYear'),
+                    };
+                    const isSelected = selectedPreset === preset;
+                    return (
+                      <WrapItem key={preset}>
+                        <Box
+                          as="button"
+                          px={3}
+                          py={1}
+                          borderRadius="full"
+                          fontSize="xs"
+                          fontWeight="medium"
+                          cursor="pointer"
+                          border="1.5px solid"
+                          transition="all 0.15s"
+                          bg={isSelected ? 'green.500' : 'transparent'}
+                          color={isSelected ? 'white' : 'fg.muted'}
+                          borderColor={isSelected ? 'green.500' : 'gray.300'}
+                          _dark={{
+                            borderColor: isSelected ? 'green.400' : 'gray.600',
+                            bg: isSelected ? 'green.600' : 'transparent',
+                            color: isSelected ? 'white' : 'gray.400',
+                          }}
+                          _hover={{
+                            borderColor: 'green.400',
+                            color: isSelected ? 'white' : 'green.600',
+                          }}
+                          onClick={() => handleSelectPreset(preset)}
+                        >
+                          {labels[preset]}
+                        </Box>
+                      </WrapItem>
+                    );
+                  }
+                )}
+              </Wrap>
+
+              {/* Custom date range */}
+              <Box>
+                <Text fontSize="xs" color="fg.muted" mb={1.5}>
+                  Hoặc chọn khoảng ngày cụ thể:
+                </Text>
+                <HStack gap={2}>
+                  <Box flex={1}>
+                    <Text fontSize="xs" color="fg.muted" mb={0.5}>
+                      Từ ngày
+                    </Text>
+                    <Input
+                      type="date"
+                      size="sm"
+                      value={customRange.from}
+                      max={customRange.to || undefined}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        setCustomRange((prev) => ({ ...prev, from: val }));
+                        if (val) {
+                          setDateFilter('custom');
+                          setSelectedPreset(null);
+                        }
+                      }}
+                      bg="white"
+                      _dark={{ bg: 'gray.800' }}
+                    />
+                  </Box>
+                  <Box flex={1}>
+                    <Text fontSize="xs" color="fg.muted" mb={0.5}>
+                      Đến ngày
+                    </Text>
+                    <Input
+                      type="date"
+                      size="sm"
+                      value={customRange.to}
+                      min={customRange.from || undefined}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        setCustomRange((prev) => ({ ...prev, to: val }));
+                        if (val) {
+                          setDateFilter('custom');
+                          setSelectedPreset(null);
+                        }
+                      }}
+                      bg="white"
+                      _dark={{ bg: 'gray.800' }}
+                    />
+                  </Box>
+                </HStack>
+              </Box>
+            </Box>
+          </VStack>
         )}
 
         {hasActiveFilters && (

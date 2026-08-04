@@ -21,7 +21,7 @@ import {
   IClubJoinRequest,
   IClubMember,
 } from '@/types/club';
-import ClubJoinRequestRow from './ClubJoinRequestRow';
+import ClubJoinRequestRow from '@/components/club/ClubJoinRequestRow';
 import ClubMemberRow from './ClubMemberRow';
 
 interface IClubMembersViewProps {

@@ -8,11 +8,14 @@ import {
   Avatar,
   Flex,
   Badge,
+  Button,
 } from '@chakra-ui/react';
+import { useState, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import { TransactionSummary, HostTransactionSummary } from '@/lib/api/types';
 import { FeeService } from '@/lib/api/fee.service';
 import {
+  ChevronDown,
   ChevronRight,
   Calendar,
   CheckCircle2,
@@ -34,6 +37,8 @@ interface TransactionSummaryListProps {
   hasActiveFilters?: boolean;
 }
 
+const ITEMS_PER_PAGE = 10;
+
 export default function TransactionSummaryList({
   summaries,
   viewType,
@@ -42,6 +47,15 @@ export default function TransactionSummaryList({
   hasActiveFilters = false,
 }: TransactionSummaryListProps) {
   const t = useTranslations('payment');
+  const [visibleCount, setVisibleCount] = useState(ITEMS_PER_PAGE);
+
+  // Reset pagination whenever the summaries list changes (filter applied etc.)
+  useEffect(() => {
+    setVisibleCount(ITEMS_PER_PAGE);
+  }, [summaries]);
+
+  const visibleSummaries = summaries.slice(0, visibleCount);
+  const hasMore = visibleCount < summaries.length;
 
   // Calculate totals
   const totalAmount = summaries.reduce((sum, s) => sum + s.totalAmount, 0);
@@ -178,7 +192,7 @@ export default function TransactionSummaryList({
 
       {/* Summary List */}
       <VStack gap={2} align="stretch">
-        {summaries.map((summary) => {
+        {visibleSummaries.map((summary) => {
           const isPlayerView = viewType === 'player';
           const name = isPlayerView
             ? (summary as TransactionSummary).hostName
@@ -267,6 +281,22 @@ export default function TransactionSummaryList({
             </Box>
           );
         })}
+
+        {hasMore && (
+          <Button
+            variant="outline"
+            size="sm"
+            width="full"
+            colorPalette="gray"
+            mt={1}
+            onClick={() => setVisibleCount((prev) => prev + ITEMS_PER_PAGE)}
+          >
+            <ChevronDown size={16} />
+            {t('showMore', {
+              count: Math.min(ITEMS_PER_PAGE, summaries.length - visibleCount),
+            })}
+          </Button>
+        )}
       </VStack>
     </VStack>
   );

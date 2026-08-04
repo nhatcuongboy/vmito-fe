@@ -93,6 +93,9 @@ export default function ClubDetailClient({
   );
   const [isJoining, setIsJoining] = useState(false);
   const [hasPendingRequest, setHasPendingRequest] = useState(false);
+  const [optimisticallyJoinedClubId, setOptimisticallyJoinedClubId] = useState<
+    string | null
+  >(null);
 
   const loadClubDetails = useCallback(
     async (silent?: boolean) => {
@@ -125,9 +128,9 @@ export default function ClubDetailClient({
     }
   }, [clubId, loadClubDetails, initialClub]);
 
-  const isUserMember = club?.members?.some(
-    (m) => m.user.id === currentUser?.id
-  );
+  const isUserMember =
+    optimisticallyJoinedClubId === club?.id ||
+    club?.members?.some((m) => m.user.id === currentUser?.id);
 
   const isUserAdmin =
     !!currentUser &&
@@ -157,10 +160,12 @@ export default function ClubDetailClient({
             ? t('clubs.joinedSuccessfully')
             : t('clubs.joinRequestSent'),
       });
+      await loadClubDetails(true);
       if (result.status === 'pending') {
         setHasPendingRequest(true);
+      } else {
+        setOptimisticallyJoinedClubId(club.id);
       }
-      await loadClubDetails(true);
     } catch (error) {
       console.error('Failed to join club:', error);
       toaster.error({ title: t('common.error') });

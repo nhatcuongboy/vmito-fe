@@ -3,133 +3,51 @@
 import {
   Badge,
   Box,
-  Flex,
   Heading,
   HStack,
-  Separator,
   SimpleGrid,
   Skeleton,
   Text,
   VStack,
 } from '@chakra-ui/react';
 import { Button } from '@/components/ui/chakra-compat';
-import { Input } from '@/components/ui/Input';
-import { Field } from '@/components/ui/Field';
 import VModal from '@/components/ui/VModal';
+import ProtectedRouteGuard from '@/components/guards/ProtectedRouteGuard';
+import AppPendingClubRequestCard from '@/components/club/AppPendingClubRequestCard';
+import AppPendingClubRequestCardSkeleton from '@/components/club/AppPendingClubRequestCardSkeleton';
 import ClubCardSkeleton from '@/components/club/ClubCardSkeleton';
-import ClubRequestRowSkeleton from '@/components/club/ClubRequestRowSkeleton';
+import ManagedClubCard from '@/components/club/ManagedClubCard';
 import { useRouter } from '@/i18n/config';
-import {
-  Clock,
-  Plus,
-  Users,
-  UserCircle,
-  ChevronRight,
-  Check,
-  X,
-  Shield,
-} from 'lucide-react';
-import { useTranslations } from 'next-intl';
+import { Clock, Users } from 'lucide-react';
+import { useFormatter, useTranslations } from 'next-intl';
 import { useState } from 'react';
 import { useMyClubsData } from '@/hooks/useMyClubsData';
-import { IMyClub } from '@/types/club';
+import { IClubJoinRequest } from '@/types/club';
 
-type RejectTarget =
-  | { type: 'club'; clubId: string }
-  | { type: 'member'; clubId: string; requestId: string };
-
-export default function MemberPage() {
+function MemberPageContent() {
   const t = useTranslations();
+  const format = useFormatter();
   const router = useRouter();
-  const {
-    memberClubs,
-    pendingOutgoing,
-    isLoading,
-    isActionLoading,
-    handleReject,
-  } = useMyClubsData();
+  const { memberClubs, pendingOutgoing, isLoading, handleCancelJoinRequest } =
+    useMyClubsData();
 
-  const [rejectTarget, setRejectTarget] = useState<RejectTarget | null>(null);
-  const [rejectionReason, setRejectionReason] = useState('');
-  const isRejectDialogOpen = rejectTarget !== null;
+  const [withdrawRequest, setWithdrawRequest] =
+    useState<IClubJoinRequest | null>(null);
+  const [isWithdrawing, setIsWithdrawing] = useState(false);
 
-  const renderClubCard = (club: IMyClub) => (
-    <Box
-      key={club.id}
-      p={{ base: 4, md: 6 }}
-      bg="bg"
-      _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
-      borderRadius={{ base: 'xl', md: '2xl' }}
-      borderWidth="1px"
-      borderColor="border"
-      cursor="pointer"
-      onClick={() => {
-        if (club.status !== 'PENDING') {
-          router.push(`/clubs/${club.slug ?? club.id}`);
-        }
-      }}
-      transition="all 0.2s"
-      _hover={
-        club.status === 'PENDING'
-          ? {}
-          : { shadow: 'md', transform: 'translateY(-2px)' }
-      }
-    >
-      <HStack justify="space-between" mb={{ base: 3, md: 4 }}>
-        <HStack gap={2} flex={1} minW={0}>
-          <Heading size={{ base: 'sm', md: 'md' }} lineClamp={1}>
-            {club.name}
-          </Heading>
-          {club.status === 'PENDING' && (
-            <Badge colorPalette="yellow" size="xs">
-              {t('clubs.clubStatus.pending')}
-            </Badge>
-          )}
-        </HStack>
-        {club.status !== 'PENDING' && (
-          <ChevronRight size={18} color="#CBD5E0" />
-        )}
-      </HStack>
+  const handleConfirmWithdraw = async () => {
+    if (!withdrawRequest) return;
 
-      <VStack align="start" gap={{ base: 2, md: 3 }} mb={{ base: 3, md: 4 }}>
-        <HStack gap={2}>
-          <UserCircle size={16} />
-          <Text
-            fontSize={{ base: 'xs', md: 'sm' }}
-            color="fg.muted"
-            _dark={{ color: 'gray.400' }}
-          >
-            {t(
-              `clubs.memberRole.${club.role.toLowerCase()}` as Parameters<
-                typeof t
-              >[0]
-            )}
-          </Text>
-        </HStack>
-        <HStack gap={2}>
-          <Users size={16} />
-          <Text
-            fontSize={{ base: 'xs', md: 'sm' }}
-            color="fg.muted"
-            _dark={{ color: 'gray.400' }}
-          >
-            {club.memberCount} {t('clubs.members')}
-          </Text>
-        </HStack>
-      </VStack>
-
-      <Separator mb={{ base: 3, md: 4 }} />
-
-      <HStack>
-        <Text fontSize="xs" color="fg.muted">
-          {t('clubs.hostedBy')}
-        </Text>
-        <Text fontSize="xs" fontWeight="bold">
-          {club.host.name}
-        </Text>
-      </HStack>
-    </Box>
-  );
+    try {
+      setIsWithdrawing(true);
+      await handleCancelJoinRequest(withdrawRequest.clubId);
+      setWithdrawRequest(null);
+    } catch {
+      return;
+    } finally {
+      setIsWithdrawing(false);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -159,7 +77,7 @@ export default function MemberPage() {
           </HStack>
           <VStack gap={{ base: 3, md: 4 }} align="stretch">
             {Array.from({ length: 3 }).map((_, i) => (
-              <ClubRequestRowSkeleton key={i} />
+              <AppPendingClubRequestCardSkeleton key={i} />
             ))}
           </VStack>
         </Box>
@@ -214,7 +132,9 @@ export default function MemberPage() {
               columns={{ base: 1, md: 2, lg: 3 }}
               gap={{ base: 4, md: 6 }}
             >
-              {memberClubs.map((club) => renderClubCard(club))}
+              {memberClubs.map((club) => (
+                <ManagedClubCard key={club.id} club={club} />
+              ))}
             </SimpleGrid>
           )}
         </Box>
@@ -251,65 +171,23 @@ export default function MemberPage() {
           ) : (
             <VStack gap={{ base: 3, md: 4 }} align="stretch">
               {pendingOutgoing.map((request) => (
-                <Flex
+                <AppPendingClubRequestCard
                   key={request.id}
-                  p={{ base: 4, md: 5 }}
-                  bg="bg"
-                  _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
-                  borderRadius={{ base: 'xl', md: 'xl' }}
-                  borderWidth="1px"
-                  borderColor="border"
-                  align="center"
-                  justify="space-between"
-                  gap={{ base: 3, md: 4 }}
-                  flexDirection={{ base: 'column', sm: 'row' }}
-                >
-                  <HStack
-                    gap={{ base: 3, md: 4 }}
-                    w={{ base: 'full', sm: 'auto' }}
-                  >
-                    <Box
-                      p={{ base: 2, md: 3 }}
-                      bg="orange.50"
-                      _dark={{ bg: 'orange.900/20' }}
-                      borderRadius="lg"
-                      flexShrink={0}
-                    >
-                      <Clock size={24} color="#DD6B20" />
-                    </Box>
-                    <Box flex={1} minW={0}>
-                      <Heading size={{ base: 'xs', md: 'sm' }} mb={1}>
-                        {request.club?.name}
-                      </Heading>
-                      <Text fontSize="xs" color="fg.muted">
-                        {new Date(request.createdAt).toLocaleDateString()}
-                      </Text>
-                    </Box>
-                  </HStack>
-                  <HStack
-                    gap={{ base: 2, md: 4 }}
-                    w={{ base: 'full', sm: 'auto' }}
-                  >
-                    <Badge
-                      colorPalette="orange"
-                      flex={{ base: 1, sm: 'initial' }}
-                    >
-                      {request.status}
-                    </Badge>
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      flex={{ base: 1, sm: 'initial' }}
-                      onClick={() =>
-                        router.push(
-                          `/clubs/${request.club?.slug ?? request.club?.id}`
-                        )
-                      }
-                    >
-                      {t('common.view')}
-                    </Button>
-                  </HStack>
-                </Flex>
+                  request={request}
+                  submittedText={t('clubs.requestSubmittedOn', {
+                    date: format.dateTime(new Date(request.createdAt), {
+                      dateStyle: 'medium',
+                    }),
+                  })}
+                  statusLabel={t('clubs.clubStatus.pending')}
+                  hostedByLabel={t('clubs.hostedBy')}
+                  viewClubLabel={t('clubs.viewClub')}
+                  withdrawLabel={t('clubs.withdrawJoinRequest')}
+                  isWithdrawing={
+                    isWithdrawing && withdrawRequest?.id === request.id
+                  }
+                  onWithdraw={setWithdrawRequest}
+                />
               ))}
             </VStack>
           )}
@@ -317,32 +195,34 @@ export default function MemberPage() {
       </VStack>
 
       <VModal
-        isOpen={isRejectDialogOpen}
-        onClose={() => setRejectTarget(null)}
-        title={t('clubs.reject')}
-        primaryActionText={t('clubs.reject')}
-        onPrimaryAction={() => {
-          if (rejectTarget) {
-            handleReject(rejectTarget, rejectionReason);
-            setRejectTarget(null);
-          }
+        isOpen={withdrawRequest !== null}
+        onClose={() => {
+          if (!isWithdrawing) setWithdrawRequest(null);
         }}
-        isPrimaryLoading={isActionLoading}
+        title={t('clubs.withdrawJoinRequestTitle')}
+        primaryActionText={t('clubs.withdrawJoinRequest')}
+        onPrimaryAction={handleConfirmWithdraw}
+        isPrimaryLoading={isWithdrawing}
         primaryColorScheme="red"
         secondaryActionText={t('common.cancel')}
-        isPrimaryDisabled={!rejectionReason.trim()}
+        isSecondaryDisabled={isWithdrawing}
+        closeOnOverlayClick={!isWithdrawing}
+        closeButtonAriaLabel={t('common.close')}
       >
-        <Field
-          label={t('clubs.rejectionReason', { reason: '' }).replace(': ', '')}
-          required
-        >
-          <Input
-            placeholder={t('clubs.joinMessagePlaceholder')}
-            value={rejectionReason}
-            onChange={(e) => setRejectionReason(e.target.value)}
-          />
-        </Field>
+        <Text color="fg.muted">
+          {t('clubs.withdrawJoinRequestConfirmation', {
+            clubName: withdrawRequest?.club?.name ?? '',
+          })}
+        </Text>
       </VModal>
     </>
+  );
+}
+
+export default function MemberPage() {
+  return (
+    <ProtectedRouteGuard>
+      <MemberPageContent />
+    </ProtectedRouteGuard>
   );
 }

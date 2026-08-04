@@ -12,39 +12,53 @@ import {
 export default function ClubCardSkeleton() {
   return (
     <Box
-      p={{ base: 4, md: 6 }}
       bg="bg"
       _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
       borderRadius={{ base: 'xl', md: '2xl' }}
       borderWidth="1px"
       borderColor="border"
+      overflow="hidden"
     >
-      {/* Header: title + chevron */}
-      <Flex justify="space-between" align="center" mb={{ base: 3, md: 4 }}>
-        <HStack gap={2} flex={1} minW={0}>
-          <Skeleton height="22px" width="60%" borderRadius="md" />
-        </HStack>
-        <Skeleton height="18px" width="18px" borderRadius="sm" flexShrink={0} />
-      </Flex>
+      <Box p={{ base: 4, md: 5 }}>
+        <Flex align="flex-start" gap={{ base: 3, md: 4 }}>
+          <Skeleton
+            boxSize={{ base: '52px', md: '58px' }}
+            borderRadius="xl"
+            flexShrink={0}
+          />
+          <VStack align="stretch" gap={2} flex={1} minW={0}>
+            <Flex justify="space-between" gap={3}>
+              <Box flex={1} minW={0}>
+                <Skeleton h="22px" w="70%" borderRadius="md" />
+                <HStack gap={2} mt={1}>
+                  <Skeleton h="20px" w="76px" borderRadius="full" />
+                  <Skeleton h="14px" w="82px" borderRadius="md" />
+                </HStack>
+              </Box>
+              <Skeleton boxSize="32px" borderRadius="md" flexShrink={0} />
+            </Flex>
+            <HStack minH="18px" gap={1.5}>
+              <Skeleton boxSize="14px" borderRadius="sm" />
+              <Skeleton h="12px" w="55%" borderRadius="md" />
+            </HStack>
+          </VStack>
+        </Flex>
+      </Box>
 
-      {/* Role + member count rows */}
-      <VStack align="start" gap={{ base: 2, md: 3 }} mb={{ base: 3, md: 4 }}>
+      <Separator />
+
+      <HStack
+        px={{ base: 4, md: 5 }}
+        py={3}
+        justify="space-between"
+        bg="bg.muted"
+        _dark={{ bg: 'whiteAlpha.50' }}
+      >
         <HStack gap={2}>
-          <Skeleton height="16px" width="16px" borderRadius="sm" />
-          <Skeleton height="14px" width="80px" borderRadius="md" />
+          <Skeleton h="12px" w="55px" borderRadius="md" />
+          <Skeleton h="12px" w="90px" borderRadius="md" />
         </HStack>
-        <HStack gap={2}>
-          <Skeleton height="16px" width="16px" borderRadius="sm" />
-          <Skeleton height="14px" width="100px" borderRadius="md" />
-        </HStack>
-      </VStack>
-
-      <Separator mb={{ base: 3, md: 4 }} />
-
-      {/* Hosted by */}
-      <HStack>
-        <Skeleton height="12px" width="55px" borderRadius="md" />
-        <Skeleton height="12px" width="90px" borderRadius="md" />
+        <Skeleton boxSize="18px" borderRadius="sm" />
       </HStack>
     </Box>
   );
