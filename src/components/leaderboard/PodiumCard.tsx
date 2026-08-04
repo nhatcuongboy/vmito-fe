@@ -87,16 +87,17 @@ export default function PodiumCard({
           </Flex>
         </Box>
 
-        <Text
-          fontSize="sm"
-          fontWeight="600"
-          textAlign="center"
-          lineClamp={1}
-          maxW="100%"
-          pt={1}
-        >
-          {entry.user.name}
-        </Text>
+        <Box minH="40px" maxW="100%" pt={1} display="flex" alignItems="center">
+          <Text
+            fontSize="sm"
+            fontWeight="600"
+            textAlign="center"
+            lineClamp={2}
+            title={entry.user.name ?? ''}
+          >
+            {entry.user.name}
+          </Text>
+        </Box>
 
         <Flex align="baseline" gap={1}>
           <Text fontSize={isChampion ? '2xl' : 'xl'} fontWeight="800">

@@ -39,7 +39,12 @@ export default function RankRow({ entry, isMe, onClick }: RankRowProps) {
       </Avatar.Root>
       <Box flex={1} minW={0}>
         <HStack gap={2}>
-          <Text fontWeight="600" fontSize="sm" lineClamp={1}>
+          <Text
+            fontWeight="600"
+            fontSize="sm"
+            lineClamp={1}
+            title={entry.user.name ?? ''}
+          >
             {entry.user.name}
           </Text>
           {isMe && (
