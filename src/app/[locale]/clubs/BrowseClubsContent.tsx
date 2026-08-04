@@ -40,6 +40,14 @@ import {
   BOTTOM_TAB_HEIGHT,
 } from '@/constants';
 import { getUserLocation } from '@/lib/utils/geolocation.utils';
+import {
+  clearUserLocationCookie,
+  locationKey,
+  normalizeUserLocation,
+  readUserLocationCookie,
+  writeUserLocationCookie,
+} from '@/lib/user-location';
+import { buildBrowseSeedKey } from '@/lib/browse-seed-key';
 import { usePathname, useRouter } from '@/i18n/config';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { usePreferenceStore } from '@/stores/usePreferenceStore';
@@ -51,7 +59,7 @@ import ClubCardSkeleton from '@/components/clubs/ClubCardSkeleton';
 import ClubMap from '@/components/clubs/ClubMap';
 import AppViewModeToggle from '@/components/common/AppViewModeToggle';
 import AppEmptyState from '@/components/ui/AppEmptyState';
-import { useViewMode } from '@/hooks/useViewMode';
+import { useViewMode, type ViewMode } from '@/hooks/useViewMode';
 import { IClubListItem, IClub, IClubVenue } from '@/types/club';
 import PageLayout from '@/components/layout/PageLayout';
 import { useDebounce } from '@/hooks/useDebounce';
@@ -188,21 +196,32 @@ const CLUB_SORT_OPTIONS: IClubSortOption[] = [
   },
 ];
 
-function BrowseClubsContent() {
+interface BrowseClubsContentProps {
+  initialClubs?: IClubListItem[];
+  initialSeedKey?: string | null;
+  serverViewMode?: ViewMode;
+}
+
+function BrowseClubsContent({
+  initialClubs = [],
+  initialSeedKey = null,
+  serverViewMode,
+}: BrowseClubsContentProps) {
   const t = useTranslations();
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const { user } = useAuthStore();
-  const preferredCity = usePreferenceStore((s) => s.preferredCity);
+  const { preferredCity, _hasHydrated: preferencesHydrated } =
+    usePreferenceStore();
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
 
-  const [viewMode] = useViewMode('clubs', 'list');
+  const [viewMode] = useViewMode('clubs', 'list', serverViewMode);
 
-  const [clubs, setClubs] = useState<IClubListItem[]>([]);
+  const [clubs, setClubs] = useState<IClubListItem[]>(initialClubs);
   const [fullClubs, setFullClubs] = useState<ClubMapClub[]>([]);
   const [totalCount, setTotalCount] = useState<number | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(initialClubs.length === 0);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [isLoadingFullDetails, setIsLoadingFullDetails] = useState(false);
   const [page, setPage] = useState(1);
@@ -217,10 +236,11 @@ function BrowseClubsContent() {
   const [sort, setSort] = useState('distance');
   const [isSortOpen, setIsSortOpen] = useState(false);
   const sortDropdownRef = useRef<HTMLDivElement>(null);
-  const [userLocation, setUserLocation] = useState<{
-    lat: number;
-    lng: number;
-  } | null>(null);
+  const [userLocation, setUserLocation] = useState(readUserLocationCookie);
+  const userLocationKey = locationKey(userLocation);
+  const silentRevalidateRef = useRef(initialClubs.length > 0);
+  const isFirstFetchRef = useRef(true);
+  const refreshedLocationModeRef = useRef<string | null>(null);
 
   // Pending filters (for drawer)
   const [pendingCities, setPendingCities] = useState<string[]>([]);
@@ -235,6 +255,30 @@ function BrowseClubsContent() {
   const debouncedSearch = useDebounce(search, 500);
   const loadingMoreRef = useRef(false);
   const favoriteFromUrl = searchParams.get('favorite') === '1';
+  const requiresUserLocation = sort === 'distance' || sortByDistance;
+  const effectiveCity =
+    cities.length === 1
+      ? normalizeCityForApi(
+          VIETNAM_CITIES.find((city) => city.code === cities[0])?.name ??
+            cities[0]
+        )
+      : cities.length === 0
+        ? preferredCity
+          ? normalizeCityForApi(
+              VIETNAM_CITIES.find((city) => city.code === preferredCity)
+                ?.name ?? preferredCity
+            )
+          : ''
+        : '';
+  const querySortOption =
+    CLUB_SORT_OPTIONS.find((option) => option.value === sort) ??
+    CLUB_SORT_OPTIONS[0];
+  const activeSeedKey = buildBrowseSeedKey({
+    city: effectiveCity,
+    sortBy: requiresUserLocation ? 'distance' : querySortOption.sortBy,
+    sortOrder: requiresUserLocation ? 'asc' : querySortOption.sortOrder,
+    location: requiresUserLocation ? userLocation : null,
+  });
 
   const { ref, inView } = useInView({
     threshold: 0.1,
@@ -273,12 +317,38 @@ function BrowseClubsContent() {
   };
 
   useEffect(() => {
-    if (sort === 'distance' && !userLocation) {
-      getUserLocation()
-        .then((location) => setUserLocation(location))
-        .catch(() => setSort('relevance'));
+    const locationMode = `${sort}:${sortByDistance}`;
+    if (
+      !requiresUserLocation ||
+      refreshedLocationModeRef.current === locationMode
+    ) {
+      return;
     }
-  }, [sort, userLocation]);
+
+    refreshedLocationModeRef.current = locationMode;
+    let cancelled = false;
+
+    getUserLocation()
+      .then((location) => {
+        const normalizedLocation = normalizeUserLocation(location);
+        if (!cancelled && locationKey(normalizedLocation) !== userLocationKey) {
+          writeUserLocationCookie(normalizedLocation);
+          setUserLocation(normalizedLocation);
+        }
+      })
+      .catch(() => {
+        if (!cancelled) {
+          clearUserLocationCookie();
+          setUserLocation(null);
+          setSortByDistance(false);
+          setSort('relevance');
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [requiresUserLocation, sort, sortByDistance, userLocationKey]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -307,7 +377,17 @@ function BrowseClubsContent() {
         loadingMoreRef.current = true;
         setIsLoadingMore(true);
       } else {
-        setIsLoading(true);
+        if (
+          isFirstFetchRef.current &&
+          activeSeedKey !== (initialSeedKey ?? '')
+        ) {
+          silentRevalidateRef.current = false;
+          setClubs([]);
+        }
+        isFirstFetchRef.current = false;
+        if (!silentRevalidateRef.current) {
+          setIsLoading(true);
+        }
       }
 
       const activeSortOption =
@@ -388,7 +468,7 @@ function BrowseClubsContent() {
       } else {
         setClubs(items);
         setPage(1);
-        if (typeof window !== 'undefined') {
+        if (!silentRevalidateRef.current && typeof window !== 'undefined') {
           window.scrollTo({ top: 0, behavior: 'smooth' });
         }
       }
@@ -406,11 +486,17 @@ function BrowseClubsContent() {
         setIsLoadingMore(false);
       } else {
         setIsLoading(false);
+        silentRevalidateRef.current = false;
       }
     }
   };
 
   useEffect(() => {
+    if (!preferencesHydrated) return;
+    if (requiresUserLocation && !userLocation) {
+      setIsLoading(true);
+      return;
+    }
     setPage(1);
     fetchClubs(1);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -421,9 +507,12 @@ function BrowseClubsContent() {
     favoriteOnly,
     sortByDistance,
     sort,
-    userLocation,
+    userLocationKey,
     preferredCity,
     viewMode,
+    preferencesHydrated,
+    requiresUserLocation,
+    activeSeedKey,
   ]);
 
   // Trigger load more when the sentinel is close to the viewport.
@@ -557,7 +646,9 @@ function BrowseClubsContent() {
     }
     try {
       const location = await getUserLocation();
-      setPendingUserLocation(location);
+      const normalizedLocation = normalizeUserLocation(location);
+      writeUserLocationCookie(normalizedLocation);
+      setPendingUserLocation(normalizedLocation);
       setPendingSortByDistance(true);
     } catch (err: unknown) {
       toaster.error({
@@ -605,7 +696,9 @@ function BrowseClubsContent() {
       if (!userLocation) {
         try {
           const location = await getUserLocation();
-          setUserLocation(location);
+          const normalizedLocation = normalizeUserLocation(location);
+          writeUserLocationCookie(normalizedLocation);
+          setUserLocation(normalizedLocation);
           setSort('distance');
           setSortByDistance(false);
         } catch {
@@ -822,6 +915,7 @@ function BrowseClubsContent() {
               <AppViewModeToggle
                 scope="clubs"
                 defaultMode="list"
+                serverViewMode={serverViewMode}
                 listFirst={true}
               />
             </Flex>
@@ -1117,11 +1211,12 @@ function BrowseClubsContent() {
       ) : (
         <>
           <SimpleGrid columns={CLUB_RESULT_GRID_COLUMNS} gap={4}>
-            {clubs.map((club) => (
+            {clubs.map((club, index) => (
               <ClubCard
                 key={club.id}
                 club={club}
                 variant={viewMode === 'list' ? 'list' : 'grid'}
+                imagePriority={index === 0}
                 onFavoriteChange={(clubId, isFavorite) => {
                   setClubs((prev) =>
                     prev
@@ -1200,7 +1295,11 @@ function BrowseClubsContent() {
   );
 }
 
-export default function BrowseClubsPage() {
+export default function BrowseClubsPage({
+  initialClubs,
+  initialSeedKey,
+  serverViewMode,
+}: BrowseClubsContentProps) {
   const t = useTranslations();
   return (
     <PageLayout title={t('clubs.browseClubs')}>
@@ -1213,7 +1312,11 @@ export default function BrowseClubsPage() {
           </SimpleGrid>
         }
       >
-        <BrowseClubsContent />
+        <BrowseClubsContent
+          initialClubs={initialClubs}
+          initialSeedKey={initialSeedKey}
+          serverViewMode={serverViewMode}
+        />
       </Suspense>
     </PageLayout>
   );

@@ -28,11 +28,14 @@ import { useLevelLabel } from '@/hooks/useLevelLabel';
 import { getSkillLevelColor } from '@/lib/utils/skillLevel.utils';
 import { getLevelRank, sortLevelsByRank } from '@/constants/levels';
 import { FavoriteButton } from '@/components/favorites/FavoriteButton';
+import { normalizeImageUrl } from '@/lib/images/normalizeImageUrl';
+import { BROWSE_CARD_COVER_TRANSFORM } from '@/lib/images/coverTransforms';
 
 interface ClubCardProps {
   club: IClubListItem;
   variant?: 'grid' | 'list';
   onFavoriteChange?: (clubId: string, isFavorite: boolean) => void;
+  imagePriority?: boolean;
 }
 
 // Helper function to format schedule display
@@ -65,6 +68,7 @@ export default function ClubCard({
   club,
   variant = 'grid',
   onFavoriteChange,
+  imagePriority = false,
 }: ClubCardProps) {
   const router = useRouter();
   const t = useTranslations();
@@ -140,11 +144,16 @@ export default function ClubCard({
         <Box position="relative" h="140px" overflow="hidden">
           {/* Note: Clubs don't have separate banner, using avatar as banner with objectFit="cover" and blur, or just using typical image */}
           <Image
-            src={club.image || DEFAULT_COVER_PHOTO}
+            src={
+              normalizeImageUrl(club.image, BROWSE_CARD_COVER_TRANSFORM) ||
+              DEFAULT_COVER_PHOTO
+            }
             alt={club.name}
             w="100%"
             h="100%"
             objectFit="cover"
+            loading={imagePriority ? 'eager' : 'lazy'}
+            fetchPriority={imagePriority ? 'high' : 'auto'}
           />
 
           {/* Status Badge Overlay */}
@@ -310,11 +319,16 @@ export default function ClubCard({
       {/* Cover Photo */}
       <Box position="relative" h="140px" overflow="hidden" flexShrink={0}>
         <Image
-          src={club.image || DEFAULT_COVER_PHOTO}
+          src={
+            normalizeImageUrl(club.image, BROWSE_CARD_COVER_TRANSFORM) ||
+            DEFAULT_COVER_PHOTO
+          }
           alt={club.name}
           w="100%"
           h="100%"
           objectFit="cover"
+          loading={imagePriority ? 'eager' : 'lazy'}
+          fetchPriority={imagePriority ? 'high' : 'auto'}
         />
 
         {/* Status Badge Overlay */}

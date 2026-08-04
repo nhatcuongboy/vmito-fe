@@ -5,10 +5,16 @@ import { Button, IconButton } from '@/components/ui/chakra-compat';
 import { useDisclosure } from '@/components/ui/ChakraHooks';
 import AppEmptyState from '@/components/ui/AppEmptyState';
 import { toaster } from '@/components/ui/toaster';
+import { VIETNAM_CITIES } from '@/constants/vietnam-locations';
+import { cityCodeToApiName } from '@/lib/preferred-city';
+import { buildBrowseSeedKey } from '@/lib/browse-seed-key';
 import {
-  VIETNAM_CITIES,
-  normalizeCityForApi,
-} from '@/constants/vietnam-locations';
+  clearUserLocationCookie,
+  locationKey,
+  normalizeUserLocation,
+  readUserLocationCookie,
+  writeUserLocationCookie,
+} from '@/lib/user-location';
 import {
   TOP_BAR_HEIGHT_MOBILE,
   TOP_BAR_HEIGHT_DESKTOP,
@@ -40,7 +46,7 @@ import {
   X,
   Star,
 } from 'lucide-react';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useInView } from 'react-intersection-observer';
 import { useTranslations } from 'next-intl';
 import { useSearchParams } from 'next/navigation';
@@ -49,7 +55,7 @@ import VenueCard from './VenueCard';
 import VenueCardSkeleton from './VenueCardSkeleton';
 import VenueMap from './VenueMap';
 import AppViewModeToggle from '@/components/common/AppViewModeToggle';
-import { useViewMode } from '@/hooks/useViewMode';
+import { useViewMode, type ViewMode } from '@/hooks/useViewMode';
 import {
   useUrlFilters,
   stringField,
@@ -161,16 +167,27 @@ const VENUE_FILTERS_SCHEMA = {
   favorite: booleanField(false),
 };
 
-export default function VenueSearchList() {
+interface VenueSearchListProps {
+  initialVenues?: Venue[];
+  initialSeedKey?: string | null;
+  serverViewMode?: ViewMode;
+}
+
+export default function VenueSearchList({
+  initialVenues = [],
+  initialSeedKey = null,
+  serverViewMode,
+}: VenueSearchListProps) {
   const t = useTranslations();
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const { isAuthenticated } = useAuthStore();
-  const { preferredCity } = usePreferenceStore();
-  const [venues, setVenues] = useState<Venue[]>([]);
+  const { preferredCity, _hasHydrated: preferencesHydrated } =
+    usePreferenceStore();
+  const [venues, setVenues] = useState<Venue[]>(initialVenues);
   const [totalCount, setTotalCount] = useState<number | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(initialVenues.length === 0);
   const [loadingMore, setLoadingMore] = useState(false);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
@@ -181,7 +198,11 @@ export default function VenueSearchList() {
     useUrlFilters(VENUE_FILTERS_SCHEMA);
 
   // Use URL-synced view mode
-  const [viewMode, _setViewMode] = useViewMode('venues', 'list');
+  const [viewMode, _setViewMode] = useViewMode(
+    'venues',
+    'list',
+    serverViewMode
+  );
   const venueCardVariant = viewMode === 'list' ? 'list' : 'grid';
   const loadMoreSkeletonDisplay = getFullRowSkeletonDisplay(
     venues.length,
@@ -192,26 +213,40 @@ export default function VenueSearchList() {
   const [keyword, setKeyword] = useState(filters.q);
 
   // User location is never stored in URL (privacy).
-  const [userLocation, setUserLocation] = useState<{
-    lat: number;
-    lng: number;
-  } | null>(null);
+  const [userLocation, setUserLocation] = useState(readUserLocationCookie);
+  const userLocationKey = locationKey(userLocation);
+  const silentRevalidateRef = useRef(initialVenues.length > 0);
+  const isFirstFetchRef = useRef(true);
+  const refreshedLocationModeRef = useRef<string | null>(null);
 
-  // A distance-based result is only valid after the browser has returned a
-  // position. Do not start a fallback request here: it can resolve after the
-  // distance request and replace its results.
+  const requiresUserLocation = filters.sort === 'distance' || filters.near;
+
+  // Use the previous rounded location immediately, then refresh it once in
+  // the background. A changed rounded value triggers the one necessary refetch.
   useEffect(() => {
-    const needsUserLocation = filters.sort === 'distance' || filters.near;
-    if (!needsUserLocation || userLocation) return;
+    const locationMode = `${filters.sort}:${filters.near}`;
+    if (
+      !requiresUserLocation ||
+      refreshedLocationModeRef.current === locationMode
+    ) {
+      return;
+    }
+
+    refreshedLocationModeRef.current = locationMode;
 
     let cancelled = false;
     getUserLocation()
       .then((location) => {
-        if (!cancelled) setUserLocation(location);
+        const normalizedLocation = normalizeUserLocation(location);
+        if (!cancelled && locationKey(normalizedLocation) !== userLocationKey) {
+          writeUserLocationCookie(normalizedLocation);
+          setUserLocation(normalizedLocation);
+        }
       })
       .catch(() => {
         if (!cancelled) {
-          // If location is denied or unavailable, make the fallback explicit.
+          clearUserLocationCookie();
+          setUserLocation(null);
           setFilters({ sort: 'relevance', near: false });
         }
       });
@@ -219,11 +254,15 @@ export default function VenueSearchList() {
     return () => {
       cancelled = true;
     };
-  }, [filters.near, filters.sort, setFilters, userLocation]);
+  }, [
+    filters.near,
+    filters.sort,
+    requiresUserLocation,
+    setFilters,
+    userLocationKey,
+  ]);
 
   const latestVenueRequestRef = useRef(0);
-
-  const requiresUserLocation = filters.sort === 'distance' || filters.near;
 
   // Pending filters (for drawer)
   const [pendingCities, setPendingCities] = useState<string[]>([]);
@@ -257,6 +296,21 @@ export default function VenueSearchList() {
   // Stable string keys for array filters — used in useEffect dependency arrays.
   const citiesKey = filters.city.join(',');
   const districtsKey = filters.district.join(',');
+  const effectiveCity = useMemo(() => {
+    if (filters.city.length > 0) {
+      return filters.city.map(cityCodeToApiName).filter(Boolean).join(',');
+    }
+    return cityCodeToApiName(preferredCity) ?? '';
+  }, [filters.city, preferredCity]);
+  const activeSortOption =
+    SORT_OPTIONS.find((option) => option.value === filters.sort) ??
+    SORT_OPTIONS[0];
+  const activeSeedKey = buildBrowseSeedKey({
+    city: effectiveCity,
+    sortBy: requiresUserLocation ? 'distance' : activeSortOption.sortBy,
+    sortOrder: requiresUserLocation ? 'asc' : activeSortOption.sortOrder,
+    location: requiresUserLocation ? userLocation : null,
+  });
 
   // Sync pending filters when drawer opens.
   useEffect(() => {
@@ -281,9 +335,19 @@ export default function VenueSearchList() {
       } else {
         loadingMoreRef.current = false;
         setLoadingMore(false);
-        setLoading(true);
+        if (
+          isFirstFetchRef.current &&
+          activeSeedKey !== (initialSeedKey ?? '')
+        ) {
+          silentRevalidateRef.current = false;
+          setVenues([]);
+        }
+        isFirstFetchRef.current = false;
+        if (!silentRevalidateRef.current) {
+          setLoading(true);
+        }
         setPage(1);
-        if (typeof window !== 'undefined') {
+        if (!silentRevalidateRef.current && typeof window !== 'undefined') {
           window.scrollTo({ top: 0, behavior: 'smooth' });
         }
       }
@@ -294,28 +358,10 @@ export default function VenueSearchList() {
       const currentPage = isLoadMore && !isMapMode ? page + 1 : 1;
 
       // Resolve the active sort option
-      const activeSortOption =
-        SORT_OPTIONS.find((opt) => opt.value === filters.sort) ??
-        SORT_OPTIONS[0];
-
       const apiFilters: Record<string, string | number | boolean | undefined> =
         {
           keyword: filters.q || undefined,
-          city:
-            filters.city.length > 0
-              ? filters.city
-                  .map((code) => {
-                    const name =
-                      VIETNAM_CITIES.find((c) => c.code === code)?.name ?? code;
-                    return normalizeCityForApi(name);
-                  })
-                  .join(',')
-              : preferredCity
-                ? normalizeCityForApi(
-                    VIETNAM_CITIES.find((c) => c.code === preferredCity)
-                      ?.name ?? preferredCity
-                  )
-                : undefined,
+          city: effectiveCity || undefined,
           district:
             filters.district.length > 0
               ? filters.district.join(',')
@@ -373,6 +419,7 @@ export default function VenueSearchList() {
         setLoadingMore(false);
       } else {
         setLoading(false);
+        silentRevalidateRef.current = false;
       }
     }
   };
@@ -402,6 +449,7 @@ export default function VenueSearchList() {
 
   // Fetch whenever URL-applied filters, sort, or user location change.
   useEffect(() => {
+    if (!preferencesHydrated) return;
     if (requiresUserLocation && !userLocation) {
       // Invalidate an earlier request so its response cannot replace the
       // distance-sorted list while browser geolocation is still resolving.
@@ -420,11 +468,13 @@ export default function VenueSearchList() {
     districtsKey,
     filters.near,
     filters.sort,
-    userLocation,
+    userLocationKey,
     viewMode, // re-fetch with larger limit when switching to/from map mode
     preferredCity,
     filters.favorite,
     requiresUserLocation,
+    preferencesHydrated,
+    activeSeedKey,
   ]);
 
   // Trigger load more when in view
@@ -552,12 +602,12 @@ export default function VenueSearchList() {
   const [isSortOpen, setIsSortOpen] = useState(false);
   const sortDropdownRef = useRef<HTMLDivElement>(null);
 
-  const activeSortOption =
+  const selectedSortOption =
     SORT_OPTIONS.find((opt) => opt.value === filters.sort) ?? SORT_OPTIONS[0];
 
   // When "near me" is active, distance sort overrides; show MapPin label
-  const sortButtonLabel = filters.near ? 'Gần tôi' : activeSortOption.label;
-  const SortButtonIcon = filters.near ? MapPin : activeSortOption.icon;
+  const sortButtonLabel = filters.near ? 'Gần tôi' : selectedSortOption.label;
+  const SortButtonIcon = filters.near ? MapPin : selectedSortOption.icon;
 
   useEffect(() => {
     if (
@@ -766,7 +816,12 @@ export default function VenueSearchList() {
             </Box>
 
             {/* View Mode Toggle */}
-            <AppViewModeToggle scope="venues" defaultMode="list" listFirst />
+            <AppViewModeToggle
+              scope="venues"
+              defaultMode="list"
+              serverViewMode={serverViewMode}
+              listFirst
+            />
           </Flex>
         </Flex>
       )}
@@ -1065,12 +1120,13 @@ export default function VenueSearchList() {
       ) : (
         <>
           <Grid templateColumns={VENUE_RESULT_GRID_COLUMNS} gap={4}>
-            {venues.map((venue) => (
+            {venues.map((venue, index) => (
               <VenueCard
                 key={venue.id}
                 venue={venue}
                 variant={venueCardVariant}
                 showVerifiedBadge={false}
+                imagePriority={index === 0}
                 onFavoriteChange={(venueId, isFavorite) => {
                   setVenues((prev) =>
                     prev

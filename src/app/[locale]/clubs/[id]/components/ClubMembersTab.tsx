@@ -36,6 +36,7 @@ import { useDebounce } from '@/hooks/useDebounce';
 import { useLevelLabel } from '@/hooks/useLevelLabel';
 import { useRouter } from '@/i18n/config';
 import { ClubsService } from '@/lib/api/clubs.service';
+import dayjs from '@/lib/dayjs';
 import {
   EMemberRole,
   IClub,
@@ -556,7 +557,7 @@ export const ClubMembersTab = ({
               <MemberInfoRow
                 icon={<Calendar size={16} />}
                 label={t('clubs.memberJoinedDate')}
-                value={new Date(selectedMember.createdAt).toLocaleDateString()}
+                value={dayjs(selectedMember.createdAt).format('DD/MM/YYYY')}
                 isLast
               />
             </VStack>

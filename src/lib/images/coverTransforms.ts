@@ -16,6 +16,12 @@ export const COMPACT_COVER_TRANSFORM = {
   cloudinaryHeight: 400,
 } as const;
 
+// 560x280 = 2x DPR for the fixed 280x140 venue and club card banners.
+export const BROWSE_CARD_COVER_TRANSFORM = {
+  cloudinaryWidth: 560,
+  cloudinaryHeight: 280,
+} as const;
+
 // 640x360 = 16:9 at 2x DPR for the widest render (~320px at lg 3-col).
 // TournamentCard — 16:9 because tournament posters are banner-shaped.
 export const TOURNAMENT_COVER_TRANSFORM = {
