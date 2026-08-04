@@ -262,7 +262,6 @@ export default function PublicUserProfileContent({
     return (
       <PageLayout
         title={t('title')}
-        showBackButton={true}
         maxW={DETAIL_PAGE_MAX_W}
         bg="gray.50"
         _dark={{ bg: 'gray.900' }}
