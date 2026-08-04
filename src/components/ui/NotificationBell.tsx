@@ -492,12 +492,11 @@ export default function NotificationBell({
     isPendingLoading ||
     isClubRequestsLoading ||
     isVenueRequestsLoading;
-  const isEmpty =
-    notifications.length === 0 &&
-    pendingRequests.length === 0 &&
-    clubJoinRequests.length === 0 &&
-    venueRequests.length === 0 &&
-    !isPanelLoading;
+  const hasVisibleItems = unifiedItems.length > 0;
+  const shouldShowInitialSkeleton = isPanelLoading && !hasVisibleItems;
+  const loadingSkeletonCount =
+    isLoading && hasVisibleItems ? Math.max(0, 5 - unifiedItems.length) : 0;
+  const isEmpty = !hasVisibleItems && !isPanelLoading;
 
   return (
     <>
@@ -639,8 +638,11 @@ export default function NotificationBell({
           </PopoverHeader>
 
           <PopoverBody p={0}>
-            <Box maxH="500px" overflowY="auto">
-              {isPanelLoading && unifiedItems.length === 0 ? (
+            <Box
+              h={{ base: 'min(500px, calc(100dvh - 96px))', md: '500px' }}
+              overflowY="auto"
+            >
+              {shouldShowInitialSkeleton ? (
                 <VStack gap={0} align="stretch" p={1}>
                   {[...Array(5)].map((_, i) => (
                     <NotificationSkeleton key={i} />
@@ -1311,13 +1313,9 @@ export default function NotificationBell({
                       </Box>
                     );
                   })}
-
-                  {isPanelLoading && unifiedItems.length > 0 && (
-                    <VStack gap={0} align="stretch" p={1}>
-                      <NotificationSkeleton />
-                      <NotificationSkeleton />
-                    </VStack>
-                  )}
+                  {Array.from({ length: loadingSkeletonCount }, (_, index) => (
+                    <NotificationSkeleton key={`loading-${index}`} />
+                  ))}
                 </Stack>
               )}
             </Box>
