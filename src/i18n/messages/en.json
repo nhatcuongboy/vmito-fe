@@ -1231,7 +1231,7 @@
             "description": "View payment proof images from players. Approve or reject each payment."
           },
           "transactions": {
-            "title": "Transaction history",
+            "title": "Manage Transactions",
             "description": "View an overview of all transactions. Filter by status and time."
           }
         }
@@ -5812,6 +5812,7 @@
     "pendingAmount": "Pending",
     "transactions": "Transactions",
     "transactionHistory": "Transaction History",
+    "manageTransactions": "Manage Transactions",
     "noTransactions": "No transactions found",
     "viewDetails": "View Details",
     "bulkApprove": "Approve All Selected",

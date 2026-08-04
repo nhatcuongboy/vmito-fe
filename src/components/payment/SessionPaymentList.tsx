@@ -216,7 +216,7 @@ function PaymentStatusFilter({
         <Box
           position="absolute"
           top="100%"
-          left={0}
+          right={0}
           mt={2}
           bg={{ base: 'white', _dark: 'gray.800' }}
           _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
@@ -224,7 +224,7 @@ function PaymentStatusFilter({
           borderRadius="lg"
           border="1px solid"
           borderColor={{ base: 'gray.200', _dark: 'gray.700' }}
-          zIndex={10}
+          zIndex={20}
           width="224px"
           overflow="hidden"
           p={1.5}

@@ -1239,7 +1239,7 @@
             "description": "Xem ảnh bằng chứng thanh toán từ người chơi. Duyệt hoặc từ chối từng khoản."
           },
           "transactions": {
-            "title": "Lịch sử giao dịch",
+            "title": "Quản lý giao dịch",
             "description": "Xem tổng quan tất cả giao dịch, lọc theo trạng thái và thời gian."
           }
         }
@@ -5829,6 +5829,7 @@
     "remainingAmount": "Còn lại",
     "transactions": "Giao dịch",
     "transactionHistory": "Lịch sử giao dịch",
+    "manageTransactions": "Quản lý giao dịch",
     "noTransactions": "Không có giao dịch",
     "viewDetails": "Xem chi tiết",
     "bulkApprove": "Duyệt tất cả đã chọn",

@@ -5771,6 +5771,7 @@
     "pendingAmount": "待支付",
     "transactions": "交易",
     "transactionHistory": "交易历史",
+    "manageTransactions": "交易管理",
     "noTransactions": "未找到交易",
     "viewDetails": "查看详情",
     "bulkApprove": "批量批准",

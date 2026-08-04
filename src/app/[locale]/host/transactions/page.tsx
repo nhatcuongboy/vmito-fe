@@ -1062,7 +1062,7 @@ export default function HostTransactionsPage() {
   return (
     <ProtectedRouteGuard requiredRole={[UserRole.HOST, UserRole.ADMIN]}>
       <Suspense>
-        <PageLayout title={t('transactionHistory')}>
+        <PageLayout title={t('manageTransactions')}>
           <HostTransactionsContent />
         </PageLayout>
       </Suspense>
