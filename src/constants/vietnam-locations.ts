@@ -22,7 +22,7 @@ export function normalizeCityForApi(name: string): string {
 // Cities pinned to the top of city dropdowns, in this order. The new-address
 // city list otherwise comes back alphabetical from the backend, which buries
 // the two most-used cities in the middle of the list.
-const POPULAR_CITY_NAMES = ['Hồ Chí Minh', 'Hà Nội'];
+const POPULAR_CITY_NAMES = ['Hồ Chí Minh', 'Hà Nội', 'Đà Nẵng', 'Huế'];
 
 /** Reorders city options so POPULAR_CITY_NAMES appear first; leaves the rest as-is. */
 export function sortWithPopularCitiesFirst<T extends { label: string }>(
