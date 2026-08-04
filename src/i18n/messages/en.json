@@ -1281,7 +1281,46 @@
         },
         "pwa": {
           "title": "Install the app",
-          "description": "Add Vmito to your home screen for a native app experience — no app store download needed."
+          "description": "Add Vmito to your home screen for a native app experience — no app store download needed.",
+          "tour": {
+            "title": "Install Vmito",
+            "close": "Close",
+            "next": "Next",
+            "previous": "Back",
+            "installNow": "Install now",
+            "stepCount": "Step {current} of {total}",
+            "iosSafari": "Open Vmito in Safari to add it to your Home Screen.",
+            "ios": {
+              "share": {
+                "title": "Tap Share",
+                "description": "Tap the Share button in Safari's toolbar.",
+                "illustration": "Share"
+              },
+              "homeScreen": {
+                "title": "Choose Add to Home Screen",
+                "description": "Scroll through the share sheet and select Add to Home Screen.",
+                "illustration": "Add to Home Screen"
+              },
+              "add": {
+                "title": "Confirm Add",
+                "description": "Tap Add in the top-right corner to finish.",
+                "illustration": "Add"
+              }
+            },
+            "androidReady": {
+              "title": "Vmito is ready to install",
+              "description": "Tap Install now and confirm the browser prompt."
+            },
+            "androidFallback": {
+              "title": "Install from your browser menu",
+              "description": "Open the ⋮ menu, then choose Install app or Add to Home screen.",
+              "illustration": "Install app"
+            },
+            "mobileOnly": {
+              "title": "Continue on your phone",
+              "description": "Open this page on an iPhone or Android phone to add Vmito to your Home Screen."
+            }
+          }
         },
         "filters": {
           "title": "Save your filters",

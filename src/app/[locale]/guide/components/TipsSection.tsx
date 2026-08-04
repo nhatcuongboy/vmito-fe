@@ -12,9 +12,11 @@ import {
 import { useTranslations } from 'next-intl';
 import { Bell, Smartphone, Filter, Share2, Globe, Wifi } from 'lucide-react';
 import * as React from 'react';
+import PWAInstallTour from './PWAInstallTour';
 
 const TipsSection = () => {
   const t = useTranslations('pages.guide.tips');
+  const [isPWAInstallTourOpen, setIsPWAInstallTourOpen] = React.useState(false);
 
   const tips = [
     { icon: Bell, key: 'notifications', color: 'red.500' },
@@ -42,33 +44,53 @@ const TipsSection = () => {
           </VStack>
 
           <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} gap={5} w="full">
-            {tips.map((tip) => (
-              <HStack
-                key={tip.key}
-                bg="bg"
-                _dark={{ bg: 'gray.800' }}
-                p={4}
-                borderRadius="lg"
-                boxShadow="sm"
-                gap={4}
-                align="start"
-              >
-                <Box color={tip.color} flexShrink={0} mt={0.5}>
-                  <tip.icon size={22} />
+            {tips.map((tip) => {
+              const isPwaTip = tip.key === 'pwa';
+              return (
+                <Box
+                  key={tip.key}
+                  as={isPwaTip ? 'button' : 'div'}
+                  onClick={
+                    isPwaTip ? () => setIsPWAInstallTourOpen(true) : undefined
+                  }
+                  cursor={isPwaTip ? 'pointer' : undefined}
+                  textAlign="left"
+                  bg="bg"
+                  _dark={{ bg: 'gray.800' }}
+                  p={4}
+                  borderRadius="lg"
+                  boxShadow="sm"
+                  gap={4}
+                  _hover={
+                    isPwaTip
+                      ? { transform: 'translateY(-2px)', boxShadow: 'md' }
+                      : undefined
+                  }
+                  transition="all 0.2s"
+                >
+                  <HStack gap={4} align="start">
+                    <Box color={tip.color} flexShrink={0} mt={0.5}>
+                      <tip.icon size={22} />
+                    </Box>
+                    <VStack align="start" gap={1}>
+                      <Text fontWeight="semibold" fontSize="sm">
+                        {t(`${tip.key}.title`)}
+                      </Text>
+                      <Text color="fg.muted" fontSize="xs">
+                        {t(`${tip.key}.description`)}
+                      </Text>
+                    </VStack>
+                  </HStack>
                 </Box>
-                <VStack align="start" gap={1}>
-                  <Text fontWeight="semibold" fontSize="sm">
-                    {t(`${tip.key}.title`)}
-                  </Text>
-                  <Text color="fg.muted" fontSize="xs">
-                    {t(`${tip.key}.description`)}
-                  </Text>
-                </VStack>
-              </HStack>
-            ))}
+              );
+            })}
           </SimpleGrid>
         </VStack>
       </Container>
+      <PWAInstallTour
+        isOpen={isPWAInstallTourOpen}
+        onClose={() => setIsPWAInstallTourOpen(false)}
+      />
     </Box>
   );
 };

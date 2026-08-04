@@ -1265,7 +1265,46 @@
         },
         "pwa": {
           "title": "安装应用",
-          "description": "将 Vmito 添加到主屏幕，获得原生应用般的体验——无需从应用商店下载。"
+          "description": "将 Vmito 添加到主屏幕，获得原生应用般的体验——无需从应用商店下载。",
+          "tour": {
+            "title": "安装 Vmito",
+            "close": "关闭",
+            "next": "下一步",
+            "previous": "返回",
+            "installNow": "立即安装",
+            "stepCount": "第 {current} 步，共 {total} 步",
+            "iosSafari": "请在 Safari 中打开 Vmito，然后将其添加到主屏幕。",
+            "ios": {
+              "share": {
+                "title": "点击分享",
+                "description": "点击 Safari 工具栏中的分享按钮。",
+                "illustration": "分享"
+              },
+              "homeScreen": {
+                "title": "选择添加到主屏幕",
+                "description": "在分享菜单中向下滚动并选择添加到主屏幕。",
+                "illustration": "添加到主屏幕"
+              },
+              "add": {
+                "title": "确认添加",
+                "description": "点击右上角的添加以完成操作。",
+                "illustration": "添加"
+              }
+            },
+            "androidReady": {
+              "title": "Vmito 已可安装",
+              "description": "点击立即安装，然后确认浏览器提示。"
+            },
+            "androidFallback": {
+              "title": "从浏览器菜单安装",
+              "description": "打开 ⋮ 菜单，然后选择安装应用或添加到主屏幕。",
+              "illustration": "安装应用"
+            },
+            "mobileOnly": {
+              "title": "请在手机上继续",
+              "description": "请在 iPhone 或 Android 手机上打开此页面，将 Vmito 添加到主屏幕。"
+            }
+          }
         },
         "filters": {
           "title": "保存筛选条件",

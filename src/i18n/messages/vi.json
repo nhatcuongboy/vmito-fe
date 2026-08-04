@@ -1289,7 +1289,46 @@
         },
         "pwa": {
           "title": "Cài đặt ứng dụng",
-          "description": "Thêm Vmito vào màn hình chính để trải nghiệm như ứng dụng gốc, không cần tải từ store."
+          "description": "Thêm Vmito vào màn hình chính để trải nghiệm như ứng dụng gốc, không cần tải từ store.",
+          "tour": {
+            "title": "Cài đặt Vmito",
+            "close": "Đóng",
+            "next": "Tiếp theo",
+            "previous": "Quay lại",
+            "installNow": "Cài đặt ngay",
+            "stepCount": "Bước {current}/{total}",
+            "iosSafari": "Mở Vmito bằng Safari để thêm vào Màn hình chính.",
+            "ios": {
+              "share": {
+                "title": "Nhấn Chia sẻ",
+                "description": "Nhấn nút Chia sẻ trên thanh công cụ Safari.",
+                "illustration": "Chia sẻ"
+              },
+              "homeScreen": {
+                "title": "Chọn Thêm vào Màn hình chính",
+                "description": "Cuộn trong bảng chia sẻ và chọn Thêm vào Màn hình chính.",
+                "illustration": "Thêm vào Màn hình chính"
+              },
+              "add": {
+                "title": "Xác nhận Thêm",
+                "description": "Nhấn Thêm ở góc trên bên phải để hoàn tất.",
+                "illustration": "Thêm"
+              }
+            },
+            "androidReady": {
+              "title": "Vmito đã sẵn sàng để cài đặt",
+              "description": "Nhấn Cài đặt ngay và xác nhận lời nhắc của trình duyệt."
+            },
+            "androidFallback": {
+              "title": "Cài từ menu trình duyệt",
+              "description": "Mở menu ⋮, sau đó chọn Cài đặt ứng dụng hoặc Thêm vào màn hình chính.",
+              "illustration": "Cài đặt ứng dụng"
+            },
+            "mobileOnly": {
+              "title": "Tiếp tục trên điện thoại",
+              "description": "Mở trang này trên iPhone hoặc Android để thêm Vmito vào Màn hình chính."
+            }
+          }
         },
         "filters": {
           "title": "Lưu bộ lọc",

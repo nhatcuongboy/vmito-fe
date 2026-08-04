@@ -1,23 +1,39 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import {
+  detectPWAPlatform,
+  isPWAStandalone,
+  PWAPlatform,
+} from '@/lib/pwa/install';
+
+export interface BeforeInstallPromptEvent extends Event {
+  readonly platforms: string[];
+  readonly userChoice: Promise<{
+    outcome: 'accepted' | 'dismissed';
+    platform: string;
+  }>;
+  prompt(): Promise<void>;
+}
 
 export function usePWA() {
   const [isOnline, setIsOnline] = useState(true);
   const [isInstalled, setIsInstalled] = useState(false);
   const [isInstallable, setIsInstallable] = useState(false);
   const [updateAvailable, setUpdateAvailable] = useState(false);
+  const [platform, setPlatform] = useState<PWAPlatform>('other');
+  const [deferredPrompt, setDeferredPrompt] =
+    useState<BeforeInstallPromptEvent | null>(null);
 
   useEffect(() => {
     // Check if running in standalone mode (PWA installed)
     const checkInstallStatus = () => {
-      const isInStandaloneMode = window.matchMedia(
-        '(display-mode: standalone)'
-      ).matches;
-      const isIOSStandalone =
-        (window.navigator as unknown as { standalone?: boolean }).standalone ===
-        true;
-      setIsInstalled(isInStandaloneMode || isIOSStandalone);
+      setIsInstalled(
+        isPWAStandalone(
+          window.matchMedia('(display-mode: standalone)').matches,
+          window.navigator as { standalone?: boolean }
+        )
+      );
     };
 
     // Check online status
@@ -26,6 +42,9 @@ export function usePWA() {
     // Initialize
     checkInstallStatus();
     updateOnlineStatus();
+    setPlatform(
+      detectPWAPlatform(navigator.userAgent, navigator.maxTouchPoints)
+    );
 
     // Event listeners
     window.addEventListener('online', updateOnlineStatus);
@@ -67,11 +86,13 @@ export function usePWA() {
     const handleBeforeInstallPrompt = (e: Event) => {
       e.preventDefault();
       setIsInstallable(true);
+      setDeferredPrompt(e as BeforeInstallPromptEvent);
     };
 
     const handleAppInstalled = () => {
       setIsInstalled(true);
       setIsInstallable(false);
+      setDeferredPrompt(null);
     };
 
     window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
@@ -99,6 +120,17 @@ export function usePWA() {
     }
   };
 
+  const promptInstall = async (): Promise<'accepted' | 'dismissed' | null> => {
+    if (!deferredPrompt) return null;
+    await deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+    if (outcome === 'accepted') {
+      setIsInstallable(false);
+      setDeferredPrompt(null);
+    }
+    return outcome;
+  };
+
   const requestNotificationPermission = async () => {
     if ('Notification' in window) {
       const permission = await Notification.requestPermission();
@@ -121,6 +153,8 @@ export function usePWA() {
     isOnline,
     isInstalled,
     isInstallable,
+    platform,
+    promptInstall,
     updateAvailable,
     updateServiceWorker,
     requestNotificationPermission,
