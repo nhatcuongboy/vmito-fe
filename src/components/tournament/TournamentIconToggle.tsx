@@ -13,6 +13,8 @@ interface TournamentIconToggleProps {
   fullWidthOnMobile?: boolean;
   /** Square button size in px (icon-only variant). Defaults to 36. */
   size?: number;
+  /** Hide the small checkmark badge shown when active. */
+  hideCheckBadge?: boolean;
 }
 
 export default function TournamentIconToggle({
@@ -23,6 +25,7 @@ export default function TournamentIconToggle({
   label,
   fullWidthOnMobile = false,
   size = 36,
+  hideCheckBadge = false,
 }: TournamentIconToggleProps) {
   const hasLabel = !!label;
 
@@ -91,25 +94,25 @@ export default function TournamentIconToggle({
           {label}
         </Text>
       )}
-      {active && (
+      {active && !hideCheckBadge && (
         <Box
           aria-hidden="true"
           position="absolute"
-          top={0}
-          right={0}
-          transform="translate(50%, -50%)"
+          top="-2px"
+          right="-2px"
           w="14px"
           h="14px"
           borderRadius="full"
-          bg="green.400"
-          borderWidth="2px"
+          bg="green.500"
+          borderWidth="1.5px"
           borderColor="white"
           display="flex"
           alignItems="center"
           justifyContent="center"
-          _dark={{ borderColor: 'gray.900' }}
+          boxShadow="0 1px 2px rgba(0, 0, 0, 0.2)"
+          _dark={{ borderColor: 'gray.900', bg: 'green.400' }}
         >
-          <Check size={8} strokeWidth={3} color="white" aria-hidden="true" />
+          <Check size={8} strokeWidth={3.5} color="white" aria-hidden="true" />
         </Box>
       )}
     </Button>

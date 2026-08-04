@@ -208,6 +208,7 @@ export default function PublicTournamentWinnersTab({
               active={showPlayerNames}
               onToggle={() => setShowPlayerNames((prev) => !prev)}
               title={t('showPlayerNames')}
+              size={30}
             />
           </Box>
         </Flex>
@@ -244,6 +245,7 @@ export default function PublicTournamentWinnersTab({
               active={showPlayerNames}
               onToggle={() => setShowPlayerNames((prev) => !prev)}
               title={t('showPlayerNames')}
+              size={30}
             />
           </Box>
         </Flex>
@@ -275,7 +277,7 @@ export default function PublicTournamentWinnersTab({
           </Text>
         </Box>
       ) : (
-        <VStack align="stretch" gap={3} px={3} pb={3}>
+        <VStack align="stretch" gap={3} px={3} pt={3} pb={3}>
           {podiums.map((podium) => (
             <CategoryPodiumCard
               key={podium.category.id}

@@ -28,6 +28,7 @@ const PlayerNamesToggle = ({
       label={label}
       fullWidthOnMobile={fullWidthOnMobile}
       size={size}
+      hideCheckBadge
     >
       <Users size={16} aria-hidden="true" />
     </TournamentIconToggle>

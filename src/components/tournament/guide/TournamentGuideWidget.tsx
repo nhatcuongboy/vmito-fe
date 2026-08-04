@@ -41,6 +41,7 @@ import {
 import { useTournamentProgress } from './useTournamentProgress';
 import { buildRunSteps, GuideCategoryRow, RunStepId } from './guideModel';
 import { subscribeTournamentGuideToggle } from '@/lib/tournamentGuideEvents';
+import { useTournamentGuideVisibilityStore } from '@/stores/useTournamentGuideVisibilityStore';
 
 interface Props {
   tournament: Tournament;
@@ -134,6 +135,19 @@ export default function TournamentGuideWidget({
     [slug]
   );
 
+  const isCancelled = tournament.status === TournamentStatus.CANCELLED;
+
+  // Let the slide-out menu know the widget is on screen so it can hide its
+  // own duplicate "reopen guide" entry point in that case.
+  const setGuideVisible = useTournamentGuideVisibilityStore(
+    (state) => state.setVisible
+  );
+  useEffect(() => {
+    const isVisible = dismissed === false && !isCancelled;
+    setGuideVisible(isVisible);
+    return () => setGuideVisible(false);
+  }, [dismissed, isCancelled, setGuideVisible]);
+
   const dragControls = useDragControls();
   const dragX = useMotionValue(0);
   const dragY = useMotionValue(0);
@@ -174,7 +188,6 @@ export default function TournamentGuideWidget({
   const { completionMap, completedCount, totalCount, isSetupComplete } =
     useTournamentSetupSteps(tournament);
 
-  const isCancelled = tournament.status === TournamentStatus.CANCELLED;
   const progressEnabled =
     isSetupComplete && dismissed === false && !isCancelled;
   const { progress } = useTournamentProgress(tournament.id, progressEnabled);

@@ -1,10 +1,12 @@
 'use client';
 
-import { Box, Text } from '@chakra-ui/react';
+import { Box, Flex, Text } from '@chakra-ui/react';
 import { Image } from '@/components/ui/chakra-compat';
 import {
+  Calendar,
   ListChecks,
   LucideIcon,
+  MapPin,
   PanelLeftClose,
   PanelLeftOpen,
 } from 'lucide-react';
@@ -15,6 +17,7 @@ import { useLocale, useTranslations } from 'next-intl';
 import { getPrimaryVenueDisplay } from '@/utils';
 import { FavoriteEngagementControl } from '@/components/favorites/FavoriteEngagementControl';
 import { TournamentGuideButton } from './TournamentGuideButton';
+import { useTournamentGuideVisibilityStore } from '@/stores/useTournamentGuideVisibilityStore';
 
 interface SidebarTab {
   id: number;
@@ -49,6 +52,9 @@ export default function TournamentSidebar({
   const navigation = useTranslations('navigation');
   const locale = useLocale();
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const isGuideWidgetVisible = useTournamentGuideVisibilityStore(
+    (state) => state.isVisible
+  );
 
   useEffect(() => {
     setIsCollapsed(
@@ -89,7 +95,7 @@ export default function TournamentSidebar({
     <SidebarNav
       header={header}
       footer={
-        showGuideToggle ? (
+        showGuideToggle && !isGuideWidgetVisible ? (
           <Box px={isCollapsed ? 1.5 : 2} pb={4}>
             <TournamentGuideButton isCollapsed={isCollapsed} />
           </Box>
@@ -223,9 +229,30 @@ function TournamentSidebarHeader({
         <Text fontWeight="bold" fontSize="lg" mb={1} lineClamp={2}>
           {tournament.name}
         </Text>
-        <Text fontSize="sm" color="gray.500" _dark={{ color: 'gray.400' }}>
-          {formattedDate}
-        </Text>
+        <Flex
+          align="center"
+          gap={1.5}
+          color="gray.500"
+          _dark={{ color: 'gray.400' }}
+        >
+          <Calendar size={13} aria-hidden="true" />
+          <Text fontSize="sm" color="inherit">
+            {formattedDate}
+          </Text>
+        </Flex>
+        {primaryVenue?.name && (
+          <Flex
+            align="center"
+            gap={1.5}
+            color="gray.500"
+            _dark={{ color: 'gray.400' }}
+          >
+            <MapPin size={13} aria-hidden="true" style={{ flexShrink: 0 }} />
+            <Text fontSize="sm" color="inherit" lineClamp={1}>
+              {primaryVenue.name}
+            </Text>
+          </Flex>
+        )}
       </Box>
     </>
   );
