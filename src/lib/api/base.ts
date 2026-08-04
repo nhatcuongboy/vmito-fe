@@ -89,6 +89,12 @@ const processQueue = (error: unknown, token: string | null = null) => {
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
+    // A cancelled request is a caller decision (component unmount, newer
+    // request superseding this one), not a failure — never surface it.
+    if (axios.isCancel(error) || error.code === 'ERR_CANCELED') {
+      return Promise.reject(error);
+    }
+
     const originalRequest = error.config;
     const status = error.response?.status;
     // Short, locale-aware message safe for end users. Raw response bodies

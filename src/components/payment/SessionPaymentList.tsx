@@ -33,6 +33,11 @@ import {
   ChevronUp,
   Check,
   X,
+  Wallet,
+  ReceiptText,
+  CheckCircle2,
+  Clock,
+  Scale,
 } from 'lucide-react';
 import PaymentStatusBadge from './PaymentStatusBadge';
 import PaymentApprovalModal from './PaymentApprovalModal';
@@ -331,96 +336,148 @@ export function SessionPaymentSummary({
     .reduce((sum, p) => sum + p.amount, 0);
   const pendingAmount = totalAmount - approvedAmount;
   const netAmount = totalAmount - totalExpenses;
+  const isNetPositive = netAmount >= 0;
+
+  const stats = [
+    {
+      key: 'income',
+      label: t('income'),
+      value: totalAmount,
+      icon: Wallet,
+      color: 'green',
+    },
+    {
+      key: 'expenses',
+      label: t('totalExpenses'),
+      value: totalExpenses,
+      icon: ReceiptText,
+      color: 'red',
+    },
+    {
+      key: 'paid',
+      label: t('paidAmount'),
+      value: approvedAmount,
+      icon: CheckCircle2,
+      color: 'green',
+    },
+    {
+      key: 'pending',
+      label: t('pendingAmount'),
+      value: pendingAmount,
+      icon: Clock,
+      color: 'yellow',
+    },
+  ] as const;
 
   return (
     <Box
       bg="white"
       border="1px solid"
       borderColor="gray.200"
-      borderRadius="lg"
-      p={4}
+      borderRadius="xl"
+      p={{ base: 4, md: 5 }}
       _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
     >
-      <HStack justify="space-between" mb={3}>
-        <Text fontWeight="semibold">{t('paymentSummary')}</Text>
-        <HStack gap={2}>
-          {session.feeConfig?.feeType === FeeType.SPLIT_EVENLY && (
-            <Badge colorPalette="purple">{t('splitEvenly')}</Badge>
-          )}
-        </HStack>
+      <HStack justify="space-between" mb={4}>
+        <Text fontWeight="semibold" fontSize="md">
+          {t('paymentSummary')}
+        </Text>
+        {session.feeConfig?.feeType === FeeType.SPLIT_EVENLY && (
+          <Badge colorPalette="purple" variant="solid" borderRadius="md">
+            {t('splitEvenly')}
+          </Badge>
+        )}
       </HStack>
 
-      <SimpleGrid columns={{ base: 2, md: 3 }} gap={3}>
-        <Box p={3} borderRadius="lg" bg="green.50" _dark={{ bg: 'green.950' }}>
-          <Text fontSize="sm" color="gray.600" _dark={{ color: 'gray.400' }}>
-            {t('income')}
-          </Text>
-          <Text fontSize="md" fontWeight="bold" color="green.600">
-            {totalAmount === 0 ? '0' : FeeService.formatFeeExact(totalAmount)}
-          </Text>
-        </Box>
-        <Box p={3} borderRadius="lg" bg="red.50" _dark={{ bg: 'red.950' }}>
-          <Text fontSize="sm" color="gray.600" _dark={{ color: 'gray.400' }}>
-            {t('totalExpenses')}
-          </Text>
-          <Text fontSize="md" fontWeight="bold" color="red.500">
-            {totalExpenses === 0
-              ? '0'
-              : FeeService.formatFeeExact(totalExpenses)}
-          </Text>
-        </Box>
-        <Box p={3} borderRadius="lg" bg="green.50" _dark={{ bg: 'green.950' }}>
-          <Text fontSize="sm" color="gray.600" _dark={{ color: 'gray.400' }}>
-            {t('paidAmount')}
-          </Text>
-          <Text fontSize="md" fontWeight="bold" color="green.600">
-            {approvedAmount === 0
-              ? '0'
-              : FeeService.formatFeeExact(approvedAmount)}
-          </Text>
-        </Box>
-        <Box
-          p={3}
-          borderRadius="lg"
-          bg="yellow.50"
-          _dark={{ bg: 'yellow.950' }}
-        >
-          <Text fontSize="sm" color="gray.600" _dark={{ color: 'gray.400' }}>
-            {t('pendingAmount')}
-          </Text>
-          <Text fontSize="md" fontWeight="bold" color="yellow.700">
-            {pendingAmount === 0
-              ? '0'
-              : FeeService.formatFeeExact(pendingAmount)}
-          </Text>
-        </Box>
-        <Box
-          p={3}
-          borderRadius="lg"
-          bg={netAmount >= 0 ? 'green.50' : 'red.50'}
-          _dark={{ bg: netAmount >= 0 ? 'green.950' : 'red.950' }}
-          gridColumn={{ base: '1 / -1', md: '2 / 3' }}
-          justifySelf="center"
-          w={{ base: 'calc(50% - 6px)', md: '100%' }}
-          textAlign="center"
-        >
+      <SimpleGrid columns={{ base: 2, md: 4 }} gap={3} mb={3}>
+        {stats.map((stat) => (
+          <Box
+            key={stat.key}
+            p={3}
+            borderRadius="lg"
+            bg={`${stat.color}.50`}
+            border="1px solid"
+            borderColor={`${stat.color}.100`}
+            _dark={{
+              bg: `${stat.color}.950`,
+              borderColor: `${stat.color}.900`,
+            }}
+          >
+            <HStack gap={1.5} mb={1.5}>
+              <Box
+                color={`${stat.color}.600`}
+                _dark={{ color: `${stat.color}.300` }}
+                display="flex"
+                flexShrink={0}
+              >
+                <stat.icon size={14} />
+              </Box>
+              <Text
+                fontSize="xs"
+                color="gray.600"
+                _dark={{ color: 'gray.400' }}
+                lineClamp={1}
+              >
+                {stat.label}
+              </Text>
+            </HStack>
+            <Text
+              fontSize="lg"
+              fontWeight="bold"
+              color={`${stat.color}.600`}
+              _dark={{ color: `${stat.color}.300` }}
+            >
+              {stat.value === 0 ? '0' : FeeService.formatFeeExact(stat.value)}
+            </Text>
+          </Box>
+        ))}
+      </SimpleGrid>
+
+      <Flex
+        align="center"
+        justify="space-between"
+        gap={3}
+        p={4}
+        borderRadius="lg"
+        bg={isNetPositive ? 'green.50' : 'red.50'}
+        border="1px solid"
+        borderColor={isNetPositive ? 'green.200' : 'red.200'}
+        _dark={{
+          bg: isNetPositive ? 'green.950' : 'red.950',
+          borderColor: isNetPositive ? 'green.800' : 'red.800',
+        }}
+      >
+        <HStack gap={2.5}>
+          <Box
+            boxSize="32px"
+            borderRadius="lg"
+            display="flex"
+            alignItems="center"
+            justifyContent="center"
+            bg="white"
+            color={isNetPositive ? 'green.600' : 'red.500'}
+            _dark={{ bg: 'gray.800' }}
+            flexShrink={0}
+          >
+            <Scale size={16} />
+          </Box>
           <Text
             fontSize="sm"
             fontWeight="semibold"
             color="gray.700"
-            _dark={{ color: 'gray.300' }}
+            _dark={{ color: 'gray.200' }}
           >
             {t('netTotal')}
           </Text>
-          <Text
-            fontSize="md"
-            fontWeight="bold"
-            color={netAmount >= 0 ? 'green.600' : 'red.500'}
-          >
-            {FeeService.formatFeeExact(netAmount)}
-          </Text>
-        </Box>
-      </SimpleGrid>
+        </HStack>
+        <Text
+          fontSize="xl"
+          fontWeight="bold"
+          color={isNetPositive ? 'green.600' : 'red.500'}
+        >
+          {FeeService.formatFeeExact(netAmount)}
+        </Text>
+      </Flex>
     </Box>
   );
 }

@@ -331,3 +331,14 @@
     }
   }
 }
+
+/* Print layout for report pages (e.g. /host/transactions) */
+@media print {
+  .print-hidden {
+    display: none !important;
+  }
+
+  body {
+    background: #ffffff !important;
+  }
+}

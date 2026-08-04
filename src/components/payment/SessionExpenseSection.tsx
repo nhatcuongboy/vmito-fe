@@ -313,75 +313,70 @@ export default function SessionExpenseSection({
               }}
             >
               <Flex align="center" justify="space-between" gap={3}>
-                <HStack gap={2.5} flex={1} minW={0}>
+                <HStack gap={3} flex={1} minW={0}>
                   <Box
                     color="red.500"
                     bg="red.50"
                     borderRadius="lg"
-                    p={2}
+                    p={2.5}
                     display="flex"
                     flexShrink={0}
                     _dark={{ bg: 'red.950' }}
                   >
                     <ReceiptText size={18} />
                   </Box>
-                  <Text
-                    fontSize="sm"
-                    fontWeight="medium"
-                    lineClamp={1}
-                    flex={1}
-                  >
-                    {expense.name}
-                  </Text>
+                  <VStack align="stretch" gap={0.5} minW={0} flex={1}>
+                    <Text fontSize="sm" fontWeight="semibold" lineClamp={1}>
+                      {expense.name}
+                    </Text>
+                    <Text
+                      fontSize="md"
+                      fontWeight="bold"
+                      color="red.600"
+                      _dark={{ color: 'red.400' }}
+                    >
+                      {FeeService.formatFeeExact(expense.amount)}
+                    </Text>
+                  </VStack>
                 </HStack>
-                <Flex align="center" gap={2} flexShrink={0}>
-                  <Text fontSize="md" fontWeight="bold" color="red.600">
-                    {FeeService.formatFeeExact(expense.amount)}
-                  </Text>
-                  <HStack gap={1}>
-                    <IconButton
-                      size="sm"
-                      aria-label={t('editExpense')}
-                      variant="ghost"
-                      colorPalette="gray"
-                      bg="gray.100"
-                      _dark={{ bg: 'gray.800' }}
-                      _hover={{
-                        bg: 'gray.200',
-                        _dark: { bg: 'gray.700' },
-                      }}
-                      borderRadius="full"
-                      boxShadow="sm"
-                      onClick={() => handleStartEdit(expense)}
-                      disabled={
-                        isLoading ||
-                        deletingId === expense.id ||
-                        editingId !== null
-                      }
-                    >
-                      <Pencil size={14} />
-                    </IconButton>
-                    <IconButton
-                      size="sm"
-                      aria-label={t('deleteExpense')}
-                      variant="ghost"
-                      colorPalette="red"
-                      bg="red.50"
-                      _dark={{ bg: 'red.950' }}
-                      _hover={{
-                        bg: 'red.100',
-                        _dark: { bg: 'red.900' },
-                      }}
-                      borderRadius="full"
-                      boxShadow="sm"
-                      onClick={() => handleDeleteClick(expense)}
-                      loading={deletingId === expense.id}
-                      disabled={isLoading || editingId !== null}
-                    >
-                      <Trash2 size={14} />
-                    </IconButton>
-                  </HStack>
-                </Flex>
+                <HStack
+                  gap={1}
+                  flexShrink={0}
+                  bg="white"
+                  p={1}
+                  borderRadius="full"
+                  border="1px solid"
+                  borderColor="gray.200"
+                  _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
+                >
+                  <IconButton
+                    size="sm"
+                    aria-label={t('editExpense')}
+                    variant="ghost"
+                    colorPalette="gray"
+                    borderRadius="full"
+                    onClick={() => handleStartEdit(expense)}
+                    disabled={
+                      isLoading ||
+                      deletingId === expense.id ||
+                      editingId !== null
+                    }
+                  >
+                    <Pencil size={14} />
+                  </IconButton>
+                  <IconButton
+                    size="sm"
+                    aria-label={t('deleteExpense')}
+                    variant="ghost"
+                    colorPalette="red"
+                    borderRadius="full"
+                    onClick={() => handleDeleteClick(expense)}
+                    loading={deletingId === expense.id}
+                    disabled={isLoading || editingId !== null}
+                  >
+                    <Trash2 size={14} />
+                  </IconButton>
+                </HStack>
               </Flex>
             </Box>
           )
@@ -462,13 +457,15 @@ export default function SessionExpenseSection({
               >
                 <Button
                   size="sm"
-                  variant="ghost"
-                  colorPalette="gray"
+                  variant="outline"
+                  colorPalette="green"
+                  bg="white"
                   onClick={handleAddDraftRow}
                   disabled={isSavingDrafts}
+                  _dark={{ bg: 'gray.800' }}
                 >
                   <Plus size={14} />
-                  <Text ml={1}>{t('addExpense')}</Text>
+                  <Text ml={1}>{t('addAnotherExpense')}</Text>
                 </Button>
                 <HStack gap={2}>
                   <Button

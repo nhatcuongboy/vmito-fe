@@ -9,8 +9,10 @@ import {
   TransactionSummary,
   HostTransactionSummary,
   HostTransactionsWithUserResponse,
+  IHostFinanceReport,
   SessionPaymentsResponse,
   PaymentStats,
+  THostReportGranularity,
 } from './types';
 
 export const PaymentService = {
@@ -166,6 +168,22 @@ export const PaymentService = {
       ApiResponse<HostTransactionsWithUserResponse>
     >(`/payments/host/user/${userId}`);
     return response.data.data?.payments ?? [];
+  },
+
+  // Aggregated income/expense report for the current host over a date range
+  getHostFinanceReport: async (
+    params: {
+      from: string;
+      to: string;
+      granularity: THostReportGranularity;
+    },
+    signal?: AbortSignal
+  ): Promise<IHostFinanceReport> => {
+    const response = await api.get<ApiResponse<IHostFinanceReport>>(
+      '/payments/host/report',
+      { params, signal }
+    );
+    return response.data.data!;
   },
 
   // Set split amount after session (for SPLIT_EVENLY type)

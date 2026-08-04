@@ -35,6 +35,7 @@ interface TransactionSummaryListProps {
   ) => void;
   isLoading?: boolean;
   hasActiveFilters?: boolean;
+  showOverallSummary?: boolean;
 }
 
 const ITEMS_PER_PAGE = 10;
@@ -45,6 +46,7 @@ export default function TransactionSummaryList({
   onSelectSummary,
   isLoading = false,
   hasActiveFilters = false,
+  showOverallSummary = true,
 }: TransactionSummaryListProps) {
   const t = useTranslations('payment');
   const [visibleCount, setVisibleCount] = useState(ITEMS_PER_PAGE);
@@ -101,94 +103,96 @@ export default function TransactionSummaryList({
   return (
     <VStack gap={4} align="stretch">
       {/* Overall Summary */}
-      <Box
-        bg="white"
-        _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
-        border="1px solid"
-        borderColor="gray.200"
-        borderRadius="lg"
-        p={4}
-      >
-        <HStack mb={2} justify="space-between" wrap="wrap">
-          <HStack>
-            <Box color="green.600" _dark={{ color: 'green.400' }}>
-              <TrendingUp size={18} />
-            </Box>
-            <Text fontWeight="semibold">{t('overallSummary')}</Text>
+      {showOverallSummary && (
+        <Box
+          bg="white"
+          _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
+          border="1px solid"
+          borderColor="gray.200"
+          borderRadius="lg"
+          p={4}
+        >
+          <HStack mb={2} justify="space-between" wrap="wrap">
+            <HStack>
+              <Box color="green.600" _dark={{ color: 'green.400' }}>
+                <TrendingUp size={18} />
+              </Box>
+              <Text fontWeight="semibold">{t('overallSummary')}</Text>
+            </HStack>
+            <Text fontSize="xs" color="fg.muted">
+              {t('playerCount', { count: summaries.length })} · {totalSessions}{' '}
+              {t('sessions')}
+            </Text>
           </HStack>
-          <Text fontSize="xs" color="fg.muted">
-            {t('playerCount', { count: summaries.length })} · {totalSessions}{' '}
-            {t('sessions')}
-          </Text>
-        </HStack>
 
-        {/* Collection progress */}
-        <Box mb={3}>
-          <Box
-            h="8px"
-            bg="gray.100"
-            _dark={{ bg: 'gray.700' }}
-            borderRadius="full"
-            overflow="hidden"
-          >
+          {/* Collection progress */}
+          <Box mb={3}>
             <Box
-              h="full"
-              w={`${collectedPercent}%`}
-              bgGradient="to-r"
-              gradientFrom="green.400"
-              gradientTo="green.600"
+              h="8px"
+              bg="gray.100"
+              _dark={{ bg: 'gray.700' }}
               borderRadius="full"
-              transition="width 0.4s ease"
-            />
-          </Box>
-          <Text
-            fontSize="xs"
-            color="green.600"
-            _dark={{ color: 'green.400' }}
-            fontWeight="medium"
-            mt={1}
-          >
-            {t('percentCollected', { percent: collectedPercent })}
-          </Text>
-        </Box>
-
-        <Flex gap={4} wrap="wrap">
-          <Box flex={1} minW="100px">
-            <Text fontSize="xs" color="fg.muted" textTransform="uppercase">
-              {t('total')}
-            </Text>
-            <Text fontSize="lg" fontWeight="bold">
-              {FeeService.formatPaymentAmount(totalAmount)}
-            </Text>
-          </Box>
-          <Box flex={1} minW="100px">
-            <Text fontSize="xs" color="fg.muted" textTransform="uppercase">
-              {t('paid')}
-            </Text>
+              overflow="hidden"
+            >
+              <Box
+                h="full"
+                w={`${collectedPercent}%`}
+                bgGradient="to-r"
+                gradientFrom="green.400"
+                gradientTo="green.600"
+                borderRadius="full"
+                transition="width 0.4s ease"
+              />
+            </Box>
             <Text
-              fontSize="lg"
-              fontWeight="bold"
+              fontSize="xs"
               color="green.600"
               _dark={{ color: 'green.400' }}
+              fontWeight="medium"
+              mt={1}
             >
-              {FeeService.formatPaymentAmount(paidAmount)}
+              {t('percentCollected', { percent: collectedPercent })}
             </Text>
           </Box>
-          <Box flex={1} minW="100px">
-            <Text fontSize="xs" color="fg.muted" textTransform="uppercase">
-              {t('pending')}
-            </Text>
-            <Text
-              fontSize="lg"
-              fontWeight="bold"
-              color="yellow.600"
-              _dark={{ color: 'yellow.400' }}
-            >
-              {FeeService.formatPaymentAmount(pendingAmount)}
-            </Text>
-          </Box>
-        </Flex>
-      </Box>
+
+          <Flex gap={4} wrap="wrap">
+            <Box flex={1} minW="100px">
+              <Text fontSize="xs" color="fg.muted" textTransform="uppercase">
+                {t('total')}
+              </Text>
+              <Text fontSize="lg" fontWeight="bold">
+                {FeeService.formatPaymentAmount(totalAmount)}
+              </Text>
+            </Box>
+            <Box flex={1} minW="100px">
+              <Text fontSize="xs" color="fg.muted" textTransform="uppercase">
+                {t('paid')}
+              </Text>
+              <Text
+                fontSize="lg"
+                fontWeight="bold"
+                color="green.600"
+                _dark={{ color: 'green.400' }}
+              >
+                {FeeService.formatPaymentAmount(paidAmount)}
+              </Text>
+            </Box>
+            <Box flex={1} minW="100px">
+              <Text fontSize="xs" color="fg.muted" textTransform="uppercase">
+                {t('pending')}
+              </Text>
+              <Text
+                fontSize="lg"
+                fontWeight="bold"
+                color="yellow.600"
+                _dark={{ color: 'yellow.400' }}
+              >
+                {FeeService.formatPaymentAmount(pendingAmount)}
+              </Text>
+            </Box>
+          </Flex>
+        </Box>
+      )}
 
       {/* Summary List */}
       <VStack gap={2} align="stretch">

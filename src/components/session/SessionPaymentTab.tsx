@@ -7,7 +7,6 @@ import {
   VStack,
   HStack,
   Text,
-  Heading,
   Image,
   Flex,
   SimpleGrid,
@@ -15,7 +14,11 @@ import {
   Stack,
   Badge,
 } from '@chakra-ui/react';
-import { Button, LegacySelect } from '@/components/ui/chakra-compat';
+import {
+  Button,
+  IconButton,
+  LegacySelect,
+} from '@/components/ui/chakra-compat';
 import { useTranslations } from 'next-intl';
 import { compressImage } from '@/lib/utils/image';
 import {
@@ -24,6 +27,7 @@ import {
   User,
   QrCode,
   Plus,
+  Pencil,
   ExternalLink,
   AlertCircle,
   Calculator,
@@ -36,6 +40,7 @@ import {
   PaymentRecord,
   PaymentMethod,
   ISessionExpense,
+  SessionFeeConfig,
   FeeType,
 } from '@/lib/api/types';
 import { PaymentSettingsService } from '@/lib/api/payment-settings.service';
@@ -48,6 +53,7 @@ import {
   SessionPaymentSummary,
   SessionExpenseSection,
 } from '@/components/payment';
+import SessionFeeConfigForm from '@/components/fee/SessionFeeConfigForm';
 import { toaster } from '@/components/ui/toaster';
 import { useRouter } from '@/i18n/config';
 import { ROUTES } from '@/constants';
@@ -87,6 +93,24 @@ export default function SessionPaymentTab({ session }: SessionPaymentTabProps) {
   // Expenses state
   const [expenses, setExpenses] = useState<ISessionExpense[]>([]);
   const [isLoadingExpenses, setIsLoadingExpenses] = useState(true);
+
+  // Fee config state
+  const [feeConfig, setFeeConfig] = useState<SessionFeeConfig | null>(
+    session.feeConfig ?? null
+  );
+  const [isEditingFee, setIsEditingFee] = useState(false);
+  const [isSavingFee, setIsSavingFee] = useState(false);
+  const [feeEnabled, setFeeEnabled] = useState(false);
+  const [feeType, setFeeType] = useState<FeeType>(FeeType.FIXED);
+  const [feeMaleFee, setFeeMaleFee] = useState<number | undefined>(undefined);
+  const [feeFemaleFee, setFeeFemaleFee] = useState<number | undefined>(
+    undefined
+  );
+  const [feeNotes, setFeeNotes] = useState('');
+
+  useEffect(() => {
+    setFeeConfig(session.feeConfig ?? null);
+  }, [session.feeConfig]);
 
   // Bank list state
   const [banks, setBanks] = useState<Bank[]>([]);
@@ -429,6 +453,49 @@ export default function SessionPaymentTab({ session }: SessionPaymentTabProps) {
     }
   };
 
+  const openFeeEditor = () => {
+    setFeeEnabled(!!feeConfig);
+    setFeeType(feeConfig?.feeType ?? FeeType.FIXED);
+    setFeeMaleFee(feeConfig?.maleFee);
+    setFeeFemaleFee(feeConfig?.femaleFee);
+    setFeeNotes(feeConfig?.notes ?? '');
+    setIsEditingFee(true);
+  };
+
+  const handleSaveFeeConfig = async () => {
+    setIsSavingFee(true);
+    try {
+      if (!feeEnabled) {
+        if (feeConfig) {
+          await FeeService.deleteSessionFeeConfig(session.id);
+          setFeeConfig(null);
+        }
+        setIsEditingFee(false);
+        return;
+      }
+
+      const data = {
+        feeType,
+        maleFee: feeType === FeeType.FIXED ? feeMaleFee : undefined,
+        femaleFee: feeType === FeeType.FIXED ? feeFemaleFee : undefined,
+        notes: feeNotes || undefined,
+      };
+      const updated = feeConfig
+        ? await FeeService.updateSessionFeeConfig(session.id, data)
+        : await FeeService.createSessionFeeConfig(session.id, data);
+      setFeeConfig(updated);
+      setIsEditingFee(false);
+    } catch (error) {
+      console.error('Failed to save fee config:', error);
+    } finally {
+      setIsSavingFee(false);
+    }
+  };
+
+  const goToTransactionsPage = () => {
+    router.push(ROUTES.HOST.TRANSACTIONS);
+  };
+
   const handleRecalculatePayments = async () => {
     setIsRecalculating(true);
     try {
@@ -453,46 +520,35 @@ export default function SessionPaymentTab({ session }: SessionPaymentTabProps) {
   };
 
   if (isLoading) {
-    // Skeleton layout — no full-page spinner
+    // Skeleton layout mirrors the loaded structure below — no full-page spinner
     return (
       <VStack gap={4} align="stretch" pb={4}>
-        {/* Header skeleton */}
-        <Box
-          bg="white"
-          _dark={{ bg: 'gray.800' }}
-          borderRadius="lg"
-          p={5}
-          shadow="sm"
-          border="1px solid"
-          borderColor="gray.100"
-        >
-          <HStack justify="space-between">
-            <HStack gap={3}>
-              <Skeleton height="24px" width="24px" borderRadius="md" />
-              <Skeleton height="22px" width="180px" borderRadius="md" />
-            </HStack>
-            <Skeleton height="32px" width="120px" borderRadius="md" />
-          </HStack>
-          <Skeleton height="14px" width="60%" borderRadius="md" mt={3} />
-        </Box>
-
-        {/* Info grid skeleton */}
+        {/* Fee config + payment settings skeleton */}
         <SimpleGrid columns={{ base: 1, md: 2 }} gap={4}>
           <Box
             bg="green.50"
-            _dark={{ bg: 'green.900' }}
-            borderRadius="lg"
-            p={4}
+            _dark={{ bg: 'green.950' }}
+            borderRadius="xl"
+            p={5}
             border="1px solid"
             borderColor="green.200"
           >
-            <Skeleton height="18px" width="140px" borderRadius="md" mb={3} />
-            <Stack gap={2}>
-              <Skeleton height="14px" width="70%" borderRadius="md" />
-              <Skeleton height="14px" width="55%" borderRadius="md" />
-              <Skeleton height="14px" width="60%" borderRadius="md" />
+            <HStack justify="space-between" mb={4}>
+              <HStack gap={2}>
+                <Skeleton height="32px" width="32px" borderRadius="lg" />
+                <Skeleton height="20px" width="140px" borderRadius="md" />
+              </HStack>
+              <HStack gap={2}>
+                <Skeleton height="24px" width="70px" borderRadius="md" />
+                <Skeleton height="24px" width="24px" borderRadius="full" />
+              </HStack>
+            </HStack>
+            <Stack gap={2.5}>
+              <Skeleton height="16px" width="50%" borderRadius="md" />
+              <Skeleton height="16px" width="45%" borderRadius="md" />
             </Stack>
           </Box>
+
           <Box
             bg="white"
             _dark={{ bg: 'gray.800' }}
@@ -502,9 +558,12 @@ export default function SessionPaymentTab({ session }: SessionPaymentTabProps) {
             border="1px solid"
             borderColor="gray.100"
           >
-            <HStack justify="space-between" mb={4}>
-              <Skeleton height="18px" width="140px" borderRadius="md" />
-              <Skeleton height="30px" width="60px" borderRadius="md" />
+            <HStack justify="space-between" mb={3}>
+              <Skeleton height="18px" width="120px" borderRadius="md" />
+              <HStack gap={2}>
+                <Skeleton height="24px" width="90px" borderRadius="md" />
+                <Skeleton height="24px" width="50px" borderRadius="md" />
+              </HStack>
             </HStack>
             <HStack gap={4} align="start">
               <Skeleton
@@ -522,19 +581,45 @@ export default function SessionPaymentTab({ session }: SessionPaymentTabProps) {
           </Box>
         </SimpleGrid>
 
-        {/* Payment list skeleton */}
+        {/* Payment summary skeleton */}
         <Box
           bg="white"
           _dark={{ bg: 'gray.800' }}
-          borderRadius="lg"
+          borderRadius="xl"
           p={5}
-          shadow="sm"
           border="1px solid"
-          borderColor="gray.100"
+          borderColor="gray.200"
         >
-          <Skeleton height="22px" width="160px" borderRadius="md" mb={4} />
-          <Stack gap={3}>
+          <Skeleton height="18px" width="140px" borderRadius="md" mb={4} />
+          <SimpleGrid columns={{ base: 2, md: 4 }} gap={3} mb={3}>
             {[...Array(4)].map((_, i) => (
+              <Box
+                key={i}
+                p={3}
+                borderRadius="lg"
+                bg="gray.50"
+                _dark={{ bg: 'gray.700' }}
+              >
+                <Skeleton height="12px" width="60%" borderRadius="md" mb={2} />
+                <Skeleton height="20px" width="80%" borderRadius="md" />
+              </Box>
+            ))}
+          </SimpleGrid>
+          <Skeleton height="56px" borderRadius="lg" />
+        </Box>
+
+        {/* Payment list skeleton */}
+        <Box
+          bg="white"
+          border="1px solid"
+          borderColor="gray.200"
+          borderRadius="lg"
+          p={4}
+          _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
+        >
+          <Skeleton height="20px" width="120px" borderRadius="md" mb={4} />
+          <Stack gap={3}>
+            {[...Array(3)].map((_, i) => (
               <Box
                 key={i}
                 border="1px solid"
@@ -559,46 +644,56 @@ export default function SessionPaymentTab({ session }: SessionPaymentTabProps) {
             ))}
           </Stack>
         </Box>
+
+        {/* Expense section skeleton */}
+        <Box
+          bg="white"
+          border="1px solid"
+          borderColor="gray.200"
+          borderRadius="lg"
+          p={4}
+          _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
+        >
+          <HStack justify="space-between" mb={4}>
+            <Skeleton height="20px" width="100px" borderRadius="md" />
+            <Skeleton height="28px" width="110px" borderRadius="md" />
+          </HStack>
+          <Stack gap={3}>
+            {[...Array(2)].map((_, i) => (
+              <HStack
+                key={i}
+                justify="space-between"
+                p={3}
+                border="1px solid"
+                borderColor="gray.200"
+                borderRadius="lg"
+              >
+                <HStack gap={3}>
+                  <Skeleton height="36px" width="36px" borderRadius="lg" />
+                  <Stack gap={1}>
+                    <Skeleton height="14px" width="120px" borderRadius="md" />
+                    <Skeleton height="14px" width="70px" borderRadius="md" />
+                  </Stack>
+                </HStack>
+                <Skeleton height="28px" width="60px" borderRadius="full" />
+              </HStack>
+            ))}
+          </Stack>
+        </Box>
+
+        <Flex justify="center">
+          <Skeleton height="36px" width="180px" borderRadius="md" />
+        </Flex>
       </VStack>
     );
   }
 
   return (
     <VStack gap={4} align="stretch" pb={4}>
-      {/* Header */}
-      <Box
-        bg="white"
-        _dark={{ bg: 'gray.800' }}
-        borderRadius="lg"
-        p={5}
-        shadow="sm"
-        border="1px solid"
-        borderColor="gray.100"
-      >
-        <Flex justify="space-between" align="center">
-          <HStack gap={2}>
-            <CreditCard size={20} color="#179a3b" />
-            <Heading size="sm">{t('hostPaymentInfo')}</Heading>
-          </HStack>
-          <Button
-            size="sm"
-            variant="outline"
-            onClick={goToPaymentSettingsPage}
-            colorPalette="green"
-          >
-            <ExternalLink size={14} />
-            <Text ml={1}>{t('manageSettings')}</Text>
-          </Button>
-        </Flex>
-        <Text fontSize="xs" color="gray.500" mt={2}>
-          {t('paymentInfoDescription')}
-        </Text>
-      </Box>
-
       {/* Fee Config + Payment Settings — side by side on desktop */}
       <SimpleGrid columns={{ base: 1, md: 2 }} gap={4}>
         {/* Fee Configuration */}
-        {session.feeConfig ? (
+        {feeConfig ? (
           <Box
             bgGradient="linear(to-br, green.50, white, green.100)"
             _dark={{
@@ -643,27 +738,50 @@ export default function SessionPaymentTab({ session }: SessionPaymentTabProps) {
                   {t('sessionFeeConfig')}
                 </Text>
               </HStack>
-              <Badge
-                colorPalette={
-                  session.feeConfig.feeType === FeeType.FIXED
-                    ? 'green'
-                    : 'purple'
-                }
-                variant="solid"
-                fontSize="xs"
-                px={2.5}
-                py={1}
-                borderRadius="md"
-              >
-                {session.feeConfig.feeType === FeeType.FIXED
-                  ? t('fixed')
-                  : t('splitEvenly')}
-              </Badge>
+              <HStack gap={2}>
+                <Badge
+                  colorPalette={
+                    feeConfig.feeType === FeeType.FIXED ? 'green' : 'purple'
+                  }
+                  variant="solid"
+                  fontSize="xs"
+                  px={2.5}
+                  py={1}
+                  borderRadius="md"
+                >
+                  {feeConfig.feeType === FeeType.FIXED
+                    ? t('fixed')
+                    : t('splitEvenly')}
+                </Badge>
+                <Button
+                  size="xs"
+                  variant="ghost"
+                  color="green.700"
+                  _dark={{ color: 'green.200' }}
+                  onClick={openFeeEditor}
+                  aria-label={t('editFeeConfig')}
+                >
+                  <Pencil size={14} />
+                </Button>
+                <IconButton
+                  size="xs"
+                  colorPalette="green"
+                  variant="ghost"
+                  borderRadius="full"
+                  aria-label={t('recalculatePayments')}
+                  title={t('recalculatePayments')}
+                  onClick={handleRecalculatePayments}
+                  loading={isRecalculating}
+                  disabled={isRecalculating}
+                >
+                  <RefreshCw size={12} />
+                </IconButton>
+              </HStack>
             </HStack>
             <VStack align="stretch" gap={2.5}>
-              {session.feeConfig.feeType === FeeType.FIXED && (
+              {feeConfig.feeType === FeeType.FIXED && (
                 <>
-                  {session.feeConfig.maleFee ? (
+                  {feeConfig.maleFee ? (
                     <HStack gap={3}>
                       <Text
                         fontSize="sm"
@@ -679,11 +797,11 @@ export default function SessionPaymentTab({ session }: SessionPaymentTabProps) {
                         color="green.700"
                         _dark={{ color: 'green.300' }}
                       >
-                        {session.feeConfig.maleFee.toLocaleString('vi-VN')} ₫
+                        {feeConfig.maleFee.toLocaleString('vi-VN')} ₫
                       </Text>
                     </HStack>
                   ) : null}
-                  {session.feeConfig.femaleFee ? (
+                  {feeConfig.femaleFee ? (
                     <HStack gap={3}>
                       <Text
                         fontSize="sm"
@@ -699,54 +817,23 @@ export default function SessionPaymentTab({ session }: SessionPaymentTabProps) {
                         color="green.700"
                         _dark={{ color: 'green.300' }}
                       >
-                        {session.feeConfig.femaleFee.toLocaleString('vi-VN')} ₫
+                        {feeConfig.femaleFee.toLocaleString('vi-VN')} ₫
                       </Text>
                     </HStack>
                   ) : null}
                 </>
               )}
-              {session.feeConfig.notes && (
+              {feeConfig.notes && (
                 <Text
                   fontSize="sm"
                   color="green.600"
                   _dark={{ color: 'green.400' }}
                   mt={1}
                 >
-                  {session.feeConfig.notes}
+                  {feeConfig.notes}
                 </Text>
               )}
             </VStack>
-
-            {/* Recalculate Button */}
-            <Box
-              mt={4}
-              pt={4}
-              borderTop="1px solid"
-              borderColor="green.200"
-              _dark={{ borderColor: 'green.800' }}
-            >
-              <Button
-                size="sm"
-                colorPalette="green"
-                variant="outline"
-                onClick={handleRecalculatePayments}
-                loading={isRecalculating}
-                disabled={isRecalculating}
-                width="full"
-              >
-                <RefreshCw size={14} />
-                <Text ml={2}>{t('recalculatePayments')}</Text>
-              </Button>
-              <Text
-                fontSize="xs"
-                color="green.600"
-                _dark={{ color: 'green.400' }}
-                mt={2}
-                textAlign="center"
-              >
-                {t('recalculatePaymentsHint')}
-              </Text>
-            </Box>
           </Box>
         ) : (
           <Box
@@ -757,12 +844,23 @@ export default function SessionPaymentTab({ session }: SessionPaymentTabProps) {
             border="1px dashed"
             borderColor="gray.300"
             display="flex"
+            flexDirection="column"
             alignItems="center"
             justifyContent="center"
+            gap={3}
           >
             <Text fontSize="sm" color="gray.400">
               {t('sessionFeeConfig')}
             </Text>
+            <Button
+              size="sm"
+              colorPalette="green"
+              variant="outline"
+              onClick={openFeeEditor}
+            >
+              <Plus size={14} />
+              <Text ml={1}>{t('configureFeeConfig')}</Text>
+            </Button>
           </Box>
         )}
 
@@ -824,13 +922,24 @@ export default function SessionPaymentTab({ session }: SessionPaymentTabProps) {
               <Text fontSize="sm" fontWeight="semibold">
                 {t('currentSettings')}
               </Text>
-              <Button
-                size="xs"
-                variant="outline"
-                onClick={() => setIsEditing(true)}
-              >
-                {tCommon('edit')}
-              </Button>
+              <HStack gap={2}>
+                <Button
+                  size="xs"
+                  variant="ghost"
+                  colorPalette="green"
+                  onClick={goToPaymentSettingsPage}
+                >
+                  <ExternalLink size={12} />
+                  <Text ml={1}>{t('manageAllAccounts')}</Text>
+                </Button>
+                <Button
+                  size="xs"
+                  variant="outline"
+                  onClick={() => setIsEditing(true)}
+                >
+                  {tCommon('edit')}
+                </Button>
+              </HStack>
             </HStack>
 
             {myPaymentSettings.length > 1 && (
@@ -985,8 +1094,34 @@ export default function SessionPaymentTab({ session }: SessionPaymentTabProps) {
         />
       </VModal>
 
+      <VModal
+        isOpen={isEditingFee}
+        onClose={() => setIsEditingFee(false)}
+        title={feeConfig ? t('editFeeConfig') : t('configureFeeConfig')}
+        size="lg"
+        primaryActionText={tCommon('save')}
+        onPrimaryAction={handleSaveFeeConfig}
+        isPrimaryLoading={isSavingFee}
+        secondaryActionText={tCommon('cancel')}
+        maxBodyHeight={{ base: '75vh', md: '70vh' }}
+      >
+        <SessionFeeConfigForm
+          enabled={feeEnabled}
+          onEnabledChange={setFeeEnabled}
+          feeType={feeType}
+          onFeeTypeChange={setFeeType}
+          maleFee={feeMaleFee}
+          onMaleFeeChange={setFeeMaleFee}
+          femaleFee={feeFemaleFee}
+          onFemaleFeeChange={setFeeFemaleFee}
+          notes={feeNotes}
+          onNotesChange={setFeeNotes}
+          disabled={isSavingFee}
+        />
+      </VModal>
+
       {/* Split Amount Calculator — only for SPLIT_EVENLY sessions */}
-      {session.feeConfig?.feeType === FeeType.SPLIT_EVENLY && (
+      {feeConfig?.feeType === FeeType.SPLIT_EVENLY && (
         <Box
           bg="purple.50"
           _dark={{ bg: 'purple.950' }}
@@ -1073,6 +1208,18 @@ export default function SessionPaymentTab({ session }: SessionPaymentTabProps) {
         onDelete={handleDeleteExpense}
         isLoading={isLoadingExpenses}
       />
+
+      <Flex justify="center">
+        <Button
+          size="sm"
+          variant="outline"
+          colorPalette="green"
+          onClick={goToTransactionsPage}
+        >
+          <ExternalLink size={14} />
+          <Text ml={1}>{t('viewAllTransactions')}</Text>
+        </Button>
+      </Flex>
     </VStack>
   );
 }
