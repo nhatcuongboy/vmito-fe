@@ -1,4 +1,5 @@
 import { ExtendIntlMessages } from '@/components/ExtendIntlMessages';
+import TournamentRouteBoundary from '@/components/tournament/TournamentRouteBoundary';
 import { loadMessages, pickNamespace } from '@/i18n/scopedMessages';
 
 export default async function TournamentDetailLayout({
@@ -15,6 +16,8 @@ export default async function TournamentDetailLayout({
   );
 
   return (
-    <ExtendIntlMessages messages={messages}>{children}</ExtendIntlMessages>
+    <ExtendIntlMessages messages={messages}>
+      <TournamentRouteBoundary>{children}</TournamentRouteBoundary>
+    </ExtendIntlMessages>
   );
 }
