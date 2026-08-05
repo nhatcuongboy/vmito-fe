@@ -144,6 +144,7 @@ import { GlobalErrorModal } from '@/components/ui/GlobalErrorModal';
 import GlobalCourtCallModal from '@/components/session/GlobalCourtCallModal';
 import PointsCelebration from '@/components/leaderboard/PointsCelebration';
 import TourController from '@/components/tour/TourController';
+import GoogleOneTap from '@/components/auth/GoogleOneTap';
 
 // Custom system configuration for badminton app
 // ... (omitted for brevity in replacement search but effectively kept)
@@ -164,6 +165,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
                     <GlobalCourtCallModal />
                     <PointsCelebration />
                     <TourController />
+                    <GoogleOneTap />
                   </SocketProvider>
                 </FeatureFlagsProvider>
               </AuthProvider>
