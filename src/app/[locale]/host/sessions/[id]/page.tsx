@@ -22,6 +22,7 @@ import SessionPlayersTab, {
 } from '@/components/session/SessionPlayersTab';
 import SessionMatchesTab from '@/components/session/SessionMatchesTab';
 import SessionStatusHeader from '@/components/session/SessionStatusHeader';
+import { CloneSessionModal } from '@/components/session/CloneSessionModal';
 import SessionOverviewTab from '@/components/session/SessionOverviewTab';
 import SessionPaymentTab from '@/components/session/SessionPaymentTab';
 import WaitTimeUpdater from '@/components/session/WaitTimeUpdater';
@@ -34,7 +35,7 @@ import {
 import BottomNavigationBar, {
   NavigationTab,
 } from '@/components/ui/BottomNavigationBar';
-import { VModal } from '@/components/ui/VModal';
+import { VModal, useModal } from '@/components/ui/VModal';
 import { SessionService } from '@/lib/api/session.service';
 import { useTourCompleteWhen } from '@/components/tour/useTourCompleteWhen';
 import { useTourAutoStart } from '@/components/tour/useTourAutoStart';
@@ -91,6 +92,7 @@ function HostSessionContent({ params }: { params: { id: string } }) {
   const [isQrModalOpen, setIsQrModalOpen] = useState(false);
   const [selectedQrUrl, setSelectedQrUrl] = useState('');
   const [selectedQrLabel, setSelectedQrLabel] = useState('');
+  const cloneModal = useModal();
   const locale = useLocale();
 
   // Custom hooks
@@ -330,6 +332,16 @@ function HostSessionContent({ params }: { params: { id: string } }) {
             isToggleStatusLoading={isToggleStatusLoading}
             onToggleSessionStatus={toggleSessionStatus}
             onRefreshData={refreshSessionData}
+            onCloneSession={
+              !session.isCrawled &&
+              [
+                SessionStatus.PREPARING,
+                SessionStatus.FINISHED,
+                SessionStatus.CANCELLED,
+              ].includes(session.status)
+                ? cloneModal.onOpen
+                : undefined
+            }
             onShowQrView={handleShowQrView}
             onShowQrJoin={handleShowQrJoin}
             onSaveNotes={handleSaveNotes}
@@ -446,6 +458,13 @@ function HostSessionContent({ params }: { params: { id: string } }) {
               />
             </Flex>
           </VModal>
+
+          <CloneSessionModal
+            isOpen={cloneModal.isOpen}
+            onClose={cloneModal.onClose}
+            session={session}
+            onCloned={refreshSessionData}
+          />
         </>
       )}
     </MainLayout>

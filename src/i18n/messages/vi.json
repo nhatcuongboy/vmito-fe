@@ -331,6 +331,22 @@
     "courtNameDescription": "Tên tùy chỉnh để giúp nhận diện sân này",
     "courtDirectionTip": "Hướng sân giúp tối ưu hóa việc sắp xếp người chơi và điều kiện ánh sáng",
     "createSession": "Tạo kèo",
+    "cloneSession": "Nhân bản kèo",
+    "cloneModal": {
+      "title": "Nhân bản kèo",
+      "description": "Tạo một kèo mới từ “{name}” với thời gian mới.",
+      "excludedData": "Thông tin kèo, sân, địa điểm, cấu hình phí và hình ảnh sẽ được sao chép. Người chơi đã đăng ký và các trận đấu sẽ không được sao chép.",
+      "startTime": "Thời gian bắt đầu mới",
+      "endTime": "Thời gian kết thúc mới",
+      "confirm": "Nhân bản kèo",
+      "success": "Đã nhân bản kèo thành công",
+      "errors": {
+        "required": "Chọn đầy đủ thời gian bắt đầu và kết thúc",
+        "future": "Kèo mới phải bắt đầu trong tương lai",
+        "endAfterStart": "Thời gian kết thúc phải sau thời gian bắt đầu",
+        "failed": "Không thể nhân bản kèo"
+      }
+    },
     "joinSession": "Đăng ký kèo",
     "fee": "Phí",
     "contactHostForFee": "Liên hệ host",

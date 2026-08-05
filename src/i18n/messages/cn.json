@@ -319,6 +319,22 @@
     "courtNameDescription": "自定义名称以帮助识别此场地",
     "courtDirectionTip": "场地朝向有助于优化玩家位置和照明条件",
     "createSession": "创建场次",
+    "cloneSession": "克隆场次",
+    "cloneModal": {
+      "title": "克隆场次",
+      "description": "使用新时间从“{name}”创建一个新场次。",
+      "excludedData": "场次详情、场地、地点、费用设置和图片将被复制。已报名玩家和比赛不会被复制。",
+      "startTime": "新的开始时间",
+      "endTime": "新的结束时间",
+      "confirm": "克隆场次",
+      "success": "场次克隆成功",
+      "errors": {
+        "required": "请选择开始时间和结束时间",
+        "future": "新场次必须在未来开始",
+        "endAfterStart": "结束时间必须晚于开始时间",
+        "failed": "无法克隆场次"
+      }
+    },
     "joinSession": "加入场次",
     "fee": "费用",
     "contactHostForFee": "联系主办方",
