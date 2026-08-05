@@ -4750,6 +4750,7 @@
     "information": "Information",
     "sessionName": "Name",
     "host": "Host",
+    "managingClub": "Managing Club",
     "fee": "Fee",
     "walkInFeeInfo": "Walk-in rate for players who haven't paid the club's fixed monthly fee.",
     "requiredLevels": "Levels",

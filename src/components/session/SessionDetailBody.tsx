@@ -26,6 +26,7 @@ import {
   MapPin,
   ClipboardCheck,
   Feather,
+  Building2,
 } from 'lucide-react';
 import { useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
@@ -507,6 +508,14 @@ const SessionDetailBody = ({
               <Text fontSize="sm">
                 {t('shuttlecock') + ' ' + session.shuttlecock}
               </Text>
+            </Flex>
+          )}
+
+          {/* Managing Club */}
+          {session.club && (
+            <Flex align="center" gap={2}>
+              <Icon as={Building2} boxSize={5} color="green.500" />
+              <Text fontSize="sm">{session.club.name}</Text>
             </Flex>
           )}
         </Grid>
