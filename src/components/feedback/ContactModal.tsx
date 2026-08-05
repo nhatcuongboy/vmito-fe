@@ -13,6 +13,7 @@ import {
   HStack,
   Link,
   Separator,
+  Image,
 } from '@chakra-ui/react';
 import { useTranslations } from 'next-intl';
 import { Phone, Mail } from 'lucide-react';
@@ -32,6 +33,94 @@ interface IContactModalProps {
   isOpen: boolean;
   onClose: () => void;
 }
+
+const FacebookIcon = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+    <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
+  </svg>
+);
+
+const MessengerIcon = () => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+    <path d="M12 0C5.371 0 0 5.007 0 11.184c0 3.517 1.798 6.61 4.578 8.628V24l4.248-2.331c1.073.288 2.198.451 3.174.451 6.629 0 12-5.007 12-11.184C24 5.007 18.629 0 12 0zm1.191 15.093l-3.055-3.26-5.963 3.26L10.732 8l3.13 3.259L19.752 8l-6.561 7.093z" />
+  </svg>
+);
+
+/** A labeled contact detail with a colored icon badge — phone / email / fanpage. */
+const InfoRow = ({
+  icon,
+  iconBg,
+  href,
+  children,
+}: {
+  icon: React.ReactNode;
+  iconBg: string;
+  href: string;
+  children: React.ReactNode;
+}) => (
+  <HStack gap={2.5}>
+    <Box
+      flexShrink={0}
+      w="24px"
+      h="24px"
+      borderRadius="full"
+      bg={iconBg}
+      color="white"
+      display="flex"
+      alignItems="center"
+      justifyContent="center"
+    >
+      {icon}
+    </Box>
+    <Link
+      href={href}
+      target={href.startsWith('http') ? '_blank' : undefined}
+      rel={href.startsWith('http') ? 'noopener noreferrer' : undefined}
+      fontSize="sm"
+      color="fg.default"
+      _hover={{ color: 'green.600', textDecoration: 'underline' }}
+    >
+      {children}
+    </Link>
+  </HStack>
+);
+
+/** A prominent brand-colored CTA button — Zalo / Messenger. */
+const ContactCta = ({
+  href,
+  bg,
+  hoverBg,
+  icon,
+  label,
+}: {
+  href: string;
+  bg: string;
+  hoverBg: string;
+  icon: React.ReactNode;
+  label: string;
+}) => (
+  <Link
+    href={href}
+    target="_blank"
+    rel="noopener noreferrer"
+    flex={1}
+    display="flex"
+    alignItems="center"
+    justifyContent="center"
+    gap={2}
+    bg={bg}
+    color="white"
+    fontWeight="semibold"
+    fontSize="sm"
+    borderRadius="lg"
+    py={2.5}
+    boxShadow="sm"
+    _hover={{ bg: hoverBg, textDecoration: 'none' }}
+  >
+    {icon}
+    {label}
+  </Link>
+);
 
 const ContactModal = ({ isOpen, onClose }: IContactModalProps) => {
   const t = useTranslations('feedback');
@@ -86,82 +175,58 @@ const ContactModal = ({ isOpen, onClose }: IContactModalProps) => {
       <Box
         bg="gray.50"
         _dark={{ bg: 'gray.800' }}
-        borderRadius="md"
+        borderRadius="lg"
         p={3}
-        mb={4}
+        mb={3}
       >
         <Text fontSize="sm" fontWeight="semibold" mb={2}>
           Tác giả: Nhật Cường
         </Text>
-        <VStack align="stretch" gap={1.5}>
-          <HStack gap={2} fontSize="sm" color="fg.muted">
-            <Phone size={14} />
-            <Link
-              href="tel:0914810765"
-              color="green.600"
-              _hover={{ textDecoration: 'underline' }}
-            >
-              0914810765
-            </Link>
-          </HStack>
-          <HStack gap={2} fontSize="sm" color="fg.muted">
-            <Mail size={14} />
-            <Link
-              href="mailto:nhatcuongboy@gmail.com"
-              color="green.600"
-              _hover={{ textDecoration: 'underline' }}
-            >
-              nhatcuongboy@gmail.com
-            </Link>
-          </HStack>
-          <HStack gap={2} fontSize="sm" color="fg.muted">
-            {/* Facebook icon */}
-            <Box flexShrink={0} color="#1877F2">
-              <svg
-                width="14"
-                height="14"
-                viewBox="0 0 24 24"
-                fill="currentColor"
-              >
-                <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
-              </svg>
-            </Box>
-            <Link
-              href="https://www.facebook.com/profile.php?id=61592222922510"
-              target="_blank"
-              rel="noopener noreferrer"
-              color="blue.600"
-              _hover={{ textDecoration: 'underline' }}
-            >
-              Fanpage
-            </Link>
-          </HStack>
-          <HStack gap={2} fontSize="sm" color="fg.muted">
-            {/* Zalo icon */}
-            <Box flexShrink={0} color="#0068FF">
-              <svg
-                width="14"
-                height="14"
-                viewBox="0 0 48 48"
-                fill="currentColor"
-              >
-                <path d="M24 4C12.954 4 4 12.954 4 24c0 4.357 1.34 8.404 3.627 11.748L4 44l8.573-3.556A19.93 19.93 0 0 0 24 44c11.046 0 20-8.954 20-20S35.046 4 24 4zm-6.5 13h2.25v7.5c.69-.84 1.71-1.5 3-1.5 2.485 0 4.25 2.015 4.25 5s-1.765 5-4.25 5c-1.29 0-2.31-.66-3-1.5V33H17.5V17zm10.75 4.75c0-1.52-.91-2.75-2.25-2.75s-2.25 1.23-2.25 2.75V28c0 1.52.91 2.75 2.25 2.75s2.25-1.23 2.25-2.75v-6.25z" />
-              </svg>
-            </Box>
-            <Link
-              href="https://zalo.me/84914810765"
-              target="_blank"
-              rel="noopener noreferrer"
-              color="blue.600"
-              _hover={{ textDecoration: 'underline' }}
-            >
-              Zalo
-            </Link>
-          </HStack>
-        </VStack>
-      </Box>
 
-      <Separator mb={4} />
+        <VStack align="stretch" gap={1.5}>
+          <InfoRow
+            icon={<Phone size={13} />}
+            iconBg="green.500"
+            href="tel:0914810765"
+          >
+            0914810765
+          </InfoRow>
+          <InfoRow
+            icon={<Mail size={13} />}
+            iconBg="green.500"
+            href="mailto:admin@vmito.com"
+          >
+            admin@vmito.com
+          </InfoRow>
+          <InfoRow
+            icon={<FacebookIcon />}
+            iconBg="#1877F2"
+            href="https://www.facebook.com/vmitovn"
+          >
+            Fanpage
+          </InfoRow>
+        </VStack>
+
+        <Separator my={2.5} />
+
+        {/* Prominent Zalo / Messenger CTAs — fastest way to reach us */}
+        <HStack gap={2}>
+          <ContactCta
+            href="https://zalo.me/84914810765"
+            bg="#0068FF"
+            hoverBg="#0055D4"
+            label="Zalo"
+            icon={<Image src="/icons/zalo-32.png" alt="Zalo" boxSize="18px" />}
+          />
+          <ContactCta
+            href="https://m.me/vmitovn"
+            bg="#0084FF"
+            hoverBg="#006FD6"
+            label="Messenger"
+            icon={<MessengerIcon />}
+          />
+        </HStack>
+      </Box>
 
       <form onSubmit={handleSubmit(onSubmit)}>
         <VStack gap={4} align="stretch">
