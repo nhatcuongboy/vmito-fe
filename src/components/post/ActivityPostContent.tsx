@@ -500,6 +500,27 @@ export function ActivityPostContent({ post }: ActivityPostContentProps) {
       );
     }
 
+    case 'COVER_PHOTO_UPDATED': {
+      const coverSrc = metadata.coverPhoto
+        ? normalizeImageUrl(metadata.coverPhoto)
+        : null;
+      return (
+        <>
+          {headline}
+          {coverSrc ? (
+            <AvatarUpdatedImage
+              src={coverSrc}
+              alt={t('activity.COVER_PHOTO_UPDATED', { author: authorName })}
+            />
+          ) : (
+            <Box px={4} pt={3} color="gray.400">
+              <ImageIcon size={20} />
+            </Box>
+          )}
+        </>
+      );
+    }
+
     case 'USER_RATED':
       return (
         <>

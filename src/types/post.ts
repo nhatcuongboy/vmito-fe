@@ -23,6 +23,7 @@ export type ActivityType =
   | 'TOURNAMENT_CREATED'
   | 'TOURNAMENT_FINISHED'
   | 'AVATAR_UPDATED'
+  | 'COVER_PHOTO_UPDATED'
   | 'USER_RATED';
 
 // Mirrors vmito-be/src/activities/activity-metadata.types.ts

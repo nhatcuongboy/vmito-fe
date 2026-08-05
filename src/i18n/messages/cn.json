@@ -6312,6 +6312,7 @@
       "TOURNAMENT_CREATED": "{author} 创建了赛事 <b>{tournament}</b>",
       "TOURNAMENT_FINISHED": "赛事 <b>{tournament}</b> 已结束",
       "AVATAR_UPDATED": "{author} 更新了头像",
+      "COVER_PHOTO_UPDATED": "{author} 更新了封面照片",
       "USER_RATED": "{author} 评价了 {rated}",
       "champion": "冠军",
       "runnerUp": "亚军",

@@ -6370,6 +6370,7 @@
       "TOURNAMENT_CREATED": "{author} vừa tạo giải đấu <b>{tournament}</b>",
       "TOURNAMENT_FINISHED": "Giải đấu <b>{tournament}</b> đã kết thúc",
       "AVATAR_UPDATED": "{author} đã cập nhật ảnh đại diện",
+      "COVER_PHOTO_UPDATED": "{author} đã cập nhật ảnh bìa",
       "USER_RATED": "{author} đã đánh giá {rated}",
       "champion": "Vô địch",
       "runnerUp": "Á quân",

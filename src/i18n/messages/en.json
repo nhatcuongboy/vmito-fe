@@ -6353,6 +6353,7 @@
       "TOURNAMENT_CREATED": "{author} created the tournament <b>{tournament}</b>",
       "TOURNAMENT_FINISHED": "The tournament <b>{tournament}</b> has finished",
       "AVATAR_UPDATED": "{author} updated their profile photo",
+      "COVER_PHOTO_UPDATED": "{author} updated their cover photo",
       "USER_RATED": "{author} rated {rated}",
       "champion": "Champion",
       "runnerUp": "Runner-up",
