@@ -6,6 +6,7 @@ import {
   useMemo,
   useRef,
   useState,
+  useId,
   type SVGProps,
 } from 'react';
 import {
@@ -14,6 +15,7 @@ import {
   Grid,
   Heading,
   HStack,
+  Portal,
   Text,
   VStack,
 } from '@chakra-ui/react';
@@ -116,6 +118,7 @@ export default function NewTournamentPage() {
   const pendingNavigationRef = useRef<(() => void) | null>(null);
   const allowNavigationRef = useRef(false);
   const submitLockRef = useRef(false);
+  const formId = useId();
 
   useEffect(() => {
     setToday(getLocalDateInputValue());
@@ -296,6 +299,7 @@ export default function NewTournamentPage() {
       >
         <Box maxW="760px" mx="auto">
           <form
+            id={formId}
             onSubmit={handleSubmit(handleValidSubmit, handleInvalidSubmit)}
             noValidate
           >
@@ -700,41 +704,73 @@ export default function NewTournamentPage() {
                   </Flex>
                 </VStack>
 
+                <Portal>
+                  <Box
+                    display={{ base: 'block', md: 'none' }}
+                    position="fixed"
+                    bottom={0}
+                    insetInlineStart={0}
+                    insetInlineEnd={0}
+                    zIndex={20}
+                    px={4}
+                    pt={3}
+                    pb="calc(12px + env(safe-area-inset-bottom))"
+                    borderTopWidth="1px"
+                    borderColor="gray.100"
+                    bg="whiteAlpha.950"
+                    backdropFilter="blur(14px)"
+                    boxShadow="0 -8px 28px rgba(15, 23, 42, 0.08)"
+                    _dark={{
+                      borderColor: 'whiteAlpha.200',
+                      bg: 'blackAlpha.800',
+                    }}
+                  >
+                    <Flex maxW="760px" mx="auto" gap={3}>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        colorPalette="gray"
+                        minH="48px"
+                        flex="0 0 34%"
+                        onClick={handleBack}
+                      >
+                        {t('cancel')}
+                      </Button>
+                      <Button
+                        type="submit"
+                        form={formId}
+                        colorPalette="green"
+                        minH="48px"
+                        flex={1}
+                        loading={isSubmitting}
+                        loadingText={t('creating')}
+                        rightIcon={<ArrowRight size={18} aria-hidden="true" />}
+                      >
+                        {t('createTournament')}
+                      </Button>
+                    </Flex>
+                  </Box>
+                </Portal>
+
                 <Box
-                  position={{ base: 'fixed', md: 'static' }}
-                  bottom={0}
-                  insetInlineStart={0}
-                  insetInlineEnd={0}
-                  zIndex={20}
-                  px={{ base: 4, md: 6 }}
-                  pt={{ base: 3, md: 6 }}
-                  pb={{
-                    base: 'calc(12px + env(safe-area-inset-bottom))',
-                    md: 6,
-                  }}
+                  display={{ base: 'none', md: 'block' }}
+                  px={6}
+                  pt={6}
+                  pb={6}
                   borderTopWidth="1px"
                   borderColor={{ base: 'gray.100', _dark: 'whiteAlpha.200' }}
                   bg={{ base: 'whiteAlpha.950', _dark: 'blackAlpha.800' }}
                   backdropFilter="blur(14px)"
-                  boxShadow={{
-                    base: '0 -8px 28px rgba(15, 23, 42, 0.08)',
-                    md: 'none',
-                  }}
-                  borderBottomRadius={{ md: '3xl' }}
+                  borderBottomRadius="3xl"
                 >
-                  <Flex
-                    maxW={{ base: '760px', md: 'none' }}
-                    mx="auto"
-                    gap={3}
-                    justify="flex-end"
-                  >
+                  <Flex maxW="none" mx="auto" gap={3} justify="flex-end">
                     <Button
                       type="button"
                       variant="outline"
                       colorPalette="gray"
                       minH="48px"
-                      flex={{ base: '0 0 34%', md: '0 0 auto' }}
-                      px={{ md: 6 }}
+                      flex="0 0 auto"
+                      px={6}
                       onClick={handleBack}
                     >
                       {t('cancel')}
@@ -743,8 +779,8 @@ export default function NewTournamentPage() {
                       type="submit"
                       colorPalette="green"
                       minH="48px"
-                      flex={{ base: 1, md: '0 0 auto' }}
-                      px={{ md: 7 }}
+                      flex="0 0 auto"
+                      px={7}
                       loading={isSubmitting}
                       loadingText={t('creating')}
                       rightIcon={<ArrowRight size={18} aria-hidden="true" />}
