@@ -30,6 +30,12 @@ export enum EClubStatus {
   REJECTED = 'REJECTED',
 }
 
+export enum EClubOperationalStatus {
+  ACTIVE = 'ACTIVE',
+  INACTIVE = 'INACTIVE',
+  DISSOLVED = 'DISSOLVED',
+}
+
 export interface IClubHost {
   id: string;
   name: string;
@@ -98,6 +104,7 @@ export interface IClubSchedule {
   startTime: string; // "19:00"
   endTime: string; // "21:00"
   notes?: string;
+  isActive?: boolean;
 }
 
 export interface IClubScheduleDto {
@@ -105,6 +112,7 @@ export interface IClubScheduleDto {
   startTime: string;
   endTime: string;
   notes?: string;
+  isActive?: boolean;
 }
 
 export interface IClubVenue {
@@ -174,6 +182,7 @@ export interface IClub {
   updatedAt: string;
   memberCount: number;
   status: EClubStatus;
+  operationalStatus?: EClubOperationalStatus;
   rejectionReason?: string;
   currentMonthFee?: IClubFeeConfig;
   host: IClubHost;
@@ -204,6 +213,7 @@ export interface IClubListItem {
   sessionCount?: number;
   host: IClubHost;
   status: EClubStatus;
+  operationalStatus?: EClubOperationalStatus;
   rejectionReason?: string;
   createdAt: string;
   schedules?: IClubSchedule[];
@@ -221,6 +231,7 @@ export interface IMyClub {
   color?: string;
   image?: string;
   status?: EClubStatus;
+  operationalStatus?: EClubOperationalStatus;
   role: EMemberRole;
   memberCount: number;
   host: IClubHost;

@@ -9,8 +9,6 @@ import React, {
 } from 'react';
 import { useTranslations } from 'next-intl';
 import { Box, Flex, Grid } from '@chakra-ui/react';
-import { Globe, Link as LinkIcon } from 'lucide-react';
-import { FaFacebook, FaYoutube, FaTiktok } from 'react-icons/fa6';
 import { Button, VStack, Input } from '@/components/ui/chakra-compat';
 import { RichTextEditor } from '@/components/ui/RichTextEditor';
 import { SearchableSelect } from '@/components/ui/SearchableSelect';
@@ -46,6 +44,8 @@ import {
   createClubVenueGroupDraft,
   validateClubVenueSchedule,
 } from '@/components/club/club-venue-schedule';
+import { ClubOperationalStatusPanel } from '@/components/club/ClubOperationalStatusPanel';
+import { IClub } from '@/types/club';
 
 const schema = z.object({
   name: z.string().min(1, 'Tên nhóm là bắt buộc'),
@@ -106,6 +106,7 @@ const EditClubPage = () => {
     useState<ClubVenueScheduleValidation>(() => validateClubVenueSchedule([]));
   const [hasValidatedVenues, setHasValidatedVenues] = useState(false);
   const [isLoadingClub, setIsLoadingClub] = useState(true);
+  const [clubData, setClubData] = useState<IClub | null>(null);
 
   const [clubImages, setClubImages] = useState<ISessionImage[]>([]);
   const [bannerIndex, setBannerIndex] = useState(0);
@@ -219,6 +220,7 @@ const EditClubPage = () => {
       setIsLoadingClub(true);
       try {
         const group = await ClubsService.getClub(groupId);
+        setClubData(group);
         setValue('name', group.name);
         setValue('hostName', group.hostName || '');
         setValue('description', group.description || '');
@@ -371,6 +373,7 @@ const EditClubPage = () => {
                 dayOfWeek: s.dayOfWeek,
                 startTime: s.startTime,
                 endTime: s.endTime,
+                isActive: s.isActive ?? true,
               })
             );
           });
@@ -452,6 +455,7 @@ const EditClubPage = () => {
           startTime: schedule.startTime,
           endTime: schedule.endTime,
           notes: venueInfo,
+          isActive: schedule.isActive,
         }));
       });
 
@@ -629,6 +633,7 @@ const EditClubPage = () => {
                   <Input
                     {...register('socialLinks.facebook')}
                     placeholder={t('socialLinks.facebookPlaceholder')}
+                    bg={{ base: 'white', _dark: 'gray.800' }}
                   />
                 </Field>
 
@@ -636,6 +641,7 @@ const EditClubPage = () => {
                   <Input
                     {...register('socialLinks.zalo')}
                     placeholder={t('socialLinks.zaloPlaceholder')}
+                    bg={{ base: 'white', _dark: 'gray.800' }}
                   />
                 </Field>
 
@@ -643,6 +649,7 @@ const EditClubPage = () => {
                   <Input
                     {...register('socialLinks.tiktok')}
                     placeholder={t('socialLinks.tiktokPlaceholder')}
+                    bg={{ base: 'white', _dark: 'gray.800' }}
                   />
                 </Field>
 
@@ -650,6 +657,7 @@ const EditClubPage = () => {
                   <Input
                     {...register('socialLinks.youtube')}
                     placeholder={t('socialLinks.youtubePlaceholder')}
+                    bg={{ base: 'white', _dark: 'gray.800' }}
                   />
                 </Field>
 
@@ -657,6 +665,7 @@ const EditClubPage = () => {
                   <Input
                     {...register('socialLinks.website')}
                     placeholder={t('socialLinks.websitePlaceholder')}
+                    bg={{ base: 'white', _dark: 'gray.800' }}
                   />
                 </Field>
 
@@ -664,11 +673,21 @@ const EditClubPage = () => {
                   <Input
                     {...register('socialLinks.other')}
                     placeholder={t('socialLinks.otherPlaceholder')}
+                    bg={{ base: 'white', _dark: 'gray.800' }}
                   />
                 </Field>
               </Grid>
             </VenueCollapsibleSection>
           </Box>
+
+          {/* Trạng thái hoạt động */}
+          {clubData && (
+            <ClubOperationalStatusPanel
+              club={clubData}
+              userRole={user?.role as UserRole}
+              onStatusUpdated={(updated) => setClubData(updated)}
+            />
+          )}
 
           <Flex
             justify={{ base: 'space-between', md: 'flex-end' }}

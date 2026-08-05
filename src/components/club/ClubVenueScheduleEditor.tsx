@@ -18,6 +18,7 @@ import {
 } from '@/components/ui/SearchableSelect';
 import { VDateTimeInput } from '@/components/ui/VDateTimeInput';
 import { LegacySelect } from '@/components/ui/VSelect';
+import { VSwitch } from '@/components/ui/VSwitch';
 
 const EMPTY_VALIDATION: ClubVenueScheduleValidation = {
   isValid: true,
@@ -110,6 +111,7 @@ const ClubVenueScheduleEditor = forwardRef<
       dayOfWeek: number;
       startTime: string;
       endTime: string;
+      isActive: boolean;
     }>
   ) => {
     updateGroup(groupId, (group) => ({
@@ -364,16 +366,11 @@ const ClubVenueScheduleEditor = forwardRef<
                           const dayInputId = `${schedule.id}-day`;
                           const startInputId = `${schedule.id}-start`;
                           const endInputId = `${schedule.id}-end`;
+                          const isScheduleActive = schedule.isActive !== false;
 
                           return (
-                            <Grid
+                            <Box
                               key={schedule.id}
-                              templateColumns={{
-                                base: 'minmax(0, 1fr) minmax(0, 1fr) 40px',
-                                md: 'minmax(120px, 1.2fr) minmax(105px, 1fr) auto minmax(105px, 1fr) 40px',
-                              }}
-                              gap={2}
-                              alignItems="end"
                               borderWidth="1px"
                               borderColor={
                                 scheduleError
@@ -390,133 +387,184 @@ const ClubVenueScheduleEditor = forwardRef<
                               bg={{ base: 'gray.50', _dark: 'gray.800' }}
                               p={3}
                             >
-                              <Box
-                                minW={0}
-                                gridColumn={{ base: '1 / 3', md: 'auto' }}
+                              <Flex
+                                justify="space-between"
+                                align="center"
+                                gap={2}
+                                mb={3}
                               >
-                                <label htmlFor={dayInputId}>
-                                  <Text
-                                    as="span"
-                                    display="block"
-                                    mb={1}
-                                    fontSize="xs"
-                                    color="gray.600"
-                                    _dark={{ color: 'gray.300' }}
-                                  >
-                                    {tClubs('dayOfWeek')}
-                                  </Text>
-                                </label>
-                                <LegacySelect
-                                  id={dayInputId}
-                                  name={`venue-${group.id}-schedule-${schedule.id}-day`}
+                                <VSwitch
                                   size="sm"
-                                  value={String(schedule.dayOfWeek)}
-                                  aria-invalid={!!scheduleError}
-                                  onChange={(
-                                    event: React.ChangeEvent<HTMLSelectElement>
-                                  ) =>
+                                  checked={isScheduleActive}
+                                  label={
+                                    <Text
+                                      fontSize="xs"
+                                      fontWeight="medium"
+                                      color={
+                                        isScheduleActive
+                                          ? {
+                                              base: 'green.700',
+                                              _dark: 'green.300',
+                                            }
+                                          : {
+                                              base: 'gray.500',
+                                              _dark: 'gray.400',
+                                            }
+                                      }
+                                    >
+                                      {isScheduleActive
+                                        ? t('scheduleActive')
+                                        : t('scheduleInactive')}
+                                    </Text>
+                                  }
+                                  onCheckedChange={(details) =>
                                     updateSchedule(group.id, schedule.id, {
-                                      dayOfWeek: Number(event.target.value),
+                                      isActive: details.checked,
                                     })
+                                  }
+                                  aria-label={t('toggleScheduleActiveAria', {
+                                    number: scheduleIndex + 1,
+                                  })}
+                                />
+                              </Flex>
+
+                              <Grid
+                                templateColumns={{
+                                  base: 'minmax(0, 1fr) minmax(0, 1fr) 40px',
+                                  md: 'minmax(120px, 1.2fr) minmax(105px, 1fr) auto minmax(105px, 1fr) 40px',
+                                }}
+                                gap={2}
+                                alignItems="end"
+                                opacity={isScheduleActive ? 1 : 0.6}
+                              >
+                                <Box
+                                  minW={0}
+                                  gridColumn={{ base: '1 / 3', md: 'auto' }}
+                                >
+                                  <label htmlFor={dayInputId}>
+                                    <Text
+                                      as="span"
+                                      display="block"
+                                      mb={1}
+                                      fontSize="xs"
+                                      color="gray.600"
+                                      _dark={{ color: 'gray.300' }}
+                                    >
+                                      {tClubs('dayOfWeek')}
+                                    </Text>
+                                  </label>
+                                  <LegacySelect
+                                    id={dayInputId}
+                                    name={`venue-${group.id}-schedule-${schedule.id}-day`}
+                                    size="sm"
+                                    value={String(schedule.dayOfWeek)}
+                                    aria-invalid={!!scheduleError}
+                                    onChange={(
+                                      event: React.ChangeEvent<HTMLSelectElement>
+                                    ) =>
+                                      updateSchedule(group.id, schedule.id, {
+                                        dayOfWeek: Number(event.target.value),
+                                      })
+                                    }
+                                  >
+                                    {Array.from({ length: 7 }, (_, day) => (
+                                      <option key={day} value={day}>
+                                        {tClubs(
+                                          `dayNames.${day as 0 | 1 | 2 | 3 | 4 | 5 | 6}`
+                                        )}
+                                      </option>
+                                    ))}
+                                  </LegacySelect>
+                                </Box>
+
+                                <Box minW={0}>
+                                  <label htmlFor={startInputId}>
+                                    <Text
+                                      as="span"
+                                      display="block"
+                                      mb={1}
+                                      fontSize="xs"
+                                      color="gray.600"
+                                      _dark={{ color: 'gray.300' }}
+                                    >
+                                      {tClubs('startTime')}
+                                    </Text>
+                                  </label>
+                                  <VDateTimeInput
+                                    id={startInputId}
+                                    name={`venue-${group.id}-schedule-${schedule.id}-start`}
+                                    type="time"
+                                    size="sm"
+                                    value={schedule.startTime}
+                                    aria-invalid={!!scheduleError}
+                                    onChange={(event) =>
+                                      updateSchedule(group.id, schedule.id, {
+                                        startTime: event.target.value,
+                                      })
+                                    }
+                                    placeholder="--:--"
+                                  />
+                                </Box>
+
+                                <Text
+                                  display={{ base: 'none', md: 'block' }}
+                                  pb={2}
+                                  color="gray.400"
+                                  aria-hidden="true"
+                                >
+                                  –
+                                </Text>
+
+                                <Box minW={0}>
+                                  <label htmlFor={endInputId}>
+                                    <Text
+                                      as="span"
+                                      display="block"
+                                      mb={1}
+                                      fontSize="xs"
+                                      color="gray.600"
+                                      _dark={{ color: 'gray.300' }}
+                                    >
+                                      {tClubs('endTime')}
+                                    </Text>
+                                  </label>
+                                  <VDateTimeInput
+                                    id={endInputId}
+                                    name={`venue-${group.id}-schedule-${schedule.id}-end`}
+                                    type="time"
+                                    size="sm"
+                                    value={schedule.endTime}
+                                    aria-invalid={!!scheduleError}
+                                    onChange={(event) =>
+                                      updateSchedule(group.id, schedule.id, {
+                                        endTime: event.target.value,
+                                      })
+                                    }
+                                    placeholder="--:--"
+                                  />
+                                </Box>
+
+                                <IconButton
+                                  type="button"
+                                  size="sm"
+                                  variant="ghost"
+                                  colorPalette="red"
+                                  gridColumn={{ base: '3', md: 'auto' }}
+                                  gridRow={{ base: '1', md: 'auto' }}
+                                  aria-label={t('removeScheduleAria', {
+                                    number: scheduleIndex + 1,
+                                  })}
+                                  onClick={() =>
+                                    removeSchedule(group.id, schedule.id)
                                   }
                                 >
-                                  {Array.from({ length: 7 }, (_, day) => (
-                                    <option key={day} value={day}>
-                                      {tClubs(
-                                        `dayNames.${day as 0 | 1 | 2 | 3 | 4 | 5 | 6}`
-                                      )}
-                                    </option>
-                                  ))}
-                                </LegacySelect>
-                              </Box>
-
-                              <Box minW={0}>
-                                <label htmlFor={startInputId}>
-                                  <Text
-                                    as="span"
-                                    display="block"
-                                    mb={1}
-                                    fontSize="xs"
-                                    color="gray.600"
-                                    _dark={{ color: 'gray.300' }}
-                                  >
-                                    {tClubs('startTime')}
-                                  </Text>
-                                </label>
-                                <VDateTimeInput
-                                  id={startInputId}
-                                  name={`venue-${group.id}-schedule-${schedule.id}-start`}
-                                  type="time"
-                                  size="sm"
-                                  value={schedule.startTime}
-                                  aria-invalid={!!scheduleError}
-                                  onChange={(event) =>
-                                    updateSchedule(group.id, schedule.id, {
-                                      startTime: event.target.value,
-                                    })
-                                  }
-                                  placeholder="--:--"
-                                />
-                              </Box>
-
-                              <Text
-                                display={{ base: 'none', md: 'block' }}
-                                pb={2}
-                                color="gray.400"
-                                aria-hidden="true"
-                              >
-                                –
-                              </Text>
-
-                              <Box minW={0}>
-                                <label htmlFor={endInputId}>
-                                  <Text
-                                    as="span"
-                                    display="block"
-                                    mb={1}
-                                    fontSize="xs"
-                                    color="gray.600"
-                                    _dark={{ color: 'gray.300' }}
-                                  >
-                                    {tClubs('endTime')}
-                                  </Text>
-                                </label>
-                                <VDateTimeInput
-                                  id={endInputId}
-                                  name={`venue-${group.id}-schedule-${schedule.id}-end`}
-                                  type="time"
-                                  size="sm"
-                                  value={schedule.endTime}
-                                  aria-invalid={!!scheduleError}
-                                  onChange={(event) =>
-                                    updateSchedule(group.id, schedule.id, {
-                                      endTime: event.target.value,
-                                    })
-                                  }
-                                  placeholder="--:--"
-                                />
-                              </Box>
-
-                              <IconButton
-                                type="button"
-                                size="sm"
-                                variant="ghost"
-                                colorPalette="red"
-                                gridColumn={{ base: '3', md: 'auto' }}
-                                gridRow={{ base: '1', md: 'auto' }}
-                                aria-label={t('removeScheduleAria', {
-                                  number: scheduleIndex + 1,
-                                })}
-                                onClick={() =>
-                                  removeSchedule(group.id, schedule.id)
-                                }
-                              >
-                                <Trash2 size={16} aria-hidden="true" />
-                              </IconButton>
+                                  <Trash2 size={16} aria-hidden="true" />
+                                </IconButton>
+                              </Grid>
 
                               {scheduleError && (
                                 <Text
-                                  gridColumn="1 / -1"
+                                  mt={2}
                                   fontSize="sm"
                                   color={{
                                     base: 'red.600',
@@ -527,7 +575,7 @@ const ClubVenueScheduleEditor = forwardRef<
                                   {t(`errors.${scheduleError}`)}
                                 </Text>
                               )}
-                            </Grid>
+                            </Box>
                           );
                         })}
                       </VStack>

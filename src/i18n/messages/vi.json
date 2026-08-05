@@ -6655,6 +6655,9 @@
       "addVenue": "Thêm sân",
       "addAnotherVenue": "Thêm sân khác",
       "removeScheduleAria": "Xóa lịch hoạt động số {number}",
+      "scheduleActive": "Đang áp dụng",
+      "scheduleInactive": "Tạm dừng",
+      "toggleScheduleActiveAria": "Bật/tắt lịch hoạt động số {number}",
       "validationSummary": "Vui lòng kiểm tra lại sân và lịch hoạt động.",
       "errors": {
         "venueRequired": "Vui lòng chọn sân hoặc xóa mục sân này.",
@@ -6663,6 +6666,24 @@
         "endBeforeStart": "Giờ kết thúc phải sau giờ bắt đầu.",
         "overlap": "Lịch này đang trùng thời gian với một lịch khác tại cùng sân."
       }
+    },
+    "operationalStatus": {
+      "title": "Trạng thái hoạt động",
+      "active": "Đang hoạt động",
+      "inactive": "Tạm ngừng",
+      "dissolved": "Đã giải thể",
+      "pause": "Tạm ngừng",
+      "reactivate": "Kích hoạt lại",
+      "confirmStatusTitle": "Xác nhận cập nhật trạng thái",
+      "confirmPauseDescription": "Tạm ngừng CLB sẽ ẩn CLB khỏi tìm kiếm và không nhận thành viên mới.",
+      "confirmReactivateDescription": "Kích hoạt lại CLB sẽ hiển thị công khai và cho phép nhận thành viên mới.",
+      "dissolve": "Giải thể",
+      "dissolveWarning": "Giải thể CLB là vĩnh viễn và không thể hoàn tác.",
+      "cancel": "Hủy",
+      "confirmDissolve": "Xác nhận giải thể",
+      "dissolvedMessage": "CLB đã giải thể vĩnh viễn và không thể khôi phục.",
+      "updated": "Đã cập nhật trạng thái CLB thành \"{status}\".",
+      "updateFailed": "Cập nhật trạng thái thất bại. Vui lòng thử lại."
     },
     "noImageSelected": "Chưa có ảnh",
     "selectImage": "Chọn ảnh",

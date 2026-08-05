@@ -6595,6 +6595,9 @@
       "addVenue": "添加场地",
       "addAnotherVenue": "添加其他场地",
       "removeScheduleAria": "删除第 {number} 个活动时间",
+      "scheduleActive": "启用中",
+      "scheduleInactive": "已暂停",
+      "toggleScheduleActiveAria": "切换第 {number} 个活动时间的状态",
       "validationSummary": "保存前请检查活动场地和时间。",
       "errors": {
         "venueRequired": "请选择场地或删除此场地项。",
@@ -6603,6 +6606,24 @@
         "endBeforeStart": "结束时间必须晚于开始时间。",
         "overlap": "此时间与同一场地的其他活动时间重叠。"
       }
+    },
+    "operationalStatus": {
+      "title": "运营状态",
+      "active": "运营中",
+      "inactive": "已暂停",
+      "dissolved": "已解散",
+      "pause": "暂停",
+      "reactivate": "重新启用",
+      "confirmStatusTitle": "确认更新状态",
+      "confirmPauseDescription": "暂停俱乐部会将其从搜索结果中隐藏，并禁止新成员加入。",
+      "confirmReactivateDescription": "重新启用俱乐部会将其公开，并允许新成员加入。",
+      "dissolve": "解散",
+      "dissolveWarning": "解散俱乐部是永久操作，无法撤销。",
+      "cancel": "取消",
+      "confirmDissolve": "确认解散",
+      "dissolvedMessage": "该俱乐部已永久解散，无法恢复。",
+      "updated": "俱乐部状态已更新为“{status}”。",
+      "updateFailed": "无法更新俱乐部状态，请重试。"
     },
     "noImageSelected": "No image selected",
     "selectImage": "Select Image",

@@ -6636,6 +6636,9 @@
       "addVenue": "Add Venue",
       "addAnotherVenue": "Add Another Venue",
       "removeScheduleAria": "Remove activity schedule {number}",
+      "scheduleActive": "Active",
+      "scheduleInactive": "Paused",
+      "toggleScheduleActiveAria": "Toggle activity schedule {number}",
       "validationSummary": "Check the activity venues and schedules before saving.",
       "errors": {
         "venueRequired": "Select a venue or remove this venue entry.",
@@ -6644,6 +6647,24 @@
         "endBeforeStart": "The end time must be after the start time.",
         "overlap": "This schedule overlaps another schedule at the same venue."
       }
+    },
+    "operationalStatus": {
+      "title": "Operational status",
+      "active": "Active",
+      "inactive": "Paused",
+      "dissolved": "Dissolved",
+      "pause": "Pause",
+      "reactivate": "Reactivate",
+      "confirmStatusTitle": "Confirm status update",
+      "confirmPauseDescription": "Pausing the club will hide it from search and prevent new members from joining.",
+      "confirmReactivateDescription": "Reactivating the club will make it public and allow new members to join.",
+      "dissolve": "Dissolve",
+      "dissolveWarning": "Dissolving the club is permanent and cannot be undone.",
+      "cancel": "Cancel",
+      "confirmDissolve": "Confirm dissolution",
+      "dissolvedMessage": "This club has been permanently dissolved and cannot be restored.",
+      "updated": "Club status updated to \"{status}\".",
+      "updateFailed": "Could not update the club status. Please try again."
     },
     "noImageSelected": "No image selected",
     "selectImage": "Select Image",

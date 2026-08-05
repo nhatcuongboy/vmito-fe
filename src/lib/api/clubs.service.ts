@@ -14,6 +14,7 @@ import {
   ICreateClubFeeDto,
   IClubUserSearchResult,
   EMemberRole,
+  EClubOperationalStatus,
   IClubAnnouncement,
   ICreateClubAnnouncementDto,
   IUpdateClubAnnouncementDto,
@@ -490,6 +491,21 @@ export const ClubsService = {
     const response = await api.post<ApiResponse<IClub>>(`/clubs/${id}/reject`, {
       reason,
     });
+    return response.data.data!;
+  },
+
+  /**
+   * Update the operational status of a club.
+   * Host: ACTIVE <-> INACTIVE. Admin only: DISSOLVED.
+   */
+  updateOperationalStatus: async (
+    clubId: string,
+    operationalStatus: EClubOperationalStatus
+  ): Promise<IClub> => {
+    const response = await api.patch<ApiResponse<IClub>>(
+      `/clubs/${clubId}/operational-status`,
+      { operationalStatus }
+    );
     return response.data.data!;
   },
 };
