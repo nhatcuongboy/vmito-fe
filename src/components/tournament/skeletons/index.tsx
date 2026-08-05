@@ -196,10 +196,14 @@ export function TournamentMatchListSkeleton({ count = 5 }: { count?: number }) {
 
 export function TournamentTeamsSkeleton() {
   return (
-    <VStack align="stretch" gap={5}>
-      <Flex justify="space-between" align="center" gap={4}>
-        <Skeleton height="30px" width="160px" borderRadius="md" />
-        <Skeleton height="32px" width="132px" borderRadius="full" />
+    <VStack align="stretch" gap={6}>
+      {/* Header with manage button and view toggle on the same row */}
+      <Flex align="center" justify="space-between" gap={3} flexWrap="wrap">
+        <Flex align="center" gap={3}>
+          <Skeleton height="30px" width="80px" borderRadius="md" />
+          <Skeleton height="32px" width="100px" borderRadius="full" />
+        </Flex>
+        <Skeleton height="40px" width="280px" borderRadius="lg" />
       </Flex>
       {repeat(3).map((_, categoryIndex) => (
         <Box

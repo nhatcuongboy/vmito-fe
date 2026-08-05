@@ -1108,36 +1108,28 @@ export default function TournamentPageShell({
       )}
       {activeTab === 1 && (
         <VStack align="stretch" gap={6}>
-          <Flex
-            justify="space-between"
-            align={{ base: 'stretch', md: 'center' }}
-            gap={4}
-            direction={{ base: 'column', md: 'row' }}
-          >
-            <Box minW={0}>
+          {/* Header with manage button and view toggle on the same row */}
+          <Flex align="center" justify="space-between" gap={3} flexWrap="wrap">
+            <Flex align="center" gap={3}>
               <Heading size="lg" display={{ base: 'none', md: 'block' }}>
                 {t('tabs.teams')}
               </Heading>
-            </Box>
-          </Flex>
-
-          {/* View toggle: by category vs. all players */}
-          <Flex align="center" justify="space-between" gap={3}>
-            {canManage && (
-              <Button
-                size="sm"
-                variant="subtle"
-                colorPalette="gray"
-                borderRadius="full"
-                px={4}
-                onClick={handleManageTeamsClick}
-              >
-                <HStack gap={2}>
-                  <SquarePen size={15} />
-                  <Text>{t('teamsTab.manageTeams')}</Text>
-                </HStack>
-              </Button>
-            )}
+              {canManage && (
+                <Button
+                  size="sm"
+                  variant="subtle"
+                  colorPalette="gray"
+                  borderRadius="full"
+                  px={4}
+                  onClick={handleManageTeamsClick}
+                >
+                  <HStack gap={2}>
+                    <SquarePen size={15} />
+                    <Text>{t('teamsTab.manageTeams')}</Text>
+                  </HStack>
+                </Button>
+              )}
+            </Flex>
             <Flex
               p={0.5}
               gap={0.5}
@@ -1145,7 +1137,6 @@ export default function TournamentPageShell({
               borderColor="gray.200"
               borderRadius="lg"
               bg="white"
-              ml="auto"
               shadow="sm"
               h="fit-content"
               _dark={{

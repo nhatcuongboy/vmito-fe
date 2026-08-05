@@ -81,51 +81,51 @@ export default function ManageMenuItem({
     <Flex
       borderWidth="1px"
       borderColor={
-        isActive ? (variant === 'danger' ? 'red.300' : 'green.300') : 'gray.200'
+        isActive ? (variant === 'danger' ? 'red.300' : 'green.400') : 'gray.200'
       }
       borderRadius="xl"
-      bg={isActive ? (variant === 'danger' ? 'red.50' : 'green.50') : 'white'}
+      bg={isActive ? (variant === 'danger' ? 'red.50' : 'green.100') : 'white'}
       px={3.5}
       py={3}
       align="center"
       gap={3}
       cursor={onClick ? 'pointer' : 'default'}
       onClick={onClick}
-      boxShadow={isActive ? '0 10px 26px rgba(16, 185, 129, 0.12)' : 'sm'}
+      boxShadow={isActive ? '0 10px 26px rgba(16, 185, 129, 0.18)' : 'sm'}
       _hover={
         onClick
           ? {
               bg: isActive
                 ? variant === 'danger'
-                  ? 'red.50'
-                  : 'green.50'
+                  ? 'red.100'
+                  : 'green.100'
                 : 'gray.50',
               borderColor: isActive
                 ? variant === 'danger'
-                  ? 'red.300'
-                  : 'green.300'
+                  ? 'red.400'
+                  : 'green.400'
                 : 'gray.300',
               transform: 'translateY(-1px)',
-              boxShadow: 'md',
+              boxShadow: isActive ? 'lg' : 'md',
             }
           : {}
       }
       _dark={{
         bg: isActive
-          ? 'var(--tournament-accent-soft, rgba(34, 197, 94, 0.14))'
+          ? 'var(--tournament-accent-soft, rgba(34, 197, 94, 0.18))'
           : 'var(--tournament-surface, var(--chakra-colors-gray-800))',
         borderColor: isActive
-          ? 'var(--tournament-accent-border, rgba(45, 212, 191, 0.26))'
+          ? 'var(--tournament-accent-border, rgba(45, 212, 191, 0.35))'
           : 'var(--tournament-border, var(--chakra-colors-gray-700))',
-        boxShadow: isActive ? '0 14px 34px rgba(20, 184, 166, 0.1)' : 'none',
+        boxShadow: isActive ? '0 14px 34px rgba(20, 184, 166, 0.14)' : 'none',
         _hover: onClick
           ? {
               bg: isActive
-                ? 'var(--tournament-accent-soft, rgba(34, 197, 94, 0.14))'
+                ? 'var(--tournament-accent-soft, rgba(34, 197, 94, 0.22))'
                 : 'var(--tournament-surface-raised, var(--chakra-colors-gray-700))',
               borderColor: isActive
-                ? 'var(--tournament-accent-border, rgba(45, 212, 191, 0.26))'
-                : 'rgba(148, 163, 184, 0.28)',
+                ? 'var(--tournament-accent-border, rgba(45, 212, 191, 0.4))'
+                : 'rgba(148, 163, 184, 0.35)',
             }
           : {},
       }}
