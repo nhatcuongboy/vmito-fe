@@ -19,6 +19,7 @@
     "test:venue-schedule": "node --no-warnings --experimental-transform-types --test src/components/venue-rental/schedule-validation.test.ts",
     "test:venue-payment": "node --no-warnings --experimental-transform-types --test src/lib/venue-rental-payment.test.ts",
     "test:ai-location": "node --no-warnings --experimental-transform-types --test src/components/session/session-form/aiLocationResolver.test.ts",
+    "test:pwa-install": "node --no-warnings --experimental-transform-types --test src/lib/pwa/install.test.ts",
     "test:e2e:venue-payment": "playwright test e2e/venue-rental-payment.spec.ts",
     "prepare": "husky"
   },

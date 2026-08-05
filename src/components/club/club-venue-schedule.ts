@@ -3,6 +3,7 @@ export interface ClubScheduleDraft {
   dayOfWeek: number;
   startTime: string;
   endTime: string;
+  isActive: boolean;
 }
 
 export interface ClubVenueGroupDraft {
@@ -36,6 +37,7 @@ export const createClubScheduleDraft = (
   dayOfWeek: 1,
   startTime: '19:00',
   endTime: '21:00',
+  isActive: true,
   ...overrides,
 });
 

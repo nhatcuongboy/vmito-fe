@@ -165,11 +165,11 @@ function SessionStandings({
                       {row.rank}
                     </span>
                   </td>
-                  <td className="max-w-0" style={{ padding: '8px 12px' }}>
+                  <td style={{ padding: '8px 12px' }}>
                     <div className="flex min-w-0 items-center gap-2.5">
                       <PostAvatar name={row.name} image={row.image} size={28} />
                       <span
-                        className="min-w-0 flex-1 truncate text-gray-900 dark:text-gray-50"
+                        className="min-w-0 flex-1 break-words text-gray-900 dark:text-gray-50"
                         style={{ fontWeight: 500, fontSize: 15 }}
                       >
                         {row.userId ? (

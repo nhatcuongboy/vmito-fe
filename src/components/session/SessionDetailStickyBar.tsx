@@ -27,11 +27,14 @@ import {
   Shield,
   UserCheck,
   UserPlus,
+  Building2,
 } from 'lucide-react';
 import { useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
+import { Link } from '@/i18n/config';
 import { Locale } from '@/i18n/locales';
 import { FeeService } from '@/lib/api/fee.service';
+import { ROUTES } from '@/constants';
 import { AppAddressDisplay } from '@/components/common/AppAddressDisplay';
 import FeeDetailPopover from '@/components/fee/FeeDetailPopover';
 import { useSidebar } from '@/contexts/SidebarContext';
@@ -502,6 +505,31 @@ const SessionDetailStickyBar = ({
                   <Text fontSize="sm">
                     {t('shuttlecock') + ' ' + session.shuttlecock}
                   </Text>
+                </Flex>
+              )}
+
+              {/* Managing Club */}
+              {session.club && (
+                <Flex align="center" gap={3}>
+                  <Icon
+                    as={Building2}
+                    boxSize={4}
+                    color="green.500"
+                    flexShrink={0}
+                  />
+                  <Link
+                    href={ROUTES.CLUBS.DETAIL(session.club.id)}
+                    style={{ textDecoration: 'none' }}
+                  >
+                    <Text
+                      fontSize="sm"
+                      color="green.600"
+                      _dark={{ color: 'green.400' }}
+                      _hover={{ textDecoration: 'underline' }}
+                    >
+                      {session.club.name}
+                    </Text>
+                  </Link>
                 </Flex>
               )}
 

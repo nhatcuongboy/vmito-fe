@@ -29,6 +29,7 @@ import { usePathname } from '@/i18n/config';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { VenueRentalService } from '@/lib/api/venue-rental.service';
 import { TournamentGuideButton } from '@/components/tournament/TournamentGuideButton';
+import { useTournamentGuideVisibilityStore } from '@/stores/useTournamentGuideVisibilityStore';
 import {
   isNavLinkActive,
   NAV_SECTIONS,
@@ -172,6 +173,9 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
     useBreakpointValue({ base: false, md: isSidebarCollapsed }) ?? false;
   const pathname = usePathname();
   const [hasManagedVenues, setHasManagedVenues] = useState(false);
+  const isGuideWidgetVisible = useTournamentGuideVisibilityStore(
+    (state) => state.isVisible
+  );
 
   useEffect(() => {
     if (!isAuthenticated || user?.role === 'GUEST') {
@@ -317,9 +321,10 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
 
             {/* Footer */}
             <Box pt={4}>
-              {/^\/tournament\/[^/]+/.test(pathname) && (
-                <TournamentGuideToggleButton isCollapsed={isCollapsed} />
-              )}
+              {/^\/tournament\/[^/]+/.test(pathname) &&
+                !isGuideWidgetVisible && (
+                  <TournamentGuideToggleButton isCollapsed={isCollapsed} />
+                )}
 
               {showAuthActions && (
                 <AuthActions isCollapsed={isCollapsed} onClose={onClose} />

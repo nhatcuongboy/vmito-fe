@@ -55,6 +55,7 @@ export interface UseMyClubsDataReturn {
     clubId: string,
     requestId: string
   ) => Promise<void>;
+  handleCancelJoinRequest: (clubId: string) => Promise<void>;
   handleReject: (
     rejectTarget: {
       type: 'club' | 'member';
@@ -231,6 +232,23 @@ export function useMyClubsData(): UseMyClubsDataReturn {
     }
   };
 
+  const handleCancelJoinRequest = async (clubId: string) => {
+    try {
+      await ClubsService.cancelJoinRequest(clubId);
+      setJoinRequests((requests) =>
+        requests.filter((request) => request.clubId !== clubId)
+      );
+      toaster.create({
+        title: t('clubs.joinRequestWithdrawn'),
+        type: 'success',
+      });
+    } catch (error) {
+      console.error('Failed to cancel join request:', error);
+      toaster.create({ title: t('common.error'), type: 'error' });
+      throw error;
+    }
+  };
+
   const handleReject = async (
     rejectTarget: {
       type: 'club' | 'member';
@@ -290,6 +308,7 @@ export function useMyClubsData(): UseMyClubsDataReturn {
     isAdmin,
     handleApprove,
     handleApproveJoinRequest,
+    handleCancelJoinRequest,
     handleReject,
     refetch: loadData,
   };

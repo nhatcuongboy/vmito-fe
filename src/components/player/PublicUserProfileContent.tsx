@@ -33,6 +33,7 @@ import {
   UserRatingStats,
 } from '@/lib/api/types';
 import { IClub } from '@/types/club';
+import { DETAIL_PAGE_MAX_W } from '@/constants';
 import { UserRatingSummaryCard } from '@/components/rating/UserRatingSummaryCard';
 import { RatingList } from '@/components/rating/RatingList';
 import { VModal, useModal } from '@/components/ui/VModal';
@@ -261,7 +262,7 @@ export default function PublicUserProfileContent({
     return (
       <PageLayout
         title={t('title')}
-        showBackButton={true}
+        maxW={DETAIL_PAGE_MAX_W}
         bg="gray.50"
         _dark={{ bg: 'gray.900' }}
       >
@@ -300,7 +301,12 @@ export default function PublicUserProfileContent({
           onClose={() => setIsEditModalOpen(false)}
         />
       )}
-      <PageLayout title={t('title')} bg="gray.50" _dark={{ bg: 'gray.900' }}>
+      <PageLayout
+        title={t('title')}
+        maxW={DETAIL_PAGE_MAX_W}
+        bg="gray.50"
+        _dark={{ bg: 'gray.900' }}
+      >
         <VStack gap={6} align="stretch" pb={6}>
           <UserProfileHeader
             profile={profile}

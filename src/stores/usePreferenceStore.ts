@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import { FEATURE_FLAG_DEFAULTS } from '@/constants';
 import { useFeatureFlagsStore } from './useFeatureFlagsStore';
+import { writePreferredCityCookie } from '@/lib/preferred-city';
 
 /** Reads the live flag when available, falling back to the default before
  *  it loads — matches the value this store was seeded/reset with. */
@@ -34,14 +35,19 @@ export const usePreferenceStore = create<PreferenceState>()(
       useAiForCreation: getDefaultUseAiForCreation(),
       _hasHydrated: false,
 
-      setPreferredCity: (city) => set({ preferredCity: city }),
+      setPreferredCity: (city) => {
+        writePreferredCityCookie(city);
+        set({ preferredCity: city });
+      },
       _setHasHydrated: (value) => set({ _hasHydrated: value }),
 
-      setPreferredArea: (city, districts) =>
+      setPreferredArea: (city, districts) => {
+        writePreferredCityCookie(city);
         set({
           preferredCity: city,
           preferredDistricts: districts,
-        }),
+        });
+      },
 
       setUseAiForCreation: (useAi) => set({ useAiForCreation: useAi }),
 
@@ -60,6 +66,10 @@ export const usePreferenceStore = create<PreferenceState>()(
       name: 'user-preferences',
       storage: createJSONStorage(() => localStorage),
       onRehydrateStorage: () => (state) => {
+        // Existing installs only have the city in localStorage — mirror it into
+        // the cookie on first load after this change so their next server
+        // render already knows which city to fetch.
+        if (state?.preferredCity) writePreferredCityCookie(state.preferredCity);
         state?._setHasHydrated(true);
       },
     }

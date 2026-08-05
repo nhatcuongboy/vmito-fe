@@ -32,6 +32,8 @@ import { useRouter } from '@/i18n/config';
 import { DEFAULT_COVER_PHOTO } from '@/constants';
 import { useTranslations } from 'next-intl';
 import { useAuthStore } from '@/stores/useAuthStore';
+import { normalizeImageUrl } from '@/lib/images/normalizeImageUrl';
+import { BROWSE_CARD_COVER_TRANSFORM } from '@/lib/images/coverTransforms';
 
 import { formatVenueName, getGoogleMapsUrl } from '@/utils';
 import { UserRole } from '@/lib/api/types';
@@ -46,6 +48,7 @@ interface VenueCardProps {
   variant?: 'grid' | 'list';
   onFavoriteChange?: (venueId: string, isFavorite: boolean) => void;
   showVerifiedBadge?: boolean;
+  imagePriority?: boolean;
 }
 
 function formatPrice(amount?: number) {
@@ -58,6 +61,7 @@ export default function VenueCard({
   variant = 'grid',
   onFavoriteChange,
   showVerifiedBadge = true,
+  imagePriority = false,
 }: VenueCardProps) {
   const router = useRouter();
   const t = useTranslations('venue');
@@ -130,11 +134,18 @@ export default function VenueCard({
         {/* Cover Photo (Banner) */}
         <Box position="relative" h="140px" overflow="hidden">
           <Image
-            src={venue.coverPhoto || DEFAULT_COVER_PHOTO}
+            src={
+              normalizeImageUrl(
+                venue.coverPhoto,
+                BROWSE_CARD_COVER_TRANSFORM
+              ) || DEFAULT_COVER_PHOTO
+            }
             alt={displayName}
             w="100%"
             h="100%"
             objectFit="cover"
+            loading={imagePriority ? 'eager' : 'lazy'}
+            fetchPriority={imagePriority ? 'high' : 'auto'}
           />
 
           {/* Badges Overlay */}
@@ -317,11 +328,16 @@ export default function VenueCard({
       {/* Cover Photo */}
       <Box position="relative" h="140px" overflow="hidden">
         <Image
-          src={venue.coverPhoto || DEFAULT_COVER_PHOTO}
+          src={
+            normalizeImageUrl(venue.coverPhoto, BROWSE_CARD_COVER_TRANSFORM) ||
+            DEFAULT_COVER_PHOTO
+          }
           alt={displayName}
           w="100%"
           h="100%"
           objectFit="cover"
+          loading={imagePriority ? 'eager' : 'lazy'}
+          fetchPriority={imagePriority ? 'high' : 'auto'}
         />
 
         {/* Badges Overlay */}

@@ -235,7 +235,98 @@ export default function TournamentPulseCard({
         </Flex>
       </Flex>
 
-      {match && team1 && team2 ? (
+      {match && team1 && team2 && selection.kind === 'live' ? (
+        <Box
+          mt={4}
+          p={{ base: 3, md: 4 }}
+          borderRadius="xl"
+          bg="rgba(255, 255, 255, 0.78)"
+          boxShadow="inset 0 0 0 1px rgba(22, 163, 74, 0.08)"
+          display="grid"
+          gridTemplateColumns={{
+            base: 'minmax(0, 1fr) auto',
+            md: 'minmax(0, 1fr) auto 18px auto minmax(0, 1fr)',
+          }}
+          gridTemplateAreas={{
+            base: '"team1 score1" "divider divider" "team2 score2"',
+            md: '"team1 score1 divider score2 team2"',
+          }}
+          alignItems="center"
+          columnGap={{ base: 3, md: 4 }}
+          rowGap={3}
+          _dark={{
+            bg: 'rgba(7, 17, 29, 0.52)',
+            boxShadow: 'inset 0 0 0 1px rgba(74, 222, 128, 0.12)',
+          }}
+        >
+          <Text
+            gridArea="team1"
+            minW={0}
+            fontWeight="750"
+            fontSize={{ base: 'sm', md: 'md' }}
+            lineHeight="short"
+            textAlign={{ base: 'left', md: 'right' }}
+            lineClamp={2}
+          >
+            {team1}
+          </Text>
+          <Text
+            gridArea="score1"
+            minW={{ base: '36px', md: '32px' }}
+            fontSize={{ base: '2xl', md: '2xl' }}
+            fontWeight="900"
+            lineHeight="1"
+            textAlign="center"
+          >
+            {score1 ?? '–'}
+          </Text>
+          <Flex
+            gridArea="divider"
+            align="center"
+            justify="center"
+            color="gray.400"
+            aria-hidden="true"
+          >
+            <Box
+              display={{ base: 'block', md: 'none' }}
+              h="1px"
+              flex={1}
+              bg="green.100"
+              _dark={{ bg: 'green.800' }}
+            />
+            <Text px={{ base: 2, md: 0 }} fontWeight="700">
+              –
+            </Text>
+            <Box
+              display={{ base: 'block', md: 'none' }}
+              h="1px"
+              flex={1}
+              bg="green.100"
+              _dark={{ bg: 'green.800' }}
+            />
+          </Flex>
+          <Text
+            gridArea="score2"
+            minW={{ base: '36px', md: '32px' }}
+            fontSize={{ base: '2xl', md: '2xl' }}
+            fontWeight="900"
+            lineHeight="1"
+            textAlign="center"
+          >
+            {score2 ?? '–'}
+          </Text>
+          <Text
+            gridArea="team2"
+            minW={0}
+            fontWeight="750"
+            fontSize={{ base: 'sm', md: 'md' }}
+            lineHeight="short"
+            lineClamp={2}
+          >
+            {team2}
+          </Text>
+        </Box>
+      ) : match && team1 && team2 ? (
         <Flex
           mt={4}
           p={3}
@@ -255,26 +346,14 @@ export default function TournamentPulseCard({
             {team1}
           </Text>
           <Flex align="center" gap={2} flexShrink={0}>
-            {selection.kind === 'live' && score1 !== null && score2 !== null ? (
-              <>
-                <Text fontSize="2xl" fontWeight="900">
-                  {score1}
-                </Text>
-                <Text color="gray.400">–</Text>
-                <Text fontSize="2xl" fontWeight="900">
-                  {score2}
-                </Text>
-              </>
-            ) : (
-              <Text
-                fontSize="xs"
-                fontWeight="800"
-                color="gray.500"
-                textTransform="uppercase"
-              >
-                {t('versus')}
-              </Text>
-            )}
+            <Text
+              fontSize="xs"
+              fontWeight="800"
+              color="gray.500"
+              textTransform="uppercase"
+            >
+              {t('versus')}
+            </Text>
           </Flex>
           <Text flex={1} minW={0} fontWeight="750" lineClamp={2}>
             {team2}
@@ -285,26 +364,56 @@ export default function TournamentPulseCard({
       {match ? (
         <Box
           asChild
-          display="inline-flex"
-          mt={3}
-          minH="42px"
+          display="flex"
+          mt={4}
+          minH="46px"
+          w={{ base: 'full', sm: 'fit-content' }}
+          mx={{ base: 0, sm: 'auto' }}
           alignItems="center"
+          justifyContent="center"
           borderRadius="lg"
-          bg="gray.900"
+          borderWidth="1px"
+          borderColor="green.800"
+          bg="green.700"
           color="white"
-          fontWeight="750"
-          _hover={{ bg: 'gray.800', textDecoration: 'none' }}
+          fontWeight="800"
+          boxShadow="0 8px 18px rgba(21, 128, 61, 0.22)"
+          transitionProperty="background-color, border-color, box-shadow, transform"
+          transitionDuration="0.15s"
+          _hover={{
+            bg: 'green.800',
+            borderColor: 'green.900',
+            boxShadow: '0 10px 22px rgba(21, 128, 61, 0.28)',
+            transform: 'translateY(-1px)',
+            textDecoration: 'none',
+          }}
           _focusVisible={{
             outline: '2px solid',
             outlineColor: 'green.400',
             outlineOffset: '2px',
           }}
-          _dark={{ bg: 'white', color: 'gray.900' }}
+          _dark={{
+            bg: 'green.500',
+            borderColor: 'green.400',
+            color: 'gray.950',
+            _hover: { bg: 'green.400', borderColor: 'green.300' },
+          }}
         >
           <Link href={presentation.href}>
-            <Flex align="center" gap={2} px={4}>
+            <Flex align="center" justify="center" gap={3} w="full" px={5}>
               {presentation.cta}
-              <ArrowRight size={16} aria-hidden="true" />
+              <Flex
+                align="center"
+                justify="center"
+                w="24px"
+                h="24px"
+                borderRadius="full"
+                bg="whiteAlpha.200"
+                flexShrink={0}
+                _dark={{ bg: 'blackAlpha.200' }}
+              >
+                <ArrowRight size={15} strokeWidth={2.5} aria-hidden="true" />
+              </Flex>
             </Flex>
           </Link>
         </Box>

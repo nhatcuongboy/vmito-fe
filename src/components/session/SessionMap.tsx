@@ -6,6 +6,8 @@ import {
   useJsApiLoader,
   MarkerF,
   InfoWindowF,
+  OverlayViewF,
+  OVERLAY_MOUSE_TARGET,
 } from '@react-google-maps/api';
 import { ISession } from '@/lib/api/types';
 import {
@@ -14,7 +16,6 @@ import {
   Button,
   VStack,
   HStack,
-  Spinner,
   Center,
   Badge,
   Separator,
@@ -31,6 +32,7 @@ import {
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import useMapPinIcon from '@/hooks/useMapPinIcon';
+import MapLoadingSkeleton from '@/components/common/MapLoadingSkeleton';
 import { format } from 'date-fns';
 import { toaster } from '@/components/ui/toaster';
 import { useTranslations } from 'next-intl';
@@ -192,6 +194,10 @@ export default function SessionMap({
     () => locationGroups.find((group) => group.key === selectedLocationKey),
     [locationGroups, selectedLocationKey]
   );
+  const hoveredGroup = useMemo(
+    () => locationGroups.find((group) => group.key === hoveredLocationKey),
+    [hoveredLocationKey, locationGroups]
+  );
 
   // Calculate distance between two coordinates in kilometers
   const calculateDistance = useCallback(
@@ -333,11 +339,7 @@ export default function SessionMap({
   }
 
   if (!isLoaded) {
-    return (
-      <Center h="400px">
-        <Spinner size="xl" color="green.500" />
-      </Center>
-    );
+    return <MapLoadingSkeleton />;
   }
 
   return (
@@ -349,15 +351,6 @@ export default function SessionMap({
       borderColor="gray.100"
       position="relative"
     >
-      {/* Custom styles for venue marker labels on desktop */}
-      <style>{`
-        .venue-marker-label {
-          white-space: nowrap !important;
-          font-family: inherit;
-          text-shadow: 1px 1px 2px white, -1px -1px 2px white, 1px -1px 2px white, -1px 1px 2px white !important;
-        }
-      `}</style>
-
       {/* Location Button - positioned above zoom controls on the right */}
       <IconButton
         aria-label={t('yourLocation')}
@@ -418,20 +411,43 @@ export default function SessionMap({
             onClick={() => setSelectedLocationKey(group.key)}
             onMouseOver={() => setHoveredLocationKey(group.key)}
             onMouseOut={() => setHoveredLocationKey(null)}
-            label={
-              isDesktop && hoveredLocationKey === group.key
-                ? {
-                    text: group.location.name,
-                    color: '#15803d',
-                    fontWeight: '700',
-                    fontSize: '13px',
-                    className: 'venue-marker-label',
-                  }
-                : undefined
-            }
             icon={markerIconOptions ?? undefined}
           />
         ))}
+
+        {isDesktop && hoveredGroup && (
+          <OverlayViewF
+            position={{
+              lat: hoveredGroup.location.lat,
+              lng: hoveredGroup.location.lng,
+            }}
+            mapPaneName={OVERLAY_MOUSE_TARGET}
+            getPixelPositionOffset={(width, height) => ({
+              x: -(width / 2),
+              y: -(height + 52),
+            })}
+          >
+            <Box
+              bg="white"
+              color="green.700"
+              border="1px solid"
+              borderColor="green.100"
+              borderRadius="md"
+              boxShadow="0 2px 8px rgba(15, 23, 42, 0.18)"
+              fontSize="13px"
+              fontWeight="700"
+              lineHeight="1.2"
+              maxW="240px"
+              px={2}
+              py={1}
+              pointerEvents="none"
+              textAlign="center"
+              whiteSpace="nowrap"
+            >
+              {hoveredGroup.location.name}
+            </Box>
+          </OverlayViewF>
+        )}
 
         {/* Info Window */}
         {selectedGroup && (

@@ -45,6 +45,7 @@ export const VDateTimeInput = React.forwardRef<HTMLInputElement, InputProps>(
       <Box position="relative" width="full">
         <Input
           {...props}
+          bg={props.bg ?? { base: 'white', _dark: 'gray.800' }}
           ref={combinedRef}
           value={value}
           onChange={handleChange}

@@ -9,7 +9,7 @@
     "finish": "Bắt đầu khám phá"
   },
   "navigation": {
-    "tournamentGuide": "Hướng dẫn thiết lập giải đấu",
+    "tournamentGuide": "Hướng dẫn",
     "dashboard": "Bảng điều khiển",
     "host": "Quản lý kèo",
     "join": "Tham gia",
@@ -17,6 +17,7 @@
     "notAvailable": "—",
     "tournaments": "Giải đấu",
     "browseTournaments": "Tìm giải",
+    "leaderboard": "Bảng xếp hạng",
     "browse": "Thống kê",
     "statistics": "Thống kê",
     "users": "Người dùng",
@@ -86,6 +87,7 @@
     "view": "Xem",
     "add": "Thêm",
     "create": "Tạo",
+    "moreActions": "Hành động khác",
     "remove": "Xóa",
     "confirm": "Xác nhận",
     "approve": "Duyệt",
@@ -330,10 +332,10 @@
     "joinSession": "Đăng ký kèo",
     "fee": "Phí",
     "contactHostForFee": "Liên hệ host",
-    "defaultClub": "CLB mặc định",
-    "selectDefaultClub": "Chọn CLB mặc định",
-    "searchDefaultClub": "Tìm CLB",
-    "noDefaultClub": "Không gắn CLB",
+    "defaultClub": "CLB quản lý",
+    "selectDefaultClub": "Chọn CLB quản lý",
+    "searchDefaultClub": "Tìm CLB quản lý",
+    "noDefaultClub": "Không gắn CLB quản lý",
     "defaultClubDescription": "Khi thêm người chơi đã thuộc CLB này, hệ thống sẽ tự áp dụng phí cố định của CLB.",
     "register": "Đăng ký",
     "sessionName": "Tên kèo",
@@ -899,6 +901,7 @@
     },
     "loadMore": "Xem thêm",
     "loadingMore": "Đang tải thêm...",
+    "endOfResults": "Bạn đã xem hết kết quả.",
     "confirmEndSession": "Xác nhận kết thúc kèo",
     "confirmEndSessionMessage": "Bạn có chắc chắn muốn kết thúc kèo này? Hành động này không thể hoàn tác và sẽ kết thúc tất cả các trận đấu đang diễn ra.",
     "endSession": "Kết thúc kèo",
@@ -1237,7 +1240,7 @@
             "description": "Xem ảnh bằng chứng thanh toán từ người chơi. Duyệt hoặc từ chối từng khoản."
           },
           "transactions": {
-            "title": "Lịch sử giao dịch",
+            "title": "Quản lý giao dịch",
             "description": "Xem tổng quan tất cả giao dịch, lọc theo trạng thái và thời gian."
           }
         }
@@ -1287,7 +1290,46 @@
         },
         "pwa": {
           "title": "Cài đặt ứng dụng",
-          "description": "Thêm Vmito vào màn hình chính để trải nghiệm như ứng dụng gốc, không cần tải từ store."
+          "description": "Thêm Vmito vào màn hình chính để trải nghiệm như ứng dụng gốc, không cần tải từ store.",
+          "tour": {
+            "title": "Cài đặt Vmito",
+            "close": "Đóng",
+            "next": "Tiếp theo",
+            "previous": "Quay lại",
+            "installNow": "Cài đặt ngay",
+            "stepCount": "Bước {current}/{total}",
+            "iosSafari": "Mở Vmito bằng Safari để thêm vào Màn hình chính.",
+            "ios": {
+              "share": {
+                "title": "Nhấn Chia sẻ",
+                "description": "Nhấn nút Chia sẻ trên thanh công cụ Safari.",
+                "illustration": "Chia sẻ"
+              },
+              "homeScreen": {
+                "title": "Chọn Thêm vào Màn hình chính",
+                "description": "Cuộn trong bảng chia sẻ và chọn Thêm vào Màn hình chính.",
+                "illustration": "Thêm vào Màn hình chính"
+              },
+              "add": {
+                "title": "Xác nhận Thêm",
+                "description": "Nhấn Thêm ở góc trên bên phải để hoàn tất.",
+                "illustration": "Thêm"
+              }
+            },
+            "androidReady": {
+              "title": "Vmito đã sẵn sàng để cài đặt",
+              "description": "Nhấn Cài đặt ngay và xác nhận lời nhắc của trình duyệt."
+            },
+            "androidFallback": {
+              "title": "Cài từ menu trình duyệt",
+              "description": "Mở menu ⋮, sau đó chọn Cài đặt ứng dụng hoặc Thêm vào màn hình chính.",
+              "illustration": "Cài đặt ứng dụng"
+            },
+            "mobileOnly": {
+              "title": "Tiếp tục trên điện thoại",
+              "description": "Mở trang này trên iPhone hoặc Android để thêm Vmito vào Màn hình chính."
+            }
+          }
         },
         "filters": {
           "title": "Lưu bộ lọc",
@@ -4718,6 +4760,7 @@
     "information": "Thông tin",
     "sessionName": "Tên kèo",
     "host": "Host",
+    "managingClub": "CLB quản lý",
     "fee": "Phí",
     "walkInFeeInfo": "Phí vãng lai áp dụng cho người chơi chưa đóng phí cố định theo tháng của CLB.",
     "requiredLevels": "Trình độ",
@@ -5161,6 +5204,7 @@
     "playerCount": "{count} người chơi",
     "playerCountSingular": "{count} người chơi",
     "exportImage": "Xuất ảnh",
+    "exportTitleFallback": "Chi tiết phiên giao lưu",
     "mvpBadgeTooltipWinRate": "Tỷ lệ thắng: {winRate}%",
     "mvpBadgeTooltipWins": "Số trận thắng: {wins}/{totalMatches}",
     "mvpBadgeTooltipMinMatches": "Đủ điều kiện: chơi ≥ {minMatches} trận"
@@ -5787,6 +5831,36 @@
     "remainingAmount": "Còn lại",
     "transactions": "Giao dịch",
     "transactionHistory": "Lịch sử giao dịch",
+    "manageTransactions": "Quản lý giao dịch",
+    "collected": "Đã thu",
+    "outstanding": "Còn thiếu",
+    "netExpected": "Tổng kết dự kiến",
+    "netExpectedHint": "Nếu thu đủ, tổng kết sẽ là {amount} đ",
+    "vsPreviousPeriod": "so với kỳ trước",
+    "dateRangeLabel": "Khoảng thời gian",
+    "customRangeLabel": "Hoặc chọn khoảng ngày cụ thể",
+    "fromDate": "Từ ngày",
+    "toDate": "Đến ngày",
+    "periodThisMonth": "Tháng này",
+    "periodLastMonth": "Tháng trước",
+    "periodQuarter": "Quý này",
+    "periodYear": "Năm nay",
+    "periodCustom": "Tùy chọn",
+    "exportCsv": "Xuất CSV",
+    "printReport": "In báo cáo",
+    "noDataInRange": "Không có dữ liệu trong khoảng thời gian này",
+    "incomeExpenseChart": "Biểu đồ thu chi",
+    "loadReportFailed": "Không tải được báo cáo thu chi",
+    "tabOverview": "Tổng quan",
+    "tabBySession": "Theo buổi",
+    "tabByPlayer": "Theo người chơi",
+    "sortByDate": "Mới nhất",
+    "sortByNet": "Tổng kết thấp nhất",
+    "sessionName": "Tên buổi",
+    "startTime": "Thời gian",
+    "playerCountLabel": "Số người chơi",
+    "playerName": "Người chơi",
+    "selectDate": "Chọn ngày",
     "noTransactions": "Không có giao dịch",
     "viewDetails": "Xem chi tiết",
     "bulkApprove": "Duyệt tất cả đã chọn",
@@ -5889,12 +5963,16 @@
     "sortNameAZ": "A-Z",
     "sortMostSessions": "Nhiều kèo nhất",
     "playerTransactionsDescription": "Xem lịch sử thanh toán với từng host",
-    "hostTransactionsDescription": "Xem lịch sử thanh toán từ người chơi",
+    "hostTransactionsDescription": "Quản lý thanh toán từ người chơi",
     "manageSettings": "Quản lý cài đặt",
+    "manageAllAccounts": "Quản lý",
     "savedAccounts": "Tài khoản đã lưu",
     "selectSavedAccount": "Chọn tài khoản",
     "paymentInfoDescription": "Cấu hình thông tin thanh toán cho kèo này để người chơi biết cách chuyển tiền cho bạn",
     "sessionFeeConfig": "Cấu hình phí kèo",
+    "editFeeConfig": "Chỉnh sửa phí kèo",
+    "configureFeeConfig": "Cấu hình phí",
+    "viewAllTransactions": "Quản lý tất cả giao dịch",
     "feeType": "Loại phí",
     "fixed": "Giá vãng lai",
     "noPaymentSettings": "Chưa cấu hình thông tin thanh toán",
@@ -5925,6 +6003,7 @@
     "amountRequired": "Vui lòng nhập số tiền",
     "expenses": "Khoản chi",
     "addExpense": "Thêm khoản chi",
+    "addAnotherExpense": "Thêm dòng",
     "expenseName": "Tên khoản chi",
     "expenseNamePlaceholder": "VD: Tiền sân, Tiền cầu...",
     "editExpense": "Sửa",
@@ -5950,6 +6029,7 @@
     "dateFilterLabel": "Thời gian",
     "sortByLabel": "Sắp xếp",
     "clearFilters": "Xoá bộ lọc",
+    "showMore": "Xem thêm {count} người",
     "percentCollected": "{percent}% đã thu",
     "noTransactionsFilterHint": "Thử điều chỉnh bộ lọc hoặc từ khóa tìm kiếm",
     "noTransactionsHint": "Giao dịch sẽ xuất hiện khi người chơi tham gia kèo của bạn",
@@ -6413,6 +6493,12 @@
     "noMemberClubsTab": "Chưa tham gia nhóm nào",
     "awaitingApproval": "Đang chờ duyệt",
     "noAwaitingApproval": "Không có yêu cầu nào đang chờ duyệt",
+    "requestSubmittedOn": "Đã gửi {date}",
+    "viewClub": "Xem nhóm",
+    "withdrawJoinRequest": "Thu hồi yêu cầu",
+    "withdrawJoinRequestTitle": "Thu hồi yêu cầu tham gia?",
+    "withdrawJoinRequestConfirmation": "Yêu cầu tham gia {clubName} sẽ bị thu hồi. Bạn có thể gửi lại yêu cầu sau.",
+    "joinRequestWithdrawn": "Đã thu hồi yêu cầu tham gia",
     "approve": "Duyệt",
     "reject": "Từ chối",
     "attendance": "Tham gia",
@@ -6430,6 +6516,9 @@
     "createNewClub": "Tạo nhóm mới",
     "clubDeletedSuccess": "Đã xóa nhóm thành công",
     "failedToDeleteClub": "Không thể xóa nhóm",
+    "deleteClub": "Xóa nhóm",
+    "deleteClubTitle": "Xóa nhóm",
+    "deleteClubConfirmation": "Bạn có chắc chắn muốn xóa nhóm {name}? Hành động này không thể hoàn tác.",
     "failedToFetchClubs": "Không thể tải danh sách nhóm",
     "clubName": "Tên nhóm",
     "clubNamePlaceholder": "Ví dụ: VIP, Thường xuyên...",
@@ -6567,6 +6656,9 @@
       "addVenue": "Thêm sân",
       "addAnotherVenue": "Thêm sân khác",
       "removeScheduleAria": "Xóa lịch hoạt động số {number}",
+      "scheduleActive": "Đang áp dụng",
+      "scheduleInactive": "Tạm dừng",
+      "toggleScheduleActiveAria": "Bật/tắt lịch hoạt động số {number}",
       "validationSummary": "Vui lòng kiểm tra lại sân và lịch hoạt động.",
       "errors": {
         "venueRequired": "Vui lòng chọn sân hoặc xóa mục sân này.",
@@ -6575,6 +6667,24 @@
         "endBeforeStart": "Giờ kết thúc phải sau giờ bắt đầu.",
         "overlap": "Lịch này đang trùng thời gian với một lịch khác tại cùng sân."
       }
+    },
+    "operationalStatus": {
+      "title": "Trạng thái hoạt động",
+      "active": "Đang hoạt động",
+      "inactive": "Tạm ngừng",
+      "dissolved": "Đã giải thể",
+      "pause": "Tạm ngừng",
+      "reactivate": "Kích hoạt lại",
+      "confirmStatusTitle": "Xác nhận cập nhật trạng thái",
+      "confirmPauseDescription": "Tạm ngừng CLB sẽ ẩn CLB khỏi tìm kiếm và không nhận thành viên mới.",
+      "confirmReactivateDescription": "Kích hoạt lại CLB sẽ hiển thị công khai và cho phép nhận thành viên mới.",
+      "dissolve": "Giải thể",
+      "dissolveWarning": "Giải thể CLB là vĩnh viễn và không thể hoàn tác.",
+      "cancel": "Hủy",
+      "confirmDissolve": "Xác nhận giải thể",
+      "dissolvedMessage": "CLB đã giải thể vĩnh viễn và không thể khôi phục.",
+      "updated": "Đã cập nhật trạng thái CLB thành \"{status}\".",
+      "updateFailed": "Cập nhật trạng thái thất bại. Vui lòng thử lại."
     },
     "noImageSelected": "Chưa có ảnh",
     "selectImage": "Chọn ảnh",
@@ -7686,7 +7796,8 @@
     "previous": "Trước",
     "next": "Sau",
     "winStats": "Thắng {won}/{played} trận",
-    "winRate": "Tỉ lệ thắng: {rate}% ({won}/{played})",
+    "winRate": "Tỉ lệ thắng: {rate}%",
+    "matchRecord": "({won}/{played} trận)",
     "noMatches": "Chưa đấu trận nào",
     "totalPointsCaption": "Tổng {points} điểm",
     "tierName": "Hạng {name}",
@@ -7737,6 +7848,7 @@
       "tournamentTitles": "Vô địch giải",
       "tournamentRunnerUps": "Á quân giải",
       "recentPoints": "Điểm gần đây",
+      "loadMorePoints": "Xem thêm điểm",
       "viewLeaderboard": "Xem bảng xếp hạng",
       "noPointsYet": "Chưa có điểm nào. Hãy tham gia trận đấu để tích điểm!",
       "reasons": {

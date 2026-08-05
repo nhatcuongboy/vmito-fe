@@ -131,6 +131,12 @@ export const NAV_SECTIONS: NavSectionConfig[] = [
         getHref: () => ROUTES.NEWSFEED,
         isVisible: (ctx) => ctx.isAuthenticated,
       },
+      {
+        key: 'leaderboard',
+        icon: Award,
+        label: (t) => t.nav('leaderboard'),
+        getHref: () => ROUTES.LEADERBOARD,
+      },
     ],
   },
   {
@@ -173,13 +179,6 @@ export const NAV_SECTIONS: NavSectionConfig[] = [
             ctx.user?.role === UserRole.HOST ||
             ctx.user?.role === UserRole.REFEREE),
       },
-    ],
-  },
-  {
-    key: 'settings',
-    title: (t) => t.common('settings'),
-    isVisible: (ctx) => ctx.isAuthenticated,
-    items: [
       {
         key: 'transactions',
         icon: Receipt,
@@ -192,6 +191,13 @@ export const NAV_SECTIONS: NavSectionConfig[] = [
           pathname.startsWith(ROUTES.HOST.TRANSACTIONS) ||
           pathname.startsWith(ROUTES.PLAYER.TRANSACTIONS),
       },
+    ],
+  },
+  {
+    key: 'settings',
+    title: (t) => t.common('settings'),
+    isVisible: (ctx) => ctx.isAuthenticated,
+    items: [
       {
         key: 'paymentSettings',
         icon: CreditCard,

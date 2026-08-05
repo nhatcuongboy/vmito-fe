@@ -1,13 +1,6 @@
 'use client';
 
-import {
-  Box,
-  Flex,
-  HStack,
-  Skeleton,
-  SkeletonCircle,
-  Stack,
-} from '@chakra-ui/react';
+import { Box, Flex, Skeleton, SkeletonCircle, Stack } from '@chakra-ui/react';
 
 interface ClubCardSkeletonProps {
   variant?: 'grid' | 'list';
@@ -23,15 +16,18 @@ const ClubCardSkeleton = ({ variant = 'grid' }: ClubCardSkeletonProps) => {
         borderWidth="1px"
         borderColor="gray.200"
         overflow="hidden"
+        width="100%"
       >
         <Skeleton height="140px" width="100%" />
         <Flex px={4} py={4} gap={4} align="center">
-          <SkeletonCircle size="52px" />
+          <SkeletonCircle size="52px" flexShrink={0} />
           <Box flex="1" minW={0}>
-            <Skeleton height="16px" width="55%" mb={2} borderRadius="md" />
-            <Skeleton height="14px" width="70%" mb={2} borderRadius="md" />
-            <Skeleton height="14px" width="45%" borderRadius="md" />
+            <Skeleton height="20px" width="55%" mb={2} borderRadius="md" />
+            <Skeleton height="14px" width="75%" mb={1.5} borderRadius="md" />
+            <Skeleton height="14px" width="52%" mb={1.5} borderRadius="md" />
+            <Skeleton height="14px" width="68%" borderRadius="md" />
           </Box>
+          <Skeleton height="20px" width="20px" borderRadius="sm" />
         </Flex>
       </Box>
     );
@@ -45,6 +41,7 @@ const ClubCardSkeleton = ({ variant = 'grid' }: ClubCardSkeletonProps) => {
       borderWidth="1px"
       borderColor="gray.200"
       overflow="hidden"
+      width="100%"
       display="flex"
       flexDirection="column"
       height="100%"
@@ -65,7 +62,7 @@ const ClubCardSkeleton = ({ variant = 'grid' }: ClubCardSkeletonProps) => {
       <Box h="1px" bg="gray.100" _dark={{ bg: 'gray.700' }} mx={5} />
       <Box px={5} py={4}>
         <Stack gap={3}>
-          {Array.from({ length: 4 }).map((_, index) => (
+          {Array.from({ length: 5 }).map((_, index) => (
             <Flex key={`club-card-row-${index}`} align="center" gap={2.5}>
               <Skeleton height="32px" width="32px" borderRadius="lg" />
               <Skeleton height="14px" width="70%" borderRadius="md" />

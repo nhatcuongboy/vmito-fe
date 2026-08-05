@@ -8,6 +8,7 @@ export const ROUTES = {
   // Root
   HOME: '/',
   DASHBOARD: '/dashboard',
+  LEADERBOARD: '/leaderboard',
   NEWSFEED: '/newsfeed',
   NEWSFEED_POST: (postId: string) => `/newsfeed/${postId}`,
 
@@ -221,6 +222,7 @@ export const ROUTE_GROUPS = {
     ROUTES.JOIN.ENTRY,
     ROUTES.JOIN.REGISTER,
     ROUTES.JOIN.BY_CODE,
+    ROUTES.LEADERBOARD,
     ROUTES.BROWSE.TOURNAMENTS.LIST,
     ROUTES.BROWSE.VENUES.LIST,
     ROUTES.ABOUT,

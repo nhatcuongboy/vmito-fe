@@ -6,14 +6,15 @@ import {
   useJsApiLoader,
   MarkerF,
   InfoWindowF,
+  OverlayViewF,
+  OVERLAY_MOUSE_TARGET,
 } from '@react-google-maps/api';
-import { IClub, IClubVenue } from '@/types/club';
+import { IClub, IClubListItem, IClubVenue } from '@/types/club';
 import {
   Box,
   Text,
   VStack,
   HStack,
-  Spinner,
   Center,
   Badge,
   Separator,
@@ -23,6 +24,7 @@ import { MapPin, Info, Navigation, Users, Locate } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import useMapPinIcon from '@/hooks/useMapPinIcon';
+import MapLoadingSkeleton from '@/components/common/MapLoadingSkeleton';
 import { toaster } from '@/components/ui/toaster';
 import {
   TOP_BAR_HEIGHT_MOBILE,
@@ -38,14 +40,21 @@ const defaultCenter = {
 const LIBRARIES: 'places'[] = ['places'];
 
 interface ClubMapProps {
-  clubs: IClub[];
+  clubs: Array<IClub | IClubListItem>;
   userLocation?: { lat: number; lng: number } | null;
 }
 
+type MappableClubVenue = IClubVenue & { lat: number; lng: number };
+
 interface VenueGroup {
-  venue: IClubVenue;
-  clubs: IClub[];
+  venue: MappableClubVenue;
+  clubs: Array<IClub | IClubListItem>;
 }
+
+const hasVenueCoordinates = (
+  venue?: IClubVenue | null
+): venue is MappableClubVenue =>
+  typeof venue?.lat === 'number' && typeof venue?.lng === 'number';
 
 export default function ClubMap({
   clubs,
@@ -120,15 +129,15 @@ export default function ClubMap({
     const groups: Record<string, VenueGroup> = {};
 
     clubs.forEach((club) => {
-      const venues: IClubVenue[] = [];
+      const venues: MappableClubVenue[] = [];
 
-      if (club.defaultVenue && club.defaultVenue.lat && club.defaultVenue.lng) {
+      if (hasVenueCoordinates(club.defaultVenue)) {
         venues.push(club.defaultVenue);
       }
 
-      if (club.scheduleVenues && club.scheduleVenues.length > 0) {
+      if ('scheduleVenues' in club && club.scheduleVenues?.length) {
         club.scheduleVenues.forEach((venue) => {
-          if (venue.lat && venue.lng) {
+          if (hasVenueCoordinates(venue)) {
             venues.push(venue);
           }
         });
@@ -153,11 +162,14 @@ export default function ClubMap({
   const selectedGroup = useMemo(() => {
     return venueGroups.find((g) => g.venue.id === selectedVenueId);
   }, [venueGroups, selectedVenueId]);
+  const hoveredGroup = useMemo(() => {
+    return venueGroups.find((g) => g.venue.id === hoveredVenueId);
+  }, [hoveredVenueId, venueGroups]);
 
   const center = useMemo(() => {
     if (currentUserLocation) return currentUserLocation;
     if (venueGroups.length > 0) {
-      return { lat: venueGroups[0].venue.lat!, lng: venueGroups[0].venue.lng! };
+      return { lat: venueGroups[0].venue.lat, lng: venueGroups[0].venue.lng };
     }
     return defaultCenter;
   }, [currentUserLocation, venueGroups]);
@@ -225,11 +237,7 @@ export default function ClubMap({
   }
 
   if (!isLoaded) {
-    return (
-      <Center h="400px">
-        <Spinner size="xl" color="green.500" />
-      </Center>
-    );
+    return <MapLoadingSkeleton />;
   }
 
   return (
@@ -241,15 +249,6 @@ export default function ClubMap({
       borderColor="gray.100"
       position="relative"
     >
-      {/* Custom styles for venue marker labels on desktop */}
-      <style>{`
-        .venue-marker-label {
-          white-space: nowrap !important;
-          font-family: inherit;
-          text-shadow: 1px 1px 2px white, -1px -1px 2px white, 1px -1px 2px white, -1px 1px 2px white !important;
-        }
-      `}</style>
-
       {/* Location Button */}
       <IconButton
         aria-label="Vị trí của bạn"
@@ -306,31 +305,56 @@ export default function ClubMap({
         {venueGroups.map((group) => (
           <MarkerF
             key={group.venue.id}
-            position={{ lat: group.venue.lat!, lng: group.venue.lng! }}
+            position={{ lat: group.venue.lat, lng: group.venue.lng }}
             onClick={() => setSelectedVenueId(group.venue.id)}
             onMouseOver={() => setHoveredVenueId(group.venue.id)}
             onMouseOut={() => setHoveredVenueId(null)}
-            label={
-              isDesktop && hoveredVenueId === group.venue.id
-                ? {
-                    text: group.venue.name,
-                    color: '#15803d',
-                    fontWeight: '700',
-                    fontSize: '13px',
-                    className: 'venue-marker-label',
-                  }
-                : undefined
-            }
             icon={markerIconOptions ?? undefined}
           />
         ))}
+
+        {isDesktop && hoveredGroup && (
+          <OverlayViewF
+            position={{
+              lat: hoveredGroup.venue.lat,
+              lng: hoveredGroup.venue.lng,
+            }}
+            mapPaneName={OVERLAY_MOUSE_TARGET}
+            getPixelPositionOffset={(width, height) => ({
+              x: -(width / 2),
+              y: -(height + 52),
+            })}
+          >
+            <Box
+              bg="white"
+              color="green.700"
+              border="1px solid"
+              borderColor="green.100"
+              borderRadius="md"
+              boxShadow="0 2px 8px rgba(15, 23, 42, 0.18)"
+              fontSize="13px"
+              fontWeight="700"
+              lineHeight="1.2"
+              maxW="240px"
+              overflow="hidden"
+              px={2}
+              py={1}
+              pointerEvents="none"
+              textAlign="center"
+              textOverflow="ellipsis"
+              whiteSpace="nowrap"
+            >
+              {hoveredGroup.venue.name}
+            </Box>
+          </OverlayViewF>
+        )}
 
         {/* Info Window */}
         {selectedGroup && (
           <InfoWindowF
             position={{
-              lat: selectedGroup.venue.lat!,
-              lng: selectedGroup.venue.lng!,
+              lat: selectedGroup.venue.lat,
+              lng: selectedGroup.venue.lng,
             }}
             onCloseClick={() => setSelectedVenueId(null)}
           >

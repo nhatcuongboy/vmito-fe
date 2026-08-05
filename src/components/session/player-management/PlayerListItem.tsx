@@ -1,5 +1,4 @@
 import { Badge, Box, Flex, Text } from '@chakra-ui/react';
-import { keyframes } from '@emotion/react';
 import { Card, CardBody, HStack, VStack } from '@/components/ui/chakra-compat';
 import { useLevelLabel } from '@/hooks/useLevelLabel';
 import { AlertCircle, UserCheck, Zap, User } from 'lucide-react';
@@ -8,20 +7,6 @@ import React from 'react';
 import { PlayerActionMenu } from './PlayerActionMenu';
 import { Player } from './types';
 import { Gender } from '@/lib/api/types';
-
-// Animation for playing status - enhanced pulse
-const pulseRing = keyframes`
-  0% { transform: scale(0.8); opacity: 0.8; }
-  50% { transform: scale(1.2); opacity: 0.4; }
-  100% { transform: scale(0.8); opacity: 0.8; }
-`;
-
-// Subtle glow animation
-const glowPulse = keyframes`
-  0% { box-shadow: 0 0 5px rgba(72, 187, 120, 0.4); }
-  50% { box-shadow: 0 0 20px rgba(72, 187, 120, 0.6); }
-  100% { box-shadow: 0 0 5px rgba(72, 187, 120, 0.4); }
-`;
 
 function getInitials(name: string) {
   return name
@@ -80,8 +65,6 @@ const EnhancedAvatar = ({
   status: string;
   image?: string | null;
 }) => {
-  const isPlaying = status === 'PLAYING';
-
   // Gradient colors based on gender
   const gradientColors = {
     [Gender.MALE]: {
@@ -108,22 +91,6 @@ const EnhancedAvatar = ({
 
   return (
     <Box position="relative">
-      {/* Outer glow ring for playing status */}
-      {isPlaying && (
-        <Box
-          position="absolute"
-          top="-4px"
-          left="-4px"
-          right="-4px"
-          bottom="-4px"
-          borderRadius="full"
-          bg="transparent"
-          border="2px solid"
-          borderColor="green.400"
-          animation={`${pulseRing} 2s ease-in-out infinite`}
-        />
-      )}
-
       {/* Avatar */}
       <Flex
         width="56px"
@@ -136,13 +103,9 @@ const EnhancedAvatar = ({
         fontWeight="bold"
         fontSize="lg"
         letterSpacing="0.5px"
-        boxShadow={
-          isPlaying
-            ? '0 4px 14px rgba(72, 187, 120, 0.4)'
-            : '0 4px 12px rgba(0, 0, 0, 0.15)'
-        }
+        boxShadow="0 4px 12px rgba(0, 0, 0, 0.15)"
         border="3px solid"
-        borderColor={isPlaying ? 'green.400' : 'white'}
+        borderColor="white"
         transition="all 0.3s ease"
         overflow="hidden"
         _hover={{
@@ -175,9 +138,6 @@ const EnhancedAvatar = ({
         borderRadius="full"
         border="3px solid white"
         boxShadow="0 2px 4px rgba(0,0,0,0.2)"
-        {...(isPlaying && {
-          animation: `${glowPulse} 2s ease-in-out infinite`,
-        })}
       />
     </Box>
   );
@@ -198,6 +158,7 @@ const PlayerListItem: React.FC<PlayerListItemProps> = ({
   onToggleStatus,
   onShowQR,
 }) => {
+  const [isMenuOpen, setIsMenuOpen] = React.useState(false);
   const t = useTranslations('pages.playerManagement');
   const tCommon = useTranslations('common');
   const tClubs = useTranslations('clubs');
@@ -224,11 +185,12 @@ const PlayerListItem: React.FC<PlayerListItemProps> = ({
       variant="outline"
       bg="white"
       boxShadow="0 2px 8px rgba(0,0,0,0.06)"
-      mb={3}
+      mb={0}
       borderRadius="xl"
       borderWidth="1px"
       borderColor="gray.100"
       position="relative"
+      zIndex={isMenuOpen ? 1000 : 1}
       overflow="visible"
       cursor="pointer"
       onClick={() => onShowQR(player)}
@@ -444,6 +406,7 @@ const PlayerListItem: React.FC<PlayerListItemProps> = ({
             onDelete={onDelete}
             onToggleStatus={onToggleStatus}
             t={t}
+            onOpenChange={setIsMenuOpen}
           />
         </Flex>
       </CardBody>

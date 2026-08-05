@@ -1,5 +1,5 @@
 import { Box } from '@chakra-ui/react';
-import { VStack } from '@/components/ui/chakra-compat';
+import { SimpleGrid } from '@/components/ui/chakra-compat';
 import React from 'react';
 import PlayerEmptyState from './PlayerEmptyState';
 import PlayerListItem from './PlayerListItem';
@@ -26,27 +26,25 @@ const PlayerList: React.FC<PlayerListProps> = ({
 }) => {
   return (
     <Box>
-      <VStack spacing={5} align="stretch">
-        {/* Player list or empty state */}
-        {players.length === 0 ? (
-          <PlayerEmptyState isFiltered={isFiltered} filterName={filterName} />
-        ) : (
-          <VStack spacing={0} align="stretch">
-            {players
-              .sort((a, b) => a.playerNumber - b.playerNumber)
-              .map((player) => (
-                <PlayerListItem
-                  key={player.id}
-                  player={player}
-                  onEdit={onEditPlayer}
-                  onDelete={onDeletePlayer}
-                  onToggleStatus={onTogglePlayerStatus}
-                  onShowQR={onShowQR}
-                />
-              ))}
-          </VStack>
-        )}
-      </VStack>
+      {/* Player list or empty state */}
+      {players.length === 0 ? (
+        <PlayerEmptyState isFiltered={isFiltered} filterName={filterName} />
+      ) : (
+        <SimpleGrid columns={{ base: 1, sm: 2, lg: 3 }} gap={3}>
+          {players
+            .sort((a, b) => a.playerNumber - b.playerNumber)
+            .map((player) => (
+              <PlayerListItem
+                key={player.id}
+                player={player}
+                onEdit={onEditPlayer}
+                onDelete={onDeletePlayer}
+                onToggleStatus={onTogglePlayerStatus}
+                onShowQR={onShowQR}
+              />
+            ))}
+        </SimpleGrid>
+      )}
     </Box>
   );
 };

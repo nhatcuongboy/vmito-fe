@@ -4,11 +4,9 @@ import { useState, useEffect, useCallback } from 'react';
 import {
   Box,
   Container,
-  Flex,
   Heading,
   Text,
   HStack,
-  Spinner,
   Image,
   Grid,
   Tabs,
@@ -23,7 +21,8 @@ import { IClub, EMemberRole, EJoinRequestStatus } from '@/types/club';
 import { toaster } from '@/components/ui/toaster';
 import { useAuthStore } from '@/stores/useAuthStore';
 import PageLayout from '@/components/layout/PageLayout';
-import { DEFAULT_COVER_PHOTO, ROUTES } from '@/constants';
+import DetailPageSkeleton from '@/components/layout/DetailPageSkeleton';
+import { DEFAULT_COVER_PHOTO, DETAIL_PAGE_MAX_W, ROUTES } from '@/constants';
 import {
   DEFAULT_CLUB_TAB,
   isClubDetailTab,
@@ -94,6 +93,9 @@ export default function ClubDetailClient({
   );
   const [isJoining, setIsJoining] = useState(false);
   const [hasPendingRequest, setHasPendingRequest] = useState(false);
+  const [optimisticallyJoinedClubId, setOptimisticallyJoinedClubId] = useState<
+    string | null
+  >(null);
 
   const loadClubDetails = useCallback(
     async (silent?: boolean) => {
@@ -118,17 +120,35 @@ export default function ClubDetailClient({
     [clubId, t]
   );
 
+  // Server already provided club data (initialClub), so skip re-fetching it —
+  // but the join-request status is user-specific and was never fetched
+  // server-side, so it still needs its own request on mount.
+  const refreshJoinRequestStatus = useCallback(async () => {
+    if (!currentUser) return;
+    try {
+      const myRequests = await ClubsService.getMyJoinRequests();
+      const req = myRequests.find((r) => r.clubId === clubId);
+      setUserJoinRequest(req || null);
+      setHasPendingRequest(req?.status === EJoinRequestStatus.PENDING);
+    } catch (error) {
+      console.error('Failed to load join request status:', error);
+    }
+  }, [clubId, currentUser]);
+
   useEffect(() => {
-    if (initialClub) return;
+    if (initialClub) {
+      refreshJoinRequestStatus();
+      return;
+    }
 
     if (clubId) {
       loadClubDetails();
     }
-  }, [clubId, loadClubDetails, initialClub]);
+  }, [clubId, loadClubDetails, initialClub, refreshJoinRequestStatus]);
 
-  const isUserMember = club?.members?.some(
-    (m) => m.user.id === currentUser?.id
-  );
+  const isUserMember =
+    optimisticallyJoinedClubId === club?.id ||
+    club?.members?.some((m) => m.user.id === currentUser?.id);
 
   const isUserAdmin =
     !!currentUser &&
@@ -158,10 +178,12 @@ export default function ClubDetailClient({
             ? t('clubs.joinedSuccessfully')
             : t('clubs.joinRequestSent'),
       });
+      await loadClubDetails(true);
       if (result.status === 'pending') {
         setHasPendingRequest(true);
+      } else {
+        setOptimisticallyJoinedClubId(club.id);
       }
-      await loadClubDetails(true);
     } catch (error) {
       console.error('Failed to join club:', error);
       toaster.error({ title: t('common.error') });
@@ -191,18 +213,12 @@ export default function ClubDetailClient({
   };
 
   if (isLoading) {
-    return (
-      <PageLayout title={t('clubs.clubDetails')}>
-        <Flex justify="center" align="center" minH="400px">
-          <Spinner size="xl" colorPalette="green" />
-        </Flex>
-      </PageLayout>
-    );
+    return <DetailPageSkeleton title={t('clubs.clubDetails')} />;
   }
 
   if (!club) {
     return (
-      <PageLayout title={t('common.error')}>
+      <PageLayout title={t('common.error')} maxW={DETAIL_PAGE_MAX_W}>
         <Container maxW="container.md" py={16} textAlign="center">
           <Heading mb={4}>{t('common.error')}</Heading>
           <Button
@@ -252,11 +268,12 @@ export default function ClubDetailClient({
           </Text>
         </HStack>
       }
+      maxW={DETAIL_PAGE_MAX_W}
     >
       <ClubDetailHero club={club} clubDisplayImage={clubDisplayImage} />
 
       {/* Navigation Tabs & Content */}
-      <Container maxW="container.xl" pb={8} px={0}>
+      <Container maxW={DETAIL_PAGE_MAX_W} pb={8} px={0}>
         <Tabs.Root
           value={activeTab}
           onValueChange={(e) => handleTabChange(e.value)}

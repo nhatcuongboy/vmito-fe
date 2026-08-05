@@ -7,7 +7,6 @@ import {
   Heading,
   HStack,
   SimpleGrid,
-  Skeleton,
   Text,
   VStack,
 } from '@chakra-ui/react';
@@ -41,22 +40,34 @@ import {
   BOTTOM_TAB_HEIGHT,
 } from '@/constants';
 import { getUserLocation } from '@/lib/utils/geolocation.utils';
+import {
+  clearUserLocationCookie,
+  locationKey,
+  normalizeUserLocation,
+  readUserLocationCookie,
+  writeUserLocationCookie,
+} from '@/lib/user-location';
+import { buildBrowseSeedKey } from '@/lib/browse-seed-key';
 import { usePathname, useRouter } from '@/i18n/config';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { usePreferenceStore } from '@/stores/usePreferenceStore';
 import { ClubsService } from '@/lib/api/clubs.service';
+import { VenueService } from '@/lib/api/venue.service';
+import { Venue } from '@/lib/api/types';
 import ClubCard from '@/components/clubs/ClubCard';
 import ClubCardSkeleton from '@/components/clubs/ClubCardSkeleton';
 import ClubMap from '@/components/clubs/ClubMap';
 import AppViewModeToggle from '@/components/common/AppViewModeToggle';
 import AppEmptyState from '@/components/ui/AppEmptyState';
-import { useViewMode } from '@/hooks/useViewMode';
-import { IClubListItem, IClub } from '@/types/club';
+import { useViewMode, type ViewMode } from '@/hooks/useViewMode';
+import { IClubListItem, IClub, IClubVenue } from '@/types/club';
 import PageLayout from '@/components/layout/PageLayout';
 import { useDebounce } from '@/hooks/useDebounce';
 import { AppSearchBar } from '@/components/common/AppSearchBar';
 import { useRegisterTopBarSearch } from '@/contexts/TopBarSearchContext';
 import { useSearchParams } from 'next/navigation';
+import { getFullRowSkeletonDisplay } from '@/components/common/infinite-loading-layout';
+import MapLoadingSkeleton from '@/components/common/MapLoadingSkeleton';
 
 const LoginPromptModal = dynamic(
   () => import('@/components/auth/LoginPromptModal'),
@@ -64,6 +75,87 @@ const LoginPromptModal = dynamic(
 );
 
 const CLUB_SKELETON_COUNT = 6;
+const CLUB_MAP_PAGE_SIZE = 500;
+const CLUB_RESULT_GRID_COLUMNS = { base: 1, md: 2, lg: 3 };
+const CLUB_RESULT_COLUMN_COUNTS = { base: 1, md: 2, lg: 3 };
+const CLUB_LOAD_MORE_SKELETON_DISPLAYS = [
+  { base: 'flex', md: 'flex', lg: 'flex' },
+  { base: 'none', md: 'flex', lg: 'flex' },
+  { base: 'none', md: 'none', lg: 'flex' },
+];
+
+type ClubMapClub = (IClub | IClubListItem) & {
+  scheduleVenues?: IClubVenue[];
+};
+
+const normalizeVenueLookupText = (value?: string | null) =>
+  (value || '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/đ/g, 'd')
+    .replace(/Đ/g, 'D')
+    .toLowerCase()
+    .replace(/\s+/g, ' ')
+    .trim();
+
+const parseVenueFromScheduleNote = (note?: string | null) => {
+  if (!note) return null;
+
+  const [rawName, ...rawAddressParts] = note
+    .split('|')
+    .map((part) => part.trim());
+  const name = rawName || '';
+  if (!name) return null;
+
+  return {
+    name,
+    address: rawAddressParts.join(' | ').trim(),
+    note,
+  };
+};
+
+const hasVenueCoordinates = (venue?: Pick<IClubVenue, 'lat' | 'lng'> | null) =>
+  typeof venue?.lat === 'number' && typeof venue?.lng === 'number';
+
+const toClubVenue = (venue: Venue): IClubVenue => ({
+  id: venue.id,
+  name: venue.name,
+  address: venue.address,
+  district: venue.district,
+  city: venue.city,
+  newAddress: venue.newAddress,
+  newDistrict: venue.newDistrict,
+  newCity: venue.newCity,
+  lat: venue.lat,
+  lng: venue.lng,
+});
+
+const findBestVenueMatch = (
+  candidates: Venue[],
+  target: { name: string; address?: string }
+) => {
+  const targetName = normalizeVenueLookupText(target.name);
+  const targetAddress = normalizeVenueLookupText(target.address);
+
+  return (
+    candidates.find((venue) => {
+      const venueName = normalizeVenueLookupText(venue.name);
+      const venueAddress = normalizeVenueLookupText(venue.address);
+
+      if (venueName !== targetName) return false;
+      if (!targetAddress) return true;
+
+      return (
+        venueAddress.includes(targetAddress) ||
+        targetAddress.includes(venueAddress)
+      );
+    }) ||
+    candidates.find(
+      (venue) => normalizeVenueLookupText(venue.name) === targetName
+    ) ||
+    null
+  );
+};
 
 interface IClubSortOption {
   value: string;
@@ -104,21 +196,32 @@ const CLUB_SORT_OPTIONS: IClubSortOption[] = [
   },
 ];
 
-function BrowseClubsContent() {
+interface BrowseClubsContentProps {
+  initialClubs?: IClubListItem[];
+  initialSeedKey?: string | null;
+  serverViewMode?: ViewMode;
+}
+
+function BrowseClubsContent({
+  initialClubs = [],
+  initialSeedKey = null,
+  serverViewMode,
+}: BrowseClubsContentProps) {
   const t = useTranslations();
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const { user } = useAuthStore();
-  const preferredCity = usePreferenceStore((s) => s.preferredCity);
+  const { preferredCity, _hasHydrated: preferencesHydrated } =
+    usePreferenceStore();
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
 
-  const [viewMode] = useViewMode('clubs', 'list');
+  const [viewMode] = useViewMode('clubs', 'list', serverViewMode);
 
-  const [clubs, setClubs] = useState<IClubListItem[]>([]);
-  const [fullClubs, setFullClubs] = useState<IClub[]>([]);
+  const [clubs, setClubs] = useState<IClubListItem[]>(initialClubs);
+  const [fullClubs, setFullClubs] = useState<ClubMapClub[]>([]);
   const [totalCount, setTotalCount] = useState<number | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(initialClubs.length === 0);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [isLoadingFullDetails, setIsLoadingFullDetails] = useState(false);
   const [page, setPage] = useState(1);
@@ -133,10 +236,11 @@ function BrowseClubsContent() {
   const [sort, setSort] = useState('distance');
   const [isSortOpen, setIsSortOpen] = useState(false);
   const sortDropdownRef = useRef<HTMLDivElement>(null);
-  const [userLocation, setUserLocation] = useState<{
-    lat: number;
-    lng: number;
-  } | null>(null);
+  const [userLocation, setUserLocation] = useState(readUserLocationCookie);
+  const userLocationKey = locationKey(userLocation);
+  const silentRevalidateRef = useRef(initialClubs.length > 0);
+  const isFirstFetchRef = useRef(true);
+  const refreshedLocationModeRef = useRef<string | null>(null);
 
   // Pending filters (for drawer)
   const [pendingCities, setPendingCities] = useState<string[]>([]);
@@ -151,10 +255,35 @@ function BrowseClubsContent() {
   const debouncedSearch = useDebounce(search, 500);
   const loadingMoreRef = useRef(false);
   const favoriteFromUrl = searchParams.get('favorite') === '1';
+  const requiresUserLocation = sort === 'distance' || sortByDistance;
+  const effectiveCity =
+    cities.length === 1
+      ? normalizeCityForApi(
+          VIETNAM_CITIES.find((city) => city.code === cities[0])?.name ??
+            cities[0]
+        )
+      : cities.length === 0
+        ? preferredCity
+          ? normalizeCityForApi(
+              VIETNAM_CITIES.find((city) => city.code === preferredCity)
+                ?.name ?? preferredCity
+            )
+          : ''
+        : '';
+  const querySortOption =
+    CLUB_SORT_OPTIONS.find((option) => option.value === sort) ??
+    CLUB_SORT_OPTIONS[0];
+  const activeSeedKey = buildBrowseSeedKey({
+    city: effectiveCity,
+    sortBy: requiresUserLocation ? 'distance' : querySortOption.sortBy,
+    sortOrder: requiresUserLocation ? 'asc' : querySortOption.sortOrder,
+    location: requiresUserLocation ? userLocation : null,
+  });
 
   const { ref, inView } = useInView({
     threshold: 0.1,
-    rootMargin: '100px',
+    // Load before reaching the absolute bottom to minimize visible loading.
+    rootMargin: '400px 0px',
   });
 
   // Sync pending filters when drawer opens
@@ -188,12 +317,38 @@ function BrowseClubsContent() {
   };
 
   useEffect(() => {
-    if (sort === 'distance' && !userLocation) {
-      getUserLocation()
-        .then((location) => setUserLocation(location))
-        .catch(() => setSort('relevance'));
+    const locationMode = `${sort}:${sortByDistance}`;
+    if (
+      !requiresUserLocation ||
+      refreshedLocationModeRef.current === locationMode
+    ) {
+      return;
     }
-  }, [sort, userLocation]);
+
+    refreshedLocationModeRef.current = locationMode;
+    let cancelled = false;
+
+    getUserLocation()
+      .then((location) => {
+        const normalizedLocation = normalizeUserLocation(location);
+        if (!cancelled && locationKey(normalizedLocation) !== userLocationKey) {
+          writeUserLocationCookie(normalizedLocation);
+          setUserLocation(normalizedLocation);
+        }
+      })
+      .catch(() => {
+        if (!cancelled) {
+          clearUserLocationCookie();
+          setUserLocation(null);
+          setSortByDistance(false);
+          setSort('relevance');
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [requiresUserLocation, sort, sortByDistance, userLocationKey]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -214,12 +369,25 @@ function BrowseClubsContent() {
 
   const fetchClubs = async (pageNum: number, append = false) => {
     try {
+      const isMapMode = viewMode === 'map';
+      const currentPage = append && !isMapMode ? pageNum : 1;
+
       if (append) {
         if (loadingMoreRef.current) return;
         loadingMoreRef.current = true;
         setIsLoadingMore(true);
       } else {
-        setIsLoading(true);
+        if (
+          isFirstFetchRef.current &&
+          activeSeedKey !== (initialSeedKey ?? '')
+        ) {
+          silentRevalidateRef.current = false;
+          setClubs([]);
+        }
+        isFirstFetchRef.current = false;
+        if (!silentRevalidateRef.current) {
+          setIsLoading(true);
+        }
       }
 
       const activeSortOption =
@@ -232,8 +400,8 @@ function BrowseClubsContent() {
         cities.length > 0 ? cities : preferredCity ? [preferredCity] : [];
 
       const params: Record<string, string | number | boolean | undefined> = {
-        page: pageNum,
-        limit: 12,
+        page: currentPage,
+        limit: isMapMode ? CLUB_MAP_PAGE_SIZE : 12,
         search: debouncedSearch || undefined,
         city:
           effectiveCities.length === 1
@@ -290,22 +458,23 @@ function BrowseClubsContent() {
         });
       }
 
-      if (append) {
+      if (append && !isMapMode) {
         setClubs((prev) => {
           const existingIds = new Set(prev.map((club) => club.id));
           const newClubs = items.filter((club) => !existingIds.has(club.id));
           return [...prev, ...newClubs];
         });
-        setPage(pageNum);
+        setPage(currentPage);
       } else {
         setClubs(items);
-        if (typeof window !== 'undefined') {
+        setPage(1);
+        if (!silentRevalidateRef.current && typeof window !== 'undefined') {
           window.scrollTo({ top: 0, behavior: 'smooth' });
         }
       }
 
       setTotalCount(response.total);
-      setHasMore(pageNum < (response.totalPages || 0));
+      setHasMore(!isMapMode && currentPage < (response.totalPages || 0));
     } catch (error) {
       console.error('Failed to fetch clubs:', error);
       if (!append) {
@@ -317,11 +486,17 @@ function BrowseClubsContent() {
         setIsLoadingMore(false);
       } else {
         setIsLoading(false);
+        silentRevalidateRef.current = false;
       }
     }
   };
 
   useEffect(() => {
+    if (!preferencesHydrated) return;
+    if (requiresUserLocation && !userLocation) {
+      setIsLoading(true);
+      return;
+    }
     setPage(1);
     fetchClubs(1);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -332,8 +507,12 @@ function BrowseClubsContent() {
     favoriteOnly,
     sortByDistance,
     sort,
-    userLocation,
+    userLocationKey,
     preferredCity,
+    viewMode,
+    preferencesHydrated,
+    requiresUserLocation,
+    activeSeedKey,
   ]);
 
   // Trigger load more when the sentinel is close to the viewport.
@@ -350,17 +529,102 @@ function BrowseClubsContent() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [inView, hasMore, isLoading, isLoadingMore, page]);
 
-  // Fetch full club details when in map mode
+  // Fetch full club details and resolve schedule venues when in map mode.
   useEffect(() => {
     if (viewMode === 'map' && clubs.length > 0) {
+      setFullClubs(clubs);
+
       const fetchFullDetails = async () => {
         setIsLoadingFullDetails(true);
         try {
-          const detailsPromises = clubs.map((club) =>
+          const detailsPromises = clubs.map(async (club) =>
             ClubsService.getClubDetails(club.id)
+              .then((detail) => ({
+                ...detail,
+                defaultVenue: detail.defaultVenue || club.defaultVenue,
+              }))
+              .catch((error) => {
+                console.error('Failed to fetch club details:', club.id, error);
+                return club;
+              })
           );
           const details = await Promise.all(detailsPromises);
-          setFullClubs(details);
+          const venueSearchCache = new Map<string, Promise<Venue[]>>();
+
+          const searchVenuesByName = (name: string) => {
+            const key = normalizeVenueLookupText(name);
+            if (!venueSearchCache.has(key)) {
+              venueSearchCache.set(
+                key,
+                VenueService.searchVenues({
+                  keyword: name,
+                  limit: 10,
+                  sortBy: 'relevance',
+                })
+                  .then((result) => result.data ?? [])
+                  .catch((error) => {
+                    console.error('Failed to resolve club venue:', name, error);
+                    return [];
+                  })
+              );
+            }
+
+            return venueSearchCache.get(key)!;
+          };
+
+          const enrichedDetails = await Promise.all(
+            details.map(async (club): Promise<ClubMapClub> => {
+              const venuesById = new Map<string, IClubVenue>();
+              const addVenue = (venue?: IClubVenue | null) => {
+                if (!venue || !hasVenueCoordinates(venue)) return;
+                venuesById.set(venue.id, venue);
+              };
+
+              addVenue(club.defaultVenue);
+
+              if ('scheduleVenues' in club) {
+                club.scheduleVenues?.forEach(addVenue);
+              }
+
+              const scheduleVenueNotes = Array.from(
+                new Map(
+                  (club.schedules || [])
+                    .map((schedule) =>
+                      parseVenueFromScheduleNote(schedule.notes)
+                    )
+                    .filter(
+                      (
+                        item
+                      ): item is {
+                        name: string;
+                        address: string;
+                        note: string;
+                      } => Boolean(item)
+                    )
+                    .map((item) => [item.note, item] as const)
+                ).values()
+              );
+
+              const resolvedVenues = await Promise.all(
+                scheduleVenueNotes.map(async (venueNote) => {
+                  const candidates = await searchVenuesByName(venueNote.name);
+                  const match = findBestVenueMatch(candidates, venueNote);
+                  return match && hasVenueCoordinates(match)
+                    ? toClubVenue(match)
+                    : null;
+                })
+              );
+
+              resolvedVenues.forEach(addVenue);
+
+              return {
+                ...club,
+                scheduleVenues: Array.from(venuesById.values()),
+              };
+            })
+          );
+
+          setFullClubs(enrichedDetails);
         } catch (error) {
           console.error('Failed to fetch full club details:', error);
         } finally {
@@ -368,6 +632,8 @@ function BrowseClubsContent() {
         }
       };
       fetchFullDetails();
+    } else if (viewMode === 'map') {
+      setFullClubs([]);
     }
   }, [viewMode, clubs]);
 
@@ -380,7 +646,9 @@ function BrowseClubsContent() {
     }
     try {
       const location = await getUserLocation();
-      setPendingUserLocation(location);
+      const normalizedLocation = normalizeUserLocation(location);
+      writeUserLocationCookie(normalizedLocation);
+      setPendingUserLocation(normalizedLocation);
       setPendingSortByDistance(true);
     } catch (err: unknown) {
       toaster.error({
@@ -428,7 +696,9 @@ function BrowseClubsContent() {
       if (!userLocation) {
         try {
           const location = await getUserLocation();
-          setUserLocation(location);
+          const normalizedLocation = normalizeUserLocation(location);
+          writeUserLocationCookie(normalizedLocation);
+          setUserLocation(normalizedLocation);
           setSort('distance');
           setSortByDistance(false);
         } catch {
@@ -463,6 +733,10 @@ function BrowseClubsContent() {
   const sortButtonLabel = sortByDistance ? 'Gần tôi' : activeSortOption.label;
   const SortButtonIcon = sortByDistance ? MapPin : activeSortOption.icon;
   const skeletonVariant = viewMode === 'list' ? 'list' : 'grid';
+  const loadMoreSkeletonDisplay = getFullRowSkeletonDisplay(
+    clubs.length,
+    CLUB_RESULT_COLUMN_COUNTS
+  );
 
   // Register desktop search bar in the top bar
   useRegisterTopBarSearch({
@@ -641,6 +915,7 @@ function BrowseClubsContent() {
               <AppViewModeToggle
                 scope="clubs"
                 defaultMode="list"
+                serverViewMode={serverViewMode}
                 listFirst={true}
               />
             </Flex>
@@ -887,13 +1162,10 @@ function BrowseClubsContent() {
       {isLoading && clubs.length === 0 ? (
         viewMode === 'map' ? (
           <Box paddingBottom={`${BOTTOM_TAB_HEIGHT}px`}>
-            <Skeleton
-              height={{ base: '360px', md: '520px' }}
-              borderRadius="2xl"
-            />
+            <MapLoadingSkeleton />
           </Box>
         ) : (
-          <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} gap={4}>
+          <SimpleGrid columns={CLUB_RESULT_GRID_COLUMNS} gap={4}>
             {Array.from({ length: CLUB_SKELETON_COUNT }).map((_, index) => (
               <ClubCardSkeleton
                 key={`club-skeleton-${index}`}
@@ -927,12 +1199,9 @@ function BrowseClubsContent() {
           }
         />
       ) : viewMode === 'map' ? (
-        isLoadingFullDetails ? (
+        isLoadingFullDetails && fullClubs.length === 0 ? (
           <Box paddingBottom={`${BOTTOM_TAB_HEIGHT}px`}>
-            <Skeleton
-              height={{ base: '360px', md: '520px' }}
-              borderRadius="2xl"
-            />
+            <MapLoadingSkeleton />
           </Box>
         ) : (
           <Box paddingBottom={`${BOTTOM_TAB_HEIGHT}px`}>
@@ -941,12 +1210,13 @@ function BrowseClubsContent() {
         )
       ) : (
         <>
-          <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} gap={4}>
-            {clubs.map((club) => (
+          <SimpleGrid columns={CLUB_RESULT_GRID_COLUMNS} gap={4}>
+            {clubs.map((club, index) => (
               <ClubCard
                 key={club.id}
                 club={club}
                 variant={viewMode === 'list' ? 'list' : 'grid'}
+                imagePriority={index === 0}
                 onFavoriteChange={(clubId, isFavorite) => {
                   setClubs((prev) =>
                     prev
@@ -960,22 +1230,56 @@ function BrowseClubsContent() {
             ))}
           </SimpleGrid>
 
+          {isLoadingMore && (
+            <SimpleGrid
+              mt={8}
+              display={loadMoreSkeletonDisplay}
+              columns={CLUB_RESULT_GRID_COLUMNS}
+              gap={4}
+              aria-busy="true"
+              overflowAnchor="none"
+            >
+              {CLUB_LOAD_MORE_SKELETON_DISPLAYS.map((display, index) => (
+                <Box
+                  key={`club-load-more-skeleton-${index}`}
+                  display={display}
+                  width="100%"
+                >
+                  <ClubCardSkeleton variant={skeletonVariant} />
+                </Box>
+              ))}
+            </SimpleGrid>
+          )}
+
           {hasMore && (
-            <Box ref={ref} mt={8} mb={10} width="full">
-              <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} gap={4}>
-                {Array.from({ length: 3 }).map((_, index) => (
-                  <ClubCardSkeleton
-                    key={`club-load-more-skeleton-${index}`}
-                    variant={skeletonVariant}
-                  />
-                ))}
-              </SimpleGrid>
-              <Flex justify="center" mt={4}>
-                <Text color="gray.500" fontSize="sm">
-                  Đang tải thêm...
-                </Text>
-              </Flex>
+            <Box
+              ref={ref}
+              mt={isLoadingMore ? 4 : 8}
+              mb={10}
+              width="full"
+              overflowAnchor="none"
+            >
+              {isLoadingMore && (
+                <Flex justify="center" role="status" aria-live="polite">
+                  <Text color="gray.500" fontSize="sm">
+                    {t('session.loadingMore')}
+                  </Text>
+                </Flex>
+              )}
             </Box>
+          )}
+          {!hasMore && !isLoading && !isLoadingMore && clubs.length > 0 && (
+            <Flex
+              justify="center"
+              mt={6}
+              mb={10}
+              overflowAnchor="none"
+              role="status"
+            >
+              <Text color="gray.500" fontSize="sm">
+                {t('session.endOfResults')}
+              </Text>
+            </Flex>
           )}
         </>
       )}
@@ -991,7 +1295,11 @@ function BrowseClubsContent() {
   );
 }
 
-export default function BrowseClubsPage() {
+export default function BrowseClubsPage({
+  initialClubs,
+  initialSeedKey,
+  serverViewMode,
+}: BrowseClubsContentProps) {
   const t = useTranslations();
   return (
     <PageLayout title={t('clubs.browseClubs')}>
@@ -999,12 +1307,16 @@ export default function BrowseClubsPage() {
         fallback={
           <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} gap={4}>
             {Array.from({ length: CLUB_SKELETON_COUNT }).map((_, index) => (
-              <ClubCardSkeleton key={`club-suspense-${index}`} />
+              <ClubCardSkeleton key={`club-suspense-${index}`} variant="list" />
             ))}
           </SimpleGrid>
         }
       >
-        <BrowseClubsContent />
+        <BrowseClubsContent
+          initialClubs={initialClubs}
+          initialSeedKey={initialSeedKey}
+          serverViewMode={serverViewMode}
+        />
       </Suspense>
     </PageLayout>
   );

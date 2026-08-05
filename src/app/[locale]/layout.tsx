@@ -5,6 +5,7 @@ import '../globals.css';
 import { Providers } from '../providers';
 import GlobalBottomNav from '../../components/layout/GlobalBottomNav';
 import GlobalAiButton from '../../components/layout/GlobalAiButton';
+import FloatingContactButtons from '../../components/layout/FloatingContactButtons';
 import Footer from '../../components/layout/Footer';
 import ThemeColorSync from '../../components/layout/ThemeColorSync';
 import AppNavigationSplash from '../../components/ui/AppNavigationSplash';
@@ -72,6 +73,7 @@ export default async function LocaleLayout({
             {/* <Footer /> */}
             <GlobalBottomNav />
             <GlobalAiButton />
+            <FloatingContactButtons />
             {/* <PWAInstallPrompt /> */}
           </Providers>
         </IntlClientProvider>

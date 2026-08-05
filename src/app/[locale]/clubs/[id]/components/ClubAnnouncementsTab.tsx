@@ -21,6 +21,7 @@ import { Input } from '@/components/ui/Input';
 import { toaster } from '@/components/ui/toaster';
 import { VModal } from '@/components/ui/VModal';
 import { ClubsService } from '@/lib/api/clubs.service';
+import dayjs from '@/lib/dayjs';
 import { IClubAnnouncement } from '@/types/club';
 
 interface IClubAnnouncementsTabProps {
@@ -253,7 +254,7 @@ export const ClubAnnouncementsTab = ({
                       </Text>
                     </HStack>
                     <Text fontSize="xs" color="gray.500">
-                      {new Date(announcement.createdAt).toLocaleDateString()}
+                      {dayjs(announcement.createdAt).format('DD/MM/YYYY')}
                     </Text>
                   </Flex>
                 </Box>

@@ -239,6 +239,7 @@ const CreateClubPage = () => {
           startTime: schedule.startTime,
           endTime: schedule.endTime,
           notes: venueInfo,
+          isActive: schedule.isActive,
         }));
       });
 
@@ -412,6 +413,7 @@ const CreateClubPage = () => {
                   <Input
                     {...register('socialLinks.facebook')}
                     placeholder={t('socialLinks.facebookPlaceholder')}
+                    bg={{ base: 'white', _dark: 'gray.800' }}
                   />
                 </Field>
 
@@ -419,6 +421,7 @@ const CreateClubPage = () => {
                   <Input
                     {...register('socialLinks.zalo')}
                     placeholder={t('socialLinks.zaloPlaceholder')}
+                    bg={{ base: 'white', _dark: 'gray.800' }}
                   />
                 </Field>
 
@@ -426,6 +429,7 @@ const CreateClubPage = () => {
                   <Input
                     {...register('socialLinks.tiktok')}
                     placeholder={t('socialLinks.tiktokPlaceholder')}
+                    bg={{ base: 'white', _dark: 'gray.800' }}
                   />
                 </Field>
 
@@ -433,6 +437,7 @@ const CreateClubPage = () => {
                   <Input
                     {...register('socialLinks.youtube')}
                     placeholder={t('socialLinks.youtubePlaceholder')}
+                    bg={{ base: 'white', _dark: 'gray.800' }}
                   />
                 </Field>
 
@@ -440,6 +445,7 @@ const CreateClubPage = () => {
                   <Input
                     {...register('socialLinks.website')}
                     placeholder={t('socialLinks.websitePlaceholder')}
+                    bg={{ base: 'white', _dark: 'gray.800' }}
                   />
                 </Field>
 
@@ -447,6 +453,7 @@ const CreateClubPage = () => {
                   <Input
                     {...register('socialLinks.other')}
                     placeholder={t('socialLinks.otherPlaceholder')}
+                    bg={{ base: 'white', _dark: 'gray.800' }}
                   />
                 </Field>
               </Grid>

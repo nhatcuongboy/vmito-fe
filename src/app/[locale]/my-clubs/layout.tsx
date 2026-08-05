@@ -30,7 +30,10 @@ export default function MyClubsLayout({
   };
 
   return (
-    <PageLayout title={t('manageGroups')} showBackButton={false}>
+    <PageLayout
+      title={activeTab === 'member' ? t('joinedGroups') : t('manageGroups')}
+      showBackButton={false}
+    >
       {/* Desktop pill tab switcher */}
       <Flex
         display={{ base: 'none', md: 'flex' }}

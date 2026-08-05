@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from 'react';
 import {
   Box,
   HStack,
+  Portal,
   SimpleGrid,
   Text,
   Textarea,
@@ -560,36 +561,38 @@ export default function VenueRentalForm({ venue }: { venue: Venue }) {
         </Box>
       )}
       {quote && (
-        <HStack
-          display={{ base: 'flex', md: 'none' }}
-          position="fixed"
-          left="0"
-          right="0"
-          bottom="0"
-          zIndex="sticky"
-          justify="space-between"
-          bg={{ base: 'white', _dark: 'gray.900' }}
-          borderTopWidth="1px"
-          px={4}
-          py={3}
-          boxShadow="0 -4px 16px rgba(0, 0, 0, 0.08)"
-        >
-          <Box minW="0">
-            <Text fontSize="xs" color="gray.500" lineClamp={1}>
-              {date} · {start}-{end} ·{' '}
-              {t('card.courts', {
-                count: quote.numberOfCourts,
-              })}
+        <Portal>
+          <HStack
+            display={{ base: 'flex', md: 'none' }}
+            position="fixed"
+            left="0"
+            right="0"
+            bottom="0"
+            zIndex="sticky"
+            justify="space-between"
+            bg={{ base: 'white', _dark: 'gray.900' }}
+            borderTopWidth="1px"
+            px={4}
+            py={3}
+            boxShadow="0 -4px 16px rgba(0, 0, 0, 0.08)"
+          >
+            <Box minW="0">
+              <Text fontSize="xs" color="gray.500" lineClamp={1}>
+                {date} · {start}-{end} ·{' '}
+                {t('card.courts', {
+                  count: quote.numberOfCourts,
+                })}
+              </Text>
+              <Text fontWeight="bold" color="green.700">
+                {money(quote.totalAmount, quote.currency)}
+              </Text>
+            </Box>
+            <Text fontSize="sm" flexShrink={0}>
+              {pad(Math.floor(remainingSeconds / 60))}:
+              {pad(remainingSeconds % 60)}
             </Text>
-            <Text fontWeight="bold" color="green.700">
-              {money(quote.totalAmount, quote.currency)}
-            </Text>
-          </Box>
-          <Text fontSize="sm" flexShrink={0}>
-            {pad(Math.floor(remainingSeconds / 60))}:
-            {pad(remainingSeconds % 60)}
-          </Text>
-        </HStack>
+          </HStack>
+        </Portal>
       )}
     </VStack>
   );

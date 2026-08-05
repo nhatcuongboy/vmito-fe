@@ -220,6 +220,68 @@ export interface HostTransactionsWithUserResponse {
   };
 }
 
+// ==========================================
+// Host finance report (GET /payments/host/report)
+// ==========================================
+
+export type THostReportGranularity = 'day' | 'week' | 'month';
+
+// All amounts are integer VND
+export interface IHostFinanceMoney {
+  income: number; // expected revenue from every billable payment
+  collected: number; // approved payments only
+  outstanding: number; // income - collected
+  expenses: number; // sum of session expenses
+  netActual: number; // collected - expenses ("Tổng kết")
+  netExpected: number; // income - expenses
+}
+
+export interface IHostFinanceTotals extends IHostFinanceMoney {
+  sessionCount: number;
+  playerCount: number;
+  paymentCount: number;
+}
+
+export interface IHostFinancePreviousTotals extends IHostFinanceMoney {
+  from: string;
+  to: string;
+}
+
+export interface IHostFinanceSeriesPoint {
+  bucket: string; // ISO date of the bucket start
+  income: number;
+  collected: number;
+  outstanding: number;
+  expenses: number;
+  netActual: number;
+}
+
+export interface IHostFinanceSessionRow {
+  sessionId: string;
+  name: string;
+  slug: string | null;
+  startTime: string;
+  playerCount: number;
+  income: number;
+  collected: number;
+  outstanding: number;
+  expenses: number;
+  netActual: number;
+}
+
+export interface IHostFinanceReport {
+  range: {
+    from: string;
+    to: string;
+    granularity: THostReportGranularity;
+  };
+  totals: IHostFinanceTotals;
+  previous: IHostFinancePreviousTotals;
+  series: IHostFinanceSeriesPoint[];
+  bySession: IHostFinanceSessionRow[];
+  byPlayer: HostTransactionSummary[];
+}
+
 // Request types for fee configuration
 export interface CreateSessionFeeConfigRequest {
   feeType: FeeType;

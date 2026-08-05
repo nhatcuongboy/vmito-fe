@@ -28,6 +28,9 @@ import {
   Tags,
   Handshake,
   Contact as ContactIcon,
+  User,
+  Mail,
+  Phone,
 } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
 import {
@@ -841,12 +844,12 @@ export default function TournamentHomeTab({
             </Text>
           </Box>
         ) : (
-          <VStack align="stretch" gap={0}>
+          <VStack align="stretch" gap={2.5} px={3} pb={3} pt={1}>
             {(() => {
               const fullCategoryMap = new Map(
                 fullCategories.map((c) => [c.id, c])
               );
-              return categories.map((category, index) => {
+              return categories.map((category) => {
                 const full = fullCategoryMap.get(category.id);
                 const count = full?._count?.registrations ?? 0;
                 const isIndividual =
@@ -860,65 +863,100 @@ export default function TournamentHomeTab({
                     : null;
 
                 return (
-                  <Box key={category.id}>
-                    {index > 0 && (
-                      <Box
-                        mx={4}
-                        h="1px"
-                        bg="gray.100"
-                        _dark={{ bg: 'gray.700' }}
-                      />
-                    )}
-                    <Box
-                      asChild
-                      display="block"
-                      _hover={{ bg: 'gray.50', textDecoration: 'none' }}
-                      _focusVisible={{
-                        outline: '2px solid',
-                        outlineColor: 'green.400',
-                        outlineOffset: '-2px',
-                      }}
-                      _dark={{ _hover: { bg: 'gray.700' } }}
+                  <Box
+                    key={category.id}
+                    asChild
+                    display="block"
+                    borderWidth="1px"
+                    borderColor="gray.100"
+                    borderRadius="lg"
+                    bg="gray.50/60"
+                    transition="all 0.15s ease"
+                    _hover={{
+                      bg: 'green.50',
+                      borderColor: 'green.200',
+                      textDecoration: 'none',
+                      transform: 'translateY(-1px)',
+                      boxShadow: '0 4px 10px rgba(16, 185, 129, 0.1)',
+                    }}
+                    _focusVisible={{
+                      outline: '2px solid',
+                      outlineColor: 'green.400',
+                      outlineOffset: '-2px',
+                    }}
+                    _dark={{
+                      borderColor: 'gray.700',
+                      bg: 'gray.900/40',
+                      _hover: {
+                        bg: 'rgba(34, 197, 94, 0.1)',
+                        borderColor: 'rgba(34, 197, 94, 0.35)',
+                      },
+                    }}
+                  >
+                    <RouterLink
+                      href={`/tournament/${slug}/teams?view=category#category-${category.id}`}
                     >
-                      <RouterLink
-                        href={`/tournament/${slug}/teams?view=category#category-${category.id}`}
+                      <Flex
+                        align="center"
+                        justify="space-between"
+                        gap={3}
+                        minH="52px"
+                        py={2.5}
+                        px={3}
                       >
-                        <Flex
-                          align="center"
-                          justify="space-between"
-                          minH="40px"
-                          py={2}
-                          px={4}
-                        >
-                          <Text fontSize="md">{category.name}</Text>
-                          <HStack gap={2}>
-                            {countLabel && (
-                              <Box
-                                px={2}
-                                py={0.5}
-                                borderRadius="full"
-                                bg="gray.100"
-                                _dark={{ bg: 'gray.700' }}
+                        <HStack gap={3} minW={0}>
+                          <Flex
+                            align="center"
+                            justify="center"
+                            w="34px"
+                            h="34px"
+                            flexShrink={0}
+                            borderRadius="md"
+                            bg="green.100"
+                            color="green.600"
+                            _dark={{
+                              bg: 'rgba(34, 197, 94, 0.16)',
+                              color: 'green.300',
+                            }}
+                          >
+                            <Tags size={16} aria-hidden="true" />
+                          </Flex>
+                          <Text fontSize="md" fontWeight="medium" lineClamp={1}>
+                            {category.name}
+                          </Text>
+                        </HStack>
+                        <HStack gap={2} flexShrink={0}>
+                          {countLabel && (
+                            <Box
+                              px={2}
+                              py={0.5}
+                              borderRadius="full"
+                              bg="white"
+                              borderWidth="1px"
+                              borderColor="gray.200"
+                              _dark={{
+                                bg: 'gray.800',
+                                borderColor: 'gray.700',
+                              }}
+                            >
+                              <Text
+                                fontSize="xs"
+                                fontWeight="medium"
+                                color="gray.500"
+                                _dark={{ color: 'gray.400' }}
                               >
-                                <Text
-                                  fontSize="xs"
-                                  fontWeight="medium"
-                                  color="gray.500"
-                                  _dark={{ color: 'gray.400' }}
-                                >
-                                  {countLabel}
-                                </Text>
-                              </Box>
-                            )}
-                            <ChevronRight
-                              size={18}
-                              color="var(--chakra-colors-gray-400)"
-                              aria-hidden="true"
-                            />
-                          </HStack>
-                        </Flex>
-                      </RouterLink>
-                    </Box>
+                                {countLabel}
+                              </Text>
+                            </Box>
+                          )}
+                          <ChevronRight
+                            size={18}
+                            color="var(--chakra-colors-gray-400)"
+                            aria-hidden="true"
+                          />
+                        </HStack>
+                      </Flex>
+                    </RouterLink>
                   </Box>
                 );
               });
@@ -1104,6 +1142,7 @@ export default function TournamentHomeTab({
                     color="gray.900"
                     flexShrink={0}
                     alignSelf={{ base: 'flex-start', sm: 'center' }}
+                    cursor="pointer"
                     _hover={{ bg: 'gray.50' }}
                     _focusVisible={{
                       outline: '2px solid',
@@ -1490,6 +1529,7 @@ export default function TournamentHomeTab({
                 borderRadius="md"
                 alignItems="center"
                 justifyContent="center"
+                cursor="pointer"
                 _hover={{ bg: 'gray.100', _dark: { bg: 'gray.700' } }}
                 _focusVisible={{
                   outline: '2px solid',
@@ -1507,30 +1547,49 @@ export default function TournamentHomeTab({
             ) : null}
           </Flex>
 
-          <VStack align="stretch" gap={1.5}>
+          <VStack align="stretch" gap={2}>
             {contactName ? (
-              <Text
-                fontSize="sm"
-                color="gray.700"
-                _dark={{ color: 'gray.300' }}
-              >
-                <Text as="span" fontWeight="medium">
-                  {t('contact.name')}:
-                </Text>{' '}
-                {contactName}
-              </Text>
+              <Flex align="center" gap={2.5}>
+                <Flex
+                  align="center"
+                  justify="center"
+                  w="28px"
+                  h="28px"
+                  flexShrink={0}
+                  borderRadius="md"
+                  bg="teal.50"
+                  color="teal.600"
+                  _dark={{ bg: 'rgba(20, 184, 166, 0.14)', color: 'teal.300' }}
+                >
+                  <User size={14} aria-hidden="true" />
+                </Flex>
+                <Text
+                  fontSize="sm"
+                  color="gray.700"
+                  _dark={{ color: 'gray.300' }}
+                >
+                  {contactName}
+                </Text>
+              </Flex>
             ) : null}
             {contactEmail ? (
-              <Text
-                fontSize="sm"
-                color="gray.700"
-                _dark={{ color: 'gray.300' }}
-              >
-                <Text as="span" fontWeight="medium">
-                  {t('contact.email')}:
-                </Text>{' '}
+              <Flex align="center" gap={2.5}>
+                <Flex
+                  align="center"
+                  justify="center"
+                  w="28px"
+                  h="28px"
+                  flexShrink={0}
+                  borderRadius="md"
+                  bg="teal.50"
+                  color="teal.600"
+                  _dark={{ bg: 'rgba(20, 184, 166, 0.14)', color: 'teal.300' }}
+                >
+                  <Mail size={14} aria-hidden="true" />
+                </Flex>
                 <Link
                   href={`mailto:${contactEmail}`}
+                  fontSize="sm"
                   color="green.700"
                   fontWeight="medium"
                   wordBreak="break-word"
@@ -1539,19 +1598,26 @@ export default function TournamentHomeTab({
                 >
                   {contactEmail}
                 </Link>
-              </Text>
+              </Flex>
             ) : null}
             {contactPhone ? (
-              <Text
-                fontSize="sm"
-                color="gray.700"
-                _dark={{ color: 'gray.300' }}
-              >
-                <Text as="span" fontWeight="medium">
-                  {t('contact.phone')}:
-                </Text>{' '}
+              <Flex align="center" gap={2.5}>
+                <Flex
+                  align="center"
+                  justify="center"
+                  w="28px"
+                  h="28px"
+                  flexShrink={0}
+                  borderRadius="md"
+                  bg="teal.50"
+                  color="teal.600"
+                  _dark={{ bg: 'rgba(20, 184, 166, 0.14)', color: 'teal.300' }}
+                >
+                  <Phone size={14} aria-hidden="true" />
+                </Flex>
                 <Link
                   href={`tel:${contactPhone}`}
+                  fontSize="sm"
                   color="green.700"
                   fontWeight="medium"
                   _hover={{ textDecoration: 'underline' }}
@@ -1559,7 +1625,7 @@ export default function TournamentHomeTab({
                 >
                   {contactPhone}
                 </Link>
-              </Text>
+              </Flex>
             ) : null}
           </VStack>
         </Box>

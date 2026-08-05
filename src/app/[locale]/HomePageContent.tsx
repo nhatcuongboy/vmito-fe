@@ -30,12 +30,20 @@ type HomeMode = 'browse' | 'auto';
 
 interface HomeContentProps {
   initialSessions?: ISession[];
+  /** The city filter the server used for `initialSessions`. The client
+   * compares it against the city it resolves and discards the seed when they
+   * differ, so no one ever sees another city's sessions. */
+  initialSessionsCity?: string | null;
   /** Saved view-mode preference read from the request cookie — lets the
    * server render the same card layout the client resolves (no flash). */
   serverViewMode?: ViewMode;
 }
 
-function HomeContent({ initialSessions, serverViewMode }: HomeContentProps) {
+function HomeContent({
+  initialSessions,
+  initialSessionsCity,
+  serverViewMode,
+}: HomeContentProps) {
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
@@ -81,6 +89,7 @@ function HomeContent({ initialSessions, serverViewMode }: HomeContentProps) {
       {mode === 'browse' || !user ? (
         <FindSessionList
           initialSessions={initialSessions}
+          initialSessionsCity={initialSessionsCity}
           mode={mode}
           onModeChange={handleModeChange}
           serverViewMode={serverViewMode}
@@ -94,6 +103,7 @@ function HomeContent({ initialSessions, serverViewMode }: HomeContentProps) {
 
 export default function HomePageContent({
   initialSessions,
+  initialSessionsCity,
   serverViewMode,
 }: HomeContentProps) {
   return (
@@ -106,6 +116,7 @@ export default function HomePageContent({
     >
       <HomeContent
         initialSessions={initialSessions}
+        initialSessionsCity={initialSessionsCity}
         serverViewMode={serverViewMode}
       />
     </Suspense>

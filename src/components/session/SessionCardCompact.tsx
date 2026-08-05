@@ -56,12 +56,12 @@ const SessionCardCompact = ({
     if (viewModel.isCrawled) {
       return (
         <Badge
-          bg="blackAlpha.600"
-          _dark={{ bg: 'whiteAlpha.200' }}
+          bg="#1877F2"
           color="white"
           borderWidth="1px"
-          borderColor="whiteAlpha.200"
+          borderColor="#8bb9ff"
           backdropFilter="blur(4px)"
+          boxShadow="0 2px 8px rgba(24, 119, 242, 0.28)"
           gap={1}
           px={1.5}
           whiteSpace="nowrap"

@@ -5,6 +5,8 @@ import { getUserFacingErrorMessage, logApiError } from './apiError';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { useAppStore } from '@/stores/useAppStore';
 
+const GLOBAL_GET_ERROR_TOAST_ID = 'global-get-api-error';
+
 declare module 'axios' {
   interface AxiosRequestConfig {
     skipGlobalError?: boolean;
@@ -87,6 +89,12 @@ const processQueue = (error: unknown, token: string | null = null) => {
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
+    // A cancelled request is a caller decision (component unmount, newer
+    // request superseding this one), not a failure — never surface it.
+    if (axios.isCancel(error) || error.code === 'ERR_CANCELED') {
+      return Promise.reject(error);
+    }
+
     const originalRequest = error.config;
     const status = error.response?.status;
     // Short, locale-aware message safe for end users. Raw response bodies
@@ -179,7 +187,10 @@ api.interceptors.response.use(
           !error.config?.skipGlobalError &&
           status !== 401
         ) {
-          toaster.error({ title: message });
+          // A page can fire several GET requests at once. If a shared failure
+          // (offline, gateway outage, etc.) makes all of them reject, reuse one
+          // toast instead of covering the screen with identical notifications.
+          toaster.error({ id: GLOBAL_GET_ERROR_TOAST_ID, title: message });
         } else {
           // For mutations (POST, PUT, DELETE), show modal/toast to ensure user sees the error
           // Skip automatic error reporting for auth requests or requests that explicitly skip it

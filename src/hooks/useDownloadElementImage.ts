@@ -2,8 +2,14 @@
 
 import { useCallback, useRef, useState } from 'react';
 // See useDownloadSessionImage.ts for why modern-screenshot over html-to-image
-import { domToBlob } from 'modern-screenshot';
+import { domToBlob, type Options } from 'modern-screenshot';
 import { toaster } from '@/components/ui/toaster';
+import {
+  getElementCaptureSize,
+  isIOS,
+  needsWarmupRender,
+  normalizeClonedNode,
+} from '@/utils/dom-capture';
 
 interface DownloadMessages {
   success: string;
@@ -18,19 +24,6 @@ interface UseDownloadElementImageReturn {
   ) => Promise<void>;
   isDownloading: boolean;
 }
-
-// Covers iPhone/iPod/iPad, including iPadOS 13+ which reports as MacIntel
-const isIOS = () =>
-  typeof navigator !== 'undefined' &&
-  (/iPad|iPhone|iPod/.test(navigator.userAgent) ||
-    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1));
-
-// WebKit engines (all iOS browsers + desktop Safari) need a warm-up render
-// before images come out correctly; Chromium/Firefox don't
-const needsWarmupRender = () =>
-  isIOS() ||
-  (typeof navigator !== 'undefined' &&
-    /^((?!chrome|android).)*safari/i.test(navigator.userAgent));
 
 /** Generic sibling of useDownloadSessionImage for non-session DOM captures (e.g. profile share cards). */
 export const useDownloadElementImage = (): UseDownloadElementImageReturn => {
@@ -69,17 +62,27 @@ export const useDownloadElementImage = (): UseDownloadElementImageReturn => {
         const hasRemoteImages = Array.from(images).some(
           (img) => img.src && !img.src.startsWith('data:')
         );
+        const captureSize = getElementCaptureSize(element);
+        const baseCaptureOptions: Options = {
+          ...captureSize,
+          fetch: { bypassingCache: true },
+          style: {
+            maxWidth: 'none',
+          },
+          onCloneEachNode: normalizeClonedNode,
+        };
+
         if (needsWarmupRender() && hasRemoteImages) {
-          await domToBlob(element, { fetch: { bypassingCache: true } });
+          await domToBlob(element, baseCaptureOptions);
         }
 
         const elementBackgroundColor =
           window.getComputedStyle(element).backgroundColor || '#ffffff';
 
         const blob = await domToBlob(element, {
+          ...baseCaptureOptions,
           backgroundColor: elementBackgroundColor,
           scale: 2,
-          fetch: { bypassingCache: true },
           type: 'image/png',
         });
         if (!blob) {

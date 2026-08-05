@@ -12,8 +12,11 @@ import {
 } from '@chakra-ui/react';
 import QRCode from 'qrcode';
 import { Button, IconButton, VStack } from '@/components/ui/chakra-compat';
+import { Link } from '@/i18n/config';
+import { ROUTES } from '@/constants';
 import {
   Award,
+  Building2,
   Calendar,
   ChevronDown,
   ChevronUp,
@@ -603,6 +606,23 @@ export default function SessionInfo({
         {session.host?.name || 'Unknown'}
       </InfoRow>
 
+      {session.club && (
+        <InfoRow icon={Building2} label={t('managingClub')}>
+          <Link
+            href={ROUTES.CLUBS.DETAIL(session.club.id)}
+            style={{ textDecoration: 'none' }}
+          >
+            <Text
+              color="green.600"
+              _dark={{ color: 'green.400' }}
+              _hover={{ textDecoration: 'underline' }}
+            >
+              {session.club.name}
+            </Text>
+          </Link>
+        </InfoRow>
+      )}
+
       <InfoRow icon={Info} label={t('status')}>
         <Badge
           colorPalette={getStatusColor(session.status)}
@@ -906,7 +926,16 @@ export default function SessionInfo({
           )}
 
           {playerStats && playerAchievementExportId && (
-            <Box position="absolute" left="-9999px" top="-9999px">
+            <Box
+              position="fixed"
+              left="-10000px"
+              top={0}
+              pointerEvents="none"
+              aria-hidden="true"
+              css={{
+                contain: 'layout style paint',
+              }}
+            >
               <Box id={playerAchievementExportId}>
                 <PlayerAchievementExportCard
                   session={session}

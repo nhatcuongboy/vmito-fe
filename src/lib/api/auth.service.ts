@@ -39,6 +39,25 @@ export const AuthService = {
   },
 
   /**
+   * Login with Google One Tap ID Token
+   */
+  googleOneTap: async (idToken: string): Promise<LoginResponse> => {
+    const response = await api.post<{ success: boolean; data: LoginResponse }>(
+      '/auth/google/one-tap',
+      { idToken }
+    );
+
+    // Support both wrapped { success, data } and direct LoginResponse shapes
+    const loginData =
+      response.data?.data || (response.data as unknown as LoginResponse);
+
+    const { user, accessToken, refreshToken } = loginData;
+    useAuthStore.getState().setAuth(user, accessToken, refreshToken);
+
+    return loginData;
+  },
+
+  /**
    * Register new user
    */
   register: async (data: RegisterRequest, locale?: string): Promise<User> => {

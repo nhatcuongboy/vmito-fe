@@ -6,6 +6,7 @@ import { Box, HStack, Text, Textarea, VStack, Icon } from '@chakra-ui/react';
 import { Trophy, User, Users, X } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import React, { useState } from 'react';
+import { useFeatureFlagsStore } from '@/stores/useFeatureFlagsStore';
 
 interface MatchResultModalProps {
   isOpen: boolean;
@@ -31,6 +32,9 @@ const MatchResultModal: React.FC<MatchResultModalProps> = ({
   direction = CourtDirection.HORIZONTAL, // Default to horizontal like BadmintonCourt
 }) => {
   const t = useTranslations('SessionDetail');
+  const showShuttlecockCount = useFeatureFlagsStore(
+    (state) => state.flags.SHOW_SHUTTLECOCK_COUNT
+  );
 
   // Form state
   const [pair1Score, setPair1Score] = useState<string>('');
@@ -183,7 +187,7 @@ const MatchResultModal: React.FC<MatchResultModalProps> = ({
     }
 
     // Add shuttlecock count if provided
-    if (shuttlecockCount.trim()) {
+    if (showShuttlecockCount && shuttlecockCount.trim()) {
       const count = parseFloat(shuttlecockCount);
       if (!isNaN(count) && count >= 0) {
         result.shuttlecockCount = count;
@@ -458,21 +462,22 @@ const MatchResultModal: React.FC<MatchResultModalProps> = ({
           </HStack>
         </Box>
 
-        {/* Shuttlecock Count */}
-        <Box w="full">
-          <Text fontSize="xs" mb={1.5} fontWeight="medium" color="gray.600">
-            {t('matchResult.shuttlecockCount')}
-          </Text>
-          <Input
-            type="number"
-            step="any"
-            min="0"
-            placeholder={t('matchResult.shuttlecockCountPlaceholder')}
-            value={shuttlecockCount}
-            onChange={(e) => setShuttlecockCount(e.target.value)}
-            size="sm"
-          />
-        </Box>
+        {showShuttlecockCount && (
+          <Box w="full">
+            <Text fontSize="xs" mb={1.5} fontWeight="medium" color="gray.600">
+              {t('matchResult.shuttlecockCount')}
+            </Text>
+            <Input
+              type="number"
+              step="any"
+              min="0"
+              placeholder={t('matchResult.shuttlecockCountPlaceholder')}
+              value={shuttlecockCount}
+              onChange={(e) => setShuttlecockCount(e.target.value)}
+              size="sm"
+            />
+          </Box>
+        )}
 
         {/* Notes */}
         <Box w="full">

@@ -135,8 +135,8 @@ export default function TopBar({
   // Menu drawer state
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-  const onMenuOpen = () => setIsMenuOpen(true);
   const onMenuClose = () => setIsMenuOpen(false);
+  const onMenuToggle = () => setIsMenuOpen((isOpen) => !isOpen);
 
   const handleLogout = () => {
     // Clear auth state
@@ -210,11 +210,12 @@ export default function TopBar({
             >
               {showMenuButton && (
                 <IconButton
-                  aria-label="Open menu"
+                  aria-label={isMenuOpen ? 'Close menu' : 'Open menu'}
+                  aria-expanded={isMenuOpen}
                   onClick={() => {
                     const isMobile = window.innerWidth < 768;
                     if (isMobile) {
-                      onMenuOpen();
+                      onMenuToggle();
                     } else {
                       toggleCollapse();
                     }

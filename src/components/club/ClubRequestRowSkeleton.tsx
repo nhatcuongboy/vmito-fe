@@ -8,7 +8,7 @@ export default function ClubRequestRowSkeleton() {
       p={{ base: 4, md: 5 }}
       bg="bg"
       _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
-      borderRadius={{ base: 'xl', md: 'xl' }}
+      borderRadius={{ base: 'xl', md: 'lg' }}
       borderWidth="1px"
       borderColor="border"
       align="center"
@@ -26,20 +26,25 @@ export default function ClubRequestRowSkeleton() {
         />
         <Box flex={1} minW={0}>
           <Skeleton height="16px" width="140px" mb={1.5} borderRadius="md" />
-          <Skeleton height="12px" width="200px" borderRadius="md" />
+          <Skeleton height="14px" width="180px" borderRadius="md" />
+          <Skeleton height="14px" width="85%" mt={2} borderRadius="md" />
+          <HStack mt={2} gap={3}>
+            <Skeleton height="12px" width="72px" borderRadius="md" />
+            <Skeleton height="12px" width="64px" borderRadius="md" />
+          </HStack>
         </Box>
       </HStack>
 
       {/* Right: action buttons */}
       <HStack gap={2} w={{ base: 'full', sm: 'auto' }}>
         <Skeleton
-          height="32px"
+          height="44px"
           flex={{ base: 1, sm: 'initial' }}
           width={{ base: 'auto', sm: '80px' }}
           borderRadius="md"
         />
         <Skeleton
-          height="32px"
+          height="44px"
           flex={{ base: 1, sm: 'initial' }}
           width={{ base: 'auto', sm: '80px' }}
           borderRadius="md"

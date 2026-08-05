@@ -59,6 +59,12 @@ export interface IPointTransaction {
   occurredAt: string;
 }
 
+export interface IPointTransactionsResponse {
+  items: IPointTransaction[];
+  nextCursor: string | null;
+  hasMore: boolean;
+}
+
 export interface IUserAchievements {
   sport: string;
   totalPoints: number;
@@ -147,6 +153,21 @@ export const RankingService = {
   getUserAchievements: async (userId: string): Promise<IUserAchievements> => {
     const response = await api.get<ApiResponse<IUserAchievements>>(
       `/leaderboard/users/${userId}/achievements`
+    );
+    return response.data.data!;
+  },
+
+  getUserPointTransactions: async (
+    userId: string,
+    params?: { limit?: number; cursor?: string | null }
+  ): Promise<IPointTransactionsResponse> => {
+    const query = new URLSearchParams();
+    if (params?.limit) query.append('limit', String(params.limit));
+    if (params?.cursor) query.append('cursor', params.cursor);
+    const suffix = query.toString() ? `?${query.toString()}` : '';
+    const response = await api.get<ApiResponse<IPointTransactionsResponse>>(
+      `/leaderboard/users/${userId}/point-transactions${suffix}`,
+      { skipGlobalError: true }
     );
     return response.data.data!;
   },

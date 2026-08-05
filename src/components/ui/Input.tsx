@@ -38,6 +38,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
       ref,
       disabled: disabled ?? isDisabled,
       ...props,
+      bg: props.bg ?? { base: 'white', _dark: 'gray.800' },
       _focusVisible: {
         borderColor: 'brand.500',
         boxShadow: '0 0 0 1px var(--chakra-colors-brand-500)',

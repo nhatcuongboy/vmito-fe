@@ -8,6 +8,8 @@ import { LayoutGrid, List, MapPin } from 'lucide-react';
 interface AppViewModeToggleProps {
   scope: string;
   defaultMode?: ViewMode;
+  /** Saved request-cookie preference supplied by a server component. */
+  serverViewMode?: ViewMode;
   /** Render the List button before the Grid button. Defaults to Grid first. */
   listFirst?: boolean;
 }
@@ -15,9 +17,14 @@ interface AppViewModeToggleProps {
 export default function AppViewModeToggle({
   scope,
   defaultMode = 'grid',
+  serverViewMode,
   listFirst = false,
 }: AppViewModeToggleProps) {
-  const [viewMode, setViewMode] = useViewMode(scope, defaultMode);
+  const [viewMode, setViewMode] = useViewMode(
+    scope,
+    defaultMode,
+    serverViewMode
+  );
 
   const gridButton = (
     <IconButton
