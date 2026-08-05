@@ -123,6 +123,8 @@
     "previous": "Previous",
     "submit": "Submit",
     "close": "Close",
+    "collapse": "Collapse",
+    "expand": "Expand",
     "yes": "Yes",
     "no": "No",
     "required": "Required",
@@ -328,13 +330,29 @@
     "courtNameDescription": "Custom name to help identify this court",
     "courtDirectionTip": "Court direction helps optimize player placement and lighting conditions",
     "createSession": "Create Session",
+    "cloneSession": "Clone session",
+    "cloneModal": {
+      "title": "Clone session",
+      "description": "Create a new session from “{name}” with a new time.",
+      "excludedData": "Session details, courts, location, fee settings, and media will be copied. Registered players and matches will not be copied.",
+      "startTime": "New start time",
+      "endTime": "New end time",
+      "confirm": "Clone session",
+      "success": "Session cloned successfully",
+      "errors": {
+        "required": "Select both a start time and an end time",
+        "future": "The new session must start in the future",
+        "endAfterStart": "End time must be after start time",
+        "failed": "Failed to clone session"
+      }
+    },
     "joinSession": "Join Session",
     "fee": "Fee",
     "contactHostForFee": "Contact host",
     "defaultClub": "Managing Club",
     "selectDefaultClub": "Select Managing Club",
     "searchDefaultClub": "Search Managing Clubs",
-    "noDefaultClub": "No Managing Club",
+    "noDefaultClub": "No managing club",
     "defaultClubDescription": "When adding a player who belongs to this club, the club fixed fee will be applied automatically.",
     "register": "Register",
     "sessionName": "Session Name",
@@ -6055,7 +6073,9 @@
     "viewReviews": "View Reviews",
     "reviews": "Reviews",
     "cancel": "Cancel",
-    "rated": "Rated"
+    "rated": "Rated",
+    "anonymousReviewer": "Anonymous user",
+    "anonymousRatingNotice": "Your rating for the host is anonymous. The host can see the review content but not your name."
   },
   "userProfilePage": {
     "title": "Profile",
@@ -6353,6 +6373,7 @@
       "TOURNAMENT_CREATED": "{author} created the tournament <b>{tournament}</b>",
       "TOURNAMENT_FINISHED": "The tournament <b>{tournament}</b> has finished",
       "AVATAR_UPDATED": "{author} updated their profile photo",
+      "COVER_PHOTO_UPDATED": "{author} updated their cover photo",
       "USER_RATED": "{author} rated {rated}",
       "champion": "Champion",
       "runnerUp": "Runner-up",

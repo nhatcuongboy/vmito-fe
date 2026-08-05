@@ -12,6 +12,7 @@ import {
   Square,
   MoreVertical,
   ArrowLeft,
+  Copy,
   XCircle,
   QrCode,
   StickyNote,
@@ -38,6 +39,7 @@ interface SessionStatusHeaderProps {
   onToggleSessionStatus?: () => void;
   onCancelSession?: () => void;
   onRefreshData?: () => void;
+  onCloneSession?: () => void;
   onShowQrView?: () => void;
   onShowQrJoin?: () => void;
   onSaveNotes?: (notes: string) => Promise<void>;
@@ -56,6 +58,7 @@ const SessionStatusHeader: React.FC<SessionStatusHeaderProps> = ({
   onToggleSessionStatus,
   onCancelSession,
   onRefreshData,
+  onCloneSession,
   onShowQrView,
   onShowQrJoin,
   onSaveNotes,
@@ -65,13 +68,15 @@ const SessionStatusHeader: React.FC<SessionStatusHeaderProps> = ({
   backHref = '/',
 }) => {
   const t = useTranslations('SessionDetail');
+  const tSession = useTranslations('session');
   const common = useTranslations('common');
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isNotesModalOpen, setIsNotesModalOpen] = useState(false);
   const [notesDraft, setNotesDraft] = useState(session.notes || '');
   const [isSavingNotes, setIsSavingNotes] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
-  const canShowActionButtons = !readOnly && session.status !== 'CANCELLED';
+  const canShowActionButtons =
+    !readOnly && (session.status !== 'CANCELLED' || !!onCloneSession);
   const actionAreaWidth = canShowActionButtons
     ? onSaveNotes
       ? '80px'
@@ -135,6 +140,11 @@ const SessionStatusHeader: React.FC<SessionStatusHeaderProps> = ({
 
   const handleRefresh = () => {
     onRefreshData?.();
+    setIsMenuOpen(false);
+  };
+
+  const handleClone = () => {
+    onCloneSession?.();
     setIsMenuOpen(false);
   };
 
@@ -329,88 +339,99 @@ const SessionStatusHeader: React.FC<SessionStatusHeaderProps> = ({
                 zIndex={100}
               >
                 {/* Play/Stop Action */}
-                <Button
-                  variant="ghost"
-                  width="100%"
-                  px={4}
-                  py={2}
-                  display="flex"
-                  alignItems="center"
-                  justifyContent="flex-start"
-                  gap={3}
-                  _hover={{ bg: 'bg.muted' }}
-                  disabled={(() => {
-                    if (session.status === 'FINISHED' || isToggleStatusLoading)
-                      return true;
-                    if (session.status === 'PREPARING') {
-                      if (session.endTime)
-                        return new Date(session.endTime) < new Date();
-                      if (session.startTime) {
-                        const computed = new Date(session.startTime);
-                        computed.setMinutes(
-                          computed.getMinutes() +
-                            (session.sessionDuration || 120)
-                        );
-                        return computed < new Date();
+                {session.status !== 'CANCELLED' && (
+                  <Button
+                    variant="ghost"
+                    width="100%"
+                    px={4}
+                    py={2}
+                    display="flex"
+                    alignItems="center"
+                    justifyContent="flex-start"
+                    gap={3}
+                    _hover={{ bg: 'bg.muted' }}
+                    disabled={(() => {
+                      if (
+                        session.status === 'FINISHED' ||
+                        isToggleStatusLoading
+                      )
+                        return true;
+                      if (session.status === 'PREPARING') {
+                        if (session.endTime)
+                          return new Date(session.endTime) < new Date();
+                        if (session.startTime) {
+                          const computed = new Date(session.startTime);
+                          computed.setMinutes(
+                            computed.getMinutes() +
+                              (session.sessionDuration || 120)
+                          );
+                          return computed < new Date();
+                        }
                       }
-                    }
-                    return false;
-                  })()}
-                  onClick={handleToggleStatus}
-                  opacity={(() => {
-                    if (session.status === 'FINISHED' || isToggleStatusLoading)
-                      return 0.5;
-                    if (session.status === 'PREPARING') {
-                      let isExpired = false;
-                      if (session.endTime)
-                        isExpired = new Date(session.endTime) < new Date();
-                      else if (session.startTime) {
-                        const computed = new Date(session.startTime);
-                        computed.setMinutes(
-                          computed.getMinutes() +
-                            (session.sessionDuration || 120)
-                        );
-                        isExpired = computed < new Date();
+                      return false;
+                    })()}
+                    onClick={handleToggleStatus}
+                    opacity={(() => {
+                      if (
+                        session.status === 'FINISHED' ||
+                        isToggleStatusLoading
+                      )
+                        return 0.5;
+                      if (session.status === 'PREPARING') {
+                        let isExpired = false;
+                        if (session.endTime)
+                          isExpired = new Date(session.endTime) < new Date();
+                        else if (session.startTime) {
+                          const computed = new Date(session.startTime);
+                          computed.setMinutes(
+                            computed.getMinutes() +
+                              (session.sessionDuration || 120)
+                          );
+                          isExpired = computed < new Date();
+                        }
+                        if (isExpired) return 0.5;
                       }
-                      if (isExpired) return 0.5;
-                    }
-                    return 1;
-                  })()}
-                  cursor={(() => {
-                    if (session.status === 'FINISHED' || isToggleStatusLoading)
-                      return 'not-allowed';
-                    if (session.status === 'PREPARING') {
-                      let isExpired = false;
-                      if (session.endTime)
-                        isExpired = new Date(session.endTime) < new Date();
-                      else if (session.startTime) {
-                        const computed = new Date(session.startTime);
-                        computed.setMinutes(
-                          computed.getMinutes() +
-                            (session.sessionDuration || 120)
-                        );
-                        isExpired = computed < new Date();
+                      return 1;
+                    })()}
+                    cursor={(() => {
+                      if (
+                        session.status === 'FINISHED' ||
+                        isToggleStatusLoading
+                      )
+                        return 'not-allowed';
+                      if (session.status === 'PREPARING') {
+                        let isExpired = false;
+                        if (session.endTime)
+                          isExpired = new Date(session.endTime) < new Date();
+                        else if (session.startTime) {
+                          const computed = new Date(session.startTime);
+                          computed.setMinutes(
+                            computed.getMinutes() +
+                              (session.sessionDuration || 120)
+                          );
+                          isExpired = computed < new Date();
+                        }
+                        if (isExpired) return 'not-allowed';
                       }
-                      if (isExpired) return 'not-allowed';
-                    }
-                    return 'pointer';
-                  })()}
-                  fontWeight="normal"
-                  borderRadius="0"
-                >
-                  <Box
-                    as={session.status === 'IN_PROGRESS' ? Square : Play}
-                    boxSize={4}
-                    color={getStatusBg(session.status)}
-                  />
-                  <Text fontSize="sm" fontWeight="medium">
-                    {session.status === 'IN_PROGRESS'
-                      ? isOvertime
-                        ? t('endAndFinalize')
-                        : t('end')
-                      : t('start')}
-                  </Text>
-                </Button>
+                      return 'pointer';
+                    })()}
+                    fontWeight="normal"
+                    borderRadius="0"
+                  >
+                    <Box
+                      as={session.status === 'IN_PROGRESS' ? Square : Play}
+                      boxSize={4}
+                      color={getStatusBg(session.status)}
+                    />
+                    <Text fontSize="sm" fontWeight="medium">
+                      {session.status === 'IN_PROGRESS'
+                        ? isOvertime
+                          ? t('endAndFinalize')
+                          : t('end')
+                        : t('start')}
+                    </Text>
+                  </Button>
+                )}
 
                 {/* Cancel Action - Only for PREPARING */}
                 {session.status === 'PREPARING' && onCancelSession && (
@@ -457,6 +478,28 @@ const SessionStatusHeader: React.FC<SessionStatusHeaderProps> = ({
                     <Box as={RefreshCw} boxSize={4} color="green.500" />
                     <Text fontSize="sm" fontWeight="medium">
                       {t('refresh')}
+                    </Text>
+                  </Button>
+                )}
+
+                {onCloneSession && (
+                  <Button
+                    variant="ghost"
+                    width="100%"
+                    px={4}
+                    py={2}
+                    display="flex"
+                    alignItems="center"
+                    justifyContent="flex-start"
+                    gap={3}
+                    _hover={{ bg: 'bg.muted' }}
+                    onClick={handleClone}
+                    fontWeight="normal"
+                    borderRadius="0"
+                  >
+                    <Box as={Copy} boxSize={4} color="blue.500" />
+                    <Text fontSize="sm" fontWeight="medium">
+                      {tSession('cloneSession')}
                     </Text>
                   </Button>
                 )}

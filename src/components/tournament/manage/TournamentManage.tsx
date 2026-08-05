@@ -510,19 +510,24 @@ export default function TournamentManage({
                 background: 'var(--chakra-colors-green-700)',
               },
               '& [data-state="inactive"]': {
-                color: 'var(--chakra-colors-green-800)',
+                color: 'var(--chakra-colors-green-700)',
+                fontWeight: '600',
+                background: 'rgba(255, 255, 255, 0.55)',
+                borderRadius: '8px',
               },
               '& [data-state="inactive"]:hover': {
-                background: 'rgba(187, 247, 208, 0.6)',
-                color: 'var(--chakra-colors-green-950)',
+                background: 'rgba(255, 255, 255, 0.85)',
+                color: 'var(--chakra-colors-green-800)',
               },
               '.dark & [data-state="inactive"], [data-theme="dark"] & [data-state="inactive"], [data-mode="dark"] & [data-state="inactive"], html.dark & [data-state="inactive"]':
                 {
-                  color: 'var(--chakra-colors-gray-300, #d1d5db) !important',
+                  background: 'rgba(255, 255, 255, 0.07) !important',
+                  color: 'var(--chakra-colors-gray-200, #e5e7eb) !important',
+                  borderRadius: '8px',
                 },
               '.dark & [data-state="inactive"]:hover, [data-theme="dark"] & [data-state="inactive"]:hover, [data-mode="dark"] & [data-state="inactive"]:hover, html.dark & [data-state="inactive"]:hover':
                 {
-                  background: 'rgba(255, 255, 255, 0.1) !important',
+                  background: 'rgba(255, 255, 255, 0.15) !important',
                   color: '#ffffff !important',
                 },
             }}

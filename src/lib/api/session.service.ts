@@ -329,6 +329,17 @@ export const SessionService = {
     return response.data.data!;
   },
 
+  cloneSession: async (
+    id: string,
+    data: { startTime: string; endTime: string }
+  ): Promise<ISession> => {
+    const response = await api.post<ApiResponse<ISession>>(
+      `/sessions/${id}/clone`,
+      data
+    );
+    return response.data.data!;
+  },
+
   // Update session
   /**
    * Update an existing session

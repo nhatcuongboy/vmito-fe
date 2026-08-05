@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { Badge, Flex, Icon, Text } from '@chakra-ui/react';
 import {
+  Copy,
   Download,
   LayoutGrid,
   Play,
@@ -19,6 +20,7 @@ import { NextLinkButton } from '@/components/ui/NextLinkButton';
 import { VModal, useModal } from '@/components/ui/VModal';
 import { toaster } from '@/components/ui/toaster';
 import SessionShareImageModal from '../SessionShareImageModal';
+import { CloneSessionModal } from '../CloneSessionModal';
 import { SessionListCard } from './SessionListCard';
 import {
   SessionListCardActionItem,
@@ -47,6 +49,7 @@ export const ManagedSessionListCard = ({
   const [isShareImageOpen, setIsShareImageOpen] = useState(false);
   const deleteModal = useModal();
   const endModal = useModal();
+  const cloneModal = useModal();
   const detailHref = `/sessions/${session.slug || session.id}`;
   const manageHref = `/host/sessions/${session.slug || session.id}`;
 
@@ -117,6 +120,21 @@ export const ManagedSessionListCard = ({
       icon: Square,
       color: 'orange.600',
       onSelect: endModal.onOpen,
+    });
+  }
+  if (
+    !session.isCrawled &&
+    [
+      SessionStatus.PREPARING,
+      SessionStatus.FINISHED,
+      SessionStatus.CANCELLED,
+    ].includes(session.status)
+  ) {
+    menuItems.push({
+      key: 'clone',
+      label: t('cloneSession'),
+      icon: Copy,
+      onSelect: cloneModal.onOpen,
     });
   }
   menuItems.push(
@@ -215,6 +233,13 @@ export const ManagedSessionListCard = ({
         isOpen={isShareImageOpen}
         onClose={() => setIsShareImageOpen(false)}
         session={session}
+      />
+
+      <CloneSessionModal
+        isOpen={cloneModal.isOpen}
+        onClose={cloneModal.onClose}
+        session={session}
+        onCloned={onRefresh}
       />
     </>
   );

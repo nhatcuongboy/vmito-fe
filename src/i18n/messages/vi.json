@@ -123,6 +123,8 @@
     "previous": "Trước",
     "submit": "Gửi",
     "close": "Đóng",
+    "collapse": "Thu gọn",
+    "expand": "Mở rộng",
     "yes": "Có",
     "no": "Không",
     "required": "Bắt buộc",
@@ -329,13 +331,29 @@
     "courtNameDescription": "Tên tùy chỉnh để giúp nhận diện sân này",
     "courtDirectionTip": "Hướng sân giúp tối ưu hóa việc sắp xếp người chơi và điều kiện ánh sáng",
     "createSession": "Tạo kèo",
+    "cloneSession": "Nhân bản kèo",
+    "cloneModal": {
+      "title": "Nhân bản kèo",
+      "description": "Tạo một kèo mới từ “{name}” với thời gian mới.",
+      "excludedData": "Thông tin kèo, sân, địa điểm, cấu hình phí và hình ảnh sẽ được sao chép. Người chơi đã đăng ký và các trận đấu sẽ không được sao chép.",
+      "startTime": "Thời gian bắt đầu mới",
+      "endTime": "Thời gian kết thúc mới",
+      "confirm": "Nhân bản kèo",
+      "success": "Đã nhân bản kèo thành công",
+      "errors": {
+        "required": "Chọn đầy đủ thời gian bắt đầu và kết thúc",
+        "future": "Kèo mới phải bắt đầu trong tương lai",
+        "endAfterStart": "Thời gian kết thúc phải sau thời gian bắt đầu",
+        "failed": "Không thể nhân bản kèo"
+      }
+    },
     "joinSession": "Đăng ký kèo",
     "fee": "Phí",
     "contactHostForFee": "Liên hệ host",
     "defaultClub": "CLB quản lý",
     "selectDefaultClub": "Chọn CLB quản lý",
     "searchDefaultClub": "Tìm CLB quản lý",
-    "noDefaultClub": "Không gắn CLB quản lý",
+    "noDefaultClub": "Không gắn CLB",
     "defaultClubDescription": "Khi thêm người chơi đã thuộc CLB này, hệ thống sẽ tự áp dụng phí cố định của CLB.",
     "register": "Đăng ký",
     "sessionName": "Tên kèo",
@@ -6072,7 +6090,9 @@
     "viewReviews": "Xem đánh giá",
     "reviews": "Đánh giá",
     "cancel": "Hủy",
-    "rated": "Đã đánh giá"
+    "rated": "Đã đánh giá",
+    "anonymousReviewer": "Người dùng ẩn danh",
+    "anonymousRatingNotice": "Đánh giá của bạn cho host sẽ được ẩn danh. Host chỉ thấy nội dung đánh giá, không thấy tên bạn."
   },
   "userProfilePage": {
     "title": "Trang cá nhân",
@@ -6370,6 +6390,7 @@
       "TOURNAMENT_CREATED": "{author} vừa tạo giải đấu <b>{tournament}</b>",
       "TOURNAMENT_FINISHED": "Giải đấu <b>{tournament}</b> đã kết thúc",
       "AVATAR_UPDATED": "{author} đã cập nhật ảnh đại diện",
+      "COVER_PHOTO_UPDATED": "{author} đã cập nhật ảnh bìa",
       "USER_RATED": "{author} đã đánh giá {rated}",
       "champion": "Vô địch",
       "runnerUp": "Á quân",

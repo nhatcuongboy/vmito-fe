@@ -109,38 +109,6 @@ export function HostTournamentListSkeleton({ count = 5 }: { count?: number }) {
   );
 }
 
-function TournamentSidebarSkeleton() {
-  return (
-    <Box
-      w="280px"
-      flexShrink={0}
-      borderWidth="1px"
-      borderColor="gray.200"
-      borderRadius="2xl"
-      bg="white"
-      p={4}
-      position="sticky"
-      top="96px"
-      alignSelf="flex-start"
-      _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
-    >
-      <VStack align="stretch" gap={4}>
-        <Skeleton height="92px" borderRadius="xl" />
-        {repeat(7).map((_, index) => (
-          <HStack key={index} gap={3}>
-            <Skeleton height="34px" width="34px" borderRadius="lg" />
-            <Skeleton
-              height="16px"
-              width={index === 0 ? '72%' : '56%'}
-              borderRadius="md"
-            />
-          </HStack>
-        ))}
-      </VStack>
-    </Box>
-  );
-}
-
 export function TournamentTableSkeleton({
   rows = 5,
   columns = 5,
@@ -228,10 +196,14 @@ export function TournamentMatchListSkeleton({ count = 5 }: { count?: number }) {
 
 export function TournamentTeamsSkeleton() {
   return (
-    <VStack align="stretch" gap={5}>
-      <Flex justify="space-between" align="center" gap={4}>
-        <Skeleton height="30px" width="160px" borderRadius="md" />
-        <Skeleton height="32px" width="132px" borderRadius="full" />
+    <VStack align="stretch" gap={6}>
+      {/* Header with manage button and view toggle on the same row */}
+      <Flex align="center" justify="space-between" gap={3} flexWrap="wrap">
+        <Flex align="center" gap={3}>
+          <Skeleton height="30px" width="80px" borderRadius="md" />
+          <Skeleton height="32px" width="100px" borderRadius="full" />
+        </Flex>
+        <Skeleton height="40px" width="280px" borderRadius="lg" />
       </Flex>
       {repeat(3).map((_, categoryIndex) => (
         <Box
@@ -387,112 +359,6 @@ export function TournamentContentSkeleton() {
       </SimpleGrid>
       <TournamentMatchListSkeleton count={4} />
     </VStack>
-  );
-}
-
-export function TournamentShellSkeleton({ content }: { content?: ReactNode }) {
-  return (
-    <>
-      <Flex
-        display={{ base: 'none', md: 'flex' }}
-        gap={6}
-        pt={{ md: 6 }}
-        pl={{ md: 4 }}
-        pr={{ md: 6 }}
-      >
-        <TournamentSidebarSkeleton />
-        <Box flex="1" minW={0}>
-          <VStack align="stretch" gap={5}>
-            {content ?? (
-              <>
-                <Box
-                  borderWidth="1px"
-                  borderColor="gray.200"
-                  borderRadius="2xl"
-                  bg="white"
-                  overflow="hidden"
-                  _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
-                >
-                  <Skeleton height="180px" />
-                  <Box p={5}>
-                    <Skeleton
-                      height="30px"
-                      width="45%"
-                      mb={3}
-                      borderRadius="md"
-                    />
-                    <Skeleton
-                      height="16px"
-                      width="70%"
-                      mb={2}
-                      borderRadius="md"
-                    />
-                    <Skeleton height="16px" width="52%" borderRadius="md" />
-                  </Box>
-                </Box>
-                <SimpleGrid columns={{ md: 2, xl: 3 }} gap={4}>
-                  {repeat(3).map((_, index) => (
-                    <Box
-                      key={index}
-                      borderWidth="1px"
-                      borderColor="gray.200"
-                      borderRadius="xl"
-                      bg="white"
-                      p={4}
-                      _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
-                    >
-                      <Skeleton
-                        height="18px"
-                        width="60%"
-                        mb={3}
-                        borderRadius="md"
-                      />
-                      <Skeleton height="40px" width="46%" borderRadius="md" />
-                    </Box>
-                  ))}
-                </SimpleGrid>
-                <TournamentMatchListSkeleton count={4} />
-              </>
-            )}
-          </VStack>
-        </Box>
-      </Flex>
-
-      <Box display={{ base: 'block', md: 'none' }} pb="88px">
-        <VStack align="stretch" gap={5}>
-          {content ?? (
-            <>
-              <Box
-                borderWidth="1px"
-                borderColor="gray.200"
-                borderRadius="2xl"
-                bg="white"
-                overflow="hidden"
-                _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
-              >
-                <Skeleton height="150px" />
-                <Box p={4}>
-                  <Skeleton
-                    height="26px"
-                    width="72%"
-                    mb={3}
-                    borderRadius="md"
-                  />
-                  <Skeleton
-                    height="15px"
-                    width="90%"
-                    mb={2}
-                    borderRadius="md"
-                  />
-                  <Skeleton height="15px" width="58%" borderRadius="md" />
-                </Box>
-              </Box>
-              <TournamentMatchListSkeleton count={3} />
-            </>
-          )}
-        </VStack>
-      </Box>
-    </>
   );
 }
 

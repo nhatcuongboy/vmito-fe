@@ -466,6 +466,7 @@ export default function TournamentPageShell({
   useEffect(() => {
     setIsMounted(true);
   }, []);
+  const [loadingCategories, setLoadingCategories] = useState(true);
   const [loadingTeams, setLoadingTeams] = useState(true);
   const [teamCategoryBlocks, setTeamCategoryBlocks] = useState<
     ITeamCategoryBlock[]
@@ -711,6 +712,7 @@ export default function TournamentPageShell({
       try {
         setLoading(true);
         setTournament(null);
+        setLoadingCategories(true);
         setLoadingTeams(true);
         setAllCategories([]);
         setTeamCategoryBlocks([]);
@@ -722,6 +724,7 @@ export default function TournamentPageShell({
       } catch (error) {
         console.error('Error loading tournament:', error);
         setTournament(null);
+        setLoadingCategories(false);
         setAllCategories([]);
         setTeamCategoryBlocks([]);
         setTotalAthletes(0);
@@ -754,6 +757,7 @@ export default function TournamentPageShell({
     const tournamentId = tournament?.id;
 
     if (!tournamentId) {
+      setLoadingCategories(false);
       setLoadingTeams(false);
       return;
     }
@@ -762,12 +766,17 @@ export default function TournamentPageShell({
 
     const loadTournamentTeams = async () => {
       try {
+        setLoadingCategories(true);
         setLoadingTeams(true);
 
         const [categories, tournamentPlayers] = await Promise.all([
           CategoryService.getCategories(tournamentId),
           TournamentPlayerService.getPlayers(tournamentId),
         ]);
+
+        if (!isMounted) return;
+        setAllCategories(categories);
+        setLoadingCategories(false);
 
         const tournamentPlayerIds = tournamentPlayers.map(
           (player) => player.id
@@ -853,7 +862,6 @@ export default function TournamentPageShell({
 
         if (!isMounted) return;
 
-        setAllCategories(categories);
         setTeamCategoryBlocks(categoryBlocks);
         setTotalAthletes(tournamentPlayers.length);
         setAllPlayers(allPlayerItems);
@@ -867,6 +875,7 @@ export default function TournamentPageShell({
         setAllPlayers([]);
       } finally {
         if (isMounted) {
+          setLoadingCategories(false);
           setLoadingTeams(false);
         }
       }
@@ -1075,7 +1084,7 @@ export default function TournamentPageShell({
     );
   }
 
-  const renderContent = (layout: 'desktop' | 'mobile') => (
+  const renderContent = (_layout: 'desktop' | 'mobile') => (
     <>
       {activeTab === 0 && (
         <TournamentHomeTab
@@ -1099,36 +1108,28 @@ export default function TournamentPageShell({
       )}
       {activeTab === 1 && (
         <VStack align="stretch" gap={6}>
-          <Flex
-            justify="space-between"
-            align={{ base: 'stretch', md: 'center' }}
-            gap={4}
-            direction={{ base: 'column', md: 'row' }}
-          >
-            <Box minW={0}>
+          {/* Header with manage button and view toggle on the same row */}
+          <Flex align="center" justify="space-between" gap={3} flexWrap="wrap">
+            <Flex align="center" gap={3}>
               <Heading size="lg" display={{ base: 'none', md: 'block' }}>
                 {t('tabs.teams')}
               </Heading>
-            </Box>
-          </Flex>
-
-          {/* View toggle: by category vs. all players */}
-          <Flex align="center" justify="space-between" gap={3}>
-            {canManage && (
-              <Button
-                size="sm"
-                variant="subtle"
-                colorPalette="gray"
-                borderRadius="full"
-                px={4}
-                onClick={handleManageTeamsClick}
-              >
-                <HStack gap={2}>
-                  <SquarePen size={15} />
-                  <Text>{t('teamsTab.manageTeams')}</Text>
-                </HStack>
-              </Button>
-            )}
+              {canManage && (
+                <Button
+                  size="sm"
+                  variant="subtle"
+                  colorPalette="gray"
+                  borderRadius="full"
+                  px={4}
+                  onClick={handleManageTeamsClick}
+                >
+                  <HStack gap={2}>
+                    <SquarePen size={15} />
+                    <Text>{t('teamsTab.manageTeams')}</Text>
+                  </HStack>
+                </Button>
+              )}
+            </Flex>
             <Flex
               p={0.5}
               gap={0.5}
@@ -1136,7 +1137,6 @@ export default function TournamentPageShell({
               borderColor="gray.200"
               borderRadius="lg"
               bg="white"
-              ml="auto"
               shadow="sm"
               h="fit-content"
               _dark={{
@@ -1319,7 +1319,7 @@ export default function TournamentPageShell({
       )}
       {activeTab === 2 &&
         tournament &&
-        (loadingTeams ? (
+        (loadingCategories ? (
           <TournamentMatchListSkeleton count={6} />
         ) : (
           <ResultsPanel
@@ -1333,7 +1333,7 @@ export default function TournamentPageShell({
         ))}
       {activeTab === 3 &&
         tournament &&
-        (loadingTeams ? (
+        (loadingCategories ? (
           <TournamentTableSkeleton rows={6} columns={7} />
         ) : (
           <PublicTournamentStandingsTab

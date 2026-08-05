@@ -114,6 +114,8 @@
     "previous": "上一页",
     "submit": "提交",
     "close": "关闭",
+    "collapse": "收起",
+    "expand": "展开",
     "yes": "是",
     "no": "否",
     "required": "必填",
@@ -317,6 +319,22 @@
     "courtNameDescription": "自定义名称以帮助识别此场地",
     "courtDirectionTip": "场地朝向有助于优化玩家位置和照明条件",
     "createSession": "创建场次",
+    "cloneSession": "克隆场次",
+    "cloneModal": {
+      "title": "克隆场次",
+      "description": "使用新时间从“{name}”创建一个新场次。",
+      "excludedData": "场次详情、场地、地点、费用设置和图片将被复制。已报名玩家和比赛不会被复制。",
+      "startTime": "新的开始时间",
+      "endTime": "新的结束时间",
+      "confirm": "克隆场次",
+      "success": "场次克隆成功",
+      "errors": {
+        "required": "请选择开始时间和结束时间",
+        "future": "新场次必须在未来开始",
+        "endAfterStart": "结束时间必须晚于开始时间",
+        "failed": "无法克隆场次"
+      }
+    },
     "joinSession": "加入场次",
     "fee": "费用",
     "contactHostForFee": "联系主办方",
@@ -6014,7 +6032,9 @@
     "viewReviews": "查看评价",
     "reviews": "评价",
     "cancel": "取消",
-    "rated": "已评价"
+    "rated": "已评价",
+    "anonymousReviewer": "匿名用户",
+    "anonymousRatingNotice": "您对主持人的评价将匿名显示。主持人只能看到评价内容,看不到您的姓名。"
   },
   "userProfilePage": {
     "title": "个人主页",
@@ -6312,6 +6332,7 @@
       "TOURNAMENT_CREATED": "{author} 创建了赛事 <b>{tournament}</b>",
       "TOURNAMENT_FINISHED": "赛事 <b>{tournament}</b> 已结束",
       "AVATAR_UPDATED": "{author} 更新了头像",
+      "COVER_PHOTO_UPDATED": "{author} 更新了封面照片",
       "USER_RATED": "{author} 评价了 {rated}",
       "champion": "冠军",
       "runnerUp": "亚军",

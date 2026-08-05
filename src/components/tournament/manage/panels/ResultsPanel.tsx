@@ -723,6 +723,7 @@ export default function ResultsPanel({
                 onToggle={handleToggleRefereeFilter}
                 title={t('filters.referee')}
                 size={32}
+                hideCheckBadge={true}
               >
                 <ShieldCheck size={16} />
               </TournamentIconToggle>

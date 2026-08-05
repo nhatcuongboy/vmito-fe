@@ -10,9 +10,9 @@ import {
   SkeletonCircle,
 } from '@chakra-ui/react';
 import { StarRatingDisplay } from './StarRatingDisplay';
-import { Rating } from '@/lib/api/types';
+import { Rating, RatingType } from '@/lib/api/types';
 import { useTranslations } from 'next-intl';
-import { User, MessageSquare } from 'lucide-react';
+import { User, MessageSquare, VenetianMask } from 'lucide-react';
 import { formatDistanceToNow, Locale } from 'date-fns';
 import { vi, enUS, zhCN } from 'date-fns/locale';
 import { useLocale } from 'next-intl';
@@ -87,6 +87,10 @@ export const RatingList = ({
   return (
     <VStack gap={3} align="stretch">
       {ratings.map((rating) => {
+        // PLAYER_TO_HOST ratings are anonymous — the server never sends the rater's
+        // identity for these, regardless of who is viewing (including the host).
+        const isAnonymousRater =
+          showRater && rating.type === RatingType.PLAYER_TO_HOST;
         const displayUser = showRater ? rating.rater : rating.rated;
         const timeAgo = formatDistanceToNow(new Date(rating.createdAt), {
           addSuffix: true,
@@ -106,15 +110,25 @@ export const RatingList = ({
           >
             <HStack gap={3} mb={2}>
               <Avatar.Root size="sm" borderRadius="full">
-                <Avatar.Fallback name={displayUser?.name || 'User'}>
-                  <User size={16} />
+                <Avatar.Fallback
+                  name={isAnonymousRater ? '' : displayUser?.name || 'User'}
+                >
+                  {isAnonymousRater ? (
+                    <VenetianMask size={16} />
+                  ) : (
+                    <User size={16} />
+                  )}
                 </Avatar.Fallback>
-                {displayUser?.image && <Avatar.Image src={displayUser.image} />}
+                {!isAnonymousRater && displayUser?.image && (
+                  <Avatar.Image src={displayUser.image} />
+                )}
               </Avatar.Root>
               <VStack align="start" gap={0} flex={1}>
                 <HStack justify="space-between" width="full">
                   <Text fontSize="sm" fontWeight="medium" color="gray.800">
-                    {displayUser?.name || 'Unknown User'}
+                    {isAnonymousRater
+                      ? t('anonymousReviewer')
+                      : displayUser?.name || 'Unknown User'}
                   </Text>
                   <Text fontSize="xs" color="gray.400">
                     {timeAgo}

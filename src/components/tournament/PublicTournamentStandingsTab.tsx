@@ -1488,7 +1488,7 @@ function StandingsTable({
                     borderColor:
                       'var(--tournament-border, var(--chakra-colors-gray-800))',
                     _hover: {
-                      bg: 'var(--tournament-accent-soft, rgba(34, 197, 94, 0.14))',
+                      bg: 'color-mix(in srgb, rgb(34 197 94) 14%, var(--tournament-surface-raised, #0f172a))',
                     },
                   }}
                 >
@@ -1496,14 +1496,18 @@ function StandingsTable({
                     data-sticky-cell
                     position="sticky"
                     left={{ base: '16px', md: '20px' }}
-                    zIndex={1}
+                    zIndex={2}
                     bg="white"
                     _groupHover={{ bg: 'gray.50' }}
                     _dark={{
                       bg: 'var(--tournament-surface-raised, var(--chakra-colors-gray-900))',
-                      _groupHover: {
-                        bg: 'var(--tournament-accent-soft, rgba(34, 197, 94, 0.14))',
-                      },
+                    }}
+                    css={{
+                      '.dark .group:hover &, [data-theme="dark"] .group:hover &, [data-mode="dark"] .group:hover &, html.dark .group:hover &':
+                        {
+                          background:
+                            'color-mix(in srgb, rgb(34 197 94) 14%, var(--tournament-surface-raised, var(--chakra-colors-gray-900))) !important',
+                        },
                     }}
                   >
                     <Box
@@ -1516,9 +1520,13 @@ function StandingsTable({
                       _groupHover={{ bg: 'gray.50' }}
                       _dark={{
                         bg: 'var(--tournament-surface-raised, var(--chakra-colors-gray-900))',
-                        _groupHover: {
-                          bg: 'var(--tournament-accent-soft, rgba(34, 197, 94, 0.14))',
-                        },
+                      }}
+                      css={{
+                        '.dark .group:hover &, [data-theme="dark"] .group:hover &, [data-mode="dark"] .group:hover &, html.dark .group:hover &':
+                          {
+                            background:
+                              'color-mix(in srgb, rgb(34 197 94) 14%, var(--tournament-surface-raised, var(--chakra-colors-gray-900))) !important',
+                          },
                       }}
                     />
                     <Flex
@@ -1547,7 +1555,7 @@ function StandingsTable({
                     data-sticky-cell
                     position="sticky"
                     left={{ base: '56px', md: '64px' }}
-                    zIndex={1}
+                    zIndex={2}
                     minW={0}
                     pr={{ base: 3, md: 4 }}
                     mr={{ base: -3, md: -4 }}
@@ -1555,9 +1563,13 @@ function StandingsTable({
                     _groupHover={{ bg: 'gray.50' }}
                     _dark={{
                       bg: 'var(--tournament-surface-raised, var(--chakra-colors-gray-900))',
-                      _groupHover: {
-                        bg: 'var(--tournament-accent-soft, rgba(34, 197, 94, 0.14))',
-                      },
+                    }}
+                    css={{
+                      '.dark .group:hover &, [data-theme="dark"] .group:hover &, [data-mode="dark"] .group:hover &, html.dark .group:hover &':
+                        {
+                          background:
+                            'color-mix(in srgb, rgb(34 197 94) 14%, var(--tournament-surface-raised, var(--chakra-colors-gray-900))) !important',
+                        },
                     }}
                   >
                     <HStack gap={1.5} minW={0}>

@@ -1,6 +1,5 @@
 import { Metadata } from 'next';
 import { cache } from 'react';
-import TournamentPageShell from '@/components/tournament/TournamentPageShell';
 import { DEFAULT_COVER_PHOTO } from '@/constants';
 import { TournamentService } from '@/lib/api/tournament.service';
 import { Tournament } from '@/lib/api/types';
@@ -183,7 +182,6 @@ export default async function TournamentPage({ params }: PageProps) {
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
       )}
-      <TournamentPageShell activeSegment="home" />
     </>
   );
 }
