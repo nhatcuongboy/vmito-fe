@@ -197,7 +197,7 @@ const PlayerStatusFilter: React.FC<PlayerStatusFilterProps> = ({
         <Box
           position="absolute"
           top="100%"
-          right={0}
+          left={0}
           mt={2}
           bg={{ base: 'white', _dark: 'gray.800' }}
           _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
