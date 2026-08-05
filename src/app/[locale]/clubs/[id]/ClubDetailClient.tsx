@@ -120,13 +120,31 @@ export default function ClubDetailClient({
     [clubId, t]
   );
 
+  // Server already provided club data (initialClub), so skip re-fetching it —
+  // but the join-request status is user-specific and was never fetched
+  // server-side, so it still needs its own request on mount.
+  const refreshJoinRequestStatus = useCallback(async () => {
+    if (!currentUser) return;
+    try {
+      const myRequests = await ClubsService.getMyJoinRequests();
+      const req = myRequests.find((r) => r.clubId === clubId);
+      setUserJoinRequest(req || null);
+      setHasPendingRequest(req?.status === EJoinRequestStatus.PENDING);
+    } catch (error) {
+      console.error('Failed to load join request status:', error);
+    }
+  }, [clubId, currentUser]);
+
   useEffect(() => {
-    if (initialClub) return;
+    if (initialClub) {
+      refreshJoinRequestStatus();
+      return;
+    }
 
     if (clubId) {
       loadClubDetails();
     }
-  }, [clubId, loadClubDetails, initialClub]);
+  }, [clubId, loadClubDetails, initialClub, refreshJoinRequestStatus]);
 
   const isUserMember =
     optimisticallyJoinedClubId === club?.id ||
