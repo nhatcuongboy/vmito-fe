@@ -1986,7 +1986,7 @@ export interface Rating {
   comment?: string; // Optional review (max 500 chars)
   createdAt: Date;
   updatedAt: Date;
-  rater?: { id: string; name: string; image?: string };
+  rater?: { id: string; name: string; image?: string } | null; // null when anonymized (PLAYER_TO_HOST)
   rated?: { id: string; name: string; image?: string };
   session?: { id: string; name: string };
 }

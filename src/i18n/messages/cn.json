@@ -6014,7 +6014,9 @@
     "viewReviews": "查看评价",
     "reviews": "评价",
     "cancel": "取消",
-    "rated": "已评价"
+    "rated": "已评价",
+    "anonymousReviewer": "匿名用户",
+    "anonymousRatingNotice": "您对主持人的评价将匿名显示。主持人只能看到评价内容,看不到您的姓名。"
   },
   "userProfilePage": {
     "title": "个人主页",

@@ -6072,7 +6072,9 @@
     "viewReviews": "Xem đánh giá",
     "reviews": "Đánh giá",
     "cancel": "Hủy",
-    "rated": "Đã đánh giá"
+    "rated": "Đã đánh giá",
+    "anonymousReviewer": "Người dùng ẩn danh",
+    "anonymousRatingNotice": "Đánh giá của bạn cho host sẽ được ẩn danh. Host chỉ thấy nội dung đánh giá, không thấy tên bạn."
   },
   "userProfilePage": {
     "title": "Trang cá nhân",

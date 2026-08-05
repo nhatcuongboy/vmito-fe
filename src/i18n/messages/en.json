@@ -6055,7 +6055,9 @@
     "viewReviews": "View Reviews",
     "reviews": "Reviews",
     "cancel": "Cancel",
-    "rated": "Rated"
+    "rated": "Rated",
+    "anonymousReviewer": "Anonymous user",
+    "anonymousRatingNotice": "Your rating for the host is anonymous. The host can see the review content but not your name."
   },
   "userProfilePage": {
     "title": "Profile",

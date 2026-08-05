@@ -8,7 +8,7 @@ import { StarRatingInput } from './StarRatingInput';
 import { useTranslations } from 'next-intl';
 import { RatingService } from '@/lib/api/rating.service';
 import { RatingType, CreateRatingRequest } from '@/lib/api/types';
-import { User } from 'lucide-react';
+import { User, VenetianMask } from 'lucide-react';
 
 interface SubmitRatingModalProps {
   isOpen: boolean;
@@ -107,6 +107,27 @@ export const SubmitRatingModal = ({
             {ratedUserName}
           </Text>
         </VStack>
+
+        {/* Anonymity notice — only player→host ratings are anonymous */}
+        {type === RatingType.PLAYER_TO_HOST && (
+          <HStack
+            gap={2}
+            bg="gray.50"
+            borderRadius="md"
+            px={3}
+            py={2}
+            align="flex-start"
+          >
+            <VenetianMask
+              size={16}
+              color="#718096"
+              style={{ marginTop: 2, flexShrink: 0 }}
+            />
+            <Text fontSize="xs" color="gray.600">
+              {t('anonymousRatingNotice')}
+            </Text>
+          </HStack>
+        )}
 
         {/* Star Rating Input */}
         <VStack gap={2} align="center">
