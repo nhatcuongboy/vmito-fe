@@ -12,6 +12,8 @@ import {
 } from '@chakra-ui/react';
 import QRCode from 'qrcode';
 import { Button, IconButton, VStack } from '@/components/ui/chakra-compat';
+import { Link } from '@/i18n/config';
+import { ROUTES } from '@/constants';
 import {
   Award,
   Building2,
@@ -606,7 +608,18 @@ export default function SessionInfo({
 
       {session.club && (
         <InfoRow icon={Building2} label={t('managingClub')}>
-          {session.club.name}
+          <Link
+            href={ROUTES.CLUBS.DETAIL(session.club.id)}
+            style={{ textDecoration: 'none' }}
+          >
+            <Text
+              color="green.600"
+              _dark={{ color: 'green.400' }}
+              _hover={{ textDecoration: 'underline' }}
+            >
+              {session.club.name}
+            </Text>
+          </Link>
         </InfoRow>
       )}
 

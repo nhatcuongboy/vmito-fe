@@ -515,7 +515,19 @@ const SessionDetailBody = ({
           {session.club && (
             <Flex align="center" gap={2}>
               <Icon as={Building2} boxSize={5} color="green.500" />
-              <Text fontSize="sm">{session.club.name}</Text>
+              <Link
+                href={ROUTES.CLUBS.DETAIL(session.club.id)}
+                style={{ textDecoration: 'none' }}
+              >
+                <Text
+                  fontSize="sm"
+                  color="green.600"
+                  _dark={{ color: 'green.400' }}
+                  _hover={{ textDecoration: 'underline' }}
+                >
+                  {session.club.name}
+                </Text>
+              </Link>
             </Flex>
           )}
         </Grid>
