@@ -1,4 +1,4 @@
-import { Flex } from '@chakra-ui/react';
+import { Flex, Portal } from '@chakra-ui/react';
 import { Button } from '@/components/ui/chakra-compat';
 import { CalendarPlus } from 'lucide-react';
 import type { useTranslations } from 'next-intl';
@@ -15,6 +15,7 @@ export function FormFooter({
   submitLabel,
   useDrawerMobileFooter,
   mobileFooterWidth,
+  formId,
 }: {
   t: Translator;
   tc: Translator;
@@ -25,33 +26,10 @@ export function FormFooter({
   submitLabel: string;
   useDrawerMobileFooter: boolean;
   mobileFooterWidth: string;
+  formId: string;
 }) {
-  return (
-    <Flex
-      gap={3}
-      mt={4}
-      {...(useDrawerMobileFooter
-        ? {
-            position: { base: 'fixed', md: 'static' },
-            right: { base: 0, md: 'auto' },
-            bottom: { base: 0, md: 'auto' },
-            width: { base: mobileFooterWidth, md: 'auto' },
-            p: { base: 4, md: 0 },
-            pb: {
-              base: 'calc(16px + env(safe-area-inset-bottom))',
-              md: 0,
-            },
-            bg: { base: 'white', _dark: 'gray.800' },
-            borderTop: { base: '1px solid', md: 'none' },
-            borderColor: { base: 'border', md: 'transparent' },
-            boxShadow: {
-              base: '0 -8px 24px rgba(0, 0, 0, 0.18)',
-              md: 'none',
-            },
-            zIndex: 1260,
-          }
-        : {})}
-    >
+  const actions = (
+    <>
       {onCancel && (
         <Button type="button" variant="outline" onClick={onCancel} flex={1}>
           {tc('cancel')}
@@ -59,6 +37,7 @@ export function FormFooter({
       )}
       <Button
         type="submit"
+        form={formId}
         data-tour="submit-session"
         colorPalette="green"
         loading={isSubmitting || isNavigating}
@@ -75,6 +54,41 @@ export function FormFooter({
         <CalendarPlus size={18} style={{ marginRight: '8px' }} />
         {submitLabel}
       </Button>
-    </Flex>
+    </>
+  );
+
+  return (
+    <>
+      {useDrawerMobileFooter && (
+        <Portal>
+          <Flex
+            display={{ base: 'flex', md: 'none' }}
+            gap={3}
+            position="fixed"
+            insetInline={0}
+            bottom={0}
+            width={mobileFooterWidth}
+            p={4}
+            pb="calc(16px + env(safe-area-inset-bottom))"
+            bg={{ base: 'white', _dark: 'gray.800' }}
+            borderTop="1px solid"
+            borderColor="border"
+            boxShadow="0 -8px 24px rgba(0, 0, 0, 0.18)"
+            zIndex={1260}
+          >
+            {actions}
+          </Flex>
+        </Portal>
+      )}
+      <Flex
+        display={
+          useDrawerMobileFooter ? { base: 'none', md: 'flex' } : undefined
+        }
+        gap={3}
+        mt={4}
+      >
+        {actions}
+      </Flex>
+    </>
   );
 }

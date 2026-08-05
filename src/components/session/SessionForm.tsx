@@ -36,7 +36,7 @@ import { useAuthStore } from '@/stores/useAuthStore';
 import { useCanAccessHostFeatures } from '@/hooks/useCanAccessHostFeatures';
 import { useTranslations } from 'next-intl';
 import { useSearchParams } from 'next/navigation';
-import { useEffect, useMemo, useState, useRef } from 'react';
+import { useEffect, useMemo, useState, useRef, useId } from 'react';
 import { toaster } from '@/components/ui/toaster';
 import { VModal } from '@/components/ui/VModal';
 import AISessionModal from '@/components/session/AISessionModal';
@@ -81,6 +81,7 @@ export default function SessionForm({
   useDrawerMobileFooter = false,
   mobileFooterWidth = '100%',
 }: SessionFormProps) {
+  const formId = useId();
   const searchParams = useSearchParams();
   const t = useTranslations('session');
   const tc = useTranslations('common');
@@ -596,6 +597,7 @@ export default function SessionForm({
         w="full"
       >
         <form
+          id={formId}
           onSubmit={handleSubmit(
             onSubmit as Parameters<typeof handleSubmit>[0],
             scrollToFirstSessionError
@@ -742,6 +744,7 @@ export default function SessionForm({
               submitLabel={submitLabel}
               useDrawerMobileFooter={useDrawerMobileFooter}
               mobileFooterWidth={mobileFooterWidth}
+              formId={formId}
             />
           </Stack>
         </form>

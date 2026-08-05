@@ -158,17 +158,6 @@ const ManagedClubCard = ({ club, onDelete }: IManagedClubCardProps) => {
                         onClick={(event) => event.stopPropagation()}
                       >
                         <MenuItem
-                          value="fees"
-                          cursor="pointer"
-                          _hover={{ bg: 'bg.muted' }}
-                          onClick={() =>
-                            router.push(ROUTES.HOST.CLUBS.FEES(club.id))
-                          }
-                        >
-                          <DollarSign size={16} />
-                          {t('clubs.feeConfiguration')}
-                        </MenuItem>
-                        <MenuItem
                           value="edit"
                           cursor="pointer"
                           _hover={{ bg: 'bg.muted' }}
@@ -178,6 +167,17 @@ const ManagedClubCard = ({ club, onDelete }: IManagedClubCardProps) => {
                         >
                           <Settings size={16} />
                           {t('common.edit')}
+                        </MenuItem>
+                        <MenuItem
+                          value="fees"
+                          cursor="pointer"
+                          _hover={{ bg: 'bg.muted' }}
+                          onClick={() =>
+                            router.push(ROUTES.HOST.CLUBS.FEES(club.id))
+                          }
+                        >
+                          <DollarSign size={16} />
+                          {t('clubs.feeConfiguration')}
                         </MenuItem>
                         <MenuItem
                           value="delete"

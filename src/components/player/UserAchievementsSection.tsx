@@ -266,7 +266,13 @@ export default function UserAchievementsSection({
       </motion.div>
 
       {/* Ranks per period */}
-      <Grid templateColumns="repeat(4, minmax(0, 1fr))" gap={2}>
+      <Grid
+        templateColumns={{
+          base: 'repeat(2, minmax(0, 1fr))',
+          sm: 'repeat(4, minmax(0, 1fr))',
+        }}
+        gap={2}
+      >
         {PERIODS.map((period) => {
           const rank = data.ranks.find((r) => r.period === period);
           return (
