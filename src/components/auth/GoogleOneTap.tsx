@@ -52,11 +52,6 @@ export default function GoogleOneTap() {
 
       try {
         await AuthService.googleOneTap(response.credential);
-        toaster.create({
-          title: t('loginSuccessful'),
-          type: 'success',
-          duration: 3000,
-        });
       } catch (error: unknown) {
         console.error('Google One Tap authentication error:', error);
         const apiError = error as {
