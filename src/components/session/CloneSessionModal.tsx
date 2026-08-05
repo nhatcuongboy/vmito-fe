@@ -1,10 +1,16 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Box, Field, Text, VStack } from '@chakra-ui/react';
+import { Box, Field, Stack, Text, VStack } from '@chakra-ui/react';
 import { useTranslations } from 'next-intl';
 import { ISession } from '@/lib/api/types';
 import { SessionService } from '@/lib/api/session.service';
+import {
+  buildSingleDayDateTime,
+  buildSingleDayEndDateTime,
+  formatDateOnly,
+  formatTimeOnly,
+} from '@/components/session/session-form/sessionFormUtils';
 import { VDateTimeInput } from '@/components/ui/VDateTimeInput';
 import { VModal } from '@/components/ui/VModal';
 import { toaster } from '@/components/ui/toaster';
@@ -16,11 +22,6 @@ interface ICloneSessionModalProps {
   onCloned?: () => void | Promise<void>;
 }
 
-const toLocalDateTimeValue = (date: Date) => {
-  const timezoneOffset = date.getTimezoneOffset() * 60_000;
-  return new Date(date.getTime() - timezoneOffset).toISOString().slice(0, 16);
-};
-
 export const CloneSessionModal = ({
   isOpen,
   onClose,
@@ -28,37 +29,43 @@ export const CloneSessionModal = ({
   onCloned,
 }: ICloneSessionModalProps) => {
   const t = useTranslations('session.cloneModal');
+  const tSession = useTranslations('session');
   const tCommon = useTranslations('common');
-  const [startTime, setStartTime] = useState('');
-  const [endTime, setEndTime] = useState('');
+  const [sessionDate, setSessionDate] = useState(() =>
+    formatDateOnly(new Date())
+  );
+  const [startHour, setStartHour] = useState('');
+  const [endHour, setEndHour] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     if (!isOpen) {
-      setStartTime('');
-      setEndTime('');
+      setSessionDate(formatDateOnly(new Date()));
+      setStartHour('');
+      setEndHour('');
     }
   }, [isOpen]);
 
   const handleStartTimeChange = (value: string) => {
-    setStartTime(value);
+    setStartHour(value);
     if (!value) {
-      setEndTime('');
+      setEndHour('');
       return;
     }
 
-    const suggestedEndTime = new Date(value);
+    const startTime = buildSingleDayDateTime(sessionDate, value);
+    const suggestedEndTime = new Date(startTime);
     suggestedEndTime.setMinutes(
       suggestedEndTime.getMinutes() + (session.sessionDuration || 120)
     );
-    setEndTime(toLocalDateTimeValue(suggestedEndTime));
+    setEndHour(formatTimeOnly(suggestedEndTime));
   };
 
   const getValidationError = () => {
-    if (!startTime || !endTime) return t('errors.required');
+    if (!sessionDate || !startHour || !endHour) return t('errors.required');
 
-    const start = new Date(startTime);
-    const end = new Date(endTime);
+    const start = new Date(buildSingleDayDateTime(sessionDate, startHour));
+    const end = new Date(buildSingleDayEndDateTime(sessionDate, endHour));
     if (start <= new Date()) return t('errors.future');
     if (end <= start) return t('errors.endAfterStart');
     return null;
@@ -74,8 +81,12 @@ export const CloneSessionModal = ({
     try {
       setIsSubmitting(true);
       await SessionService.cloneSession(session.id, {
-        startTime: new Date(startTime).toISOString(),
-        endTime: new Date(endTime).toISOString(),
+        startTime: new Date(
+          buildSingleDayDateTime(sessionDate, startHour)
+        ).toISOString(),
+        endTime: new Date(
+          buildSingleDayEndDateTime(sessionDate, endHour)
+        ).toISOString(),
       });
       toaster.success({ title: t('success') });
       onClose();
@@ -94,10 +105,11 @@ export const CloneSessionModal = ({
       onClose={onClose}
       title={t('title')}
       description={t('description', { name: session.name })}
+      size="lg"
       primaryActionText={t('confirm')}
       secondaryActionText={tCommon('cancel')}
       isPrimaryLoading={isSubmitting}
-      isPrimaryDisabled={!startTime || !endTime}
+      isPrimaryDisabled={!sessionDate || !startHour || !endHour}
       onPrimaryAction={handleClone}
       onSecondaryAction={onClose}
       closeOnOverlayClick={!isSubmitting}
@@ -109,25 +121,57 @@ export const CloneSessionModal = ({
           </Text>
         </Box>
 
-        <Field.Root required>
-          <Field.Label>{t('startTime')}</Field.Label>
-          <VDateTimeInput
-            type="datetime-local"
-            value={startTime}
-            min={toLocalDateTimeValue(new Date())}
-            onChange={(event) => handleStartTimeChange(event.target.value)}
-          />
-        </Field.Root>
+        <Stack direction={{ base: 'column', md: 'row' }} gap={4}>
+          <Box flex={1}>
+            <Field.Root required>
+              <Field.Label>{tSession('date')}</Field.Label>
+              <VDateTimeInput
+                type="date"
+                value={sessionDate}
+                min={formatDateOnly(new Date())}
+                color="fg"
+                bg="bg"
+                _dark={{ color: 'white', bg: 'gray.700' }}
+                placeholder={tSession('date')}
+                onChange={(event) => setSessionDate(event.target.value)}
+              />
+            </Field.Root>
+          </Box>
 
-        <Field.Root required>
-          <Field.Label>{t('endTime')}</Field.Label>
-          <VDateTimeInput
-            type="datetime-local"
-            value={endTime}
-            min={startTime || toLocalDateTimeValue(new Date())}
-            onChange={(event) => setEndTime(event.target.value)}
-          />
-        </Field.Root>
+          <Stack direction="row" gap={4} flex={2}>
+            <Box flex={1}>
+              <Field.Root required>
+                <Field.Label>{tSession('start')}</Field.Label>
+                <VDateTimeInput
+                  type="time"
+                  value={startHour}
+                  color="fg"
+                  bg="bg"
+                  _dark={{ color: 'white', bg: 'gray.700' }}
+                  placeholder={tSession('start')}
+                  onChange={(event) =>
+                    handleStartTimeChange(event.target.value)
+                  }
+                />
+              </Field.Root>
+            </Box>
+
+            <Box flex={1}>
+              <Field.Root required>
+                <Field.Label>{tSession('end')}</Field.Label>
+                <VDateTimeInput
+                  type="time"
+                  value={endHour}
+                  color="fg"
+                  bg="bg"
+                  _dark={{ color: 'white', bg: 'gray.700' }}
+                  placeholder={tSession('end')}
+                  onChange={(event) => setEndHour(event.target.value)}
+                />
+              </Field.Root>
+            </Box>
+          </Stack>
+        </Stack>
       </VStack>
     </VModal>
   );
