@@ -14,6 +14,7 @@ import {
 import { useLocale, useTranslations } from 'next-intl';
 import {
   Banknote,
+  BellRing,
   Calendar,
   Check,
   CheckCheck,
@@ -27,6 +28,7 @@ import { toaster } from '@/components/ui/toaster';
 import dayjs, { getDayjsLocale } from '@/lib/dayjs';
 import { FeeService } from '@/lib/api/fee.service';
 import { PaymentService } from '@/lib/api/payment.service';
+import { PaymentReminderService } from '@/lib/api/payment-reminder.service';
 import {
   HostTransactionSummary,
   PaymentMethod,
@@ -79,6 +81,9 @@ export default function PlayerPaymentDetailModal({
     null
   );
   const [isBulkApproving, setIsBulkApproving] = useState(false);
+  const [remindingPaymentId, setRemindingPaymentId] = useState<string | null>(
+    null
+  );
 
   const submittedPayments = useMemo(
     () =>
@@ -112,6 +117,23 @@ export default function PlayerPaymentDetailModal({
   const handleClose = () => {
     setSelectedPayment(null);
     onClose();
+  };
+
+  const handleRemind = async (payment: PaymentRecord) => {
+    setRemindingPaymentId(payment.id);
+    try {
+      await PaymentReminderService.createSingleReminder({
+        paymentId: payment.id,
+      });
+    } catch (error) {
+      console.error('Failed to send payment reminder:', error);
+      toaster.error({
+        title: tCommon('error'),
+        description: t('remindPaymentFailed'),
+      });
+    } finally {
+      setRemindingPaymentId(null);
+    }
   };
 
   const handleBulkApprove = async () => {
@@ -420,7 +442,19 @@ export default function PlayerPaymentDetailModal({
                             <Text fontWeight="bold">
                               {FeeService.formatPaymentAmount(payment.amount)}
                             </Text>
-                            {payment.status === PaymentStatus.SUBMITTED ? (
+                            {payment.status === PaymentStatus.PENDING &&
+                            payment.player?.user?.id ? (
+                              <Button
+                                size="xs"
+                                variant="outline"
+                                colorPalette="orange"
+                                onClick={() => handleRemind(payment)}
+                                loading={remindingPaymentId === payment.id}
+                              >
+                                <BellRing size={14} />
+                                <Text ml={1}>{t('remindPayment')}</Text>
+                              </Button>
+                            ) : payment.status === PaymentStatus.SUBMITTED ? (
                               <Button
                                 size="xs"
                                 colorPalette="green"

@@ -45,6 +45,7 @@ import {
 } from '@/lib/api/types';
 import { PaymentSettingsService } from '@/lib/api/payment-settings.service';
 import { PaymentService } from '@/lib/api/payment.service';
+import { PaymentReminderService } from '@/lib/api/payment-reminder.service';
 import { SessionExpensesService } from '@/lib/api/session-expenses.service';
 import { FeeService } from '@/lib/api/fee.service';
 import {
@@ -324,6 +325,10 @@ export default function SessionPaymentTab({ session }: SessionPaymentTabProps) {
         description: t('rejectPaymentFailed'),
       });
     }
+  };
+
+  const handleRemind = async (paymentId: string) => {
+    await PaymentReminderService.createSingleReminder({ paymentId });
   };
 
   const handleBulkApprove = async (paymentIds: string[]) => {
@@ -1193,6 +1198,7 @@ export default function SessionPaymentTab({ session }: SessionPaymentTabProps) {
           onApprove={handleApprove}
           onReject={handleReject}
           onBulkApprove={handleBulkApprove}
+          onRemind={handleRemind}
           totalExpenses={totalExpenses}
           isLoading={isLoadingPayments}
           showSummary={false}

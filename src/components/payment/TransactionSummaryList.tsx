@@ -21,6 +21,7 @@ import {
   CheckCircle2,
   Receipt,
   TrendingUp,
+  BellRing,
 } from 'lucide-react';
 import { StarRatingDisplay } from '@/components/rating';
 import { getAvatarBgColor } from '@/lib/utils/avatarColor';
@@ -33,6 +34,7 @@ interface TransactionSummaryListProps {
   onSelectSummary: (
     summary: TransactionSummary | HostTransactionSummary
   ) => void;
+  onRemindAggregate?: (summary: HostTransactionSummary) => void;
   isLoading?: boolean;
   hasActiveFilters?: boolean;
   showOverallSummary?: boolean;
@@ -44,6 +46,7 @@ export default function TransactionSummaryList({
   summaries,
   viewType,
   onSelectSummary,
+  onRemindAggregate,
   isLoading = false,
   hasActiveFilters = false,
   showOverallSummary = true,
@@ -276,6 +279,25 @@ export default function TransactionSummaryList({
                         {t('fullyPaid')}
                       </Badge>
                     )}
+                    {viewType === 'host' &&
+                      summary.pendingAmount > 0 &&
+                      onRemindAggregate && (
+                        <Button
+                          size="2xs"
+                          variant="outline"
+                          colorPalette="orange"
+                          mt={1}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onRemindAggregate(
+                              summary as HostTransactionSummary
+                            );
+                          }}
+                        >
+                          <BellRing size={12} />
+                          {t('remindPayment')}
+                        </Button>
+                      )}
                   </VStack>
                   <Box color="fg.muted">
                     <ChevronRight size={20} />

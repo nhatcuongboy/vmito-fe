@@ -38,6 +38,7 @@ import {
   CheckCircle2,
   Clock,
   Scale,
+  BellRing,
 } from 'lucide-react';
 import PaymentStatusBadge from './PaymentStatusBadge';
 import PaymentApprovalModal from './PaymentApprovalModal';
@@ -54,6 +55,7 @@ interface SessionPaymentListProps {
   ) => Promise<void>;
   onReject: (paymentId: string, notes?: string) => Promise<void>;
   onBulkApprove?: (paymentIds: string[]) => Promise<void>;
+  onRemind?: (paymentId: string) => Promise<void>;
   totalExpenses?: number;
   isLoading?: boolean;
   showSummary?: boolean;
@@ -488,6 +490,7 @@ export default function SessionPaymentList({
   onApprove,
   onReject,
   onBulkApprove,
+  onRemind,
   totalExpenses = 0,
   isLoading = false,
   showSummary = true,
@@ -498,6 +501,9 @@ export default function SessionPaymentList({
   const tCommon = useTranslations('common');
 
   const [selectedPayment, setSelectedPayment] = useState<PaymentRecord | null>(
+    null
+  );
+  const [remindingPaymentId, setRemindingPaymentId] = useState<string | null>(
     null
   );
   const [filter, setFilter] = useState<FilterType>('all');
@@ -864,6 +870,28 @@ export default function SessionPaymentList({
                         {renderFixedMemberAmount(payment)}
                       </Box>
                       <PaymentStatusBadge status={payment.status} size="sm" />
+                      {onRemind &&
+                        payment.status === PaymentStatus.PENDING &&
+                        payment.player?.user?.id && (
+                          <Button
+                            size="2xs"
+                            variant="outline"
+                            colorPalette="orange"
+                            loading={remindingPaymentId === payment.id}
+                            onClick={async (e) => {
+                              e.stopPropagation();
+                              setRemindingPaymentId(payment.id);
+                              try {
+                                await onRemind(payment.id);
+                              } finally {
+                                setRemindingPaymentId(null);
+                              }
+                            }}
+                          >
+                            <BellRing size={12} />
+                            <Text ml={0.5}>{t('remindPayment')}</Text>
+                          </Button>
+                        )}
                     </VStack>
                   </Flex>
                   {payment.proofImageUrl && (
