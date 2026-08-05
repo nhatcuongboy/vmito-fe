@@ -27,6 +27,7 @@ import {
   Shield,
   UserCheck,
   UserPlus,
+  Building2,
 } from 'lucide-react';
 import { useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
@@ -502,6 +503,19 @@ const SessionDetailStickyBar = ({
                   <Text fontSize="sm">
                     {t('shuttlecock') + ' ' + session.shuttlecock}
                   </Text>
+                </Flex>
+              )}
+
+              {/* Managing Club */}
+              {session.club && (
+                <Flex align="center" gap={3}>
+                  <Icon
+                    as={Building2}
+                    boxSize={4}
+                    color="green.500"
+                    flexShrink={0}
+                  />
+                  <Text fontSize="sm">{session.club.name}</Text>
                 </Flex>
               )}
 

@@ -14,6 +14,7 @@ import QRCode from 'qrcode';
 import { Button, IconButton, VStack } from '@/components/ui/chakra-compat';
 import {
   Award,
+  Building2,
   Calendar,
   ChevronDown,
   ChevronUp,
@@ -602,6 +603,12 @@ export default function SessionInfo({
       <InfoRow icon={User} label={t('host')}>
         {session.host?.name || 'Unknown'}
       </InfoRow>
+
+      {session.club && (
+        <InfoRow icon={Building2} label={t('managingClub')}>
+          {session.club.name}
+        </InfoRow>
+      )}
 
       <InfoRow icon={Info} label={t('status')}>
         <Badge
