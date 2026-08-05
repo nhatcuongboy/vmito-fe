@@ -6454,6 +6454,7 @@
     "createNewClub": "创建新俱乐部",
     "clubDeletedSuccess": "俱乐部已成功删除",
     "failedToDeleteClub": "删除俱乐部失败",
+    "deleteClub": "删除俱乐部",
     "deleteClubTitle": "删除俱乐部",
     "deleteClubConfirmation": "您确定要删除{name}吗？此操作无法撤销。",
     "failedToFetchClubs": "获取俱乐部失败",

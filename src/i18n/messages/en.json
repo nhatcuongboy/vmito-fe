@@ -6495,6 +6495,7 @@
     "createNewClub": "Create New Club",
     "clubDeletedSuccess": "Club deleted successfully",
     "failedToDeleteClub": "Failed to delete club",
+    "deleteClub": "Delete club",
     "deleteClubTitle": "Delete club",
     "deleteClubConfirmation": "Are you sure you want to delete {name}? This action cannot be undone.",
     "failedToFetchClubs": "Failed to fetch clubs",

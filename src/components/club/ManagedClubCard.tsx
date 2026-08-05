@@ -159,6 +159,8 @@ const ManagedClubCard = ({ club, onDelete }: IManagedClubCardProps) => {
                       >
                         <MenuItem
                           value="fees"
+                          cursor="pointer"
+                          _hover={{ bg: 'bg.muted' }}
                           onClick={() =>
                             router.push(ROUTES.HOST.CLUBS.FEES(club.id))
                           }
@@ -168,6 +170,8 @@ const ManagedClubCard = ({ club, onDelete }: IManagedClubCardProps) => {
                         </MenuItem>
                         <MenuItem
                           value="edit"
+                          cursor="pointer"
+                          _hover={{ bg: 'bg.muted' }}
                           onClick={() =>
                             router.push(ROUTES.HOST.CLUBS.EDIT(club.id))
                           }
@@ -178,6 +182,7 @@ const ManagedClubCard = ({ club, onDelete }: IManagedClubCardProps) => {
                         <MenuItem
                           value="delete"
                           color="red.600"
+                          cursor="pointer"
                           _hover={{ bg: 'red.50' }}
                           onClick={() => onDelete(club)}
                         >

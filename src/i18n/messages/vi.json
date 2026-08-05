@@ -6514,6 +6514,7 @@
     "createNewClub": "Tạo nhóm mới",
     "clubDeletedSuccess": "Đã xóa nhóm thành công",
     "failedToDeleteClub": "Không thể xóa nhóm",
+    "deleteClub": "Xóa nhóm",
     "deleteClubTitle": "Xóa nhóm",
     "deleteClubConfirmation": "Bạn có chắc chắn muốn xóa nhóm {name}? Hành động này không thể hoàn tác.",
     "failedToFetchClubs": "Không thể tải danh sách nhóm",
