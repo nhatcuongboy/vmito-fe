@@ -1,5 +1,6 @@
 'use client';
 
+import { PlayerAvatar } from '@/components/player/PlayerAvatar';
 import {
   Box,
   Text,
@@ -22,6 +23,7 @@ import {
   PaymentMethod,
   ISession,
   FeeType,
+  IPaymentReminder,
 } from '@/lib/api/types';
 import { FeeService } from '@/lib/api/fee.service';
 import {
@@ -54,6 +56,8 @@ interface SessionPaymentListProps {
   ) => Promise<void>;
   onReject: (paymentId: string, notes?: string) => Promise<void>;
   onBulkApprove?: (paymentIds: string[]) => Promise<void>;
+  onRemind?: (paymentId: string) => Promise<void>;
+  remindersByPaymentId?: Record<string, IPaymentReminder>;
   totalExpenses?: number;
   isLoading?: boolean;
   showSummary?: boolean;
@@ -488,6 +492,8 @@ export default function SessionPaymentList({
   onApprove,
   onReject,
   onBulkApprove,
+  onRemind,
+  remindersByPaymentId,
   totalExpenses = 0,
   isLoading = false,
   showSummary = true,
@@ -819,15 +825,17 @@ export default function SessionPaymentList({
                 >
                   <Flex align="center" justify="space-between" gap={3}>
                     <HStack gap={3} flex={1} minW={0}>
-                      <Avatar.Root size="sm">
-                        {payment.player?.user?.image ? (
-                          <Avatar.Image src={payment.player.user.image} />
-                        ) : (
-                          <Avatar.Fallback>
-                            <User size={16} />
-                          </Avatar.Fallback>
-                        )}
-                      </Avatar.Root>
+                      <PlayerAvatar
+                        name={
+                          payment.player?.name ||
+                          payment.player?.user?.name ||
+                          t('unknownPlayer')
+                        }
+                        gender={payment.player?.gender}
+                        status={payment.player?.status}
+                        image={payment.player?.user?.image}
+                        size="48px"
+                      />
                       <Box flex={1} minW={0}>
                         <VStack align="stretch" gap={0.5}>
                           <Text fontWeight="medium" fontSize="sm" lineClamp={2}>
@@ -904,17 +912,17 @@ export default function SessionPaymentList({
                   <VStack align="stretch" gap={3}>
                     <Flex align="flex-start" justify="space-between" gap={3}>
                       <HStack gap={3} flex={1} minW={0} align="flex-start">
-                        <Avatar.Root size="md" flexShrink={0}>
-                          {representative.player?.user?.image ? (
-                            <Avatar.Image
-                              src={representative.player.user.image}
-                            />
-                          ) : (
-                            <Avatar.Fallback>
-                              <User size={18} />
-                            </Avatar.Fallback>
-                          )}
-                        </Avatar.Root>
+                        <PlayerAvatar
+                          name={
+                            representative.player?.name ||
+                            representative.player?.user?.name ||
+                            t('unknownPlayer')
+                          }
+                          gender={representative.player?.gender}
+                          status={representative.player?.status}
+                          image={representative.player?.user?.image}
+                          size="48px"
+                        />
                         <Box flex={1} minW={0}>
                           <HStack gap={2} wrap="wrap" mb={1}>
                             <Badge colorPalette="green" size="sm">
@@ -1099,6 +1107,8 @@ export default function SessionPaymentList({
           paymentRecord={selectedPayment}
           onApprove={handleApprove}
           onReject={handleReject}
+          onRemind={onRemind}
+          reminderInfo={remindersByPaymentId?.[selectedPayment.id]}
         />
       )}
     </VStack>

@@ -14,6 +14,7 @@ interface IAppConfirmDialogProps {
   error?: string;
   onConfirm: () => void;
   onClose: () => void;
+  zIndex?: number;
 }
 
 export default function AppConfirmDialog({
@@ -27,6 +28,7 @@ export default function AppConfirmDialog({
   error,
   onConfirm,
   onClose,
+  zIndex,
 }: IAppConfirmDialogProps) {
   return (
     <VModal
@@ -43,6 +45,7 @@ export default function AppConfirmDialog({
       isPrimaryDisabled={isLoading}
       isSecondaryDisabled={isLoading}
       closeOnOverlayClick={!isLoading}
+      zIndex={zIndex}
     >
       <VStack align="stretch" gap={3}>
         <Text>{body}</Text>

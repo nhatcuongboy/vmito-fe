@@ -1,6 +1,7 @@
 import {
   Award,
   Bell,
+  BellRing,
   BookOpen,
   CalendarDays,
   CalendarCheck,
@@ -190,6 +191,12 @@ export const NAV_SECTIONS: NavSectionConfig[] = [
         isActive: (pathname) =>
           pathname.startsWith(ROUTES.HOST.TRANSACTIONS) ||
           pathname.startsWith(ROUTES.PLAYER.TRANSACTIONS),
+      },
+      {
+        key: 'reminders',
+        icon: BellRing,
+        label: (t) => t.nav('reminders'),
+        getHref: () => ROUTES.REMINDERS,
       },
     ],
   },

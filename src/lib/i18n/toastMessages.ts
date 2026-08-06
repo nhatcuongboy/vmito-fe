@@ -69,6 +69,11 @@ type ToastMessageKey =
   | 'paymentRejected'
   | 'paymentsApproved'
   | 'feesCalculatedAndSplitSuccessfully'
+  // Payment reminder service
+  | 'reminderSentSuccessfully'
+  | 'reminderMarkedCollectedSuccessfully'
+  | 'reminderMarkedPaidSuccessfully'
+  | 'reminderRejectedSuccessfully'
   // Fee service
   | 'feeConfiguredSuccessfully'
   | 'feeUpdatedSuccessfully'
@@ -151,6 +156,10 @@ const TOAST_MESSAGES: Record<Locale, Record<ToastMessageKey, string>> = {
     paymentApproved: 'Đã duyệt thanh toán',
     paymentRejected: 'Đã từ chối thanh toán',
     paymentsApproved: 'Đã duyệt {count} thanh toán',
+    reminderSentSuccessfully: 'Đã gửi lời nhắc',
+    reminderMarkedCollectedSuccessfully: 'Đã đánh dấu là đã thu',
+    reminderMarkedPaidSuccessfully: 'Đã gửi minh chứng đã trả',
+    reminderRejectedSuccessfully: 'Đã từ chối, yêu cầu gửi lại minh chứng',
     feesCalculatedAndSplitSuccessfully:
       'Đã tính và phân bổ phí chia đều thành công',
     feeConfiguredSuccessfully: 'Đã cấu hình phí thành công',
@@ -226,6 +235,10 @@ const TOAST_MESSAGES: Record<Locale, Record<ToastMessageKey, string>> = {
     paymentApproved: 'Payment approved',
     paymentRejected: 'Payment rejected',
     paymentsApproved: '{count} payments approved',
+    reminderSentSuccessfully: 'Reminder sent',
+    reminderMarkedCollectedSuccessfully: 'Marked as collected',
+    reminderMarkedPaidSuccessfully: 'Payment proof submitted',
+    reminderRejectedSuccessfully: 'Rejected, resubmission requested',
     feesCalculatedAndSplitSuccessfully:
       'Fees calculated and split successfully',
     feeConfiguredSuccessfully: 'Fee configured successfully',
@@ -297,6 +310,10 @@ const TOAST_MESSAGES: Record<Locale, Record<ToastMessageKey, string>> = {
     paymentApproved: '付款已批准',
     paymentRejected: '付款已拒绝',
     paymentsApproved: '已批准 {count} 笔付款',
+    reminderSentSuccessfully: '提醒已发送',
+    reminderMarkedCollectedSuccessfully: '已标记为已收款',
+    reminderMarkedPaidSuccessfully: '已提交付款凭证',
+    reminderRejectedSuccessfully: '已拒绝，请重新提交凭证',
     feesCalculatedAndSplitSuccessfully: '费用已成功计算并分摊',
     feeConfiguredSuccessfully: '费用配置成功',
     feeUpdatedSuccessfully: '费用更新成功',

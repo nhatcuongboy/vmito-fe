@@ -8,6 +8,7 @@ import { TransactionSummaryList } from '@/components/payment';
 import { VSelect } from '@/components/ui/VSelect';
 import { toaster } from '@/components/ui/toaster';
 import { PaymentService } from '@/lib/api/payment.service';
+import { PaymentReminderService } from '@/lib/api/payment-reminder.service';
 import {
   HostTransactionSummary,
   PaymentRecord,
@@ -131,6 +132,21 @@ export default function ByPlayerTab({
     setSelectedPayments([]);
   };
 
+  const handleRemindAggregate = async (summary: HostTransactionSummary) => {
+    if (!canLoadDetails(summary)) return;
+    try {
+      await PaymentReminderService.createAggregateReminder({
+        recipientUserId: summary.userId,
+      });
+    } catch (error) {
+      console.error('Failed to send aggregate payment reminder:', error);
+      toaster.error({
+        title: tCommon('error'),
+        description: t('remindPaymentFailed'),
+      });
+    }
+  };
+
   return (
     <>
       <SimpleGrid columns={{ base: 1, sm: 3 }} gap={2} mb={4}>
@@ -183,6 +199,7 @@ export default function ByPlayerTab({
         summaries={filteredSummaries}
         viewType="host"
         onSelectSummary={handleSelectSummary}
+        onRemindAggregate={handleRemindAggregate}
         isLoading={isLoading}
         hasActiveFilters={hasActiveFilters}
         showOverallSummary={false}

@@ -60,6 +60,10 @@ export const getNotificationTargetRoute = (
       : detailRoute;
   }
 
+  if (type === 'PAYMENT' && data?.route === 'reminders') {
+    return ROUTES.REMINDERS;
+  }
+
   if (type === 'POST' && postId) {
     return ROUTES.NEWSFEED_POST(postId);
   }

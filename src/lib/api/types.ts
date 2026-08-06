@@ -332,6 +332,80 @@ export interface RejectPaymentRequest {
   hostNotes: string; // Required - reason for rejection
 }
 
+// ============================================
+// Payment Reminders
+// ============================================
+
+export enum PaymentReminderType {
+  SINGLE_PAYMENT = 'SINGLE_PAYMENT', // One PaymentRecord
+  AGGREGATE = 'AGGREGATE', // Sum of all PENDING PaymentRecords for a user
+  CUSTOM = 'CUSTOM', // Freeform amount, no underlying PaymentRecord
+}
+
+export enum PaymentReminderStatus {
+  PENDING = 'PENDING', // Recipient hasn't submitted proof yet
+  AWAITING_CONFIRMATION = 'AWAITING_CONFIRMATION', // Recipient submitted proof, creator must approve/reject
+  RESOLVED = 'RESOLVED',
+}
+
+export interface IPaymentReminderLinkedPayment {
+  id: string;
+  status: PaymentStatus;
+  amount: number;
+  proofImageUrl?: string;
+  proofNotes?: string;
+  hostNotes?: string;
+  sessionId: string;
+}
+
+export interface IPaymentReminder {
+  id: string;
+  type: PaymentReminderType;
+  creatorId: string;
+  recipientId: string;
+  sessionId?: string;
+  amount: number;
+  note?: string;
+  status: PaymentReminderStatus;
+  reminderCount: number;
+  lastRemindedAt: string;
+  resolvedAt?: string;
+  proofImageUrl?: string;
+  proofNotes?: string;
+  createdAt: string;
+  updatedAt: string;
+  creator?: { id: string; name: string; image?: string };
+  recipient?: { id: string; name: string; image?: string };
+  session?: { id: string; name: string };
+  payments: { payment: IPaymentReminderLinkedPayment }[];
+}
+
+export interface CreateSingleReminderRequest {
+  paymentId: string;
+  note?: string;
+}
+
+export interface CreateAggregateReminderRequest {
+  recipientUserId: string;
+}
+
+export interface CreateCustomReminderRequest {
+  recipientUserId: string;
+  amount: number;
+  note: string;
+}
+
+export interface MarkPaymentReminderPaidRequest {
+  paymentMethod: PaymentMethod;
+  proofImageUrl?: string;
+  proofImagePublicId?: string;
+  proofNotes?: string;
+}
+
+export interface RejectPaymentReminderRequest {
+  hostNotes?: string;
+}
+
 export enum VenueStatus {
   ACTIVE = 'ACTIVE',
   INACTIVE = 'INACTIVE',
@@ -1040,6 +1114,7 @@ export interface Player {
   courtPosition?: number;
   joinCode?: string;
   user?: {
+    id?: string;
     image?: string | null;
     name?: string;
     email?: string;
@@ -1144,6 +1219,8 @@ export interface BulkPlayerData {
   level?: number;
   levelDescription?: string;
   phone?: string;
+  preFilledByHost?: boolean;
+  confirmedByPlayer?: boolean;
   requireConfirmInfo?: boolean;
   userId?: string; // Optional userId to link with existing user
   isClubMember?: boolean;

@@ -66,6 +66,7 @@ export const SessionListCardActionMenu = ({
                 value={item.key}
                 color={item.color}
                 disabled={item.isDisabled}
+                cursor="pointer"
                 onClick={() => item.onSelect()}
               >
                 <Icon as={item.icon} />

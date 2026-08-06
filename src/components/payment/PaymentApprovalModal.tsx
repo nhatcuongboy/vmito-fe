@@ -1,5 +1,6 @@
 'use client';
 
+import { PlayerAvatar } from '@/components/player/PlayerAvatar';
 import {
   Box,
   Text,
@@ -18,9 +19,14 @@ import { Input } from '@/components/ui/Input';
 import { VSelect } from '@/components/ui/VSelect';
 import AppLightbox from '@/components/ui/AppLightbox';
 import dayjs, { getDayjsLocale } from '@/lib/dayjs';
-import { PaymentRecord, PaymentMethod, PaymentStatus } from '@/lib/api/types';
+import {
+  PaymentRecord,
+  PaymentMethod,
+  PaymentStatus,
+  IPaymentReminder,
+} from '@/lib/api/types';
 import { FeeService } from '@/lib/api/fee.service';
-import { Check, X, User, ZoomIn } from 'lucide-react';
+import { Check, X, User, ZoomIn, BellRing } from 'lucide-react';
 import PaymentStatusBadge from './PaymentStatusBadge';
 
 interface PaymentApprovalModalProps {
@@ -33,6 +39,8 @@ interface PaymentApprovalModalProps {
     paymentMethod?: PaymentMethod
   ) => Promise<void>;
   onReject: (notes?: string) => Promise<void>;
+  onRemind?: (paymentId: string) => Promise<void>;
+  reminderInfo?: IPaymentReminder | null;
   slotInfo?: string;
 }
 
@@ -42,9 +50,12 @@ export default function PaymentApprovalModal({
   paymentRecord,
   onApprove,
   onReject,
+  onRemind,
+  reminderInfo,
   slotInfo,
 }: PaymentApprovalModalProps) {
   const t = useTranslations('payment');
+  const tReminder = useTranslations('paymentReminder');
   const tCommon = useTranslations('common');
   const locale = useLocale();
   const dayjsLocale = getDayjsLocale(locale);
@@ -58,6 +69,7 @@ export default function PaymentApprovalModal({
   >(paymentRecord.paymentMethod ?? '');
   const [isApproving, setIsApproving] = useState(false);
   const [isRejecting, setIsRejecting] = useState(false);
+  const [isReminding, setIsReminding] = useState(false);
   const [isProofLightboxOpen, setIsProofLightboxOpen] = useState(false);
 
   const isAmountModified =
@@ -92,8 +104,22 @@ export default function PaymentApprovalModal({
     }
   };
 
+  const handleRemind = async () => {
+    if (!onRemind) return;
+    setIsReminding(true);
+    try {
+      await onRemind(paymentRecord.id);
+    } finally {
+      setIsReminding(false);
+    }
+  };
+
   const player = paymentRecord.player;
-  const isLoading = isApproving || isRejecting;
+  const isLoading = isApproving || isRejecting || isReminding;
+  const canRemind =
+    Boolean(onRemind) &&
+    paymentRecord.status === PaymentStatus.PENDING &&
+    Boolean(player?.user?.id);
 
   const sessionContext = [
     paymentRecord.session?.name,
@@ -137,7 +163,7 @@ export default function PaymentApprovalModal({
             flex={1}
             onClick={handleReject}
             loading={isRejecting}
-            disabled={isApproving}
+            disabled={isApproving || isReminding}
           >
             <X size={16} />
             <Text ml={1}>{t('rejectPayment')}</Text>
@@ -147,7 +173,7 @@ export default function PaymentApprovalModal({
             flex={2}
             onClick={handleApprove}
             loading={isApproving}
-            disabled={isRejecting}
+            disabled={isRejecting || isReminding}
           >
             <Check size={16} />
             <Text ml={1}>{t('approvePayment')}</Text>
@@ -165,17 +191,15 @@ export default function PaymentApprovalModal({
           border="1px solid"
           borderColor="gray.100"
         >
-          <Flex align="center" justify="space-between" gap={3}>
-            <HStack gap={3} flex={1} minW={0}>
-              <Avatar.Root size="lg">
-                {player?.user?.image ? (
-                  <Avatar.Image src={player.user.image} />
-                ) : (
-                  <Avatar.Fallback>
-                    <User size={22} />
-                  </Avatar.Fallback>
-                )}
-              </Avatar.Root>
+          <Flex align="flex-start" justify="space-between" gap={3}>
+            <HStack gap={3} flex={1} minW={0} align="center">
+              <PlayerAvatar
+                name={player?.name || player?.user?.name || t('unknownPlayer')}
+                gender={player?.gender}
+                status={player?.status}
+                image={player?.user?.image}
+                size="56px"
+              />
               <Box flex={1} minW={0}>
                 <Text fontWeight="bold" fontSize="lg" lineClamp={2}>
                   {player?.name || player?.user?.name || t('unknownPlayer')}
@@ -187,9 +211,36 @@ export default function PaymentApprovalModal({
                 </Text>
               </Box>
             </HStack>
-            <Box flexShrink={0}>
+            <VStack align="flex-end" gap={1.5} flexShrink={0}>
               <PaymentStatusBadge status={paymentRecord.status} />
-            </Box>
+
+              {canRemind && (
+                <Button
+                  colorPalette="orange"
+                  variant="outline"
+                  size="xs"
+                  onClick={handleRemind}
+                  loading={isReminding}
+                  disabled={isApproving || isRejecting}
+                >
+                  <BellRing size={12} />
+                  <Text ml={1}>{t('remindPayment')}</Text>
+                </Button>
+              )}
+
+              {reminderInfo && (
+                <Text
+                  fontSize="2xs"
+                  color="orange.600"
+                  _dark={{ color: 'orange.300' }}
+                  textAlign="right"
+                >
+                  {tReminder('reminderCount', {
+                    count: reminderInfo.reminderCount,
+                  })}
+                </Text>
+              )}
+            </VStack>
           </Flex>
         </Box>
 

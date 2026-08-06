@@ -30,6 +30,8 @@ function getStatusColor(status: string) {
   }
 }
 
+import { PlayerAvatar } from '@/components/player/PlayerAvatar';
+
 function getStatusGradient(status: string) {
   switch (status) {
     case 'PLAYING':
@@ -52,96 +54,6 @@ function getGenderColor(gender?: string): string {
   if (gender === Gender.PREFER_NOT_TO_SAY) return 'gray';
   return 'gray';
 }
-
-// Enhanced Avatar with gradient and better styling
-const EnhancedAvatar = ({
-  name,
-  gender,
-  status,
-  image,
-}: {
-  name: string;
-  gender?: string;
-  status: string;
-  image?: string | null;
-}) => {
-  // Gradient colors based on gender
-  const gradientColors = {
-    [Gender.MALE]: {
-      bg: 'linear-gradient(135deg, #4299e1 0%, #667eea 100%)',
-      ring: 'brand.300',
-    },
-    [Gender.FEMALE]: {
-      bg: 'linear-gradient(135deg, #ed64a6 0%, #f687b3 100%)',
-      ring: 'pink.300',
-    },
-    [Gender.OTHER]: {
-      bg: 'linear-gradient(135deg, #9f7aea 0%, #b794f4 100%)',
-      ring: 'purple.300',
-    },
-    [Gender.PREFER_NOT_TO_SAY]: {
-      bg: 'linear-gradient(135deg, #a0aec0 0%, #cbd5e0 100%)',
-      ring: 'gray.300',
-    },
-  };
-
-  const colors =
-    gradientColors[gender as Gender] ||
-    gradientColors[Gender.PREFER_NOT_TO_SAY];
-
-  return (
-    <Box position="relative">
-      {/* Avatar */}
-      <Flex
-        width="56px"
-        height="56px"
-        borderRadius="full"
-        background={image ? 'transparent' : colors.bg}
-        color="white"
-        align="center"
-        justify="center"
-        fontWeight="bold"
-        fontSize="lg"
-        letterSpacing="0.5px"
-        boxShadow="0 4px 12px rgba(0, 0, 0, 0.15)"
-        border="3px solid"
-        borderColor="white"
-        transition="all 0.3s ease"
-        overflow="hidden"
-        _hover={{
-          transform: 'scale(1.05)',
-        }}
-      >
-        {image ? (
-          <Box
-            as="img"
-            // @ts-expect-error - src and alt are valid for as="img"
-            src={image}
-            alt={name || 'Avatar'}
-            width="100%"
-            height="100%"
-            objectFit="cover"
-          />
-        ) : (
-          getInitials(name)
-        )}
-      </Flex>
-
-      {/* Status indicator dot */}
-      <Box
-        position="absolute"
-        bottom="0"
-        right="0"
-        width="16px"
-        height="16px"
-        bg={getStatusColor(status)}
-        borderRadius="full"
-        border="3px solid white"
-        boxShadow="0 2px 4px rgba(0,0,0,0.2)"
-      />
-    </Box>
-  );
-};
 
 interface PlayerListItemProps {
   player: Player;
@@ -215,11 +127,12 @@ const PlayerListItem: React.FC<PlayerListItemProps> = ({
         <Flex justify="space-between" align="center" gap={4}>
           <Flex flex="1" gap={{ base: 3, md: 4 }} align="center">
             {/* Enhanced Avatar */}
-            <EnhancedAvatar
+            <PlayerAvatar
               name={player.name || ''}
               gender={player.gender}
               status={player.status}
               image={player.user?.image}
+              size="56px"
             />
 
             {/* Info Section */}

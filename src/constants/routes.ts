@@ -183,6 +183,7 @@ export const ROUTES = {
   ABOUT: '/about',
   GUIDE: '/guide',
   FEEDBACK: '/feedback',
+  REMINDERS: '/reminders',
 } as const;
 
 // ==================== ROUTE GROUPS ====================
@@ -210,6 +211,7 @@ export const ROUTE_GROUPS = {
     ROUTES.ADMIN.CLUBS,
     ROUTES.SETTINGS,
     ROUTES.FEEDBACK,
+    ROUTES.REMINDERS,
   ],
 
   // Public routes

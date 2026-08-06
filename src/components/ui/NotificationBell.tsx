@@ -1336,6 +1336,7 @@ export default function NotificationBell({
         isLoading={isDeletingNotification}
         onConfirm={handleConfirmDeleteNotification}
         onClose={() => setNotificationToDelete(null)}
+        zIndex={2000}
       />
     </>
   );
