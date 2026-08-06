@@ -335,16 +335,26 @@
     "cloneModal": {
       "title": "Clone session",
       "description": "Create a new session from “{name}” with a new time.",
-      "excludedData": "Session details, courts, location, fee settings, and media will be copied. Registered players and matches will not be copied.",
+      "excludedData": "Session details, courts, location, fee settings, and media will be copied. Players can be added in the next step. Matches will not be copied.",
       "startTime": "New start time",
       "endTime": "New end time",
       "confirm": "Clone session",
       "success": "Session cloned successfully",
+      "playerPromptTitle": "Add players to the cloned session?",
+      "playerPromptDescription": "The new session is ready. Would you like to add {count} players from the original session?",
+      "playerPromptDetails": "All {count} approved and pending players will be added as approved players. Match and payment history will not be copied.",
+      "addPlayers": "Add players",
+      "skipPlayers": "No, skip",
+      "retryPlayers": "Retry loading players",
+      "noPlayers": "The session was cloned without players because the original session has no eligible players",
+      "playersAddedSuccess": "Added {count} players to the cloned session",
       "errors": {
         "required": "Select both a start time and an end time",
         "future": "The new session must start in the future",
         "endAfterStart": "End time must be after start time",
-        "failed": "Failed to clone session"
+        "failed": "Failed to clone session",
+        "loadPlayersFailed": "The session was cloned, but its players could not be loaded. Retry or skip this step.",
+        "addPlayersFailed": "The session was cloned, but its players could not be added. Retry or skip this step."
       }
     },
     "joinSession": "Join Session",

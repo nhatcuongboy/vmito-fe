@@ -324,16 +324,26 @@
     "cloneModal": {
       "title": "克隆场次",
       "description": "使用新时间从“{name}”创建一个新场次。",
-      "excludedData": "场次详情、场地、地点、费用设置和图片将被复制。已报名玩家和比赛不会被复制。",
+      "excludedData": "场次详情、场地、地点、费用设置和图片将被复制。您可以在下一步添加玩家。比赛不会被复制。",
       "startTime": "新的开始时间",
       "endTime": "新的结束时间",
       "confirm": "克隆场次",
       "success": "场次克隆成功",
+      "playerPromptTitle": "将玩家添加到克隆场次？",
+      "playerPromptDescription": "新场次已准备好。是否要从原场次添加 {count} 名玩家？",
+      "playerPromptDetails": "所有 {count} 名已批准和待审批玩家都将以已批准状态添加。比赛和付款历史不会被复制。",
+      "addPlayers": "添加玩家",
+      "skipPlayers": "不，跳过",
+      "retryPlayers": "重新加载玩家",
+      "noPlayers": "场次已克隆，但原场次没有符合条件的玩家，因此未添加玩家",
+      "playersAddedSuccess": "已将 {count} 名玩家添加到克隆场次",
       "errors": {
         "required": "请选择开始时间和结束时间",
         "future": "新场次必须在未来开始",
         "endAfterStart": "结束时间必须晚于开始时间",
-        "failed": "无法克隆场次"
+        "failed": "无法克隆场次",
+        "loadPlayersFailed": "场次已克隆，但无法加载玩家。请重试或跳过此步骤。",
+        "addPlayersFailed": "场次已克隆，但无法添加玩家。请重试或跳过此步骤。"
       }
     },
     "joinSession": "加入场次",

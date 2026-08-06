@@ -1219,6 +1219,8 @@ export interface BulkPlayerData {
   level?: number;
   levelDescription?: string;
   phone?: string;
+  preFilledByHost?: boolean;
+  confirmedByPlayer?: boolean;
   requireConfirmInfo?: boolean;
   userId?: string; // Optional userId to link with existing user
   isClubMember?: boolean;

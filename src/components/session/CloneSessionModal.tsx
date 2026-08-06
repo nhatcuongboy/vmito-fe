@@ -1,9 +1,10 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Box, Field, Stack, Text, VStack } from '@chakra-ui/react';
 import { useTranslations } from 'next-intl';
-import { ISession } from '@/lib/api/types';
+import { BulkPlayerData, ISession, Player } from '@/lib/api/types';
+import { PlayerService } from '@/lib/api/player.service';
 import { SessionService } from '@/lib/api/session.service';
 import {
   buildSingleDayDateTime,
@@ -22,6 +23,30 @@ interface ICloneSessionModalProps {
   onCloned?: () => void | Promise<void>;
 }
 
+type TClonePhase = 'schedule' | 'players';
+
+const mapPlayersForClone = (players: Player[]): BulkPlayerData[] => {
+  const uniquePlayers = new Map(
+    players
+      .filter((player) => player.registrationStatus !== 'REJECTED')
+      .map((player) => [player.id, player])
+  );
+
+  return Array.from(uniquePlayers.values()).map((player) => ({
+    name: player.name,
+    gender: player.gender,
+    level: player.level,
+    levelDescription: player.levelDescription,
+    phone: player.phone,
+    userId: player.userId,
+    preFilledByHost: player.preFilledByHost,
+    confirmedByPlayer: false,
+    requireConfirmInfo: player.requireConfirmInfo,
+    isClubMember: player.isClubMember,
+    clubId: player.clubId,
+  }));
+};
+
 export const CloneSessionModal = ({
   isOpen,
   onClose,
@@ -36,15 +61,62 @@ export const CloneSessionModal = ({
   );
   const [startHour, setStartHour] = useState('');
   const [endHour, setEndHour] = useState('');
+  const [phase, setPhase] = useState<TClonePhase>('schedule');
+  const [clonedSessionId, setClonedSessionId] = useState<string>();
+  const [playersToClone, setPlayersToClone] = useState<BulkPlayerData[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isLoadingPlayers, setIsLoadingPlayers] = useState(false);
+  const [isAddingPlayers, setIsAddingPlayers] = useState(false);
+  const [hasPlayerLoadError, setHasPlayerLoadError] = useState(false);
+  const hasFinishedRef = useRef(false);
 
   useEffect(() => {
     if (!isOpen) {
       setSessionDate(formatDateOnly(new Date()));
       setStartHour('');
       setEndHour('');
+      setPhase('schedule');
+      setClonedSessionId(undefined);
+      setPlayersToClone([]);
+      setHasPlayerLoadError(false);
+      hasFinishedRef.current = false;
     }
   }, [isOpen]);
+
+  const finishClone = async () => {
+    if (hasFinishedRef.current) return;
+
+    hasFinishedRef.current = true;
+    onClose();
+    await onCloned?.();
+  };
+
+  const loadSourcePlayers = async () => {
+    try {
+      setIsLoadingPlayers(true);
+      setHasPlayerLoadError(false);
+      const sourceSession = await SessionService.getSession(session.id);
+      const sourcePlayers = [
+        ...(sourceSession.players ?? []),
+        ...(sourceSession.pendingPlayers ?? []),
+      ];
+      const mappedPlayers = mapPlayersForClone(sourcePlayers);
+
+      if (mappedPlayers.length === 0) {
+        toaster.info({ title: t('noPlayers') });
+        await finishClone();
+        return;
+      }
+
+      setPlayersToClone(mappedPlayers);
+    } catch (error) {
+      console.error('Error loading source session players:', error);
+      setHasPlayerLoadError(true);
+      toaster.error({ title: t('errors.loadPlayersFailed') });
+    } finally {
+      setIsLoadingPlayers(false);
+    }
+  };
 
   const handleStartTimeChange = (value: string) => {
     setStartHour(value);
@@ -80,7 +152,7 @@ export const CloneSessionModal = ({
 
     try {
       setIsSubmitting(true);
-      await SessionService.cloneSession(session.id, {
+      const clonedSession = await SessionService.cloneSession(session.id, {
         startTime: new Date(
           buildSingleDayDateTime(sessionDate, startHour)
         ).toISOString(),
@@ -88,91 +160,168 @@ export const CloneSessionModal = ({
           buildSingleDayEndDateTime(sessionDate, endHour)
         ).toISOString(),
       });
+      setClonedSessionId(clonedSession.id);
+      setPhase('players');
       toaster.success({ title: t('success') });
-      onClose();
-      await onCloned?.();
     } catch (error) {
       console.error('Error cloning session:', error);
       toaster.error({ title: t('errors.failed') });
+      return;
     } finally {
       setIsSubmitting(false);
     }
+
+    await loadSourcePlayers();
   };
+
+  const handleAddPlayers = async () => {
+    if (!clonedSessionId || playersToClone.length === 0) return;
+
+    try {
+      setIsAddingPlayers(true);
+      await PlayerService.createBulkPlayers(clonedSessionId, playersToClone);
+      toaster.success({
+        title: t('playersAddedSuccess', { count: playersToClone.length }),
+      });
+      await finishClone();
+    } catch (error) {
+      console.error('Error adding players to cloned session:', error);
+      toaster.error({ title: t('errors.addPlayersFailed') });
+    } finally {
+      setIsAddingPlayers(false);
+    }
+  };
+
+  const handleModalClose = () => {
+    if (isSubmitting || isLoadingPlayers || isAddingPlayers) return;
+
+    if (phase === 'players' && clonedSessionId) {
+      void finishClone();
+      return;
+    }
+
+    onClose();
+  };
+
+  const isPlayerPhase = phase === 'players';
+  const isBusy = isSubmitting || isLoadingPlayers || isAddingPlayers;
 
   return (
     <VModal
       isOpen={isOpen}
-      onClose={onClose}
-      title={t('title')}
-      description={t('description', { name: session.name })}
+      onClose={handleModalClose}
+      title={t(isPlayerPhase ? 'playerPromptTitle' : 'title')}
+      description={
+        isPlayerPhase
+          ? t('playerPromptDescription', { count: playersToClone.length })
+          : t('description', { name: session.name })
+      }
       size="lg"
-      primaryActionText={t('confirm')}
-      secondaryActionText={tCommon('cancel')}
-      isPrimaryLoading={isSubmitting}
-      isPrimaryDisabled={!sessionDate || !startHour || !endHour}
-      onPrimaryAction={handleClone}
-      onSecondaryAction={onClose}
-      closeOnOverlayClick={!isSubmitting}
+      primaryActionText={t(
+        isPlayerPhase
+          ? hasPlayerLoadError
+            ? 'retryPlayers'
+            : 'addPlayers'
+          : 'confirm'
+      )}
+      secondaryActionText={isPlayerPhase ? t('skipPlayers') : tCommon('cancel')}
+      isPrimaryLoading={isBusy}
+      isPrimaryDisabled={
+        isPlayerPhase
+          ? isLoadingPlayers ||
+            (!hasPlayerLoadError && playersToClone.length === 0)
+          : !sessionDate || !startHour || !endHour
+      }
+      onPrimaryAction={
+        isPlayerPhase
+          ? hasPlayerLoadError
+            ? loadSourcePlayers
+            : handleAddPlayers
+          : handleClone
+      }
+      onSecondaryAction={isPlayerPhase ? finishClone : onClose}
+      isSecondaryDisabled={isBusy}
+      closeOnOverlayClick={!isBusy}
     >
-      <VStack align="stretch" gap={4}>
-        <Box bg="blue.50" borderWidth="1px" borderColor="blue.200" p={3}>
-          <Text fontSize="sm" color="blue.800">
-            {t('excludedData')}
+      {isPlayerPhase ? (
+        <Box
+          bg={hasPlayerLoadError ? 'red.50' : 'blue.50'}
+          borderWidth="1px"
+          borderColor={hasPlayerLoadError ? 'red.200' : 'blue.200'}
+          p={4}
+        >
+          <Text
+            fontSize="sm"
+            color={hasPlayerLoadError ? 'red.800' : 'blue.800'}
+          >
+            {isLoadingPlayers
+              ? tCommon('loading')
+              : hasPlayerLoadError
+                ? t('errors.loadPlayersFailed')
+                : t('playerPromptDetails', { count: playersToClone.length })}
           </Text>
         </Box>
-
-        <Stack direction={{ base: 'column', md: 'row' }} gap={4}>
-          <Box flex={1}>
-            <Field.Root required>
-              <Field.Label>{tSession('date')}</Field.Label>
-              <VDateTimeInput
-                type="date"
-                value={sessionDate}
-                min={formatDateOnly(new Date())}
-                color="fg"
-                bg="bg"
-                _dark={{ color: 'white', bg: 'gray.700' }}
-                placeholder={tSession('date')}
-                onChange={(event) => setSessionDate(event.target.value)}
-              />
-            </Field.Root>
+      ) : (
+        <VStack align="stretch" gap={4}>
+          <Box bg="blue.50" borderWidth="1px" borderColor="blue.200" p={3}>
+            <Text fontSize="sm" color="blue.800">
+              {t('excludedData')}
+            </Text>
           </Box>
 
-          <Stack direction="row" gap={4} flex={2}>
+          <Stack direction={{ base: 'column', md: 'row' }} gap={4}>
             <Box flex={1}>
               <Field.Root required>
-                <Field.Label>{tSession('start')}</Field.Label>
+                <Field.Label>{tSession('date')}</Field.Label>
                 <VDateTimeInput
-                  type="time"
-                  value={startHour}
+                  type="date"
+                  value={sessionDate}
+                  min={formatDateOnly(new Date())}
                   color="fg"
                   bg="bg"
                   _dark={{ color: 'white', bg: 'gray.700' }}
-                  placeholder={tSession('start')}
-                  onChange={(event) =>
-                    handleStartTimeChange(event.target.value)
-                  }
+                  placeholder={tSession('date')}
+                  onChange={(event) => setSessionDate(event.target.value)}
                 />
               </Field.Root>
             </Box>
 
-            <Box flex={1}>
-              <Field.Root required>
-                <Field.Label>{tSession('end')}</Field.Label>
-                <VDateTimeInput
-                  type="time"
-                  value={endHour}
-                  color="fg"
-                  bg="bg"
-                  _dark={{ color: 'white', bg: 'gray.700' }}
-                  placeholder={tSession('end')}
-                  onChange={(event) => setEndHour(event.target.value)}
-                />
-              </Field.Root>
-            </Box>
+            <Stack direction="row" gap={4} flex={2}>
+              <Box flex={1}>
+                <Field.Root required>
+                  <Field.Label>{tSession('start')}</Field.Label>
+                  <VDateTimeInput
+                    type="time"
+                    value={startHour}
+                    color="fg"
+                    bg="bg"
+                    _dark={{ color: 'white', bg: 'gray.700' }}
+                    placeholder={tSession('start')}
+                    onChange={(event) =>
+                      handleStartTimeChange(event.target.value)
+                    }
+                  />
+                </Field.Root>
+              </Box>
+
+              <Box flex={1}>
+                <Field.Root required>
+                  <Field.Label>{tSession('end')}</Field.Label>
+                  <VDateTimeInput
+                    type="time"
+                    value={endHour}
+                    color="fg"
+                    bg="bg"
+                    _dark={{ color: 'white', bg: 'gray.700' }}
+                    placeholder={tSession('end')}
+                    onChange={(event) => setEndHour(event.target.value)}
+                  />
+                </Field.Root>
+              </Box>
+            </Stack>
           </Stack>
-        </Stack>
-      </VStack>
+        </VStack>
+      )}
     </VModal>
   );
 };

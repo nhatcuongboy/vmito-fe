@@ -336,16 +336,26 @@
     "cloneModal": {
       "title": "Nhân bản kèo",
       "description": "Tạo một kèo mới từ “{name}” với thời gian mới.",
-      "excludedData": "Thông tin kèo, sân, địa điểm, cấu hình phí và hình ảnh sẽ được sao chép. Người chơi đã đăng ký và các trận đấu sẽ không được sao chép.",
+      "excludedData": "Thông tin kèo, sân, địa điểm, cấu hình phí và hình ảnh sẽ được sao chép. Bạn có thể thêm người chơi ở bước tiếp theo. Các trận đấu sẽ không được sao chép.",
       "startTime": "Thời gian bắt đầu mới",
       "endTime": "Thời gian kết thúc mới",
       "confirm": "Nhân bản kèo",
       "success": "Đã nhân bản kèo thành công",
+      "playerPromptTitle": "Thêm người chơi vào kèo mới?",
+      "playerPromptDescription": "Kèo mới đã sẵn sàng. Bạn có muốn thêm {count} người chơi từ kèo gốc không?",
+      "playerPromptDetails": "Tất cả {count} người chơi đã duyệt và đang chờ sẽ được thêm dưới trạng thái đã duyệt. Lịch sử trận đấu và thanh toán sẽ không được sao chép.",
+      "addPlayers": "Thêm người chơi",
+      "skipPlayers": "Không, bỏ qua",
+      "retryPlayers": "Tải lại người chơi",
+      "noPlayers": "Kèo đã được nhân bản không kèm người chơi vì kèo gốc không có người chơi phù hợp",
+      "playersAddedSuccess": "Đã thêm {count} người chơi vào kèo mới",
       "errors": {
         "required": "Chọn đầy đủ thời gian bắt đầu và kết thúc",
         "future": "Kèo mới phải bắt đầu trong tương lai",
         "endAfterStart": "Thời gian kết thúc phải sau thời gian bắt đầu",
-        "failed": "Không thể nhân bản kèo"
+        "failed": "Không thể nhân bản kèo",
+        "loadPlayersFailed": "Kèo đã được nhân bản nhưng không thể tải danh sách người chơi. Hãy thử lại hoặc bỏ qua bước này.",
+        "addPlayersFailed": "Kèo đã được nhân bản nhưng không thể thêm người chơi. Hãy thử lại hoặc bỏ qua bước này."
       }
     },
     "joinSession": "Đăng ký kèo",
