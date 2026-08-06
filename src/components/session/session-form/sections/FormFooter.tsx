@@ -62,6 +62,7 @@ export function FormFooter({
       {useDrawerMobileFooter && (
         <Portal>
           <Flex
+            data-vmito-drawer-footer="true"
             display={{ base: 'flex', md: 'none' }}
             gap={3}
             position="fixed"

@@ -89,6 +89,10 @@ export const VDrawer: React.FC<VDrawerProps> = ({
           typeof document === 'undefined'
             ? null
             : document.querySelector('[data-vmito-persistent-overlay="true"]'),
+        () =>
+          typeof document === 'undefined'
+            ? null
+            : document.querySelector('[data-vmito-drawer-footer="true"]'),
       ]}
       lazyMount
       unmountOnExit
