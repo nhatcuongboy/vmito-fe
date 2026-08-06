@@ -5,6 +5,7 @@ import { Box, Image, Portal, Link, IconButton } from '@chakra-ui/react';
 import { ChevronDown, MessageCircle } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { usePathname } from '@/i18n/config';
+import { useAlwaysVisibleBottomNavStore } from '@/stores/useAlwaysVisibleBottomNavStore';
 
 // Mirrors the AI button's hidden routes — no need for support CTAs there.
 // Tournament pages are also hidden: the setup guide widget already occupies
@@ -26,6 +27,9 @@ export default function FloatingContactButtons() {
   const common = useTranslations('common');
   // null = not hydrated yet (render nothing to avoid an SSR flash)
   const [isCollapsed, setIsCollapsed] = useState<boolean | null>(null);
+  const isBottomNavAlwaysVisible = useAlwaysVisibleBottomNavStore(
+    (state) => state.count > 0
+  );
 
   useEffect(() => {
     setIsCollapsed(
@@ -37,6 +41,7 @@ export default function FloatingContactButtons() {
     pathname?.replace(/^\/[a-z]{2}(\/|$)/, '/').replace(/\/$/, '') || '/';
 
   if (isPathHidden(normalized)) return null;
+  if (isBottomNavAlwaysVisible) return null;
   if (isCollapsed === null) return null;
 
   const toggleCollapsed = () => {

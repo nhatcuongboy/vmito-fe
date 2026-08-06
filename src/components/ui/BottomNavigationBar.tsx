@@ -1,10 +1,12 @@
 'use client';
 
+import { useEffect } from 'react';
 import { Box, Spinner, Text } from '@chakra-ui/react';
 import { Button } from '@/components/ui/chakra-compat';
 import { LucideIcon, Plus } from 'lucide-react';
 import { useSidebar } from '@/contexts/SidebarContext';
 import { SIDEBAR_WIDTH_EXPANDED, SIDEBAR_WIDTH_COLLAPSED } from '@/constants';
+import { useAlwaysVisibleBottomNavStore } from '@/stores/useAlwaysVisibleBottomNavStore';
 
 export interface NavigationTab {
   id: number;
@@ -42,6 +44,15 @@ export default function BottomNavigationBar({
 }: BottomNavigationBarProps) {
   const { isCollapsed } = useSidebar();
   const shouldClusterCenterTabs = centerAction && tabs.length === 2;
+
+  // Also shown on desktop when alwaysVisible — let the floating contact
+  // buttons know so they can get out of its way instead of overlapping it.
+  useEffect(() => {
+    if (!alwaysVisible) return;
+    const { register, unregister } = useAlwaysVisibleBottomNavStore.getState();
+    register();
+    return unregister;
+  }, [alwaysVisible]);
 
   const leftTabs = centerAction
     ? tabs.slice(0, Math.floor(tabs.length / 2))
