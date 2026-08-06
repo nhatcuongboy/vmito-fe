@@ -167,19 +167,6 @@ export default function PaymentApprovalModal({
             <X size={16} />
             <Text ml={1}>{t('rejectPayment')}</Text>
           </Button>
-          {canRemind && (
-            <Button
-              colorPalette="orange"
-              variant="outline"
-              flex={1}
-              onClick={handleRemind}
-              loading={isReminding}
-              disabled={isApproving || isRejecting}
-            >
-              <BellRing size={16} />
-              <Text ml={1}>{t('remindPayment')}</Text>
-            </Button>
-          )}
           <Button
             colorPalette="green"
             flex={2}
@@ -308,6 +295,20 @@ export default function PaymentApprovalModal({
                 <option value={PaymentMethod.CASH}>{t('method.cash')}</option>
               </VSelect>
             </Box>
+
+            {canRemind && (
+              <Button
+                colorPalette="orange"
+                variant="outline"
+                size="sm"
+                onClick={handleRemind}
+                loading={isReminding}
+                disabled={isApproving || isRejecting}
+              >
+                <BellRing size={14} />
+                <Text ml={1}>{t('remindPayment')}</Text>
+              </Button>
+            )}
 
             {paymentRecord.submittedAt && (
               <Flex
