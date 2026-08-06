@@ -1,5 +1,6 @@
 'use client';
 
+import { PlayerAvatar } from '@/components/player/PlayerAvatar';
 import {
   Box,
   Text,
@@ -190,17 +191,15 @@ export default function PaymentApprovalModal({
           border="1px solid"
           borderColor="gray.100"
         >
-          <Flex align="center" justify="space-between" gap={3}>
-            <HStack gap={3} flex={1} minW={0}>
-              <Avatar.Root size="lg">
-                {player?.user?.image ? (
-                  <Avatar.Image src={player.user.image} />
-                ) : (
-                  <Avatar.Fallback>
-                    <User size={22} />
-                  </Avatar.Fallback>
-                )}
-              </Avatar.Root>
+          <Flex align="flex-start" justify="space-between" gap={3}>
+            <HStack gap={3} flex={1} minW={0} align="center">
+              <PlayerAvatar
+                name={player?.name || player?.user?.name || t('unknownPlayer')}
+                gender={player?.gender}
+                status={player?.status}
+                image={player?.user?.image}
+                size="56px"
+              />
               <Box flex={1} minW={0}>
                 <Text fontWeight="bold" fontSize="lg" lineClamp={2}>
                   {player?.name || player?.user?.name || t('unknownPlayer')}
@@ -212,9 +211,36 @@ export default function PaymentApprovalModal({
                 </Text>
               </Box>
             </HStack>
-            <Box flexShrink={0}>
+            <VStack align="flex-end" gap={1.5} flexShrink={0}>
               <PaymentStatusBadge status={paymentRecord.status} />
-            </Box>
+
+              {canRemind && (
+                <Button
+                  colorPalette="orange"
+                  variant="outline"
+                  size="xs"
+                  onClick={handleRemind}
+                  loading={isReminding}
+                  disabled={isApproving || isRejecting}
+                >
+                  <BellRing size={12} />
+                  <Text ml={1}>{t('remindPayment')}</Text>
+                </Button>
+              )}
+
+              {reminderInfo && (
+                <Text
+                  fontSize="2xs"
+                  color="orange.600"
+                  _dark={{ color: 'orange.300' }}
+                  textAlign="right"
+                >
+                  {tReminder('reminderCount', {
+                    count: reminderInfo.reminderCount,
+                  })}
+                </Text>
+              )}
+            </VStack>
           </Flex>
         </Box>
 
@@ -296,20 +322,6 @@ export default function PaymentApprovalModal({
               </VSelect>
             </Box>
 
-            {canRemind && (
-              <Button
-                colorPalette="orange"
-                variant="outline"
-                size="sm"
-                onClick={handleRemind}
-                loading={isReminding}
-                disabled={isApproving || isRejecting}
-              >
-                <BellRing size={14} />
-                <Text ml={1}>{t('remindPayment')}</Text>
-              </Button>
-            )}
-
             {paymentRecord.submittedAt && (
               <Flex
                 justify="space-between"
@@ -327,35 +339,6 @@ export default function PaymentApprovalModal({
                   {dayjs(paymentRecord.submittedAt)
                     .locale(dayjsLocale)
                     .format('DD/MM/YYYY HH:mm')}
-                </Text>
-              </Flex>
-            )}
-
-            {reminderInfo && (
-              <Flex
-                justify="space-between"
-                align="center"
-                gap={3}
-                pt={2}
-                borderTop="1px solid"
-                borderColor="green.100"
-                _dark={{ borderColor: 'green.800' }}
-              >
-                <Text
-                  fontSize="xs"
-                  color="orange.600"
-                  _dark={{ color: 'orange.300' }}
-                >
-                  {tReminder('lastRemindedAt')}
-                </Text>
-                <Text fontSize="xs" fontWeight="medium" textAlign="right">
-                  {dayjs(reminderInfo.lastRemindedAt)
-                    .locale(dayjsLocale)
-                    .format('DD/MM/YYYY HH:mm')}{' '}
-                  ·{' '}
-                  {tReminder('reminderCount', {
-                    count: reminderInfo.reminderCount,
-                  })}
                 </Text>
               </Flex>
             )}

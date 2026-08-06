@@ -1,6 +1,6 @@
 'use client';
 
-import { Avatar, Badge, Box, HStack, Text, VStack } from '@chakra-ui/react';
+import { Badge, Box, HStack, Text, VStack } from '@chakra-ui/react';
 import { useTranslations } from 'next-intl';
 import dayjs from '@/lib/dayjs';
 import { FeeService } from '@/lib/api/fee.service';
@@ -9,7 +9,7 @@ import {
   PaymentReminderStatus,
   PaymentReminderType,
 } from '@/lib/api/types';
-import { getAvatarBgColor } from '@/lib/utils/avatarColor';
+import { PlayerAvatar } from '@/components/player/PlayerAvatar';
 import { normalizeImageUrl } from '@/lib/images/normalizeImageUrl';
 
 interface ReminderCardProps {
@@ -79,16 +79,16 @@ export default function ReminderCard({
       <VStack align="stretch" gap={3}>
         <HStack justify="space-between" align="flex-start">
           <HStack gap={3} align="flex-start">
-            <Avatar.Root
-              size="sm"
-              bg={getAvatarBgColor(counterparty?.name ?? '')}
-            >
-              {counterpartyImage ? (
-                <Avatar.Image src={normalizeImageUrl(counterpartyImage)} />
-              ) : (
-                <Avatar.Fallback name={counterparty?.name} color="white" />
-              )}
-            </Avatar.Root>
+            <PlayerAvatar
+              name={counterparty?.name || t('unknownUser')}
+              gender={(counterparty as any)?.gender}
+              image={
+                counterpartyImage
+                  ? normalizeImageUrl(counterpartyImage)
+                  : undefined
+              }
+              size="48px"
+            />
             <Box>
               <Text fontWeight="medium" fontSize="sm">
                 {counterparty?.name || t('unknownUser')}

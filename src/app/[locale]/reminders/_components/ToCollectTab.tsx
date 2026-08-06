@@ -116,8 +116,8 @@ export default function ToCollectTab() {
       {canCreateReminders && (
         <Button
           size="sm"
-          variant="outline"
-          alignSelf="flex-start"
+          colorPalette="green"
+          alignSelf="flex-end"
           onClick={() => setIsCreateOpen(true)}
         >
           <Plus size={14} />
