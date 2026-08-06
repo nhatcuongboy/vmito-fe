@@ -1,24 +1,31 @@
 'use client';
 
-import { Badge } from '@chakra-ui/react';
+import { Badge, type BadgeProps } from '@chakra-ui/react';
 import { useTranslations } from 'next-intl';
 
 import { SportType } from '@/lib/api/types';
-import { SPORT_COLOR_PALETTE, normalizeSportType } from '@/constants/sports';
+import {
+  SPORT_COLOR_PALETTE,
+  SPORT_EMOJI,
+  normalizeSportType,
+} from '@/constants/sports';
 
-interface AppSportBadgeProps {
+interface AppSportBadgeProps extends Omit<BadgeProps, 'colorPalette'> {
   sportType?: SportType | null;
-  size?: 'sm' | 'md' | 'lg';
-  variant?: 'solid' | 'subtle' | 'outline';
+  /** Icon only — for tight spots like compact card overlays. */
+  iconOnly?: boolean;
 }
 
 export const AppSportBadge = ({
   sportType,
   size = 'sm',
   variant = 'subtle',
+  iconOnly = false,
+  ...rest
 }: AppSportBadgeProps) => {
   const t = useTranslations('sport');
   const sport = normalizeSportType(sportType);
+  const label = t(sport);
 
   return (
     <Badge
@@ -27,8 +34,14 @@ export const AppSportBadge = ({
       colorPalette={SPORT_COLOR_PALETTE[sport]}
       borderRadius="md"
       whiteSpace="nowrap"
+      gap={1}
+      px={iconOnly ? 1.5 : undefined}
+      aria-label={iconOnly ? label : undefined}
+      title={iconOnly ? label : undefined}
+      {...rest}
     >
-      {t(sport)}
+      <span aria-hidden={!iconOnly}>{SPORT_EMOJI[sport]}</span>
+      {!iconOnly && label}
     </Badge>
   );
 };

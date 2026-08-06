@@ -4,7 +4,11 @@ import { Badge, Flex } from '@chakra-ui/react';
 import { useTranslations } from 'next-intl';
 
 import { SportType } from '@/lib/api/types';
-import { SPORT_COLOR_PALETTE, SPORT_TYPES } from '@/constants/sports';
+import {
+  SPORT_COLOR_PALETTE,
+  SPORT_EMOJI,
+  SPORT_TYPES,
+} from '@/constants/sports';
 
 interface AppSportSelectProps {
   value: SportType;
@@ -46,6 +50,7 @@ export const AppSportSelect = ({
             borderRadius="lg"
             fontSize="sm"
             fontWeight="medium"
+            gap={1.5}
             cursor={isDisabled ? 'not-allowed' : 'pointer'}
             opacity={isDisabled ? 0.6 : 1}
             variant={isSelected ? 'solid' : 'outline'}
@@ -54,6 +59,7 @@ export const AppSportSelect = ({
             transition="all 0.2s"
             _hover={isDisabled ? undefined : { transform: 'scale(1.03)' }}
           >
+            <span aria-hidden>{SPORT_EMOJI[sport]}</span>
             {t(sport)}
           </Badge>
         );

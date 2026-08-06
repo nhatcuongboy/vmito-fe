@@ -485,37 +485,55 @@ export default function VenueDetailClient({
             gradientTo="transparent"
             pointerEvents="none"
           />
-          {/* Closure badge — top-left (only when not operating) */}
-          {venue.closureStatus &&
-            venue.closureStatus !== ClosureStatus.OPERATING && (
-              <Badge
-                position="absolute"
-                top={4}
-                left={4}
-                colorPalette={
-                  venue.closureStatus === ClosureStatus.PERMANENTLY_CLOSED
-                    ? 'red'
-                    : 'orange'
-                }
-                variant="solid"
-                size="lg"
-                borderRadius="full"
-                px={4}
-                py={2}
-                display="flex"
-                alignItems="center"
-                gap={2}
-                shadow="lg"
-                zIndex={2}
-              >
-                <XCircle size={16} />
-                <Text fontSize="sm">
-                  {venue.closureStatus === ClosureStatus.PERMANENTLY_CLOSED
-                    ? t('detail.permanentlyClosed')
-                    : t('detail.temporarilyClosed')}
-                </Text>
-              </Badge>
-            )}
+          {/* Sport + closure badges — stacked top-left so closure (rare) never overlaps them */}
+          <Flex
+            position="absolute"
+            top={4}
+            left={4}
+            direction="column"
+            align="flex-start"
+            gap={2}
+            zIndex={2}
+          >
+            <HStack gap={1.5} flexWrap="wrap">
+              {getVenueSportTypes(venue).map((sport) => (
+                <AppSportBadge
+                  key={sport}
+                  sportType={sport}
+                  variant="solid"
+                  size="md"
+                  iconOnly
+                  shadow="md"
+                />
+              ))}
+            </HStack>
+            {venue.closureStatus &&
+              venue.closureStatus !== ClosureStatus.OPERATING && (
+                <Badge
+                  colorPalette={
+                    venue.closureStatus === ClosureStatus.PERMANENTLY_CLOSED
+                      ? 'red'
+                      : 'orange'
+                  }
+                  variant="solid"
+                  size="lg"
+                  borderRadius="full"
+                  px={4}
+                  py={2}
+                  display="flex"
+                  alignItems="center"
+                  gap={2}
+                  shadow="lg"
+                >
+                  <XCircle size={16} />
+                  <Text fontSize="sm">
+                    {venue.closureStatus === ClosureStatus.PERMANENTLY_CLOSED
+                      ? t('detail.permanentlyClosed')
+                      : t('detail.temporarilyClosed')}
+                  </Text>
+                </Badge>
+              )}
+          </Flex>
           {/* Verified badge — bottom-left */}
           {venue.isVerified && (
             <Badge
@@ -634,11 +652,6 @@ export default function VenueDetailClient({
               >
                 {venueName}
               </Heading>
-              <HStack gap={2} mt={1.5} flexWrap="wrap">
-                {getVenueSportTypes(venue).map((sport) => (
-                  <AppSportBadge key={sport} sportType={sport} />
-                ))}
-              </HStack>
               {locationSubtitle && (
                 <Text fontSize="sm" color="gray.500" mt={0.5}>
                   {locationSubtitle}

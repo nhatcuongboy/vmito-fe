@@ -153,6 +153,14 @@ export default function VenueCard({
           {/* Badges Overlay */}
           <Box position="absolute" top={3} left={3}>
             <HStack gap={2}>
+              {getVenueSportTypes(venue).map((sport) => (
+                <AppSportBadge
+                  key={sport}
+                  sportType={sport}
+                  variant="solid"
+                  iconOnly
+                />
+              ))}
               {showAdminVerifiedBadge && (
                 <Box
                   bg="green.400"
@@ -171,27 +179,30 @@ export default function VenueCard({
                   <Text>{t('verified')}</Text>
                 </Box>
               )}
-
-              {venue.distance !== undefined && venue.distance !== null && (
-                <Badge
-                  colorPalette="green"
-                  variant="solid"
-                  borderRadius="full"
-                  px={3}
-                  py={1}
-                  fontSize="xs"
-                  fontWeight="bold"
-                  display="flex"
-                  alignItems="center"
-                  gap={1.5}
-                  shadow="md"
-                >
-                  <Navigation size={14} />
-                  <Text>{venue.distance} km</Text>
-                </Badge>
-              )}
             </HStack>
           </Box>
+
+          {/* Distance badge — bottom-left, clear of the sport badges above */}
+          {venue.distance !== undefined && venue.distance !== null && (
+            <Box position="absolute" bottom={3} left={3}>
+              <Badge
+                colorPalette="green"
+                variant="solid"
+                borderRadius="full"
+                px={3}
+                py={1}
+                fontSize="xs"
+                fontWeight="bold"
+                display="flex"
+                alignItems="center"
+                gap={1.5}
+                shadow="md"
+              >
+                <Navigation size={14} />
+                <Text>{venue.distance} km</Text>
+              </Badge>
+            </Box>
+          )}
 
           <Box position="absolute" top={3} right={3} zIndex={3}>
             <FavoriteButton
@@ -345,6 +356,14 @@ export default function VenueCard({
         {/* Badges Overlay */}
         <Box position="absolute" top={3} left={3}>
           <HStack gap={2}>
+            {getVenueSportTypes(venue).map((sport) => (
+              <AppSportBadge
+                key={sport}
+                sportType={sport}
+                variant="solid"
+                iconOnly
+              />
+            ))}
             {showAdminVerifiedBadge && (
               <Badge
                 colorPalette="green"
@@ -362,28 +381,31 @@ export default function VenueCard({
                 <Text fontSize="xs">{t('verified')}</Text>
               </Badge>
             )}
-
-            {venue.distance !== undefined && venue.distance !== null && (
-              <Badge
-                colorPalette="green"
-                variant="solid"
-                size="sm"
-                borderRadius="full"
-                px={3}
-                py={1}
-                fontSize="xs"
-                fontWeight="bold"
-                display="flex"
-                alignItems="center"
-                gap={1.5}
-                shadow="md"
-              >
-                <Navigation size={14} />
-                <Text>{venue.distance} km</Text>
-              </Badge>
-            )}
           </HStack>
         </Box>
+
+        {/* Distance badge — bottom-left, clear of the sport badges above */}
+        {venue.distance !== undefined && venue.distance !== null && (
+          <Box position="absolute" bottom={3} left={3}>
+            <Badge
+              colorPalette="green"
+              variant="solid"
+              size="sm"
+              borderRadius="full"
+              px={3}
+              py={1}
+              fontSize="xs"
+              fontWeight="bold"
+              display="flex"
+              alignItems="center"
+              gap={1.5}
+              shadow="md"
+            >
+              <Navigation size={14} />
+              <Text>{venue.distance} km</Text>
+            </Badge>
+          </Box>
+        )}
         <Box position="absolute" top={3} right={3} zIndex={3}>
           <FavoriteButton
             type="VENUE"
@@ -410,12 +432,6 @@ export default function VenueCard({
             >
               {displayName}
             </Text>
-
-            <HStack gap={2} mb={2} flexWrap="wrap">
-              {getVenueSportTypes(venue).map((sport) => (
-                <AppSportBadge key={sport} sportType={sport} />
-              ))}
-            </HStack>
 
             {/* Location badges — fall back to the new-era ward/city (as a
                 pair) when the venue has no legacy district/city on file

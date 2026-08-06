@@ -1,3 +1,5 @@
+import type { SportType } from '@/lib/api/types';
+
 export interface PostImage {
   id: string;
   url: string;
@@ -60,6 +62,8 @@ export interface ActivityMetadata {
   endTime?: string | null;
   standings?: SessionResultsStanding[];
   location?: string | null;
+  // SESSION_CREATED / SESSION_RESULTS / TOURNAMENT_CREATED / TOURNAMENT_FINISHED
+  sportType?: SportType;
   // CLUB_*
   clubId?: string;
   clubSlug?: string | null;

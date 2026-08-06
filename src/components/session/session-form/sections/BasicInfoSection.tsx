@@ -180,7 +180,7 @@ export function BasicInfoSection({
             onChange={onSportTypeChange}
             isDisabled={!canEditVenue}
           />
-          <Field.HelperText>{tSport('selectHelper')}</Field.HelperText>
+          {/* <Field.HelperText>{tSport('selectHelper')}</Field.HelperText> */}
         </Field.Root>
 
         {/* Location */}

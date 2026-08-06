@@ -5,7 +5,11 @@ import { Button, IconButton, Input } from '@/components/ui/chakra-compat';
 import { VDateTimeInput } from '@/components/ui/VDateTimeInput';
 import { toaster } from '@/components/ui/toaster';
 import { VALID_LEVELS } from '@/constants/levels';
-import { SPORT_COLOR_PALETTE, SPORT_TYPES } from '@/constants/sports';
+import {
+  SPORT_COLOR_PALETTE,
+  SPORT_EMOJI,
+  SPORT_TYPES,
+} from '@/constants/sports';
 import { useLevelLabel } from '@/hooks/useLevelLabel';
 import { getUserLocation } from '@/lib/utils/geolocation.utils';
 import { getSkillLevelColor } from '@/lib/utils/skillLevel.utils';
@@ -438,10 +442,12 @@ export default function SessionFilterDrawer({
                       onClick={() => toggleSport(sport)}
                       fontSize="sm"
                       fontWeight="medium"
+                      gap={1.5}
                       transition="all 0.2s"
                       _hover={{ transform: 'scale(1.05)' }}
                       borderWidth={isSelected ? '0' : '2px'}
                     >
+                      <span aria-hidden>{SPORT_EMOJI[sport]}</span>
                       {tSport(sport)}
                     </Badge>
                   );

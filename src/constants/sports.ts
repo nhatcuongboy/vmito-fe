@@ -13,6 +13,12 @@ export const SPORT_COLOR_PALETTE: Record<SportType, string> = {
   [SportType.PICKLEBALL]: 'purple',
 };
 
+// Lucide has no racket-sport glyphs, so emoji carry the sport identity everywhere.
+export const SPORT_EMOJI: Record<SportType, string> = {
+  [SportType.BADMINTON]: '🏸',
+  [SportType.PICKLEBALL]: '🏓',
+};
+
 export const isSportType = (value: unknown): value is SportType =>
   typeof value === 'string' && (SPORT_TYPES as string[]).includes(value);
 

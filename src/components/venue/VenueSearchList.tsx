@@ -3,6 +3,7 @@
 import { LocationFilterFields } from '@/components/common/LocationFilterFields';
 import {
   SPORT_COLOR_PALETTE,
+  SPORT_EMOJI,
   SPORT_TYPES,
   isSportType,
 } from '@/constants/sports';
@@ -1075,10 +1076,12 @@ export default function VenueSearchList({
                       }
                       fontSize="sm"
                       fontWeight="medium"
+                      gap={1.5}
                       transition="all 0.2s"
                       _hover={{ transform: 'scale(1.05)' }}
                       borderWidth={isSelected ? '0' : '2px'}
                     >
+                      <span aria-hidden>{SPORT_EMOJI[sport]}</span>
                       {t(`sport.${sport}`)}
                     </Badge>
                   );

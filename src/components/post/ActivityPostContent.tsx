@@ -17,12 +17,14 @@ import { Link } from '@/i18n/config';
 import { ROUTES } from '@/constants/routes';
 import { normalizeImageUrl } from '@/lib/images/normalizeImageUrl';
 import AppLightbox from '@/components/ui/AppLightbox';
+import { AppSportBadge } from '@/components/common/AppSportBadge';
 import { PostAvatar } from './PostAvatar';
 import type {
   Post,
   SessionResultsStanding,
   TournamentPodiumSide,
 } from '@/types/post';
+import type { SportType } from '@/lib/api/types';
 
 const MAX_STANDINGS_ROWS = 3;
 
@@ -57,12 +59,14 @@ function EntityPreviewCard({
   title,
   subtitle,
   icon,
+  sportType,
 }: {
   href: string;
   image?: string | null;
   title: string;
   subtitle?: string | null;
   icon: React.ReactNode;
+  sportType?: SportType | null;
 }) {
   const imageSrc = image ? normalizeImageUrl(image) : null;
   return (
@@ -84,11 +88,14 @@ function EntityPreviewCard({
           </div>
         )}
         <div className="min-w-0 flex-1">
-          <div
-            className="truncate text-[15px] text-green-700 dark:text-green-300"
-            style={{ fontWeight: 600 }}
-          >
-            {title}
+          <div className="flex items-center gap-1.5">
+            <div
+              className="truncate text-[15px] text-green-700 dark:text-green-300"
+              style={{ fontWeight: 600 }}
+            >
+              {title}
+            </div>
+            {sportType && <AppSportBadge sportType={sportType} iconOnly />}
           </div>
           {subtitle && (
             <div
@@ -356,6 +363,7 @@ export function ActivityPostContent({ post }: ActivityPostContentProps) {
               title={metadata.sessionName ?? ''}
               subtitle={metadata.location}
               icon={<CalendarPlus size={24} />}
+              sportType={metadata.sportType}
             />
           </Box>
         </>
@@ -378,6 +386,7 @@ export function ActivityPostContent({ post }: ActivityPostContentProps) {
               image={metadata.coverPhoto}
               title={metadata.sessionName ?? ''}
               icon={<Medal size={24} />}
+              sportType={metadata.sportType}
             />
           </Box>
         </>
@@ -420,6 +429,7 @@ export function ActivityPostContent({ post }: ActivityPostContentProps) {
               title={metadata.tournamentName ?? ''}
               subtitle={metadata.venueName}
               icon={<Trophy size={24} />}
+              sportType={metadata.sportType}
             />
           </Box>
         </>
@@ -473,6 +483,7 @@ export function ActivityPostContent({ post }: ActivityPostContentProps) {
               )}
               title={metadata.tournamentName ?? ''}
               icon={<Trophy size={24} />}
+              sportType={metadata.sportType}
             />
           </Box>
         </>
