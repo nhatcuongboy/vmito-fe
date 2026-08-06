@@ -42,6 +42,7 @@ import {
   ISessionExpense,
   SessionFeeConfig,
   FeeType,
+  IPaymentReminder,
 } from '@/lib/api/types';
 import { PaymentSettingsService } from '@/lib/api/payment-settings.service';
 import { PaymentService } from '@/lib/api/payment.service';
@@ -83,6 +84,9 @@ export default function SessionPaymentTab({ session }: SessionPaymentTabProps) {
   // Payment management state
   const [payments, setPayments] = useState<PaymentRecord[]>([]);
   const [isLoadingPayments, setIsLoadingPayments] = useState(true);
+  const [remindersByPaymentId, setRemindersByPaymentId] = useState<
+    Record<string, IPaymentReminder>
+  >({});
 
   // Split amount state
   const [splitAmount, setSplitAmount] = useState('');
@@ -193,11 +197,29 @@ export default function SessionPaymentTab({ session }: SessionPaymentTabProps) {
     }
   }, [session.id]);
 
+  const loadReminders = useCallback(async () => {
+    try {
+      const reminders = await PaymentReminderService.getReminders({
+        role: 'creator',
+      });
+      const map: Record<string, IPaymentReminder> = {};
+      reminders.forEach((reminder) => {
+        reminder.payments.forEach(({ payment }) => {
+          map[payment.id] = reminder;
+        });
+      });
+      setRemindersByPaymentId(map);
+    } catch (error) {
+      console.error('Failed to load payment reminders:', error);
+    }
+  }, []);
+
   useEffect(() => {
     loadPaymentSettings();
     loadPayments();
     loadExpenses();
-  }, [loadPaymentSettings, loadPayments, loadExpenses]);
+    loadReminders();
+  }, [loadPaymentSettings, loadPayments, loadExpenses, loadReminders]);
 
   const handleSave = async (data: UpdateHostPaymentSettingsRequest) => {
     setIsSaving(true);
@@ -329,6 +351,7 @@ export default function SessionPaymentTab({ session }: SessionPaymentTabProps) {
 
   const handleRemind = async (paymentId: string) => {
     await PaymentReminderService.createSingleReminder({ paymentId });
+    await loadReminders();
   };
 
   const handleBulkApprove = async (paymentIds: string[]) => {
@@ -1199,6 +1222,7 @@ export default function SessionPaymentTab({ session }: SessionPaymentTabProps) {
           onReject={handleReject}
           onBulkApprove={handleBulkApprove}
           onRemind={handleRemind}
+          remindersByPaymentId={remindersByPaymentId}
           totalExpenses={totalExpenses}
           isLoading={isLoadingPayments}
           showSummary={false}

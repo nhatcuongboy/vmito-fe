@@ -5991,7 +5991,7 @@
     "sessionFeeConfig": "Cấu hình phí kèo",
     "editFeeConfig": "Chỉnh sửa phí kèo",
     "configureFeeConfig": "Cấu hình phí",
-    "viewAllTransactions": "Quản lý tất cả giao dịch",
+    "viewAllTransactions": "Quản lý giao dịch của tất cả kèo",
     "feeType": "Loại phí",
     "fixed": "Giá vãng lai",
     "noPaymentSettings": "Chưa cấu hình thông tin thanh toán",

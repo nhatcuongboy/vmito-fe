@@ -5933,7 +5933,7 @@
     "sessionFeeConfig": "场次费用配置",
     "editFeeConfig": "编辑场次费用",
     "configureFeeConfig": "配置费用",
-    "viewAllTransactions": "管理所有交易",
+    "viewAllTransactions": "查看所有交易",
     "feeType": "费用类型",
     "fixed": "固定价格",
     "noPaymentSettings": "未配置支付设置",

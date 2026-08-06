@@ -18,9 +18,14 @@ import { Input } from '@/components/ui/Input';
 import { VSelect } from '@/components/ui/VSelect';
 import AppLightbox from '@/components/ui/AppLightbox';
 import dayjs, { getDayjsLocale } from '@/lib/dayjs';
-import { PaymentRecord, PaymentMethod, PaymentStatus } from '@/lib/api/types';
+import {
+  PaymentRecord,
+  PaymentMethod,
+  PaymentStatus,
+  IPaymentReminder,
+} from '@/lib/api/types';
 import { FeeService } from '@/lib/api/fee.service';
-import { Check, X, User, ZoomIn } from 'lucide-react';
+import { Check, X, User, ZoomIn, BellRing } from 'lucide-react';
 import PaymentStatusBadge from './PaymentStatusBadge';
 
 interface PaymentApprovalModalProps {
@@ -33,6 +38,8 @@ interface PaymentApprovalModalProps {
     paymentMethod?: PaymentMethod
   ) => Promise<void>;
   onReject: (notes?: string) => Promise<void>;
+  onRemind?: (paymentId: string) => Promise<void>;
+  reminderInfo?: IPaymentReminder | null;
   slotInfo?: string;
 }
 
@@ -42,9 +49,12 @@ export default function PaymentApprovalModal({
   paymentRecord,
   onApprove,
   onReject,
+  onRemind,
+  reminderInfo,
   slotInfo,
 }: PaymentApprovalModalProps) {
   const t = useTranslations('payment');
+  const tReminder = useTranslations('paymentReminder');
   const tCommon = useTranslations('common');
   const locale = useLocale();
   const dayjsLocale = getDayjsLocale(locale);
@@ -58,6 +68,7 @@ export default function PaymentApprovalModal({
   >(paymentRecord.paymentMethod ?? '');
   const [isApproving, setIsApproving] = useState(false);
   const [isRejecting, setIsRejecting] = useState(false);
+  const [isReminding, setIsReminding] = useState(false);
   const [isProofLightboxOpen, setIsProofLightboxOpen] = useState(false);
 
   const isAmountModified =
@@ -92,8 +103,22 @@ export default function PaymentApprovalModal({
     }
   };
 
+  const handleRemind = async () => {
+    if (!onRemind) return;
+    setIsReminding(true);
+    try {
+      await onRemind(paymentRecord.id);
+    } finally {
+      setIsReminding(false);
+    }
+  };
+
   const player = paymentRecord.player;
-  const isLoading = isApproving || isRejecting;
+  const isLoading = isApproving || isRejecting || isReminding;
+  const canRemind =
+    Boolean(onRemind) &&
+    paymentRecord.status === PaymentStatus.PENDING &&
+    Boolean(player?.user?.id);
 
   const sessionContext = [
     paymentRecord.session?.name,
@@ -137,17 +162,30 @@ export default function PaymentApprovalModal({
             flex={1}
             onClick={handleReject}
             loading={isRejecting}
-            disabled={isApproving}
+            disabled={isApproving || isReminding}
           >
             <X size={16} />
             <Text ml={1}>{t('rejectPayment')}</Text>
           </Button>
+          {canRemind && (
+            <Button
+              colorPalette="orange"
+              variant="outline"
+              flex={1}
+              onClick={handleRemind}
+              loading={isReminding}
+              disabled={isApproving || isRejecting}
+            >
+              <BellRing size={16} />
+              <Text ml={1}>{t('remindPayment')}</Text>
+            </Button>
+          )}
           <Button
             colorPalette="green"
             flex={2}
             onClick={handleApprove}
             loading={isApproving}
-            disabled={isRejecting}
+            disabled={isRejecting || isReminding}
           >
             <Check size={16} />
             <Text ml={1}>{t('approvePayment')}</Text>
@@ -288,6 +326,35 @@ export default function PaymentApprovalModal({
                   {dayjs(paymentRecord.submittedAt)
                     .locale(dayjsLocale)
                     .format('DD/MM/YYYY HH:mm')}
+                </Text>
+              </Flex>
+            )}
+
+            {reminderInfo && (
+              <Flex
+                justify="space-between"
+                align="center"
+                gap={3}
+                pt={2}
+                borderTop="1px solid"
+                borderColor="green.100"
+                _dark={{ borderColor: 'green.800' }}
+              >
+                <Text
+                  fontSize="xs"
+                  color="orange.600"
+                  _dark={{ color: 'orange.300' }}
+                >
+                  {tReminder('lastRemindedAt')}
+                </Text>
+                <Text fontSize="xs" fontWeight="medium" textAlign="right">
+                  {dayjs(reminderInfo.lastRemindedAt)
+                    .locale(dayjsLocale)
+                    .format('DD/MM/YYYY HH:mm')}{' '}
+                  ·{' '}
+                  {tReminder('reminderCount', {
+                    count: reminderInfo.reminderCount,
+                  })}
                 </Text>
               </Flex>
             )}

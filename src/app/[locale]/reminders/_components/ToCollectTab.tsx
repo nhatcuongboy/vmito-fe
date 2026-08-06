@@ -37,9 +37,7 @@ export default function ToCollectTab() {
       const data = await PaymentReminderService.getReminders({
         role: 'creator',
       });
-      setReminders(
-        data.filter((r) => r.status !== PaymentReminderStatus.RESOLVED)
-      );
+      setReminders(data);
     } catch (error) {
       console.error('Failed to load reminders:', error);
       toaster.error({ title: tCommon('error'), description: t('loadFailed') });
@@ -156,7 +154,8 @@ export default function ToCollectTab() {
                   {t('markCollected')}
                 </Button>
               </Box>
-            ) : (
+            ) : reminder.status ===
+              PaymentReminderStatus.AWAITING_CONFIRMATION ? (
               <Box display="flex" gap={2}>
                 <Button
                   size="xs"
@@ -175,7 +174,7 @@ export default function ToCollectTab() {
                   {t('reject')}
                 </Button>
               </Box>
-            )}
+            ) : null}
           </ReminderCard>
         ))
       )}

@@ -31,9 +31,7 @@ export default function ToPayTab() {
       const data = await PaymentReminderService.getReminders({
         role: 'recipient',
       });
-      setReminders(
-        data.filter((r) => r.status !== PaymentReminderStatus.RESOLVED)
-      );
+      setReminders(data);
     } catch (error) {
       console.error('Failed to load reminders:', error);
       toaster.error({ title: tCommon('error'), description: t('loadFailed') });
@@ -87,11 +85,12 @@ export default function ToPayTab() {
               >
                 {t('markPaid')}
               </Button>
-            ) : (
+            ) : reminder.status ===
+              PaymentReminderStatus.AWAITING_CONFIRMATION ? (
               <Badge colorPalette="orange" alignSelf="flex-start" fontSize="xs">
                 {t('awaitingConfirmation')}
               </Badge>
-            )}
+            ) : null}
           </ReminderCard>
         ))
       )}

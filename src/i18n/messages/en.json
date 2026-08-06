@@ -5974,7 +5974,7 @@
     "sessionFeeConfig": "Session Fee Configuration",
     "editFeeConfig": "Edit session fee",
     "configureFeeConfig": "Configure fee",
-    "viewAllTransactions": "Manage all transactions",
+    "viewAllTransactions": "View all transactions",
     "feeType": "Fee Type",
     "fixed": "Guest Fee",
     "noPaymentSettings": "No Payment Settings Configured",
