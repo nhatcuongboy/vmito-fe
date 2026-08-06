@@ -322,6 +322,7 @@ const BaseSessionCard = ({
           value="start"
           color="green.600"
           _hover={{ bg: 'green.50' }}
+          cursor="pointer"
           onClick={(e) => {
             e.stopPropagation();
             actions.onStart?.();
@@ -340,6 +341,7 @@ const BaseSessionCard = ({
           value="end"
           color="orange.600"
           _hover={{ bg: 'orange.50' }}
+          cursor="pointer"
           onClick={(e) => {
             e.stopPropagation();
             actions.onEnd?.();
@@ -358,6 +360,7 @@ const BaseSessionCard = ({
           value="delete"
           color="red.600"
           _hover={{ bg: 'red.50' }}
+          cursor="pointer"
           onClick={(e) => {
             e.stopPropagation();
             actions.onDelete?.(session.id);
