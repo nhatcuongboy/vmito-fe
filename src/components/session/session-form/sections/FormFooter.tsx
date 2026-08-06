@@ -65,7 +65,7 @@ export function FormFooter({
             display={{ base: 'flex', md: 'none' }}
             gap={3}
             position="fixed"
-            insetInline={0}
+            insetInlineEnd={0}
             bottom={0}
             width={mobileFooterWidth}
             p={4}
@@ -74,7 +74,7 @@ export function FormFooter({
             borderTop="1px solid"
             borderColor="border"
             boxShadow="0 -8px 24px rgba(0, 0, 0, 0.18)"
-            zIndex={1260}
+            zIndex={1402}
           >
             {actions}
           </Flex>
