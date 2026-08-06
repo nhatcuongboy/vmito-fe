@@ -323,7 +323,21 @@
     "cloneSession": "克隆场次",
     "cloneModal": {
       "title": "克隆场次",
-      "description": "使用新时间从“{name}”创建一个新场次。",
+      "description": "查看“{name}”的信息，然后为新场次选择名称和时间。",
+      "sessionName": "新场次名称",
+      "sessionNamePlaceholder": "输入新场次名称",
+      "previewTitle": "从原场次复制的信息",
+      "preview": {
+        "location": "地点",
+        "courts": "场地数",
+        "capacity": "最大人数",
+        "registeredPlayers": "已报名玩家",
+        "duration": "时长",
+        "playersPerCourt": "每场地人数",
+        "courtsValue": "{count} 个场地",
+        "playersValue": "{count} 名玩家",
+        "minutesValue": "{count} 分钟"
+      },
       "excludedData": "场次详情、场地、地点、费用设置和图片将被复制。您可以在下一步添加玩家。比赛不会被复制。",
       "startTime": "新的开始时间",
       "endTime": "新的结束时间",
@@ -338,6 +352,7 @@
       "noPlayers": "场次已克隆，但原场次没有符合条件的玩家，因此未添加玩家",
       "playersAddedSuccess": "已将 {count} 名玩家添加到克隆场次",
       "errors": {
+        "nameRequired": "请输入新场次名称",
         "required": "请选择开始时间和结束时间",
         "future": "新场次必须在未来开始",
         "endAfterStart": "结束时间必须晚于开始时间",

@@ -331,7 +331,7 @@ export const SessionService = {
 
   cloneSession: async (
     id: string,
-    data: { startTime: string; endTime: string }
+    data: { name?: string; startTime: string; endTime: string }
   ): Promise<ISession> => {
     const response = await api.post<ApiResponse<ISession>>(
       `/sessions/${id}/clone`,

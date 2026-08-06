@@ -1,11 +1,12 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { Box, Field, Stack, Text, VStack } from '@chakra-ui/react';
+import { Box, Field, SimpleGrid, Stack, Text, VStack } from '@chakra-ui/react';
 import { useTranslations } from 'next-intl';
 import { BulkPlayerData, ISession, Player } from '@/lib/api/types';
 import { PlayerService } from '@/lib/api/player.service';
 import { SessionService } from '@/lib/api/session.service';
+import { getSessionLocationName } from '@/utils/session-location';
 import {
   buildSingleDayDateTime,
   buildSingleDayEndDateTime,
@@ -13,6 +14,7 @@ import {
   formatTimeOnly,
 } from '@/components/session/session-form/sessionFormUtils';
 import { VDateTimeInput } from '@/components/ui/VDateTimeInput';
+import { Input } from '@/components/ui/Input';
 import { VModal } from '@/components/ui/VModal';
 import { toaster } from '@/components/ui/toaster';
 
@@ -59,6 +61,7 @@ export const CloneSessionModal = ({
   const [sessionDate, setSessionDate] = useState(() =>
     formatDateOnly(new Date())
   );
+  const [sessionName, setSessionName] = useState(session.name);
   const [startHour, setStartHour] = useState('');
   const [endHour, setEndHour] = useState('');
   const [phase, setPhase] = useState<TClonePhase>('schedule');
@@ -73,6 +76,7 @@ export const CloneSessionModal = ({
   useEffect(() => {
     if (!isOpen) {
       setSessionDate(formatDateOnly(new Date()));
+      setSessionName(session.name);
       setStartHour('');
       setEndHour('');
       setPhase('schedule');
@@ -81,7 +85,7 @@ export const CloneSessionModal = ({
       setHasPlayerLoadError(false);
       hasFinishedRef.current = false;
     }
-  }, [isOpen]);
+  }, [isOpen, session.name]);
 
   const finishClone = async () => {
     if (hasFinishedRef.current) return;
@@ -97,17 +101,12 @@ export const CloneSessionModal = ({
       setHasPlayerLoadError(false);
       const sourceSession = await SessionService.getSession(session.id);
       const sourcePlayers = [
+        ...(session.players ?? []),
+        ...(session.pendingPlayers ?? []),
         ...(sourceSession.players ?? []),
         ...(sourceSession.pendingPlayers ?? []),
       ];
       const mappedPlayers = mapPlayersForClone(sourcePlayers);
-
-      if (mappedPlayers.length === 0) {
-        toaster.info({ title: t('noPlayers') });
-        await finishClone();
-        return;
-      }
-
       setPlayersToClone(mappedPlayers);
     } catch (error) {
       console.error('Error loading source session players:', error);
@@ -134,6 +133,7 @@ export const CloneSessionModal = ({
   };
 
   const getValidationError = () => {
+    if (!sessionName.trim()) return t('errors.nameRequired');
     if (!sessionDate || !startHour || !endHour) return t('errors.required');
 
     const start = new Date(buildSingleDayDateTime(sessionDate, startHour));
@@ -153,6 +153,7 @@ export const CloneSessionModal = ({
     try {
       setIsSubmitting(true);
       const clonedSession = await SessionService.cloneSession(session.id, {
+        name: sessionName.trim(),
         startTime: new Date(
           buildSingleDayDateTime(sessionDate, startHour)
         ).toISOString(),
@@ -205,6 +206,23 @@ export const CloneSessionModal = ({
 
   const isPlayerPhase = phase === 'players';
   const isBusy = isSubmitting || isLoadingPlayers || isAddingPlayers;
+  const sourcePlayerCount =
+    (session.players?.length ?? 0) + (session.pendingPlayers?.length ?? 0) ||
+    session._count?.players ||
+    0;
+  const maxPlayers = session.numberOfCourts * session.maxPlayersPerCourt;
+  const locationName =
+    getSessionLocationName(session) || tCommon('notAvailable');
+  const previewDuration =
+    sessionDate && startHour && endHour
+      ? Math.round(
+          (new Date(buildSingleDayEndDateTime(sessionDate, endHour)).getTime() -
+            new Date(
+              buildSingleDayDateTime(sessionDate, startHour)
+            ).getTime()) /
+            60000
+        )
+      : session.sessionDuration;
 
   return (
     <VModal
@@ -230,7 +248,7 @@ export const CloneSessionModal = ({
         isPlayerPhase
           ? isLoadingPlayers ||
             (!hasPlayerLoadError && playersToClone.length === 0)
-          : !sessionDate || !startHour || !endHour
+          : !sessionName.trim() || !sessionDate || !startHour || !endHour
       }
       onPrimaryAction={
         isPlayerPhase
@@ -258,16 +276,24 @@ export const CloneSessionModal = ({
               ? tCommon('loading')
               : hasPlayerLoadError
                 ? t('errors.loadPlayersFailed')
-                : t('playerPromptDetails', { count: playersToClone.length })}
+                : playersToClone.length === 0
+                  ? t('noPlayers')
+                  : t('playerPromptDetails', {
+                      count: playersToClone.length,
+                    })}
           </Text>
         </Box>
       ) : (
         <VStack align="stretch" gap={4}>
-          <Box bg="blue.50" borderWidth="1px" borderColor="blue.200" p={3}>
-            <Text fontSize="sm" color="blue.800">
-              {t('excludedData')}
-            </Text>
-          </Box>
+          <Field.Root required invalid={!sessionName.trim()}>
+            <Field.Label>{t('sessionName')}</Field.Label>
+            <Input
+              value={sessionName}
+              placeholder={t('sessionNamePlaceholder')}
+              onChange={(event) => setSessionName(event.target.value)}
+            />
+            <Field.ErrorText>{t('errors.nameRequired')}</Field.ErrorText>
+          </Field.Root>
 
           <Stack direction={{ base: 'column', md: 'row' }} gap={4}>
             <Box flex={1}>
@@ -320,6 +346,74 @@ export const CloneSessionModal = ({
               </Box>
             </Stack>
           </Stack>
+
+          <Box borderWidth="1px" borderColor="border" p={4}>
+            <Text fontSize="sm" fontWeight="semibold" color="fg" mb={3}>
+              {t('previewTitle')}
+            </Text>
+            <SimpleGrid columns={{ base: 1, sm: 2 }} gapX={6} gapY={3}>
+              <Box>
+                <Text fontSize="xs" color="fg.muted">
+                  {t('preview.location')}
+                </Text>
+                <Text fontSize="sm" color="fg" lineClamp={2}>
+                  {locationName}
+                </Text>
+              </Box>
+              <Box>
+                <Text fontSize="xs" color="fg.muted">
+                  {t('preview.courts')}
+                </Text>
+                <Text fontSize="sm" color="fg">
+                  {t('preview.courtsValue', {
+                    count: session.numberOfCourts,
+                  })}
+                </Text>
+              </Box>
+              <Box>
+                <Text fontSize="xs" color="fg.muted">
+                  {t('preview.capacity')}
+                </Text>
+                <Text fontSize="sm" color="fg">
+                  {t('preview.playersValue', { count: maxPlayers })}
+                </Text>
+              </Box>
+              <Box>
+                <Text fontSize="xs" color="fg.muted">
+                  {t('preview.registeredPlayers')}
+                </Text>
+                <Text fontSize="sm" color="fg">
+                  {t('preview.playersValue', { count: sourcePlayerCount })}
+                </Text>
+              </Box>
+              <Box>
+                <Text fontSize="xs" color="fg.muted">
+                  {t('preview.duration')}
+                </Text>
+                <Text fontSize="sm" color="fg">
+                  {t('preview.minutesValue', {
+                    count: previewDuration,
+                  })}
+                </Text>
+              </Box>
+              <Box>
+                <Text fontSize="xs" color="fg.muted">
+                  {t('preview.playersPerCourt')}
+                </Text>
+                <Text fontSize="sm" color="fg">
+                  {t('preview.playersValue', {
+                    count: session.maxPlayersPerCourt,
+                  })}
+                </Text>
+              </Box>
+            </SimpleGrid>
+          </Box>
+
+          <Box bg="blue.50" borderWidth="1px" borderColor="blue.200" p={3}>
+            <Text fontSize="sm" color="blue.800">
+              {t('excludedData')}
+            </Text>
+          </Box>
         </VStack>
       )}
     </VModal>

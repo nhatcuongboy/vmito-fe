@@ -335,7 +335,21 @@
     "cloneSession": "Nhân bản kèo",
     "cloneModal": {
       "title": "Nhân bản kèo",
-      "description": "Tạo một kèo mới từ “{name}” với thời gian mới.",
+      "description": "Xem lại “{name}”, sau đó chọn tên và thời gian cho kèo mới.",
+      "sessionName": "Tên kèo mới",
+      "sessionNamePlaceholder": "Nhập tên cho kèo mới",
+      "previewTitle": "Thông tin được sao chép từ kèo gốc",
+      "preview": {
+        "location": "Địa điểm",
+        "courts": "Số sân",
+        "capacity": "Sức chứa tối đa",
+        "registeredPlayers": "Người chơi đã đăng ký",
+        "duration": "Thời lượng",
+        "playersPerCourt": "Người chơi mỗi sân",
+        "courtsValue": "{count} sân",
+        "playersValue": "{count} người",
+        "minutesValue": "{count} phút"
+      },
       "excludedData": "Thông tin kèo, sân, địa điểm, cấu hình phí và hình ảnh sẽ được sao chép. Bạn có thể thêm người chơi ở bước tiếp theo. Các trận đấu sẽ không được sao chép.",
       "startTime": "Thời gian bắt đầu mới",
       "endTime": "Thời gian kết thúc mới",
@@ -350,6 +364,7 @@
       "noPlayers": "Kèo đã được nhân bản không kèm người chơi vì kèo gốc không có người chơi phù hợp",
       "playersAddedSuccess": "Đã thêm {count} người chơi vào kèo mới",
       "errors": {
+        "nameRequired": "Nhập tên cho kèo mới",
         "required": "Chọn đầy đủ thời gian bắt đầu và kết thúc",
         "future": "Kèo mới phải bắt đầu trong tương lai",
         "endAfterStart": "Thời gian kết thúc phải sau thời gian bắt đầu",
