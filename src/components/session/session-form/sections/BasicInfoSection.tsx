@@ -25,8 +25,9 @@ import type {
 import type { useTranslations } from 'next-intl';
 import { useTranslations as useNextIntlTranslations } from 'next-intl';
 
-import { SessionLocationType, Venue } from '@/lib/api/types';
+import { SessionLocationType, SportType, Venue } from '@/lib/api/types';
 import { SessionFormData } from '@/components/session/session-form/sessionFormSchema';
+import { AppSportSelect } from '@/components/common/AppSportSelect';
 import { useRef } from 'react';
 
 type Translator = ReturnType<typeof useTranslations>;
@@ -48,6 +49,8 @@ export function BasicInfoSection({
   errors,
   control,
   canEditVenue,
+  sportType,
+  onSportTypeChange,
   venues,
   setSelectedVenueObj,
   venueOptions,
@@ -65,6 +68,8 @@ export function BasicInfoSection({
   errors: FieldErrors<SessionFormData>;
   control: Control<SessionFormData>;
   canEditVenue: boolean;
+  sportType: SportType;
+  onSportTypeChange: (sportType: SportType) => void;
   venues: Venue[];
   setSelectedVenueObj: (venue: Venue | null) => void;
   venueOptions: VenueOption[];
@@ -81,6 +86,7 @@ export function BasicInfoSection({
 }) {
   const tVenueRequests = useNextIntlTranslations('venueRequests');
   const tCommon = useNextIntlTranslations('common');
+  const tSport = useNextIntlTranslations('sport');
   const locationType = useWatch({ control, name: 'locationType' });
   const customLocation = useWatch({ control, name: 'customLocation' });
   const customLocationAddress = useWatch({
@@ -159,6 +165,22 @@ export function BasicInfoSection({
             rows={3}
           />
           <Field.ErrorText>{errors.description?.message}</Field.ErrorText>
+        </Field.Root>
+
+        {/* Sport */}
+        <Field.Root disabled={!canEditVenue}>
+          <Field.Label>
+            {tSport('title')}{' '}
+            <Text as="span" color="red.500">
+              *
+            </Text>
+          </Field.Label>
+          <AppSportSelect
+            value={sportType}
+            onChange={onSportTypeChange}
+            isDisabled={!canEditVenue}
+          />
+          <Field.HelperText>{tSport('selectHelper')}</Field.HelperText>
         </Field.Root>
 
         {/* Location */}

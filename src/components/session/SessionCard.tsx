@@ -7,6 +7,7 @@ import { IconButton } from '@/components/ui/chakra-compat';
 import { MapPin, Navigation, LogIn } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { formatVenueName } from '@/utils';
+import { AppSportBadge } from '@/components/common/AppSportBadge';
 import {
   getSessionLocationAddress,
   getSessionLocationMapUrl,
@@ -176,6 +177,10 @@ const SessionCard = ({
   // Combine badges
   const combinedBadges = (
     <Flex gap={1}>
+      <AppSportBadge
+        sportType={session.sportType ?? session.venue?.sportType}
+        variant="solid"
+      />
       {slotAvailabilityBadge}
       {registrationBadge}
     </Flex>

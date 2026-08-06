@@ -1,6 +1,11 @@
 'use client';
 
 import { LocationFilterFields } from '@/components/common/LocationFilterFields';
+import {
+  SPORT_COLOR_PALETTE,
+  SPORT_TYPES,
+  isSportType,
+} from '@/constants/sports';
 import { Button, IconButton } from '@/components/ui/chakra-compat';
 import { useDisclosure } from '@/components/ui/ChakraHooks';
 import AppEmptyState from '@/components/ui/AppEmptyState';
@@ -21,7 +26,7 @@ import {
   BOTTOM_TAB_HEIGHT,
 } from '@/constants';
 import { VenueService } from '@/lib/api/venue.service';
-import { Venue, VenueRequestType } from '@/lib/api/types';
+import { SportType, Venue, VenueRequestType } from '@/lib/api/types';
 import { getUserLocation } from '@/lib/utils/geolocation.utils';
 import {
   Badge,
@@ -162,6 +167,7 @@ const VENUE_FILTERS_SCHEMA = {
   q: stringField(''),
   city: stringArrayField(),
   district: stringArrayField(),
+  sports: stringArrayField(),
   near: booleanField(false),
   sort: stringField('distance'),
   favorite: booleanField(false),
@@ -267,6 +273,7 @@ export default function VenueSearchList({
   // Pending filters (for drawer)
   const [pendingCities, setPendingCities] = useState<string[]>([]);
   const [pendingDistricts, setPendingDistricts] = useState<string[]>([]);
+  const [pendingSports, setPendingSports] = useState<SportType[]>([]);
   const [pendingSortByDistance, setPendingSortByDistance] = useState(false);
   const [pendingUserLocation, setPendingUserLocation] = useState<{
     lat: number;
@@ -317,6 +324,7 @@ export default function VenueSearchList({
     if (showFilters) {
       setPendingCities(filters.city);
       setPendingDistricts(filters.district);
+      setPendingSports(filters.sports.filter(isSportType));
       setPendingSortByDistance(filters.near);
       setPendingUserLocation(userLocation);
     }
@@ -358,19 +366,23 @@ export default function VenueSearchList({
       const currentPage = isLoadMore && !isMapMode ? page + 1 : 1;
 
       // Resolve the active sort option
-      const apiFilters: Record<string, string | number | boolean | undefined> =
-        {
-          keyword: filters.q || undefined,
-          city: effectiveCity || undefined,
-          district:
-            filters.district.length > 0
-              ? filters.district.join(',')
-              : undefined,
-          closureStatus: 'OPERATING',
-          favoriteOnly: filters.favorite ? true : undefined,
-          page: currentPage,
-          limit: effectiveLimit,
-        };
+      const apiFilters: Record<
+        string,
+        string | number | boolean | SportType[] | undefined
+      > = {
+        keyword: filters.q || undefined,
+        city: effectiveCity || undefined,
+        district:
+          filters.district.length > 0 ? filters.district.join(',') : undefined,
+        sportType:
+          filters.sports.length > 0
+            ? filters.sports.filter(isSportType)
+            : undefined,
+        closureStatus: 'OPERATING',
+        favoriteOnly: filters.favorite ? true : undefined,
+        page: currentPage,
+        limit: effectiveLimit,
+      };
 
       if (filters.near && userLocation) {
         // Distance sort overrides the sort bar when "Near me" is active
@@ -515,6 +527,7 @@ export default function VenueSearchList({
     setFilters({
       city: pendingCities,
       district: pendingDistricts,
+      sports: pendingSports,
       near: pendingSortByDistance,
     });
     setUserLocation(pendingUserLocation ?? null);
@@ -524,11 +537,13 @@ export default function VenueSearchList({
   const handleResetFilters = () => {
     setPendingCities([]);
     setPendingDistricts([]);
+    setPendingSports([]);
     setPendingSortByDistance(false);
     setPendingUserLocation(null);
     setFilters({
       city: [],
       district: [],
+      sports: [],
       near: false,
     });
     setUserLocation(null);
@@ -584,7 +599,10 @@ export default function VenueSearchList({
   };
 
   const activeFilterCount =
-    filters.city.length + filters.district.length + (filters.near ? 1 : 0);
+    filters.city.length +
+    filters.district.length +
+    (filters.sports.length > 0 ? 1 : 0) +
+    (filters.near ? 1 : 0);
   // favoriteOnly is excluded from filter count as it's now in the tab nav
   const hasVenueSearch = filters.q.trim().length > 0;
 
@@ -1019,6 +1037,53 @@ export default function VenueSearchList({
                 <MapPin size={16} />
                 Gần tôi
               </Badge>
+            </Box>
+
+            <Box h="1px" bg="gray.200" _dark={{ bg: 'gray.700' }} />
+
+            {/* Sport Selection */}
+            <Box>
+              <Text
+                fontSize="sm"
+                fontWeight="bold"
+                color="gray.700"
+                _dark={{ color: 'gray.200' }}
+                mb={3}
+              >
+                🏓 {t('sport.title')}
+              </Text>
+              <Flex gap={2} flexWrap="wrap">
+                {SPORT_TYPES.map((sport) => {
+                  const isSelected = pendingSports.includes(sport);
+                  return (
+                    <Badge
+                      key={sport}
+                      px={4}
+                      py={2}
+                      borderRadius="lg"
+                      cursor="pointer"
+                      variant={isSelected ? 'solid' : 'outline'}
+                      colorPalette={
+                        isSelected ? SPORT_COLOR_PALETTE[sport] : 'gray'
+                      }
+                      onClick={() =>
+                        setPendingSports((current) =>
+                          current.includes(sport)
+                            ? current.filter((s) => s !== sport)
+                            : [...current, sport]
+                        )
+                      }
+                      fontSize="sm"
+                      fontWeight="medium"
+                      transition="all 0.2s"
+                      _hover={{ transform: 'scale(1.05)' }}
+                      borderWidth={isSelected ? '0' : '2px'}
+                    >
+                      {t(`sport.${sport}`)}
+                    </Badge>
+                  );
+                })}
+              </Flex>
             </Box>
 
             <Box h="1px" bg="gray.200" _dark={{ bg: 'gray.700' }} />

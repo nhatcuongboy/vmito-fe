@@ -1,4 +1,9 @@
-import { CourtDirection, ISession, SessionLocationType } from '@/lib/api/types';
+import {
+  CourtDirection,
+  ISession,
+  SessionLocationType,
+  SportType,
+} from '@/lib/api/types';
 import { COURT_COLORS } from '@/components/session/CourtSettings';
 
 import { formatDateTimeLocal } from './sessionFormUtils';
@@ -16,6 +21,10 @@ export function buildSessionFormDefaults({
   if (isEditMode && initialData) {
     return {
       name: initialData.name,
+      sportType:
+        initialData.sportType ??
+        initialData.venue?.sportType ??
+        SportType.BADMINTON,
       description: initialData.description || '',
       referenceVideoUrl: initialData.referenceVideoUrl || '',
       locationType: initialData.venue
@@ -75,6 +84,7 @@ export function buildSessionFormDefaults({
 
   return {
     name: '',
+    sportType: SportType.BADMINTON,
     description: '',
     referenceVideoUrl: '',
     locationType: SessionLocationType.VENUE,

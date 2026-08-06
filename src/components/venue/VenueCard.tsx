@@ -36,6 +36,8 @@ import { normalizeImageUrl } from '@/lib/images/normalizeImageUrl';
 import { BROWSE_CARD_COVER_TRANSFORM } from '@/lib/images/coverTransforms';
 
 import { formatVenueName, getGoogleMapsUrl } from '@/utils';
+import { AppSportBadge } from '@/components/common/AppSportBadge';
+import { getVenueSportTypes } from '@/constants/sports';
 import { UserRole } from '@/lib/api/types';
 import {
   normalizePhoneForTel,
@@ -408,6 +410,12 @@ export default function VenueCard({
             >
               {displayName}
             </Text>
+
+            <HStack gap={2} mb={2} flexWrap="wrap">
+              {getVenueSportTypes(venue).map((sport) => (
+                <AppSportBadge key={sport} sportType={sport} />
+              ))}
+            </HStack>
 
             {/* Location badges — fall back to the new-era ward/city (as a
                 pair) when the venue has no legacy district/city on file

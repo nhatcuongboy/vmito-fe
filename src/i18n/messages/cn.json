@@ -6869,6 +6869,13 @@
     "loadMore": "加载更多",
     "aiRecommendationAria": "AI 智能推荐"
   },
+  "sport": {
+    "title": "运动项目",
+    "all": "全部项目",
+    "selectHelper": "只有提供该项目的场馆才可选为场地。",
+    "BADMINTON": "羽毛球",
+    "PICKLEBALL": "匹克球"
+  },
   "venue": {
     "verified": "已验证",
     "openingHours": "营业时间",

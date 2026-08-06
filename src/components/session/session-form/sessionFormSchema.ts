@@ -1,5 +1,9 @@
 import { z } from 'zod';
-import { CourtDirection, SessionLocationType } from '@/lib/api/types';
+import {
+  CourtDirection,
+  SessionLocationType,
+  SportType,
+} from '@/lib/api/types';
 
 // Zod schema for court validation
 export type SessionFormData = z.infer<
@@ -28,6 +32,7 @@ export function createSessionFormSchema(
     .object({
       // Required fields
       name: z.string().min(1, t('validation.sessionNameRequired')),
+      sportType: z.nativeEnum(SportType),
       locationType: z.nativeEnum(SessionLocationType),
       selectedVenueId: z.string(),
       customLocation: z.string().trim().max(200).optional(),

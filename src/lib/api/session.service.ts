@@ -11,6 +11,7 @@ import {
   CreateSessionRequest,
   BulkSessionCreationRequest,
   BulkSessionCreationResponse,
+  SportType,
 } from './types';
 
 interface IUpdateMatchRequest {
@@ -90,6 +91,7 @@ export const SessionService = {
     startTimeTo?: string;
     city?: string;
     district?: string;
+    sportType?: SportType[];
     sessionType?: 'all' | 'regular' | 'facebook';
     favoriteOnly?: boolean;
   }): Promise<{
@@ -120,6 +122,8 @@ export const SessionService = {
     if (filters?.startTimeTo) params.append('startTimeTo', filters.startTimeTo);
     if (filters?.city) params.append('city', filters.city);
     if (filters?.district) params.append('district', filters.district);
+    if (filters?.sportType?.length)
+      params.append('sportType', filters.sportType.join(','));
     if (filters?.sessionType && filters.sessionType !== 'all')
       params.append('sessionType', filters.sessionType);
     if (filters?.favoriteOnly) params.append('favoriteOnly', 'true');
@@ -207,6 +211,7 @@ export const SessionService = {
     city?: string;
     district?: string;
     venueId?: string;
+    sportType?: SportType[];
     minFee?: number;
     maxFee?: number;
     hasSlots?: boolean;
@@ -238,6 +243,8 @@ export const SessionService = {
     if (filters?.city) params.append('city', filters.city);
     if (filters?.district) params.append('district', filters.district);
     if (filters?.venueId) params.append('venueId', filters.venueId);
+    if (filters?.sportType?.length)
+      params.append('sportType', filters.sportType.join(','));
     if (filters?.minFee !== undefined)
       params.append('minFee', filters.minFee.toString());
     if (filters?.maxFee !== undefined)

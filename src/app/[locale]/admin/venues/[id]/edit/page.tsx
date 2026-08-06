@@ -12,7 +12,9 @@ import { VSwitch } from '@/components/ui/VSwitch';
 import { toaster } from '@/components/ui/toaster';
 import { useRouter } from '@/i18n/config';
 import { VenueService } from '@/lib/api/venue.service';
-import { ClosureStatus, Venue, VenueStatus } from '@/lib/api/types';
+import { ClosureStatus, SportType, Venue, VenueStatus } from '@/lib/api/types';
+import { AppSportMultiSelect } from '@/components/common/AppSportMultiSelect';
+import { getVenueSportTypes } from '@/constants/sports';
 import { VIETNAM_CITIES, getDistrictsByCity } from '@/lib/vietnam-locations';
 import { useNewAdminUnits } from '@/hooks/useNewAdminUnits';
 import { composeNewAddress, guessStreetAddress } from '@/utils/venue-helpers';
@@ -30,6 +32,9 @@ import { useTranslations } from 'next-intl';
 
 const venueSchema = z.object({
   name: z.string().min(2, 'Tên phải có ít nhất 2 ký tự'),
+  sportTypes: z
+    .array(z.nativeEnum(SportType))
+    .min(1, 'Chọn ít nhất một môn thể thao'),
   acronym: z.string().optional(),
   description: z
     .string()
@@ -81,6 +86,7 @@ export default function EditVenuePage({
   const { id } = use(params);
   const router = useRouter();
   const t = useTranslations('admin');
+  const tSport = useTranslations('sport');
   const [venueImages, setVenueImages] = useState<ISessionImage[]>([]);
   const [venueBannerIndex, setVenueBannerIndex] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
@@ -90,6 +96,7 @@ export default function EditVenuePage({
     resolver: zodResolver(venueSchema),
     defaultValues: {
       name: '',
+      sportTypes: [SportType.BADMINTON],
       acronym: '',
       description: '',
       placeId: '',
@@ -131,6 +138,7 @@ export default function EditVenuePage({
 
         form.reset({
           name: data.name,
+          sportTypes: getVenueSportTypes(data),
           acronym: data.acronym || '',
           placeId: data.placeId,
           address: data.address,
@@ -294,6 +302,24 @@ export default function EditVenuePage({
                   errorText={fieldState.error?.message}
                 >
                   <Input {...field} />
+                </Field>
+              )}
+            />
+
+            <Controller
+              control={form.control}
+              name="sportTypes"
+              render={({ field, fieldState }) => (
+                <Field
+                  label={tSport('title')}
+                  required
+                  invalid={!!fieldState.error}
+                  errorText={fieldState.error?.message}
+                >
+                  <AppSportMultiSelect
+                    value={field.value}
+                    onChange={field.onChange}
+                  />
                 </Field>
               )}
             />

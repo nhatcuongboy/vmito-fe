@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
 import { TIME_RANGES } from '@/constants';
+import { SportType } from '@/lib/api/types';
 
 type TimeRangeKey = (typeof TIME_RANGES)[number]['key'];
 
@@ -11,6 +12,7 @@ export interface SessionFilters {
   districts: string[]; // Changed to array for multi-select
   venueId: string;
   levels: number[];
+  sports: SportType[]; // Empty = all sports
   timeRanges: TimeRangeKey[];
   minFee: number;
   maxFee: number;
@@ -95,6 +97,7 @@ const defaultFilters: SessionFilters = {
   districts: [],
   venueId: '',
   levels: [],
+  sports: [],
   timeRanges: [],
   minFee: 0,
   maxFee: 200000,

@@ -46,6 +46,7 @@ import {
   BulkCreationMode,
   SpecificDatesConfig,
   RecurringWeekdaysConfig,
+  SportType,
   VenueRequestType,
 } from '@/lib/api/types';
 import dynamic from 'next/dynamic';
@@ -140,6 +141,7 @@ export default function SessionForm({
   // Watch values for computed properties
   const startTime = watch('startTime');
   const endTime = watch('endTime');
+  const sportType = watch('sportType');
 
   // State for modal / navigation
   const [isAIModalOpen, setIsAIModalOpen] = useState(false);
@@ -180,9 +182,18 @@ export default function SessionForm({
     isEditMode,
     initialData,
     canAccessHostFeatures,
+    sportType,
     t,
     tVenue,
   });
+
+  // A venue only offers certain sports, so switching sport invalidates the pick.
+  const handleSportTypeChange = (nextSportType: SportType) => {
+    if (nextSportType === sportType) return;
+    setValue('sportType', nextSportType, { shouldDirty: true });
+    setValue('selectedVenueId', '');
+    setSelectedVenueObj(null);
+  };
 
   // Fee configuration state
   const [feeEnabled, setFeeEnabled] = useState(
@@ -398,6 +409,7 @@ export default function SessionForm({
         // Update logic
         session = await SessionService.updateSession(sessionId, {
           name: data.name,
+          sportType: data.sportType,
           description: data.description?.trim() || '',
           referenceVideoUrl: data.referenceVideoUrl?.trim() || null,
           hostName: data.hostName.trim(),
@@ -445,6 +457,7 @@ export default function SessionForm({
         // Create logic - support both single and bulk creation
         const baseSessionData = {
           name: data.name,
+          sportType: data.sportType,
           description: data.description?.trim() || '',
           referenceVideoUrl: data.referenceVideoUrl?.trim() || null,
           hostName: data.hostName.trim(),
@@ -623,6 +636,8 @@ export default function SessionForm({
               errors={errors}
               control={control}
               canEditVenue={canEditVenue}
+              sportType={sportType}
+              onSportTypeChange={handleSportTypeChange}
               venues={venues}
               setSelectedVenueObj={(venue) => {
                 setSelectedVenueObj(venue);

@@ -350,6 +350,7 @@ export default function SuggestionsList({
       districts: [],
       venueId: '',
       levels: [],
+      sports: [],
       timeRanges: [],
       minFee: 0,
       maxFee: 200000,

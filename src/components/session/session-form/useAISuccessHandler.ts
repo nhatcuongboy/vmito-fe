@@ -66,6 +66,7 @@ export function useAISuccessHandler({
       console.log('Processed AI Data:', data);
 
       if (data.name) setValue('name', data.name);
+      if (data.sportType) setValue('sportType', data.sportType);
       if (data.description) setValue('description', data.description);
       if (data.hostName) setValue('hostName', data.hostName);
       if (data.hostPhone) setValue('hostPhone', data.hostPhone);

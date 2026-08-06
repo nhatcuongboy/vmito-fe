@@ -52,6 +52,8 @@ import {
 } from '@/lib/api/types';
 import PageLayout from '@/components/layout/PageLayout';
 import DetailPageSkeleton from '@/components/layout/DetailPageSkeleton';
+import { AppSportBadge } from '@/components/common/AppSportBadge';
+import { getVenueSportTypes } from '@/constants/sports';
 import { Button, IconButton } from '@/components/ui/chakra-compat';
 import { DEFAULT_COVER_PHOTO, DETAIL_PAGE_MAX_W } from '@/constants';
 import { usePathname, useRouter } from '@/i18n/config';
@@ -632,6 +634,11 @@ export default function VenueDetailClient({
               >
                 {venueName}
               </Heading>
+              <HStack gap={2} mt={1.5} flexWrap="wrap">
+                {getVenueSportTypes(venue).map((sport) => (
+                  <AppSportBadge key={sport} sportType={sport} />
+                ))}
+              </HStack>
               {locationSubtitle && (
                 <Text fontSize="sm" color="gray.500" mt={0.5}>
                   {locationSubtitle}

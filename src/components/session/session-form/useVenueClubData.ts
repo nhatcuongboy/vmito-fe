@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { useTranslations } from 'next-intl';
 
-import { ISession, Venue } from '@/lib/api/types';
+import { ISession, SportType, Venue } from '@/lib/api/types';
 import { IClub } from '@/types/club';
 import { VenueService } from '@/lib/api/venue.service';
 import { ClubsService } from '@/lib/api/clubs.service';
@@ -13,6 +13,8 @@ interface UseVenueClubDataParams {
   isEditMode: boolean;
   initialData?: ISession;
   canAccessHostFeatures: boolean;
+  /** Only venues offering this sport are searchable. */
+  sportType: SportType;
   t: ReturnType<typeof useTranslations>;
   tVenue: ReturnType<typeof useTranslations>;
 }
@@ -21,6 +23,7 @@ export function useVenueClubData({
   isEditMode,
   initialData,
   canAccessHostFeatures,
+  sportType,
   t,
   tVenue,
 }: UseVenueClubDataParams) {
@@ -73,29 +76,37 @@ export function useVenueClubData({
   );
 
   // Debounced venue search handler (server-side)
-  const handleVenueSearch = useCallback((keyword: string) => {
-    if (venueSearchTimerRef.current) clearTimeout(venueSearchTimerRef.current);
-    venueSearchTimerRef.current = setTimeout(async () => {
-      setIsVenueLoading(true);
-      try {
-        const result = await VenueService.searchVenues({
-          keyword: keyword.trim() || undefined,
-          limit: 30,
-          sortBy: keyword.trim() ? 'relevance' : undefined,
-        });
-        setVenues(result.data || []);
-      } catch (error) {
-        console.error('Error searching venues:', error);
-      } finally {
-        setIsVenueLoading(false);
-      }
-    }, 300);
-  }, []);
+  const handleVenueSearch = useCallback(
+    (keyword: string) => {
+      if (venueSearchTimerRef.current)
+        clearTimeout(venueSearchTimerRef.current);
+      venueSearchTimerRef.current = setTimeout(async () => {
+        setIsVenueLoading(true);
+        try {
+          const result = await VenueService.searchVenues({
+            keyword: keyword.trim() || undefined,
+            sportType,
+            limit: 30,
+            sortBy: keyword.trim() ? 'relevance' : undefined,
+          });
+          setVenues(result.data || []);
+        } catch (error) {
+          console.error('Error searching venues:', error);
+        } finally {
+          setIsVenueLoading(false);
+        }
+      }, 300);
+    },
+    [sportType]
+  );
 
   useEffect(() => {
     const fetchVenues = async () => {
       try {
-        const result = await VenueService.searchVenues({ limit: 30 });
+        const result = await VenueService.searchVenues({
+          sportType,
+          limit: 30,
+        });
         setVenues(result.data || []);
       } catch (error) {
         console.error('Error fetching venues:', error);
@@ -105,7 +116,7 @@ export function useVenueClubData({
       }
     };
     fetchVenues();
-  }, []);
+  }, [sportType]);
 
   useEffect(() => {
     if (!canAccessHostFeatures) return;
