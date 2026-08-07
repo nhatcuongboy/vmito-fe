@@ -28,64 +28,68 @@ const SessionCardCompact = ({
   const cardHref = `/sessions/${session.slug || session.id}`;
 
   const overlayBadge = (() => {
-    if (userRegistrationStatus) {
-      return (
-        <Badge
-          colorPalette={
-            userRegistrationStatus === 'REJECTED' ? 'red' : 'yellow'
-          }
-          variant={userRegistrationStatus === 'APPROVED' ? 'subtle' : 'solid'}
-          borderWidth="1px"
-          borderColor={
-            userRegistrationStatus === 'APPROVED'
-              ? 'yellow.200'
+    const statusBadge = (() => {
+      if (userRegistrationStatus) {
+        return (
+          <Badge
+            colorPalette={
+              userRegistrationStatus === 'REJECTED' ? 'red' : 'yellow'
+            }
+            variant={userRegistrationStatus === 'APPROVED' ? 'subtle' : 'solid'}
+            borderWidth="1px"
+            borderColor={
+              userRegistrationStatus === 'APPROVED'
+                ? 'yellow.200'
+                : userRegistrationStatus === 'PENDING'
+                  ? 'yellow.400'
+                  : 'red.400'
+            }
+          >
+            {userRegistrationStatus === 'APPROVED'
+              ? t('registrationApproved')
               : userRegistrationStatus === 'PENDING'
-                ? 'yellow.400'
-                : 'red.400'
-          }
-        >
-          {userRegistrationStatus === 'APPROVED'
-            ? t('registrationApproved')
-            : userRegistrationStatus === 'PENDING'
-              ? t('registrationPending')
-              : t('registrationRejected')}
-        </Badge>
-      );
-    }
+                ? t('registrationPending')
+                : t('registrationRejected')}
+          </Badge>
+        );
+      }
 
-    if (viewModel.isCrawled) {
+      if (viewModel.isCrawled) {
+        return (
+          <Badge
+            bg="#1877F2"
+            color="white"
+            borderWidth="1px"
+            borderColor="#8bb9ff"
+            backdropFilter="blur(4px)"
+            boxShadow="0 2px 8px rgba(24, 119, 242, 0.28)"
+            gap={1}
+            px={1.5}
+            whiteSpace="nowrap"
+          >
+            <Icon as={Facebook} boxSize={3} flexShrink={0} />
+            {t('crawledBadge')}
+          </Badge>
+        );
+      }
+
+      if (viewModel.isExpired) return null;
+
       return (
         <Badge
-          bg="#1877F2"
-          color="white"
+          colorPalette={viewModel.isFull ? 'gray' : 'teal'}
+          variant="solid"
           borderWidth="1px"
-          borderColor="#8bb9ff"
-          backdropFilter="blur(4px)"
-          boxShadow="0 2px 8px rgba(24, 119, 242, 0.28)"
-          gap={1}
-          px={1.5}
-          whiteSpace="nowrap"
+          borderColor={viewModel.isFull ? 'gray.400' : 'teal.400'}
         >
-          <Icon as={Facebook} boxSize={3} flexShrink={0} />
-          {t('crawledBadge')}
+          {viewModel.isFull
+            ? t('slotsFull')
+            : t('slotsAvailable', { count: viewModel.availableSlots })}
         </Badge>
       );
-    }
+    })();
 
-    if (viewModel.isExpired) return null;
-
-    return (
-      <Badge
-        colorPalette={viewModel.isFull ? 'gray' : 'teal'}
-        variant="solid"
-        borderWidth="1px"
-        borderColor={viewModel.isFull ? 'gray.400' : 'teal.400'}
-      >
-        {viewModel.isFull
-          ? t('slotsFull')
-          : t('slotsAvailable', { count: viewModel.availableSlots })}
-      </Badge>
-    );
+    return statusBadge;
   })();
 
   return (

@@ -35,10 +35,13 @@ import { VenueRequestService } from '@/lib/api/venue-request.service';
 import { VenueService } from '@/lib/api/venue.service';
 import {
   ClosureStatus,
+  SportType,
   Venue,
   VenueRequestPayload,
   VenueRequestType,
 } from '@/lib/api/types';
+import { AppSportMultiSelect } from '@/components/common/AppSportMultiSelect';
+import { getVenueSportTypes } from '@/constants/sports';
 import { useNewAdminUnits } from '@/hooks/useNewAdminUnits';
 import { composeNewAddress } from '@/utils/venue-helpers';
 import { trimPhone } from '@/utils/phone-utils';
@@ -47,6 +50,7 @@ import { formatOpeningHours, parseOpeningHours } from '@/utils/time-helpers';
 
 const venueRequestSchema = z.object({
   name: z.string().min(2).max(200),
+  sportTypes: z.array(z.nativeEnum(SportType)).min(1),
   street: z.string().min(3).max(500),
   newCity: z.string().min(1).max(120),
   newDistrict: z.string().min(1).max(120),
@@ -86,6 +90,7 @@ const toOptionalNumber = (value: string) => {
 
 const toPayload = (values: VenueRequestFormValues): VenueRequestPayload => ({
   name: values.name.trim(),
+  sportTypes: values.sportTypes,
   street: values.street.trim(),
   newCity: values.newCity.trim(),
   newDistrict: values.newDistrict.trim(),
@@ -115,6 +120,7 @@ export default function VenueRequestModal({
 }: VenueRequestModalProps) {
   const t = useTranslations('venueRequests');
   const tVenue = useTranslations('venue');
+  const tSport = useTranslations('sport');
   const router = useRouter();
   const [similarVenues, setSimilarVenues] = useState<Venue[]>([]);
   const [hasReviewedSimilar, setHasReviewedSimilar] = useState(false);
@@ -126,6 +132,7 @@ export default function VenueRequestModal({
 
     return {
       name: venue?.name || defaultKeyword,
+      sportTypes: venue ? getVenueSportTypes(venue) : [SportType.BADMINTON],
       street: venue?.streetAddress || venue?.address || '',
       newCity: venue?.newCity || venue?.city || '',
       newDistrict: venue?.newDistrict || venue?.district || '',
@@ -323,6 +330,19 @@ export default function VenueRequestModal({
                     resetSimilarWarning();
                     field.onChange(event);
                   }}
+                />
+              </Field>
+            )}
+          />
+
+          <Controller
+            control={form.control}
+            name="sportTypes"
+            render={({ field }) => (
+              <Field label={tSport('title')} required>
+                <AppSportMultiSelect
+                  value={field.value}
+                  onChange={field.onChange}
                 />
               </Field>
             )}

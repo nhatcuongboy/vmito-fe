@@ -4,6 +4,7 @@ import {
   CreateVenuePriceBookRequest,
   CreateVenuePriceRuleRequest,
   SearchVenueResponse,
+  SportType,
   UpdateVenuePriceBookRequest,
   UpdateVenuePriceRuleRequest,
   Venue,
@@ -46,6 +47,7 @@ export const VenueService = {
     lng?: number;
     radius?: number;
     status?: string;
+    sportType?: SportType | SportType[];
     isVerified?: boolean;
     hasNewAddress?: boolean;
     favoriteOnly?: boolean;
@@ -57,9 +59,12 @@ export const VenueService = {
     const params = new URLSearchParams();
     if (filters) {
       Object.entries(filters).forEach(([key, value]) => {
-        if (value !== undefined && value !== '') {
-          params.append(key, String(value));
+        if (value === undefined || value === '') return;
+        if (Array.isArray(value)) {
+          if (value.length > 0) params.append(key, value.join(','));
+          return;
         }
+        params.append(key, String(value));
       });
     }
     const response = await api.get<ApiResponse<SearchVenueResponse>>(

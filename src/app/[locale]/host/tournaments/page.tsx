@@ -339,10 +339,7 @@ export default function HostTournamentsPage() {
   const [tournaments, setTournaments] = useState<Tournament[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
-  const [statuses, setStatuses] = useState<TournamentStatus[]>([
-    TournamentStatus.IN_PROGRESS,
-    TournamentStatus.PREPARING,
-  ]);
+  const [statuses, setStatuses] = useState<TournamentStatus[]>([]);
   const [mobileTab, setMobileTab] = useState<HostTournamentMobileTab>('open');
   const [sort, setSort] = useState<TournamentSortValue>('start_asc');
   const [deleting, setDeleting] = useState<string | null>(null);

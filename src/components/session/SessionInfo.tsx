@@ -38,6 +38,7 @@ import {
   XCircle,
 } from 'lucide-react';
 import { ISession, Player, PlayerStatistics } from '@/lib/api/types';
+import { AppSportBadge } from '@/components/common/AppSportBadge';
 import { useLocale, useTranslations } from 'next-intl';
 import { formatTimeRangeByDevicePreference } from '@/utils/time-helpers';
 import dayjs from '@/lib/dayjs';
@@ -492,6 +493,7 @@ export default function SessionInfo({
 }: SessionInfoProps) {
   const t = useTranslations('SessionDetail');
   const tSession = useTranslations('session');
+  const tSport = useTranslations('sport');
   const tLevelDescriptions = useTranslations('common.levelDescriptions');
   const locale = useLocale();
   const { getLevelShortLabel } = useLevelLabel();
@@ -600,6 +602,13 @@ export default function SessionInfo({
     <VStack spacing={2} align="stretch">
       <InfoRow icon={Tag} label={t('sessionName')}>
         <Text fontWeight="bold">{session.name}</Text>
+      </InfoRow>
+
+      <InfoRow icon={Trophy} label={tSport('title')}>
+        <AppSportBadge
+          sportType={session.sportType ?? session.venue?.sportType}
+          iconOnly
+        />
       </InfoRow>
 
       <InfoRow icon={User} label={t('host')}>

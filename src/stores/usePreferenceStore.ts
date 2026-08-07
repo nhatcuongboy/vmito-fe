@@ -56,11 +56,13 @@ export const usePreferenceStore = create<PreferenceState>()(
 
       // Keeps preferredCity/preferredDistricts intact: the selected city is a
       // browser-level preference, not user-scoped, so it should survive logout.
+      // If the user already picked a city, keep onboardingCompleted=true so
+      // the "Bạn đang ở đâu?" modal does not re-appear after logout.
       resetPreferences: () =>
-        set({
-          onboardingCompleted: false,
+        set((state) => ({
+          onboardingCompleted: state.preferredCity !== null,
           useAiForCreation: getDefaultUseAiForCreation(),
-        }),
+        })),
     }),
     {
       name: 'user-preferences',

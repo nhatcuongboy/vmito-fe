@@ -22,7 +22,7 @@ import { Upload, X } from 'lucide-react';
 import { EImageCategory } from '@/lib/api/types';
 import AppImageGalleryPicker from '@/components/AppImageGalleryPicker';
 
-import { ClosureStatus, Venue } from '@/lib/api/types';
+import { ClosureStatus, SportType, Venue } from '@/lib/api/types';
 import { VenueService } from '@/lib/api/venue.service';
 import { Input } from '@/components/ui/Input';
 import { MoneyInput } from '@/components/ui/MoneyInput';
@@ -34,9 +34,12 @@ import { useNewAdminUnits } from '@/hooks/useNewAdminUnits';
 import { composeNewAddress, guessStreetAddress } from '@/utils/venue-helpers';
 import { trimPhone } from '@/utils/phone-utils';
 import { Checkbox } from '@/components/ui/checkbox';
+import { AppSportMultiSelect } from '@/components/common/AppSportMultiSelect';
+import { getVenueSportTypes } from '@/constants/sports';
 
 const venueSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters'),
+  sportTypes: z.array(z.nativeEnum(SportType)).min(1),
   placeId: z.string().min(1, 'Place ID is required'),
   description: z.string().optional(),
   address: z.string().min(5, 'Address must be at least 5 characters'),
@@ -83,6 +86,7 @@ export function QuickVenueEditModal({
 }: QuickVenueEditModalProps) {
   const t = useTranslations('admin');
   const tCommon = useTranslations('common');
+  const tSport = useTranslations('sport');
   const [isCoverPickerOpen, setIsCoverPickerOpen] = useState(false);
   const [isLayoutPickerOpen, setIsLayoutPickerOpen] = useState(false);
   const [coverUrlInput, setCoverUrlInput] = useState('');
@@ -91,6 +95,7 @@ export function QuickVenueEditModal({
     resolver: zodResolver(venueSchema),
     defaultValues: {
       name: venue.name,
+      sportTypes: getVenueSportTypes(venue),
       placeId: venue.placeId,
       description: venue.description || '',
       address: venue.address,
@@ -180,6 +185,20 @@ export function QuickVenueEditModal({
               </Field.Label>
               <Input {...field} />
               <Field.ErrorText>{fieldState.error?.message}</Field.ErrorText>
+            </Field.Root>
+          )}
+        />
+
+        <Controller
+          control={form.control}
+          name="sportTypes"
+          render={({ field }) => (
+            <Field.Root>
+              <Field.Label>{tSport('title')}</Field.Label>
+              <AppSportMultiSelect
+                value={field.value}
+                onChange={field.onChange}
+              />
             </Field.Root>
           )}
         />

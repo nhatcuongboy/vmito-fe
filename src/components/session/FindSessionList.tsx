@@ -9,6 +9,7 @@ import { useLevelLabel } from '@/hooks/useLevelLabel';
 import { VModal } from '@/components/ui/VModal';
 import { ROUTES, TIME_RANGES, BOTTOM_TAB_HEIGHT } from '@/constants';
 import { VIETNAM_CITIES } from '@/constants/vietnam-locations';
+import { isSportType } from '@/constants/sports';
 import { cityCodeToApiName } from '@/lib/preferred-city';
 import { getSessionHour } from '@/utils/time-helpers';
 import { RatingStatsProvider } from '@/contexts/RatingStatsContext';
@@ -113,6 +114,7 @@ const SESSION_FILTERS_SCHEMA = {
   districts: stringArrayField(),
   venueId: stringField(),
   levels: numberArrayField(),
+  sports: stringArrayField(),
   timeRanges: stringArrayField(),
   minFee: numberField(0),
   maxFee: numberField(200000),
@@ -183,6 +185,7 @@ export default function FindSessionList({
       districts: urlFilters.districts,
       venueId: urlFilters.venueId,
       levels: urlFilters.levels,
+      sports: urlFilters.sports.filter(isSportType),
       timeRanges: urlFilters.timeRanges,
       minFee: urlFilters.minFee,
       maxFee: urlFilters.maxFee,
@@ -345,6 +348,7 @@ export default function FindSessionList({
             ? filters.districts.map(normalizeLocation).join(',')
             : undefined,
         venueId: filters.venueId || undefined,
+        sportType: filters.sports.length > 0 ? filters.sports : undefined,
         hasSlots: filters.hasSlots ? true : undefined,
         minAvailableSlots:
           filters.minAvailableSlots > 0 ? filters.minAvailableSlots : undefined,
@@ -559,6 +563,7 @@ export default function FindSessionList({
       districts: pendingFilters.districts,
       venueId: pendingFilters.venueId,
       levels: pendingFilters.levels,
+      sports: pendingFilters.sports,
       timeRanges: pendingFilters.timeRanges,
       minFee: pendingFilters.minFee,
       maxFee: pendingFilters.maxFee,
@@ -583,6 +588,7 @@ export default function FindSessionList({
       districts: [],
       venueId: '',
       levels: [],
+      sports: [],
       timeRanges: [],
       minFee: 0,
       maxFee: 200000,
@@ -607,6 +613,7 @@ export default function FindSessionList({
   const activeFilterCount =
     (filters.date ? 1 : 0) +
     (filters.levels.length > 0 ? 1 : 0) +
+    (filters.sports.length > 0 ? 1 : 0) +
     (filters.timeRanges.length > 0 ? 1 : 0) +
     (filters.cities.length > 0 ? 1 : 0) +
     (filters.districts.length > 0 ? 1 : 0) +

@@ -11,6 +11,7 @@ import { statusColors, getStatusLabel } from './BaseSessionCard';
 import { toaster } from '@/components/ui/toaster';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FavoriteEngagementControl } from '@/components/favorites/FavoriteEngagementControl';
+import { AppSportBadge } from '@/components/common/AppSportBadge';
 import AppLightbox from '@/components/ui/AppLightbox';
 
 interface ISessionDetailHeroProps {
@@ -298,51 +299,63 @@ const SessionDetailHero = ({
           </Flex>
         )}
 
-        {/* Bottom-left badge: crawled → "Facebook post"; else slot availability */}
-        {session.isCrawled ? (
-          <Badge
-            position="absolute"
-            bottom={5}
-            left={3}
-            bg="#1877F2"
-            color="white"
-            borderWidth="1px"
-            borderColor="#8bb9ff"
-            backdropFilter="blur(4px)"
-            boxShadow="0 2px 8px rgba(24, 119, 242, 0.28)"
-            fontSize="sm"
-            px={3}
-            py={1}
-            borderRadius="full"
-            fontWeight="medium"
-            gap={1}
-          >
-            <Icon as={Facebook} boxSize={3.5} />
-            {t('crawledBadge')}
-          </Badge>
-        ) : (
-          <Flex position="absolute" bottom={5} left={3} gap={1} zIndex={100}>
+        {/* Bottom-left badges: sport, then crawled → "Facebook post" / slot availability */}
+        <Flex
+          position="absolute"
+          bottom={5}
+          left={3}
+          gap={1}
+          zIndex={100}
+          align="center"
+        >
+          <AppSportBadge
+            sportType={session.sportType ?? session.venue?.sportType}
+            variant="solid"
+            size="md"
+            iconOnly
+          />
+          {session.isCrawled ? (
             <Badge
-              colorPalette={isClosed || isFull ? 'gray' : 'teal'}
-              variant="solid"
+              bg="#1877F2"
+              color="white"
+              borderWidth="1px"
+              borderColor="#8bb9ff"
+              backdropFilter="blur(4px)"
+              boxShadow="0 2px 8px rgba(24, 119, 242, 0.28)"
               fontSize="sm"
               px={3}
               py={1}
               borderRadius="full"
-              fontWeight="600"
+              fontWeight="medium"
               gap={1}
-              boxShadow="0 2px 8px rgba(0, 0, 0, 0.2)"
-              backdropFilter="blur(8px)"
             >
-              {isClosed
-                ? t('registrationClosed')
-                : isFull
-                  ? t('slotsFull')
-                  : t('slotsAvailable', { count: availableSlots })}
+              <Icon as={Facebook} boxSize={3.5} />
+              {t('crawledBadge')}
             </Badge>
-            {approvedBadge}
-          </Flex>
-        )}
+          ) : (
+            <>
+              <Badge
+                colorPalette={isClosed || isFull ? 'gray' : 'teal'}
+                variant="solid"
+                fontSize="sm"
+                px={3}
+                py={1}
+                borderRadius="full"
+                fontWeight="600"
+                gap={1}
+                boxShadow="0 2px 8px rgba(0, 0, 0, 0.2)"
+                backdropFilter="blur(8px)"
+              >
+                {isClosed
+                  ? t('registrationClosed')
+                  : isFull
+                    ? t('slotsFull')
+                    : t('slotsAvailable', { count: availableSlots })}
+              </Badge>
+              {approvedBadge}
+            </>
+          )}
+        </Flex>
 
         {/* Status Badge - bottom right */}
         <Badge

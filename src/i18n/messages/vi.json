@@ -6931,6 +6931,13 @@
     "loadMore": "Tải thêm",
     "aiRecommendationAria": "Gợi ý bằng AI"
   },
+  "sport": {
+    "title": "Môn thể thao",
+    "all": "Tất cả môn",
+    "selectHelper": "Chỉ các sân thuộc môn này mới hiển thị khi chọn địa điểm.",
+    "BADMINTON": "Cầu lông",
+    "PICKLEBALL": "Pickleball"
+  },
   "venue": {
     "verified": "Đã xác minh",
     "openingHours": "Giờ mở cửa",

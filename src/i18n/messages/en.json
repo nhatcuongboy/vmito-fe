@@ -6910,6 +6910,13 @@
     "loadMore": "Load more",
     "aiRecommendationAria": "AI-powered recommendation"
   },
+  "sport": {
+    "title": "Sport",
+    "all": "All sports",
+    "selectHelper": "Only venues offering this sport can be selected as the location.",
+    "BADMINTON": "Badminton",
+    "PICKLEBALL": "Pickleball"
+  },
   "venue": {
     "verified": "Verified",
     "openingHours": "Opening Hours",

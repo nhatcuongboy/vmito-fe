@@ -861,7 +861,10 @@ export interface Venue {
   slug?: string;
   placeId?: string;
   name: string;
+  /** Primary sport — drives slug, display name and search terms. */
   sportType?: SportType;
+  /** Every sport offered by the venue; always contains `sportType`. */
+  sportTypes?: SportType[];
   acronym?: string;
   description?: string;
   address: string;
@@ -925,6 +928,7 @@ export enum VenueRequestStatus {
 
 export interface VenueRequestPayload {
   name?: string;
+  sportTypes?: SportType[];
   address?: string;
   city?: string;
   district?: string;
@@ -1008,6 +1012,7 @@ export interface ISession {
   id: string;
   slug?: string;
   name: string;
+  sportType?: SportType;
   notes?: string;
   hostId: string;
   host: {
@@ -1254,6 +1259,7 @@ export interface CourtConfig {
 // Session creation interface
 export interface CreateSessionRequest {
   name: string;
+  sportType?: SportType;
   notes?: string;
   description?: string;
   hostName?: string;

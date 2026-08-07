@@ -7,6 +7,7 @@ import { MapPin, Navigation, Facebook } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { formatVenueName } from '@/utils';
 import { AppAddressDisplay } from '@/components/common/AppAddressDisplay';
+import { AppSportBadge } from '@/components/common/AppSportBadge';
 import BaseSessionCard from './BaseSessionCard';
 import { SessionActionConfig } from './BaseSessionCard.types';
 import type { ViewMode } from '@/hooks/useViewMode';
@@ -280,6 +281,10 @@ const FindSessionCard = ({
 
   const combinedBadges = (
     <Flex gap={1}>
+      <AppSportBadge
+        sportType={session.sportType ?? session.venue?.sportType}
+        variant="solid"
+      />
       {crawledBadge}
       {/* Crawled sessions have no managed player slots — hide the slot badge */}
       {!isCrawled && showSlotBadge && slotAvailabilityBadge}

@@ -5,6 +5,11 @@ import { Button, IconButton, Input } from '@/components/ui/chakra-compat';
 import { VDateTimeInput } from '@/components/ui/VDateTimeInput';
 import { toaster } from '@/components/ui/toaster';
 import { VALID_LEVELS } from '@/constants/levels';
+import {
+  SPORT_COLOR_PALETTE,
+  SPORT_EMOJI,
+  SPORT_TYPES,
+} from '@/constants/sports';
 import { useLevelLabel } from '@/hooks/useLevelLabel';
 import { getUserLocation } from '@/lib/utils/geolocation.utils';
 import { getSkillLevelColor } from '@/lib/utils/skillLevel.utils';
@@ -19,6 +24,7 @@ import {
 } from '@chakra-ui/react';
 import { Check, Filter, MapPin, X } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import { SportType } from '@/lib/api/types';
 import { SessionFilterDrawerProps } from './SessionFilterDrawer.types';
 import {
   TOP_BAR_HEIGHT_MOBILE,
@@ -41,6 +47,7 @@ export default function SessionFilterDrawer({
   setUserLocation,
 }: SessionFilterDrawerProps) {
   const t = useTranslations('session');
+  const tSport = useTranslations('sport');
   const { getLevelShortLabel } = useLevelLabel();
 
   // Handle Location
@@ -69,6 +76,13 @@ export default function SessionFilterDrawer({
       ? filters.levels.filter((l) => l !== level)
       : [...filters.levels, level];
     setFilters({ ...filters, levels: newLevels });
+  };
+
+  const toggleSport = (sport: SportType) => {
+    const newSports = filters.sports.includes(sport)
+      ? filters.sports.filter((s) => s !== sport)
+      : [...filters.sports, sport];
+    setFilters({ ...filters, sports: newSports });
   };
 
   const toggleTimeRange = (rangeKey: TimeRangeKey) => {
@@ -384,6 +398,62 @@ export default function SessionFilterDrawer({
                 setFilters((prev) => ({ ...prev, districts }))
               }
             />
+
+            {/* Divider */}
+            <Box h="1px" bg="gray.200" _dark={{ bg: 'gray.700' }} />
+
+            {/* Sport Section */}
+            <Box>
+              <HStack gap={2} mb={3}>
+                <Text
+                  fontSize="sm"
+                  fontWeight="bold"
+                  color="gray.700"
+                  _dark={{ color: 'gray.200' }}
+                >
+                  🏓 {tSport('title')}
+                </Text>
+                {filters.sports.length > 0 && (
+                  <Badge
+                    size="sm"
+                    colorPalette="green"
+                    variant="solid"
+                    borderRadius="full"
+                    px={2}
+                  >
+                    {filters.sports.length}
+                  </Badge>
+                )}
+              </HStack>
+              <Flex gap={2} flexWrap="wrap">
+                {SPORT_TYPES.map((sport) => {
+                  const isSelected = filters.sports.includes(sport);
+                  return (
+                    <Badge
+                      key={sport}
+                      px={4}
+                      py={2}
+                      borderRadius="lg"
+                      cursor="pointer"
+                      variant={isSelected ? 'solid' : 'outline'}
+                      colorPalette={
+                        isSelected ? SPORT_COLOR_PALETTE[sport] : 'gray'
+                      }
+                      onClick={() => toggleSport(sport)}
+                      fontSize="sm"
+                      fontWeight="medium"
+                      gap={1.5}
+                      transition="all 0.2s"
+                      _hover={{ transform: 'scale(1.05)' }}
+                      borderWidth={isSelected ? '0' : '2px'}
+                    >
+                      <span aria-hidden>{SPORT_EMOJI[sport]}</span>
+                      {tSport(sport)}
+                    </Badge>
+                  );
+                })}
+              </Flex>
+            </Box>
 
             {/* Divider */}
             <Box h="1px" bg="gray.200" _dark={{ bg: 'gray.700' }} />

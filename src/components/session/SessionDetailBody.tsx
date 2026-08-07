@@ -259,7 +259,6 @@ const SessionDetailBody = ({
                   newAddress={session.venue?.newAddress}
                   newDistrict={session.venue?.newDistrict}
                   fontSize="sm"
-                  lineClamp={2}
                 />
               </Box>
             )}

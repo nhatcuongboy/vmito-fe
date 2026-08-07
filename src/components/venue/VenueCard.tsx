@@ -148,10 +148,9 @@ export default function VenueCard({
             fetchPriority={imagePriority ? 'high' : 'auto'}
           />
 
-          {/* Badges Overlay */}
-          <Box position="absolute" top={3} left={3}>
-            <HStack gap={2}>
-              {showAdminVerifiedBadge && (
+          {showAdminVerifiedBadge && (
+            <Box position="absolute" top={3} left={3}>
+              <HStack gap={2}>
                 <Box
                   bg="green.400"
                   color="white"
@@ -168,28 +167,31 @@ export default function VenueCard({
                   <BadgeCheck size={14} />
                   <Text>{t('verified')}</Text>
                 </Box>
-              )}
+              </HStack>
+            </Box>
+          )}
 
-              {venue.distance !== undefined && venue.distance !== null && (
-                <Badge
-                  colorPalette="green"
-                  variant="solid"
-                  borderRadius="full"
-                  px={3}
-                  py={1}
-                  fontSize="xs"
-                  fontWeight="bold"
-                  display="flex"
-                  alignItems="center"
-                  gap={1.5}
-                  shadow="md"
-                >
-                  <Navigation size={14} />
-                  <Text>{venue.distance} km</Text>
-                </Badge>
-              )}
-            </HStack>
-          </Box>
+          {/* Distance badge — bottom-left, clear of the verified badge above */}
+          {venue.distance !== undefined && venue.distance !== null && (
+            <Box position="absolute" bottom={3} left={3}>
+              <Badge
+                colorPalette="green"
+                variant="solid"
+                borderRadius="full"
+                px={3}
+                py={1}
+                fontSize="xs"
+                fontWeight="bold"
+                display="flex"
+                alignItems="center"
+                gap={1.5}
+                shadow="md"
+              >
+                <Navigation size={14} />
+                <Text>{venue.distance} km</Text>
+              </Badge>
+            </Box>
+          )}
 
           <Box position="absolute" top={3} right={3} zIndex={3}>
             <FavoriteButton
@@ -340,10 +342,9 @@ export default function VenueCard({
           fetchPriority={imagePriority ? 'high' : 'auto'}
         />
 
-        {/* Badges Overlay */}
-        <Box position="absolute" top={3} left={3}>
-          <HStack gap={2}>
-            {showAdminVerifiedBadge && (
+        {showAdminVerifiedBadge && (
+          <Box position="absolute" top={3} left={3}>
+            <HStack gap={2}>
               <Badge
                 colorPalette="green"
                 variant="solid"
@@ -359,29 +360,32 @@ export default function VenueCard({
                 <BadgeCheck size={12} />
                 <Text fontSize="xs">{t('verified')}</Text>
               </Badge>
-            )}
+            </HStack>
+          </Box>
+        )}
 
-            {venue.distance !== undefined && venue.distance !== null && (
-              <Badge
-                colorPalette="green"
-                variant="solid"
-                size="sm"
-                borderRadius="full"
-                px={3}
-                py={1}
-                fontSize="xs"
-                fontWeight="bold"
-                display="flex"
-                alignItems="center"
-                gap={1.5}
-                shadow="md"
-              >
-                <Navigation size={14} />
-                <Text>{venue.distance} km</Text>
-              </Badge>
-            )}
-          </HStack>
-        </Box>
+        {/* Distance badge — bottom-left, clear of the verified badge above */}
+        {venue.distance !== undefined && venue.distance !== null && (
+          <Box position="absolute" bottom={3} left={3}>
+            <Badge
+              colorPalette="green"
+              variant="solid"
+              size="sm"
+              borderRadius="full"
+              px={3}
+              py={1}
+              fontSize="xs"
+              fontWeight="bold"
+              display="flex"
+              alignItems="center"
+              gap={1.5}
+              shadow="md"
+            >
+              <Navigation size={14} />
+              <Text>{venue.distance} km</Text>
+            </Badge>
+          </Box>
+        )}
         <Box position="absolute" top={3} right={3} zIndex={3}>
           <FavoriteButton
             type="VENUE"

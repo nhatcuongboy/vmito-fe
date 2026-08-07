@@ -1,5 +1,6 @@
 import { api, ApiResponse } from './base';
 import { Locale } from '@/i18n/locales';
+import { SportType } from './types';
 
 export interface ExtractedVenue {
   name?: string;
@@ -13,6 +14,8 @@ export interface ExtractedVenue {
 
 export interface ExtractedSessionData {
   name?: string;
+  /** Sport detected from the post; the backend already fell back to the venue/default. */
+  sportType?: SportType;
   description?: string;
   hostName?: string;
   hostPhone?: string;
