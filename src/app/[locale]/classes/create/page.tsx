@@ -1,6 +1,5 @@
 'use client';
 import { useState } from 'react';
-import { Box, Text } from '@chakra-ui/react';
 import PageLayout from '@/components/layout/PageLayout';
 import ProtectedRouteGuard from '@/components/guards/ProtectedRouteGuard';
 import { ClassForm } from '@/components/classes/ClassForm';
@@ -22,13 +21,12 @@ export default function CreateClassPage() {
   };
   return (
     <ProtectedRouteGuard>
-      <PageLayout>
-        <Box maxW="800px" mx="auto">
-          <Text fontSize="2xl" fontWeight="bold" mb="6">
-            Tạo lớp học
-          </Text>
-          <ClassForm onSubmit={submit} submitting={submitting} />
-        </Box>
+      <PageLayout title="Tạo lớp học" showBackButton backHref="/classes">
+        <ClassForm
+          onSubmit={submit}
+          submitting={submitting}
+          backHref="/classes"
+        />
       </PageLayout>
     </ProtectedRouteGuard>
   );

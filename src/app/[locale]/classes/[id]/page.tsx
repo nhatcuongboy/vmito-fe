@@ -7,6 +7,7 @@ import { DEFAULT_COVER_PHOTO } from '@/constants';
 import { stripHtml } from '@/utils/string-utils';
 import { IClass } from '@/types/class';
 import ClassDetailActions from './ClassDetailActions';
+import ClubSocialLinks from '@/app/[locale]/clubs/[id]/components/ClubSocialLinks';
 
 const BASE_URL = 'https://vmito.com';
 const getClass = cache(async (id: string): Promise<IClass | null> => {
@@ -170,6 +171,7 @@ export default async function ClassDetailPage({
             </HStack>
           </Box>
           <ClassDetailActions item={item} />
+          <ClubSocialLinks socialLinks={item.socialLinks || undefined} />
           <Box>
             <Text fontWeight="bold" mb="2">
               Lịch học

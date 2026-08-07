@@ -162,6 +162,12 @@ export const NAV_SECTIONS: NavSectionConfig[] = [
         getHref: () => ROUTES.CLUBS.MY_CLUBS,
       },
       {
+        key: 'myClasses',
+        icon: BookOpen,
+        label: (t) => t.nav('myClasses'),
+        getHref: () => ROUTES.CLASSES.MINE,
+      },
+      {
         key: 'myRentals',
         icon: CalendarCheck,
         label: (t) => t.nav('myRentals'),

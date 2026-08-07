@@ -7,6 +7,15 @@ export type ClassTuitionPeriod =
   | 'COURSE'
   | 'CONTACT';
 
+export interface IClassSocialLinks {
+  facebook?: string;
+  zalo?: string;
+  tiktok?: string;
+  youtube?: string;
+  website?: string;
+  other?: string;
+}
+
 export interface IClassSchedule {
   id?: string;
   dayOfWeek: number;
@@ -33,6 +42,7 @@ export interface IClass {
   contactName: string;
   contactPhone: string;
   zaloUrl?: string | null;
+  socialLinks?: IClassSocialLinks | null;
   sportType: SportType;
   requiredLevels: number[];
   startDate?: string | null;
@@ -45,12 +55,15 @@ export interface IClass {
   venue?: IClassVenue | null;
   customLocationName?: string | null;
   customLocationAddress?: string | null;
+  customLocationPlaceId?: string | null;
   customLocationDistrict?: string | null;
   customLocationCity?: string | null;
   customLocationLat?: number | null;
   customLocationLng?: number | null;
   coverPhoto?: string | null;
+  coverPhotoPublicId?: string | null;
   images: string[];
+  imagePublicIds?: string[];
   status: ClassStatus;
   schedules: IClassSchedule[];
   host: { id: string; name: string; image?: string | null };
@@ -67,10 +80,11 @@ export interface IClassInput {
   contactName?: string;
   contactPhone: string;
   zaloUrl?: string;
+  socialLinks?: IClassSocialLinks;
   requiredLevels?: number[];
-  startDate?: string;
-  endDate?: string;
-  capacity?: number;
+  startDate?: string | null;
+  endDate?: string | null;
+  capacity?: number | null;
   tuitionPeriod: ClassTuitionPeriod;
   tuitionAmount?: number;
   tuitionNotes?: string;
@@ -85,7 +99,9 @@ export interface IClassInput {
     city?: string;
   };
   coverPhoto?: string;
+  coverPhotoPublicId?: string;
   images?: string[];
+  imagePublicIds?: string[];
   schedules: IClassSchedule[];
 }
 
