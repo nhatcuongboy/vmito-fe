@@ -135,6 +135,7 @@ export default function PageLayout({
     '/',
     ROUTES.BROWSE.VENUES.LIST,
     ROUTES.CLUBS.BROWSE,
+    ROUTES.CLASSES.BROWSE,
     ROUTES.BROWSE.TOURNAMENTS.LIST,
   ].some((path) => {
     const normalized =

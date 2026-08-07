@@ -103,6 +103,7 @@ export default function PublicUserFavoritesSection() {
 
   const tabLabelKey: Record<FavoriteType, string> = {
     SESSION: 'favoriteSessions',
+    CLASS: 'favoriteClasses',
     VENUE: 'favoriteVenues',
     CLUB: 'favoriteClubs',
     TOURNAMENT: 'favoriteTournaments',
@@ -110,6 +111,7 @@ export default function PublicUserFavoritesSection() {
 
   const emptyLabelKey: Record<FavoriteType, string> = {
     SESSION: 'noFavoriteSessions',
+    CLASS: 'noFavoriteClasses',
     VENUE: 'noFavoriteVenues',
     CLUB: 'noFavoriteClubs',
     TOURNAMENT: 'noFavoriteTournaments',

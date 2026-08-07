@@ -120,6 +120,12 @@ export const NAV_SECTIONS: NavSectionConfig[] = [
         getHref: () => ROUTES.CLUBS.BROWSE,
       },
       {
+        key: 'browseClasses',
+        icon: BookOpen,
+        label: (t) => t.nav('browseClasses'),
+        getHref: () => ROUTES.CLASSES.BROWSE,
+      },
+      {
         key: 'browseTournaments',
         icon: Trophy,
         label: (t) => t.nav('browseTournaments'),

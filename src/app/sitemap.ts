@@ -2,6 +2,7 @@ import { MetadataRoute } from 'next';
 import { VenueService } from '@/lib/api/venue.service';
 import { ClubsService } from '@/lib/api/clubs.service';
 import { TournamentService } from '@/lib/api/tournament.service';
+import { ClassesService } from '@/lib/api/classes.service';
 import { VENUE_DISTRICT_ENTRIES } from '@/constants/venue-districts';
 
 const BASE_URL = 'https://vmito.com';
@@ -11,6 +12,7 @@ const staticRoutes = [
   { path: '', priority: 1.0, changeFrequency: 'daily' as const },
   { path: '/venues', priority: 0.9, changeFrequency: 'daily' as const },
   { path: '/clubs', priority: 0.8, changeFrequency: 'daily' as const },
+  { path: '/classes', priority: 0.8, changeFrequency: 'daily' as const },
   { path: '/tournaments', priority: 0.8, changeFrequency: 'daily' as const },
   { path: '/guide', priority: 0.6, changeFrequency: 'monthly' as const },
   { path: '/newsfeed', priority: 0.5, changeFrequency: 'daily' as const },
@@ -80,6 +82,21 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }
   } catch {
     // API unavailable at build time — skip club detail pages
+  }
+
+  // Dynamic tournament detail pages: /[locale]/tournament/[id]
+  try {
+    const classResponse = await ClassesService.sitemap();
+    for (const item of classResponse) {
+      entries.push({
+        url: `${BASE_URL}/vi/classes/${item.slug}`,
+        lastModified: item.updatedAt ? new Date(item.updatedAt) : now,
+        changeFrequency: 'weekly',
+        priority: 0.7,
+      });
+    }
+  } catch {
+    // API unavailable at build time — skip class detail pages
   }
 
   // Dynamic tournament detail pages: /[locale]/tournament/[id]

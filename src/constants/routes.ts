@@ -137,6 +137,14 @@ export const ROUTES = {
     MY_CLUBS: '/my-clubs',
   },
 
+  CLASSES: {
+    BROWSE: '/classes',
+    CREATE: '/classes/create',
+    DETAIL: (id: string) => `/classes/${id}`,
+    MINE: '/my-classes',
+    EDIT: (id: string) => `/my-classes/${id}/edit`,
+  },
+
   // Join Routes
   JOIN: {
     ENTRY: '/join',
