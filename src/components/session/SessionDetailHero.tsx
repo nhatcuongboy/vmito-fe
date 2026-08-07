@@ -312,6 +312,7 @@ const SessionDetailHero = ({
             sportType={session.sportType ?? session.venue?.sportType}
             variant="solid"
             size="md"
+            iconOnly
           />
           {session.isCrawled ? (
             <Badge

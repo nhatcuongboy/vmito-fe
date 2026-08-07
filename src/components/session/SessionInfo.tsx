@@ -607,6 +607,7 @@ export default function SessionInfo({
       <InfoRow icon={Trophy} label={tSport('title')}>
         <AppSportBadge
           sportType={session.sportType ?? session.venue?.sportType}
+          iconOnly
         />
       </InfoRow>
 
