@@ -9,7 +9,7 @@ import { useAppSettings } from '@/contexts/AppSettingsContext';
 import { useNewAdminUnits } from '@/hooks/useNewAdminUnits';
 import { removeVietnameseTones } from '@/lib/utils';
 import { usePreferenceStore } from '@/stores/usePreferenceStore';
-import { Box, Flex, Input, Portal, Text } from '@chakra-ui/react';
+import { Box, Flex, Input, Portal, Text, chakra } from '@chakra-ui/react';
 import { Check, ChevronDown, LocateFixed, MapPin, Search } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 
@@ -40,7 +40,7 @@ export default function CitySelector({
     left: number;
   } | null>(null);
 
-  const buttonRef = useRef<HTMLDivElement>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
 
   const legacyCity = VIETNAM_CITIES.find((c) => c.code === preferredCity);
@@ -251,39 +251,35 @@ export default function CitySelector({
 
   return (
     <>
-      <Flex
+      <chakra.button
+        className="top-bar-city-trigger"
+        type="button"
         ref={buttonRef}
-        align="center"
+        display="flex"
+        alignItems="center"
         gap={1}
         pl={hideIcon ? 2.5 : { base: 1.5, md: 2.5 }}
         pr={{ base: 1.5, md: 2.5 }}
         py={1}
         borderRadius="full"
         borderWidth="1px"
-        borderColor={isOpen ? 'gray.400' : 'gray.300'}
-        bg={isOpen ? 'gray.100' : 'gray.50'}
+        borderColor={isOpen ? 'brand.400' : 'border'}
+        bg={isOpen ? 'bg.muted' : 'bg'}
         color={isOpen ? 'fg' : 'fg.muted'}
-        _dark={{
-          borderColor: isOpen ? 'gray.500' : 'gray.700',
-          bg: isOpen ? 'gray.700' : 'gray.800',
-          color: isOpen ? 'fg' : 'gray.300',
-        }}
         cursor="pointer"
         _hover={{
-          borderColor: 'gray.400',
-          bg: 'gray.100',
+          borderColor: 'brand.400',
+          bg: 'bg.muted',
           color: 'fg',
-          _dark: {
-            borderColor: 'gray.500',
-            bg: 'gray.700',
-            color: 'fg',
-          },
         }}
         onClick={handleToggle}
+        aria-expanded={isOpen}
+        aria-haspopup="listbox"
+        aria-label={displayName || 'Chọn thành phố'}
         userSelect="none"
-        transition="all 0.15s"
+        transition="background-color 0.15s, border-color 0.15s, color 0.15s"
       >
-        {!hideIcon && <MapPin size={15} />}
+        {!hideIcon && <MapPin size={15} aria-hidden="true" />}
 
         {/* Short text for mobile */}
         <Text
@@ -313,13 +309,14 @@ export default function CitySelector({
         <Box display="block">
           <ChevronDown
             size={12}
+            aria-hidden="true"
             style={{
               transition: 'transform 0.2s',
               transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)',
             }}
           />
         </Box>
-      </Flex>
+      </chakra.button>
 
       {isOpen && dropdownPos && (
         <Portal>

@@ -60,7 +60,7 @@ export function PostAvatar({
 
   const circle = (
     <span
-      className={`relative flex shrink-0 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-green-100 to-green-200 text-green-700 border border-black/10 dark:from-gray-600 dark:to-gray-700 dark:text-gray-100 dark:border-white/40 ${className}`}
+      className={`relative flex shrink-0 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-green-100 to-green-200 text-green-700 border border-black/10 dark:from-gray-600 dark:to-gray-700 dark:text-gray-100 dark:border-white/40 ${bordered ? '' : className}`}
       style={{ width: size, height: size }}
     >
       {imageSrc ? (
@@ -94,9 +94,20 @@ export function PostAvatar({
       ? `conic-gradient(from 0deg, ${[...colors, colors[0]].join(', ')})`
       : colors[1] || colors[0];
 
+  if (ringVariant === 'solid') {
+    return (
+      <span
+        className={`relative flex shrink-0 items-center justify-center rounded-full ${className}`}
+        style={{ padding: ringWidth, background: ringBackground }}
+      >
+        {circle}
+      </span>
+    );
+  }
+
   return (
     <span
-      className="relative flex shrink-0 items-center justify-center rounded-full"
+      className={`relative flex shrink-0 items-center justify-center rounded-full ${className}`}
       style={{ padding: ringWidth, background: ringBackground }}
     >
       <span

@@ -1,17 +1,15 @@
 'use client';
 
-import { Box, Container, HStack, Text, VStack } from '@chakra-ui/react';
-import { useTranslations } from 'next-intl';
 import {
-  Rocket,
-  Gamepad2,
-  Trophy,
   CreditCard,
-  Users,
-  Star,
+  Gamepad2,
   Lightbulb,
+  Rocket,
+  Star,
+  Trophy,
+  Users,
 } from 'lucide-react';
-import * as React from 'react';
+import { useTranslations } from 'next-intl';
 
 const SECTIONS = [
   { id: 'getting-started', icon: Rocket, key: 'gettingStarted' },
@@ -23,45 +21,29 @@ const SECTIONS = [
   { id: 'tips', icon: Lightbulb, key: 'tips' },
 ] as const;
 
-const GuideTableOfContents = () => {
+export default function GuideTableOfContents() {
   const t = useTranslations('pages.guide.toc');
 
-  const handleScrollTo = (id: string) => {
-    const element = document.getElementById(id);
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
-  };
-
   return (
-    <Box py={{ base: 8, md: 12 }}>
-      <Container maxW="container.lg">
-        <VStack gap={3} align="stretch">
-          <Text fontWeight="bold" fontSize="lg" mb={2}>
-            {t('title')}
-          </Text>
+    <nav aria-labelledby="guide-toc-title" className="py-8 md:py-12">
+      <div className="mx-auto w-full max-w-5xl px-4 sm:px-6">
+        <h2 id="guide-toc-title" className="mb-5 text-lg! font-bold!">
+          {t('title')}
+        </h2>
+        <ul className="space-y-1">
           {SECTIONS.map((section) => (
-            <HStack
-              key={section.id}
-              gap={3}
-              px={4}
-              py={3}
-              borderRadius="lg"
-              cursor="pointer"
-              _hover={{ bg: 'green.50', _dark: { bg: 'green.950' } }}
-              transition="background 0.2s"
-              onClick={() => handleScrollTo(section.id)}
-            >
-              <Box color="green.500">
-                <section.icon size={20} />
-              </Box>
-              <Text fontWeight="medium">{t(section.key)}</Text>
-            </HStack>
+            <li key={section.id}>
+              <a
+                href={`#${section.id}`}
+                className="flex items-center gap-3 rounded-lg px-4 py-3 font-medium transition-colors hover:bg-green-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring dark:hover:bg-green-950"
+              >
+                <section.icon aria-hidden className="size-5 text-green-500" />
+                {t(section.key)}
+              </a>
+            </li>
           ))}
-        </VStack>
-      </Container>
-    </Box>
+        </ul>
+      </div>
+    </nav>
   );
-};
-
-export default GuideTableOfContents;
+}

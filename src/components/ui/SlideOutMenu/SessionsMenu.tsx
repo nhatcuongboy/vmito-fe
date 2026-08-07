@@ -1,6 +1,18 @@
 'use client';
 
-import { Box, Button, Collapsible, Flex, Stack, Text } from '@chakra-ui/react';
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from '@/components/primitives/collapsible';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/primitives/popover';
+import { ROUTES } from '@/constants';
+import { useCanAccessHostFeatures } from '@/hooks/useCanAccessHostFeatures';
+import { Link, usePathname } from '@/i18n/config';
 import {
   CalendarDays,
   ChevronDown,
@@ -10,20 +22,6 @@ import {
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useEffect, useRef, useState } from 'react';
-import { NextLinkButton } from '@/components/ui/NextLinkButton';
-import {
-  PopoverContent,
-  PopoverRoot,
-  PopoverTrigger,
-} from '@/components/ui/popover';
-import { ROUTES } from '@/constants';
-import { useCanAccessHostFeatures } from '@/hooks/useCanAccessHostFeatures';
-import { usePathname } from '@/i18n/config';
-import {
-  ACTIVE_ICON_COLOR,
-  getActiveProps,
-  getSubmenuProps,
-} from './nav-styles';
 import type { NavItemComponentProps } from './nav-config';
 
 const FLYOUT_CLOSE_DELAY_MS = 250;
@@ -47,35 +45,17 @@ function SessionSubmenuLink({
   const Icon = item.icon;
 
   return (
-    <NextLinkButton
+    <Link
       href={item.href}
-      variant="ghost"
-      justifyContent="flex-start"
+      className="sidebar-session-link"
+      data-variant={variant}
+      data-active={item.isActive ? 'true' : undefined}
+      aria-current={item.isActive ? 'page' : undefined}
       onClick={onClose}
-      w="full"
-      px={3}
-      py={variant === 'flyout' ? 2 : 1.5}
-      minH={variant === 'flyout' ? '38px' : '34px'}
-      borderRadius="md"
-      borderWidth={0}
-      textAlign="left"
-      {...getSubmenuProps(item.isActive, variant)}
     >
-      <Flex align="center" gap={2.5} w="full">
-        <Box
-          display="inline-flex"
-          alignItems="center"
-          justifyContent="center"
-          color={item.isActive ? 'green.500' : 'currentColor'}
-          flexShrink={0}
-        >
-          <Icon size={variant === 'flyout' ? 16 : 15} />
-        </Box>
-        <Text fontSize={variant === 'flyout' ? 'sm' : 'xs'} flex={1}>
-          {item.label}
-        </Text>
-      </Flex>
-    </NextLinkButton>
+      <Icon size={variant === 'flyout' ? 16 : 15} aria-hidden="true" />
+      <span>{item.label}</span>
+    </Link>
   );
 }
 
@@ -87,7 +67,6 @@ export default function SessionsMenu({
   const { canAccessHostFeatures } = useCanAccessHostFeatures();
   const pathname = usePathname();
   const normalizedPathname = pathname.replace(/\/$/, '') || '/';
-
   const manageSessionsHref = canAccessHostFeatures
     ? ROUTES.HOST.SESSIONS.LIST
     : ROUTES.PLAYER.HOST_FEATURE;
@@ -100,39 +79,32 @@ export default function SessionsMenu({
   const isHostedSessionsActive =
     isSessionsParentActive && !isJoinedSessionsActive;
   const isMenuActive = isHostedSessionsActive || isJoinedSessionsActive;
-
   const [isMenuOpen, setIsMenuOpen] = useState(isMenuActive);
   const [isFlyoutOpen, setIsFlyoutOpen] = useState(false);
   const flyoutCloseTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
-    if (isMenuActive) {
-      setIsMenuOpen(true);
-    }
+    if (isMenuActive) setIsMenuOpen(true);
   }, [isMenuActive]);
 
-  useEffect(() => {
-    return () => {
-      if (flyoutCloseTimer.current) {
-        clearTimeout(flyoutCloseTimer.current);
-      }
-    };
-  }, []);
+  useEffect(
+    () => () => {
+      if (flyoutCloseTimer.current) clearTimeout(flyoutCloseTimer.current);
+    },
+    []
+  );
 
   const openFlyout = () => {
-    if (flyoutCloseTimer.current) {
-      clearTimeout(flyoutCloseTimer.current);
-    }
+    if (flyoutCloseTimer.current) clearTimeout(flyoutCloseTimer.current);
     setIsFlyoutOpen(true);
   };
 
   const closeFlyout = () => {
-    if (flyoutCloseTimer.current) {
-      clearTimeout(flyoutCloseTimer.current);
-    }
-    flyoutCloseTimer.current = setTimeout(() => {
-      setIsFlyoutOpen(false);
-    }, FLYOUT_CLOSE_DELAY_MS);
+    if (flyoutCloseTimer.current) clearTimeout(flyoutCloseTimer.current);
+    flyoutCloseTimer.current = setTimeout(
+      () => setIsFlyoutOpen(false),
+      FLYOUT_CLOSE_DELAY_MS
+    );
   };
 
   const submenuItems: SessionSubmenuItem[] = [
@@ -150,63 +122,41 @@ export default function SessionsMenu({
     },
   ];
 
-  return (
-    <>
-      {/* Collapsed sidebar (desktop): flyout on hover */}
-      <Box
-        display={{
-          base: 'none',
-          md: isCollapsed ? 'block' : 'none',
-        }}
+  if (isCollapsed) {
+    return (
+      <div
+        className="sidebar-sessions-collapsed"
         onPointerEnter={openFlyout}
         onPointerLeave={closeFlyout}
         onFocus={openFlyout}
       >
-        <PopoverRoot
-          open={isFlyoutOpen}
-          positioning={{
-            placement: 'right-start',
-            offset: { mainAxis: 8, crossAxis: -4 },
-          }}
-        >
+        <Popover open={isFlyoutOpen} onOpenChange={setIsFlyoutOpen}>
           <PopoverTrigger asChild>
-            <Button
+            <button
               type="button"
-              variant="ghost"
-              w="full"
-              px={0}
-              minH="10"
-              borderRadius="lg"
+              className="sidebar-session-trigger is-collapsed"
+              data-active={isMenuActive ? 'true' : undefined}
               aria-label={nav('sessions')}
-              {...getActiveProps(isMenuActive, isCollapsed)}
             >
-              <CalendarDays
-                size={18}
-                color={isMenuActive ? ACTIVE_ICON_COLOR : 'currentColor'}
-              />
-            </Button>
+              <span className="sidebar-nav-icon" aria-hidden="true">
+                <CalendarDays size={18} />
+              </span>
+            </button>
           </PopoverTrigger>
           <PopoverContent
-            w="220px"
-            p={2}
-            borderRadius="lg"
-            boxShadow="xl"
-            zIndex={2001}
-            bg="bg"
-            _dark={{ bg: 'gray.900', borderColor: 'gray.700' }}
+            className="sidebar-session-flyout"
+            aria-label={nav('sessions')}
+            side="right"
+            align="start"
+            sideOffset={8}
+            alignOffset={-4}
             onPointerEnter={openFlyout}
             onPointerLeave={closeFlyout}
+            onOpenAutoFocus={(event) => event.preventDefault()}
+            onCloseAutoFocus={(event) => event.preventDefault()}
           >
-            <Text
-              px={2}
-              py={1}
-              fontSize="xs"
-              fontWeight="semibold"
-              color="fg.muted"
-            >
-              {nav('sessions')}
-            </Text>
-            <Stack gap={1} mt={1}>
+            <p className="sidebar-session-flyout-title">{nav('sessions')}</p>
+            <div className="sidebar-session-links">
               {submenuItems.map((item) => (
                 <SessionSubmenuLink
                   key={item.href}
@@ -215,82 +165,45 @@ export default function SessionsMenu({
                   onClose={onClose}
                 />
               ))}
-            </Stack>
+            </div>
           </PopoverContent>
-        </PopoverRoot>
-      </Box>
+        </Popover>
+      </div>
+    );
+  }
 
-      {/* Expanded sidebar / mobile: inline collapsible submenu */}
-      <Box
-        display={{
-          base: 'block',
-          md: isCollapsed ? 'none' : 'block',
-        }}
-      >
-        <Collapsible.Root
-          open={isMenuOpen}
-          onOpenChange={(event) => setIsMenuOpen(event.open)}
+  return (
+    <Collapsible
+      className="sidebar-sessions-expanded"
+      open={isMenuOpen}
+      onOpenChange={setIsMenuOpen}
+    >
+      <CollapsibleTrigger asChild>
+        <button
+          type="button"
+          className="sidebar-session-trigger"
+          data-active={isMenuActive ? 'true' : undefined}
         >
-          <Collapsible.Trigger asChild>
-            <Button
-              w="full"
-              px={4}
-              py={2}
-              minH="10"
-              borderRadius="md"
-              variant="ghost"
-              justifyContent="flex-start"
-              textAlign="left"
-              _hover={{
-                bg: 'gray.100',
-                _dark: { bg: 'whiteAlpha.100' },
-              }}
-              {...getActiveProps(isMenuActive, isCollapsed)}
-            >
-              <Flex align="center" gap={3} w="full">
-                <CalendarDays
-                  size={18}
-                  color={isMenuActive ? ACTIVE_ICON_COLOR : 'currentColor'}
-                />
-                <Text flex={1} fontWeight="inherit">
-                  {nav('sessions')}
-                </Text>
-                <Box
-                  display="inline-flex"
-                  transition="transform 0.2s ease"
-                  transform={isMenuOpen ? 'rotate(0deg)' : 'rotate(-90deg)'}
-                >
-                  <ChevronDown size={16} aria-hidden="true" />
-                </Box>
-              </Flex>
-            </Button>
-          </Collapsible.Trigger>
+          <span className="sidebar-nav-icon" aria-hidden="true">
+            <CalendarDays size={18} />
+          </span>
+          <span className="sidebar-session-label">{nav('sessions')}</span>
+          <ChevronDown
+            className="sidebar-session-chevron"
+            data-open={isMenuOpen ? 'true' : undefined}
+            size={16}
+            aria-hidden="true"
+          />
+        </button>
+      </CollapsibleTrigger>
 
-          <Collapsible.Content>
-            <Box
-              mt={1.5}
-              ms={5}
-              ps={4}
-              py={1}
-              borderLeftWidth="2px"
-              borderLeftColor="green.200"
-              _dark={{
-                borderLeftColor: 'green.800',
-              }}
-            >
-              <Stack gap={1}>
-                {submenuItems.map((item) => (
-                  <SessionSubmenuLink
-                    key={item.href}
-                    item={item}
-                    onClose={onClose}
-                  />
-                ))}
-              </Stack>
-            </Box>
-          </Collapsible.Content>
-        </Collapsible.Root>
-      </Box>
-    </>
+      <CollapsibleContent className="sidebar-session-inline-links">
+        <div className="sidebar-session-inline-links-inner">
+          {submenuItems.map((item) => (
+            <SessionSubmenuLink key={item.href} item={item} onClose={onClose} />
+          ))}
+        </div>
+      </CollapsibleContent>
+    </Collapsible>
   );
 }

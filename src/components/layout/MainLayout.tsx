@@ -1,25 +1,31 @@
 'use client';
 
-import { Box, Flex, type BoxProps } from '@chakra-ui/react';
 import TopBar from '@/components/ui/TopBar';
 import {
-  TOP_BAR_HEIGHT_MOBILE,
-  TOP_BAR_HEIGHT_DESKTOP,
-  SIDEBAR_WIDTH_EXPANDED,
   SIDEBAR_WIDTH_COLLAPSED,
+  SIDEBAR_WIDTH_EXPANDED,
+  TOP_BAR_HEIGHT_DESKTOP,
+  TOP_BAR_HEIGHT_MOBILE,
 } from '@/constants';
-import { ReactNode } from 'react';
 import { useSidebar } from '@/contexts/SidebarContext';
+import type { CSSProperties, ReactNode } from 'react';
+import {
+  resolveCssColor,
+  resolveCssSize,
+  type ResponsiveStyleValue,
+} from './shell-theme';
 
 interface MainLayoutProps {
   children: ReactNode;
   title: string;
   showBackButton?: boolean;
   backHref?: string;
-  backgroundColor?: BoxProps['bg'];
+  backgroundColor?: ResponsiveStyleValue;
   contentPadding?: number | string;
   centerTitle?: boolean;
 }
+
+type LayoutStyle = CSSProperties & Record<`--${string}`, string | number>;
 
 export default function MainLayout({
   children,
@@ -31,22 +37,33 @@ export default function MainLayout({
   centerTitle = false,
 }: MainLayoutProps) {
   const { isCollapsed } = useSidebar();
+  const responsiveBackground =
+    typeof backgroundColor === 'object'
+      ? backgroundColor
+      : { base: backgroundColor, md: backgroundColor };
+  const lightBackground =
+    responsiveBackground.base ?? responsiveBackground.md ?? 'green.50';
+  const layoutStyle: LayoutStyle = {
+    '--main-layout-sidebar-offset': `${
+      isCollapsed ? SIDEBAR_WIDTH_COLLAPSED : SIDEBAR_WIDTH_EXPANDED
+    }px`,
+    '--main-layout-top-mobile': `${TOP_BAR_HEIGHT_MOBILE}px`,
+    '--main-layout-top-desktop': `${TOP_BAR_HEIGHT_DESKTOP}px`,
+    '--main-layout-bg-mobile': resolveCssColor(lightBackground)!,
+    '--main-layout-bg-desktop': resolveCssColor(
+      responsiveBackground.md ?? lightBackground
+    )!,
+    '--main-layout-bg-dark': resolveCssColor(
+      responsiveBackground._dark ?? lightBackground
+    )!,
+    '--main-layout-padding': resolveCssSize(contentPadding)!,
+  };
 
   return (
-    <Box
-      position="fixed"
-      top={0}
-      left={{
-        base: 0,
-        md: isCollapsed
-          ? `${SIDEBAR_WIDTH_COLLAPSED}px`
-          : `${SIDEBAR_WIDTH_EXPANDED}px`,
-      }}
-      right={0}
-      bottom={0}
-      bg={backgroundColor}
-      overflow="hidden"
-      transition="left 0.3s ease"
+    <div
+      data-slot="main-layout"
+      className="main-layout-shell"
+      style={layoutStyle}
     >
       <TopBar
         title={title}
@@ -54,24 +71,11 @@ export default function MainLayout({
         backHref={backHref}
         centerTitle={centerTitle}
       />
-      <Box
-        mt={{
-          base: `calc(${TOP_BAR_HEIGHT_MOBILE}px + env(safe-area-inset-top))`,
-          md: `calc(${TOP_BAR_HEIGHT_DESKTOP}px + env(safe-area-inset-top))`,
-        }}
-        height={{
-          base: `calc(100% - ${TOP_BAR_HEIGHT_MOBILE}px - env(safe-area-inset-top))`,
-          md: `calc(100% - ${TOP_BAR_HEIGHT_DESKTOP}px - env(safe-area-inset-top))`,
-        }}
-        overflowY="auto"
-        bg={backgroundColor}
-      >
-        <Flex direction="column" minH="100%">
-          <Box flex="1" p={contentPadding}>
-            {children}
-          </Box>
-        </Flex>
-      </Box>
-    </Box>
+      <div data-slot="main-layout-scroll" className="main-layout-scroll">
+        <div className="main-layout-column">
+          <div className="main-layout-content">{children}</div>
+        </div>
+      </div>
+    </div>
   );
 }

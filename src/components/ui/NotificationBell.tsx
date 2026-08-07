@@ -508,38 +508,29 @@ export default function NotificationBell({
         <PopoverTrigger asChild>
           <Box position="relative" display="inline-block" cursor="pointer">
             <IconButton
+              className="top-bar-notification-button"
               aria-label="Notifications"
               size={{ base: 'sm', md: 'md' }}
               minW={{ base: '36px', md: '40px' }}
               h={{ base: '36px', md: '40px' }}
               borderRadius="full"
-              color={isOpen ? 'green.600' : 'black'}
-              bg={isOpen ? 'green.50' : 'gray.100'}
+              color={isOpen ? 'brand.600' : 'fg'}
+              bg={isOpen ? 'bg.subtle' : 'bg.muted'}
               border="1px solid"
-              borderColor={isOpen ? 'green.200' : 'gray.200'}
+              borderColor={isOpen ? 'brand.200' : 'border'}
               boxShadow="sm"
-              _dark={{
-                color: isOpen ? 'green.200' : 'white',
-                bg: isOpen ? 'green.950' : 'gray.800',
-                borderColor: isOpen ? 'green.800' : 'gray.700',
-              }}
               _hover={{
-                bg: isOpen ? 'green.100' : 'gray.200',
-                borderColor: isOpen ? 'green.300' : 'gray.300',
+                bg: isOpen ? 'bg.muted' : 'bg.subtle',
+                borderColor: isOpen ? 'brand.300' : 'border',
                 transform: 'translateY(-1px)',
                 boxShadow: isOpen
-                  ? '0 4px 12px rgba(34,197,94,0.15)'
-                  : '0 4px 12px rgba(0,0,0,0.08)',
-                _dark: {
-                  bg: isOpen ? 'green.900' : 'gray.700',
-                  borderColor: isOpen ? 'green.700' : 'gray.600',
-                  boxShadow: 'none',
-                },
+                  ? '0 4px 12px hsl(var(--primary) / 0.15)'
+                  : '0 4px 12px hsl(var(--shell-shadow) / 0.08)',
               }}
               _active={{ transform: 'translateY(0) scale(0.96)' }}
               transition="background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease"
             >
-              <FaBell size={16} />
+              <FaBell size={16} aria-hidden="true" />
             </IconButton>
 
             {totalBadgeCount > 0 && (

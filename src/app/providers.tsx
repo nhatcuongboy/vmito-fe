@@ -3,6 +3,7 @@
 import { ChakraProvider, createSystem, defaultConfig } from '@chakra-ui/react';
 import AuthProvider from '@/components/providers/AuthProvider';
 import FeatureFlagsProvider from '@/components/providers/FeatureFlagsProvider';
+import { TooltipProvider } from '@/components/primitives/tooltip';
 import { ThemeProviderWrapper } from '@/components/ui/color-mode-provider';
 
 // Custom system configuration for badminton app
@@ -152,27 +153,29 @@ import GoogleOneTap from '@/components/auth/GoogleOneTap';
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
     <ThemeProviderWrapper>
-      <ChakraProvider value={system}>
-        <AppSettingsProvider>
-          <SidebarProvider>
-            <TopBarSearchProvider>
-              <AuthProvider>
-                <FeatureFlagsProvider>
-                  <SocketProvider>
-                    {children}
-                    <Toaster />
-                    <GlobalErrorModal />
-                    <GlobalCourtCallModal />
-                    <PointsCelebration />
-                    <TourController />
-                    <GoogleOneTap />
-                  </SocketProvider>
-                </FeatureFlagsProvider>
-              </AuthProvider>
-            </TopBarSearchProvider>
-          </SidebarProvider>
-        </AppSettingsProvider>
-      </ChakraProvider>
+      <TooltipProvider>
+        <ChakraProvider value={system}>
+          <AppSettingsProvider>
+            <SidebarProvider>
+              <TopBarSearchProvider>
+                <AuthProvider>
+                  <FeatureFlagsProvider>
+                    <SocketProvider>
+                      {children}
+                      <Toaster />
+                      <GlobalErrorModal />
+                      <GlobalCourtCallModal />
+                      <PointsCelebration />
+                      <TourController />
+                      <GoogleOneTap />
+                    </SocketProvider>
+                  </FeatureFlagsProvider>
+                </AuthProvider>
+              </TopBarSearchProvider>
+            </SidebarProvider>
+          </AppSettingsProvider>
+        </ChakraProvider>
+      </TooltipProvider>
     </ThemeProviderWrapper>
   );
 }

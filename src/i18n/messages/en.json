@@ -97,6 +97,10 @@
     "pendingRequests": "{count} pending request{count, plural, =1 {} other {s}}",
     "viewCount": "{count} view{count, plural, =1 {} other {s}}",
     "loading": "Loading...",
+    "showPassword": "Show password",
+    "hidePassword": "Hide password",
+    "retry": "Retry",
+    "emptyFilterHint": "Try adjusting your filters",
     "loadMore": "Load more",
     "navigating": "Navigating...",
     "error": "Error",
@@ -136,6 +140,8 @@
     "darkMode": "Dark Mode",
     "systemMode": "System",
     "settings": "Settings",
+    "settingsDescription": "Configure your preferences and settings",
+    "settingsComingSoon": "Settings page coming soon...",
     "showNewAddressTitle": "Show new address",
     "showNewAddressDescription": "Toggle showing the address per Resolution 60 across the whole app",
     "showNewAddressOn": "New address is shown",
@@ -144,6 +150,8 @@
     "guide": "Guide",
     "feedback": "Contact & Bug Report",
     "navigation": "Navigation",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu",
     "logout": "Logout",
     "logoutConfirmTitle": "Logout",
     "logoutConfirmMessage": "Are you sure you want to log out?",
@@ -1119,6 +1127,12 @@
       }
     },
     "guide": {
+      "placeholders": {
+        "screenshot": "Example screenshot",
+        "sessionOverview": "Session overview screenshot",
+        "tournamentOverview": "Tournament overview screenshot",
+        "clubOverview": "Club overview screenshot"
+      },
       "hero": {
         "title": "User Guide",
         "subtitle": "Explore all Vmito features — from finding sessions and joining games to organizing badminton tournaments."

@@ -1,15 +1,13 @@
 'use client';
 
-import { Box, Flex, HStack, Text } from '@chakra-ui/react';
-import { Flame, type LucideIcon } from 'lucide-react';
-import { NextLinkButton } from '@/components/ui/NextLinkButton';
-import { VTooltip } from '@/components/ui/VTooltip';
 import {
-  ACTIVE_ICON_COLOR,
-  TOOLTIP_OPEN_DELAY,
-  TOOLTIP_POSITIONING,
-  getActiveProps,
-} from './nav-styles';
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/primitives/tooltip';
+import { Link } from '@/i18n/config';
+import { cn } from '@/lib/utils';
+import { Flame, type LucideIcon } from 'lucide-react';
 
 interface SidebarNavItemProps {
   href: string;
@@ -30,50 +28,38 @@ export function SidebarNavItem({
   showFlame,
   onClose,
 }: SidebarNavItemProps) {
-  const justifyContent = {
-    base: 'flex-start',
-    md: isCollapsed ? 'center' : 'flex-start',
-  };
+  const link = (
+    <Link
+      href={href}
+      className={cn('sidebar-nav-link', isActive && 'is-active')}
+      data-collapsed={isCollapsed ? 'true' : undefined}
+      aria-label={label}
+      aria-current={isActive ? 'page' : undefined}
+      onClick={onClose}
+    >
+      <span className="sidebar-nav-icon" aria-hidden="true">
+        <Icon size={18} />
+      </span>
+      <span className="sidebar-nav-label">{label}</span>
+      {showFlame && !isCollapsed ? (
+        <Flame
+          className="sidebar-nav-flame"
+          size={17}
+          fill="currentColor"
+          aria-hidden="true"
+        />
+      ) : null}
+    </Link>
+  );
+
+  if (!isCollapsed) return link;
 
   return (
-    <VTooltip
-      content={label}
-      positioning={TOOLTIP_POSITIONING}
-      disabled={!isCollapsed}
-      showArrow
-      openDelay={TOOLTIP_OPEN_DELAY}
-    >
-      <NextLinkButton
-        href={href}
-        variant="ghost"
-        justifyContent={justifyContent}
-        onClick={onClose}
-        w="full"
-        px={{ base: 4, md: isCollapsed ? 0 : 4 }}
-        {...getActiveProps(isActive, isCollapsed)}
-      >
-        <Flex align="center" gap={3} w="full" justifyContent={justifyContent}>
-          <Icon
-            size={18}
-            color={isActive ? ACTIVE_ICON_COLOR : 'currentColor'}
-          />
-          {!isCollapsed && (
-            <HStack gap={1.5} align="center">
-              <Text>{label}</Text>
-              {showFlame && (
-                <Box
-                  as={Flame}
-                  color="orange.500"
-                  fill="orange.500"
-                  w="17px"
-                  h="17px"
-                  display="inline-block"
-                />
-              )}
-            </HStack>
-          )}
-        </Flex>
-      </NextLinkButton>
-    </VTooltip>
+    <Tooltip>
+      <TooltipTrigger asChild>{link}</TooltipTrigger>
+      <TooltipContent side="right" sideOffset={12}>
+        {label}
+      </TooltipContent>
+    </Tooltip>
   );
 }

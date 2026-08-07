@@ -706,10 +706,11 @@ const BaseSessionCard = ({
       <Box
         position="relative"
         borderWidth="1px"
+        borderColor="hsl(var(--border))"
         borderRadius="2xl"
         overflow="hidden"
         bg="white"
-        _dark={{ bg: 'gray.800' }}
+        _dark={{ bg: 'hsl(var(--card))' }}
         boxShadow="0 2px 8px rgba(0, 0, 0, 0.06), 0 1px 3px rgba(0, 0, 0, 0.04)"
         transition="transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
         _hover={

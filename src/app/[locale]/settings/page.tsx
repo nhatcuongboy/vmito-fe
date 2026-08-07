@@ -1,32 +1,29 @@
 'use client';
 
-import { Box, Container, Heading, Text } from '@chakra-ui/react';
+import { Button } from '@/components/primitives/button';
+import { Link } from '@/i18n/config';
 import { useTranslations } from 'next-intl';
-import { NextLinkButton } from '@/components/ui/NextLinkButton';
 
 export default function SettingsPage() {
   const t = useTranslations('common');
 
   return (
-    <Container maxW="container.xl" p={4}>
-      <Box mb={8}>
-        <NextLinkButton href="/" variant="ghost" size="sm">
-          ← {t('backToHome')}
-        </NextLinkButton>
-      </Box>
+    <main className="mx-auto w-full max-w-screen-xl p-4">
+      <nav aria-label={t('navigation')} className="mb-8">
+        <Button asChild variant="ghost" size="sm">
+          <Link href="/">← {t('backToHome')}</Link>
+        </Button>
+      </nav>
 
-      <Box textAlign="center" py={10}>
-        <Heading size="2xl" mb={6}>
+      <section className="py-10 text-center" aria-labelledby="settings-title">
+        <h1 id="settings-title" className="mb-6 text-3xl! font-bold!">
           {t('settings')}
-        </Heading>
-        <Text fontSize="xl" mb={10} color="gray.600">
-          Configure your preferences and settings
-        </Text>
-
-        <Box>
-          <Text color="gray.500">Settings page coming soon...</Text>
-        </Box>
-      </Box>
-    </Container>
+        </h1>
+        <p className="mb-10 text-xl text-muted-foreground">
+          {t('settingsDescription')}
+        </p>
+        <p className="text-muted-foreground">{t('settingsComingSoon')}</p>
+      </section>
+    </main>
   );
 }

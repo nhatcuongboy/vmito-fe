@@ -96,6 +96,10 @@
     "pendingRequests": "{count} yêu cầu đang chờ",
     "viewCount": "{count} lượt xem",
     "loading": "Đang tải...",
+    "showPassword": "Hiện mật khẩu",
+    "hidePassword": "Ẩn mật khẩu",
+    "retry": "Thử lại",
+    "emptyFilterHint": "Thử điều chỉnh lại bộ lọc của bạn",
     "loadMore": "Xem thêm",
     "navigating": "Đang điều hướng...",
     "error": "Lỗi",
@@ -136,6 +140,8 @@
     "darkMode": "Chế độ tối",
     "systemMode": "Tự động",
     "settings": "Cài đặt",
+    "settingsDescription": "Cấu hình tùy chọn và thiết lập của bạn",
+    "settingsComingSoon": "Trang cài đặt sẽ sớm được hoàn thiện...",
     "showNewAddressTitle": "Hiển thị địa chỉ mới",
     "showNewAddressDescription": "Bật/tắt hiển thị địa chỉ theo Nghị quyết 60 trong toàn bộ ứng dụng",
     "showNewAddressOn": "Đang hiển thị địa chỉ mới",
@@ -144,6 +150,8 @@
     "guide": "Hướng dẫn",
     "feedback": "Liên hệ & Báo lỗi",
     "navigation": "Điều hướng",
+    "openMenu": "Mở menu",
+    "closeMenu": "Đóng menu",
     "logout": "Đăng xuất",
     "logoutConfirmTitle": "Đăng xuất",
     "logoutConfirmMessage": "Bạn có chắc chắn muốn đăng xuất không?",
@@ -1127,6 +1135,12 @@
       }
     },
     "guide": {
+      "placeholders": {
+        "screenshot": "Ảnh minh họa",
+        "sessionOverview": "Ảnh tổng quan buổi chơi",
+        "tournamentOverview": "Ảnh tổng quan giải đấu",
+        "clubOverview": "Ảnh tổng quan câu lạc bộ"
+      },
       "hero": {
         "title": "Hướng Dẫn Sử Dụng",
         "subtitle": "Khám phá tất cả tính năng của Vmito — từ tìm kèo, tham gia kèo đến tổ chức giải đấu cầu lông."

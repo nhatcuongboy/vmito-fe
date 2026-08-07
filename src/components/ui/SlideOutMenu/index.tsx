@@ -1,21 +1,14 @@
 'use client';
 
 import {
-  Box,
-  Flex,
-  Separator,
-  Stack,
-  Text,
-  useBreakpointValue,
-} from '@chakra-ui/react';
-import { ListChecks, LogIn, UserPlus } from 'lucide-react';
-import { useTranslations } from 'next-intl';
-import { Fragment, Suspense, useEffect, useState, type ReactNode } from 'react';
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/primitives/tooltip';
+import { TournamentGuideButton } from '@/components/tournament/TournamentGuideButton';
 import LanguageSwitcher from '@/components/ui/LanguageSwitcher';
-import { NextLinkButton } from '@/components/ui/NextLinkButton';
-import { Button } from '@/components/ui/chakra-compat';
 import ThemeSwitcher from '@/components/ui/ThemeSwitcher';
-import { VTooltip } from '@/components/ui/VTooltip';
 import {
   ROUTES,
   SIDEBAR_WIDTH_COLLAPSED,
@@ -25,11 +18,22 @@ import {
 } from '@/constants';
 import { useSidebar } from '@/contexts/SidebarContext';
 import { useCanAccessHostFeatures } from '@/hooks/useCanAccessHostFeatures';
-import { usePathname } from '@/i18n/config';
-import { useAuthStore } from '@/stores/useAuthStore';
+import { Link, usePathname } from '@/i18n/config';
 import { VenueRentalService } from '@/lib/api/venue-rental.service';
-import { TournamentGuideButton } from '@/components/tournament/TournamentGuideButton';
+import { useAuthStore } from '@/stores/useAuthStore';
 import { useTournamentGuideVisibilityStore } from '@/stores/useTournamentGuideVisibilityStore';
+import { LogIn, UserPlus } from 'lucide-react';
+import { useTranslations } from 'next-intl';
+import {
+  Fragment,
+  Suspense,
+  useEffect,
+  useState,
+  useSyncExternalStore,
+  type CSSProperties,
+  type ReactElement,
+  type ReactNode,
+} from 'react';
 import {
   isNavLinkActive,
   NAV_SECTIONS,
@@ -37,27 +41,54 @@ import {
   type NavTranslators,
 } from './nav-config';
 import { SidebarNavItem } from './SidebarNavItem';
-import { TOOLTIP_OPEN_DELAY, TOOLTIP_POSITIONING } from './nav-styles';
 
 interface SlideOutMenuProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
-const PANEL_TOP = {
-  base: `calc(${TOP_BAR_HEIGHT_MOBILE}px + env(safe-area-inset-top))`,
-  md: `calc(${TOP_BAR_HEIGHT_DESKTOP}px + env(safe-area-inset-top))`,
-};
+type DrawerStyle = CSSProperties & Record<`--${string}`, string | number>;
+
+const desktopMediaQuery = '(min-width: 48rem)';
+
+function subscribeToDesktop(callback: () => void) {
+  const media = window.matchMedia(desktopMediaQuery);
+  media.addEventListener('change', callback);
+  return () => media.removeEventListener('change', callback);
+}
+
+function getDesktopSnapshot() {
+  return window.matchMedia(desktopMediaQuery).matches;
+}
+
+function getServerDesktopSnapshot() {
+  return false;
+}
 
 function SectionHeading({ children }: { children: ReactNode }) {
+  return <h2 className="navigation-section-heading">{children}</h2>;
+}
+
+function CollapsedTooltip({
+  label,
+  enabled,
+  children,
+}: {
+  label: string;
+  enabled: boolean;
+  children: ReactElement;
+}) {
+  if (!enabled) return children;
   return (
-    <Text fontSize="sm" fontWeight="semibold" color="fg.muted" mb={3}>
-      {children}
-    </Text>
+    <Tooltip>
+      <TooltipTrigger asChild>{children}</TooltipTrigger>
+      <TooltipContent side="right" sideOffset={12}>
+        {label}
+      </TooltipContent>
+    </Tooltip>
   );
 }
 
-/** Shared layout for the language/theme switcher blocks. */
 function SwitcherSection({
   title,
   isCollapsed,
@@ -65,32 +96,20 @@ function SwitcherSection({
 }: {
   title: string;
   isCollapsed: boolean;
-  children: (isCollapsed: boolean) => ReactNode;
+  children: ReactElement;
 }) {
   return (
-    <Box>
-      {!isCollapsed && <SectionHeading>{title}</SectionHeading>}
-      <Suspense fallback={<Text fontSize="sm">Loading...</Text>}>
-        {isCollapsed ? (
-          <VTooltip
-            content={title}
-            positioning={TOOLTIP_POSITIONING}
-            showArrow
-            openDelay={TOOLTIP_OPEN_DELAY}
-          >
-            <Box w="full" px={1}>
-              {children(true)}
-            </Box>
-          </VTooltip>
-        ) : (
-          <Box w="180px">{children(false)}</Box>
-        )}
+    <section className="navigation-switcher-section">
+      {!isCollapsed ? <SectionHeading>{title}</SectionHeading> : null}
+      <Suspense fallback={<div className="navigation-loading-placeholder" />}>
+        <CollapsedTooltip label={title} enabled={isCollapsed}>
+          <div className="navigation-switcher-control">{children}</div>
+        </CollapsedTooltip>
       </Suspense>
-    </Box>
+    </section>
   );
 }
 
-/** Login/register buttons shown to unauthenticated visitors. */
 function AuthActions({
   isCollapsed,
   onClose,
@@ -99,78 +118,62 @@ function AuthActions({
   onClose: () => void;
 }) {
   const common = useTranslations('common');
+  const actions = [
+    {
+      href: ROUTES.AUTH.SIGNIN,
+      label: common('login'),
+      icon: LogIn,
+      variant: 'primary',
+    },
+    {
+      href: ROUTES.AUTH.SIGNUP,
+      label: common('register'),
+      icon: UserPlus,
+      variant: 'outline',
+    },
+  ] as const;
 
   return (
-    <Stack gap={2} mb={4}>
-      <VTooltip
-        content={common('login')}
-        positioning={TOOLTIP_POSITIONING}
-        disabled={!isCollapsed}
-        showArrow
-        openDelay={TOOLTIP_OPEN_DELAY}
-      >
-        <NextLinkButton
-          href={ROUTES.AUTH.SIGNIN}
-          colorPalette="green"
-          w={isCollapsed ? 'full' : '180px'}
-          onClick={onClose}
-          justifyContent="center"
-          px={{ base: 4, md: isCollapsed ? 0 : 4 }}
-        >
-          <Flex align="center" gap={2} justifyContent="center">
-            <LogIn size={16} />
-            {!isCollapsed && <Text>{common('login')}</Text>}
-          </Flex>
-        </NextLinkButton>
-      </VTooltip>
+    <div className="navigation-auth-actions">
+      {actions.map(({ href, label, icon: Icon, variant }) => {
+        const link = (
+          <Link
+            key={href}
+            href={href}
+            className="navigation-auth-link"
+            data-variant={variant}
+            data-collapsed={isCollapsed ? 'true' : undefined}
+            aria-label={label}
+            onClick={onClose}
+          >
+            <Icon size={16} aria-hidden="true" />
+            {!isCollapsed ? <span>{label}</span> : null}
+          </Link>
+        );
 
-      <VTooltip
-        content={common('register')}
-        positioning={TOOLTIP_POSITIONING}
-        disabled={!isCollapsed}
-        showArrow
-        openDelay={TOOLTIP_OPEN_DELAY}
-      >
-        <NextLinkButton
-          href={ROUTES.AUTH.SIGNUP}
-          variant="outline"
-          colorPalette="green"
-          w={isCollapsed ? 'full' : '180px'}
-          onClick={onClose}
-          justifyContent="center"
-          px={{ base: 4, md: isCollapsed ? 0 : 4 }}
-        >
-          <Flex align="center" gap={2} justifyContent="center">
-            <UserPlus size={16} />
-            {!isCollapsed && <Text>{common('register')}</Text>}
-          </Flex>
-        </NextLinkButton>
-      </VTooltip>
-    </Stack>
-  );
-}
-
-/** Desktop-only entry point to reopen the tournament setup guide widget. */
-function TournamentGuideToggleButton({
-  isCollapsed,
-}: {
-  isCollapsed: boolean;
-}) {
-  return (
-    <Box display={{ base: 'none', md: 'block' }} mb={4}>
-      <TournamentGuideButton isCollapsed={isCollapsed} />
-    </Box>
+        return (
+          <CollapsedTooltip key={href} label={label} enabled={isCollapsed}>
+            {link}
+          </CollapsedTooltip>
+        );
+      })}
+    </div>
   );
 }
 
 export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
   const common = useTranslations('common');
+  const home = useTranslations('pages.home');
   const nav = useTranslations('navigation');
   const { user, isAuthenticated, isLoading, isHydrated } = useAuthStore();
   const { canAccessHostFeatures } = useCanAccessHostFeatures();
   const { isCollapsed: isSidebarCollapsed } = useSidebar();
-  const isCollapsed =
-    useBreakpointValue({ base: false, md: isSidebarCollapsed }) ?? false;
+  const isDesktop = useSyncExternalStore(
+    subscribeToDesktop,
+    getDesktopSnapshot,
+    getServerDesktopSnapshot
+  );
+  const isCollapsed = isDesktop && isSidebarCollapsed;
   const pathname = usePathname();
   const [hasManagedVenues, setHasManagedVenues] = useState(false);
   const isGuideWidgetVisible = useTournamentGuideVisibilityStore(
@@ -187,89 +190,77 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
       .catch(() => setHasManagedVenues(false));
   }, [isAuthenticated, user?.id, user?.role]);
 
-  const ctx: NavContext = {
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') onClose();
+    };
+    document.addEventListener('keydown', handleEscape);
+    return () => document.removeEventListener('keydown', handleEscape);
+  }, [isOpen, onClose]);
+
+  const context: NavContext = {
     user,
     isAuthenticated,
     canAccessHostFeatures,
     hasManagedVenues,
   };
-  const t: NavTranslators = { nav, common };
-
+  const translators: NavTranslators = { nav, common };
   const showAuthActions =
     isHydrated &&
     !isLoading &&
     !isAuthenticated &&
     !pathname.includes('/auth/signin') &&
     !pathname.includes('/auth/signup');
+  const drawerStyle: DrawerStyle = {
+    '--navigation-top-mobile': `${TOP_BAR_HEIGHT_MOBILE}px`,
+    '--navigation-top-desktop': `${TOP_BAR_HEIGHT_DESKTOP}px`,
+    '--navigation-width-expanded': `${SIDEBAR_WIDTH_EXPANDED}px`,
+    '--navigation-width-collapsed': `${SIDEBAR_WIDTH_COLLAPSED}px`,
+  };
 
   return (
-    <>
-      {/* Overlay - Mobile only */}
-      {isOpen && (
-        <Box
-          display={{ base: 'block', md: 'none' }}
-          position="fixed"
-          top={PANEL_TOP}
-          left={0}
-          right={0}
-          bottom={0}
-          bg="blackAlpha.600"
-          zIndex={1200}
+    <TooltipProvider delayDuration={200}>
+      {isOpen ? (
+        <button
+          type="button"
+          data-slot="navigation-overlay"
+          className="navigation-overlay"
+          aria-label={common('closeMenu')}
           onClick={onClose}
         />
-      )}
+      ) : null}
 
-      {/* Slide-out Menu */}
-      <Box
-        position="fixed"
-        top={PANEL_TOP}
-        left={0}
-        bottom={0}
-        width={{
-          base: '240px',
-          md: isSidebarCollapsed
-            ? `${SIDEBAR_WIDTH_COLLAPSED}px`
-            : `${SIDEBAR_WIDTH_EXPANDED}px`,
-        }}
-        bg="bg"
-        shadow="xl"
-        zIndex={1250}
-        transform={{
-          base: isOpen ? 'translateX(0)' : 'translateX(-100%)',
-          md: 'translateX(0)',
-        }}
-        transition="width 0.3s ease, transform 0.3s ease"
-        borderRight="1px solid"
-        borderColor="border"
-        overflowY="auto"
+      <aside
+        id="global-navigation-drawer"
+        data-slot="navigation-drawer"
+        data-state={isOpen ? 'open' : 'closed'}
+        data-collapsed={isCollapsed ? 'true' : undefined}
+        className="navigation-drawer"
+        style={drawerStyle}
+        aria-label={common('navigation')}
       >
-        {/* Body */}
-        <Box
-          p={{ base: 4, md: isCollapsed ? 2 : 4 }}
-          pb={{
-            base: 'calc(1rem + env(safe-area-inset-bottom))',
-            md: isCollapsed ? 2 : 4,
-          }}
-        >
-          <Stack gap={3}>
-            {/* Nav sections */}
+        <div className="navigation-drawer-body">
+          <nav
+            className="navigation-sections"
+            aria-label={common('navigation')}
+          >
             {NAV_SECTIONS.map((section) => {
-              if (section.isVisible && !section.isVisible(ctx)) {
-                return null;
-              }
+              if (section.isVisible && !section.isVisible(context)) return null;
 
               return (
                 <Fragment key={section.key}>
-                  <Box>
-                    {!isCollapsed && (
-                      <SectionHeading>{section.title(t)}</SectionHeading>
-                    )}
-                    <Stack gap={2}>
+                  <section className="navigation-section">
+                    {!isCollapsed ? (
+                      <SectionHeading>
+                        {section.title(translators)}
+                      </SectionHeading>
+                    ) : null}
+                    <div className="navigation-section-items">
                       {section.items.map((item) => {
-                        if (item.isVisible && !item.isVisible(ctx)) {
+                        if (item.isVisible && !item.isVisible(context)) {
                           return null;
                         }
-
                         if ('component' in item) {
                           const ItemComponent = item.component;
                           return (
@@ -280,75 +271,63 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
                             />
                           );
                         }
-
                         return (
                           <SidebarNavItem
                             key={item.key}
-                            href={item.getHref(ctx)}
-                            label={item.label(t)}
+                            href={item.getHref(context)}
+                            label={item.label(translators)}
                             icon={item.icon}
-                            isActive={isNavLinkActive(item, pathname, ctx)}
+                            isActive={isNavLinkActive(item, pathname, context)}
                             isCollapsed={isCollapsed}
                             showFlame={item.showFlame}
                             onClose={onClose}
                           />
                         );
                       })}
-                    </Stack>
-                  </Box>
-                  <Separator />
+                    </div>
+                  </section>
+                  <hr className="navigation-separator" />
                 </Fragment>
               );
             })}
+          </nav>
 
-            {/* Language Switcher */}
+          <div className="navigation-utilities">
             <SwitcherSection
               title={common('language')}
               isCollapsed={isCollapsed}
             >
-              {(collapsed) => (
-                <LanguageSwitcher
-                  keepDrawerOpen={false}
-                  isCollapsed={collapsed}
-                />
-              )}
+              <LanguageSwitcher isCollapsed={isCollapsed} />
             </SwitcherSection>
 
-            {/* Theme Switcher */}
             <SwitcherSection title={common('theme')} isCollapsed={isCollapsed}>
-              {(collapsed) => <ThemeSwitcher isCollapsed={collapsed} />}
+              <ThemeSwitcher isCollapsed={isCollapsed} />
             </SwitcherSection>
+          </div>
 
-            {/* Footer */}
-            <Box pt={4}>
-              {/^\/tournament\/[^/]+/.test(pathname) &&
-                !isGuideWidgetVisible && (
-                  <TournamentGuideToggleButton isCollapsed={isCollapsed} />
-                )}
+          <footer className="navigation-footer">
+            {/\/tournament\/[^/]+/.test(pathname) && !isGuideWidgetVisible ? (
+              <div className="navigation-tournament-guide">
+                <TournamentGuideButton isCollapsed={isCollapsed} />
+              </div>
+            ) : null}
 
-              {showAuthActions && (
-                <AuthActions isCollapsed={isCollapsed} onClose={onClose} />
-              )}
+            {showAuthActions ? (
+              <AuthActions isCollapsed={isCollapsed} onClose={onClose} />
+            ) : null}
 
-              {!isCollapsed && (
-                <>
-                  <Text fontSize="xs" color="gray.500" textAlign="center">
-                    {`© ${new Date().getFullYear()} ${common('appName')}. All Rights Reserved!`}
-                  </Text>
-                  <Text
-                    fontSize="xs"
-                    color="gray.400"
-                    textAlign="center"
-                    mt={1}
-                  >
-                    {common('developedBy')}
-                  </Text>
-                </>
-              )}
-            </Box>
-          </Stack>
-        </Box>
-      </Box>
-    </>
+            {!isCollapsed ? (
+              <div className="navigation-copyright">
+                <p>
+                  © {new Date().getFullYear()} {common('appName')}.{' '}
+                  {home('copyright')}
+                </p>
+                <p>{common('developedBy')}</p>
+              </div>
+            ) : null}
+          </footer>
+        </div>
+      </aside>
+    </TooltipProvider>
   );
 }

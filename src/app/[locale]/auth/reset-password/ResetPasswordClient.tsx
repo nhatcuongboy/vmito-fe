@@ -1,27 +1,30 @@
 'use client';
 
-import { Button } from '@/components/ui/chakra-compat';
 import PublicRouteGuard from '@/components/guards/PublicRouteGuard';
 import MainLayout from '@/components/layout/MainLayout';
-import { PasswordInput } from '@/components/ui/password-input';
+import { Button } from '@/components/primitives/button';
 import { ROUTES } from '@/constants';
-import { useRouter } from '@/i18n/config';
+import { Link, useRouter } from '@/i18n/config';
 import { AuthService } from '@/lib/api/auth.service';
-import {
-  Box,
-  Field,
-  Heading,
-  Link,
-  Spinner,
-  Text,
-  VStack,
-} from '@chakra-ui/react';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useLocale, useTranslations } from 'next-intl';
+import { useTranslations } from 'next-intl';
 import { useSearchParams } from 'next/navigation';
 import { Suspense, useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
+import {
+  AuthAlert,
+  AuthCard,
+  AuthField,
+  AuthHeading,
+  AuthInlineLoadingState,
+  AuthLoadingState,
+  AuthPageContent,
+  AuthPasswordInput,
+  AuthSubmitButton,
+  authInputClassName,
+  authLinkClassName,
+} from '../components/AuthFormPrimitives';
 
 type TTranslate = (
   key: string,
@@ -47,7 +50,6 @@ type ResetPasswordFormData = z.infer<
 function ResetPasswordForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const locale = useLocale();
   const t = useTranslations('auth.resetPassword');
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
@@ -55,7 +57,6 @@ function ResetPasswordForm() {
   const [tokenError, setTokenError] = useState<string | null>(null);
   const [maskedEmail, setMaskedEmail] = useState<string | null>(null);
   const token = searchParams.get('token')?.trim() || '';
-
   const schema = useMemo(() => createResetPasswordSchema(t), [t]);
 
   useEffect(() => {
@@ -67,27 +68,21 @@ function ResetPasswordForm() {
     let isMounted = true;
     const verifyToken = async () => {
       try {
-        const res = await AuthService.verifyResetToken(token);
-        if (isMounted) {
-          if (res.valid) {
-            setMaskedEmail(res.maskedEmail);
-          } else {
-            setTokenError(t('invalidOrExpiredToken'));
-          }
-        }
-      } catch {
-        if (isMounted) {
+        const result = await AuthService.verifyResetToken(token);
+        if (!isMounted) return;
+        if (result.valid) {
+          setMaskedEmail(result.maskedEmail);
+        } else {
           setTokenError(t('invalidOrExpiredToken'));
         }
+      } catch {
+        if (isMounted) setTokenError(t('invalidOrExpiredToken'));
       } finally {
-        if (isMounted) {
-          setIsVerifying(false);
-        }
+        if (isMounted) setIsVerifying(false);
       }
     };
 
-    verifyToken();
-
+    void verifyToken();
     return () => {
       isMounted = false;
     };
@@ -99,23 +94,17 @@ function ResetPasswordForm() {
     formState: { errors, isSubmitting },
   } = useForm<ResetPasswordFormData>({
     resolver: zodResolver(schema),
-    defaultValues: {
-      newPassword: '',
-      confirmPassword: '',
-    },
+    defaultValues: { newPassword: '', confirmPassword: '' },
   });
 
   const onSubmit = async (data: ResetPasswordFormData) => {
     if (!token) return;
-
     setFormError(null);
-
     try {
       await AuthService.resetPassword({
         token,
         newPassword: data.newPassword,
       });
-
       setIsSubmitted(true);
     } catch (error: unknown) {
       const apiError = error as {
@@ -133,196 +122,124 @@ function ResetPasswordForm() {
         apiError.response?.status === 429
       ) {
         setFormError(t('tooManyRequests'));
-        return;
-      }
-
-      if (
+      } else if (
         apiError.response?.status === 400 ||
         apiError.response?.status === 401
       ) {
         setFormError(t('invalidOrExpiredToken'));
-        return;
+      } else {
+        setFormError(t('resetFailed'));
       }
-
-      setFormError(t('resetFailed'));
     }
   };
 
-  const goToSignIn = () => {
-    router.push(ROUTES.AUTH.SIGNIN);
-  };
+  const description = maskedEmail
+    ? t('descriptionWithEmail', { email: maskedEmail })
+    : t('description');
+  const goToSignIn = () => router.push(ROUTES.AUTH.SIGNIN);
+  const backButton = (
+    <Button className="w-full" onClick={goToSignIn}>
+      {t('backToSignIn')}
+    </Button>
+  );
+
+  let content;
+  if (isVerifying) {
+    content = <AuthInlineLoadingState />;
+  } else if (!token) {
+    content = (
+      <div className="auth-form-stack">
+        <AuthAlert variant="error">{t('missingToken')}</AuthAlert>
+        {backButton}
+      </div>
+    );
+  } else if (tokenError) {
+    content = (
+      <div className="space-y-4">
+        <AuthAlert variant="error">{tokenError}</AuthAlert>
+        {backButton}
+      </div>
+    );
+  } else if (isSubmitted) {
+    content = (
+      <div className="space-y-4">
+        <AuthAlert variant="success">
+          {maskedEmail
+            ? t('successMessageWithEmail', { email: maskedEmail })
+            : t('successMessage')}
+        </AuthAlert>
+        {backButton}
+      </div>
+    );
+  } else {
+    content = (
+      <form
+        onSubmit={handleSubmit(onSubmit)}
+        className="auth-form-stack"
+        noValidate
+      >
+        {formError ? <AuthAlert variant="error">{formError}</AuthAlert> : null}
+        <AuthField
+          id="reset-password"
+          label={t('newPassword')}
+          error={errors.newPassword?.message}
+          required
+        >
+          <AuthPasswordInput
+            {...register('newPassword')}
+            id="reset-password"
+            placeholder={t('newPasswordPlaceholder')}
+            autoComplete="new-password"
+            aria-invalid={!!errors.newPassword}
+            aria-describedby={
+              errors.newPassword ? 'reset-password-error' : undefined
+            }
+            className={authInputClassName}
+          />
+        </AuthField>
+        <AuthField
+          id="reset-confirm-password"
+          label={t('confirmPassword')}
+          error={errors.confirmPassword?.message}
+          required
+        >
+          <AuthPasswordInput
+            {...register('confirmPassword')}
+            id="reset-confirm-password"
+            placeholder={t('confirmPasswordPlaceholder')}
+            autoComplete="new-password"
+            aria-invalid={!!errors.confirmPassword}
+            aria-describedby={
+              errors.confirmPassword
+                ? 'reset-confirm-password-error'
+                : undefined
+            }
+            className={authInputClassName}
+          />
+        </AuthField>
+        <AuthSubmitButton type="submit" loading={isSubmitting}>
+          {t('submitButton')}
+        </AuthSubmitButton>
+      </form>
+    );
+  }
 
   return (
     <PublicRouteGuard redirectTo="/">
       <MainLayout title="Vmito">
-        <Box
-          display="flex"
-          alignItems="center"
-          justifyContent="center"
-          px={4}
-          py={8}
-          height="100%"
-        >
-          <Box
-            maxW="md"
-            w="full"
-            bg={{ base: 'white', _dark: 'gray.800' }}
-            p={8}
-            borderRadius="lg"
-            boxShadow="lg"
-            border="1px solid"
-            borderColor="border"
-          >
-            <VStack gap={6}>
-              <Box textAlign="center">
-                <Heading size="lg" color="green.600">
-                  {t('heading')}
-                </Heading>
-                <Text color="fg.muted" mt={2}>
-                  {maskedEmail
-                    ? t('descriptionWithEmail', { email: maskedEmail })
-                    : t('description')}
-                </Text>
-              </Box>
-
-              {isVerifying ? (
-                <VStack py={6} justifyContent="center" width="full">
-                  <Spinner size="lg" color="green.500" />
-                </VStack>
-              ) : !token ? (
-                <VStack gap={4} width="full">
-                  <Box
-                    bg={{ base: 'red.50', _dark: 'red.900/30' }}
-                    color={{ base: 'red.700', _dark: 'red.300' }}
-                    p={4}
-                    width="100%"
-                    borderRadius="md"
-                    border="1px solid"
-                    borderColor={{ base: 'red.200', _dark: 'red.800' }}
-                  >
-                    {t('missingToken')}
-                  </Box>
-                  <Button
-                    colorPalette="green"
-                    width="full"
-                    onClick={goToSignIn}
-                  >
-                    {t('backToSignIn')}
-                  </Button>
-                </VStack>
-              ) : tokenError ? (
-                <VStack gap={4} width="full">
-                  <Box
-                    bg={{ base: 'red.50', _dark: 'red.900/30' }}
-                    color={{ base: 'red.700', _dark: 'red.300' }}
-                    p={4}
-                    width="100%"
-                    borderRadius="md"
-                    border="1px solid"
-                    borderColor={{ base: 'red.200', _dark: 'red.800' }}
-                  >
-                    {tokenError}
-                  </Box>
-                  <Button
-                    colorPalette="green"
-                    width="full"
-                    onClick={goToSignIn}
-                  >
-                    {t('backToSignIn')}
-                  </Button>
-                </VStack>
-              ) : isSubmitted ? (
-                <VStack gap={4} width="full">
-                  <Box
-                    bg={{ base: 'green.50', _dark: 'green.900/30' }}
-                    color={{ base: 'green.700', _dark: 'green.300' }}
-                    p={4}
-                    width="100%"
-                    borderRadius="md"
-                    border="1px solid"
-                    borderColor={{ base: 'green.200', _dark: 'green.800' }}
-                  >
-                    {maskedEmail
-                      ? t('successMessageWithEmail', { email: maskedEmail })
-                      : t('successMessage')}
-                  </Box>
-                  <Button
-                    colorPalette="green"
-                    width="full"
-                    onClick={goToSignIn}
-                  >
-                    {t('backToSignIn')}
-                  </Button>
-                </VStack>
-              ) : (
-                <form
-                  onSubmit={handleSubmit(onSubmit)}
-                  style={{ width: '100%' }}
-                >
-                  <VStack gap={4}>
-                    {formError && (
-                      <Box
-                        bg={{ base: 'red.50', _dark: 'red.900/30' }}
-                        color={{ base: 'red.700', _dark: 'red.300' }}
-                        p={3}
-                        width="100%"
-                        borderRadius="md"
-                        border="1px solid"
-                        borderColor={{ base: 'red.200', _dark: 'red.800' }}
-                      >
-                        {formError}
-                      </Box>
-                    )}
-
-                    <Field.Root invalid={!!errors.newPassword}>
-                      <Field.Label>{t('newPassword')} *</Field.Label>
-                      <PasswordInput
-                        {...register('newPassword')}
-                        placeholder={t('newPasswordPlaceholder')}
-                        autoComplete="new-password"
-                      />
-                      <Field.ErrorText color="fg.error">
-                        {errors.newPassword?.message}
-                      </Field.ErrorText>
-                    </Field.Root>
-
-                    <Field.Root invalid={!!errors.confirmPassword}>
-                      <Field.Label>{t('confirmPassword')} *</Field.Label>
-                      <PasswordInput
-                        {...register('confirmPassword')}
-                        placeholder={t('confirmPasswordPlaceholder')}
-                        autoComplete="new-password"
-                      />
-                      <Field.ErrorText color="fg.error">
-                        {errors.confirmPassword?.message}
-                      </Field.ErrorText>
-                    </Field.Root>
-
-                    <Button
-                      type="submit"
-                      colorPalette="green"
-                      width="full"
-                      size="lg"
-                      loading={isSubmitting}
-                    >
-                      {t('submitButton')}
-                    </Button>
-                  </VStack>
-                </form>
-              )}
-
-              {!isSubmitted && token && !tokenError && (
-                <Link
-                  href={`/${locale}${ROUTES.AUTH.SIGNIN}`}
-                  color="green.600"
-                  fontWeight="semibold"
-                >
+        <AuthPageContent>
+          <AuthCard>
+            <AuthHeading title={t('heading')} description={description} />
+            {content}
+            {!isSubmitted && token && !tokenError ? (
+              <p className="auth-card-footer">
+                <Link href={ROUTES.AUTH.SIGNIN} className={authLinkClassName}>
                   {t('backToSignIn')}
                 </Link>
-              )}
-            </VStack>
-          </Box>
-        </Box>
+              </p>
+            ) : null}
+          </AuthCard>
+        </AuthPageContent>
       </MainLayout>
     </PublicRouteGuard>
   );
@@ -330,19 +247,7 @@ function ResetPasswordForm() {
 
 export default function ResetPasswordClient() {
   return (
-    <Suspense
-      fallback={
-        <Box
-          minH="100vh"
-          bg={{ base: 'gray.50', _dark: 'gray.950' }}
-          display="flex"
-          alignItems="center"
-          justifyContent="center"
-        >
-          <Spinner size="xl" color="green.500" />
-        </Box>
-      }
-    >
+    <Suspense fallback={<AuthLoadingState />}>
       <ResetPasswordForm />
     </Suspense>
   );
