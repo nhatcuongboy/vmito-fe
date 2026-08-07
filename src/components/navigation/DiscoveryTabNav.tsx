@@ -12,6 +12,7 @@ import { Flame, Heart } from 'lucide-react';
 import { useSearchParams } from 'next/navigation';
 import { useAuthStore, useAuthHydration } from '@/stores/useAuthStore';
 
+import { useFeatureFlag } from '@/stores/useFeatureFlagsStore';
 import { UnderlineTabs } from '../ui/UnderlineTabs';
 
 export function DiscoveryTabNav() {
@@ -21,6 +22,7 @@ export function DiscoveryTabNav() {
   const t = useTranslations('navigation');
   const { isAuthenticated } = useAuthStore();
   const isHydrated = useAuthHydration();
+  const classesFeatureEnabled = useFeatureFlag('CLASSES_FEATURE_ENABLED');
 
   const tabs = [
     {
@@ -41,7 +43,9 @@ export function DiscoveryTabNav() {
     },
     { id: ROUTES.BROWSE.VENUES.LIST, label: t('findVenues') },
     { id: ROUTES.CLUBS.BROWSE, label: t('findClubs') },
-    { id: ROUTES.CLASSES.BROWSE, label: t('findClasses') },
+    ...(classesFeatureEnabled
+      ? [{ id: ROUTES.CLASSES.BROWSE, label: t('findClasses') }]
+      : []),
     { id: ROUTES.BROWSE.TOURNAMENTS.LIST, label: t('findTournaments') },
   ];
 

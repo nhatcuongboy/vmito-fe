@@ -21,6 +21,10 @@ import { useCanAccessHostFeatures } from '@/hooks/useCanAccessHostFeatures';
 import { Link, usePathname } from '@/i18n/config';
 import { VenueRentalService } from '@/lib/api/venue-rental.service';
 import { useAuthStore } from '@/stores/useAuthStore';
+import {
+  useFeatureFlagsStore,
+  useFeatureFlag,
+} from '@/stores/useFeatureFlagsStore';
 import { useTournamentGuideVisibilityStore } from '@/stores/useTournamentGuideVisibilityStore';
 import { LogIn, UserPlus } from 'lucide-react';
 import { useTranslations } from 'next-intl';
@@ -199,11 +203,14 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
     return () => document.removeEventListener('keydown', handleEscape);
   }, [isOpen, onClose]);
 
+  const classesFeatureEnabled = useFeatureFlag('CLASSES_FEATURE_ENABLED');
+
   const context: NavContext = {
     user,
     isAuthenticated,
     canAccessHostFeatures,
     hasManagedVenues,
+    classesFeatureEnabled,
   };
   const translators: NavTranslators = { nav, common };
   const showAuthActions =

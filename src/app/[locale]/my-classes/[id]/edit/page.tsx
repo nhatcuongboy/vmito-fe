@@ -33,7 +33,7 @@ export default function EditClassPage({
     }
   };
   return (
-    <ProtectedRouteGuard>
+    <ProtectedRouteGuard featureFlag="CLASSES_FEATURE_ENABLED">
       <PageLayout
         title="Chỉnh sửa lớp học"
         showBackButton

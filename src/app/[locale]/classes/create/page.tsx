@@ -20,7 +20,7 @@ export default function CreateClassPage() {
     }
   };
   return (
-    <ProtectedRouteGuard>
+    <ProtectedRouteGuard featureFlag="CLASSES_FEATURE_ENABLED">
       <PageLayout title="Tạo lớp học" showBackButton backHref="/classes">
         <ClassForm
           onSubmit={submit}

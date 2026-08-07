@@ -31,7 +31,7 @@ export default function MyClassesPage() {
     await load();
   };
   return (
-    <ProtectedRouteGuard>
+    <ProtectedRouteGuard featureFlag="CLASSES_FEATURE_ENABLED">
       <PageLayout>
         <Stack gap="5">
           <HStack justify="space-between">

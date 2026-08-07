@@ -34,6 +34,7 @@ export interface NavContext {
   isAuthenticated: boolean;
   canAccessHostFeatures: boolean;
   hasManagedVenues: boolean;
+  classesFeatureEnabled: boolean;
 }
 
 type Translator = (key: string) => string;
@@ -124,6 +125,7 @@ export const NAV_SECTIONS: NavSectionConfig[] = [
         icon: BookOpen,
         label: (t) => t.nav('browseClasses'),
         getHref: () => ROUTES.CLASSES.BROWSE,
+        isVisible: (ctx) => ctx.classesFeatureEnabled,
       },
       {
         key: 'browseTournaments',
@@ -166,6 +168,7 @@ export const NAV_SECTIONS: NavSectionConfig[] = [
         icon: BookOpen,
         label: (t) => t.nav('myClasses'),
         getHref: () => ROUTES.CLASSES.MINE,
+        isVisible: (ctx) => ctx.classesFeatureEnabled,
       },
       {
         key: 'myRentals',

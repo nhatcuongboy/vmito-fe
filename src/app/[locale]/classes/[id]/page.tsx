@@ -6,6 +6,7 @@ import { ClassesService } from '@/lib/api/classes.service';
 import { DEFAULT_COVER_PHOTO } from '@/constants';
 import { stripHtml } from '@/utils/string-utils';
 import { IClass } from '@/types/class';
+import FeatureFlagGuard from '@/components/guards/FeatureFlagGuard';
 import ClassDetailActions from './ClassDetailActions';
 import ClubSocialLinks from '@/app/[locale]/clubs/[id]/components/ClubSocialLinks';
 
@@ -127,85 +128,89 @@ export default async function ClassDetailPage({
         }
       : null;
   return (
-    <>
+    <FeatureFlagGuard flag="CLASSES_FEATURE_ENABLED">
       <>
-        {jsonLd && (
-          <script
-            type="application/ld+json"
-            dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-          />
-        )}
-        {breadcrumb && (
-          <script
-            type="application/ld+json"
-            dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumb) }}
-          />
-        )}
-      </>
-      <PageLayout>
-        <Stack gap="6" maxW="960px" mx="auto">
-          <Image
-            src={item.coverPhoto || item.images?.[0] || DEFAULT_COVER_PHOTO}
-            alt={item.name}
-            w="full"
-            maxH="420px"
-            objectFit="cover"
-            borderRadius="xl"
-          />
-          <Box>
-            <HStack justify="space-between" align="start">
-              <Box>
-                <Text fontSize="3xl" fontWeight="bold">
-                  {item.name}
-                </Text>
-                <Text color="fg.muted">
-                  {item.sportType === 'PICKLEBALL' ? 'Pickleball' : 'Cầu lông'}{' '}
-                  · {location}
-                </Text>
-              </Box>
-              {item.status === 'CLOSED' && (
-                <Text color="red.500" fontWeight="bold">
-                  Đã đóng tuyển sinh
-                </Text>
-              )}
-            </HStack>
-          </Box>
-          <ClassDetailActions item={item} />
-          <ClubSocialLinks socialLinks={item.socialLinks || undefined} />
-          <Box>
-            <Text fontWeight="bold" mb="2">
-              Lịch học
-            </Text>
-            {item.schedules.map((schedule) => (
-              <Text
-                key={
-                  schedule.id || `${schedule.dayOfWeek}-${schedule.startTime}`
-                }
-              >
-                {days[schedule.dayOfWeek]}: {schedule.startTime} –{' '}
-                {schedule.endTime}
+        <>
+          {jsonLd && (
+            <script
+              type="application/ld+json"
+              dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+            />
+          )}
+          {breadcrumb && (
+            <script
+              type="application/ld+json"
+              dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumb) }}
+            />
+          )}
+        </>
+        <PageLayout>
+          <Stack gap="6" maxW="960px" mx="auto">
+            <Image
+              src={item.coverPhoto || item.images?.[0] || DEFAULT_COVER_PHOTO}
+              alt={item.name}
+              w="full"
+              maxH="420px"
+              objectFit="cover"
+              borderRadius="xl"
+            />
+            <Box>
+              <HStack justify="space-between" align="start">
+                <Box>
+                  <Text fontSize="3xl" fontWeight="bold">
+                    {item.name}
+                  </Text>
+                  <Text color="fg.muted">
+                    {item.sportType === 'PICKLEBALL'
+                      ? 'Pickleball'
+                      : 'Cầu lông'}{' '}
+                    · {location}
+                  </Text>
+                </Box>
+                {item.status === 'CLOSED' && (
+                  <Text color="red.500" fontWeight="bold">
+                    Đã đóng tuyển sinh
+                  </Text>
+                )}
+              </HStack>
+            </Box>
+            <ClassDetailActions item={item} />
+            <ClubSocialLinks socialLinks={item.socialLinks || undefined} />
+            <Box>
+              <Text fontWeight="bold" mb="2">
+                Lịch học
               </Text>
-            ))}
-          </Box>
-          <Box>
-            <Text fontWeight="bold" mb="2">
-              Giới thiệu lớp
-            </Text>
-            <Text whiteSpace="pre-wrap">
-              {stripHtml(item.description || 'Chưa có mô tả.')}
-            </Text>
-          </Box>
-          <Box>
-            <Text fontWeight="bold">Học phí</Text>
-            <Text>
-              {item.tuitionPeriod === 'CONTACT'
-                ? 'Liên hệ để biết học phí'
-                : `${(item.tuitionAmount || 0).toLocaleString('vi-VN')}đ`}
-              {item.tuitionNotes ? ` · ${item.tuitionNotes}` : ''}
-            </Text>
-          </Box>
-        </Stack>
-      </PageLayout>
-    </>
+              {item.schedules.map((schedule) => (
+                <Text
+                  key={
+                    schedule.id || `${schedule.dayOfWeek}-${schedule.startTime}`
+                  }
+                >
+                  {days[schedule.dayOfWeek]}: {schedule.startTime} –{' '}
+                  {schedule.endTime}
+                </Text>
+              ))}
+            </Box>
+            <Box>
+              <Text fontWeight="bold" mb="2">
+                Giới thiệu lớp
+              </Text>
+              <Text whiteSpace="pre-wrap">
+                {stripHtml(item.description || 'Chưa có mô tả.')}
+              </Text>
+            </Box>
+            <Box>
+              <Text fontWeight="bold">Học phí</Text>
+              <Text>
+                {item.tuitionPeriod === 'CONTACT'
+                  ? 'Liên hệ để biết học phí'
+                  : `${(item.tuitionAmount || 0).toLocaleString('vi-VN')}đ`}
+                {item.tuitionNotes ? ` · ${item.tuitionNotes}` : ''}
+              </Text>
+            </Box>
+          </Stack>
+        </PageLayout>
+      </>
+    </FeatureFlagGuard>
   );
 }

@@ -27,6 +27,7 @@ import {
   TOP_BAR_HEIGHT_MOBILE,
 } from '@/constants';
 import { useIsMainPage } from '@/hooks/useBottomNavVisibility';
+import { useFeatureFlag } from '@/stores/useFeatureFlagsStore';
 import { cn } from '@/lib/utils';
 
 interface PageLayoutProps
@@ -130,12 +131,13 @@ export default function PageLayout({
   const isMainPage = useIsMainPage();
   const variant = topBarVariant ?? (isMainPage ? 'main' : 'secondary');
   const pathname = usePathname();
+  const classesFeatureEnabled = useFeatureFlag('CLASSES_FEATURE_ENABLED');
 
   const isDiscoveryPage = [
     '/',
     ROUTES.BROWSE.VENUES.LIST,
     ROUTES.CLUBS.BROWSE,
-    ROUTES.CLASSES.BROWSE,
+    ...(classesFeatureEnabled ? [ROUTES.CLASSES.BROWSE] : []),
     ROUTES.BROWSE.TOURNAMENTS.LIST,
   ].some((path) => {
     const normalized =
