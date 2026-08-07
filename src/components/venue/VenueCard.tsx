@@ -36,8 +36,6 @@ import { normalizeImageUrl } from '@/lib/images/normalizeImageUrl';
 import { BROWSE_CARD_COVER_TRANSFORM } from '@/lib/images/coverTransforms';
 
 import { formatVenueName, getGoogleMapsUrl } from '@/utils';
-import { AppSportBadge } from '@/components/common/AppSportBadge';
-import { getVenueSportTypes } from '@/constants/sports';
 import { UserRole } from '@/lib/api/types';
 import {
   normalizePhoneForTel,
@@ -150,18 +148,9 @@ export default function VenueCard({
             fetchPriority={imagePriority ? 'high' : 'auto'}
           />
 
-          {/* Badges Overlay */}
-          <Box position="absolute" top={3} left={3}>
-            <HStack gap={2}>
-              {getVenueSportTypes(venue).map((sport) => (
-                <AppSportBadge
-                  key={sport}
-                  sportType={sport}
-                  variant="solid"
-                  iconOnly
-                />
-              ))}
-              {showAdminVerifiedBadge && (
+          {showAdminVerifiedBadge && (
+            <Box position="absolute" top={3} left={3}>
+              <HStack gap={2}>
                 <Box
                   bg="green.400"
                   color="white"
@@ -178,11 +167,11 @@ export default function VenueCard({
                   <BadgeCheck size={14} />
                   <Text>{t('verified')}</Text>
                 </Box>
-              )}
-            </HStack>
-          </Box>
+              </HStack>
+            </Box>
+          )}
 
-          {/* Distance badge — bottom-left, clear of the sport badges above */}
+          {/* Distance badge — bottom-left, clear of the verified badge above */}
           {venue.distance !== undefined && venue.distance !== null && (
             <Box position="absolute" bottom={3} left={3}>
               <Badge
@@ -353,18 +342,9 @@ export default function VenueCard({
           fetchPriority={imagePriority ? 'high' : 'auto'}
         />
 
-        {/* Badges Overlay */}
-        <Box position="absolute" top={3} left={3}>
-          <HStack gap={2}>
-            {getVenueSportTypes(venue).map((sport) => (
-              <AppSportBadge
-                key={sport}
-                sportType={sport}
-                variant="solid"
-                iconOnly
-              />
-            ))}
-            {showAdminVerifiedBadge && (
+        {showAdminVerifiedBadge && (
+          <Box position="absolute" top={3} left={3}>
+            <HStack gap={2}>
               <Badge
                 colorPalette="green"
                 variant="solid"
@@ -380,11 +360,11 @@ export default function VenueCard({
                 <BadgeCheck size={12} />
                 <Text fontSize="xs">{t('verified')}</Text>
               </Badge>
-            )}
-          </HStack>
-        </Box>
+            </HStack>
+          </Box>
+        )}
 
-        {/* Distance badge — bottom-left, clear of the sport badges above */}
+        {/* Distance badge — bottom-left, clear of the verified badge above */}
         {venue.distance !== undefined && venue.distance !== null && (
           <Box position="absolute" bottom={3} left={3}>
             <Badge

@@ -1,11 +1,10 @@
 'use client';
 
 import { memo } from 'react';
-import { Badge, HStack, Icon } from '@chakra-ui/react';
+import { Badge, Icon } from '@chakra-ui/react';
 import { Facebook } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { ISession } from '@/lib/api/types';
-import { AppSportBadge } from '@/components/common/AppSportBadge';
 import { FavoriteButton } from '@/components/favorites/FavoriteButton';
 import { SessionListCard } from './session-list-card/SessionListCard';
 import { SessionListCardHostRow } from './session-list-card/SessionListCardHostRow';
@@ -90,16 +89,7 @@ const SessionCardCompact = ({
       );
     })();
 
-    return (
-      <HStack gap={1}>
-        <AppSportBadge
-          sportType={session.sportType ?? session.venue?.sportType}
-          variant="solid"
-          iconOnly
-        />
-        {statusBadge}
-      </HStack>
-    );
+    return statusBadge;
   })();
 
   return (
