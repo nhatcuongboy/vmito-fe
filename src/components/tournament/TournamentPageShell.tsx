@@ -1034,12 +1034,11 @@ export default function TournamentPageShell({
           mobileIcon={topBarIcon}
           showBackButton={false}
           topBarVariant="main"
-          showTopBarMenuButton={false}
+          showTopBarMenuButton
           showTopBarLogo
           topBarLogoHref={appRootHref}
           centerTitle
           showTopBarAuthActions={false}
-          disableSidebarOffset
           rightContent={<TournamentTopBarMenu />}
           rootClassName="tournament-shell"
           topBarClassName="tournament-topbar"
@@ -1085,7 +1084,7 @@ export default function TournamentPageShell({
         mobileIcon={topBarIcon}
         showBackButton={false}
         topBarVariant="main"
-        showTopBarMenuButton={false}
+        showTopBarMenuButton
         showTopBarLogo={false}
         topBarLogoHref={appRootHref}
         showTopBarAuthActions={false}
@@ -1389,12 +1388,11 @@ export default function TournamentPageShell({
         mobileIcon={topBarIcon}
         showBackButton={false}
         topBarVariant="main"
-        showTopBarMenuButton={false}
+        showTopBarMenuButton
         showTopBarLogo
         topBarLogoHref={appRootHref}
         centerTitle
         showTopBarAuthActions={false}
-        disableSidebarOffset
         rightContent={<TournamentTopBarMenu />}
         rootClassName="tournament-shell"
         topBarClassName="tournament-topbar"

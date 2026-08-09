@@ -11,25 +11,37 @@ const SidebarContext = createContext<SidebarContextType | undefined>(undefined);
 
 const STORAGE_KEY = 'sidebar-collapsed';
 
-export function SidebarProvider({ children }: { children: React.ReactNode }) {
-  const [isCollapsed, setIsCollapsed] = useState(false);
-  const [isHydrated, setIsHydrated] = useState(false);
+interface SidebarProviderProps {
+  children: React.ReactNode;
+  defaultCollapsed?: boolean;
+  persistPreference?: boolean;
+}
+
+export function SidebarProvider({
+  children,
+  defaultCollapsed = false,
+  persistPreference = true,
+}: SidebarProviderProps) {
+  const [isCollapsed, setIsCollapsed] = useState(defaultCollapsed);
+  const [isHydrated, setIsHydrated] = useState(!persistPreference);
 
   // Load initial state from localStorage after hydration
   useEffect(() => {
+    if (!persistPreference) return;
+
     const stored = localStorage.getItem(STORAGE_KEY);
     if (stored !== null) {
       setIsCollapsed(stored === 'true');
     }
     setIsHydrated(true);
-  }, []);
+  }, [persistPreference]);
 
   // Save state to localStorage whenever it changes
   useEffect(() => {
-    if (isHydrated) {
+    if (persistPreference && isHydrated) {
       localStorage.setItem(STORAGE_KEY, String(isCollapsed));
     }
-  }, [isCollapsed, isHydrated]);
+  }, [isCollapsed, isHydrated, persistPreference]);
 
   const toggleCollapse = () => {
     setIsCollapsed((prev) => !prev);
