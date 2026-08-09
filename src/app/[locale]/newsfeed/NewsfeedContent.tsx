@@ -17,6 +17,7 @@ import { postsService } from '@/lib/api/posts.service';
 import type { Post } from '@/types/post';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { toaster } from '@/components/ui/toaster';
+import NewsfeedDiscoveryRail from '@/components/newsfeed/NewsfeedDiscoveryRail';
 
 const POSTS_PER_PAGE = 10;
 
@@ -32,6 +33,9 @@ export default function NewsfeedContent() {
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [hasError, setHasError] = useState(false);
+  const [hasDiscoveryContent, setHasDiscoveryContent] = useState<
+    boolean | null
+  >(null);
   const authorName = currentUser?.name || currentUser?.email || 'User';
   const firstName = authorName.split(' ')[0] || authorName;
 
@@ -96,6 +100,10 @@ export default function NewsfeedContent() {
     setPosts((currentPosts) => [newPost, ...currentPosts]);
   }, []);
 
+  const handleDiscoveryAvailability = useCallback((hasContent: boolean) => {
+    setHasDiscoveryContent(hasContent);
+  }, []);
+
   const sentinelRef = useInfiniteScroll({
     hasMore,
     isLoading: isLoading || isLoadingMore,
@@ -103,145 +111,168 @@ export default function NewsfeedContent() {
   });
 
   return (
-    <PageLayout title={navigationT('newsfeed')} maxW="container.md">
+    <PageLayout title={navigationT('newsfeed')} maxW="1112px">
       <PullToRefresh onRefresh={refreshPosts}>
-        <Box maxW="720px" mx="auto" w="full">
-          <Box
-            bg={{ base: 'white', _dark: 'gray.800' }}
-            borderWidth="1px"
-            borderColor={{ base: 'gray.200', _dark: 'whiteAlpha.200' }}
-            borderRadius="2xl"
-            p={{ base: 3, md: 4 }}
-            mb={4}
-            boxShadow="sm"
-          >
-            <Flex align="center" gap={3}>
-              <PostAvatar
-                name={authorName}
-                image={currentUser?.image}
-                size={44}
-                bordered
-              />
-              <Box
-                role="button"
-                tabIndex={0}
-                onClick={() => setIsCreateOpen(true)}
-                display="flex"
-                h={11}
-                minW={0}
-                flex={1}
-                alignItems="center"
-                borderRadius="full"
-                bg="gray.100"
-                _dark={{ bg: 'gray.700', _hover: { bg: 'gray.600' } }}
-                pl={6}
-                pr={4}
-                textAlign="left"
-                transition="all 0.2s"
-                _hover={{ bg: 'gray.200' }}
-                _focus={{ outline: 'none' }}
-                _focusVisible={{
-                  outline: 'none',
-                  ring: 2,
-                  ringColor: 'green.500',
-                  ringOffset: 2,
-                }}
-                aria-label={t('createPost')}
-                className="group"
-              >
-                <Text
-                  as="span"
+        <div
+          data-slot="newsfeed-discovery-layout"
+          className={`mx-auto w-full max-w-[720px] ${
+            hasDiscoveryContent === false
+              ? ''
+              : 'min-[1440px]:grid min-[1440px]:max-w-[1064px] min-[1440px]:grid-cols-[minmax(0,720px)_320px] min-[1440px]:items-start min-[1440px]:gap-6'
+          }`}
+        >
+          <Box data-slot="newsfeed-feed-column" minW={0} maxW="720px" w="full">
+            <Box
+              bg={{ base: 'white', _dark: 'gray.800' }}
+              borderWidth="1px"
+              borderColor={{ base: 'gray.200', _dark: 'whiteAlpha.200' }}
+              borderRadius="2xl"
+              p={{ base: 3, md: 4 }}
+              mb={4}
+              boxShadow="sm"
+            >
+              <Flex align="center" gap={3}>
+                <PostAvatar
+                  name={authorName}
+                  image={currentUser?.image}
+                  size={44}
+                  bordered
+                />
+                <Box
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => setIsCreateOpen(true)}
+                  display="flex"
+                  h={11}
                   minW={0}
-                  truncate
-                  fontSize="md"
-                  color="gray.500"
-                  _dark={{
-                    color: 'gray.300',
-                    '.group:hover &': { color: 'white' },
+                  flex={1}
+                  alignItems="center"
+                  borderRadius="full"
+                  bg="gray.100"
+                  _dark={{ bg: 'gray.700', _hover: { bg: 'gray.600' } }}
+                  pl={6}
+                  pr={4}
+                  textAlign="left"
+                  transition="all 0.2s"
+                  _hover={{ bg: 'gray.200' }}
+                  _focus={{ outline: 'none' }}
+                  _focusVisible={{
+                    outline: 'none',
+                    ring: 2,
+                    ringColor: 'green.500',
+                    ringOffset: 2,
                   }}
-                  css={{
-                    '.group:hover &': {
-                      color: 'var(--chakra-colors-gray-600)',
-                    },
-                  }}
-                  transition="color 0.2s"
+                  aria-label={t('createPost')}
+                  className="group"
                 >
-                  {t('composerPlaceholderWithName', { name: firstName })}
-                </Text>
-              </Box>
-            </Flex>
+                  <Text
+                    as="span"
+                    minW={0}
+                    truncate
+                    fontSize="md"
+                    color="gray.500"
+                    _dark={{
+                      color: 'gray.300',
+                      '.group:hover &': { color: 'white' },
+                    }}
+                    css={{
+                      '.group:hover &': {
+                        color: 'var(--chakra-colors-gray-600)',
+                      },
+                    }}
+                    transition="color 0.2s"
+                  >
+                    {t('composerPlaceholderWithName', { name: firstName })}
+                  </Text>
+                </Box>
+              </Flex>
+            </Box>
+
+            {isLoading ? (
+              <NewsfeedSkeleton />
+            ) : hasError && posts.length === 0 ? (
+              <AppEmptyState
+                title={t('loadPostsError')}
+                description={t('retryDescription')}
+                actions={
+                  <Button
+                    onClick={refreshPosts}
+                    leftIcon={<RefreshCcw size={16} />}
+                  >
+                    {t('retry')}
+                  </Button>
+                }
+              />
+            ) : posts.length === 0 ? (
+              <AppEmptyState
+                title={t('noPosts')}
+                description={t('beFirstToShare')}
+                actions={
+                  <Button
+                    onClick={() => setIsCreateOpen(true)}
+                    leftIcon={<Plus size={16} />}
+                  >
+                    {t('createPost')}
+                  </Button>
+                }
+              />
+            ) : (
+              <VStack gap={5} align="stretch">
+                {posts.map((post) => (
+                  <PostCard
+                    key={post.id}
+                    post={post}
+                    currentUserId={currentUserId}
+                    onPostUpdate={refreshPosts}
+                    onPostDeleted={handlePostDeleted}
+                    onPostShared={handlePostShared}
+                  />
+                ))}
+
+                {/* Infinite scroll sentinel */}
+                {hasMore && !hasError && (
+                  <Flex ref={sentinelRef} justify="center" py={3}>
+                    {isLoadingMore && <Spinner size="sm" color="green.500" />}
+                  </Flex>
+                )}
+
+                {/* Manual retry fallback when loading the next page failed */}
+                {hasMore && hasError && (
+                  <Button
+                    variant="ghost"
+                    colorPalette="green"
+                    borderRadius="full"
+                    onClick={() => loadPosts(page + 1, true)}
+                    loading={isLoadingMore}
+                    disabled={isLoadingMore}
+                  >
+                    {isLoadingMore ? t('loading') : t('loadMore')}
+                  </Button>
+                )}
+              </VStack>
+            )}
+
+            {!isLoading && hasError && posts.length > 0 && (
+              <Text textAlign="center" mt={4} color="red.500" fontSize="sm">
+                {t('loadMoreError')}
+              </Text>
+            )}
           </Box>
 
-          {isLoading ? (
-            <NewsfeedSkeleton />
-          ) : hasError && posts.length === 0 ? (
-            <AppEmptyState
-              title={t('loadPostsError')}
-              description={t('retryDescription')}
-              actions={
-                <Button
-                  onClick={refreshPosts}
-                  leftIcon={<RefreshCcw size={16} />}
-                >
-                  {t('retry')}
-                </Button>
-              }
+          <aside
+            data-slot="newsfeed-discovery-rail"
+            aria-label={t('discoveryRail.ariaLabel')}
+            className={`${
+              hasDiscoveryContent === false
+                ? 'hidden'
+                : 'hidden min-[1440px]:block'
+            } sticky top-[72px] self-start`}
+          >
+            <NewsfeedDiscoveryRail
+              onAvailabilityChange={handleDiscoveryAvailability}
             />
-          ) : posts.length === 0 ? (
-            <AppEmptyState
-              title={t('noPosts')}
-              description={t('beFirstToShare')}
-              actions={
-                <Button
-                  onClick={() => setIsCreateOpen(true)}
-                  leftIcon={<Plus size={16} />}
-                >
-                  {t('createPost')}
-                </Button>
-              }
-            />
-          ) : (
-            <VStack gap={5} align="stretch">
-              {posts.map((post) => (
-                <PostCard
-                  key={post.id}
-                  post={post}
-                  currentUserId={currentUserId}
-                  onPostUpdate={refreshPosts}
-                  onPostDeleted={handlePostDeleted}
-                  onPostShared={handlePostShared}
-                />
-              ))}
-
-              {/* Infinite scroll sentinel */}
-              {hasMore && !hasError && (
-                <Flex ref={sentinelRef} justify="center" py={3}>
-                  {isLoadingMore && <Spinner size="sm" color="green.500" />}
-                </Flex>
-              )}
-
-              {/* Manual retry fallback when loading the next page failed */}
-              {hasMore && hasError && (
-                <Button
-                  variant="ghost"
-                  colorPalette="green"
-                  borderRadius="full"
-                  onClick={() => loadPosts(page + 1, true)}
-                  loading={isLoadingMore}
-                  disabled={isLoadingMore}
-                >
-                  {isLoadingMore ? t('loading') : t('loadMore')}
-                </Button>
-              )}
-            </VStack>
-          )}
-
-          {!isLoading && hasError && posts.length > 0 && (
-            <Text textAlign="center" mt={4} color="red.500" fontSize="sm">
-              {t('loadMoreError')}
-            </Text>
-          )}
-        </Box>
+          </aside>
+        </div>
       </PullToRefresh>
 
       <CreatePostModal
