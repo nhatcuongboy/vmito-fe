@@ -2,7 +2,6 @@
 
 import { useMemo, useState } from 'react';
 import {
-  Avatar,
   Box,
   Button,
   Flex,
@@ -36,6 +35,7 @@ import { getFullSizeAvatarUrl } from '@/lib/utils/image';
 import { useImageUpload } from '@/hooks/useImageUpload';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { DEFAULT_COVER_PHOTO } from '@/constants';
+import { UserAvatar } from '@/components/common/UserAvatar';
 
 const formatDate = (
   input: Date | string | undefined,
@@ -410,14 +410,11 @@ export default function UserProfileHeader({
       {/* Centered avatar overlapping the cover, Facebook-style */}
       <Flex direction="column" align="center" px={5}>
         <Box position="relative" mt="-48px" zIndex={1}>
-          <Avatar.Root
-            w="112px"
-            h="112px"
-            borderRadius="full"
+          <UserAvatar
+            name={displayName}
+            image={avatarUrl}
+            size="112px"
             borderWidth="4px"
-            borderColor="white"
-            bg="gray.100"
-            _dark={{ borderColor: 'gray.800', bg: 'gray.700' }}
             cursor={avatarUrl ? 'pointer' : 'default'}
             onClick={() => {
               if (avatarUrl && !avatar.isUploading)
@@ -425,12 +422,7 @@ export default function UserProfileHeader({
             }}
             _hover={avatarUrl ? { opacity: 0.9 } : undefined}
             transition="opacity 0.2s"
-          >
-            <Avatar.Fallback name={displayName}>
-              <User size={40} />
-            </Avatar.Fallback>
-            {avatarUrl && <Avatar.Image src={avatarUrl} />}
-          </Avatar.Root>
+          />
 
           {avatar.isUploading && (
             <Flex

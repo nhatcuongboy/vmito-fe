@@ -26,7 +26,7 @@ const formatSessionTime = (
 };
 
 interface ISessionPreviewCardProps {
-  session: ISession;
+  session: ISession & { availableSlots?: number };
 }
 
 export const SessionPreviewCard = ({ session }: ISessionPreviewCardProps) => {
@@ -35,7 +35,10 @@ export const SessionPreviewCard = ({ session }: ISessionPreviewCardProps) => {
 
   const maxPlayers = session.numberOfCourts * session.maxPlayersPerCourt;
   const approvedCount = session._count?.players ?? 0;
-  const availableSlots = Math.max(maxPlayers - approvedCount, 0);
+  const availableSlots = Math.max(
+    0,
+    session.availableSlots ?? maxPlayers - approvedCount
+  );
 
   const locationName =
     session.venue?.name || session.customLocationName || session.location;

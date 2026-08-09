@@ -178,7 +178,7 @@ const SessionPlayersTab: React.FC<SessionPlayersTabProps> = ({
 
   // Internal sub-tab state (used when no external control is provided)
   const [internalSubTab, setInternalSubTab] =
-    React.useState<PlayersSubTab>('grid');
+    React.useState<PlayersSubTab>('list');
 
   // Use external sub-tab if provided, otherwise use internal state
   const subTab = externalSubTab ?? internalSubTab;
@@ -274,7 +274,7 @@ const SessionPlayersTab: React.FC<SessionPlayersTabProps> = ({
           totalCount={approvedPlayers.length}
         />
 
-        {/* Sub-tabs: Grid / List — aligned right */}
+        {/* Sub-tabs: List / Grid — aligned right */}
         <HStack
           bg="bg.muted"
           _dark={{ bg: 'gray.700' }}
@@ -284,21 +284,21 @@ const SessionPlayersTab: React.FC<SessionPlayersTabProps> = ({
         >
           <IconButton
             size="sm"
-            aria-label={t('playersTab.grid')}
-            onClick={() => setSubTab('grid')}
-            variant={subTab === 'grid' ? 'solid' : 'ghost'}
-            colorPalette={subTab === 'grid' ? 'green' : 'gray'}
-            borderRadius="md"
-            icon={<LayoutGrid size={16} />}
-          />
-          <IconButton
-            size="sm"
             aria-label={t('playersTab.list')}
             onClick={() => setSubTab('list')}
             variant={subTab === 'list' ? 'solid' : 'ghost'}
             colorPalette={subTab === 'list' ? 'green' : 'gray'}
             borderRadius="md"
             icon={<List size={16} />}
+          />
+          <IconButton
+            size="sm"
+            aria-label={t('playersTab.grid')}
+            onClick={() => setSubTab('grid')}
+            variant={subTab === 'grid' ? 'solid' : 'ghost'}
+            colorPalette={subTab === 'grid' ? 'green' : 'gray'}
+            borderRadius="md"
+            icon={<LayoutGrid size={16} />}
           />
         </HStack>
       </Flex>

@@ -83,10 +83,10 @@ export function PostAvatar({
     return circle;
   }
 
-  // Newsfeed uses a gradient with a gap; compact surfaces can use a solid ring.
+  // A subtle 1px separation keeps the coloured ring legible without making
+  // the image look undersized inside it.
   const ringWidth = Math.max(2, Math.round(size * 0.06));
-  const gapWidth =
-    ringVariant === 'gradient' ? Math.max(2, Math.round(size * 0.045)) : 0;
+  const gapWidth = ringVariant === 'gradient' ? 1 : 0;
   const colors =
     RING_GRADIENTS[hashString(name || '?') % RING_GRADIENTS.length];
   const ringBackground =

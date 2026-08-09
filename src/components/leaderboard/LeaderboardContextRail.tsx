@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState, useSyncExternalStore } from 'react';
-import { Avatar, Skeleton } from '@chakra-ui/react';
+import { Skeleton } from '@chakra-ui/react';
 import { CircleHelp, Swords, Trophy } from 'lucide-react';
 import { useFormatter, useTranslations } from 'next-intl';
 import { Link } from '@/i18n/config';
@@ -12,6 +12,8 @@ import type {
   TLeaderboardPeriod,
 } from '@/lib/api/ranking.service';
 import { RankingService } from '@/lib/api/ranking.service';
+import { UserPreviewHoverCard } from '@/components/preview-cards/UserPreviewHoverCard';
+import { UserAvatar } from '@/components/common/UserAvatar';
 import TierBadge, { TIER_COLORS } from './TierBadge';
 import PointsRulesModal from './PointsRulesModal';
 import {
@@ -125,10 +127,14 @@ function PersonalProgressCard({
       </h2>
 
       <div className="mt-3 flex items-center gap-3">
-        <Avatar.Root size="lg" flexShrink={0}>
-          <Avatar.Fallback name={user.name ?? ''} />
-          {user.image ? <Avatar.Image src={user.image} /> : null}
-        </Avatar.Root>
+        <UserPreviewHoverCard userId={user.id}>
+          <Link
+            href={ROUTES.USER.PROFILE(user.id)}
+            className="shrink-0 rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500"
+          >
+            <UserAvatar name={user.name} image={user.image} size="48px" />
+          </Link>
+        </UserPreviewHoverCard>
         <div className="min-w-0 flex-1">
           <div className="truncate text-sm font-semibold text-gray-900 dark:text-gray-50">
             {user.name}

@@ -1,12 +1,16 @@
 'use client';
 
-import { Avatar, Box, Flex, Text, VStack } from '@chakra-ui/react';
+import { Box, Flex, Text, VStack } from '@chakra-ui/react';
 import { motion } from 'framer-motion';
 import { useTranslations } from 'next-intl';
 import {
   ILeaderboardEntry,
   TLeaderboardPeriod,
 } from '@/lib/api/ranking.service';
+import { UserPreviewHoverCard } from '@/components/preview-cards/UserPreviewHoverCard';
+import { Link } from '@/i18n/config';
+import { ROUTES } from '@/constants/routes';
+import { UserAvatar } from '@/components/common/UserAvatar';
 import TierBadge from './TierBadge';
 
 /** Position medals — deliberately unrelated to the account tier colours. */
@@ -55,49 +59,62 @@ export default function PodiumCard({
         transition="transform 0.2s"
         _hover={{ transform: 'translateY(-2px)' }}
       >
-        <Box position="relative">
-          <Avatar.Root
-            width={avatarSize}
-            height={avatarSize}
-            borderWidth="3px"
-            borderColor={medal.ring}
-          >
-            <Avatar.Fallback name={entry.user.name ?? ''} />
-            {entry.user.image && <Avatar.Image src={entry.user.image} />}
-          </Avatar.Root>
-          <Flex
-            position="absolute"
-            bottom="-6px"
-            left="50%"
-            transform="translateX(-50%)"
-            align="center"
-            justify="center"
-            minW="24px"
-            h="24px"
-            px={1.5}
-            borderRadius="full"
-            bg={medal.bg}
-            color="white"
-            fontSize="xs"
-            fontWeight="800"
-            borderWidth="2px"
-            borderColor="bg.panel"
-          >
-            {entry.rank}
-          </Flex>
-        </Box>
+        <VStack gap={1.5} maxW="100%">
+          <Box position="relative">
+            <UserPreviewHoverCard userId={entry.user.id}>
+              <Link
+                href={ROUTES.USER.PROFILE(entry.user.id)}
+                className="block rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500"
+              >
+                <UserAvatar
+                  name={entry.user.name}
+                  image={entry.user.image}
+                  size={avatarSize}
+                  borderWidth="3px"
+                  borderColor={medal.ring}
+                />
+              </Link>
+            </UserPreviewHoverCard>
+            <Flex
+              position="absolute"
+              bottom="-6px"
+              left="50%"
+              transform="translateX(-50%)"
+              align="center"
+              justify="center"
+              minW="24px"
+              h="24px"
+              px={1.5}
+              borderRadius="full"
+              bg={medal.bg}
+              color="white"
+              fontSize="xs"
+              fontWeight="800"
+              borderWidth="2px"
+              borderColor="bg.panel"
+            >
+              {entry.rank}
+            </Flex>
+          </Box>
 
-        <Box minH="40px" maxW="100%" pt={1} display="flex" alignItems="center">
-          <Text
-            fontSize="sm"
-            fontWeight="600"
-            textAlign="center"
-            lineClamp={2}
-            title={entry.user.name ?? ''}
+          <Box
+            minH="40px"
+            maxW="100%"
+            pt={1}
+            display="flex"
+            alignItems="center"
           >
-            {entry.user.name}
-          </Text>
-        </Box>
+            <Text
+              fontSize="sm"
+              fontWeight="600"
+              textAlign="center"
+              lineClamp={2}
+              title={entry.user.name ?? ''}
+            >
+              {entry.user.name}
+            </Text>
+          </Box>
+        </VStack>
 
         <Flex align="baseline" gap={1}>
           <Text fontSize={isChampion ? '2xl' : 'xl'} fontWeight="800">
