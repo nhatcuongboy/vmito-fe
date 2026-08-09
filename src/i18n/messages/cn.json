@@ -7853,6 +7853,35 @@
       "calculate": "无法计算价格，请检查信息后重试。"
     }
   },
+  "previewCards": {
+    "slotsAvailable": "{count, plural, =0 {已满} other {剩余 # 个名额}}",
+    "verified": "已认证",
+    "courtsCount": "{count} 个球场",
+    "distanceKm": "{distance} 公里",
+    "membersCount": "{count} 名成员",
+    "joinPolicyOpen": "开放",
+    "joinPolicyApproval": "需审批",
+    "joinPolicyInvite": "仅限邀请",
+    "playersCount": "{count} 名选手",
+    "tournamentStatus": {
+      "PREPARING": "准备中",
+      "IN_PROGRESS": "进行中",
+      "FINISHED": "已结束",
+      "CANCELLED": "已取消"
+    },
+    "contactTuition": "联系咨询",
+    "tuitionPerSession": "/ 次",
+    "tuitionMonthly": "/ 月",
+    "tuitionCourse": "/ 期",
+    "noLocation": "地点待定",
+    "schedulePending": "时间待定",
+    "genderMale": "男",
+    "genderFemale": "女",
+    "genderOther": "其他",
+    "genderPreferNot": "不愿透露",
+    "joinedSessions": "已参加 {count} 场",
+    "unknownUser": "未知用户"
+  },
   "productTour": {
     "tours": {
       "createSession": {
