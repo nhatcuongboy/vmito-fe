@@ -23,19 +23,21 @@ export function TournamentCardSkeleton() {
       borderWidth="1px"
       borderColor="border.subtle"
       display="flex"
-      flexDirection={{ base: 'row', md: 'column' }}
+      flexDirection={{ base: 'column', sm: 'row', md: 'column' }}
+      minH={{ base: 'auto', sm: '168px', md: 'auto' }}
     >
       <Box
         flexShrink={0}
-        w={{ base: '120px', md: 'auto' }}
-        aspectRatio={{ base: 'auto', md: 16 / 9 }}
+        w={{ base: '100%', sm: '32%', md: 'auto' }}
+        minW={{ base: 0, sm: '150px', md: 0 }}
+        h={{ base: '140px', sm: 'auto', md: '140px' }}
       >
         <Skeleton height="100%" width="100%" />
       </Box>
       <VStack
         align="stretch"
-        gap={{ base: 1, md: 1.5 }}
-        p={{ base: 2.5, md: 3 }}
+        gap={{ base: 1.5, md: 2 }}
+        p={{ base: 3, md: 4 }}
         flex="1"
       >
         <Skeleton height="14px" width="55%" borderRadius="md" />

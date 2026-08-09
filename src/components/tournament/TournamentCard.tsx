@@ -1,13 +1,10 @@
 'use client';
 
+import { AppSportBadge } from '@/components/common/AppSportBadge';
 import { FavoriteButton } from '@/components/favorites/FavoriteButton';
 import { resolveTournamentStatusBadge } from '@/components/tournament/tournamentStatusBadge';
 import { Link } from '@/i18n/config';
-import {
-  SportType,
-  Tournament,
-  TournamentCategorySummary,
-} from '@/lib/api/types';
+import { Tournament, TournamentCategorySummary } from '@/lib/api/types';
 import { TOURNAMENT_COVER_TRANSFORM } from '@/lib/images/coverTransforms';
 import { normalizeImageUrl } from '@/lib/images/normalizeImageUrl';
 import { getPrimaryVenueDisplay } from '@/utils';
@@ -17,7 +14,7 @@ import { useLocale, useTranslations } from 'next-intl';
 import { memo } from 'react';
 
 /** Chips beyond this are collapsed into a "+N" counter. */
-const MAX_CATEGORY_CHIPS = 2;
+const MAX_CATEGORY_CHIPS = 1;
 
 const isSameCalendarDay = (first: Date, second: Date) =>
   first.getFullYear() === second.getFullYear() &&
@@ -27,25 +24,23 @@ const isSameCalendarDay = (first: Date, second: Date) =>
 const formatDateRange = (startDate: Date, endDate: Date, locale: string) => {
   const start = new Date(startDate);
   const end = new Date(endDate);
-  const fullFormatter = new Intl.DateTimeFormat(locale, {
+  const singleDayFormatter = new Intl.DateTimeFormat(locale, {
     weekday: 'long',
     month: 'long',
     day: 'numeric',
     year: 'numeric',
   });
-  const shortFormatter = new Intl.DateTimeFormat(locale, {
-    weekday: 'long',
+  if (isSameCalendarDay(start, end)) return singleDayFormatter.format(start);
+
+  // formatRange automatically removes repeated month/year segments and keeps
+  // punctuation/order correct for every supported locale. Omitting weekdays
+  // keeps multi-day events compact enough for browse cards.
+  const rangeFormatter = new Intl.DateTimeFormat(locale, {
     month: 'long',
     day: 'numeric',
+    year: 'numeric',
   });
-  if (isSameCalendarDay(start, end)) return fullFormatter.format(start);
-  if (
-    start.getMonth() === end.getMonth() &&
-    start.getFullYear() === end.getFullYear()
-  ) {
-    return `${shortFormatter.format(start)} - ${fullFormatter.format(end)}`;
-  }
-  return `${fullFormatter.format(start)} - ${fullFormatter.format(end)}`;
+  return rangeFormatter.formatRange(start, end);
 };
 
 const getLocationText = (tournament: Tournament) => {
@@ -54,14 +49,14 @@ const getLocationText = (tournament: Tournament) => {
   const parts: string[] = [];
   if (venue.name) {
     parts.push(venue.name);
-    const district = venue.newDistrict || venue.district;
     const city = venue.newCity || venue.city;
-    if (district) parts.push(district);
-    if (city && city !== district) parts.push(city);
+    const district = venue.newDistrict || venue.district;
+    if (city) parts.push(city);
+    else if (district) parts.push(district);
   } else if (venue.address) {
     parts.push(venue.address);
   }
-  return parts.filter(Boolean).join(', ') || null;
+  return parts.filter(Boolean).join(' · ') || null;
 };
 
 const getCoverImage = (tournament: Tournament) => {
@@ -81,11 +76,10 @@ interface TournamentCardProps {
 
 /**
  * Browse-page card for a tournament.
- * Mobile: horizontal row (square poster left, info right) so several fit on
- * screen; md+: vertical card with a 16:9 poster — tournament banners are
- * banner-shaped, and a fixed pixel height letterboxed them badly in the wider
- * grid columns. Mirrors SessionCardCompact's chrome so the two browse
- * surfaces read as one system.
+ * Narrow mobile and md+: vertical card with a compact 140px cover matching
+ * ClubCard. sm-only uses a horizontal row whose cover fills the row height.
+ * Mirrors SessionCardCompact's chrome so the browse surfaces read as one
+ * system.
  */
 const TournamentCard = ({
   tournament,
@@ -102,9 +96,12 @@ const TournamentCard = ({
   // The browse list only selects id/name/type on each category.
   const categories = (tournament.categories ??
     []) as TournamentCategorySummary[];
-  const visibleCategories = categories.slice(0, MAX_CATEGORY_CHIPS);
-  const hiddenCategoryCount = categories.length - visibleCategories.length;
   const categoryCount = tournament._count?.categories ?? categories.length;
+  const visibleCategories = categories.slice(0, MAX_CATEGORY_CHIPS);
+  const hiddenCategoryCount = Math.max(
+    categoryCount - visibleCategories.length,
+    categories.length - visibleCategories.length
+  );
 
   const pairCount = tournament._count?.pairs ?? 0;
   const playerCount = tournament._count?.players ?? 0;
@@ -135,6 +132,11 @@ const TournamentCard = ({
       w="100%"
       transition="transform 0.15s ease, opacity 0.15s ease"
       _active={{ transform: 'scale(0.98)', opacity: 0.95 }}
+      css={{
+        '@media (prefers-reduced-motion: reduce)': {
+          transition: 'none',
+        },
+      }}
     >
       <Box
         role="group"
@@ -152,8 +154,13 @@ const TournamentCard = ({
             '0 8px 16px rgba(23, 154, 59, 0.12), 0 4px 12px rgba(0, 0, 0, 0.08)',
           borderColor: 'green.200',
         }}
+        _focusWithin={{
+          borderColor: 'green.500',
+          boxShadow: '0 0 0 3px rgba(23, 154, 59, 0.2)',
+        }}
         display="flex"
-        flexDirection={{ base: 'row', md: 'column' }}
+        flexDirection={{ base: 'column', sm: 'row', md: 'column' }}
+        minH={{ base: 'auto', sm: '168px', md: 'auto' }}
         height="100%"
         cursor="pointer"
       >
@@ -175,26 +182,48 @@ const TournamentCard = ({
           position="relative"
           overflow="hidden"
           flexShrink={0}
-          w={{ base: '120px', md: 'auto' }}
-          aspectRatio={{ base: 'auto', md: 16 / 9 }}
+          w={{ base: '100%', sm: '32%', md: 'auto' }}
+          minW={{ base: 0, sm: '150px', md: 0 }}
+          h={{ base: '140px', sm: 'auto', md: '140px' }}
           bg="bg.muted"
         >
           {coverImage ? (
-            <Image
-              src={normalizeImageUrl(coverImage, TOURNAMENT_COVER_TRANSFORM)}
-              alt={tournament.name}
-              position="absolute"
-              inset={0}
-              w="100%"
-              h="100%"
-              objectFit="cover"
-              objectPosition="center"
-              loading={imagePriority ? 'eager' : 'lazy'}
-              fetchPriority={imagePriority ? 'high' : 'low'}
-              decoding="async"
-              transition="transform 0.4s cubic-bezier(0.4, 0, 0.2, 1)"
-              _groupHover={{ transform: 'scale(1.04)' }}
-            />
+            <>
+              <Image
+                src={normalizeImageUrl(coverImage, TOURNAMENT_COVER_TRANSFORM)}
+                alt=""
+                aria-hidden="true"
+                position="absolute"
+                inset="-12px"
+                w="calc(100% + 24px)"
+                h="calc(100% + 24px)"
+                objectFit="cover"
+                filter="blur(12px) saturate(0.85)"
+                opacity={0.72}
+                loading={imagePriority ? 'eager' : 'lazy'}
+                decoding="async"
+              />
+              <Image
+                src={normalizeImageUrl(coverImage, TOURNAMENT_COVER_TRANSFORM)}
+                alt={tournament.name}
+                position="absolute"
+                inset={0}
+                w="100%"
+                h="100%"
+                objectFit="contain"
+                objectPosition="center"
+                loading={imagePriority ? 'eager' : 'lazy'}
+                fetchPriority={imagePriority ? 'high' : 'low'}
+                decoding="async"
+                transition="transform 0.4s cubic-bezier(0.4, 0, 0.2, 1)"
+                _groupHover={{ transform: 'scale(1.025)' }}
+                css={{
+                  '@media (prefers-reduced-motion: reduce)': {
+                    transition: 'none',
+                  },
+                }}
+              />
+            </>
           ) : (
             // Branded gradient instead of a faded app logo, which read as a
             // broken image.
@@ -227,8 +256,8 @@ const TournamentCard = ({
 
           <Flex
             position="absolute"
-            top={2}
-            left={2}
+            top={{ base: 3, sm: 2, md: 3 }}
+            left={{ base: 3, sm: 2, md: 3 }}
             zIndex={2}
             pointerEvents="none"
           >
@@ -264,15 +293,14 @@ const TournamentCard = ({
           </Flex>
         </Box>
 
-        {/* Over the poster on md+, over the card body on the mobile row — the
-            title reserves space for it via pr. */}
-        <Box position="absolute" top={2} right={2} zIndex={3}>
+        {/* Over the poster in vertical layouts and over the card body in the
+            sm-only row. The date reserves space for it at that breakpoint. */}
+        <Box position="absolute" top={3} right={3} zIndex={3}>
           <FavoriteButton
             type="TOURNAMENT"
             targetId={tournament.id}
             isFavorite={tournament.isFavorite}
-            size="sm"
-            variant={{ base: 'ghost', md: 'overlay' }}
+            variant={{ base: 'overlay', sm: 'ghost', md: 'overlay' }}
             returnUrl={href}
             onChange={(nextValue) =>
               onFavoriteChange?.(tournament.id, nextValue)
@@ -281,24 +309,27 @@ const TournamentCard = ({
         </Box>
 
         <Stack
-          p={{ base: 2.5, md: 3 }}
-          gap={{ base: 1, md: 1.5 }}
+          p={{ base: 3, md: 4 }}
+          gap={{ base: 1.5, md: 2 }}
           flex="1"
           minW={0}
         >
-          {/* The date is the primary decision signal for an event, so it gets
-              the brand accent rather than muted small print. */}
-          <Flex align="center" gap={1} minW={0}>
+          <Flex
+            align="center"
+            gap={1.5}
+            minW={0}
+            pr={{ base: 0, sm: 10, md: 0 }}
+          >
             <Icon
               as={Calendar}
-              boxSize={{ base: 3, md: 3.5 }}
+              boxSize={4}
               flexShrink={0}
               color="green.600"
               _dark={{ color: 'green.300' }}
             />
             <Text
-              fontSize="xs"
-              fontWeight="semibold"
+              fontSize="sm"
+              fontWeight="medium"
               color="green.700"
               _dark={{ color: 'green.300' }}
               lineClamp={1}
@@ -313,20 +344,21 @@ const TournamentCard = ({
           </Flex>
 
           <Text
+            as="h2"
             fontWeight="semibold"
-            fontSize={{ base: 'sm', md: 'md' }}
+            fontSize="md"
             lineHeight={1.35}
             lineClamp={2}
             minW={0}
-            pr={{ base: 8, md: 0 }}
+            textWrap="pretty"
           >
             {tournament.name}
           </Text>
 
           {locationText && (
-            <Flex align="center" gap={1} color="fg.muted" minW={0}>
-              <Icon as={MapPin} boxSize={{ base: 3, md: 3.5 }} flexShrink={0} />
-              <Text fontSize="xs" truncate minW={0}>
+            <Flex align="center" gap={1.5} color="fg.muted" minW={0}>
+              <Icon as={MapPin} boxSize={4} flexShrink={0} />
+              <Text fontSize="sm" lineClamp={1} minW={0}>
                 {locationText}
               </Text>
             </Flex>
@@ -344,21 +376,14 @@ const TournamentCard = ({
             minW={0}
           >
             {tournament.sportType && (
-              <Badge
-                variant="subtle"
-                colorPalette={
-                  tournament.sportType === SportType.PICKLEBALL
-                    ? 'orange'
-                    : 'green'
-                }
+              <AppSportBadge
+                sportType={tournament.sportType}
                 borderRadius="full"
-                fontSize="2xs"
+                fontSize="xs"
                 px={2}
                 textTransform="none"
                 flexShrink={0}
-              >
-                {t(`filters.sport.${tournament.sportType}`)}
-              </Badge>
+              />
             )}
 
             {/* Category names come from the browse endpoint; older API
@@ -370,9 +395,9 @@ const TournamentCard = ({
                     variant="subtle"
                     colorPalette="gray"
                     borderRadius="full"
-                    fontSize="2xs"
+                    fontSize="xs"
                     px={2}
-                    maxW="96px"
+                    maxW="104px"
                     textTransform="none"
                     truncate
                   >
@@ -380,7 +405,7 @@ const TournamentCard = ({
                   </Badge>
                 ))
               : categoryCount > 0 && (
-                  <Text fontSize="2xs" color="fg.muted" flexShrink={0}>
+                  <Text fontSize="xs" color="fg.muted" flexShrink={0}>
                     {t('card.categoryCount', { count: categoryCount })}
                   </Text>
                 )}
@@ -389,7 +414,7 @@ const TournamentCard = ({
                 variant="subtle"
                 colorPalette="gray"
                 borderRadius="full"
-                fontSize="2xs"
+                fontSize="xs"
                 px={2}
                 textTransform="none"
                 flexShrink={0}
@@ -401,7 +426,7 @@ const TournamentCard = ({
             {entrantLabel && (
               <Flex align="center" gap={1} color="fg.muted" flexShrink={0}>
                 <Icon as={Users} boxSize={3} />
-                <Text fontSize="2xs">{entrantLabel}</Text>
+                <Text fontSize="xs">{entrantLabel}</Text>
               </Flex>
             )}
           </Flex>
