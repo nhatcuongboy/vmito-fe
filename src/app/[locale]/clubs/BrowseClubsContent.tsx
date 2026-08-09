@@ -66,7 +66,10 @@ import { useDebounce } from '@/hooks/useDebounce';
 import { AppSearchBar } from '@/components/common/AppSearchBar';
 import { useRegisterTopBarSearch } from '@/contexts/TopBarSearchContext';
 import { useSearchParams } from 'next/navigation';
-import { getFullRowSkeletonDisplay } from '@/components/common/infinite-loading-layout';
+import {
+  getFullRowSkeletonDisplay,
+  hasResultsBeyondInitialPage,
+} from '@/components/common/infinite-loading-layout';
 import MapLoadingSkeleton from '@/components/common/MapLoadingSkeleton';
 
 const LoginPromptModal = dynamic(
@@ -75,6 +78,7 @@ const LoginPromptModal = dynamic(
 );
 
 const CLUB_SKELETON_COUNT = 6;
+const CLUB_PAGE_SIZE = 12;
 const CLUB_MAP_PAGE_SIZE = 500;
 const CLUB_RESULT_GRID_COLUMNS = { base: 1, md: 2, lg: 3 };
 const CLUB_RESULT_COLUMN_COUNTS = { base: 1, md: 2, lg: 3 };
@@ -401,7 +405,7 @@ function BrowseClubsContent({
 
       const params: Record<string, string | number | boolean | undefined> = {
         page: currentPage,
-        limit: isMapMode ? CLUB_MAP_PAGE_SIZE : 12,
+        limit: isMapMode ? CLUB_MAP_PAGE_SIZE : CLUB_PAGE_SIZE,
         search: debouncedSearch || undefined,
         city:
           effectiveCities.length === 1
@@ -1268,19 +1272,22 @@ function BrowseClubsContent({
               )}
             </Box>
           )}
-          {!hasMore && !isLoading && !isLoadingMore && clubs.length > 0 && (
-            <Flex
-              justify="center"
-              mt={6}
-              mb={10}
-              overflowAnchor="none"
-              role="status"
-            >
-              <Text color="gray.500" fontSize="sm">
-                {t('session.endOfResults')}
-              </Text>
-            </Flex>
-          )}
+          {!hasMore &&
+            !isLoading &&
+            !isLoadingMore &&
+            hasResultsBeyondInitialPage(clubs.length, CLUB_PAGE_SIZE) && (
+              <Flex
+                justify="center"
+                mt={6}
+                mb={10}
+                overflowAnchor="none"
+                role="status"
+              >
+                <Text color="gray.500" fontSize="sm">
+                  {t('session.endOfResults')}
+                </Text>
+              </Flex>
+            )}
         </>
       )}
       {isLoginModalOpen && (

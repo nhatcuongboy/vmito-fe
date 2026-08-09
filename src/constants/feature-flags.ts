@@ -16,3 +16,6 @@ export const FEATURE_FLAG_DEFAULTS = {
   /** Controls visibility and access to the Classes feature (menus, creation, editing, browsing). */
   CLASSES_FEATURE_ENABLED: false,
 } as const;
+
+/** Classes browse remains visible in navigation regardless of remote feature-flag state. */
+export const SHOW_CLASSES_BROWSE_MENU = true;

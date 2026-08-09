@@ -28,3 +28,14 @@ export function getFullRowSkeletonDisplay(
     lg: displayAt(columns.lg),
   };
 }
+
+/**
+ * The end-of-results message describes progress through a paginated list, so
+ * it should not appear when the initial page simply contains a few results.
+ */
+export function hasResultsBeyondInitialPage(
+  itemCount: number,
+  pageSize: number
+): boolean {
+  return itemCount > pageSize;
+}

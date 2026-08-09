@@ -12,6 +12,8 @@ interface AppViewModeToggleProps {
   serverViewMode?: ViewMode;
   /** Render the List button before the Grid button. Defaults to Grid first. */
   listFirst?: boolean;
+  /** Hide map mode when the browse resource has no map implementation. */
+  showMap?: boolean;
 }
 
 export default function AppViewModeToggle({
@@ -19,6 +21,7 @@ export default function AppViewModeToggle({
   defaultMode = 'grid',
   serverViewMode,
   listFirst = false,
+  showMap = true,
 }: AppViewModeToggleProps) {
   const [viewMode, setViewMode] = useViewMode(
     scope,
@@ -79,17 +82,19 @@ export default function AppViewModeToggle({
           {listButton}
         </>
       )}
-      <IconButton
-        size="xs"
-        h="32px"
-        w="32px"
-        variant={viewMode === 'map' ? 'solid' : 'ghost'}
-        colorPalette="green"
-        aria-label="Map view"
-        icon={<MapPin size={16} />}
-        onClick={() => setViewMode('map')}
-        borderRadius="md"
-      />
+      {showMap && (
+        <IconButton
+          size="xs"
+          h="32px"
+          w="32px"
+          variant={viewMode === 'map' ? 'solid' : 'ghost'}
+          colorPalette="green"
+          aria-label="Map view"
+          icon={<MapPin size={16} />}
+          onClick={() => setViewMode('map')}
+          borderRadius="md"
+        />
+      )}
     </Flex>
   );
 }

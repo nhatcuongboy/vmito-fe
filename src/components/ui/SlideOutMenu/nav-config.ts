@@ -26,6 +26,7 @@ import type { ComponentType } from 'react';
 import { ROUTES } from '@/constants';
 import { UserRole } from '@/lib/api/types';
 import type { User } from '@/types/auth';
+import ClubsMenu from './ClubsMenu';
 import SessionsMenu from './SessionsMenu';
 
 /** Everything a visibility/href/active predicate may depend on. */
@@ -121,17 +122,17 @@ export const NAV_SECTIONS: NavSectionConfig[] = [
         getHref: () => ROUTES.CLUBS.BROWSE,
       },
       {
+        key: 'browseTournaments',
+        icon: Trophy,
+        label: (t) => t.nav('browseTournaments'),
+        getHref: () => ROUTES.BROWSE.TOURNAMENTS.LIST,
+      },
+      {
         key: 'browseClasses',
         icon: BookOpen,
         label: (t) => t.nav('browseClasses'),
         getHref: () => ROUTES.CLASSES.BROWSE,
         isVisible: (ctx) => ctx.classesFeatureEnabled,
-      },
-      {
-        key: 'browseTournaments',
-        icon: Trophy,
-        label: (t) => t.nav('browseTournaments'),
-        getHref: () => ROUTES.BROWSE.TOURNAMENTS.LIST,
       },
       {
         key: 'newsfeed',
@@ -159,9 +160,7 @@ export const NAV_SECTIONS: NavSectionConfig[] = [
       },
       {
         key: 'myClubs',
-        icon: Users,
-        label: (t) => t.nav('myClubs'),
-        getHref: () => ROUTES.CLUBS.MY_CLUBS,
+        component: ClubsMenu,
       },
       {
         key: 'myClasses',

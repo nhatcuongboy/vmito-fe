@@ -135,6 +135,8 @@ export const ROUTES = {
     BROWSE: '/clubs',
     DETAIL: (id: string) => `/clubs/${id}`,
     MY_CLUBS: '/my-clubs',
+    MANAGING: '/my-clubs/managing',
+    MEMBER: '/my-clubs/member',
   },
 
   CLASSES: {
