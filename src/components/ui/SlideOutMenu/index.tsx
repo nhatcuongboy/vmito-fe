@@ -16,7 +16,7 @@ import {
   TOP_BAR_HEIGHT_DESKTOP,
   TOP_BAR_HEIGHT_MOBILE,
 } from '@/constants';
-import { SHOW_CLASSES_BROWSE_MENU } from '@/constants/feature-flags';
+import { CLASSES_FEATURE_ENABLED } from '@/constants/feature-flags';
 import { useSidebar } from '@/contexts/SidebarContext';
 import { useCanAccessHostFeatures } from '@/hooks/useCanAccessHostFeatures';
 import { Link, usePathname } from '@/i18n/config';
@@ -200,7 +200,7 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
     return () => document.removeEventListener('keydown', handleEscape);
   }, [isOpen, onClose]);
 
-  const classesFeatureEnabled = SHOW_CLASSES_BROWSE_MENU;
+  const classesFeatureEnabled = CLASSES_FEATURE_ENABLED;
 
   const context: NavContext = {
     user,

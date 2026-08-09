@@ -3,7 +3,7 @@ import { cache } from 'react';
 import { Text } from '@chakra-ui/react';
 import PageLayout from '@/components/layout/PageLayout';
 import { ClassesService } from '@/lib/api/classes.service';
-import { DEFAULT_COVER_PHOTO } from '@/constants';
+import { CLASSES_FEATURE_ENABLED, DEFAULT_COVER_PHOTO } from '@/constants';
 import { stripHtml } from '@/utils/string-utils';
 import { IClass } from '@/types/class';
 import FeatureFlagGuard from '@/components/guards/FeatureFlagGuard';
@@ -126,7 +126,7 @@ export default async function ClassDetailPage({
         }
       : null;
   return (
-    <FeatureFlagGuard flag="CLASSES_FEATURE_ENABLED">
+    <FeatureFlagGuard enabled={CLASSES_FEATURE_ENABLED}>
       <>
         <>
           {jsonLd && (

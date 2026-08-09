@@ -7,6 +7,7 @@ import { ClassForm } from '@/components/classes/ClassForm';
 import { ClassesService } from '@/lib/api/classes.service';
 import { IClass, IClassInput } from '@/types/class';
 import { useRouter } from '@/i18n/config';
+import { CLASSES_FEATURE_ENABLED } from '@/constants';
 
 export default function EditClassPage({
   params,
@@ -33,7 +34,7 @@ export default function EditClassPage({
     }
   };
   return (
-    <ProtectedRouteGuard featureFlag="CLASSES_FEATURE_ENABLED">
+    <ProtectedRouteGuard featureEnabled={CLASSES_FEATURE_ENABLED}>
       <PageLayout
         title="Chỉnh sửa lớp học"
         showBackButton

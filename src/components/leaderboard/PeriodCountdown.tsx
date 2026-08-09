@@ -1,7 +1,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { HStack, Text } from '@chakra-ui/react';
+import { HStack, IconButton, Text } from '@chakra-ui/react';
+import { CircleHelp } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
 const MINUTE_MS = 60_000;
@@ -12,13 +13,16 @@ interface PeriodCountdownProps {
   /** Exclusive end of the period, ISO string from the API. */
   endsAt: string | null;
   isCurrent: boolean;
+  onOpenRules?: () => void;
 }
 
 export default function PeriodCountdown({
   endsAt,
   isCurrent,
+  onOpenRules,
 }: PeriodCountdownProps) {
   const t = useTranslations('leaderboard.countdown');
+  const rulesT = useTranslations('leaderboard.rules');
   const [remaining, setRemaining] = useState<number | null>(null);
 
   useEffect(() => {
@@ -65,6 +69,17 @@ export default function PeriodCountdown({
       <Text fontSize="xs" fontWeight="700">
         {parts.join(' ')}
       </Text>
+      {onOpenRules ? (
+        <IconButton
+          aria-label={rulesT('title')}
+          className="md:hidden"
+          variant="ghost"
+          size="xs"
+          onClick={onOpenRules}
+        >
+          <CircleHelp size={14} aria-hidden="true" />
+        </IconButton>
+      ) : null}
     </HStack>
   );
 }

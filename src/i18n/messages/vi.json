@@ -6389,6 +6389,20 @@
     "composerPlaceholderWithName": "Bạn đang nghĩ gì, {name}?",
     "contentLabel": "Nội dung bài viết",
     "contentRequired": "Vui lòng nhập nội dung",
+    "seeMore": "Xem thêm",
+    "seeLess": "Ẩn bớt",
+    "discoveryRail": {
+      "ariaLabel": "Khám phá kèo và nhóm",
+      "suggestedSessions": "Kèo dành cho bạn",
+      "nearbyClubs": "Nhóm gần bạn",
+      "suggestedClubs": "Nhóm gợi ý",
+      "viewAll": "Xem tất cả",
+      "viewSession": "Xem kèo {name}",
+      "viewClub": "Xem nhóm {name}",
+      "slotsAvailable": "Còn {count} chỗ",
+      "memberCount": "{count} thành viên",
+      "distanceAway": "Cách {distance} km"
+    },
     "createSuccess": "Đã tạo bài viết",
     "createError": "Không thể tạo bài viết",
     "loadPostsError": "Không thể tải bảng tin",
@@ -7897,6 +7911,35 @@
       "calculate": "Không thể tính giá. Hãy kiểm tra thông tin và thử lại."
     }
   },
+  "previewCards": {
+    "slotsAvailable": "{count, plural, =0 {Đã đầy} other {Còn # chỗ}}",
+    "verified": "Đã xác minh",
+    "courtsCount": "{count} sân",
+    "distanceKm": "{distance} km",
+    "membersCount": "{count} thành viên",
+    "joinPolicyOpen": "Mở",
+    "joinPolicyApproval": "Cần phê duyệt",
+    "joinPolicyInvite": "Chỉ mời",
+    "playersCount": "{count} người chơi",
+    "tournamentStatus": {
+      "PREPARING": "Chuẩn bị",
+      "IN_PROGRESS": "Đang diễn ra",
+      "FINISHED": "Đã kết thúc",
+      "CANCELLED": "Đã hủy"
+    },
+    "contactTuition": "Liên hệ",
+    "tuitionPerSession": "/ buổi",
+    "tuitionMonthly": "/ tháng",
+    "tuitionCourse": "/ khóa",
+    "noLocation": "Chưa có địa điểm",
+    "schedulePending": "Chưa có lịch",
+    "genderMale": "Nam",
+    "genderFemale": "Nữ",
+    "genderOther": "Khác",
+    "genderPreferNot": "Không muốn nói",
+    "joinedSessions": "Đã tham gia {count} buổi",
+    "unknownUser": "Người dùng ẩn danh"
+  },
   "productTour": {
     "tours": {
       "createSession": {
@@ -7982,6 +8025,21 @@
     "noMatches": "Chưa đấu trận nào",
     "totalPointsCaption": "Tổng {points} điểm",
     "tierName": "Hạng {name}",
+    "rail": {
+      "ariaLabel": "Tiến độ xếp hạng và hướng dẫn tính điểm",
+      "yourProgress": "Vị trí của bạn",
+      "periodRank": "Hạng {period}",
+      "rankValue": "#{rank}",
+      "periodPoints": "Điểm trong kỳ",
+      "historicalRankUnavailable": "Chưa có hạng của bạn trong trang kết quả này.",
+      "toNextTier": "Còn {points} điểm tới hạng {tier}",
+      "tierProgressLabel": "Tiến độ tới hạng tiếp theo",
+      "highestTier": "Đã đạt hạng cao nhất",
+      "totalPoints": "Tổng {points} điểm",
+      "howToEarn": "Cách kiếm điểm",
+      "howToEarnDescription": "Hoàn thành kèo và các trận đấu giải để tăng thứ hạng.",
+      "findSessions": "Tìm kèo ngay"
+    },
     "periods": {
       "week": "Tuần",
       "month": "Tháng",

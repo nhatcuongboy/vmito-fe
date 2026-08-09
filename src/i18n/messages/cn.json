@@ -6334,6 +6334,20 @@
     "composerPlaceholderWithName": "{name}，你在想什么？",
     "contentLabel": "动态内容",
     "contentRequired": "请输入内容",
+    "seeMore": "查看更多",
+    "seeLess": "收起",
+    "discoveryRail": {
+      "ariaLabel": "发现推荐场次和俱乐部",
+      "suggestedSessions": "为你推荐的场次",
+      "nearbyClubs": "附近的俱乐部",
+      "suggestedClubs": "推荐俱乐部",
+      "viewAll": "查看全部",
+      "viewSession": "查看场次 {name}",
+      "viewClub": "查看俱乐部 {name}",
+      "slotsAvailable": "剩余 {count} 个名额",
+      "memberCount": "{count} 名成员",
+      "distanceAway": "距离 {distance} 公里"
+    },
     "createSuccess": "动态发布成功",
     "createError": "发布动态失败",
     "loadPostsError": "加载动态失败",
@@ -7839,6 +7853,35 @@
       "calculate": "无法计算价格，请检查信息后重试。"
     }
   },
+  "previewCards": {
+    "slotsAvailable": "{count, plural, =0 {已满} other {剩余 # 个名额}}",
+    "verified": "已认证",
+    "courtsCount": "{count} 个球场",
+    "distanceKm": "{distance} 公里",
+    "membersCount": "{count} 名成员",
+    "joinPolicyOpen": "开放",
+    "joinPolicyApproval": "需审批",
+    "joinPolicyInvite": "仅限邀请",
+    "playersCount": "{count} 名选手",
+    "tournamentStatus": {
+      "PREPARING": "准备中",
+      "IN_PROGRESS": "进行中",
+      "FINISHED": "已结束",
+      "CANCELLED": "已取消"
+    },
+    "contactTuition": "联系咨询",
+    "tuitionPerSession": "/ 次",
+    "tuitionMonthly": "/ 月",
+    "tuitionCourse": "/ 期",
+    "noLocation": "地点待定",
+    "schedulePending": "时间待定",
+    "genderMale": "男",
+    "genderFemale": "女",
+    "genderOther": "其他",
+    "genderPreferNot": "不愿透露",
+    "joinedSessions": "已参加 {count} 场",
+    "unknownUser": "未知用户"
+  },
   "productTour": {
     "tours": {
       "createSession": {
@@ -7924,6 +7967,21 @@
     "noMatches": "尚未参赛",
     "totalPointsCaption": "累计 {points} 分",
     "tierName": "{name}段位",
+    "rail": {
+      "ariaLabel": "你的排名进度和积分指南",
+      "yourProgress": "你的排名进度",
+      "periodRank": "{period}排名",
+      "rankValue": "第 {rank} 名",
+      "periodPoints": "本期积分",
+      "historicalRankUnavailable": "当前结果页中暂无你的排名。",
+      "toNextTier": "距离{tier}还差 {points} 分",
+      "tierProgressLabel": "下一段位进度",
+      "highestTier": "已达到最高段位",
+      "totalPoints": "累计 {points} 分",
+      "howToEarn": "如何获得积分",
+      "howToEarnDescription": "完成约球和赛事比赛即可提升排行榜名次。",
+      "findSessions": "查找场次"
+    },
     "periods": {
       "week": "周",
       "month": "月",

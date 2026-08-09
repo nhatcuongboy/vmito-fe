@@ -78,6 +78,12 @@ const SectionLabel = ({ title }: { title: string }) => (
   </Text>
 );
 
+// Optional text inputs are controlled as empty strings in the form. Omit an
+// empty value from the PATCH payload so the API does not validate it as a
+// supplied value (for example, an empty Google Place ID).
+const optionalText = (value?: string): string | undefined =>
+  value?.trim() || undefined;
+
 export default function EditVenuePage({
   params,
 }: {
@@ -220,18 +226,43 @@ export default function EditVenuePage({
       const imagePublicIds = venueImages.map((img) => img.publicId);
       const coverPhoto = venueImages[venueBannerIndex]?.url;
       const coverPhotoPublicId = venueImages[venueBannerIndex]?.publicId;
-      const { openTime, closeTime, ...venueData } = data;
+      const {
+        openTime,
+        closeTime,
+        acronym,
+        description,
+        placeId,
+        locatedWithin,
+        district,
+        city,
+        phone,
+        website,
+        wifiName,
+        wifiPassword,
+        bookingPolicy,
+        ...venueData
+      } = data;
 
       const payload = {
         ...venueData,
-        openingHours: formatOpeningHours(openTime, closeTime) || undefined,
+        acronym: optionalText(acronym),
+        description: optionalText(description),
+        placeId: optionalText(placeId),
+        locatedWithin: optionalText(locatedWithin),
+        district: optionalText(district),
+        city: optionalText(city),
+        phone: optionalText(trimPhone(phone)),
+        website: optionalText(website),
+        wifiName: optionalText(wifiName),
+        wifiPassword: optionalText(wifiPassword),
+        bookingPolicy: optionalText(bookingPolicy),
+        openingHours: optionalText(formatOpeningHours(openTime, closeTime)),
         coverPhoto,
         coverPhotoPublicId,
         images,
         imagePublicIds,
         status: data.status as VenueStatus,
         closureStatus: data.closureStatus as ClosureStatus,
-        phone: trimPhone(data.phone),
       };
 
       const result = await VenueService.updateVenue(

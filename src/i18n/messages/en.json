@@ -6371,6 +6371,20 @@
     "composerPlaceholderWithName": "What's on your mind, {name}?",
     "contentLabel": "Post content",
     "contentRequired": "Please enter some content",
+    "seeMore": "See more",
+    "seeLess": "See less",
+    "discoveryRail": {
+      "ariaLabel": "Discover sessions and clubs",
+      "suggestedSessions": "Sessions for you",
+      "nearbyClubs": "Clubs near you",
+      "suggestedClubs": "Suggested clubs",
+      "viewAll": "View all",
+      "viewSession": "View session {name}",
+      "viewClub": "View club {name}",
+      "slotsAvailable": "{count, plural, one {# slot} other {# slots}}",
+      "memberCount": "{count, plural, one {# member} other {# members}}",
+      "distanceAway": "{distance} km away"
+    },
     "createSuccess": "Post created successfully",
     "createError": "Failed to create post",
     "loadPostsError": "Failed to load posts",
@@ -7876,6 +7890,35 @@
       "calculate": "Unable to calculate the price. Check the information and try again."
     }
   },
+  "previewCards": {
+    "slotsAvailable": "{count, plural, =0 {Full} one {# slot left} other {# slots left}}",
+    "verified": "Verified",
+    "courtsCount": "{count, plural, one {# court} other {# courts}}",
+    "distanceKm": "{distance} km",
+    "membersCount": "{count, plural, one {# member} other {# members}}",
+    "joinPolicyOpen": "Open",
+    "joinPolicyApproval": "Approval required",
+    "joinPolicyInvite": "Invite only",
+    "playersCount": "{count, plural, one {# player} other {# players}}",
+    "tournamentStatus": {
+      "PREPARING": "Preparing",
+      "IN_PROGRESS": "In Progress",
+      "FINISHED": "Finished",
+      "CANCELLED": "Cancelled"
+    },
+    "contactTuition": "Contact",
+    "tuitionPerSession": "/ session",
+    "tuitionMonthly": "/ month",
+    "tuitionCourse": "/ course",
+    "noLocation": "Location pending",
+    "schedulePending": "Schedule pending",
+    "genderMale": "Male",
+    "genderFemale": "Female",
+    "genderOther": "Other",
+    "genderPreferNot": "Prefer not to say",
+    "joinedSessions": "{count, plural, one {# session joined} other {# sessions joined}}",
+    "unknownUser": "Unknown user"
+  },
   "productTour": {
     "tours": {
       "createSession": {
@@ -7961,6 +8004,21 @@
     "noMatches": "No matches played yet",
     "totalPointsCaption": "{points} pts all time",
     "tierName": "{name} tier",
+    "rail": {
+      "ariaLabel": "Your ranking progress and scoring guide",
+      "yourProgress": "Your progress",
+      "periodRank": "{period} rank",
+      "rankValue": "#{rank}",
+      "periodPoints": "Period points",
+      "historicalRankUnavailable": "Your rank is not available on this results page.",
+      "toNextTier": "{points} pts to {tier}",
+      "tierProgressLabel": "Progress to the next tier",
+      "highestTier": "Highest tier reached",
+      "totalPoints": "{points} total points",
+      "howToEarn": "How to earn points",
+      "howToEarnDescription": "Finish sessions and tournament matches to move up the leaderboard.",
+      "findSessions": "Find a session"
+    },
     "periods": {
       "week": "Week",
       "month": "Month",

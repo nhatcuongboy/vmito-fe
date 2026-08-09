@@ -6,6 +6,7 @@ import { ClassForm } from '@/components/classes/ClassForm';
 import { ClassesService } from '@/lib/api/classes.service';
 import { IClassInput } from '@/types/class';
 import { useRouter } from '@/i18n/config';
+import { CLASSES_FEATURE_ENABLED } from '@/constants';
 
 export default function CreateClassPage() {
   const router = useRouter();
@@ -20,7 +21,7 @@ export default function CreateClassPage() {
     }
   };
   return (
-    <ProtectedRouteGuard featureFlag="CLASSES_FEATURE_ENABLED">
+    <ProtectedRouteGuard featureEnabled={CLASSES_FEATURE_ENABLED}>
       <PageLayout title="Tạo lớp học" showBackButton backHref="/classes">
         <ClassForm
           onSubmit={submit}

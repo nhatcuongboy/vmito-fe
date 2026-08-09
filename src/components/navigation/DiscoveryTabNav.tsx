@@ -12,7 +12,7 @@ import { Flame, Heart } from 'lucide-react';
 import { useSearchParams } from 'next/navigation';
 import { useAuthStore, useAuthHydration } from '@/stores/useAuthStore';
 
-import { SHOW_CLASSES_BROWSE_MENU } from '@/constants/feature-flags';
+import { CLASSES_FEATURE_ENABLED } from '@/constants/feature-flags';
 import { UnderlineTabs } from '../ui/UnderlineTabs';
 
 export function DiscoveryTabNav() {
@@ -43,7 +43,7 @@ export function DiscoveryTabNav() {
     { id: ROUTES.BROWSE.VENUES.LIST, label: t('findVenues') },
     { id: ROUTES.CLUBS.BROWSE, label: t('findClubs') },
     { id: ROUTES.BROWSE.TOURNAMENTS.LIST, label: t('findTournaments') },
-    ...(SHOW_CLASSES_BROWSE_MENU
+    ...(CLASSES_FEATURE_ENABLED
       ? [{ id: ROUTES.CLASSES.BROWSE, label: t('findClasses') }]
       : []),
   ];

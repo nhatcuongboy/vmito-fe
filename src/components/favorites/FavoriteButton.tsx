@@ -11,6 +11,11 @@ import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 
 type FavoriteVariant = 'overlay' | 'overlay-dark' | 'ghost' | 'outline';
+type ResponsiveFavoriteVariant = {
+  base: FavoriteVariant;
+  sm?: FavoriteVariant;
+  md: FavoriteVariant;
+};
 
 // Per-variant chrome, expressed as plain style props rather than Chakra recipe
 // variants so a responsive `variant` can resolve to a different look at each
@@ -54,7 +59,7 @@ interface FavoriteButtonProps {
   targetId: string;
   isFavorite?: boolean;
   size?: 'xs' | 'sm' | 'md';
-  variant?: FavoriteVariant | { base: FavoriteVariant; md: FavoriteVariant };
+  variant?: FavoriteVariant | ResponsiveFavoriteVariant;
   returnUrl?: string;
   onChange?: (isFavorite: boolean) => void;
 }
@@ -84,20 +89,29 @@ export function FavoriteButton({
   if (isHydrated && !isAuthenticated) return null;
 
   const breakpoints =
-    typeof variant === 'string' ? { base: variant, md: variant } : variant;
-  // Collapse to a bare value when both breakpoints agree, so the common
+    typeof variant === 'string'
+      ? { base: variant, sm: variant, md: variant }
+      : {
+          base: variant.base,
+          sm: variant.sm ?? variant.base,
+          md: variant.md,
+        };
+  // Collapse to a bare value when all breakpoints agree, so the common
   // single-variant case emits the same styles it always has.
   const byBreakpoint = <T,>(
     pick: (chrome: (typeof VARIANT_CHROME)[FavoriteVariant]) => T
-  ): T | { base: T; md: T } => {
+  ): T | { base: T; sm: T; md: T } => {
     const base = pick(VARIANT_CHROME[breakpoints.base]);
+    const sm = pick(VARIANT_CHROME[breakpoints.sm]);
     const md = pick(VARIANT_CHROME[breakpoints.md]);
-    return base === md ? base : { base, md };
+    return base === sm && sm === md ? base : { base, sm, md };
   };
   // All chrome lives in style props above, so the recipe only has to supply
-  // the outline border when that's what both breakpoints ask for.
+  // the outline border when that's what all breakpoints ask for.
   const recipeVariant =
-    breakpoints.base === 'outline' && breakpoints.md === 'outline'
+    breakpoints.base === 'outline' &&
+    breakpoints.sm === 'outline' &&
+    breakpoints.md === 'outline'
       ? 'outline'
       : 'ghost';
 
@@ -106,6 +120,7 @@ export function FavoriteButton({
       <IconButton
         size={size}
         aria-label={isFavorite ? t('remove') : t('add')}
+        aria-pressed={isFavorite}
         title={isFavorite ? t('remove') : t('add')}
         variant={recipeVariant}
         bg={byBreakpoint((c) => c.bg)}

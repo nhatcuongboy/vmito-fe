@@ -33,6 +33,7 @@ import type { IClass, IBrowseClassesParams } from '@/types/class';
 import { ClassCard } from '@/components/classes/ClassCard';
 import ClassCardSkeleton from '@/components/classes/ClassCardSkeleton';
 import FeatureFlagGuard from '@/components/guards/FeatureFlagGuard';
+import { CLASSES_FEATURE_ENABLED } from '@/constants/feature-flags';
 import AppEmptyState from '@/components/ui/AppEmptyState';
 import { AppSearchBar } from '@/components/common/AppSearchBar';
 import AppViewModeToggle from '@/components/common/AppViewModeToggle';
@@ -244,7 +245,7 @@ export default function BrowseClassesContent() {
     }));
   const sortLabel = sortBy === 'distance' ? t('nearest') : t('newest');
   return (
-    <FeatureFlagGuard flag="CLASSES_FEATURE_ENABLED">
+    <FeatureFlagGuard enabled={CLASSES_FEATURE_ENABLED}>
       <PageLayout title={t('browseClasses')}>
         <Box>
           <Box
