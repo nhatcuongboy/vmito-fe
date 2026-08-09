@@ -5,6 +5,13 @@ import { Image, Skeleton } from '@chakra-ui/react';
 import { CalendarDays, MapPin, Users } from 'lucide-react';
 import { useFormatter, useTranslations } from 'next-intl';
 import { Link } from '@/i18n/config';
+import {
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from '@/components/primitives/hover-card';
+import { ClubPreviewCard } from '@/components/preview-cards/ClubPreviewCard';
+import { SessionPreviewCard } from '@/components/preview-cards/SessionPreviewCard';
 import { ROUTES } from '@/constants/routes';
 import { DEFAULT_CLUB_LOGO, DEFAULT_COVER_PHOTO } from '@/constants/images';
 import { SessionService } from '@/lib/api/session.service';
@@ -139,51 +146,62 @@ function SuggestedSessionCard({ session }: { session: SuggestedSession }) {
     }) ?? DEFAULT_COVER_PHOTO;
 
   return (
-    <Link
-      href={ROUTES.SESSIONS.DETAIL(session.id, session.slug)}
-      aria-label={t('viewSession', { name: session.name })}
-      className="group flex min-h-[76px] items-center gap-3 rounded-xl p-1.5 transition-colors hover:bg-green-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500 dark:hover:bg-green-950/20"
-    >
-      <Image
-        src={image}
-        alt=""
-        boxSize="60px"
-        flexShrink={0}
-        borderRadius="xl"
-        objectFit="cover"
-        loading="lazy"
-      />
-      <div className="min-w-0 flex-1">
-        <div className="truncate text-sm font-semibold text-gray-900 group-hover:text-green-700 dark:text-gray-50 dark:group-hover:text-green-300">
-          {session.name}
-        </div>
-        {startTime ? (
-          <div className="mt-1 flex items-center gap-1.5 text-xs text-gray-500 dark:text-gray-400">
-            <CalendarDays size={13} className="shrink-0" aria-hidden="true" />
-            <span className="truncate">
-              {format.dateTime(new Date(startTime), {
-                day: '2-digit',
-                hour: '2-digit',
-                minute: '2-digit',
-                month: '2-digit',
-              })}
-            </span>
+    <HoverCard>
+      <HoverCardTrigger asChild>
+        <Link
+          href={ROUTES.SESSIONS.DETAIL(session.id, session.slug)}
+          aria-label={t('viewSession', { name: session.name })}
+          className="group flex min-h-[76px] items-center gap-3 rounded-xl p-1.5 transition-colors hover:bg-green-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500 dark:hover:bg-green-950/20"
+        >
+          <Image
+            src={image}
+            alt=""
+            boxSize="60px"
+            flexShrink={0}
+            borderRadius="xl"
+            objectFit="cover"
+            loading="lazy"
+          />
+          <div className="min-w-0 flex-1">
+            <div className="truncate text-sm font-semibold text-gray-900 group-hover:text-green-700 dark:text-gray-50 dark:group-hover:text-green-300">
+              {session.name}
+            </div>
+            {startTime ? (
+              <div className="mt-1 flex items-center gap-1.5 text-xs text-gray-500 dark:text-gray-400">
+                <CalendarDays
+                  size={13}
+                  className="shrink-0"
+                  aria-hidden="true"
+                />
+                <span className="truncate">
+                  {format.dateTime(new Date(startTime), {
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    month: '2-digit',
+                  })}
+                </span>
+              </div>
+            ) : null}
+            <div className="mt-1 flex min-w-0 items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
+              {venueName ? (
+                <span className="flex min-w-0 items-center gap-1">
+                  <MapPin size={13} className="shrink-0" aria-hidden="true" />
+                  <span className="truncate">{venueName}</span>
+                </span>
+              ) : null}
+              <span className="ml-auto flex shrink-0 items-center gap-1">
+                <Users size={13} aria-hidden="true" />
+                {t('slotsAvailable', { count: availableSlots })}
+              </span>
+            </div>
           </div>
-        ) : null}
-        <div className="mt-1 flex min-w-0 items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
-          {venueName ? (
-            <span className="flex min-w-0 items-center gap-1">
-              <MapPin size={13} className="shrink-0" aria-hidden="true" />
-              <span className="truncate">{venueName}</span>
-            </span>
-          ) : null}
-          <span className="ml-auto flex shrink-0 items-center gap-1">
-            <Users size={13} aria-hidden="true" />
-            {t('slotsAvailable', { count: availableSlots })}
-          </span>
-        </div>
-      </div>
-    </Link>
+        </Link>
+      </HoverCardTrigger>
+      <HoverCardContent>
+        <SessionPreviewCard session={session} />
+      </HoverCardContent>
+    </HoverCard>
   );
 }
 
@@ -197,45 +215,52 @@ function NearbyClubCard({ club }: { club: IClubListItem }) {
     }) ?? DEFAULT_CLUB_LOGO;
 
   return (
-    <Link
-      href={ROUTES.CLUBS.DETAIL(club.slug ?? club.id)}
-      aria-label={t('viewClub', { name: club.name })}
-      className="group flex min-h-[76px] items-center gap-3 rounded-xl p-1.5 transition-colors hover:bg-green-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500 dark:hover:bg-green-950/20"
-    >
-      <Image
-        src={image}
-        alt=""
-        boxSize="60px"
-        flexShrink={0}
-        borderRadius="xl"
-        objectFit="cover"
-        loading="lazy"
-      />
-      <div className="min-w-0 flex-1">
-        <div className="truncate text-sm font-semibold text-gray-900 group-hover:text-green-700 dark:text-gray-50 dark:group-hover:text-green-300">
-          {club.name}
-        </div>
-        {location ? (
-          <div className="mt-1 flex items-center gap-1.5 text-xs text-gray-500 dark:text-gray-400">
-            <MapPin size={13} className="shrink-0" aria-hidden="true" />
-            <span className="truncate">{location}</span>
+    <HoverCard>
+      <HoverCardTrigger asChild>
+        <Link
+          href={ROUTES.CLUBS.DETAIL(club.slug ?? club.id)}
+          aria-label={t('viewClub', { name: club.name })}
+          className="group flex min-h-[76px] items-center gap-3 rounded-xl p-1.5 transition-colors hover:bg-green-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500 dark:hover:bg-green-950/20"
+        >
+          <Image
+            src={image}
+            alt=""
+            boxSize="60px"
+            flexShrink={0}
+            borderRadius="xl"
+            objectFit="cover"
+            loading="lazy"
+          />
+          <div className="min-w-0 flex-1">
+            <div className="truncate text-sm font-semibold text-gray-900 group-hover:text-green-700 dark:text-gray-50 dark:group-hover:text-green-300">
+              {club.name}
+            </div>
+            {location ? (
+              <div className="mt-1 flex items-center gap-1.5 text-xs text-gray-500 dark:text-gray-400">
+                <MapPin size={13} className="shrink-0" aria-hidden="true" />
+                <span className="truncate">{location}</span>
+              </div>
+            ) : null}
+            <div className="mt-1 flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
+              <span className="flex items-center gap-1">
+                <Users size={13} aria-hidden="true" />
+                {t('memberCount', { count: club.memberCount })}
+              </span>
+              {club.distance != null && Number.isFinite(club.distance) ? (
+                <span className="truncate">
+                  {t('distanceAway', {
+                    distance: Math.round(club.distance * 10) / 10,
+                  })}
+                </span>
+              ) : null}
+            </div>
           </div>
-        ) : null}
-        <div className="mt-1 flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
-          <span className="flex items-center gap-1">
-            <Users size={13} aria-hidden="true" />
-            {t('memberCount', { count: club.memberCount })}
-          </span>
-          {club.distance != null && Number.isFinite(club.distance) ? (
-            <span className="truncate">
-              {t('distanceAway', {
-                distance: Math.round(club.distance * 10) / 10,
-              })}
-            </span>
-          ) : null}
-        </div>
-      </div>
-    </Link>
+        </Link>
+      </HoverCardTrigger>
+      <HoverCardContent>
+        <ClubPreviewCard club={club} />
+      </HoverCardContent>
+    </HoverCard>
   );
 }
 

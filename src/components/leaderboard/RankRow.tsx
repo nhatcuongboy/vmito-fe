@@ -1,8 +1,12 @@
 'use client';
 
-import { Avatar, Box, Flex, HStack, Text } from '@chakra-ui/react';
+import { Box, Flex, HStack, Text } from '@chakra-ui/react';
 import { useTranslations } from 'next-intl';
 import { ILeaderboardEntry } from '@/lib/api/ranking.service';
+import { UserPreviewHoverCard } from '@/components/preview-cards/UserPreviewHoverCard';
+import { Link } from '@/i18n/config';
+import { ROUTES } from '@/constants/routes';
+import { UserAvatar } from '@/components/common/UserAvatar';
 import TierBadge from './TierBadge';
 
 interface RankRowProps {
@@ -39,10 +43,18 @@ export default function RankRow({ entry, isMe, onClick }: RankRowProps) {
       >
         {entry.rank}
       </Text>
-      <Avatar.Root size="sm">
-        <Avatar.Fallback name={entry.user.name ?? ''} />
-        {entry.user.image && <Avatar.Image src={entry.user.image} />}
-      </Avatar.Root>
+      <UserPreviewHoverCard userId={entry.user.id}>
+        <Link
+          href={ROUTES.USER.PROFILE(entry.user.id)}
+          className="shrink-0 rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500"
+        >
+          <UserAvatar
+            name={entry.user.name}
+            image={entry.user.image}
+            size="32px"
+          />
+        </Link>
+      </UserPreviewHoverCard>
       <Box flex={1} minW={0}>
         <HStack gap={2}>
           <Text

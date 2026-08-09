@@ -8,29 +8,7 @@ import { PlayerActionMenu } from './PlayerActionMenu';
 import { Player } from './types';
 import { Gender } from '@/lib/api/types';
 
-function getInitials(name: string) {
-  return name
-    .split(' ')
-    .map((n) => n[0])
-    .slice(0, 2)
-    .join('')
-    .toUpperCase();
-}
-
-function getStatusColor(status: string) {
-  switch (status) {
-    case 'PLAYING':
-      return 'green.500';
-    case 'WAITING':
-      return 'orange.500';
-    case 'READY':
-      return 'brand.500';
-    default:
-      return 'gray.400';
-  }
-}
-
-import { PlayerAvatar } from '@/components/player/PlayerAvatar';
+import { UserAvatar } from '@/components/common/UserAvatar';
 
 function getStatusGradient(status: string) {
   switch (status) {
@@ -127,7 +105,7 @@ const PlayerListItem: React.FC<PlayerListItemProps> = ({
         <Flex justify="space-between" align="center" gap={4}>
           <Flex flex="1" gap={{ base: 3, md: 4 }} align="center">
             {/* Enhanced Avatar */}
-            <PlayerAvatar
+            <UserAvatar
               name={player.name || ''}
               gender={player.gender}
               status={player.status}

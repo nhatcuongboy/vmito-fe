@@ -126,6 +126,10 @@ export const NAV_SECTIONS: NavSectionConfig[] = [
         icon: Trophy,
         label: (t) => t.nav('browseTournaments'),
         getHref: () => ROUTES.BROWSE.TOURNAMENTS.LIST,
+        isActive: (pathname) =>
+          pathname === ROUTES.BROWSE.TOURNAMENTS.LIST ||
+          pathname.startsWith(`${ROUTES.BROWSE.TOURNAMENTS.LIST}/`) ||
+          pathname.startsWith(ROUTES.BROWSE.TOURNAMENTS.DETAIL('')),
       },
       {
         key: 'browseClasses',

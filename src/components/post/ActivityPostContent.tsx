@@ -19,6 +19,7 @@ import { normalizeImageUrl } from '@/lib/images/normalizeImageUrl';
 import AppLightbox from '@/components/ui/AppLightbox';
 import { AppSportBadge } from '@/components/common/AppSportBadge';
 import { PostAvatar } from './PostAvatar';
+import { UserPreviewHoverCard } from '@/components/preview-cards/UserPreviewHoverCard';
 import type {
   Post,
   SessionResultsStanding,
@@ -174,7 +175,27 @@ function SessionStandings({
                   </td>
                   <td style={{ padding: '8px 12px' }}>
                     <div className="flex min-w-0 items-center gap-2.5">
-                      <PostAvatar name={row.name} image={row.image} size={28} />
+                      {row.userId ? (
+                        <UserPreviewHoverCard userId={row.userId}>
+                          <Link
+                            href={ROUTES.USER.PROFILE(row.userId)}
+                            className="shrink-0 transition hover:opacity-90"
+                            aria-label={row.name}
+                          >
+                            <PostAvatar
+                              name={row.name}
+                              image={row.image}
+                              size={28}
+                            />
+                          </Link>
+                        </UserPreviewHoverCard>
+                      ) : (
+                        <PostAvatar
+                          name={row.name}
+                          image={row.image}
+                          size={28}
+                        />
+                      )}
                       <span
                         className="min-w-0 flex-1 break-words text-gray-900 dark:text-gray-50"
                         style={{ fontWeight: 500, fontSize: 15 }}

@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/chakra-compat';
 import { CreatePostModal } from '@/components/post/CreatePostModal';
 import { PostCard } from '@/components/post/PostCard';
 import { PostAvatar } from '@/components/post/PostAvatar';
+import { UserPreviewHoverCard } from '@/components/preview-cards/UserPreviewHoverCard';
 import { NewsfeedSkeleton } from '@/components/post/PostCardSkeleton';
 import { PullToRefresh } from '@/components/ui/PullToRefresh';
 import { useInfiniteScroll } from '@/hooks/useInfiniteScroll';
@@ -132,12 +133,16 @@ export default function NewsfeedContent() {
               boxShadow="sm"
             >
               <Flex align="center" gap={3}>
-                <PostAvatar
-                  name={authorName}
-                  image={currentUser?.image}
-                  size={44}
-                  bordered
-                />
+                <UserPreviewHoverCard userId={currentUser?.id}>
+                  <span className="inline-flex">
+                    <PostAvatar
+                      name={authorName}
+                      image={currentUser?.image}
+                      size={44}
+                      bordered
+                    />
+                  </span>
+                </UserPreviewHoverCard>
                 <Box
                   role="button"
                   tabIndex={0}

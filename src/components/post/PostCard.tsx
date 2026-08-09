@@ -18,6 +18,7 @@ import {
 import type { Post } from '@/types/post';
 import { CommentSection } from './CommentSection';
 import { PostAvatar } from './PostAvatar';
+import { UserPreviewHoverCard } from '@/components/preview-cards/UserPreviewHoverCard';
 import { ActivityPostContent } from './ActivityPostContent';
 import { SharePostModal } from './SharePostModal';
 import { postsService } from '@/lib/api/posts.service';
@@ -389,7 +390,7 @@ export function PostCard({
   };
 
   const actionButtonBase =
-    'flex flex-1 cursor-pointer items-center justify-center gap-2.5 rounded-lg py-2.5 text-[15px] font-medium transition-colors active:scale-[0.98]';
+    'flex min-h-11 flex-1 cursor-pointer touch-manipulation items-center justify-center gap-2 rounded-lg text-[15px] font-medium transition-colors active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-1 dark:focus-visible:ring-offset-gray-800';
 
   return (
     <Box
@@ -422,18 +423,20 @@ export function PostCard({
 
       {/* Header */}
       <Flex as="header" align="flex-start" gap={3} px={4} pt={4}>
-        <Link
-          href={ROUTES.USER.PROFILE(localPost.authorId)}
-          className="shrink-0 transition hover:opacity-90"
-          aria-label={localPost.author.name}
-        >
-          <PostAvatar
-            name={localPost.author.name}
-            image={localPost.author.image}
-            size={40}
-            bordered
-          />
-        </Link>
+        <UserPreviewHoverCard userId={localPost.authorId}>
+          <Link
+            href={ROUTES.USER.PROFILE(localPost.authorId)}
+            className="shrink-0 transition hover:opacity-90"
+            aria-label={localPost.author.name}
+          >
+            <PostAvatar
+              name={localPost.author.name}
+              image={localPost.author.image}
+              size={40}
+              bordered
+            />
+          </Link>
+        </UserPreviewHoverCard>
         <div className="min-w-0 flex-1">
           <div className="truncate text-[16px] leading-5 text-gray-900 dark:text-gray-50">
             <Link
@@ -554,17 +557,19 @@ export function PostCard({
             style={{ padding: '12px 16px' }}
           >
             <Flex mb={2} align="center" gap={2}>
-              <Link
-                href={ROUTES.USER.PROFILE(localPost.originalPost.authorId)}
-                className="shrink-0 transition hover:opacity-90"
-                aria-label={localPost.originalPost.author.name}
-              >
-                <PostAvatar
-                  name={localPost.originalPost.author.name}
-                  image={localPost.originalPost.author.image}
-                  size={32}
-                />
-              </Link>
+              <UserPreviewHoverCard userId={localPost.originalPost.authorId}>
+                <Link
+                  href={ROUTES.USER.PROFILE(localPost.originalPost.authorId)}
+                  className="shrink-0 transition hover:opacity-90"
+                  aria-label={localPost.originalPost.author.name}
+                >
+                  <PostAvatar
+                    name={localPost.originalPost.author.name}
+                    image={localPost.originalPost.author.image}
+                    size={32}
+                  />
+                </Link>
+              </UserPreviewHoverCard>
               <Box minW={0} flex={1}>
                 <Box
                   truncate
@@ -697,8 +702,9 @@ export function PostCard({
         borderColor="gray.100"
         _dark={{ borderColor: 'whiteAlpha.100' }}
       />
-      <Flex align="center" gap={1} px={2} py={1.5} pb={2}>
+      <Flex align="center" gap={1} px={2} py={0.5}>
         <button
+          type="button"
           onClick={handleLike}
           aria-label={localPost.isLiked ? t('unlikePost') : t('likePost')}
           className={`${actionButtonBase} hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-950/30 dark:hover:text-red-400 ${
@@ -717,6 +723,7 @@ export function PostCard({
           {t('like')}
         </button>
         <button
+          type="button"
           onClick={() => setShowComments(!showComments)}
           aria-label={t('toggleComments')}
           className={`${actionButtonBase} hover:bg-green-50 hover:text-green-600 dark:hover:bg-green-950/30 dark:hover:text-green-400 ${
@@ -729,6 +736,7 @@ export function PostCard({
           {t('comment')}
         </button>
         <button
+          type="button"
           onClick={() => setShowShareConfirm(true)}
           aria-label={t('sharePost')}
           className={`${actionButtonBase} text-gray-600 hover:bg-blue-50 hover:text-blue-600 dark:text-gray-300 dark:hover:bg-blue-950/30 dark:hover:text-blue-400`}

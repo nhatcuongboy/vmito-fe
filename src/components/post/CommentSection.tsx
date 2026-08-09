@@ -11,6 +11,7 @@ import { toaster } from '@/components/ui/toaster';
 import type { PostComment } from '@/types/post';
 import LoadingSpinner from '@/components/ui/loading-spinner';
 import { PostAvatar } from './PostAvatar';
+import { UserPreviewHoverCard } from '@/components/preview-cards/UserPreviewHoverCard';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { Link } from '@/i18n/config';
 import { ROUTES } from '@/constants/routes';
@@ -193,11 +194,15 @@ export function CommentSection({
         <Flex align="center" gap={2.5} px={1} mb={2.5}>
           {currentUser && (
             <Box className="shrink-0">
-              <PostAvatar
-                name={currentUser.name || currentUser.email || 'User'}
-                image={currentUser.image}
-                size={28}
-              />
+              <UserPreviewHoverCard userId={currentUser.id}>
+                <span className="inline-flex">
+                  <PostAvatar
+                    name={currentUser.name || currentUser.email || 'User'}
+                    image={currentUser.image}
+                    size={28}
+                  />
+                </span>
+              </UserPreviewHoverCard>
             </Box>
           )}
           <Flex
@@ -259,17 +264,19 @@ export function CommentSection({
         <Flex direction="column" gap={1.5} px={1}>
           {comments.map((comment) => (
             <Flex key={comment.id} className="group" gap={2} borderRadius="xl">
-              <Link
-                href={ROUTES.USER.PROFILE(comment.userId)}
-                className="shrink-0 transition hover:opacity-90"
-                aria-label={comment.user.name}
-              >
-                <PostAvatar
-                  name={comment.user.name}
-                  image={comment.user.image}
-                  size={28}
-                />
-              </Link>
+              <UserPreviewHoverCard userId={comment.userId}>
+                <Link
+                  href={ROUTES.USER.PROFILE(comment.userId)}
+                  className="shrink-0 transition hover:opacity-90"
+                  aria-label={comment.user.name}
+                >
+                  <PostAvatar
+                    name={comment.user.name}
+                    image={comment.user.image}
+                    size={28}
+                  />
+                </Link>
+              </UserPreviewHoverCard>
               <Box minW={0} flex={1}>
                 <Box
                   w="full"
