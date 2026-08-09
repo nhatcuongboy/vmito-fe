@@ -62,6 +62,92 @@ interface PostCommentUpdatedPayload {
   actorId: string;
 }
 
+interface ExpandablePostContentProps {
+  className?: string;
+  content: string;
+  highlightHashtags?: boolean;
+}
+
+const COLLAPSED_CONTENT_LINES = 5;
+
+function renderHashtags(text: string) {
+  const parts = text.split(/(#\w+)/g);
+  return parts.map((part, index) =>
+    part.startsWith('#') ? (
+      <span
+        key={`${part}-${index}`}
+        className="cursor-pointer font-medium text-green-600 hover:underline"
+      >
+        {part}
+      </span>
+    ) : (
+      part
+    )
+  );
+}
+
+function ExpandablePostContent({
+  className,
+  content,
+  highlightHashtags = false,
+}: ExpandablePostContentProps) {
+  const t = useTranslations('posts');
+  const contentRef = useRef<HTMLDivElement>(null);
+  const [isExpanded, setIsExpanded] = useState(false);
+  const [canExpand, setCanExpand] = useState(false);
+
+  useEffect(() => {
+    if (isExpanded) return;
+
+    const contentElement = contentRef.current;
+    if (!contentElement) return;
+
+    const measureOverflow = () => {
+      setCanExpand(
+        contentElement.scrollHeight > contentElement.clientHeight + 1
+      );
+    };
+    const animationFrame = window.requestAnimationFrame(measureOverflow);
+    const resizeObserver = new ResizeObserver(measureOverflow);
+    resizeObserver.observe(contentElement);
+
+    return () => {
+      window.cancelAnimationFrame(animationFrame);
+      resizeObserver.disconnect();
+    };
+  }, [content, isExpanded]);
+
+  return (
+    <div className={className}>
+      <div
+        ref={contentRef}
+        style={
+          isExpanded
+            ? undefined
+            : {
+                display: '-webkit-box',
+                WebkitBoxOrient: 'vertical',
+                WebkitLineClamp: COLLAPSED_CONTENT_LINES,
+                overflow: 'hidden',
+              }
+        }
+      >
+        {highlightHashtags ? renderHashtags(content) : content}
+      </div>
+      {canExpand && (
+        <button
+          type="button"
+          aria-expanded={isExpanded}
+          onClick={() => setIsExpanded((current) => !current)}
+          className="mt-1 cursor-pointer text-[15px] font-semibold text-gray-600 transition hover:underline focus-visible:rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500 dark:text-gray-300"
+        >
+          {isExpanded ? t('seeLess') : t('seeMore')}
+        </button>
+      )}
+    </div>
+  );
+}
+
 function PostMediaImage({ src, alt, className, onClick }: PostMediaImageProps) {
   const [hasError, setHasError] = useState(false);
   const imageSrc = normalizeImageUrl(src);
@@ -290,22 +376,6 @@ export function PostCard({
     }
   };
 
-  const extractHashtags = (text: string) => {
-    const parts = text.split(/(#\w+)/g);
-    return parts.map((part, i) =>
-      part.startsWith('#') ? (
-        <span
-          key={i}
-          className="cursor-pointer font-medium text-green-600 hover:underline"
-        >
-          {part}
-        </span>
-      ) : (
-        part
-      )
-    );
-  };
-
   const getImageClassName = (index: number) => {
     if (postImages.length === 1) {
       return 'max-h-[520px] w-full object-cover';
@@ -423,17 +493,12 @@ export function PostCard({
 
       {/* Content */}
       {!isActivityPost && localPost.content && (
-        <Box
-          px={4}
-          pt={2.5}
-          whiteSpace="pre-wrap"
-          fontSize="17px"
-          lineHeight="1.6"
-          color="gray.900"
-          _dark={{ color: 'gray.50' }}
-        >
-          {extractHashtags(localPost.content)}
-        </Box>
+        <ExpandablePostContent
+          key={`${localPost.id}-${localPost.updatedAt}-${localPost.content}`}
+          content={localPost.content}
+          highlightHashtags
+          className="whitespace-pre-wrap px-4 pt-2.5 text-[17px] leading-[1.6] text-gray-900 dark:text-gray-50"
+        />
       )}
 
       {/* Location */}
@@ -542,14 +607,11 @@ export function PostCard({
               </div>
             ) : (
               <>
-                <Box
-                  whiteSpace="pre-wrap"
-                  fontSize="16px"
-                  lineHeight="1.6"
-                  color={{ base: 'gray.700', _dark: 'gray.200' }}
-                >
-                  {localPost.originalPost.content}
-                </Box>
+                <ExpandablePostContent
+                  key={`${localPost.originalPost.id}-${localPost.originalPost.updatedAt}-${localPost.originalPost.content}`}
+                  content={localPost.originalPost.content}
+                  className="whitespace-pre-wrap text-[16px] leading-[1.6] text-gray-700 dark:text-gray-200"
+                />
                 {(localPost.originalPost.images ?? []).length > 0 && (
                   <div className="mt-2 grid grid-cols-2 gap-0.5 overflow-hidden rounded-lg">
                     {(localPost.originalPost.images ?? [])

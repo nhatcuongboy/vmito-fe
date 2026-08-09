@@ -7,6 +7,7 @@ import { ClassesService } from '@/lib/api/classes.service';
 import { IClass, ClassStatus } from '@/types/class';
 import { Button } from '@/components/ui/chakra-compat';
 import { Link, useRouter } from '@/i18n/config';
+import { CLASSES_FEATURE_ENABLED } from '@/constants';
 
 const labels: Record<ClassStatus, string> = {
   DRAFT: 'Bản nháp',
@@ -31,7 +32,7 @@ export default function MyClassesPage() {
     await load();
   };
   return (
-    <ProtectedRouteGuard featureFlag="CLASSES_FEATURE_ENABLED">
+    <ProtectedRouteGuard featureEnabled={CLASSES_FEATURE_ENABLED}>
       <PageLayout>
         <Stack gap="5">
           <HStack justify="space-between">

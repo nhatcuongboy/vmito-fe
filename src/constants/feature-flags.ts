@@ -1,8 +1,10 @@
+/** Local source of truth for Classes visibility and route access. */
+export const CLASSES_FEATURE_ENABLED = true;
+
 /**
  * Fallback values used only until `useFeatureFlagsStore` finishes loading the
- * live flags from GET /feature-flags (or if that request fails). The source
- * of truth is now the `feature_flags` DB table on the backend, not this file
- * — update flag values there, not here.
+ * live flags from GET /feature-flags (or if that request fails). Class routes
+ * intentionally use the standalone constant above instead of this store.
  */
 export const FEATURE_FLAG_DEFAULTS = {
   /** Allows PLAYER/REFEREE roles to access HOST features (clubs management,
@@ -13,9 +15,8 @@ export const FEATURE_FLAG_DEFAULTS = {
   DEFAULT_USE_AI_FOR_CREATION: true,
   /** Controls the shuttlecock-count input and related statistics/export column. */
   SHOW_SHUTTLECOCK_COUNT: false,
-  /** Controls visibility and access to the Classes feature (menus, creation, editing, browsing). */
-  CLASSES_FEATURE_ENABLED: false,
+  CLASSES_FEATURE_ENABLED,
 } as const;
 
-/** Classes browse remains visible in navigation regardless of remote feature-flag state. */
-export const SHOW_CLASSES_BROWSE_MENU = true;
+/** @deprecated Use `CLASSES_FEATURE_ENABLED` for all Classes access checks. */
+export const SHOW_CLASSES_BROWSE_MENU = CLASSES_FEATURE_ENABLED;

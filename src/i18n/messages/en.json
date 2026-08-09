@@ -6371,6 +6371,8 @@
     "composerPlaceholderWithName": "What's on your mind, {name}?",
     "contentLabel": "Post content",
     "contentRequired": "Please enter some content",
+    "seeMore": "See more",
+    "seeLess": "See less",
     "createSuccess": "Post created successfully",
     "createError": "Failed to create post",
     "loadPostsError": "Failed to load posts",

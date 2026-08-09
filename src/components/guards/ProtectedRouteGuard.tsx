@@ -7,17 +7,13 @@ import { useRouter } from '@/i18n/config';
 import { UserRole } from '@/lib/api/types';
 import { useAuthHydration, useAuthStore } from '@/stores/useAuthStore';
 import { useTranslations } from 'next-intl';
-import {
-  useFeatureFlagsStore,
-  getFeatureFlagValue,
-} from '@/stores/useFeatureFlagsStore';
 
 interface ProtectedRouteGuardProps {
   children: React.ReactNode;
   redirectTo?: string;
   requiredRole?: string[];
   requireAccessToken?: boolean;
-  featureFlag?: string;
+  featureEnabled?: boolean;
 }
 
 /** Protects pages that require authentication and, optionally, a role or feature flag. */
@@ -26,35 +22,23 @@ export default function ProtectedRouteGuard({
   redirectTo = '/auth/signin',
   requiredRole = [],
   requireAccessToken = false,
-  featureFlag,
+  featureEnabled = true,
 }: ProtectedRouteGuardProps) {
   const { user, accessToken, isAuthenticated, isLoading } = useAuthStore();
   const isHydrated = useAuthHydration();
-  const isFlagsLoaded = useFeatureFlagsStore((s) => s.isLoaded);
-  const isFeatureEnabled = useFeatureFlagsStore((s) =>
-    featureFlag ? getFeatureFlagValue(s.flags, featureFlag) : true
-  );
   const router = useRouter();
   const t = useTranslations('auth.guard');
   const hasAuthenticatedSession =
     isAuthenticated && (!requireAccessToken || Boolean(accessToken));
 
   useEffect(() => {
-    if (!isHydrated || (featureFlag && !isFlagsLoaded)) return;
+    if (!isHydrated) return;
     if (!hasAuthenticatedSession) {
       router.push(redirectTo);
-    } else if (featureFlag && !isFeatureEnabled) {
+    } else if (!featureEnabled) {
       router.push('/');
     }
-  }, [
-    isHydrated,
-    isFlagsLoaded,
-    hasAuthenticatedSession,
-    isFeatureEnabled,
-    featureFlag,
-    router,
-    redirectTo,
-  ]);
+  }, [isHydrated, hasAuthenticatedSession, featureEnabled, router, redirectTo]);
 
   const hasRequiredRole = () => {
     if (requiredRole.length === 0) return true;
@@ -72,11 +56,11 @@ export default function ProtectedRouteGuard({
     );
   };
 
-  if (!isHydrated || isLoading || (featureFlag && !isFlagsLoaded)) {
+  if (!isHydrated || isLoading) {
     return <AppSplashScreen label={t('authenticating')} />;
   }
 
-  if (!hasAuthenticatedSession || (featureFlag && !isFeatureEnabled)) {
+  if (!hasAuthenticatedSession || !featureEnabled) {
     return <AppSplashScreen label={t('redirectingToSignIn')} />;
   }
 

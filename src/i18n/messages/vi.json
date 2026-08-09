@@ -6389,6 +6389,8 @@
     "composerPlaceholderWithName": "Bạn đang nghĩ gì, {name}?",
     "contentLabel": "Nội dung bài viết",
     "contentRequired": "Vui lòng nhập nội dung",
+    "seeMore": "Xem thêm",
+    "seeLess": "Ẩn bớt",
     "createSuccess": "Đã tạo bài viết",
     "createError": "Không thể tạo bài viết",
     "loadPostsError": "Không thể tải bảng tin",

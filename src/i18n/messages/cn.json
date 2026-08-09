@@ -6334,6 +6334,8 @@
     "composerPlaceholderWithName": "{name}，你在想什么？",
     "contentLabel": "动态内容",
     "contentRequired": "请输入内容",
+    "seeMore": "查看更多",
+    "seeLess": "收起",
     "createSuccess": "动态发布成功",
     "createError": "发布动态失败",
     "loadPostsError": "加载动态失败",

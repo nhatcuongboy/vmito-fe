@@ -2,14 +2,9 @@
 
 import { useEffect } from 'react';
 import { useRouter } from '@/i18n/config';
-import {
-  useFeatureFlagsStore,
-  useFeatureFlag,
-} from '@/stores/useFeatureFlagsStore';
-import AppSplashScreen from '@/components/ui/AppSplashScreen';
 
 interface FeatureFlagGuardProps {
-  flag: string;
+  enabled: boolean;
   children: React.ReactNode;
   redirectTo?: string;
 }
@@ -19,25 +14,19 @@ interface FeatureFlagGuardProps {
  * If the feature flag is disabled, redirects the user (defaults to '/').
  */
 export default function FeatureFlagGuard({
-  flag,
+  enabled,
   children,
   redirectTo = '/',
 }: FeatureFlagGuardProps) {
   const router = useRouter();
-  const isLoaded = useFeatureFlagsStore((s) => s.isLoaded);
-  const isEnabled = useFeatureFlag(flag);
 
   useEffect(() => {
-    if (isLoaded && !isEnabled) {
+    if (!enabled) {
       router.replace(redirectTo);
     }
-  }, [isLoaded, isEnabled, router, redirectTo]);
+  }, [enabled, router, redirectTo]);
 
-  if (!isLoaded) {
-    return <AppSplashScreen label="Đang tải..." />;
-  }
-
-  if (!isEnabled) {
+  if (!enabled) {
     return null;
   }
 

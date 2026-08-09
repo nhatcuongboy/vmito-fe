@@ -27,7 +27,7 @@ import {
   TOP_BAR_HEIGHT_MOBILE,
 } from '@/constants';
 import { useIsMainPage } from '@/hooks/useBottomNavVisibility';
-import { SHOW_CLASSES_BROWSE_MENU } from '@/constants/feature-flags';
+import { CLASSES_FEATURE_ENABLED } from '@/constants/feature-flags';
 import { cn } from '@/lib/utils';
 
 interface PageLayoutProps
@@ -136,7 +136,7 @@ export default function PageLayout({
     '/',
     ROUTES.BROWSE.VENUES.LIST,
     ROUTES.CLUBS.BROWSE,
-    ...(SHOW_CLASSES_BROWSE_MENU ? [ROUTES.CLASSES.BROWSE] : []),
+    ...(CLASSES_FEATURE_ENABLED ? [ROUTES.CLASSES.BROWSE] : []),
     ROUTES.BROWSE.TOURNAMENTS.LIST,
   ].some((path) => {
     const normalized =
