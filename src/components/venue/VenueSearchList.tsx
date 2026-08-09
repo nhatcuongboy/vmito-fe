@@ -74,7 +74,10 @@ import { useAuthStore } from '@/stores/useAuthStore';
 import { usePreferenceStore } from '@/stores/usePreferenceStore';
 import { usePathname, useRouter } from '@/i18n/config';
 import { useRegisterTopBarSearch } from '@/contexts/TopBarSearchContext';
-import { getFullRowSkeletonDisplay } from '@/components/common/infinite-loading-layout';
+import {
+  getFullRowSkeletonDisplay,
+  hasResultsBeyondInitialPage,
+} from '@/components/common/infinite-loading-layout';
 import MapLoadingSkeleton from '@/components/common/MapLoadingSkeleton';
 
 const LoginPromptModal = dynamic(
@@ -1248,19 +1251,21 @@ export default function VenueSearchList({
               )}
             </Box>
           )}
-          {!hasMore && !loadingMore && venues.length > 0 && (
-            <Flex
-              justify="center"
-              mt={6}
-              mb={10}
-              overflowAnchor="none"
-              role="status"
-            >
-              <Text color="gray.500" fontSize="sm">
-                {t('session.endOfResults')}
-              </Text>
-            </Flex>
-          )}
+          {!hasMore &&
+            !loadingMore &&
+            hasResultsBeyondInitialPage(venues.length, PAGE_SIZE) && (
+              <Flex
+                justify="center"
+                mt={6}
+                mb={10}
+                overflowAnchor="none"
+                role="status"
+              >
+                <Text color="gray.500" fontSize="sm">
+                  {t('session.endOfResults')}
+                </Text>
+              </Flex>
+            )}
         </>
       )}
       <VenueRequestModal

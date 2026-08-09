@@ -1,25 +1,44 @@
 'use client';
 
 import {
-  Box,
-  Container,
-  Flex,
-  Heading,
-  Text,
-  SimpleGrid,
-} from '@chakra-ui/react';
-import { useTranslations } from 'next-intl';
-import {
-  Users,
-  Crown,
-  Search,
-  Scale,
   Activity,
   Calendar,
-  QrCode,
+  Crown,
   Heart,
+  QrCode,
+  Scale,
+  Search,
+  Users,
+  type LucideIcon,
 } from 'lucide-react';
-import * as React from 'react';
+import { useTranslations } from 'next-intl';
+
+const featureColors = {
+  blue: 'text-blue-500',
+  green: 'text-green-500',
+} as const;
+
+interface FeatureItemProps {
+  icon: LucideIcon;
+  title: string;
+  desc: string;
+  color: keyof typeof featureColors;
+}
+
+function FeatureItem({ icon: Icon, title, desc, color }: FeatureItemProps) {
+  return (
+    <div className="flex gap-4">
+      <Icon
+        aria-hidden
+        className={`mt-1 size-6 shrink-0 ${featureColors[color]}`}
+      />
+      <div>
+        <h3 className="mb-1 text-lg! font-semibold!">{title}</h3>
+        <p className="text-sm text-muted-foreground">{desc}</p>
+      </div>
+    </div>
+  );
+}
 
 export default function UseCasesSection() {
   const t = useTranslations('pages.about.useCases');
@@ -27,39 +46,22 @@ export default function UseCasesSection() {
   const tHosts = useTranslations('pages.about.useCases.hosts');
 
   return (
-    <Box pb={20} pt={10}>
-      <Container maxW="container.xl">
-        <Heading textAlign="center" mb={10} size="2xl">
-          {t('title')}
-        </Heading>
+    <section className="pt-10 pb-20">
+      <div className="mx-auto w-full max-w-screen-xl px-4 sm:px-6">
+        <h2 className="mb-10 text-center text-3xl! font-bold!">{t('title')}</h2>
 
-        <SimpleGrid columns={{ base: 1, lg: 2 }} gap={12}>
-          {/* Players Column */}
-          <Box
-            bg="bg"
-            _dark={{ bg: 'gray.800' }}
-            p={8}
-            borderRadius="2xl"
-            boxShadow="xl"
-            borderTop="4px solid"
-            borderColor="blue.500"
-          >
-            <Flex align="center" mb={6} gap={4}>
-              <Box p={3} bg="blue.100" color="blue.600" borderRadius="full">
-                <Users size={32} />
-              </Box>
-              <Heading size="lg">{tPlayers('title')}</Heading>
-            </Flex>
-            <Text
-              fontSize="lg"
-              mb={8}
-              color="fg.muted"
-              _dark={{ color: 'gray.400' }}
-            >
+        <div className="grid grid-cols-1 gap-12 lg:grid-cols-2">
+          <article className="rounded-2xl border-t-4 border-blue-500 bg-background p-8 shadow-xl dark:bg-gray-800">
+            <div className="mb-6 flex items-center gap-4">
+              <div className="rounded-full bg-blue-100 p-3 text-blue-600 dark:bg-blue-950">
+                <Users aria-hidden className="size-8" />
+              </div>
+              <h2 className="text-2xl! font-bold!">{tPlayers('title')}</h2>
+            </div>
+            <p className="mb-8 text-lg text-muted-foreground dark:text-gray-400">
               {tPlayers('description')}
-            </Text>
-
-            <SimpleGrid columns={1} gap={6}>
+            </p>
+            <div className="grid gap-6">
               <FeatureItem
                 icon={Search}
                 title={tPlayers('features.find.title')}
@@ -78,35 +80,20 @@ export default function UseCasesSection() {
                 desc={tPlayers('features.track.description')}
                 color="blue"
               />
-            </SimpleGrid>
-          </Box>
+            </div>
+          </article>
 
-          {/* Hosts Column */}
-          <Box
-            bg="bg"
-            _dark={{ bg: 'gray.800' }}
-            p={8}
-            borderRadius="2xl"
-            boxShadow="xl"
-            borderTop="4px solid"
-            borderColor="green.600"
-          >
-            <Flex align="center" mb={6} gap={4}>
-              <Box p={3} bg="green.100" color="green.600" borderRadius="full">
-                <Crown size={32} />
-              </Box>
-              <Heading size="lg">{tHosts('title')}</Heading>
-            </Flex>
-            <Text
-              fontSize="lg"
-              mb={8}
-              color="fg.muted"
-              _dark={{ color: 'gray.400' }}
-            >
+          <article className="rounded-2xl border-t-4 border-green-600 bg-background p-8 shadow-xl dark:bg-gray-800">
+            <div className="mb-6 flex items-center gap-4">
+              <div className="rounded-full bg-green-100 p-3 text-green-600 dark:bg-green-950">
+                <Crown aria-hidden className="size-8" />
+              </div>
+              <h2 className="text-2xl! font-bold!">{tHosts('title')}</h2>
+            </div>
+            <p className="mb-8 text-lg text-muted-foreground dark:text-gray-400">
               {tHosts('description')}
-            </Text>
-
-            <SimpleGrid columns={1} gap={6}>
+            </p>
+            <div className="grid gap-6">
               <FeatureItem
                 icon={Calendar}
                 title={tHosts('features.manage.title')}
@@ -125,29 +112,10 @@ export default function UseCasesSection() {
                 desc={tHosts('features.community.description')}
                 color="green"
               />
-            </SimpleGrid>
-          </Box>
-        </SimpleGrid>
-      </Container>
-    </Box>
-  );
-}
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function FeatureItem({ icon: Icon, title, desc, color }: any) {
-  return (
-    <Flex gap={4}>
-      <Box mt={1} color={`${color}.500`} minW="24px">
-        <Icon size={24} />
-      </Box>
-      <Box>
-        <Heading size="md" mb={1}>
-          {title}
-        </Heading>
-        <Text color="fg.muted" fontSize="sm">
-          {desc}
-        </Text>
-      </Box>
-    </Flex>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
   );
 }

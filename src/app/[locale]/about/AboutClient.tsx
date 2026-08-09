@@ -2,86 +2,68 @@
 
 import PageWrapper from '@/components/layout/PageWrapper';
 import TopBar from '@/components/ui/TopBar';
-import {
-  Box,
-  Container,
-  Flex,
-  Link as ChakraLink,
-  Stack,
-  Text,
-} from '@chakra-ui/react';
 import { TOP_BAR_HEIGHT_DESKTOP, TOP_BAR_HEIGHT_MOBILE } from '@/constants';
-import { useTranslations } from 'next-intl';
-import * as React from 'react';
-import { Suspense } from 'react';
 import { Link } from '@/i18n/config';
-import HeroSection from './components/HeroSection';
-import UseCasesSection from './components/UseCasesSection';
-import HowItWorksSection from './components/HowItWorksSection';
-import FAQSection from './components/FAQSection';
-import TestimonialsSection from './components/TestimonialsSection';
+import { useTranslations } from 'next-intl';
+import { Suspense, type CSSProperties } from 'react';
 import CTASection from './components/CTASection';
+import FAQSection from './components/FAQSection';
+import HeroSection from './components/HeroSection';
+import HowItWorksSection from './components/HowItWorksSection';
+import TestimonialsSection from './components/TestimonialsSection';
+import UseCasesSection from './components/UseCasesSection';
+
+const topBarOffset = {
+  '--top-bar-mobile': `${TOP_BAR_HEIGHT_MOBILE}px`,
+  '--top-bar-desktop': `${TOP_BAR_HEIGHT_DESKTOP}px`,
+} as CSSProperties;
 
 function AboutContent() {
   const common = useTranslations('common');
   const t = useTranslations('pages.home');
+
   return (
     <PageWrapper>
       <TopBar showBackButton={false} title={common('about')} />
-      <Box
-        pt={{
-          base: `calc(${TOP_BAR_HEIGHT_MOBILE}px + env(safe-area-inset-top))`,
-          md: `calc(${TOP_BAR_HEIGHT_DESKTOP}px + env(safe-area-inset-top))`,
-        }}
-      >
+      <main className="top-bar-content-offset" style={topBarOffset}>
         <HeroSection />
         <UseCasesSection />
         <HowItWorksSection />
         <TestimonialsSection />
         <FAQSection />
         <CTASection />
+      </main>
 
-        {/* Footer */}
-        <Box
-          bg="bg.muted"
-          _dark={{ bg: 'gray.900' }}
-          py={10}
-          pb="calc(64px + env(safe-area-inset-bottom) + 40px)"
-          borderTopWidth="1px"
-        >
-          <Container maxW="container.xl">
-            <Flex direction="column" align="center" gap={4}>
-              <Text color="fg.muted" fontSize="sm" suppressHydrationWarning>
-                © {new Date().getFullYear()} {common('appName')}.{' '}
-                {t('copyright')}
-              </Text>
-              <Stack direction="row" gap={3} align="center">
-                <ChakraLink
-                  as={Link}
-                  href="/terms"
-                  fontSize="sm"
-                  color="fg.muted"
-                  _hover={{ color: 'brand.500' }}
-                >
-                  {common('terms')}
-                </ChakraLink>
-                <Text fontSize="sm" color="fg.muted">
-                  •
-                </Text>
-                <ChakraLink
-                  as={Link}
-                  href="/privacy"
-                  fontSize="sm"
-                  color="fg.muted"
-                  _hover={{ color: 'brand.500' }}
-                >
-                  {common('privacy')}
-                </ChakraLink>
-              </Stack>
-            </Flex>
-          </Container>
-        </Box>
-      </Box>
+      <footer className="border-t bg-muted py-10 pb-[calc(64px+env(safe-area-inset-bottom)+40px)] dark:bg-gray-900">
+        <div className="mx-auto flex w-full max-w-screen-xl flex-col items-center gap-4 px-4 sm:px-6">
+          <p
+            className="text-center text-sm text-muted-foreground"
+            suppressHydrationWarning
+          >
+            © {new Date().getFullYear()} {common('appName')}. {t('copyright')}
+          </p>
+          <nav
+            aria-label={common('navigation')}
+            className="flex items-center gap-3"
+          >
+            <Link
+              href="/terms"
+              className="text-sm text-muted-foreground transition-colors hover:text-primary"
+            >
+              {common('terms')}
+            </Link>
+            <span aria-hidden className="text-sm text-muted-foreground">
+              •
+            </span>
+            <Link
+              href="/privacy"
+              className="text-sm text-muted-foreground transition-colors hover:text-primary"
+            >
+              {common('privacy')}
+            </Link>
+          </nav>
+        </div>
+      </footer>
     </PageWrapper>
   );
 }

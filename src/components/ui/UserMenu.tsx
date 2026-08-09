@@ -29,6 +29,7 @@ import {
   IconButton,
   Portal,
   Text,
+  chakra,
 } from '@chakra-ui/react';
 import {
   ArrowLeft,
@@ -75,7 +76,7 @@ export default function UserMenu({ onLogout }: UserMenuProps) {
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
   const { showNewAddress, setShowNewAddress } = useAppSettings();
   const menuRef = useRef<HTMLDivElement>(null);
-  const buttonRef = useRef<HTMLDivElement>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
   const [dropdownPos, setDropdownPos] = useState<{
     top: number;
     right: number;
@@ -620,19 +621,25 @@ export default function UserMenu({ onLogout }: UserMenuProps) {
 
   return (
     <>
-      <Box position="relative" ref={buttonRef}>
+      <Box position="relative">
         {/* Avatar Button */}
-        <Box
+        <chakra.button
+          className="top-bar-user-button"
+          type="button"
+          ref={buttonRef}
           position="relative"
           cursor="pointer"
           onClick={handleToggleOpen}
-          transition="all 0.2s ease"
+          aria-label={isOpen ? common('closeMenu') : common('openMenu')}
+          aria-haspopup="menu"
+          aria-expanded={isOpen}
+          transition="transform 0.2s ease"
           _hover={{
             transform: 'translateY(-1px)',
             '& .avatar-wrapper': {
               boxShadow: isOpen
-                ? '0 6px 16px rgba(34,197,94,0.26)'
-                : '0 4px 12px rgba(0,0,0,0.12)',
+                ? '0 6px 16px hsl(var(--primary) / 0.26)'
+                : '0 4px 12px hsl(var(--shell-shadow) / 0.12)',
             },
           }}
           _active={{ transform: 'translateY(0) scale(0.96)' }}
@@ -641,12 +648,11 @@ export default function UserMenu({ onLogout }: UserMenuProps) {
             className="avatar-wrapper"
             borderRadius="full"
             border="2px solid"
-            borderColor={isOpen ? 'green.500' : 'transparent'}
-            boxShadow={isOpen ? '0 4px 12px rgba(34,197,94,0.28)' : 'none'}
-            transition="all 0.2s ease"
-            _dark={{
-              borderColor: isOpen ? 'green.400' : 'transparent',
-            }}
+            borderColor={isOpen ? 'brand.500' : 'transparent'}
+            boxShadow={
+              isOpen ? '0 4px 12px hsl(var(--primary) / 0.28)' : 'none'
+            }
+            transition="border-color 0.2s ease, box-shadow 0.2s ease"
           >
             <Avatar.Root size="sm" bg="brand.500">
               <Avatar.Fallback name={user.name || user.email}>
@@ -660,17 +666,16 @@ export default function UserMenu({ onLogout }: UserMenuProps) {
             position="absolute"
             bottom="-4px"
             right="-4px"
-            bg="white"
+            bg="bg"
             borderRadius="full"
             p="3px"
             boxShadow="sm"
             border="1px solid"
-            borderColor="gray.200"
-            _dark={{ bg: 'gray.800', borderColor: 'gray.600' }}
+            borderColor="border"
           >
             <MenuIcon size={12} strokeWidth={2.5} />
           </Box>
-        </Box>
+        </chakra.button>
       </Box>
 
       {/* Dropdown Menu - rendered via Portal to escape TopBar stacking context */}
@@ -681,15 +686,14 @@ export default function UserMenu({ onLogout }: UserMenuProps) {
             position="fixed"
             top={`${dropdownPos.top}px`}
             right={`${dropdownPos.right}px`}
-            bg="white"
+            bg="bg"
             borderRadius="lg"
             boxShadow="xl"
             minW={{ base: '260px', md: '320px' }}
             zIndex={9999}
             border="1px solid"
-            borderColor="gray.200"
+            borderColor="border"
             overflow="hidden"
-            _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
           >
             {currentMenu === 'MAIN' && (
               <>

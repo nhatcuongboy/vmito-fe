@@ -1,81 +1,45 @@
 'use client';
 
-import {
-  Box,
-  Container,
-  Heading,
-  SimpleGrid,
-  Text,
-  Flex,
-} from '@chakra-ui/react';
-import { useTranslations } from 'next-intl';
 import { Quote } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 export default function TestimonialsSection() {
   const t = useTranslations('pages.about.testimonials');
-
   const testimonials = [
-    { text: t('review1.text'), author: t('review1.author') },
-    { text: t('review2.text'), author: t('review2.author') },
+    { id: 'review-1', text: t('review1.text'), author: t('review1.author') },
+    { id: 'review-2', text: t('review2.text'), author: t('review2.author') },
   ];
 
   return (
-    <Box py={20} bg="bg.muted" _dark={{ bg: 'gray.900' }}>
-      <Container maxW="container.xl">
-        <Heading textAlign="center" mb={16} size="2xl">
-          {t('title')}
-        </Heading>
-        <SimpleGrid columns={{ base: 1, md: 2 }} gap={8}>
-          {testimonials.map((review, index) => (
-            <Box
-              key={index}
-              bg="bg"
-              _dark={{ bg: 'gray.800' }}
-              p={8}
-              borderRadius="xl"
-              boxShadow="lg"
-              position="relative"
+    <section className="bg-muted py-20 dark:bg-gray-900">
+      <div className="mx-auto w-full max-w-screen-xl px-4 sm:px-6">
+        <h2 className="mb-16 text-center text-3xl! font-bold!">{t('title')}</h2>
+        <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
+          {testimonials.map((review) => (
+            <figure
+              key={review.id}
+              className="relative rounded-xl bg-background p-8 shadow-lg dark:bg-gray-800"
             >
-              <Box
-                position="absolute"
-                top={6}
-                right={8}
-                color="fg"
-                _dark={{ color: 'gray.700' }}
-              >
-                <Quote size={48} />
-              </Box>
-              <Text
-                fontSize="xl"
-                fontStyle="italic"
-                mb={6}
-                position="relative"
-                zIndex={1}
-              >
-                &ldquo;{review.text}&rdquo;
-              </Text>
-              <Flex align="center" gap={4}>
-                <Box
-                  bg="green.500"
-                  w={12}
-                  h={12}
-                  borderRadius="full"
-                  display="flex"
-                  alignItems="center"
-                  justifyContent="center"
-                  color="white"
-                  fontWeight="bold"
+              <Quote
+                aria-hidden
+                className="absolute top-6 right-8 size-12 text-gray-200 dark:text-gray-700"
+              />
+              <blockquote className="relative z-10 mb-6 text-xl italic">
+                “{review.text}”
+              </blockquote>
+              <figcaption className="flex items-center gap-4">
+                <span
+                  aria-hidden
+                  className="flex size-12 items-center justify-center rounded-full bg-green-500 font-bold text-white"
                 >
                   {review.author.charAt(0)}
-                </Box>
-                <Text fontWeight="bold" fontSize="lg">
-                  {review.author}
-                </Text>
-              </Flex>
-            </Box>
+                </span>
+                <span className="text-lg font-bold">{review.author}</span>
+              </figcaption>
+            </figure>
           ))}
-        </SimpleGrid>
-      </Container>
-    </Box>
+        </div>
+      </div>
+    </section>
   );
 }

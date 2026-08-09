@@ -135,6 +135,16 @@ export const ROUTES = {
     BROWSE: '/clubs',
     DETAIL: (id: string) => `/clubs/${id}`,
     MY_CLUBS: '/my-clubs',
+    MANAGING: '/my-clubs/managing',
+    MEMBER: '/my-clubs/member',
+  },
+
+  CLASSES: {
+    BROWSE: '/classes',
+    CREATE: '/classes/create',
+    DETAIL: (id: string) => `/classes/${id}`,
+    MINE: '/my-classes',
+    EDIT: (id: string) => `/my-classes/${id}/edit`,
   },
 
   // Join Routes

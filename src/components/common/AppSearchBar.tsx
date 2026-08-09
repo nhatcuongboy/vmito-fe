@@ -55,6 +55,7 @@ export function AppSearchBar({
       </Box>
 
       <Input
+        className="app-search-input"
         placeholder={placeholder}
         value={value}
         onChange={(e) => onChange(e.target.value)}
@@ -63,15 +64,17 @@ export function AppSearchBar({
         borderRadius="24px"
         h="44px"
         border="1px solid"
-        borderColor={{ base: 'gray.300', _dark: 'gray.500' }}
-        bg={{ base: 'white', md: 'white', _dark: 'gray.800' }}
+        borderColor={{ base: 'gray.300', _dark: 'hsl(var(--border))' }}
+        bg={{ base: 'white', md: 'white', _dark: 'hsl(var(--card))' }}
         fontSize={{ base: '16px', md: '15px' }}
         color="fg"
         boxShadow={{
           base: '0 2px 8px 0 rgba(0,0,0,0.12)',
           md: '0 1px 4px 0 rgba(0,0,0,0.08)',
         }}
-        _placeholder={{ color: { base: 'gray.500', _dark: 'gray.400' } }}
+        _placeholder={{
+          color: { base: 'gray.500', _dark: 'hsl(var(--muted-foreground))' },
+        }}
         _focus={{
           borderColor: 'green.500',
           bg: 'white',
@@ -79,7 +82,7 @@ export function AppSearchBar({
             '0 0 0 2px var(--chakra-colors-green-500), 0 4px 12px 0 rgba(34, 197, 94, 0.2)',
           _dark: {
             borderColor: 'green.400',
-            bg: 'gray.800',
+            bg: 'hsl(var(--card))',
             boxShadow:
               '0 0 0 2px var(--chakra-colors-green-400), 0 4px 12px 0 rgba(34, 197, 94, 0.24)',
           },

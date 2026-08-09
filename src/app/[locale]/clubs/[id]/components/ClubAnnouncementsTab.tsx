@@ -273,17 +273,6 @@ export const ClubAnnouncementsTab = ({
               <Text fontSize="sm" fontStyle="italic">
                 {t('clubs.noAnnouncements')}
               </Text>
-              {isUserAdmin && (
-                <Button
-                  mt={3}
-                  size="sm"
-                  colorPalette="green"
-                  onClick={handleOpenCreateModal}
-                >
-                  <Plus size={16} />
-                  {t('clubs.createAnnouncement')}
-                </Button>
-              )}
             </Flex>
           )}
         </Box>

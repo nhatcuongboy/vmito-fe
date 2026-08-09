@@ -21,6 +21,7 @@ export const MAIN_PAGE_PATHS = [
   '/newsfeed',
   '/venues',
   '/clubs',
+  '/classes',
   '/tournaments',
 ] as const;
 

@@ -1,12 +1,17 @@
 'use client';
 
-import { useState, useRef, useEffect, useTransition } from 'react';
-import { useRouter, usePathname, useSearchParams } from 'next/navigation';
-import { useLocale } from 'next-intl';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
+  DropdownMenuTrigger,
+} from '@/components/primitives/dropdown-menu';
 import { Locale } from '@/i18n/locales';
-import { Box, Text, Flex } from '@chakra-ui/react';
-import { Button, Image } from '@/components/ui/chakra-compat';
 import { ChevronDown, Languages } from 'lucide-react';
+import { useLocale, useTranslations } from 'next-intl';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { useState, useTransition } from 'react';
 
 const locales = [
   { code: Locale.EN, label: 'English', countryCode: 'us' },
@@ -19,165 +24,119 @@ type LanguageSwitcherProps = {
   isCollapsed?: boolean;
 };
 
+function Flag({ countryCode }: { countryCode: string }) {
+  return (
+    <span
+      className="sidebar-language-flag"
+      style={{
+        backgroundImage: `url(https://flagcdn.com/${countryCode}.svg)`,
+      }}
+      aria-hidden="true"
+    />
+  );
+}
+
 export default function LanguageSwitcher({
   keepDrawerOpen = false,
   isCollapsed = false,
 }: LanguageSwitcherProps) {
+  const common = useTranslations('common');
   const [isPending, startTransition] = useTransition();
   const [isOpen, setIsOpen] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const locale = useLocale();
+  const currentLocale =
+    locales.find((item) => item.code === locale) ?? locales[0];
 
-  const currentLocale = locales.find((l) => l.code === locale) || locales[0];
-
-  const menuRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
-        setIsOpen(false);
-      }
-    };
-
-    if (isOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
-    }
-
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [isOpen]);
-
-  const handleLocaleChange = (newLocale: string) => {
+  const selectLocale = (newLocale: string) => {
     startTransition(() => {
-      // Replace the current locale in the pathname
       const newPathname = pathname.replace(`/${locale}`, `/${newLocale}`);
-
-      // Preserve search params
       const queryString = searchParams.toString();
-      const fullUrl = queryString
-        ? `${newPathname}?${queryString}`
-        : newPathname;
-
-      router.replace(fullUrl);
+      router.replace(
+        queryString ? `${newPathname}?${queryString}` : newPathname
+      );
     });
     setIsOpen(false);
 
-    // Nếu keepDrawerOpen là true, sau khi navigation xong, mở lại drawer
     if (keepDrawerOpen) {
-      setTimeout(() => {
-        // Dispatch custom event để mở lại drawer
+      window.setTimeout(() => {
         window.dispatchEvent(new CustomEvent('reopenDrawer'));
       }, 500);
     }
   };
 
-  const handleCycleLocale = () => {
-    const currentIndex = locales.findIndex((l) => l.code === locale);
-    const nextIndex = (currentIndex + 1) % locales.length;
-    handleLocaleChange(locales[nextIndex].code);
+  const selectNextLocale = () => {
+    const currentIndex = locales.findIndex((item) => item.code === locale);
+    selectLocale(locales[(currentIndex + 1) % locales.length].code);
   };
 
-  const handleClick = () => {
-    if (isCollapsed) {
-      handleCycleLocale();
-    } else {
-      setIsOpen(!isOpen);
-    }
-  };
+  if (isCollapsed) {
+    return (
+      <div className="sidebar-switcher">
+        <button
+          type="button"
+          className="sidebar-switcher-trigger"
+          data-collapsed="true"
+          disabled={isPending}
+          aria-label={`${common('language')}: ${currentLocale.label}`}
+          onClick={selectNextLocale}
+        >
+          <span className="sidebar-switcher-value">
+            <Flag countryCode={currentLocale.countryCode} />
+          </span>
+        </button>
+      </div>
+    );
+  }
 
   return (
-    <Box position="relative" w="full" ref={menuRef}>
-      <Button
-        variant="outline"
-        size="sm"
-        onClick={handleClick}
-        disabled={isPending}
-        display="flex"
-        alignItems="center"
-        justifyContent={isCollapsed ? 'center' : 'space-between'}
-        gap={2}
-        w="full"
-        bg="bg"
-        px={isCollapsed ? 0 : 3}
-        borderColor="border"
-        _hover={{ bg: 'bg.muted' }}
-      >
-        <Flex align="center" gap={2}>
-          {isCollapsed ? (
-            <Image
-              src={`https://flagcdn.com/${currentLocale.countryCode}.svg`}
-              alt={currentLocale.label}
-              w="20px"
-              h="15px"
-              objectFit="cover"
-              borderRadius="sm"
-            />
-          ) : (
-            <Languages size={16} />
-          )}
-          {!isCollapsed && (
-            <Flex align="center" gap={2}>
-              <Image
-                src={`https://flagcdn.com/${currentLocale.countryCode}.svg`}
-                // Decorative — the locale label is rendered right after it
-                alt=""
-                w="18px"
-                h="13px"
-                objectFit="cover"
-                borderRadius="xs"
-              />
-              <Text fontSize="sm">{currentLocale.label}</Text>
-            </Flex>
-          )}
-        </Flex>
-        {!isCollapsed && <ChevronDown size={16} />}
-      </Button>
-
-      {isOpen && !isCollapsed && (
-        <Box
-          position="absolute"
-          bottom="100%"
-          left={0}
-          right={0}
-          mb={2}
-          bg="bg"
-          border="1px solid"
-          borderColor="border"
-          borderRadius="md"
-          shadow="lg"
-          zIndex={1000}
-          overflow="hidden"
-          minW="full"
+    <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
+      <DropdownMenuTrigger asChild>
+        <button
+          type="button"
+          className="sidebar-switcher-trigger"
+          disabled={isPending}
+          aria-label={`${common('language')}: ${currentLocale.label}`}
         >
-          {locales.map((loc) => (
-            <Box
-              key={loc.code}
-              px={4}
-              py={2}
-              cursor="pointer"
-              bg={locale === loc.code ? 'bg.muted' : 'transparent'}
-              _hover={{ bg: 'bg.muted' }}
-              onClick={() => handleLocaleChange(loc.code)}
+          <span className="sidebar-switcher-value">
+            <Languages size={16} aria-hidden="true" />
+            <Flag countryCode={currentLocale.countryCode} />
+            <span className="sidebar-switcher-label">
+              {currentLocale.label}
+            </span>
+          </span>
+          <ChevronDown
+            className="sidebar-switcher-chevron"
+            data-open={isOpen ? 'true' : undefined}
+            size={16}
+            aria-hidden="true"
+          />
+        </button>
+      </DropdownMenuTrigger>
+
+      <DropdownMenuContent
+        className="sidebar-switcher-menu"
+        side="top"
+        align="start"
+        sideOffset={8}
+      >
+        <DropdownMenuRadioGroup value={locale} onValueChange={selectLocale}>
+          {locales.map((item) => (
+            <DropdownMenuRadioItem
+              key={item.code}
+              value={item.code}
+              className="sidebar-switcher-option"
             >
-              <Flex align="center" gap={2}>
-                <Image
-                  src={`https://flagcdn.com/${loc.countryCode}.svg`}
-                  // Decorative — the locale label is rendered right after it
-                  alt=""
-                  w="18px"
-                  h="13px"
-                  objectFit="cover"
-                  borderRadius="xs"
-                />
-                <Text>{loc.label}</Text>
-              </Flex>
-            </Box>
+              <span className="sidebar-switcher-value">
+                <Flag countryCode={item.countryCode} />
+                <span className="sidebar-switcher-label">{item.label}</span>
+              </span>
+            </DropdownMenuRadioItem>
           ))}
-        </Box>
-      )}
-    </Box>
+        </DropdownMenuRadioGroup>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }

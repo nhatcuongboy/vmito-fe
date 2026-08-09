@@ -294,16 +294,25 @@ function TeamCategoryCard({
           <Text color="fg.muted">{emptyText}</Text>
         </Box>
       ) : (
-        <VStack align="stretch" gap={0} px={{ base: 3, md: 4 }} py={3}>
-          {categoryBlock.players.map((team, index) => (
+        <SimpleGrid
+          columns={{
+            base: 1,
+            lg: categoryBlock.players.length > 3 ? 2 : 1,
+          }}
+          gap={2}
+          px={{ base: 3, md: 4 }}
+          py={3}
+        >
+          {categoryBlock.players.map((team) => (
             <TeamRow
               key={`${categoryBlock.id}-${team.id}`}
               team={team}
               slug={slug}
-              showDivider={index < categoryBlock.players.length - 1}
+              showDivider={false}
+              isGridItem
             />
           ))}
-        </VStack>
+        </SimpleGrid>
       )}
     </Box>
   );
@@ -313,10 +322,12 @@ function TeamRow({
   team,
   slug,
   showDivider,
+  isGridItem = false,
 }: {
   team: TeamListItem;
   slug: string;
   showDivider: boolean;
+  isGridItem?: boolean;
 }) {
   const content = (
     <Flex
@@ -324,7 +335,8 @@ function TeamRow({
       gap={3}
       px={{ base: 2, md: 3 }}
       py={3}
-      borderBottomWidth={showDivider ? '1px' : '0'}
+      borderWidth={isGridItem ? '1px' : undefined}
+      borderBottomWidth={isGridItem ? undefined : showDivider ? '1px' : '0'}
       borderColor="gray.100"
       borderRadius="lg"
       transition="background 160ms ease, transform 160ms ease"
@@ -391,10 +403,12 @@ function PlayerRow({
   player,
   slug,
   showDivider,
+  isGridItem = false,
 }: {
   player: IAllPlayerItem;
   slug: string;
   showDivider: boolean;
+  isGridItem?: boolean;
 }) {
   return (
     <Link
@@ -406,7 +420,8 @@ function PlayerRow({
         gap={3}
         px={{ base: 2, md: 3 }}
         py={3}
-        borderBottomWidth={showDivider ? '1px' : '0'}
+        borderWidth={isGridItem ? '1px' : undefined}
+        borderBottomWidth={isGridItem ? undefined : showDivider ? '1px' : '0'}
         borderColor="gray.100"
         borderRadius="lg"
         transition="background 160ms ease, transform 160ms ease"
@@ -1199,7 +1214,10 @@ export default function TournamentPageShell({
               </Box>
             ) : (
               <SimpleGrid
-                columns={{ base: 1, xl: 2 }}
+                columns={{
+                  base: 1,
+                  xl: sortedTeamCategoryBlocks.length > 1 ? 2 : 1,
+                }}
                 gap={5}
                 alignItems="start"
               >
@@ -1302,16 +1320,26 @@ export default function TournamentPageShell({
                   <Text color="fg.muted">{t('teamsTab.noPlayers')}</Text>
                 </Box>
               ) : (
-                <VStack align="stretch" gap={0} px={{ base: 3, md: 4 }} py={3}>
-                  {filteredAllPlayers.map((player, index) => (
+                <SimpleGrid
+                  columns={{
+                    base: 1,
+                    lg: filteredAllPlayers.length > 3 ? 2 : 1,
+                    '2xl': filteredAllPlayers.length > 3 ? 3 : 1,
+                  }}
+                  gap={2}
+                  px={{ base: 3, md: 4 }}
+                  py={3}
+                >
+                  {filteredAllPlayers.map((player) => (
                     <PlayerRow
                       key={player.id}
                       player={player}
                       slug={slug}
-                      showDivider={index < filteredAllPlayers.length - 1}
+                      showDivider={false}
+                      isGridItem
                     />
                   ))}
-                </VStack>
+                </SimpleGrid>
               )}
             </Box>
           )}

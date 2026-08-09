@@ -1,6 +1,11 @@
 import { api, ApiResponse } from './base';
 
-export type FavoriteType = 'SESSION' | 'VENUE' | 'CLUB' | 'TOURNAMENT';
+export type FavoriteType =
+  | 'SESSION'
+  | 'CLASS'
+  | 'VENUE'
+  | 'CLUB'
+  | 'TOURNAMENT';
 
 /**
  * GET /favorites does not wrap the target in a `target` field - the backend

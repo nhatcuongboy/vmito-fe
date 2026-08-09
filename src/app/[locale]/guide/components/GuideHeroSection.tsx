@@ -1,15 +1,13 @@
 'use client';
 
-import { Box, Container, Heading, Text, VStack } from '@chakra-ui/react';
-import { Button } from '@/components/ui/chakra-compat';
-import { useTranslations } from 'next-intl';
-import { BookOpen, PlayCircle } from 'lucide-react';
-import * as React from 'react';
-import { useRouter } from '@/i18n/config';
+import { Button } from '@/components/primitives/button';
 import { ROUTES } from '@/constants/routes';
+import { useRouter } from '@/i18n/config';
 import { useTourStore } from '@/stores/useTourStore';
+import { BookOpen, PlayCircle } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
-const GuideHeroSection = () => {
+export default function GuideHeroSection() {
   const t = useTranslations('pages.guide.hero');
   const tTour = useTranslations('productTour');
   const router = useRouter();
@@ -20,49 +18,22 @@ const GuideHeroSection = () => {
   };
 
   return (
-    <Box
-      py={{ base: 12, md: 20 }}
-      bg="green.50"
-      _dark={{ bg: 'green.950' }}
-      textAlign="center"
-    >
-      <Container maxW="container.lg">
-        <VStack gap={5}>
-          <Box
-            bg="green.500"
-            p={4}
-            borderRadius="full"
-            color="white"
-            boxShadow="lg"
-          >
-            <BookOpen size={40} />
-          </Box>
-          <Heading
-            size={{ base: '2xl', md: '3xl' }}
-            color="green.700"
-            _dark={{ color: 'green.300' }}
-          >
-            {t('title')}
-          </Heading>
-          <Text
-            fontSize={{ base: 'md', md: 'lg' }}
-            color="fg.muted"
-            maxW="600px"
-          >
-            {t('subtitle')}
-          </Text>
-          <Button
-            colorPalette="green"
-            size="lg"
-            onClick={handleStartTour}
-            leftIcon={<PlayCircle size={20} />}
-          >
-            {tTour('restartCta')}
-          </Button>
-        </VStack>
-      </Container>
-    </Box>
+    <section className="bg-green-50 py-12 text-center md:py-20 dark:bg-green-950">
+      <div className="mx-auto flex w-full max-w-5xl flex-col items-center gap-5 px-4 sm:px-6">
+        <span className="rounded-full bg-green-500 p-4 text-white shadow-lg">
+          <BookOpen aria-hidden className="size-10" />
+        </span>
+        <h1 className="text-3xl! font-bold! text-green-700 md:text-4xl! dark:text-green-300">
+          {t('title')}
+        </h1>
+        <p className="max-w-[600px] text-base text-muted-foreground md:text-lg">
+          {t('subtitle')}
+        </p>
+        <Button onClick={handleStartTour} size="lg">
+          <PlayCircle aria-hidden className="size-5" />
+          {tTour('restartCta')}
+        </Button>
+      </div>
+    </section>
   );
-};
-
-export default GuideHeroSection;
+}

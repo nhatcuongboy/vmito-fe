@@ -1,98 +1,74 @@
 'use client';
 
-import {
-  Box,
-  Container,
-  Heading,
-  SimpleGrid,
-  Text,
-  VStack,
-  HStack,
-} from '@chakra-ui/react';
+import { Bell, Filter, Globe, Share2, Smartphone, Wifi } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { Bell, Smartphone, Filter, Share2, Globe, Wifi } from 'lucide-react';
-import * as React from 'react';
+import { useState } from 'react';
+import { GuideSectionHeader } from './GuideSectionPrimitives';
 import PWAInstallTour from './PWAInstallTour';
 
-const TipsSection = () => {
-  const t = useTranslations('pages.guide.tips');
-  const [isPWAInstallTourOpen, setIsPWAInstallTourOpen] = React.useState(false);
+const tips = [
+  { icon: Bell, key: 'notifications', color: 'text-red-500' },
+  { icon: Smartphone, key: 'pwa', color: 'text-blue-500' },
+  { icon: Filter, key: 'filters', color: 'text-purple-500' },
+  { icon: Share2, key: 'share', color: 'text-green-500' },
+  { icon: Globe, key: 'language', color: 'text-orange-500' },
+  { icon: Wifi, key: 'realtime', color: 'text-cyan-500' },
+] as const;
 
-  const tips = [
-    { icon: Bell, key: 'notifications', color: 'red.500' },
-    { icon: Smartphone, key: 'pwa', color: 'blue.500' },
-    { icon: Filter, key: 'filters', color: 'purple.500' },
-    { icon: Share2, key: 'share', color: 'green.500' },
-    { icon: Globe, key: 'language', color: 'orange.500' },
-    { icon: Wifi, key: 'realtime', color: 'cyan.500' },
-  ];
+export default function TipsSection() {
+  const t = useTranslations('pages.guide.tips');
+  const [isPWAInstallTourOpen, setIsPWAInstallTourOpen] = useState(false);
 
   return (
-    <Box
+    <section
       id="tips"
-      py={{ base: 12, md: 16 }}
-      bg="bg.muted"
-      _dark={{ bg: 'gray.900' }}
+      className="scroll-mt-16 bg-muted py-12 md:scroll-mt-20 md:py-16 dark:bg-gray-900"
     >
-      <Container maxW="container.lg">
-        <VStack gap={10}>
-          <VStack gap={3} textAlign="center">
-            <Heading size={{ base: 'xl', md: '2xl' }}>{t('title')}</Heading>
-            <Text color="fg.muted" fontSize={{ base: 'md', md: 'lg' }}>
-              {t('subtitle')}
-            </Text>
-          </VStack>
+      <div className="mx-auto w-full max-w-5xl space-y-10 px-4 sm:px-6">
+        <GuideSectionHeader title={t('title')} subtitle={t('subtitle')} />
+        <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
+          {tips.map((tip) => {
+            const content = (
+              <>
+                <tip.icon
+                  aria-hidden
+                  className={`mt-0.5 size-[22px] shrink-0 ${tip.color}`}
+                />
+                <div className="space-y-1">
+                  <h3 className="text-sm! font-semibold!">
+                    {t(`${tip.key}.title`)}
+                  </h3>
+                  <p className="text-xs text-muted-foreground">
+                    {t(`${tip.key}.description`)}
+                  </p>
+                </div>
+              </>
+            );
 
-          <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} gap={5} w="full">
-            {tips.map((tip) => {
-              const isPwaTip = tip.key === 'pwa';
-              return (
-                <Box
-                  key={tip.key}
-                  as={isPwaTip ? 'button' : 'div'}
-                  onClick={
-                    isPwaTip ? () => setIsPWAInstallTourOpen(true) : undefined
-                  }
-                  cursor={isPwaTip ? 'pointer' : undefined}
-                  textAlign="left"
-                  bg="bg"
-                  _dark={{ bg: 'gray.800' }}
-                  p={4}
-                  borderRadius="lg"
-                  boxShadow="sm"
-                  gap={4}
-                  _hover={
-                    isPwaTip
-                      ? { transform: 'translateY(-2px)', boxShadow: 'md' }
-                      : undefined
-                  }
-                  transition="all 0.2s"
-                >
-                  <HStack gap={4} align="start">
-                    <Box color={tip.color} flexShrink={0} mt={0.5}>
-                      <tip.icon size={22} />
-                    </Box>
-                    <VStack align="start" gap={1}>
-                      <Text fontWeight="semibold" fontSize="sm">
-                        {t(`${tip.key}.title`)}
-                      </Text>
-                      <Text color="fg.muted" fontSize="xs">
-                        {t(`${tip.key}.description`)}
-                      </Text>
-                    </VStack>
-                  </HStack>
-                </Box>
-              );
-            })}
-          </SimpleGrid>
-        </VStack>
-      </Container>
+            return tip.key === 'pwa' ? (
+              <button
+                key={tip.key}
+                type="button"
+                className="flex items-start gap-4 rounded-lg bg-background p-4 text-left shadow-sm transition hover:-translate-y-0.5 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring dark:bg-gray-800"
+                onClick={() => setIsPWAInstallTourOpen(true)}
+              >
+                {content}
+              </button>
+            ) : (
+              <article
+                key={tip.key}
+                className="flex items-start gap-4 rounded-lg bg-background p-4 shadow-sm dark:bg-gray-800"
+              >
+                {content}
+              </article>
+            );
+          })}
+        </div>
+      </div>
       <PWAInstallTour
         isOpen={isPWAInstallTourOpen}
         onClose={() => setIsPWAInstallTourOpen(false)}
       />
-    </Box>
+    </section>
   );
-};
-
-export default TipsSection;
+}

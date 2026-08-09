@@ -84,7 +84,10 @@ import {
   SessionCardCompactSkeleton,
 } from './SessionCardSkeleton';
 import { SESSION_RESULTS_LAYOUT } from './find-session-results-layout';
-import { getFullRowSkeletonDisplay } from '@/components/common/infinite-loading-layout';
+import {
+  getFullRowSkeletonDisplay,
+  hasResultsBeyondInitialPage,
+} from '@/components/common/infinite-loading-layout';
 import MapLoadingSkeleton from '@/components/common/MapLoadingSkeleton';
 import SessionSearchBar from './SessionSearchBar';
 import ResultsHeader from './ResultsHeader';
@@ -1223,19 +1226,21 @@ export default function FindSessionList({
               )}
             </Box>
           )}
-          {!hasMore && !loadingMore && sortedSessions.length > 0 && (
-            <Flex
-              justify="center"
-              mt={6}
-              mb={10}
-              overflowAnchor="none"
-              role="status"
-            >
-              <Text color="gray.500" fontSize="sm">
-                {t('endOfResults')}
-              </Text>
-            </Flex>
-          )}
+          {!hasMore &&
+            !loadingMore &&
+            hasResultsBeyondInitialPage(sortedSessions.length, PAGE_SIZE) && (
+              <Flex
+                justify="center"
+                mt={6}
+                mb={10}
+                overflowAnchor="none"
+                role="status"
+              >
+                <Text color="gray.500" fontSize="sm">
+                  {t('endOfResults')}
+                </Text>
+              </Flex>
+            )}
         </RatingStatsProvider>
       )}
 

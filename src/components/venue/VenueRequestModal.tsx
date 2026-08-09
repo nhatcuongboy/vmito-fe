@@ -347,30 +347,30 @@ export default function VenueRequestModal({
               </Field>
             )}
           />
-
-          <Controller
-            control={form.control}
-            name="street"
-            render={({ field, fieldState }) => (
-              <Field
-                label={t('fields.street')}
-                required
-                invalid={!!fieldState.error}
-                errorText={t('validation.required')}
-                helperText={t('helpers.street')}
-              >
-                <Input
-                  {...field}
-                  placeholder={t('placeholders.street')}
-                  onChange={(event) => {
-                    resetSimilarWarning();
-                    field.onChange(event);
-                  }}
-                />
-              </Field>
-            )}
-          />
         </SimpleGrid>
+
+        <Controller
+          control={form.control}
+          name="street"
+          render={({ field, fieldState }) => (
+            <Field
+              label={t('fields.street')}
+              required
+              invalid={!!fieldState.error}
+              errorText={t('validation.required')}
+              helperText={t('helpers.street')}
+            >
+              <Input
+                {...field}
+                placeholder={t('placeholders.street')}
+                onChange={(event) => {
+                  resetSimilarWarning();
+                  field.onChange(event);
+                }}
+              />
+            </Field>
+          )}
+        />
 
         <SimpleGrid columns={{ base: 1, md: 2 }} gap={4}>
           <Controller

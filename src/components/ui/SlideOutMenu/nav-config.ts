@@ -26,6 +26,7 @@ import type { ComponentType } from 'react';
 import { ROUTES } from '@/constants';
 import { UserRole } from '@/lib/api/types';
 import type { User } from '@/types/auth';
+import ClubsMenu from './ClubsMenu';
 import SessionsMenu from './SessionsMenu';
 
 /** Everything a visibility/href/active predicate may depend on. */
@@ -34,6 +35,7 @@ export interface NavContext {
   isAuthenticated: boolean;
   canAccessHostFeatures: boolean;
   hasManagedVenues: boolean;
+  classesFeatureEnabled: boolean;
 }
 
 type Translator = (key: string) => string;
@@ -126,6 +128,13 @@ export const NAV_SECTIONS: NavSectionConfig[] = [
         getHref: () => ROUTES.BROWSE.TOURNAMENTS.LIST,
       },
       {
+        key: 'browseClasses',
+        icon: BookOpen,
+        label: (t) => t.nav('browseClasses'),
+        getHref: () => ROUTES.CLASSES.BROWSE,
+        isVisible: (ctx) => ctx.classesFeatureEnabled,
+      },
+      {
         key: 'newsfeed',
         icon: Newspaper,
         label: (t) => t.nav('newsfeed'),
@@ -151,9 +160,14 @@ export const NAV_SECTIONS: NavSectionConfig[] = [
       },
       {
         key: 'myClubs',
-        icon: Users,
-        label: (t) => t.nav('myClubs'),
-        getHref: () => ROUTES.CLUBS.MY_CLUBS,
+        component: ClubsMenu,
+      },
+      {
+        key: 'myClasses',
+        icon: BookOpen,
+        label: (t) => t.nav('myClasses'),
+        getHref: () => ROUTES.CLASSES.MINE,
+        isVisible: (ctx) => ctx.classesFeatureEnabled,
       },
       {
         key: 'myRentals',

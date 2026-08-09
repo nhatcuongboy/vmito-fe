@@ -1,32 +1,25 @@
 'use client';
 
-import {
-  Box,
-  Container,
-  Heading,
-  SimpleGrid,
-  Text,
-  Flex,
-} from '@chakra-ui/react';
+import { Search, Trophy, UserPlus } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { UserPlus, Search, Trophy } from 'lucide-react';
-import * as React from 'react';
 
 export default function HowItWorksSection() {
   const t = useTranslations('pages.about.howItWorks');
-
   const steps = [
     {
+      id: 'account',
       icon: UserPlus,
       title: t('steps.step1.title'),
       description: t('steps.step1.description'),
     },
     {
+      id: 'search',
       icon: Search,
       title: t('steps.step2.title'),
       description: t('steps.step2.description'),
     },
     {
+      id: 'play',
       icon: Trophy,
       title: t('steps.step3.title'),
       description: t('steps.step3.description'),
@@ -34,44 +27,29 @@ export default function HowItWorksSection() {
   ];
 
   return (
-    <Box id="how-it-works" py={20} bg="bg.muted" _dark={{ bg: 'gray.900' }}>
-      <Container maxW="container.xl">
-        <Heading textAlign="center" mb={16} size="2xl">
-          {t('title')}
-        </Heading>
-        <SimpleGrid columns={{ base: 1, md: 3 }} gap={10}>
-          {steps.map((step, index) => (
-            <Flex
-              key={index}
-              direction="column"
-              align="center"
-              textAlign="center"
+    <section
+      id="how-it-works"
+      className="scroll-mt-20 bg-muted py-20 dark:bg-gray-900"
+    >
+      <div className="mx-auto w-full max-w-screen-xl px-4 sm:px-6">
+        <h2 className="mb-16 text-center text-3xl! font-bold!">{t('title')}</h2>
+        <ol className="grid grid-cols-1 gap-10 md:grid-cols-3">
+          {steps.map((step) => (
+            <li
+              key={step.id}
+              className="flex flex-col items-center text-center"
             >
-              <Box
-                bg="bg"
-                _dark={{ bg: 'gray.800' }}
-                p={6}
-                borderRadius="full"
-                boxShadow="lg"
-                mb={6}
-                color="green.500"
-              >
-                <step.icon size={40} />
-              </Box>
-              <Heading size="lg" mb={4}>
-                {step.title}
-              </Heading>
-              <Text
-                fontSize="lg"
-                color="fg.muted"
-                _dark={{ color: 'gray.400' }}
-              >
+              <div className="mb-6 rounded-full bg-background p-6 text-green-500 shadow-lg dark:bg-gray-800">
+                <step.icon aria-hidden className="size-10" />
+              </div>
+              <h3 className="mb-4 text-2xl! font-bold!">{step.title}</h3>
+              <p className="text-lg text-muted-foreground dark:text-gray-400">
                 {step.description}
-              </Text>
-            </Flex>
+              </p>
+            </li>
           ))}
-        </SimpleGrid>
-      </Container>
-    </Box>
+        </ol>
+      </div>
+    </section>
   );
 }

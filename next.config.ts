@@ -11,7 +11,12 @@ const nextConfig = {
   output: 'standalone' as const,
   transpilePackages: ['react-tournament-brackets'],
   experimental: {
-    optimizePackageImports: ['@chakra-ui/react', 'react-icons', 'lucide-react'],
+    optimizePackageImports: [
+      '@chakra-ui/react',
+      'radix-ui',
+      'react-icons',
+      'lucide-react',
+    ],
     serverComponentsHmrCache: true,
     // Inline the route CSS into the HTML instead of a render-blocking
     // stylesheet request (~150ms saved on first paint)

@@ -1,22 +1,15 @@
 'use client';
 
 import {
-  Box,
-  Container,
-  Heading,
-  Text,
-  AccordionRoot,
+  Accordion,
+  AccordionContent,
   AccordionItem,
-  AccordionItemTrigger,
-  AccordionItemContent,
-  AccordionItemIndicator,
-} from '@chakra-ui/react';
+  AccordionTrigger,
+} from '@/components/primitives/accordion';
 import { useTranslations } from 'next-intl';
-import { ChevronDown } from 'lucide-react';
 
 export default function FAQSection() {
   const t = useTranslations('pages.about.faq');
-
   const faqs = [
     { value: 'q1', question: t('q1.question'), answer: t('q1.answer') },
     { value: 'q2', question: t('q2.question'), answer: t('q2.answer') },
@@ -24,42 +17,26 @@ export default function FAQSection() {
   ];
 
   return (
-    <Box pt={20} pb={10}>
-      <Container maxW="container.md">
-        <Heading textAlign="center" mb={12} size="2xl">
-          {t('title')}
-        </Heading>
-
-        <AccordionRoot collapsible variant="enclosed">
+    <section className="pt-20 pb-10">
+      <div className="mx-auto w-full max-w-3xl px-4 sm:px-6">
+        <h2 className="mb-12 text-center text-3xl! font-bold!">{t('title')}</h2>
+        <Accordion
+          type="single"
+          collapsible
+          className="overflow-hidden rounded-lg border"
+        >
           {faqs.map((faq) => (
             <AccordionItem key={faq.value} value={faq.value}>
-              <AccordionItemTrigger px={6} py={4} cursor="pointer">
-                <Text
-                  flex="1"
-                  textAlign="left"
-                  fontWeight="semibold"
-                  fontSize="lg"
-                >
-                  {faq.question}
-                </Text>
-                <AccordionItemIndicator>
-                  <ChevronDown size={20} />
-                </AccordionItemIndicator>
-              </AccordionItemTrigger>
-              <AccordionItemContent px={6} pb={4}>
-                <Text
-                  color="fg.muted"
-                  _dark={{ color: 'gray.400' }}
-                  fontSize="md"
-                  lineHeight="tall"
-                >
-                  {faq.answer}
-                </Text>
-              </AccordionItemContent>
+              <AccordionTrigger className="cursor-pointer px-6 py-4 text-lg font-semibold! hover:no-underline">
+                {faq.question}
+              </AccordionTrigger>
+              <AccordionContent className="px-6 pb-4 text-base leading-relaxed text-muted-foreground dark:text-gray-400">
+                {faq.answer}
+              </AccordionContent>
             </AccordionItem>
           ))}
-        </AccordionRoot>
-      </Container>
-    </Box>
+        </Accordion>
+      </div>
+    </section>
   );
 }

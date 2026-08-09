@@ -2,12 +2,12 @@
 
 import MainLayout from '@/components/layout/MainLayout';
 import { useRouter } from '@/i18n/config';
-import { useAuthStore } from '@/stores/useAuthStore';
 import { UserRole } from '@/lib/api/types';
-import { Box, Spinner, Text, VStack } from '@chakra-ui/react';
+import { useAuthStore } from '@/stores/useAuthStore';
 import { useTranslations } from 'next-intl';
 import { useSearchParams } from 'next/navigation';
 import { Suspense, useEffect, useState } from 'react';
+import { AuthLoadingState } from '../components/AuthFormPrimitives';
 
 function AuthCallbackContent() {
   const router = useRouter();
@@ -26,94 +26,51 @@ function AuthCallbackContent() {
     const image = searchParams.get('image');
 
     if (token && refreshToken && userId && email && role) {
-      // Store auth data
       setAuth(
         {
           id: userId,
-          email: email,
+          email,
           name: name || '',
           role: role as UserRole,
-          image: image,
+          image,
         },
         token,
         refreshToken
       );
 
-      // Defer toaster and redirect to next tick to avoid flushSync error
       setTimeout(() => {
-        // Check for returnUrl first (passed from backend OAuth callback)
-        const returnUrl = searchParams.get('returnUrl');
-        if (returnUrl) {
-          router.replace(returnUrl);
-          return;
-        }
-
-        // Otherwise redirect to Home
-        const redirectPath = '/';
-
-        router.replace(redirectPath);
+        router.replace(searchParams.get('returnUrl') || '/');
       }, 0);
     } else {
       setError(t('invalidCallbackParameters'));
-      // Redirect to signin after 3 seconds
-      setTimeout(() => {
+      const redirectTimer = window.setTimeout(() => {
         router.replace('/auth/signin');
       }, 3000);
+      return () => window.clearTimeout(redirectTimer);
     }
   }, [searchParams, setAuth, router, t]);
 
   if (error) {
     return (
       <MainLayout title={t('authenticationErrorTitle')}>
-        <Box
-          minH="100vh"
-          display="flex"
-          alignItems="center"
-          justifyContent="center"
-          bg="bg"
-        >
-          <VStack gap={4}>
-            <Text color="red.500" fontSize="xl">
+        <main className="flex min-h-screen items-center justify-center bg-background px-4 text-center">
+          <div className="space-y-4">
+            <p role="alert" className="text-xl text-red-500">
               {error}
-            </Text>
-            <Text color="fg.muted">{t('redirectingToSignIn')}</Text>
-          </VStack>
-        </Box>
+            </p>
+            <p className="text-muted-foreground">{t('redirectingToSignIn')}</p>
+          </div>
+        </main>
       </MainLayout>
     );
   }
 
-  return (
-    <Box
-      minH="100vh"
-      display="flex"
-      alignItems="center"
-      justifyContent="center"
-      bg="bg"
-    >
-      <VStack gap={4}>
-        <Spinner size="xl" color="green.500" />
-        <Text color="fg.muted">{t('completingSignIn')}</Text>
-      </VStack>
-    </Box>
-  );
+  return <AuthLoadingState label={t('completingSignIn')} />;
 }
 
 export default function AuthCallbackPage() {
   return (
-    <Suspense
-      fallback={
-        <Box
-          minH="100vh"
-          bg="bg"
-          display="flex"
-          alignItems="center"
-          justifyContent="center"
-        >
-          <Spinner size="xl" color="green.500" />
-        </Box>
-      }
-    >
+    <Suspense fallback={<AuthLoadingState />}>
       <AuthCallbackContent />
     </Suspense>
   );

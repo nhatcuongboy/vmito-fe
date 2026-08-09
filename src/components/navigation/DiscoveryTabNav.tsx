@@ -12,6 +12,7 @@ import { Flame, Heart } from 'lucide-react';
 import { useSearchParams } from 'next/navigation';
 import { useAuthStore, useAuthHydration } from '@/stores/useAuthStore';
 
+import { SHOW_CLASSES_BROWSE_MENU } from '@/constants/feature-flags';
 import { UnderlineTabs } from '../ui/UnderlineTabs';
 
 export function DiscoveryTabNav() {
@@ -42,6 +43,9 @@ export function DiscoveryTabNav() {
     { id: ROUTES.BROWSE.VENUES.LIST, label: t('findVenues') },
     { id: ROUTES.CLUBS.BROWSE, label: t('findClubs') },
     { id: ROUTES.BROWSE.TOURNAMENTS.LIST, label: t('findTournaments') },
+    ...(SHOW_CLASSES_BROWSE_MENU
+      ? [{ id: ROUTES.CLASSES.BROWSE, label: t('findClasses') }]
+      : []),
   ];
 
   // Helper to check which tab is active
@@ -82,6 +86,8 @@ export function DiscoveryTabNav() {
           md: `calc(${TOP_BAR_HEIGHT_DESKTOP}px + env(safe-area-inset-top))`,
         }}
         boxShadow="0 2px 4px -1px rgba(0,0,0,0.1)"
+        maxVisibleItems={4}
+        moreLabel={t('more')}
         rightContent={
           isHydrated && isAuthenticated ? (
             <Box
