@@ -14,6 +14,8 @@ import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/chakra-compat';
 import { SearchableSelect } from '@/components/ui/SearchableSelect';
 import LocationAutocomplete from '@/components/common/LocationAutocomplete';
+import { AppAddressDisplay } from '@/components/common/AppAddressDisplay';
+import { VSwitch } from '@/components/ui/VSwitch';
 import { Sparkles, MapPin, Plus } from 'lucide-react';
 import { Controller, useWatch } from 'react-hook-form';
 import type {
@@ -28,7 +30,7 @@ import { useTranslations as useNextIntlTranslations } from 'next-intl';
 import { SessionLocationType, SportType, Venue } from '@/lib/api/types';
 import { SessionFormData } from '@/components/session/session-form/sessionFormSchema';
 import { AppSportSelect } from '@/components/common/AppSportSelect';
-import { useRef } from 'react';
+import { useRef, useState, useEffect } from 'react';
 
 type Translator = ReturnType<typeof useTranslations>;
 
@@ -37,8 +39,6 @@ interface VenueOption {
   label: string;
   sublabel?: string;
 }
-
-const CUSTOM_LOCATION_VALUE = '__custom_location__';
 
 export function BasicInfoSection({
   t,
@@ -88,12 +88,38 @@ export function BasicInfoSection({
   const tCommon = useNextIntlTranslations('common');
   const tSport = useNextIntlTranslations('sport');
   const locationType = useWatch({ control, name: 'locationType' });
+  const selectedVenueId = useWatch({ control, name: 'selectedVenueId' });
   const customLocation = useWatch({ control, name: 'customLocation' });
   const customLocationAddress = useWatch({
     control,
     name: 'customLocationAddress',
   });
   const venueFieldRef = useRef<HTMLDivElement>(null);
+
+  // State for custom location toggle switch
+  // Default to false (venue mode), but initialize based on form's locationType
+  const [isCustomLocationMode, setIsCustomLocationMode] = useState(false);
+
+  // Initialize switch state based on form's locationType on mount
+  useEffect(() => {
+    if (locationType === SessionLocationType.CUSTOM) {
+      setIsCustomLocationMode(true);
+    }
+  }, [locationType]);
+
+  // Handler for toggle switch
+  const handleToggleCustomLocation = (checked: boolean) => {
+    setIsCustomLocationMode(checked);
+    // Update form's locationType to match switch state
+    setValue(
+      'locationType',
+      checked ? SessionLocationType.CUSTOM : SessionLocationType.VENUE,
+      { shouldValidate: true }
+    );
+  };
+
+  // Find the selected venue object for address display
+  const selectedVenue = venues.find((v) => v.id === selectedVenueId);
 
   const clearCustomLocationDetails = () => {
     setValue('customLocationAddress', '');
@@ -104,10 +130,6 @@ export function BasicInfoSection({
     setValue('customLocationCity', '');
   };
 
-  const clearCustomLocation = () => {
-    setValue('customLocation', '');
-    clearCustomLocationDetails();
-  };
   return (
     <Box
       bg={{ base: 'white', _dark: 'gray.800' }}
@@ -188,109 +210,132 @@ export function BasicInfoSection({
           <Field.Root
             disabled={!canEditVenue}
             invalid={
-              locationType === SessionLocationType.VENUE &&
-              !!errors.selectedVenueId
+              (locationType === SessionLocationType.VENUE &&
+                !!errors.selectedVenueId) ||
+              (locationType === SessionLocationType.CUSTOM &&
+                !!errors.customLocation)
             }
           >
-            <Field.Label>
-              {t('location')}{' '}
-              <Text as="span" color="red.500">
-                *
-              </Text>
-            </Field.Label>
-            <Controller
-              control={control}
-              name="selectedVenueId"
-              render={({ field }) => (
-                <SearchableSelect
-                  isInvalid={
-                    locationType === SessionLocationType.VENUE &&
-                    !!errors.selectedVenueId
-                  }
-                  value={
-                    locationType === SessionLocationType.CUSTOM
-                      ? CUSTOM_LOCATION_VALUE
-                      : field.value
-                  }
-                  selectedLabelOverride={
-                    locationType === SessionLocationType.CUSTOM
-                      ? customLocation
-                      : undefined
-                  }
-                  onChange={(value) => {
-                    // Picking (or clearing to) a Vmito venue resolves what the
-                    // warning was about, so retire it for good rather than
-                    // letting it resurface if the user goes custom again by
-                    // hand — that location would be theirs, not the AI's.
-                    onDismissAiCustomLocationWarning?.();
-
-                    if (!value) {
-                      field.onChange('');
-                      setValue('locationType', SessionLocationType.VENUE);
-                      clearCustomLocation();
-                      setSelectedVenueObj(null);
-                      return;
-                    }
-
-                    field.onChange(value);
-                    setValue('locationType', SessionLocationType.VENUE);
-                    clearCustomLocation();
-                    const venue = venues.find((v) => v.id === value);
-                    setSelectedVenueObj(venue ?? null);
-                  }}
-                  options={venueOptions}
-                  placeholder={t('generalSettings.selectVenue')}
-                  searchPlaceholder={t('generalSettings.searchVenue')}
-                  noOptionsMessage={t('generalSettings.noVenueFound')}
-                  onSearchChange={handleVenueSearch}
-                  isLoading={isVenueLoading}
-                  isDisabled={!canEditVenue}
-                  dropdownZIndex={2000}
-                  dropdownPortalContainerRef={venueFieldRef}
-                  isClearable
-                  clearAriaLabel={t('generalSettings.clearLocation')}
-                  searchActions={[
-                    {
-                      label: (query) =>
-                        t('generalSettings.useCustomLocation', { name: query }),
-                      onClick: (query) => {
-                        field.onChange('');
-                        setValue('locationType', SessionLocationType.CUSTOM, {
-                          shouldValidate: true,
-                        });
-                        setValue('customLocation', query, {
-                          shouldValidate: true,
-                        });
-                        clearCustomLocationDetails();
-                        setSelectedVenueObj(null);
-                      },
-                      variant: 'primary',
-                      icon: MapPin,
-                    },
-                    ...(onSuggestNewVenue
-                      ? [
-                          {
-                            label: () => tVenueRequests('suggestNewVenue'),
-                            onClick: (query: string) =>
-                              onSuggestNewVenue(query),
-                            variant: 'secondary' as const,
-                            icon: Plus,
-                          },
-                        ]
-                      : []),
-                  ]}
+            <Flex align="center" justify="space-between" mb={2} width="100%">
+              <Field.Label>
+                {t('location')}{' '}
+                <Text as="span" color="red.500">
+                  *
+                </Text>
+              </Field.Label>
+              <Flex align="center" gap={2}>
+                <Text fontSize="sm" color="fg.muted">
+                  {t('generalSettings.customLocationToggle')}
+                </Text>
+                <VSwitch
+                  checked={isCustomLocationMode}
+                  onCheckedChange={(e) => handleToggleCustomLocation(e.checked)}
+                  disabled={!canEditVenue}
+                  size="sm"
+                  colorPalette="green"
                 />
-              )}
-            />
+              </Flex>
+            </Flex>
+
+            {/* Venue Select - Only show when switch is OFF */}
+            {!isCustomLocationMode && (
+              <>
+                <Controller
+                  control={control}
+                  name="selectedVenueId"
+                  render={({ field }) => (
+                    <SearchableSelect
+                      isInvalid={
+                        locationType === SessionLocationType.VENUE &&
+                        !!errors.selectedVenueId
+                      }
+                      value={field.value}
+                      onChange={(value) => {
+                        // Picking a venue resolves the AI warning
+                        onDismissAiCustomLocationWarning?.();
+
+                        if (!value) {
+                          field.onChange('');
+                          setValue('locationType', SessionLocationType.VENUE);
+                          setSelectedVenueObj(null);
+                          return;
+                        }
+
+                        field.onChange(value);
+                        setValue('locationType', SessionLocationType.VENUE);
+                        const venue = venues.find((v) => v.id === value);
+                        setSelectedVenueObj(venue ?? null);
+                      }}
+                      options={venueOptions}
+                      placeholder={t('generalSettings.selectVenue')}
+                      searchPlaceholder={t('generalSettings.searchVenue')}
+                      noOptionsMessage={t('generalSettings.noVenueFound')}
+                      onSearchChange={handleVenueSearch}
+                      isLoading={isVenueLoading}
+                      isDisabled={!canEditVenue}
+                      dropdownZIndex={2000}
+                      dropdownPortalContainerRef={venueFieldRef}
+                      isClearable
+                      clearAriaLabel={t('generalSettings.clearLocation')}
+                      searchActions={
+                        onSuggestNewVenue
+                          ? [
+                              {
+                                label: () => tVenueRequests('suggestNewVenue'),
+                                onClick: (query: string) =>
+                                  onSuggestNewVenue(query),
+                                variant: 'secondary' as const,
+                                icon: Plus,
+                              },
+                            ]
+                          : undefined
+                      }
+                    />
+                  )}
+                />
+
+                {/* Venue Address Display - Show when venue is selected */}
+                {selectedVenue && selectedVenue.address && (
+                  <Flex
+                    align="center"
+                    gap={1.5}
+                    mt={1.5}
+                    aria-label={t('generalSettings.venueAddress')}
+                  >
+                    <Box
+                      as="span"
+                      display="inline-flex"
+                      alignItems="center"
+                      flexShrink={0}
+                      color="fg.muted"
+                    >
+                      <MapPin size={14} />
+                    </Box>
+                    <Box flex="1" minW={0}>
+                      <AppAddressDisplay
+                        address={selectedVenue.address}
+                        district={selectedVenue.district}
+                        city={selectedVenue.city}
+                        newAddress={selectedVenue.newAddress}
+                        newDistrict={selectedVenue.newDistrict}
+                        fontSize="sm"
+                        color="fg.muted"
+                        lineClamp={2}
+                      />
+                    </Box>
+                  </Flex>
+                )}
+              </>
+            )}
 
             <Field.ErrorText color="fg.error">
-              {errors.selectedVenueId?.message}
+              {locationType === SessionLocationType.VENUE
+                ? errors.selectedVenueId?.message
+                : errors.customLocation?.message}
             </Field.ErrorText>
           </Field.Root>
 
-          {/* Only meaningful while the custom fallback is still in place:
-              switching back to a Vmito venue resolves the problem, so the
-              warning disappears on its own without the user dismissing it. */}
+          {/* AI Custom Location Warning - Show regardless of switch state when applicable */}
           {showAiCustomLocationWarning &&
           locationType === SessionLocationType.CUSTOM ? (
             <Alert.Root status="warning" size="sm" mt={3} borderRadius="md">
@@ -316,7 +361,8 @@ export function BasicInfoSection({
             </Alert.Root>
           ) : null}
 
-          {locationType === SessionLocationType.CUSTOM ? (
+          {/* Custom Location Section - Only show when switch is ON */}
+          {isCustomLocationMode && (
             <Box
               mt={3}
               p={{ base: 3, md: 4 }}
@@ -391,7 +437,7 @@ export function BasicInfoSection({
                 </Field.Root>
               </Stack>
             </Box>
-          ) : null}
+          )}
         </Box>
       </Stack>
     </Box>
