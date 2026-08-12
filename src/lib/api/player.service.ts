@@ -4,6 +4,7 @@ import {
   BulkPlayersInfoResponse,
   BulkPlayersResponse,
   ISession,
+  MyJoinRequest,
   PendingRequest,
   Player,
 } from './types';
@@ -241,6 +242,49 @@ export const PlayerService = {
       >
     >('/players/me/registrations');
     return response.data.data || [];
+  },
+
+  getMyJoinRequests: async (filters?: {
+    page?: number;
+    limit?: number;
+  }): Promise<{
+    data: MyJoinRequest[];
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  }> => {
+    const params = new URLSearchParams();
+    if (filters?.page) params.append('page', String(filters.page));
+    if (filters?.limit) params.append('limit', String(filters.limit));
+    const query = params.toString();
+    const response = await api.get<
+      ApiResponse<{
+        data: MyJoinRequest[];
+        total: number;
+        page: number;
+        limit: number;
+        totalPages: number;
+      }>
+    >(`/players/me/join-requests${query ? `?${query}` : ''}`);
+    return (
+      response.data.data || {
+        data: [],
+        total: 0,
+        page: 1,
+        limit: filters?.limit ?? 20,
+        totalPages: 0,
+      }
+    );
+  },
+
+  withdrawMyJoinRequest: async (
+    sessionId: string
+  ): Promise<{ deleted: number }> => {
+    const response = await api.delete<ApiResponse<{ deleted: number }>>(
+      `/players/me/join-requests/${sessionId}`
+    );
+    return response.data.data!;
   },
 
   // Get user's registered players for a specific session

@@ -6,6 +6,7 @@ import {
   type ReactNode,
   Suspense,
 } from 'react';
+import { Box } from '@chakra-ui/react';
 import PageWrapper, {
   type PageWrapperProps,
   type ResponsiveStyleValue,
@@ -61,6 +62,11 @@ interface PageLayoutProps
   mobileSubHeaderOffset?: string;
   /** Hide the TopBar bottom border on mobile (for pages with search + sub menu) */
   hideTopBarBorder?: boolean;
+  /**
+   * Drop the TopBar on mobile so the page can start with a full-bleed hero
+   * carrying its own floating back button (detail pages).
+   */
+  hideTopBarOnMobile?: boolean;
   /** Force title to be centered on mobile regardless of path */
   centerTitle?: boolean;
   showTopBarMenuButton?: boolean;
@@ -107,13 +113,14 @@ export default function PageLayout({
   subHeader,
   mobileSubHeaderOffset = '44px',
   hideTopBarBorder = false,
+  hideTopBarOnMobile = false,
   centerTitle = false,
   showTopBarMenuButton = true,
   showTopBarLogo = true,
   topBarLogoHref = '/',
   showTopBarLogoDesktopOnly = false,
-  showTopBarAuthActions = true,
-  showTopBarAiAssistantButton = true,
+  showTopBarAuthActions,
+  showTopBarAiAssistantButton,
   disableSidebarOffset = false,
   contentTopOffset = CONTENT_PT_OFFSET,
   rootClassName,
@@ -131,6 +138,12 @@ export default function PageLayout({
   const isMainPage = useIsMainPage();
   const variant = topBarVariant ?? (isMainPage ? 'main' : 'secondary');
   const pathname = usePathname();
+  // Detail pages default to a lean top bar (no bell/avatar/AI button) so the
+  // title gets the space; callers can still force these on explicitly.
+  const resolvedShowTopBarAuthActions =
+    showTopBarAuthActions ?? variant !== 'secondary';
+  const resolvedShowTopBarAiAssistantButton =
+    showTopBarAiAssistantButton ?? variant !== 'secondary';
 
   const isDiscoveryPage = [
     '/',
@@ -146,11 +159,13 @@ export default function PageLayout({
 
   const hasSubHeader = isDiscoveryPage || !!subHeader;
   const defaultPaddingTop: ResponsiveStyleValue = {
-    base: hasSubHeader
-      ? isDiscoveryPage
-        ? `calc(${TOP_BAR_HEIGHT_MOBILE}px + env(safe-area-inset-top) + 112px)`
-        : `calc(${TOP_BAR_HEIGHT_MOBILE}px + env(safe-area-inset-top) + ${mobileSubHeaderOffset})`
-      : `calc(${TOP_BAR_HEIGHT_MOBILE}px + env(safe-area-inset-top) + ${contentTopOffset})`,
+    base: hideTopBarOnMobile
+      ? '0px'
+      : hasSubHeader
+        ? isDiscoveryPage
+          ? `calc(${TOP_BAR_HEIGHT_MOBILE}px + env(safe-area-inset-top) + 112px)`
+          : `calc(${TOP_BAR_HEIGHT_MOBILE}px + env(safe-area-inset-top) + ${mobileSubHeaderOffset})`
+        : `calc(${TOP_BAR_HEIGHT_MOBILE}px + env(safe-area-inset-top) + ${contentTopOffset})`,
     md: subHeader
       ? contentTopOffset
       : `calc(${TOP_BAR_HEIGHT_DESKTOP}px + env(safe-area-inset-top) + ${contentTopOffset})`,
@@ -188,6 +203,30 @@ export default function PageLayout({
     ...style,
   };
 
+  const topBar = (
+    <TopBar
+      title={title}
+      icon={icon}
+      mobileIcon={mobileIcon}
+      rightContent={rightContent}
+      showBackButton={showBackButton ?? variant === 'secondary'}
+      backHref={backHref}
+      onBack={onBack}
+      variant={variant}
+      hideBottomBorder={isDiscoveryPage || hideTopBarBorder}
+      centerTitle={centerTitle}
+      showMenuButton={showTopBarMenuButton}
+      showLogo={showTopBarLogo}
+      logoHref={topBarLogoHref}
+      showLogoDesktopOnly={showTopBarLogoDesktopOnly}
+      showAuthActions={resolvedShowTopBarAuthActions}
+      showAiAssistantButton={resolvedShowTopBarAiAssistantButton}
+      showCitySelector={isDiscoveryPage}
+      className={topBarClassName}
+      desktopSearchContent={topBarSearchContent}
+    />
+  );
+
   return (
     <PageWrapper
       className={rootClassName}
@@ -199,27 +238,11 @@ export default function PageLayout({
       minH={(minH ?? '100vh') as ResponsiveStyleValue}
       {...(disableSidebarOffset ? { ml: 0 } : {})}
     >
-      <TopBar
-        title={title}
-        icon={icon}
-        mobileIcon={mobileIcon}
-        rightContent={rightContent}
-        showBackButton={showBackButton ?? variant === 'secondary'}
-        backHref={backHref}
-        onBack={onBack}
-        variant={variant}
-        hideBottomBorder={isDiscoveryPage || hideTopBarBorder}
-        centerTitle={centerTitle}
-        showMenuButton={showTopBarMenuButton}
-        showLogo={showTopBarLogo}
-        logoHref={topBarLogoHref}
-        showLogoDesktopOnly={showTopBarLogoDesktopOnly}
-        showAuthActions={showTopBarAuthActions}
-        showAiAssistantButton={showTopBarAiAssistantButton}
-        showCitySelector={isDiscoveryPage}
-        className={topBarClassName}
-        desktopSearchContent={topBarSearchContent}
-      />
+      {hideTopBarOnMobile ? (
+        <Box display={{ base: 'none', md: 'block' }}>{topBar}</Box>
+      ) : (
+        topBar
+      )}
       {isDiscoveryPage && <CityOnboardingModal />}
       {isDiscoveryPage && (
         <Suspense fallback={null}>

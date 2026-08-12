@@ -1,4 +1,17 @@
 import { Tournament, TournamentVenue, Venue } from '@/lib/api/types';
+import { getVenueSportTypes } from '@/constants/sports';
+
+// Sport words that already identify the place as a venue, in any language we
+// support. "Green Badminton & Pickleball" must not become "Sân cầu lông Green
+// Badminton & Pickleball".
+const SPORT_NAME_KEYWORDS = [
+  'cầu lông',
+  'badminton',
+  'pickleball',
+  'pickle ball',
+  '羽毛球',
+  '匹克球',
+];
 
 // Check if name already has a prefix/suffix indicating it's a venue
 const hasVenueNameAffix = (name: string): boolean => {
@@ -19,7 +32,11 @@ const hasVenueNameAffix = (name: string): boolean => {
   // Chinese suffixes
   const hasCnSuffix = lowerName.endsWith('场') || lowerName.endsWith('俱乐部');
 
-  return hasViPrefix || hasEnSuffix || hasCnSuffix;
+  const hasSportKeyword = SPORT_NAME_KEYWORDS.some((keyword) =>
+    lowerName.includes(keyword)
+  );
+
+  return hasViPrefix || hasEnSuffix || hasCnSuffix || hasSportKeyword;
 };
 
 export const formatVenueName = (
@@ -46,6 +63,20 @@ export const formatVenueFullName = (
   name: string,
   formatPattern: string
 ): string => formatVenueName(name, formatPattern);
+
+/**
+ * Picks the name pattern for a venue: the sport-specific one ("Sân cầu lông
+ * {name}") for single-sport venues, the neutral one ("Sân {name}") for
+ * multi-sport venues where naming just one sport would be wrong.
+ */
+export const resolveVenueNamePattern = (
+  venue: Pick<Venue, 'sportType' | 'sportTypes'>,
+  patterns: { generic: string; bySport: Record<string, string> }
+): string => {
+  const sports = getVenueSportTypes(venue);
+  if (sports.length > 1) return patterns.generic;
+  return patterns.bySport[sports[0]] ?? patterns.bySport.BADMINTON;
+};
 
 const WARD_PATTERNS = [
   /(?:,\s*)(Phường\s+[^,]+)/i,

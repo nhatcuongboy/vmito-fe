@@ -11,7 +11,6 @@ import { statusColors, getStatusLabel } from './BaseSessionCard';
 import { toaster } from '@/components/ui/toaster';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FavoriteEngagementControl } from '@/components/favorites/FavoriteEngagementControl';
-import { AppSportBadge } from '@/components/common/AppSportBadge';
 import AppLightbox from '@/components/ui/AppLightbox';
 
 interface ISessionDetailHeroProps {
@@ -299,7 +298,7 @@ const SessionDetailHero = ({
           </Flex>
         )}
 
-        {/* Bottom-left badges: sport, then crawled → "Facebook post" / slot availability */}
+        {/* Bottom-left badges: crawled → "Facebook post" / slot availability */}
         <Flex
           position="absolute"
           bottom={5}
@@ -308,12 +307,6 @@ const SessionDetailHero = ({
           zIndex={100}
           align="center"
         >
-          <AppSportBadge
-            sportType={session.sportType ?? session.venue?.sportType}
-            variant="solid"
-            size="md"
-            iconOnly
-          />
           {session.isCrawled ? (
             <Badge
               bg="#1877F2"

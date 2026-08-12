@@ -2,77 +2,58 @@
 
 import { useEffect, useState } from 'react';
 import { useParams, useSearchParams } from 'next/navigation';
-import { AppAddressDisplay } from '@/components/common/AppAddressDisplay';
 import {
-  Badge,
   Box,
   Container,
   Flex,
   Grid,
   Heading,
   HStack,
-  Icon,
   Image,
-  SimpleGrid,
-  Tabs,
   Text,
   VStack,
 } from '@chakra-ui/react';
 import {
-  BadgeCheck,
   Banknote,
   CalendarPlus,
-  Car,
-  ChevronRight,
   Clock,
-  ExternalLink,
-  Globe,
-  Image as ImageIcon,
-  Info,
   LayoutGrid,
   MapPin,
-  Phone,
   PencilLine,
   Search,
   Settings,
-  Share2,
-  UtensilsCrossed,
-  Wifi,
-  XCircle,
 } from 'lucide-react';
 import { VenueService } from '@/lib/api/venue.service';
-import {
-  ClosureStatus,
-  Venue,
-  VenueCustomerType,
-  VenueDayType,
-  VenuePriceBook,
-  VenuePriceRule,
-  VenueRequestType,
-} from '@/lib/api/types';
+import { Venue, VenuePriceBook, VenueRequestType } from '@/lib/api/types';
 import PageLayout from '@/components/layout/PageLayout';
 import DetailPageSkeleton from '@/components/layout/DetailPageSkeleton';
-import { AppSportBadge } from '@/components/common/AppSportBadge';
-import { getVenueSportTypes } from '@/constants/sports';
-import { Button, IconButton } from '@/components/ui/chakra-compat';
-import { DEFAULT_COVER_PHOTO, DETAIL_PAGE_MAX_W } from '@/constants';
+import { AppAddressDisplay } from '@/components/common/AppAddressDisplay';
+import AppDetailStickyHeader from '@/components/common/AppDetailStickyHeader';
+import { Button } from '@/components/ui/chakra-compat';
+import { DETAIL_PAGE_MAX_W } from '@/constants';
 import { usePathname, useRouter } from '@/i18n/config';
 import { toaster } from '@/components/ui/toaster';
-import {
-  trimPhone,
-  normalizePhoneForTel,
-  normalizePhoneForZalo,
-} from '@/utils/phone-utils';
 import { useAuthStore } from '@/stores/useAuthStore';
-import { formatVenueFullName, getGoogleMapsUrl } from '@/utils';
-import { useTranslations } from 'next-intl';
-import VenueMapPin from '@/components/venue/VenueMapPin';
+import { formatVenueFullName, resolveVenueNamePattern } from '@/utils';
+import { SPORT_TYPES } from '@/constants/sports';
+import {
+  buildPricingRows,
+  getActivePriceBook,
+  getMinPricePerHour,
+} from '@/utils/venue-pricing';
+import { useLocale, useTranslations } from 'next-intl';
+import VenueAboutCard from '@/components/venue/VenueAboutCard';
+import VenueContactCard from '@/components/venue/VenueContactCard';
+import VenueDetailHero from '@/components/venue/VenueDetailHero';
+import VenueLocationCard from '@/components/venue/VenueLocationCard';
+import VenuePhotosSection from '@/components/venue/VenuePhotosSection';
+import VenuePricingSection from '@/components/venue/VenuePricingSection';
+import VenueDetailStickyBar from '@/components/venue/VenueDetailStickyBar';
 import VenueRequestModal from '@/components/venue/VenueRequestModal';
 import VenuePriceRequestModal from '@/components/venue/VenuePriceRequestModal';
 import VenueImageRequestModal from '@/components/venue/VenueImageRequestModal';
 import AppLightbox from '@/components/ui/AppLightbox';
 import DetailViewCountFooter from '@/components/common/DetailViewCountFooter';
-import { FavoriteEngagementControl } from '@/components/favorites/FavoriteEngagementControl';
 import dynamic from 'next/dynamic';
 
 const LoginPromptModal = dynamic(
@@ -81,142 +62,6 @@ const LoginPromptModal = dynamic(
 );
 
 const OPEN_VENUE_UPDATE_REQUEST_ACTION = 'openVenueUpdateRequest';
-
-type VenueT = (key: string, values?: Record<string, string | number>) => string;
-
-function formatTablePrice(amount?: number) {
-  if (!amount) return '-';
-  return new Intl.NumberFormat('vi-VN').format(amount) + ' đ';
-}
-
-/**
- * Groups a Vietnamese mobile number (10 digits, leading 0) into 4-3-3 for a
- * more legible display, e.g. "0364494979" -> "0364 494 979". Any other format
- * is returned trimmed but ungrouped.
- */
-function formatPhoneDisplay(phone?: string | null) {
-  const digits = trimPhone(phone);
-  if (/^0\d{9}$/.test(digits)) {
-    return `${digits.slice(0, 4)} ${digits.slice(4, 7)} ${digits.slice(7)}`;
-  }
-  return digits;
-}
-
-function minuteToHourLabel(value: number) {
-  if (value === 1440) return '24h';
-
-  const hours = Math.floor(value / 60);
-  const minutes = value % 60;
-  return minutes === 0
-    ? `${hours}h`
-    : `${hours}h${minutes.toString().padStart(2, '0')}`;
-}
-
-function formatTimeRange(startMinute: number, endMinute: number) {
-  return `${minuteToHourLabel(startMinute)} - ${minuteToHourLabel(endMinute)}`;
-}
-
-function compactWeekdayLabel(daysOfWeek: number[] | undefined, t: VenueT) {
-  const days = [...new Set(daysOfWeek || [])].sort((a, b) => a - b);
-  if (days.length === 0) return t('detail.day.byWeekday');
-  if (days.join(',') === '1,2,3,4,5') return t('detail.day.weekdays');
-  if (days.join(',') === '6,7') return t('detail.day.weekend');
-  if (days.join(',') === '1,2,3,4,5,6,7') return t('detail.day.everyday');
-
-  return days.map((day) => t(`detail.weekday.d${day}`)).join(', ');
-}
-
-function getRuleDayLabel(rule: VenuePriceRule, t: VenueT) {
-  if (rule.dayType === VenueDayType.EVERYDAY) return t('detail.day.everyday');
-  if (rule.dayType === VenueDayType.WEEKEND) return t('detail.day.weekend');
-  if (rule.dayType === VenueDayType.WEEKDAY) {
-    return compactWeekdayLabel(rule.daysOfWeek, t);
-  }
-  if (rule.dayType === VenueDayType.HOLIDAY) return t('detail.day.holiday');
-  if (rule.dayType === VenueDayType.SPECIFIC_DATE && rule.specificDate) {
-    return new Date(rule.specificDate).toLocaleDateString('vi-VN');
-  }
-
-  return t('detail.day.other');
-}
-
-function getRuleDaySort(rule: VenuePriceRule) {
-  if (rule.dayType === VenueDayType.EVERYDAY) return 0;
-  if (rule.dayType === VenueDayType.WEEKDAY) {
-    return Math.min(...(rule.daysOfWeek?.length ? rule.daysOfWeek : [1]));
-  }
-  if (rule.dayType === VenueDayType.WEEKEND) return 6;
-  if (rule.dayType === VenueDayType.HOLIDAY) return 8;
-  return 9;
-}
-
-/**
- * Legacy price books created by the pricing migration carry system-generated
- * notes (e.g. "Tự động tạo từ giá thuê cố định/vãng lai cũ"). These are
- * internal artifacts, not real venue notes or public pricing.
- */
-function isAutoGeneratedPricingNote(notes?: string | null) {
-  return !!notes && notes.trimStart().startsWith('Tự động tạo từ');
-}
-
-function getActivePriceBook(priceBooks: VenuePriceBook[]) {
-  return [...priceBooks]
-    .filter((book) => book.isActive && !isAutoGeneratedPricingNote(book.notes))
-    .sort((a, b) => {
-      const priorityDiff = (b.priority || 0) - (a.priority || 0);
-      if (priorityDiff !== 0) return priorityDiff;
-      return (
-        new Date(b.effectiveFrom).getTime() -
-        new Date(a.effectiveFrom).getTime()
-      );
-    })[0];
-}
-
-interface PricingTableRow {
-  dayLabel: string;
-  daySort: number;
-  timeLabel: string;
-  startMinute: number;
-  fixed?: number;
-  walkIn?: number;
-}
-
-function buildPricingRows(priceBook: VenuePriceBook | undefined, t: VenueT) {
-  const rows = new Map<string, PricingTableRow>();
-
-  (priceBook?.rules || []).forEach((rule) => {
-    if (
-      rule.customerType !== VenueCustomerType.FIXED &&
-      rule.customerType !== VenueCustomerType.WALK_IN
-    ) {
-      return;
-    }
-
-    const dayLabel = getRuleDayLabel(rule, t);
-    const timeLabel = formatTimeRange(rule.startMinute, rule.endMinute);
-    const key = `${dayLabel}-${rule.startMinute}-${rule.endMinute}`;
-    const current = rows.get(key) || {
-      dayLabel,
-      daySort: getRuleDaySort(rule),
-      timeLabel,
-      startMinute: rule.startMinute,
-    };
-
-    if (rule.customerType === VenueCustomerType.FIXED) {
-      current.fixed = rule.pricePerHour;
-    } else {
-      current.walkIn = rule.pricePerHour;
-    }
-
-    rows.set(key, current);
-  });
-
-  return [...rows.values()].sort((a, b) => {
-    const dayDiff = a.daySort - b.daySort;
-    if (dayDiff !== 0) return dayDiff;
-    return a.startMinute - b.startMinute;
-  });
-}
 
 interface VenueDetailClientProps {
   initialVenue: Venue | null;
@@ -230,13 +75,12 @@ export default function VenueDetailClient({
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const t = useTranslations('venue');
-  const tAdmin = useTranslations('admin');
+  const locale = useLocale();
   const { user, isAuthenticated } = useAuthStore();
   const isAdmin = user?.role === 'ADMIN';
 
   const [venue, setVenue] = useState<Venue | null>(initialVenue);
   const [loading, setLoading] = useState(!initialVenue);
-  const [activeTab, setActiveTab] = useState('about');
   const [isUpdateRequestOpen, setIsUpdateRequestOpen] = useState(false);
   const [isCreateRequestOpen, setIsCreateRequestOpen] = useState(false);
   const [isPriceRequestOpen, setIsPriceRequestOpen] = useState(false);
@@ -316,6 +160,14 @@ export default function VenueDetailClient({
   const handleFindSessions = () => {
     if (!venue) return;
     router.push(`/?venueId=${venue.id}`);
+  };
+
+  const handleBack = () => {
+    if (typeof window !== 'undefined' && window.history.length > 1) {
+      router.back();
+      return;
+    }
+    router.push('/venues');
   };
 
   const handleRentCourt = () => {
@@ -412,191 +264,54 @@ export default function VenueDetailClient({
 
   const venueName = formatVenueFullName(
     venue.name,
-    t(`fullNameFormat.${venue.sportType ?? 'BADMINTON'}`, { name: '{name}' })
+    resolveVenueNamePattern(venue, {
+      generic: t('nameFormat', { name: '{name}' }),
+      bySport: Object.fromEntries(
+        SPORT_TYPES.map((sport) => [
+          sport,
+          t(`fullNameFormat.${sport}`, { name: '{name}' }),
+        ])
+      ),
+    })
   );
 
-  // Use the old district/city as a pair, or the new ward/city as a pair —
-  // never mix one old field with one new field (e.g. stale old district
-  // next to a freshly-set new city), which per-field fallback would allow.
-  const usingOldLocation = !!(venue.district || venue.city);
-  const locationSubtitle = (
-    usingOldLocation
-      ? [venue.district, venue.city]
-      : [venue.newDistrict, venue.newCity]
-  )
-    .filter(Boolean)
-    .join(', ');
-
-  const googleMapsUrl = getGoogleMapsUrl({
-    address: venue.address,
-    name: venueName,
-    placeId: venue.placeId,
-    lat: venue.lat,
-    lng: venue.lng,
-  });
   const activePriceBook = getActivePriceBook(priceBooks);
   const pricingRows = buildPricingRows(activePriceBook, t);
-  const hasPricingRows = pricingRows.length > 0;
+  const minPricePerHour = getMinPricePerHour(pricingRows);
   const hasImages = (venue.images?.length ?? 0) > 0;
   // Venue owner = someone listed as a manager (any role). Admin can always see.
   const isVenueOwner =
     !!user &&
     (venue.managers?.some((m) => String(m.userId) === String(user.id)) ??
       false);
+  const distanceLabel =
+    venue.distance !== undefined && venue.distance !== null
+      ? t('detail.distanceAway', {
+          distance: new Intl.NumberFormat(locale, {
+            maximumFractionDigits: 1,
+          }).format(venue.distance),
+        })
+      : null;
 
   return (
-    <PageLayout title={venueName} maxW={DETAIL_PAGE_MAX_W}>
+    <PageLayout title={venueName} maxW={DETAIL_PAGE_MAX_W} hideTopBarOnMobile>
       {/* Hero Section */}
       <Container maxW={DETAIL_PAGE_MAX_W} px={0}>
-        <Box
-          position="relative"
-          // Full-bleed hero on mobile: cancel the PageLayout's 24px side
-          // gutter so the cover photo runs edge-to-edge (matches session
-          // detail). Width grows by 2×24px to reach both screen edges.
-          // Desktop keeps the rounded card inside the container.
-          w={{ base: 'calc(100% + 48px)', md: 'full' }}
-          h={{ base: 'clamp(180px, 30vh, 240px)', md: '300px' }}
-          mx={{ base: '-24px', md: 0 }}
-          borderRadius={{ base: 0, md: '2xl' }}
-          overflow="hidden"
-          mb={4}
-        >
-          <Image
-            src={venue.coverPhoto || DEFAULT_COVER_PHOTO}
-            alt={venueName}
-            w="full"
-            h="full"
-            objectFit="cover"
-            fetchPriority="high"
-            cursor="pointer"
-            onClick={() =>
-              setHeroLightboxImage(venue.coverPhoto || DEFAULT_COVER_PHOTO)
-            }
-          />
-          {/* Gradient overlay */}
-          <Box
-            position="absolute"
-            bottom={0}
-            left={0}
-            right={0}
-            h="100px"
-            bgGradient="to-t"
-            gradientFrom="blackAlpha.600"
-            gradientTo="transparent"
-            pointerEvents="none"
-          />
-          {/* Sport + closure badges — stacked top-left so closure (rare) never overlaps them */}
-          <Flex
-            position="absolute"
-            top={4}
-            left={4}
-            direction="column"
-            align="flex-start"
-            gap={2}
-            zIndex={2}
-          >
-            <HStack gap={1.5} flexWrap="wrap">
-              {getVenueSportTypes(venue).map((sport) => (
-                <AppSportBadge
-                  key={sport}
-                  sportType={sport}
-                  variant="solid"
-                  size="md"
-                  iconOnly
-                  shadow="md"
-                />
-              ))}
-            </HStack>
-            {venue.closureStatus &&
-              venue.closureStatus !== ClosureStatus.OPERATING && (
-                <Badge
-                  colorPalette={
-                    venue.closureStatus === ClosureStatus.PERMANENTLY_CLOSED
-                      ? 'red'
-                      : 'orange'
-                  }
-                  variant="solid"
-                  size="lg"
-                  borderRadius="full"
-                  px={4}
-                  py={2}
-                  display="flex"
-                  alignItems="center"
-                  gap={2}
-                  shadow="lg"
-                >
-                  <XCircle size={16} />
-                  <Text fontSize="sm">
-                    {venue.closureStatus === ClosureStatus.PERMANENTLY_CLOSED
-                      ? t('detail.permanentlyClosed')
-                      : t('detail.temporarilyClosed')}
-                  </Text>
-                </Badge>
-              )}
-          </Flex>
-          {/* Verified badge — bottom-left */}
-          {venue.isVerified && (
-            <Badge
-              position="absolute"
-              bottom={4}
-              left={4}
-              colorPalette="green"
-              variant="solid"
-              size="lg"
-              borderRadius="full"
-              px={4}
-              py={2}
-              display="flex"
-              alignItems="center"
-              gap={2}
-              shadow="lg"
-              zIndex={2}
-            >
-              <BadgeCheck size={16} />
-              <Text fontSize="sm">{t('verified')}</Text>
-            </Badge>
-          )}
-          {/* Favourite + Share — top-right */}
-          <Flex
-            position="absolute"
-            top={3}
-            right={3}
-            gap={2}
-            align="center"
-            zIndex={10}
-          >
-            <FavoriteEngagementControl
-              type="VENUE"
-              targetId={venue.id}
-              initialIsFavorite={venue.isFavorite}
-              returnUrl={`/venues/${venue.slug || venue.id}`}
-              variant="overlay-dark"
-              canViewUsersOverride={isAdmin || isVenueOwner}
-            />
-            <IconButton
-              aria-label={t('detail.share') || 'Chia sẻ'}
-              title={t('detail.share') || 'Chia sẻ'}
-              variant="ghost"
-              size="sm"
-              minW="40px"
-              h="40px"
-              color="white"
-              bg="blackAlpha.500"
-              backdropFilter="blur(6px)"
-              borderRadius="full"
-              boxShadow="0 2px 8px rgba(0,0,0,0.35)"
-              touchAction="manipulation"
-              _hover={{ bg: 'blackAlpha.700' }}
-              _focusVisible={{
-                outline: '2px solid',
-                outlineColor: 'white',
-                outlineOffset: '2px',
-              }}
-              onClick={handleShare}
-              icon={<Icon as={Share2} boxSize={5} aria-hidden="true" />}
-            />
-          </Flex>
-        </Box>
+        <VenueDetailHero
+          venue={venue}
+          venueName={venueName}
+          canViewFavoriteUsers={isAdmin || isVenueOwner}
+          onBack={handleBack}
+          onShare={handleShare}
+        />
+
+        <AppDetailStickyHeader
+          title={venueName}
+          onBack={handleBack}
+          onShare={handleShare}
+          shareLabel={t('share')}
+          showBrand
+        />
 
         {/* Info Card */}
         <Box
@@ -612,26 +327,22 @@ export default function VenueDetailClient({
           mb={4}
         >
           <Flex gap={{ base: 3, md: 4 }} align="center">
-            <Box
-              w="48px"
-              h="48px"
-              flexShrink={0}
-              shadow="sm"
-              borderRadius="lg"
-              overflow="hidden"
-              bg="green.50"
-              _dark={{ bg: 'green.900/30', borderColor: 'green.800' }}
-              display="flex"
-              alignItems="center"
-              justifyContent="center"
-              borderWidth="1px"
-              borderColor="green.100"
-              cursor={venue.logo ? 'pointer' : 'default'}
-              onClick={
-                venue.logo ? () => setHeroLightboxImage(venue.logo!) : undefined
-              }
-            >
-              {venue.logo ? (
+            {/* No placeholder icon: a generic map pin next to the address adds
+                nothing and steals width from the name. */}
+            {venue.logo && (
+              <Box
+                w="48px"
+                h="48px"
+                flexShrink={0}
+                shadow="sm"
+                borderRadius="lg"
+                overflow="hidden"
+                borderWidth="1px"
+                borderColor="green.100"
+                _dark={{ borderColor: 'green.800' }}
+                cursor="pointer"
+                onClick={() => setHeroLightboxImage(venue.logo!)}
+              >
                 <Image
                   src={venue.logo}
                   alt={venueName}
@@ -639,27 +350,136 @@ export default function VenueDetailClient({
                   h="full"
                   objectFit="cover"
                 />
-              ) : (
-                <MapPin size={24} color="var(--chakra-colors-green-600)" />
-              )}
-            </Box>
+              </Box>
+            )}
             <Box flex="1" minW="0">
               <Heading
-                size={{ base: 'lg', md: 'xl' }}
+                size={{ base: 'xl', md: '2xl' }}
+                fontWeight="bold"
                 mb={0}
                 letterSpacing="tight"
-                lineClamp={2}
               >
                 {venueName}
               </Heading>
-              {locationSubtitle && (
-                <Text fontSize="sm" color="gray.500" mt={0.5}>
-                  {locationSubtitle}
-                  {!usingOldLocation && ` (${tAdmin('newAddressBadge')})`}
-                </Text>
-              )}
+              <Box display={{ base: 'none', lg: 'block' }} mt={0.5}>
+                <AppAddressDisplay
+                  address={venue.address}
+                  district={venue.district}
+                  city={venue.city}
+                  newAddress={venue.newAddress}
+                  newDistrict={venue.newDistrict}
+                  fontSize="sm"
+                  color="gray.500"
+                  lineClamp={2}
+                />
+              </Box>
             </Box>
           </Flex>
+          {/* Mobile address — visually separated from the title so long
+              addresses remain scannable and align with the quick facts. */}
+          <Flex
+            display={{ base: 'flex', lg: 'none' }}
+            align="flex-start"
+            gap={2}
+            mt={2.5}
+            minW={0}
+          >
+            <Box color="gray.500" _dark={{ color: 'gray.400' }} pt="2px">
+              <MapPin size={18} aria-hidden="true" />
+            </Box>
+            <Box flex="1" minW={0}>
+              <AppAddressDisplay
+                address={venue.address}
+                district={venue.district}
+                city={venue.city}
+                newAddress={venue.newAddress}
+                newDistrict={venue.newDistrict}
+                fontSize="sm"
+                color="gray.500"
+                _dark={{ color: 'gray.400' }}
+                lineClamp={2}
+                suffix={distanceLabel ? ` (${distanceLabel})` : undefined}
+              />
+            </Box>
+          </Flex>
+          {/* Quick facts — mobile only; the desktop sidebar owns its own card */}
+          {(venue.openingHours || venue.numberOfCourts) && (
+            <Grid
+              display={{ base: 'grid', lg: 'none' }}
+              templateColumns={
+                venue.openingHours && venue.numberOfCourts
+                  ? 'repeat(2, minmax(0, 1fr))'
+                  : '1fr'
+              }
+              gap={3}
+              mt={4}
+            >
+              {venue.openingHours && (
+                <Box
+                  minW={0}
+                  p={3}
+                  borderRadius="xl"
+                  bg="gray.50"
+                  borderWidth="1px"
+                  borderColor="gray.100"
+                  _dark={{ bg: 'gray.900', borderColor: 'gray.700' }}
+                >
+                  <Text
+                    fontSize="xs"
+                    color="gray.500"
+                    _dark={{ color: 'gray.400' }}
+                    mb={1}
+                  >
+                    {t('openingHours')}
+                  </Text>
+                  <Text fontSize="md" fontWeight="bold" lineClamp={1}>
+                    {venue.openingHours}
+                  </Text>
+                </Box>
+              )}
+              {venue.numberOfCourts && (
+                <Box
+                  minW={0}
+                  p={3}
+                  borderRadius="xl"
+                  bg="gray.50"
+                  borderWidth="1px"
+                  borderColor="gray.100"
+                  _dark={{ bg: 'gray.900', borderColor: 'gray.700' }}
+                >
+                  <Text
+                    fontSize="xs"
+                    color="gray.500"
+                    _dark={{ color: 'gray.400' }}
+                    mb={1}
+                  >
+                    {t('detail.courtsLabel')}
+                  </Text>
+                  <Text fontSize="md" fontWeight="bold" lineClamp={1}>
+                    {t('detail.courtsValue', { count: venue.numberOfCourts })}
+                  </Text>
+                </Box>
+              )}
+            </Grid>
+          )}
+          {/* Contact — mobile only, merged into this card so calling the venue
+              never requires scrolling past the price table. */}
+          {(venue.phone || venue.website) && (
+            <Box
+              display={{ base: 'block', lg: 'none' }}
+              mt={3}
+              pt={3}
+              borderTopWidth="1px"
+              borderTopColor="gray.100"
+              _dark={{ borderTopColor: 'gray.700' }}
+            >
+              <VenueContactCard
+                phone={venue.phone}
+                website={venue.website}
+                variant="inline"
+              />
+            </Box>
+          )}
           {/* Admin actions — own full-width row so they never crowd the
               (truncated) venue name on mobile. */}
           {isAdmin && (
@@ -689,861 +509,41 @@ export default function VenueDetailClient({
         </Box>
       </Container>
 
-      {/* Navigation Tabs & Content */}
+      {/* Content — one continuous scroll; the old 2-tab bar (Giới thiệu /
+          Hình ảnh) added a navigation layer for very little content. */}
       <Container maxW={DETAIL_PAGE_MAX_W} pb={8} px={0}>
-        <Tabs.Root
-          value={activeTab}
-          onValueChange={(e) => setActiveTab(e.value)}
-          variant="plain"
-        >
-          {/* Tab bar only appears when there's a second tab worth showing
-              (photos). Venues without images render the About content
-              directly — no single dead tab. */}
-          {hasImages && (
-            <Tabs.List
-              position="sticky"
-              top="0"
-              zIndex="10"
-              bg="white"
-              _dark={{ bg: 'gray.900', borderColor: 'gray.800' }}
-              shadow="sm"
-              borderRadius="2xl"
-              p={1.5}
-              mb={3}
-              gap={1}
-              borderWidth="1px"
-              borderColor="gray.100"
-              display="flex"
-              flexWrap="nowrap"
-            >
-              <Tabs.Trigger
-                value="about"
-                gap={2}
-                borderRadius="xl"
-                flex="1"
-                justifyContent="center"
-                px={{ base: 2, md: 4 }}
-                py={2}
-                whiteSpace="nowrap"
-                _selected={{
-                  bg: 'green.100',
-                  color: 'green.700',
-                  shadow: 'sm',
-                }}
-                _dark={{
-                  _selected: { bg: 'green.900/40', color: 'green.300' },
-                }}
-              >
-                <Info size={16} />
-                <Text fontSize="sm" fontWeight="semibold">
-                  {t('detail.tabAbout')}
-                </Text>
-              </Tabs.Trigger>
+        <Grid templateColumns={{ base: '1fr', lg: '2.3fr 1fr' }} gap={6} mt={0}>
+          {/* ── Left column: main content ── */}
+          <Box minW={0}>
+            <VStack gap={4} align="stretch">
+              <VenueAboutCard venue={venue} />
 
-              <Tabs.Trigger
-                value="photos"
-                gap={2}
-                borderRadius="xl"
-                flex="1"
-                justifyContent="center"
-                px={{ base: 2, md: 4 }}
-                py={2}
-                whiteSpace="nowrap"
-                _selected={{
-                  bg: 'green.100',
-                  color: 'green.700',
-                  shadow: 'sm',
-                }}
-                _dark={{
-                  _selected: { bg: 'green.900/40', color: 'green.300' },
-                }}
-              >
-                <ImageIcon size={16} />
-                <Text fontSize="sm" fontWeight="semibold">
-                  {t('detail.tabPhotos')}
-                </Text>
-              </Tabs.Trigger>
-            </Tabs.List>
-          )}
+              <VenuePricingSection
+                rows={pricingRows}
+                activePriceBook={activePriceBook}
+                canEditPricing={isAdmin}
+                onEditPricing={() =>
+                  router.push(`/admin/venues/${venue.id}/pricing`)
+                }
+              />
 
-          {/* Grid: 2.3fr / 1fr */}
-          <Grid
-            templateColumns={{ base: '1fr', lg: '2.3fr 1fr' }}
-            gap={6}
-            mt={0}
-          >
-            {/* ── Left column: tab content ── */}
-            <Box minW={0}>
-              {/* Tab: Giới thiệu */}
-              <Tabs.Content value="about" pt={0}>
-                <VStack gap={4} align="stretch">
-                  {/* Description */}
-                  <Box
-                    p={6}
-                    bg="white"
-                    _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
-                    borderRadius="2xl"
-                    borderWidth="1px"
-                    borderColor="gray.100"
-                    shadow="sm"
-                  >
-                    <Heading size="md" mb={4} fontWeight="bold">
-                      {t('detail.aboutHeading')}
-                    </Heading>
-                    {venue.description ? (
-                      <Box
-                        fontSize="md"
-                        color="gray.700"
-                        _dark={{ color: 'gray.300' }}
-                        lineHeight="tall"
-                        wordBreak="break-word"
-                        dangerouslySetInnerHTML={{ __html: venue.description }}
-                        css={{
-                          '& p': { marginBottom: '0.75em' },
-                          '& p:last-child': { marginBottom: 0 },
-                          '& ul, & ol': {
-                            paddingLeft: '1.5em',
-                            marginBottom: '0.75em',
-                          },
-                          '& li': { marginBottom: '0.25em' },
-                          '& a': {
-                            color: 'var(--chakra-colors-green-600)',
-                            textDecoration: 'underline',
-                          },
-                          '& strong, & b': { fontWeight: 'bold' },
-                        }}
-                      />
-                    ) : (
-                      <Text fontSize="sm" color="gray.400" fontStyle="italic">
-                        {t('detail.noDescription')}
-                      </Text>
-                    )}
-                  </Box>
-
-                  {/* Sơ đồ sân */}
-                  {venue.courtLayoutImage && (
-                    <Box
-                      p={6}
-                      bg="white"
-                      _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
-                      borderRadius="2xl"
-                      borderWidth="1px"
-                      borderColor="gray.100"
-                      shadow="sm"
-                    >
-                      <Heading size="md" mb={4} fontWeight="bold">
-                        {t('detail.courtLayout')}
-                      </Heading>
-                      <Box
-                        borderRadius="xl"
-                        overflow="hidden"
-                        borderWidth="1px"
-                        borderColor="gray.200"
-                        _dark={{ borderColor: 'gray.600' }}
-                        cursor="pointer"
-                        onClick={() =>
-                          window.open(venue.courtLayoutImage, '_blank')
-                        }
-                      >
-                        <Image
-                          src={venue.courtLayoutImage}
-                          alt={t('detail.courtLayout')}
-                          w="100%"
-                          objectFit="contain"
-                          maxH="320px"
-                          loading="lazy"
-                        />
-                      </Box>
-                    </Box>
-                  )}
-
-                  {/* Bảng giá */}
-                  <Box
-                    p={6}
-                    bg="white"
-                    _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
-                    borderRadius="2xl"
-                    borderWidth="1px"
-                    borderColor="gray.100"
-                    shadow="sm"
-                  >
-                    <Flex
-                      align={{ base: 'flex-start', sm: 'center' }}
-                      justify="space-between"
-                      gap={3}
-                      mb={4}
-                      direction={{ base: 'column', sm: 'row' }}
-                    >
-                      <Flex align="center" gap={3}>
-                        <Box
-                          p={2.5}
-                          borderRadius="xl"
-                          bg="orange.50"
-                          _dark={{ bg: 'orange.900/30' }}
-                          flexShrink={0}
-                        >
-                          <Banknote size={20} color="#DD6B20" />
-                        </Box>
-                        <Heading size="md" fontWeight="bold">
-                          {t('detail.pricing')}
-                        </Heading>
-                      </Flex>
-                      {isAdmin && !hasPricingRows && (
-                        <HStack gap={2}>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            colorPalette="green"
-                            onClick={() =>
-                              router.push(`/admin/venues/${venue.id}/pricing`)
-                            }
-                          >
-                            <Banknote size={14} />
-                            {t('detail.updatePricing')}
-                          </Button>
-                        </HStack>
-                      )}
-                    </Flex>
-
-                    {hasPricingRows ? (
-                      <Box overflowX="auto">
-                        <Box
-                          as="table"
-                          w="full"
-                          minW="640px"
-                          borderWidth="1px"
-                          borderColor="green.700"
-                          borderCollapse="collapse"
-                          color="green.900"
-                          _dark={{
-                            color: 'green.100',
-                            borderColor: 'green.500',
-                          }}
-                        >
-                          <Box as="thead">
-                            <Box as="tr">
-                              {[
-                                t('detail.tableDay'),
-                                t('detail.tableTime'),
-                                t('detail.tableFixed'),
-                                t('detail.tableWalkIn'),
-                              ].map((heading) => (
-                                <Box
-                                  key={heading}
-                                  as="th"
-                                  py={4}
-                                  px={4}
-                                  borderWidth="1px"
-                                  borderColor="green.700"
-                                  bg="green.50"
-                                  fontSize={{ base: 'sm', md: 'md' }}
-                                  fontWeight="bold"
-                                  textAlign="center"
-                                  _dark={{
-                                    bg: 'green.950',
-                                    borderColor: 'green.500',
-                                  }}
-                                >
-                                  {heading}
-                                </Box>
-                              ))}
-                            </Box>
-                          </Box>
-                          <Box as="tbody">
-                            {pricingRows.map((row, index) => {
-                              const previousRow = pricingRows[index - 1];
-                              const showDay =
-                                !previousRow ||
-                                previousRow.dayLabel !== row.dayLabel;
-                              const rowSpan = pricingRows.filter(
-                                (item) => item.dayLabel === row.dayLabel
-                              ).length;
-
-                              return (
-                                <Box
-                                  as="tr"
-                                  key={`${row.dayLabel}-${row.timeLabel}`}
-                                >
-                                  {showDay && (
-                                    <Box
-                                      as="td"
-                                      {...{ rowSpan }}
-                                      py={4}
-                                      px={4}
-                                      borderWidth="1px"
-                                      borderColor="green.700"
-                                      fontWeight="semibold"
-                                      textAlign="center"
-                                      verticalAlign="middle"
-                                      _dark={{ borderColor: 'green.500' }}
-                                    >
-                                      {row.dayLabel}
-                                    </Box>
-                                  )}
-                                  <Box
-                                    as="td"
-                                    py={3}
-                                    px={4}
-                                    borderWidth="1px"
-                                    borderColor="green.700"
-                                    textAlign="center"
-                                    _dark={{ borderColor: 'green.500' }}
-                                  >
-                                    {row.timeLabel}
-                                  </Box>
-                                  <Box
-                                    as="td"
-                                    py={3}
-                                    px={4}
-                                    borderWidth="1px"
-                                    borderColor="green.700"
-                                    fontWeight="medium"
-                                    textAlign="center"
-                                    _dark={{ borderColor: 'green.500' }}
-                                  >
-                                    {formatTablePrice(row.fixed)}
-                                  </Box>
-                                  <Box
-                                    as="td"
-                                    py={3}
-                                    px={4}
-                                    borderWidth="1px"
-                                    borderColor="green.700"
-                                    fontWeight="medium"
-                                    textAlign="center"
-                                    _dark={{ borderColor: 'green.500' }}
-                                  >
-                                    {formatTablePrice(row.walkIn)}
-                                  </Box>
-                                </Box>
-                              );
-                            })}
-                          </Box>
-                        </Box>
-                        {activePriceBook?.notes &&
-                          !isAutoGeneratedPricingNote(
-                            activePriceBook.notes
-                          ) && (
-                            <Text
-                              fontSize="sm"
-                              color="gray.500"
-                              _dark={{ color: 'gray.400' }}
-                              mt={3}
-                            >
-                              {activePriceBook.notes}
-                            </Text>
-                          )}
-                      </Box>
-                    ) : (
-                      <Flex
-                        direction="column"
-                        align="center"
-                        justify="center"
-                        py={8}
-                        color="gray.400"
-                        gap={2}
-                        textAlign="center"
-                      >
-                        <Banknote size={36} strokeWidth={1.4} />
-                        <Text fontSize="sm" fontStyle="italic">
-                          {t('detail.noPricing')}
-                        </Text>
-                      </Flex>
-                    )}
-                  </Box>
-
-                  {/* Tiện ích & Quy định */}
-                  {(venue.hasCarParking !== undefined ||
-                    venue.hasCanteen !== undefined ||
-                    venue.wifiName ||
-                    venue.bookingPolicy) && (
-                    <Box
-                      p={6}
-                      bg="white"
-                      _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
-                      borderRadius="2xl"
-                      borderWidth="1px"
-                      borderColor="gray.100"
-                      shadow="sm"
-                    >
-                      <Heading size="md" mb={5} fontWeight="bold">
-                        {t('detail.amenitiesHeading')}
-                      </Heading>
-                      <VStack gap={5} align="stretch">
-                        {/* Amenity tags */}
-                        {(venue.hasCarParking !== undefined ||
-                          venue.hasCanteen !== undefined) && (
-                          <Flex gap={2} flexWrap="wrap">
-                            {venue.hasCarParking !== undefined && (
-                              <Badge
-                                colorPalette={
-                                  venue.hasCarParking ? 'green' : 'red'
-                                }
-                                variant="subtle"
-                                size="lg"
-                                borderRadius="lg"
-                                px={3}
-                                py={1.5}
-                                display="flex"
-                                alignItems="center"
-                                gap={1.5}
-                              >
-                                <Car size={14} />
-                                {t('detail.carParking')}
-                              </Badge>
-                            )}
-                            {venue.hasCanteen !== undefined && (
-                              <Badge
-                                colorPalette={
-                                  venue.hasCanteen ? 'green' : 'red'
-                                }
-                                variant="subtle"
-                                size="lg"
-                                borderRadius="lg"
-                                px={3}
-                                py={1.5}
-                                display="flex"
-                                alignItems="center"
-                                gap={1.5}
-                              >
-                                <UtensilsCrossed size={14} />
-                                {t('detail.canteen')}
-                              </Badge>
-                            )}
-                          </Flex>
-                        )}
-
-                        {/* WiFi */}
-                        {venue.wifiName && (
-                          <Flex align="center" gap={4}>
-                            <Box
-                              p={3}
-                              borderRadius="xl"
-                              bg="cyan.50"
-                              _dark={{ bg: 'cyan.900/30' }}
-                              flexShrink={0}
-                            >
-                              <Wifi size={22} color="#0987A0" />
-                            </Box>
-                            <Box flex="1" minW={0}>
-                              <Text fontSize="xs" color="gray.500" mb={0.5}>
-                                WiFi
-                              </Text>
-                              <Text
-                                fontSize="md"
-                                fontWeight="semibold"
-                                wordBreak="break-all"
-                              >
-                                {venue.wifiName}
-                              </Text>
-                              {venue.wifiPassword && (
-                                <Text
-                                  fontSize="sm"
-                                  color="gray.500"
-                                  wordBreak="break-all"
-                                >
-                                  {t('detail.wifiPasswordLabel')}{' '}
-                                  {venue.wifiPassword}
-                                </Text>
-                              )}
-                            </Box>
-                          </Flex>
-                        )}
-
-                        {/* Booking Policy */}
-                        {venue.bookingPolicy && (
-                          <Flex align="flex-start" gap={4}>
-                            <Box
-                              p={3}
-                              borderRadius="xl"
-                              bg="yellow.50"
-                              _dark={{ bg: 'yellow.900/30' }}
-                              flexShrink={0}
-                            >
-                              <Info size={22} color="#D69E2E" />
-                            </Box>
-                            <Box flex="1" minW={0}>
-                              <Text fontSize="xs" color="gray.500" mb={0.5}>
-                                {t('detail.bookingPolicy')}
-                              </Text>
-                              <Text
-                                fontSize="md"
-                                whiteSpace="pre-wrap"
-                                wordBreak="break-word"
-                              >
-                                {venue.bookingPolicy}
-                              </Text>
-                            </Box>
-                          </Flex>
-                        )}
-                      </VStack>
-                    </Box>
-                  )}
-                </VStack>
-              </Tabs.Content>
-
-              {/* Tab: Hình ảnh (only mounted when the venue has images) */}
               {hasImages && (
-                <Tabs.Content value="photos" pt={0}>
-                  <Box
-                    p={6}
-                    bg="white"
-                    _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
-                    borderRadius="2xl"
-                    borderWidth="1px"
-                    borderColor="gray.100"
-                    shadow="sm"
-                  >
-                    <Heading size="md" fontWeight="bold" mb={5}>
-                      {t('detail.photosHeading')}
-                    </Heading>
-                    <SimpleGrid columns={{ base: 2, md: 3 }} gap={4}>
-                      {(venue.images ?? []).map((imgUrl, idx) => (
-                        <Box
-                          key={idx}
-                          aspectRatio={1}
-                          borderRadius="2xl"
-                          overflow="hidden"
-                          borderWidth="1px"
-                          borderColor="gray.100"
-                          _dark={{ borderColor: 'gray.700' }}
-                          transition="all 0.2s"
-                          _hover={{ shadow: 'lg', transform: 'scale(1.02)' }}
-                          cursor="pointer"
-                          onClick={() => window.open(imgUrl, '_blank')}
-                        >
-                          <Image
-                            src={imgUrl}
-                            alt={t('detail.imageAlt', {
-                              name: venueName,
-                              index: idx + 1,
-                            })}
-                            w="full"
-                            h="full"
-                            objectFit="cover"
-                            loading="lazy"
-                          />
-                        </Box>
-                      ))}
-                    </SimpleGrid>
-                  </Box>
-                </Tabs.Content>
+                <VenuePhotosSection
+                  images={venue.images ?? []}
+                  venueName={venueName}
+                />
               )}
-            </Box>
+            </VStack>
+          </Box>
 
-            {/* ── Right column: sticky sidebar ── */}
-            <Box minW={0}>
-              <VStack gap={5} align="stretch" position="sticky" top="80px">
-                {/* Quick Info — hidden entirely when there's nothing to show */}
-                {(venue.openingHours || venue.numberOfCourts) && (
-                  <Box
-                    bg="white"
-                    _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
-                    borderRadius="2xl"
-                    p={5}
-                    shadow="sm"
-                    borderWidth="1px"
-                    borderColor="gray.100"
-                  >
-                    <Heading size="sm" mb={4}>
-                      {t('detail.quickInfo')}
-                    </Heading>
-                    <VStack gap={4} align="stretch">
-                      {venue.openingHours && (
-                        <HStack gap={3}>
-                          <Flex
-                            w="36px"
-                            h="36px"
-                            borderRadius="lg"
-                            bg="blue.100"
-                            _dark={{ bg: 'blue.900/60' }}
-                            align="center"
-                            justify="center"
-                            flexShrink={0}
-                          >
-                            <Clock
-                              size={18}
-                              color="var(--chakra-colors-blue-600)"
-                            />
-                          </Flex>
-                          <Box flex="1">
-                            <Text
-                              fontSize="xs"
-                              color="gray.500"
-                              _dark={{ color: 'gray.400' }}
-                            >
-                              {t('openingHours')}
-                            </Text>
-                            <Text fontWeight="semibold" fontSize="sm">
-                              {venue.openingHours}
-                            </Text>
-                          </Box>
-                        </HStack>
-                      )}
-                      {venue.numberOfCourts && (
-                        <HStack gap={3}>
-                          <Flex
-                            w="36px"
-                            h="36px"
-                            borderRadius="lg"
-                            bg="green.100"
-                            _dark={{ bg: 'green.900/60' }}
-                            align="center"
-                            justify="center"
-                            flexShrink={0}
-                          >
-                            <LayoutGrid
-                              size={18}
-                              color="var(--chakra-colors-green-600)"
-                            />
-                          </Flex>
-                          <Box flex="1">
-                            <Text
-                              fontSize="xs"
-                              color="gray.500"
-                              _dark={{ color: 'gray.400' }}
-                            >
-                              {t('detail.courtsLabel')}
-                            </Text>
-                            <Text fontWeight="semibold" fontSize="sm">
-                              {t('detail.courtsValue', {
-                                count: venue.numberOfCourts,
-                              })}
-                            </Text>
-                          </Box>
-                        </HStack>
-                      )}
-                    </VStack>
-                  </Box>
-                )}
-
-                {/* Chơi tại sân này: Đặt sân + Tìm kèo */}
+          {/* ── Right column on desktop; on mobile it stacks below the content
+              and only the blocks not already shown above stay visible. ── */}
+          <Box minW={0}>
+            <VStack gap={5} align="stretch" position="sticky" top="80px">
+              {/* Quick Info — hidden entirely when there's nothing to show */}
+              {(venue.openingHours || venue.numberOfCourts) && (
                 <Box
-                  bg="green.50"
-                  _dark={{ bg: 'green.900/20', borderColor: 'green.800' }}
-                  borderRadius="2xl"
-                  p={5}
-                  shadow="sm"
-                  borderWidth="1px"
-                  borderColor="green.100"
-                >
-                  <Heading
-                    size="sm"
-                    mb={1}
-                    color="green.700"
-                    _dark={{ color: 'green.300' }}
-                  >
-                    {t('detail.findSessionsHere')}
-                  </Heading>
-                  <Text
-                    fontSize="xs"
-                    color="green.600"
-                    _dark={{ color: 'green.400' }}
-                    mb={3}
-                  >
-                    {t('detail.findSessionsHereDesc')}
-                  </Text>
-                  <VStack gap={2} align="stretch">
-                    {venue.rentalEnabled && (
-                      <Button colorPalette="green" onClick={handleRentCourt}>
-                        <CalendarPlus size={16} />
-                        {t('detail.rentCourt')}
-                      </Button>
-                    )}
-                    <Button
-                      w="full"
-                      variant={venue.rentalEnabled ? 'outline' : 'solid'}
-                      colorPalette="green"
-                      onClick={handleFindSessions}
-                      _dark={
-                        venue.rentalEnabled
-                          ? { borderColor: 'green.600', color: 'green.300' }
-                          : {}
-                      }
-                    >
-                      <Search size={16} />
-                      {t('findSessions')}
-                    </Button>
-                  </VStack>
-                </Box>
-
-                {/* Contact */}
-                {(venue.phone || venue.website) && (
-                  <Box
-                    bg="white"
-                    _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
-                    borderRadius="2xl"
-                    p={5}
-                    shadow="sm"
-                    borderWidth="1px"
-                    borderColor="gray.100"
-                  >
-                    <Heading size="sm" mb={4}>
-                      {t('detail.contact')}
-                    </Heading>
-                    <VStack gap={3} align="stretch">
-                      {venue.phone && (
-                        <Box>
-                          {/* Prominent, tappable phone display (green CTA) */}
-                          <a
-                            href={`tel:${normalizePhoneForTel(venue.phone)}`}
-                            style={{
-                              textDecoration: 'none',
-                              display: 'block',
-                            }}
-                          >
-                            <Flex
-                              align="center"
-                              gap={3}
-                              px={3.5}
-                              py={3}
-                              borderRadius="xl"
-                              bg="green.50"
-                              _dark={{ bg: 'green.900/20' }}
-                              borderWidth="1px"
-                              borderColor="green.100"
-                              _hover={{
-                                bg: 'green.100',
-                                _dark: { bg: 'green.900/30' },
-                              }}
-                              transition="all 0.2s"
-                              cursor="pointer"
-                            >
-                              <Flex
-                                w="40px"
-                                h="40px"
-                                borderRadius="xl"
-                                bg="green.100"
-                                _dark={{ bg: 'green.900/40' }}
-                                align="center"
-                                justify="center"
-                                flexShrink={0}
-                              >
-                                <Phone
-                                  size={18}
-                                  color="var(--chakra-colors-green-600)"
-                                />
-                              </Flex>
-                              <Box flex="1" minW={0}>
-                                <Text
-                                  fontSize="xs"
-                                  color="gray.500"
-                                  _dark={{ color: 'gray.400' }}
-                                  mb={0.5}
-                                >
-                                  {t('detail.phone')}
-                                </Text>
-                                <Text
-                                  fontSize="lg"
-                                  fontWeight="bold"
-                                  color="green.700"
-                                  _dark={{ color: 'green.200' }}
-                                  letterSpacing="wide"
-                                  lineClamp={1}
-                                >
-                                  {formatPhoneDisplay(venue.phone)}
-                                </Text>
-                              </Box>
-                              <ChevronRight
-                                size={18}
-                                color="var(--chakra-colors-green-500)"
-                                style={{ flexShrink: 0 }}
-                              />
-                            </Flex>
-                          </a>
-                          {/* Brand-accurate action buttons */}
-                          <Flex gap={2} mt={3}>
-                            <Button
-                              flex={1}
-                              size="md"
-                              bg="#0068FF"
-                              color="white"
-                              _hover={{ bg: '#0055D4' }}
-                              _active={{ bg: '#0048B3' }}
-                              onClick={() =>
-                                window.open(
-                                  `https://zalo.me/${normalizePhoneForZalo(venue.phone)}`,
-                                  '_blank'
-                                )
-                              }
-                            >
-                              <Image
-                                src="/icons/zalo.png"
-                                alt="Zalo"
-                                boxSize="18px"
-                              />
-                              Zalo
-                            </Button>
-                            <Button
-                              flex={1}
-                              size="md"
-                              colorPalette="green"
-                              variant="solid"
-                              onClick={() =>
-                                (window.location.href = `tel:${normalizePhoneForTel(venue.phone)}`)
-                              }
-                            >
-                              <Phone size={16} />
-                              {t('detail.callNow')}
-                            </Button>
-                          </Flex>
-                        </Box>
-                      )}
-                      {venue.website && (
-                        <a
-                          href={venue.website}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                        >
-                          <Flex
-                            align="center"
-                            gap={3}
-                            px={3}
-                            py={2.5}
-                            borderRadius="xl"
-                            bg="gray.50"
-                            _dark={{ bg: 'gray.700' }}
-                            _hover={{
-                              bg: 'purple.50',
-                              _dark: { bg: 'purple.900/30' },
-                            }}
-                            transition="all 0.2s"
-                            cursor="pointer"
-                          >
-                            <Box
-                              p={2}
-                              borderRadius="lg"
-                              bg="purple.100"
-                              _dark={{ bg: 'purple.900/40' }}
-                            >
-                              <Globe size={16} color="#805AD5" />
-                            </Box>
-                            <Box flex="1" minW={0}>
-                              <Text
-                                fontSize="xs"
-                                color="gray.500"
-                                _dark={{ color: 'gray.400' }}
-                                mb={0.5}
-                              >
-                                {t('website')}
-                              </Text>
-                              <Text
-                                fontSize="sm"
-                                fontWeight="semibold"
-                                lineClamp={1}
-                              >
-                                {venue.website}
-                              </Text>
-                            </Box>
-                          </Flex>
-                        </a>
-                      )}
-                    </VStack>
-                  </Box>
-                )}
-
-                {/* Location */}
-                <Box
+                  display={{ base: 'none', lg: 'block' }}
                   bg="white"
                   _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
                   borderRadius="2xl"
@@ -1552,90 +552,185 @@ export default function VenueDetailClient({
                   borderWidth="1px"
                   borderColor="gray.100"
                 >
-                  <Heading size="sm" mb={3}>
-                    {t('detail.location')}
+                  <Heading size="sm" mb={4}>
+                    {t('detail.quickInfo')}
                   </Heading>
-                  <Flex align="flex-start" gap={2} mb={2}>
-                    <MapPin
-                      size={14}
-                      color="var(--chakra-colors-gray-500)"
-                      style={{ flexShrink: 0, marginTop: 2 }}
-                    />
-                    <AppAddressDisplay
-                      address={venue.address}
-                      district={venue.district}
-                      city={venue.city}
-                      newAddress={venue.newAddress}
-                      newDistrict={venue.newDistrict}
-                      fontSize="sm"
-                      color="gray.600"
-                      _dark={{ color: 'gray.300' }}
-                    />
-                  </Flex>
-                  {venue.locatedWithin && (
-                    <Text
-                      fontSize="xs"
-                      color="gray.500"
-                      _dark={{ color: 'gray.400' }}
-                      mb={2}
-                    >
-                      {t('detail.locatedWithinLabel')}{' '}
-                      <strong>{venue.locatedWithin}</strong>
-                    </Text>
-                  )}
-                  {venue.lat && venue.lng && (
-                    <Box borderRadius="xl" overflow="hidden" mb={3}>
-                      <VenueMapPin
-                        lat={venue.lat}
-                        lng={venue.lng}
-                        height="180px"
-                      />
-                    </Box>
-                  )}
-                  {googleMapsUrl && (
-                    <a
-                      href={googleMapsUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      style={{ textDecoration: 'none', display: 'block' }}
-                    >
-                      <Button variant="outline" w="full" size="sm" isWithinLink>
-                        <ExternalLink size={14} />
-                        {t('detail.googleMaps')}
-                      </Button>
-                    </a>
-                  )}
+                  <VStack gap={4} align="stretch">
+                    {venue.openingHours && (
+                      <HStack gap={3}>
+                        <Flex
+                          w="36px"
+                          h="36px"
+                          borderRadius="lg"
+                          bg="blue.100"
+                          _dark={{ bg: 'blue.900/60' }}
+                          align="center"
+                          justify="center"
+                          flexShrink={0}
+                        >
+                          <Clock
+                            size={18}
+                            color="var(--chakra-colors-blue-600)"
+                          />
+                        </Flex>
+                        <Box flex="1">
+                          <Text
+                            fontSize="xs"
+                            color="gray.500"
+                            _dark={{ color: 'gray.400' }}
+                          >
+                            {t('openingHours')}
+                          </Text>
+                          <Text fontWeight="semibold" fontSize="sm">
+                            {venue.openingHours}
+                          </Text>
+                        </Box>
+                      </HStack>
+                    )}
+                    {venue.numberOfCourts && (
+                      <HStack gap={3}>
+                        <Flex
+                          w="36px"
+                          h="36px"
+                          borderRadius="lg"
+                          bg="green.100"
+                          _dark={{ bg: 'green.900/60' }}
+                          align="center"
+                          justify="center"
+                          flexShrink={0}
+                        >
+                          <LayoutGrid
+                            size={18}
+                            color="var(--chakra-colors-green-600)"
+                          />
+                        </Flex>
+                        <Box flex="1">
+                          <Text
+                            fontSize="xs"
+                            color="gray.500"
+                            _dark={{ color: 'gray.400' }}
+                          >
+                            {t('detail.courtsLabel')}
+                          </Text>
+                          <Text fontWeight="semibold" fontSize="sm">
+                            {t('detail.courtsValue', {
+                              count: venue.numberOfCourts,
+                            })}
+                          </Text>
+                        </Box>
+                      </HStack>
+                    )}
+                  </VStack>
                 </Box>
+              )}
 
-                <Flex justify="center" w="full" pt={1}>
+              {/* Chơi tại sân này: Đặt sân + Tìm kèo. On mobile it only earns
+                  its place when the sticky bar shows "Đặt sân" instead. */}
+              <Box
+                display={{
+                  base: venue.rentalEnabled ? 'block' : 'none',
+                  lg: 'block',
+                }}
+                bg="green.50"
+                _dark={{ bg: 'green.900/20', borderColor: 'green.800' }}
+                borderRadius="2xl"
+                p={5}
+                shadow="sm"
+                borderWidth="1px"
+                borderColor="green.100"
+              >
+                <Heading
+                  size="sm"
+                  mb={1}
+                  color="green.700"
+                  _dark={{ color: 'green.300' }}
+                >
+                  {t('detail.findSessionsHere')}
+                </Heading>
+                <Text
+                  fontSize="xs"
+                  color="green.600"
+                  _dark={{ color: 'green.400' }}
+                  mb={3}
+                >
+                  {t('detail.findSessionsHereDesc')}
+                </Text>
+                <VStack gap={2} align="stretch">
+                  {venue.rentalEnabled && (
+                    <Button
+                      display={{ base: 'none', lg: 'flex' }}
+                      colorPalette="green"
+                      onClick={handleRentCourt}
+                    >
+                      <CalendarPlus size={16} />
+                      {t('detail.rentCourt')}
+                    </Button>
+                  )}
                   <Button
-                    variant="ghost"
-                    colorPalette="gray"
-                    color="gray.500"
-                    _dark={{ color: 'gray.400' }}
-                    _hover={{
-                      color: 'green.600',
-                      bg: 'green.50',
-                      _dark: { color: 'green.400', bg: 'green.950/30' },
+                    w="full"
+                    variant={{
+                      base: 'solid',
+                      lg: venue.rentalEnabled ? 'outline' : 'solid',
                     }}
-                    size="sm"
-                    onClick={handleOpenUpdateRequest}
+                    colorPalette="green"
+                    onClick={handleFindSessions}
                   >
-                    <PencilLine size={14} />
-                    {t('requestUpdate')}
+                    <Search size={16} />
+                    {t('findSessions')}
                   </Button>
-                </Flex>
+                </VStack>
+              </Box>
 
-                <DetailViewCountFooter
-                  targetType="VENUE"
-                  targetId={venue.id}
-                  initialCount={venue.viewCount}
-                />
-              </VStack>
-            </Box>
-          </Grid>
-        </Tabs.Root>
+              {/* Contact — the mobile layout shows this inside the info card */}
+              <Box display={{ base: 'none', lg: 'block' }}>
+                <VenueContactCard phone={venue.phone} website={venue.website} />
+              </Box>
+
+              {/* Location */}
+              <VenueLocationCard venue={venue} venueName={venueName} />
+
+              <Flex justify="center" w="full" pt={1}>
+                <Button
+                  variant="ghost"
+                  colorPalette="gray"
+                  color="gray.500"
+                  _dark={{ color: 'gray.400' }}
+                  _hover={{
+                    color: 'green.600',
+                    bg: 'green.50',
+                    _dark: { color: 'green.400', bg: 'green.950/30' },
+                  }}
+                  size="sm"
+                  onClick={handleOpenUpdateRequest}
+                >
+                  <PencilLine size={14} />
+                  {t('requestUpdate')}
+                </Button>
+              </Flex>
+
+              <DetailViewCountFooter
+                targetType="VENUE"
+                targetId={venue.id}
+                initialCount={venue.viewCount}
+              />
+
+              {/* Clearance for the fixed bottom bar */}
+              <Box
+                display={{ base: 'block', lg: 'none' }}
+                h="calc(72px + env(safe-area-inset-bottom))"
+              />
+            </VStack>
+          </Box>
+        </Grid>
       </Container>
+
+      <VenueDetailStickyBar
+        phone={venue.phone}
+        minPricePerHour={minPricePerHour}
+        rentalEnabled={venue.rentalEnabled}
+        onRentCourt={handleRentCourt}
+        onFindSessions={handleFindSessions}
+      />
 
       <VenueRequestModal
         isOpen={isUpdateRequestOpen}

@@ -109,13 +109,9 @@ export default function TopBar({
     desktopSearchContent
   );
 
-  const normalizedPath =
-    pathname.replace(/^\/[a-z]{2}(\/|$)/, '/').replace(/\/$/, '') || '/';
-  const isLeftAlignedTitle =
-    !centerTitle &&
-    /^\/(player\/|host\/)?(sessions|venues|clubs|tournaments?)\/(?!(new|create|joined|pending|edit)$)[^/]+$/.test(
-      normalizedPath
-    );
+  // Unify all detail pages (variant="secondary") on a left-aligned title next
+  // to the back button; pages that still want a centered title opt in via `centerTitle`.
+  const isLeftAlignedTitle = !centerTitle && variant === 'secondary';
   const isCenteredTitle = !isLeftAlignedTitle;
   const hasNavItems = Boolean(navItems?.length);
   const showLogin =

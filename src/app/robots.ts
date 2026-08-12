@@ -15,7 +15,8 @@ export default function robots(): MetadataRoute.Robots {
         userAgent: '*',
         allow: '/',
         disallow: [
-          '/*/auth',
+          '/*/auth/verify-email',
+          '/*/auth/reset-password/*',
           '/*/player-status',
           '/*/join-by-code',
           '/*/guest',

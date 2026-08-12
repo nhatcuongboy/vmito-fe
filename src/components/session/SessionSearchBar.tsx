@@ -20,6 +20,7 @@ export default function SessionSearchBar({
   topOffset = 0,
   fixedOnMobile = false,
   hideOnDesktop = false,
+  sticky = true,
   showCitySelector = false,
 }: SessionSearchBarProps) {
   const t = useTranslations('session');
@@ -67,10 +68,18 @@ export default function SessionSearchBar({
 
       {/* Sticky Area: Search (Mobile/Desktop) */}
       <Box
-        position={{ base: fixedOnMobile ? 'fixed' : 'sticky', md: 'sticky' }}
+        position={{
+          base: fixedOnMobile ? 'fixed' : sticky ? 'sticky' : 'relative',
+          md: sticky ? 'sticky' : 'relative',
+        }}
         top={{
-          base: `calc(${TOP_BAR_HEIGHT_MOBILE + topOffset}px + env(safe-area-inset-top))`,
-          md: `calc(${TOP_BAR_HEIGHT_DESKTOP}px + env(safe-area-inset-top))`,
+          base:
+            fixedOnMobile || sticky
+              ? `calc(${TOP_BAR_HEIGHT_MOBILE + topOffset}px + env(safe-area-inset-top))`
+              : undefined,
+          md: sticky
+            ? `calc(${TOP_BAR_HEIGHT_DESKTOP}px + env(safe-area-inset-top))`
+            : undefined,
         }}
         left={0}
         right={0}
@@ -79,7 +88,7 @@ export default function SessionSearchBar({
           base: fixedOnMobile ? 0 : 'calc(50% - 50vw)',
           md: 'calc(50% - 50vw)',
         }}
-        zIndex={1100}
+        zIndex={fixedOnMobile || sticky ? 1100 : undefined}
         bg={{ base: 'bg', md: 'transparent' }}
         pt={topAddon ? { base: 2, md: 0 } : 2}
         pb={{ base: 0, md: 2 }}
@@ -90,12 +99,7 @@ export default function SessionSearchBar({
         mb={{ base: topAddon ? 4 : 0, md: 0 }}
         display={hideOnDesktop ? { base: 'block', md: 'none' } : 'block'}
       >
-        <Flex
-          direction={{ base: 'column-reverse', md: 'column' }}
-          align="center"
-          gap={1.5}
-          w="100%"
-        >
+        <Flex direction="column" align="center" gap={1.5} w="100%">
           {topAddon && (
             <Box w="100%">
               <Box maxW="1280px" mx="auto">
@@ -130,14 +134,17 @@ export default function SessionSearchBar({
         {createBtn}
       </Flex>
 
-      {/* Mobile Create Button (NON-Sticky, right-aligned) */}
+      {/* Mobile Create Button (NON-Sticky, right-aligned). Kept in flow (even
+      when the button itself is hidden) so the spacing below the search bar
+      stays consistent across pages; fixed-position search bars skip this
+      spacer since they're already out of normal flow. */}
       <Box
-        display={hideCreateOnMobile ? 'none' : { base: 'block', md: 'none' }}
+        display={fixedOnMobile ? 'none' : { base: 'block', md: 'none' }}
         mt={2}
         mb={4}
       >
         <Flex justify="flex-end" w="100%" maxW="650px" mx="auto">
-          {createBtn}
+          {!hideCreateOnMobile && createBtn}
         </Flex>
       </Box>
     </>

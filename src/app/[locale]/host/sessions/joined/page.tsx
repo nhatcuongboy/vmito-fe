@@ -13,6 +13,7 @@ import {
   useState,
   useMemo,
   useRef,
+  useCallback,
 } from 'react';
 import { useInView } from 'react-intersection-observer';
 import SessionsList from '@/components/session/SessionsList';
@@ -23,23 +24,26 @@ import {
 import { useAuthStore } from '@/stores/useAuthStore';
 import PageLayout from '@/components/layout/PageLayout';
 import { useRouter } from '@/i18n/config';
-import { TOP_BAR_HEIGHT_MOBILE, TOP_BAR_HEIGHT_DESKTOP } from '@/constants';
 import { useSearchParams } from 'next/navigation';
 
 import SessionFilters from '@/components/session/SessionFilters';
 import { ISessionFilterState } from '@/components/session/SessionFilters.types';
 import ResultsHeader, { SortOption } from '@/components/session/ResultsHeader';
 import { SessionSortBy, toApiSort } from '@/stores/useSessionFilterStore';
-import HostSessionsNavPanel from '@/components/session/HostSessionsNavPanel';
-import { StatusTabSwitch } from '@/components/session/StatusTabSwitch';
+import { HostSessionsSectionTabs } from '@/components/session/HostSessionsSectionTabs';
+import { SessionRequestsButton } from '@/components/session/SessionRequestsButton';
 import { useViewMode } from '@/hooks/useViewMode';
 import { useSocketListRefresh } from '@/hooks/useSocketListRefresh';
 import { SessionEventType } from '@/contexts/SocketContext';
-import { FavoriteFilterButton } from '@/components/favorites/FavoriteFilterButton';
 import dynamic from 'next/dynamic';
+import { ClipboardList } from 'lucide-react';
 
 const JoinSessionModal = dynamic(
   () => import('@/components/session/JoinSessionModal'),
+  { ssr: false }
+);
+const MyJoinRequestsDrawer = dynamic(
+  () => import('@/components/session/MyJoinRequestsDrawer'),
   { ssr: false }
 );
 
@@ -111,7 +115,9 @@ function PlayerSessionsContent() {
       return 'active';
     })()
   );
-  const [filters, setFilters] = useState<ISessionFilterState>({});
+  const [filters, setFilters] = useState<ISessionFilterState>({
+    listStatus: sessionStatusTab,
+  });
   const [sortBy, setSortBy] = useState<SessionSortBy>('date_asc');
   const [favoriteOnly, setFavoriteOnly] = useState(false);
 
@@ -126,6 +132,19 @@ function PlayerSessionsContent() {
   const [selectedSessionForGuest, setSelectedSessionForGuest] =
     useState<ISession | null>(null);
   const [isAddGuestModalOpen, setIsAddGuestModalOpen] = useState(false);
+  const [isRequestsDrawerOpen, setIsRequestsDrawerOpen] = useState(false);
+  const [joinRequestCount, setJoinRequestCount] = useState(0);
+
+  useEffect(() => {
+    const tab = searchParams.get('tab');
+    const nextStatus = tab === 'ended' || tab === 'all' ? tab : 'active';
+    setSessionStatusTab(nextStatus);
+    setFilters((current) =>
+      current.listStatus === nextStatus
+        ? current
+        : { ...current, listStatus: nextStatus }
+    );
+  }, [searchParams]);
 
   const handleAddGuestClick = (session: ISession) => {
     setSelectedSessionForGuest(session);
@@ -161,13 +180,11 @@ function PlayerSessionsContent() {
         limit: PAGE_SIZE,
         searchQuery: filters.searchQuery,
         excludeStatuses:
-          sessionStatusTab === 'active' && !filters.status
+          sessionStatusTab === 'active'
             ? [SessionStatus.FINISHED, SessionStatus.CANCELLED]
             : undefined,
         status:
-          sessionStatusTab === 'ended'
-            ? SessionStatus.FINISHED
-            : filters.status,
+          sessionStatusTab === 'ended' ? SessionStatus.FINISHED : undefined,
         favoriteOnly,
         ...apiSortParams,
       });
@@ -208,14 +225,7 @@ function PlayerSessionsContent() {
       fetchPlayerSessions();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
-    user?.id,
-    filters.searchQuery,
-    sortBy,
-    filters.status,
-    sessionStatusTab,
-    favoriteOnly,
-  ]);
+  }, [user?.id, filters.searchQuery, sortBy, sessionStatusTab, favoriteOnly]);
 
   // Refetch the list when realtime events for this player arrive so
   // registration statuses don't go stale while waiting for host approval.
@@ -252,11 +262,6 @@ function PlayerSessionsContent() {
       );
     }
 
-    // Status filter
-    if (filters.status && sessionStatusTab !== 'ended') {
-      result = result.filter((session) => session.status === filters.status);
-    }
-
     // Date filter
     if (filters.date) {
       const filterDate = new Date(filters.date);
@@ -286,33 +291,36 @@ function PlayerSessionsContent() {
     return result;
   }, [filters, sessions, sortBy, sessionStatusTab]);
 
-  const handleFilterChange = (newFilters: ISessionFilterState) => {
-    setFilters(newFilters);
-  };
+  const handleFilterChange = useCallback(
+    (newFilters: ISessionFilterState) => {
+      setFilters(newFilters);
+      const nextStatus = newFilters.listStatus ?? 'active';
+      setSessionStatusTab(nextStatus);
+      const params = new URLSearchParams(searchParams);
+      params.set('tab', nextStatus);
+      router.replace(`?${params.toString()}`);
+    },
+    [router, searchParams]
+  );
 
-  const handleTabChange = (
-    newTab: 'active' | 'ended' | 'all' | 'pending' | 'expired'
-  ) => {
-    if (newTab === 'pending' || newTab === 'expired') return; // Should not happen with showPending={false}
-    setSessionStatusTab(newTab);
-    // Update URL with new tab param
-    const params = new URLSearchParams(searchParams);
-    params.set('tab', newTab);
-    router.push(`?${params.toString()}`);
-  };
+  useEffect(() => {
+    if (!user?.id) return;
+    PlayerService.getMyJoinRequests({ page: 1, limit: 1 })
+      .then((result) => setJoinRequestCount(result.total))
+      .catch(() => setJoinRequestCount(0));
+  }, [user?.id]);
 
   const displayCount = filters.date ? filteredSessions.length : totalCount;
 
   return (
     <PageLayout
       showBackButton={false}
+      topBarVariant="secondary"
       title={t('joined')}
       bg="green.50"
       _dark={{ bg: 'gray.900' }}
-      pt={{
-        base: `calc(${TOP_BAR_HEIGHT_MOBILE}px + env(safe-area-inset-top))`,
-        md: `calc(${TOP_BAR_HEIGHT_DESKTOP}px + env(safe-area-inset-top))`,
-      }}
+      subHeader={<HostSessionsSectionTabs />}
+      mobileSubHeaderOffset="52px"
       maxW="full"
       px={{ base: '24px', md: 0 }}
       hideTopBarBorder={true}
@@ -324,27 +332,17 @@ function PlayerSessionsContent() {
         pl={{ md: 4 }}
         pr={{ md: 6 }}
       >
-        <HostSessionsNavPanel />
-
         <Box flex={1} minW={0}>
           <SessionFilters
             onFilterChange={handleFilterChange}
-            showStatusFilter={
-              sessionStatusTab === 'active' || sessionStatusTab === 'all'
-            }
+            initialFilters={{ listStatus: sessionStatusTab }}
+            showStatusFilter={false}
+            showListStatusFilter={true}
             showDateFilter={true}
             showSearchFilter={true}
             showLevelFilter={false}
-            hideSearchOnDesktop={true}
-            topAddon={
-              <StatusTabSwitch
-                activeTab={sessionStatusTab}
-                onChange={handleTabChange}
-                showAll={true}
-                showPending={false}
-                showExpired={false}
-              />
-            }
+            hideSearchOnDesktop={false}
+            stickySearch={false}
           />
 
           <ResultsHeader
@@ -355,10 +353,12 @@ function PlayerSessionsContent() {
             showViewModeMap={false}
             viewMode={viewMode}
             setViewMode={setViewMode}
-            favoriteButton={
-              <FavoriteFilterButton
-                isActive={favoriteOnly}
-                onToggle={() => setFavoriteOnly((value) => !value)}
+            leadingAction={
+              <SessionRequestsButton
+                label={tSession('myJoinRequests')}
+                icon={ClipboardList}
+                count={joinRequestCount}
+                onClick={() => setIsRequestsDrawerOpen(true)}
               />
             }
           />
@@ -439,6 +439,12 @@ function PlayerSessionsContent() {
           isAdditionalRegistration={true}
         />
       )}
+      <MyJoinRequestsDrawer
+        isOpen={isRequestsDrawerOpen}
+        onClose={() => setIsRequestsDrawerOpen(false)}
+        onCountChange={setJoinRequestCount}
+        onMutated={() => fetchPlayerSessions(false, true)}
+      />
     </PageLayout>
   );
 }

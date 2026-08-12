@@ -2,6 +2,7 @@
 
 import ProtectedRouteGuard from '@/components/guards/ProtectedRouteGuard';
 import { SessionService } from '@/lib/api/session.service';
+import { PlayerService } from '@/lib/api/player.service';
 import { ISession, UserRole, SessionStatus, FeeType } from '@/lib/api/types';
 import { Box, Flex, Grid, Spinner, Text } from '@chakra-ui/react';
 
@@ -14,6 +15,7 @@ import {
   useState,
   useMemo,
   useRef,
+  useCallback,
 } from 'react';
 import { useInView } from 'react-intersection-observer';
 import SessionsList from '@/components/session/SessionsList';
@@ -31,23 +33,23 @@ import AISessionModal from '@/components/session/AISessionModal';
 import { ExtractedSessionData } from '@/lib/api/ai.service';
 import ResultsHeader, { SortOption } from '@/components/session/ResultsHeader';
 import { SessionSortBy, toApiSort } from '@/stores/useSessionFilterStore';
-import HostSessionsNavPanel from '@/components/session/HostSessionsNavPanel';
+import { HostSessionsSectionTabs } from '@/components/session/HostSessionsSectionTabs';
+import { SessionRequestsButton } from '@/components/session/SessionRequestsButton';
 import { usePreferenceStore } from '@/stores/usePreferenceStore';
-import {
-  ROUTES,
-  TIME_RANGES,
-  TOP_BAR_HEIGHT_MOBILE,
-  TOP_BAR_HEIGHT_DESKTOP,
-} from '@/constants';
+import { ROUTES, TIME_RANGES } from '@/constants';
 
-import { StatusTabSwitch } from '@/components/session/StatusTabSwitch';
 import { useViewMode } from '@/hooks/useViewMode';
 import { useSocketListRefresh } from '@/hooks/useSocketListRefresh';
 import { SessionEventType } from '@/contexts/SocketContext';
 import { Button } from '@/components/ui/chakra-compat';
-import { PlayCircle } from 'lucide-react';
+import { ClipboardCheck, PlayCircle } from 'lucide-react';
 import { useTourStore } from '@/stores/useTourStore';
-import { FavoriteFilterButton } from '@/components/favorites/FavoriteFilterButton';
+import dynamic from 'next/dynamic';
+
+const HostPendingRequestsDrawer = dynamic(
+  () => import('@/components/session/HostPendingRequestsDrawer'),
+  { ssr: false }
+);
 
 // Realtime events (emitted to the host's user room) that should refresh the
 // hosted sessions list: new join requests and generic notifications
@@ -89,16 +91,20 @@ function HostSessionsContent() {
 
   // Initialize sessionStatusTab from URL param, default to 'active'
   const [sessionStatusTab, setSessionStatusTab] = useState<
-    'active' | 'ended' | 'pending' | 'all'
-  >(
-    (searchParams.get('tab') as 'active' | 'ended' | 'pending' | 'all') ||
-      'active'
-  );
+    'active' | 'ended' | 'all'
+  >(() => {
+    const tab = searchParams.get('tab');
+    return tab === 'ended' || tab === 'all' ? tab : 'active';
+  });
   const loadingMoreRef = useRef(false);
-  const [filters, setFilters] = useState<ISessionFilterState>({});
+  const [filters, setFilters] = useState<ISessionFilterState>({
+    listStatus: sessionStatusTab,
+  });
   const [sortBy, setSortBy] = useState<SessionSortBy>('date_asc');
   const [favoriteOnly, setFavoriteOnly] = useState(false);
   const [isAIModalOpen, setIsAIModalOpen] = useState(false);
+  const [isPendingDrawerOpen, setIsPendingDrawerOpen] = useState(false);
+  const [pendingRequestCount, setPendingRequestCount] = useState(0);
 
   const [viewMode, setViewMode] = useViewMode('host-sessions');
 
@@ -106,6 +112,24 @@ function HostSessionsContent() {
     threshold: 0.1,
     rootMargin: '100px',
   });
+
+  const refreshPendingRequestCount = useCallback(() => {
+    if (!user?.id) return Promise.resolve();
+    return PlayerService.getPendingRequestsCount()
+      .then(setPendingRequestCount)
+      .catch(() => setPendingRequestCount(0));
+  }, [user?.id]);
+
+  useEffect(() => {
+    const tab = searchParams.get('tab');
+    const nextStatus = tab === 'ended' || tab === 'all' ? tab : 'active';
+    setSessionStatusTab(nextStatus);
+    setFilters((current) =>
+      current.listStatus === nextStatus
+        ? current
+        : { ...current, listStatus: nextStatus }
+    );
+  }, [searchParams]);
 
   // `silent` refreshes the data without toggling the loading skeleton —
   // used for background refetches triggered by realtime events.
@@ -137,18 +161,12 @@ function HostSessionsContent() {
         hostId: user?.role === UserRole.ADMIN ? undefined : user?.id,
         searchQuery: filters.searchQuery,
         excludeStatuses:
-          sessionStatusTab === 'active' && !filters.status
+          sessionStatusTab === 'active'
             ? [SessionStatus.FINISHED, SessionStatus.CANCELLED]
             : undefined,
         excludeStatus: undefined,
         status:
-          sessionStatusTab === 'ended'
-            ? SessionStatus.FINISHED
-            : sessionStatusTab === 'active' && filters.status
-              ? filters.status
-              : sessionStatusTab === 'all'
-                ? undefined
-                : filters.status,
+          sessionStatusTab === 'ended' ? SessionStatus.FINISHED : undefined,
         endTimeBefore: undefined,
         endTimeAfter: undefined,
         favoriteOnly,
@@ -188,20 +206,14 @@ function HostSessionsContent() {
       fetchHostedSessions();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
-    user?.id,
-    filters.searchQuery,
-    sortBy,
-    filters.status,
-    sessionStatusTab,
-    favoriteOnly,
-  ]);
+  }, [user?.id, filters.searchQuery, sortBy, sessionStatusTab, favoriteOnly]);
 
   // Refetch the list when realtime events for this host arrive so player
   // counts and pending requests don't go stale while the page is open.
   useSocketListRefresh(HOST_LIST_REFRESH_EVENTS, () => {
     if (user?.id && !loadingMoreRef.current) {
       fetchHostedSessions(false, true);
+      void refreshPendingRequestCount();
     }
   });
 
@@ -240,11 +252,6 @@ function HostSessionsContent() {
     // Status filter is now handled on the server by excludeStatus or status param
     // Exclude FINISHED sessions - they are shown in the Ended Sessions tab
     // We only filter client-side if the API support was missing, but it's now added.
-
-    // Status filter
-    if (filters.status) {
-      result = result.filter((session) => session.status === filters.status);
-    }
 
     // Date filter
     if (filters.date) {
@@ -321,28 +328,21 @@ function HostSessionsContent() {
     return result;
   }, [filters, sessions, sortBy]);
 
-  const handleFilterChange = (newFilters: ISessionFilterState) => {
-    setFilters(newFilters);
-  };
+  const handleFilterChange = useCallback(
+    (newFilters: ISessionFilterState) => {
+      setFilters(newFilters);
+      const nextStatus = newFilters.listStatus ?? 'active';
+      setSessionStatusTab(nextStatus);
+      const params = new URLSearchParams(searchParams);
+      params.set('tab', nextStatus);
+      router.replace(`?${params.toString()}`);
+    },
+    [router, searchParams]
+  );
 
-  const handleTabChange = (
-    newTab: 'active' | 'ended' | 'all' | 'pending' | 'expired'
-  ) => {
-    if (newTab === 'pending') {
-      router.push(ROUTES.HOST.PENDING_JOIN_REQUESTS);
-      return;
-    }
-    if (newTab === 'expired') {
-      // Redirect expired to all tab
-      newTab = 'all';
-    }
-    setFilters({});
-    setSessionStatusTab(newTab as 'active' | 'ended' | 'all');
-    // Update URL with new tab param
-    const params = new URLSearchParams(searchParams);
-    params.set('tab', newTab);
-    router.push(`?${params.toString()}`);
-  };
+  useEffect(() => {
+    void refreshPendingRequestCount();
+  }, [refreshPendingRequestCount]);
 
   const handleAISuccess = (data: ExtractedSessionData) => {
     // Save AI-extracted data to sessionStorage so SessionForm can pick it up
@@ -357,10 +357,8 @@ function HostSessionsContent() {
       title={tNav('myHostedSessions')}
       bg="green.50"
       _dark={{ bg: 'gray.900' }}
-      pt={{
-        base: `calc(${TOP_BAR_HEIGHT_MOBILE}px + env(safe-area-inset-top))`,
-        md: `calc(${TOP_BAR_HEIGHT_DESKTOP}px + env(safe-area-inset-top))`,
-      }}
+      subHeader={<HostSessionsSectionTabs />}
+      mobileSubHeaderOffset="52px"
       maxW="full"
       px={{ base: '24px', md: 0 }}
       hideTopBarBorder={true}
@@ -373,14 +371,12 @@ function HostSessionsContent() {
         pl={{ md: 4 }}
         pr={{ md: 6 }}
       >
-        <HostSessionsNavPanel />
         <Box flex={1} minW={0}>
           <SessionFilters
-            key={sessionStatusTab}
             onFilterChange={handleFilterChange}
-            showStatusFilter={
-              sessionStatusTab === 'active' || sessionStatusTab === 'all'
-            }
+            initialFilters={{ listStatus: sessionStatusTab }}
+            showStatusFilter={false}
+            showListStatusFilter={true}
             showDateFilter={true}
             showSearchFilter={true}
             showLevelFilter={sessionStatusTab === 'all'}
@@ -395,15 +391,8 @@ function HostSessionsContent() {
               }
             }}
             hideCreateOnMobile={true}
-            hideSearchOnDesktop={true}
-            topAddon={
-              <StatusTabSwitch
-                activeTab={sessionStatusTab}
-                onChange={handleTabChange}
-                showAll={true}
-                showExpired={false}
-              />
-            }
+            hideSearchOnDesktop={false}
+            stickySearch={false}
           />
 
           <ResultsHeader
@@ -414,10 +403,12 @@ function HostSessionsContent() {
             showViewModeMap={false}
             viewMode={viewMode}
             setViewMode={setViewMode}
-            favoriteButton={
-              <FavoriteFilterButton
-                isActive={favoriteOnly}
-                onToggle={() => setFavoriteOnly((value) => !value)}
+            leadingAction={
+              <SessionRequestsButton
+                label={tNav('pendingJoinRequests')}
+                icon={ClipboardCheck}
+                count={pendingRequestCount}
+                onClick={() => setIsPendingDrawerOpen(true)}
               />
             }
           />
@@ -513,6 +504,12 @@ function HostSessionsContent() {
         isOpen={isAIModalOpen}
         onClose={() => setIsAIModalOpen(false)}
         onSuccess={handleAISuccess}
+      />
+      <HostPendingRequestsDrawer
+        isOpen={isPendingDrawerOpen}
+        onClose={() => setIsPendingDrawerOpen(false)}
+        onCountChange={setPendingRequestCount}
+        onMutated={() => fetchHostedSessions(false, true)}
       />
     </PageLayout>
   );
