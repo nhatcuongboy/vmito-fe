@@ -413,9 +413,6 @@ export default function JoinedTournamentsPage() {
     >
       <PageLayout
         title={t('joinedTab') || 'Giải tham gia'}
-        mobileIcon={<Trophy size={20} />}
-        showBackButton={true}
-        onBack={() => router.back()}
         hideTopBarBorder={true}
         subHeader={
           <HostTournamentsHeader

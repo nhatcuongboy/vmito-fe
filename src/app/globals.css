@@ -759,6 +759,11 @@
   gap: 8px;
 }
 
+.top-bar-shell[data-variant='secondary'] .top-bar-authenticated-actions,
+.top-bar-shell[data-variant='secondary'] .top-bar-login {
+  display: none;
+}
+
 .top-bar-icon-button {
   display: inline-flex;
   width: 40px;
@@ -2022,6 +2027,14 @@
 
   .top-bar-shell[data-variant='secondary'] .top-bar-back {
     display: none;
+  }
+
+  .top-bar-shell[data-variant='secondary'] .top-bar-authenticated-actions {
+    display: flex;
+  }
+
+  .top-bar-shell[data-variant='secondary'] .top-bar-login {
+    display: inline-flex;
   }
 
   .top-bar-title-left {

@@ -470,9 +470,6 @@ export default function HostTournamentsPage() {
     >
       <PageLayout
         title={isAdmin ? t('adminPageTitle') : t('pageTitle')}
-        mobileIcon={<Trophy size={20} />}
-        showBackButton={true}
-        onBack={() => router.back()}
         hideTopBarBorder={true}
         subHeader={
           <HostTournamentsHeader

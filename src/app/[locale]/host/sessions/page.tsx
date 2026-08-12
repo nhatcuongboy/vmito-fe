@@ -353,8 +353,7 @@ function HostSessionsContent() {
   return (
     <PageLayout
       showBackButton={false}
-      topBarVariant="secondary"
-      title={tNav('myHostedSessions')}
+      title={tNav('sessions')}
       bg="green.50"
       _dark={{ bg: 'gray.900' }}
       subHeader={<HostSessionsSectionTabs />}

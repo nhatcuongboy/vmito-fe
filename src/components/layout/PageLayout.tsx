@@ -138,12 +138,9 @@ export default function PageLayout({
   const isMainPage = useIsMainPage();
   const variant = topBarVariant ?? (isMainPage ? 'main' : 'secondary');
   const pathname = usePathname();
-  // Detail pages default to a lean top bar (no bell/avatar/AI button) so the
-  // title gets the space; callers can still force these on explicitly.
-  const resolvedShowTopBarAuthActions =
-    showTopBarAuthActions ?? variant !== 'secondary';
+  const resolvedShowTopBarAuthActions = showTopBarAuthActions ?? true;
   const resolvedShowTopBarAiAssistantButton =
-    showTopBarAiAssistantButton ?? variant !== 'secondary';
+    showTopBarAiAssistantButton ?? true;
 
   const isDiscoveryPage = [
     '/',

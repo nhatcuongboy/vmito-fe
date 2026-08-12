@@ -315,8 +315,7 @@ function PlayerSessionsContent() {
   return (
     <PageLayout
       showBackButton={false}
-      topBarVariant="secondary"
-      title={t('joined')}
+      title={t('sessions')}
       bg="green.50"
       _dark={{ bg: 'gray.900' }}
       subHeader={<HostSessionsSectionTabs />}
