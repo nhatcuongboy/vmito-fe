@@ -7,6 +7,7 @@ import { LucideIcon, Plus } from 'lucide-react';
 import { useSidebar } from '@/contexts/SidebarContext';
 import { SIDEBAR_WIDTH_EXPANDED, SIDEBAR_WIDTH_COLLAPSED } from '@/constants';
 import { useAlwaysVisibleBottomNavStore } from '@/stores/useAlwaysVisibleBottomNavStore';
+import { NotificationBadge } from '@/components/ui/NotificationBadge';
 
 export interface NavigationTab {
   id: number;
@@ -14,6 +15,7 @@ export interface NavigationTab {
   icon: LucideIcon;
   href?: string;
   dataTour?: string;
+  badge?: number;
 }
 
 export interface CenterAction {
@@ -100,18 +102,28 @@ export default function BottomNavigationBar({
           alignItems="center"
           cursor={isLoading ? 'not-allowed' : 'pointer'}
           opacity={isLoading ? 0.7 : 1}
+          position="relative"
         >
           {isLoading ? (
             <Spinner size="sm" color="brand.500" mb={{ base: 0.5, md: 1 }} />
           ) : (
-            <Icon
-              size={20}
-              style={{
-                color: isActive
-                  ? 'var(--chakra-colors-brand-500)'
-                  : 'currentColor',
-              }}
-            />
+            <Box position="relative" display="inline-block">
+              <Icon
+                size={20}
+                style={{
+                  color: isActive
+                    ? 'var(--chakra-colors-brand-500)'
+                    : 'currentColor',
+                }}
+              />
+              {tab.badge !== undefined && tab.badge > 0 && (
+                <NotificationBadge
+                  count={tab.badge}
+                  size="sm"
+                  aria-label={`${tab.badge} new`}
+                />
+              )}
+            </Box>
           )}
           <Text
             fontSize={{ base: '2xs', sm: 'xs' }}

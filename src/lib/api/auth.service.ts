@@ -102,6 +102,12 @@ export const AuthService = {
     // Reset onboarding/AI-creation flags so a new user gets a clean
     // onboarding flow; preferredCity is intentionally kept (see store).
     usePreferenceStore.getState().resetPreferences();
+    // Reset newsfeed badge count on logout
+    import('@/stores/useNewsfeedBadgeStore').then(
+      ({ useNewsfeedBadgeStore }) => {
+        useNewsfeedBadgeStore.getState().reset();
+      }
+    );
   },
 
   /**

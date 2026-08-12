@@ -238,17 +238,6 @@ const SessionDetailBody = ({
         </Text>
       </Flex>
 
-      {session.description && (
-        <Text
-          mt={1.5}
-          color="gray.600"
-          _dark={{ color: 'gray.400' }}
-          fontSize={{ base: 'sm', md: 'md' }}
-        >
-          {session.description}
-        </Text>
-      )}
-
       {/* Location */}
       {venueDisplayName && (
         <Flex align="flex-start" gap={3} mt={3}>
