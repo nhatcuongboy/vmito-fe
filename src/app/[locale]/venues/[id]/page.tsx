@@ -4,7 +4,7 @@ import { cache } from 'react';
 import { isAxiosError } from 'axios';
 import { VenueService } from '@/lib/api/venue.service';
 import { Venue } from '@/lib/api/types';
-import { formatVenueFullName } from '@/utils';
+import { formatVenueFullName, resolveVenueNamePattern } from '@/utils';
 import { normalizeImageUrl } from '@/lib/images/normalizeImageUrl';
 import { stripHtml } from '@/utils/string-utils';
 import VenueDetailClient from './VenueDetailClient';
@@ -30,6 +30,7 @@ interface PageProps {
 }
 
 interface VenueSeoMessages {
+  nameFormat: string;
   fullNameFormat: Record<string, string>;
   seo: {
     courtsCount: string;
@@ -64,12 +65,14 @@ const getVenueMessages = async (locale: string): Promise<VenueSeoMessages> => {
  * Nhật Cường", en "Nhật Cường Badminton Court"). Must match what the detail
  * page UI renders so the search-engine title equals the on-page name.
  */
-const getFullVenueName = (venue: Venue, venueMessages: VenueSeoMessages) => {
-  const pattern =
-    venueMessages.fullNameFormat[venue.sportType ?? 'BADMINTON'] ??
-    venueMessages.fullNameFormat.BADMINTON;
-  return formatVenueFullName(venue.name, pattern);
-};
+const getFullVenueName = (venue: Venue, venueMessages: VenueSeoMessages) =>
+  formatVenueFullName(
+    venue.name,
+    resolveVenueNamePattern(venue, {
+      generic: venueMessages.nameFormat,
+      bySport: venueMessages.fullNameFormat,
+    })
+  );
 
 const getVenueSeoImages = (venue: Venue): string[] => {
   const candidates = [

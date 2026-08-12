@@ -243,7 +243,8 @@ export function FavoriteEngagementControl({
           returnUrl={returnUrl}
           onChange={handleFavoriteChange}
         />
-        {isMinimal && (!summary.canViewUsers || summary.favoriteCount === 0) ? (
+        {isDark && summary.favoriteCount === 0 ? null : isMinimal &&
+          (!summary.canViewUsers || summary.favoriteCount === 0) ? (
           <Text
             minW="20px"
             textAlign="center"

@@ -58,6 +58,29 @@ export const AuthService = {
   },
 
   /**
+   * Login with Apple identity token (Sign in with Apple JS)
+   */
+  appleSignIn: async (data: {
+    identityToken: string;
+    givenName?: string;
+    familyName?: string;
+  }): Promise<LoginResponse> => {
+    const response = await api.post<{ success: boolean; data: LoginResponse }>(
+      '/auth/apple',
+      data
+    );
+
+    // Support both wrapped { success, data } and direct LoginResponse shapes
+    const loginData =
+      response.data?.data || (response.data as unknown as LoginResponse);
+
+    const { user, accessToken, refreshToken } = loginData;
+    useAuthStore.getState().setAuth(user, accessToken, refreshToken);
+
+    return loginData;
+  },
+
+  /**
    * Register new user
    */
   register: async (data: RegisterRequest, locale?: string): Promise<User> => {

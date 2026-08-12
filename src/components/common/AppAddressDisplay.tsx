@@ -1,6 +1,7 @@
 'use client';
 
-import { Badge, Box, Text } from '@chakra-ui/react';
+import type { ReactNode } from 'react';
+import { Badge, Box, Text, type SystemStyleObject } from '@chakra-ui/react';
 import { useAppSettings } from '@/contexts/AppSettingsContext';
 import { useTranslations } from 'next-intl';
 
@@ -12,8 +13,9 @@ export interface IAppAddressDisplayProps {
   newDistrict?: string | null;
   fontSize?: string;
   color?: string;
-  _dark?: Record<string, any>;
+  _dark?: SystemStyleObject;
   lineClamp?: number;
+  suffix?: ReactNode;
 }
 
 export const AppAddressDisplay = ({
@@ -25,6 +27,7 @@ export const AppAddressDisplay = ({
   color = 'fg.subtle',
   _dark = { color: 'gray.300' },
   lineClamp,
+  suffix,
 }: IAppAddressDisplayProps) => {
   const { showNewAddress } = useAppSettings();
   const t = useTranslations('admin');
@@ -53,6 +56,7 @@ export const AppAddressDisplay = ({
             {t('newAddressBadge')}
           </Badge>
         )}
+        {suffix}
       </Text>
     </Box>
   );

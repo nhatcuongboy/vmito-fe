@@ -29,6 +29,7 @@ import SessionDetailBody from './SessionDetailBody';
 import SessionDetailStickyBar from './SessionDetailStickyBar';
 import SessionRecommendations from './SessionRecommendations';
 import DetailViewCountFooter from '@/components/common/DetailViewCountFooter';
+import AppDetailStickyHeader from '@/components/common/AppDetailStickyHeader';
 import SessionDetailSkeleton from './SessionDetailSkeleton';
 
 interface PublicSessionDetailContentProps {
@@ -248,6 +249,11 @@ export const PublicSessionDetailContent = ({
               userRegistrationStatus={userRegistrationStatus}
               onBack={onBack}
               showBackButton={showBackButton}
+            />
+
+            <AppDetailStickyHeader
+              title={session.name}
+              onBack={showBackButton ? onBack : undefined}
             />
 
             {/* Body Section */}

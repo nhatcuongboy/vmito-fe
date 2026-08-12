@@ -24,6 +24,8 @@ export default function MyClubsLayout({
     <PageLayout
       title={activeTab === 'member' ? t('joinedGroups') : t('manageGroups')}
       showBackButton={false}
+      topBarVariant="secondary"
+      centerTitle
       subHeader={<MyClubsSectionTabs />}
       mobileSubHeaderOffset="60px"
     >

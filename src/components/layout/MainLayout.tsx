@@ -23,6 +23,7 @@ interface MainLayoutProps {
   backgroundColor?: ResponsiveStyleValue;
   contentPadding?: number | string;
   centerTitle?: boolean;
+  showLogoDesktopOnly?: boolean;
 }
 
 type LayoutStyle = CSSProperties & Record<`--${string}`, string | number>;
@@ -35,6 +36,7 @@ export default function MainLayout({
   backgroundColor = { base: 'green.50', _dark: 'gray.950' },
   contentPadding = 0,
   centerTitle = false,
+  showLogoDesktopOnly = true,
 }: MainLayoutProps) {
   const { isCollapsed } = useSidebar();
   const responsiveBackground =
@@ -70,6 +72,7 @@ export default function MainLayout({
         showBackButton={showBackButton}
         backHref={backHref}
         centerTitle={centerTitle}
+        showLogoDesktopOnly={showLogoDesktopOnly}
       />
       <div data-slot="main-layout-scroll" className="main-layout-scroll">
         <div className="main-layout-column">
