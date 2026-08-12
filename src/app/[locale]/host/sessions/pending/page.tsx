@@ -13,9 +13,8 @@ function PendingJoinRequestsPageContent() {
 
   return (
     <PageLayout
-      title={t('myHostedSessions')}
+      title={t('sessions')}
       showBackButton={false}
-      topBarVariant="secondary"
       bg="green.50"
       _dark={{ bg: 'gray.900' }}
       subHeader={<HostSessionsSectionTabs />}

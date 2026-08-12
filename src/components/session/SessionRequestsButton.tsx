@@ -26,18 +26,14 @@ export function SessionRequestsButton({
         title={label}
         onClick={onClick}
         h="32px"
-        minW={{ base: 'auto', md: '32px' }}
-        px={{ base: 3, md: 2 }}
+        minW="auto"
+        px={3}
         borderRadius="full"
         bg={{ base: 'white', _dark: 'gray.800' }}
         gap={2}
       >
         <Icon size={16} aria-hidden="true" />
-        <Text
-          display={{ base: 'inline', md: 'none' }}
-          fontSize="sm"
-          fontWeight="medium"
-        >
+        <Text display="inline" fontSize="sm" fontWeight="medium">
           {label}
         </Text>
       </Button>

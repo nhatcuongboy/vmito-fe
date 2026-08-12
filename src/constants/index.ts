@@ -28,6 +28,19 @@ export const MAIN_PAGE_PATHS = [
   '/host/sessions',
   '/host/sessions/joined',
   '/host/sessions/pending',
+  '/leaderboard',
+  '/host/tournaments',
+  '/host/tournaments/joined',
+  '/my-classes',
+  '/my/rentals',
+  '/manage/venues',
+  '/host/transactions',
+  '/player/transactions',
+  '/host/payment-settings',
+  '/reminders',
+  '/about',
+  '/guide',
+  '/feedback',
 ] as const;
 
 // Time range definitions

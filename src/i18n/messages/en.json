@@ -528,9 +528,11 @@
       "selectVenue": "Select a venue...",
       "existingVenue": "Existing venue",
       "customLocation": "Other location",
+      "customLocationToggle": "Custom",
       "customLocationPlaceholder": "Enter a venue or location name",
       "customLocationName": "Location name",
       "customLocationAddress": "Address",
+      "venueAddress": "Venue address",
       "customLocationAddressPlaceholder": "Search or enter an address…",
       "customLocationAddressHelp": "Add an address so players can easily find and get directions to the session.",
       "aiCustomLocation": {
