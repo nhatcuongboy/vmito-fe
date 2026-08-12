@@ -1,4 +1,4 @@
-import { api } from './base';
+import { api, type ApiResponse } from './base';
 
 /**
  * Users API Service
@@ -12,10 +12,10 @@ export const UsersService = {
    */
   async getUnreadFeedCount(): Promise<number> {
     try {
-      const response = await api.get<{ count: number }>(
+      const response = await api.get<ApiResponse<{ count: number }>>(
         '/users/unread-feed-count'
       );
-      return response.data.count;
+      return response.data.data?.count ?? 0;
     } catch (error) {
       console.error('Failed to fetch unread feed count:', error);
       throw error;
@@ -29,7 +29,9 @@ export const UsersService = {
    */
   async markFeedAsRead(): Promise<void> {
     try {
-      await api.post<{ success: boolean }>('/users/mark-feed-as-read');
+      await api.post<ApiResponse<{ success: boolean }>>(
+        '/users/mark-feed-as-read'
+      );
     } catch (error) {
       console.error('Failed to mark feed as read:', error);
       throw error;

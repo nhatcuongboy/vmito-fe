@@ -182,6 +182,7 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
     (state) => state.isVisible
   );
   const newsfeedBadgeCount = useNewsfeedBadgeStore((state) => state.count);
+  const fetchNewsfeedCount = useNewsfeedBadgeStore((state) => state.fetchCount);
 
   useEffect(() => {
     if (!isAuthenticated || user?.role === 'GUEST') {
@@ -192,6 +193,37 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
       .then((venues) => setHasManagedVenues(venues.length > 0))
       .catch(() => setHasManagedVenues(false));
   }, [isAuthenticated, user?.id, user?.role]);
+
+  // Fetch initial newsfeed badge count when user is authenticated
+  useEffect(() => {
+    if (!isAuthenticated || user?.role === 'GUEST') {
+      console.log(
+        '[SlideOutMenu] Skipping newsfeed count fetch - not authenticated or guest'
+      );
+      return;
+    }
+
+    console.log(
+      '[SlideOutMenu] Fetching initial newsfeed count for user:',
+      user?.id
+    );
+    // Fetch count when component mounts with authenticated user
+    fetchNewsfeedCount();
+
+    // Optional: Refresh count when user returns to tab/window
+    const handleVisibilityChange = () => {
+      if (!document.hidden) {
+        console.log('[SlideOutMenu] Tab visible again, refreshing count');
+        fetchNewsfeedCount();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [isAuthenticated, user?.id, user?.role, fetchNewsfeedCount]);
 
   useEffect(() => {
     if (!isOpen) return;

@@ -10,6 +10,7 @@ import { useBottomNavVisibility } from '@/hooks/useBottomNavVisibility';
 import { ROUTES } from '@/constants';
 import dynamic from 'next/dynamic';
 import type { ExtractedSessionData } from '@/lib/api/ai.service';
+import { useNewsfeedBadgeStore } from '@/stores/useNewsfeedBadgeStore';
 
 // Only opened via the center "Tạo kèo" button — no need to ship it upfront
 const AISessionModal = dynamic(
@@ -25,6 +26,7 @@ export default function GlobalBottomNav() {
   const { user, isAuthenticated } = useAuthStore();
   const pathname = usePathname();
   const router = useRouter();
+  const newsfeedBadgeCount = useNewsfeedBadgeStore((state) => state.count);
   const t = useTranslations('navigation');
 
   const [isPending, startTransition] = useTransition();
@@ -47,14 +49,28 @@ export default function GlobalBottomNav() {
         icon: ClipboardList,
         href: ROUTES.HOST.SESSIONS.LIST,
       },
-      { id: 3, label: t('newsfeed'), icon: Newspaper, href: '/newsfeed' },
+      {
+        id: 3,
+        label: t('newsfeed'),
+        icon: Newspaper,
+        href: '/newsfeed',
+        badge: newsfeedBadgeCount,
+      },
       { id: 4, label: t('personal'), icon: User, href: `/user/${user.id}` },
     ];
-  }, [isAuthenticated, user, t]);
+  }, [isAuthenticated, user, t, newsfeedBadgeCount]);
 
   const handleTabChange = (tabId: number) => {
     const tab = tabs.find((t) => t.id === tabId);
     if (!tab?.href || pathname === tab.href) return;
+    // Mark newsfeed as read when navigating to it
+    if (tab.href === '/newsfeed' || tab.href.startsWith('/newsfeed')) {
+      import('@/stores/useNewsfeedBadgeStore').then(
+        ({ useNewsfeedBadgeStore }) => {
+          useNewsfeedBadgeStore.getState().markAsRead();
+        }
+      );
+    }
     setPendingTabId(tabId);
     startTransition(() => {
       router.push(tab.href!);
@@ -129,7 +145,12 @@ export default function GlobalBottomNav() {
   return (
     <>
       <BottomNavigationBar
-        tabs={tabs.map((t) => ({ id: t.id, label: t.label, icon: t.icon }))}
+        tabs={tabs.map((t) => ({
+          id: t.id,
+          label: t.label,
+          icon: t.icon,
+          badge: t.badge,
+        }))}
         activeTab={activeTab}
         loadingTabId={pendingTabId}
         onTabChange={handleTabChange}

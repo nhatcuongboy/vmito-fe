@@ -28,7 +28,7 @@ interface NewsfeedBadgeStore {
   reset: () => void;
 }
 
-export const useNewsfeedBadgeStore = create<NewsfeedBadgeStore>((set, get) => ({
+export const useNewsfeedBadgeStore = create<NewsfeedBadgeStore>((set) => ({
   count: 0,
   isLoading: false,
   error: null,
@@ -37,7 +37,9 @@ export const useNewsfeedBadgeStore = create<NewsfeedBadgeStore>((set, get) => ({
     set({ isLoading: true, error: null });
 
     try {
+      console.log('[NewsfeedBadge] Fetching count from API...');
       const count = await UsersService.getUnreadFeedCount();
+      console.log('[NewsfeedBadge] Received count:', count);
       set({ count, isLoading: false });
     } catch (error) {
       console.error('[NewsfeedBadge] Failed to fetch count:', error);
@@ -49,8 +51,6 @@ export const useNewsfeedBadgeStore = create<NewsfeedBadgeStore>((set, get) => ({
   },
 
   markAsRead: async () => {
-    const previousCount = get().count;
-
     // Optimistic update: set count to 0 immediately for smooth UX
     set({ count: 0, error: null });
 
@@ -59,17 +59,16 @@ export const useNewsfeedBadgeStore = create<NewsfeedBadgeStore>((set, get) => ({
       // Keep count at 0 on success
     } catch (error) {
       console.error('[NewsfeedBadge] Failed to mark as read:', error);
-      // Revert on error (or not - depending on UX preference)
-      // For now, we keep it at 0 assuming eventual consistency
+      // Keep the optimistic value; the next app initialization/visibility
+      // refresh will reconcile it with the server.
       set({ error: error as Error });
-
-      // Optional: revert to previous count on error
-      // set({ count: previousCount, error: error as Error });
     }
   },
 
   incrementCount: () => {
-    set((state) => ({ count: state.count + 1 }));
+    set((state) => ({
+      count: Number.isFinite(state.count) ? state.count + 1 : 1,
+    }));
   },
 
   reset: () => {
