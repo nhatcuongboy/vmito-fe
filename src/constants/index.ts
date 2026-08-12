@@ -18,11 +18,16 @@ export const SIDEBAR_WIDTH_COLLAPSED = 72;
 export const MAIN_PAGE_PATHS = [
   '/',
   '/my-clubs',
+  '/my-clubs/managing',
+  '/my-clubs/member',
   '/newsfeed',
   '/venues',
   '/clubs',
   '/classes',
   '/tournaments',
+  '/host/sessions',
+  '/host/sessions/joined',
+  '/host/sessions/pending',
 ] as const;
 
 // Time range definitions

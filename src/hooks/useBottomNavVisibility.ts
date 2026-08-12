@@ -4,16 +4,10 @@ import { UserRole } from '@/lib/api/types';
 import { MAIN_PAGE_PATHS } from '@/constants';
 import { useMemo } from 'react';
 
-// Pages that use their own bottom nav (HostSessionsNavPanel, ClubsNavPanel)
+// Pages that still use a feature-specific bottom nav.
 const CUSTOM_BOTTOM_NAV_PATHS = [
-  '/host/sessions',
-  '/host/sessions/pending',
-  '/host/sessions/joined',
   '/host/tournaments',
   '/host/tournaments/joined',
-  '/my-clubs',
-  '/my-clubs/managing',
-  '/my-clubs/member',
 ];
 
 // Returns true if current page is a "main" page (shows main top bar)
@@ -41,7 +35,7 @@ export function useBottomNavVisibility() {
   return useMemo(() => {
     if (!isAuthenticated || !user || user.role === UserRole.GUEST) return false;
     if (!isMainPage) return false;
-    // /host/sessions and sub-pages use HostSessionsNavPanel instead
+    // Feature-specific pages below render their own bottom navigation.
     const normalized = pathname
       ? pathname.replace(/^\/[a-z]{2}(\/|$)/, '/').replace(/\/$/, '') || '/'
       : '';

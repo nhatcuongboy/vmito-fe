@@ -574,8 +574,8 @@ export default function VenueDetailClient({
               canViewUsersOverride={isAdmin || isVenueOwner}
             />
             <IconButton
-              aria-label={t('detail.share') || 'Chia sẻ'}
-              title={t('detail.share') || 'Chia sẻ'}
+              aria-label={t('share') || 'Chia sẻ'}
+              title={t('share') || 'Chia sẻ'}
               variant="ghost"
               size="sm"
               minW="40px"

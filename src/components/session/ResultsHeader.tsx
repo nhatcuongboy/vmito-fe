@@ -1,10 +1,9 @@
 'use client';
 
-import { Box, Flex, Text, Icon, HStack } from '@chakra-ui/react';
+import { Box, Flex, Text, HStack } from '@chakra-ui/react';
 import React, { useRef, useState, useEffect } from 'react';
 import {
   ArrowUpDown,
-  Sparkles,
   ChevronDown,
   CalendarArrowDown,
   CalendarArrowUp,
@@ -16,7 +15,6 @@ import {
   Check,
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { useAuthStore } from '@/stores/useAuthStore';
 import {
   useSessionFilterStore,
   SessionSortBy,
@@ -60,6 +58,7 @@ interface ResultsHeaderProps {
   isLoading?: boolean;
   children?: React.ReactNode;
   favoriteButton?: React.ReactNode;
+  leadingAction?: React.ReactNode;
   sortOptions?: SortOption[];
   sortBy?: SessionSortBy;
   onSortChange?: (sort: SessionSortBy) => void;
@@ -70,10 +69,11 @@ interface ResultsHeaderProps {
 
 export default function ResultsHeader({
   count,
-  mode,
-  onModeChange,
+  mode: _mode,
+  onModeChange: _onModeChange,
   children,
   favoriteButton,
+  leadingAction,
   sortOptions,
   sortBy: controlledSortBy,
   onSortChange,
@@ -82,9 +82,7 @@ export default function ResultsHeader({
   setViewMode,
 }: ResultsHeaderProps) {
   const t = useTranslations('session');
-  const tSuggestions = useTranslations('suggestions');
   const tCommon = useTranslations('common');
-  const { isAuthenticated } = useAuthStore();
   const store = useSessionFilterStore();
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -122,6 +120,7 @@ export default function ResultsHeader({
       <Flex justify="space-between" align="center" wrap="wrap" gap={2}>
         {/* Left: Results count + Mode Toggle Button */}
         <HStack gap={2} flexShrink={0} flexWrap="wrap">
+          {leadingAction}
           <Text
             fontSize="sm"
             color="gray.600"
@@ -171,6 +170,7 @@ export default function ResultsHeader({
 
         {/* Right: Sort + View mode toggle */}
         <HStack gap={2} flexShrink={0} ms="auto">
+          {favoriteButton}
           {/* Sort Dropdown */}
           <Box position="relative" ref={dropdownRef}>
             <Button

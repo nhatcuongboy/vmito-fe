@@ -1,6 +1,7 @@
 import React from 'react';
 
 export interface ISessionFilterState {
+  listStatus?: 'active' | 'ended' | 'all';
   status?: string;
   date?: string;
   level?: number;
@@ -18,6 +19,7 @@ export interface ISessionFiltersProps {
   showDateFilter?: boolean;
   showSearchFilter?: boolean;
   showStatusFilter?: boolean;
+  showListStatusFilter?: boolean;
   showTimeFilter?: boolean;
   showFeeFilter?: boolean;
   initialFilters?: ISessionFilterState;
@@ -27,4 +29,6 @@ export interface ISessionFiltersProps {
   hideCreateOnMobile?: boolean;
   /** When true, hide the sticky search bar on desktop (shown in top bar instead) */
   hideSearchOnDesktop?: boolean;
+  /** Keep the search controls pinned below the top bar while scrolling. */
+  stickySearch?: boolean;
 }

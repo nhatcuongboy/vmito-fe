@@ -82,7 +82,10 @@ export default function GlobalBottomNav() {
   };
 
   const centerAction = useMemo(() => {
-    if (pathname.startsWith(ROUTES.CLUBS.BROWSE)) {
+    if (
+      pathname.startsWith(ROUTES.CLUBS.BROWSE) ||
+      pathname.startsWith(ROUTES.CLUBS.MY_CLUBS)
+    ) {
       return {
         label: t('createClub'),
         onClick: () => {

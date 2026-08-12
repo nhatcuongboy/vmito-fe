@@ -5,7 +5,7 @@ import { Box, Drawer, Flex, Portal } from '@chakra-ui/react';
 import { X } from 'lucide-react';
 import { Button } from './chakra-compat';
 
-export type DrawerPlacement = 'left' | 'right';
+export type DrawerPlacement = 'left' | 'right' | 'bottom';
 export type DrawerSize = 'sm' | 'md' | 'lg' | 'xl' | 'full';
 
 export interface VDrawerProps {
@@ -82,7 +82,13 @@ export const VDrawer: React.FC<VDrawerProps> = ({
       onOpenChange={(details) => {
         if (!details.open) onClose();
       }}
-      placement={placement === 'right' ? 'end' : 'start'}
+      placement={
+        placement === 'bottom'
+          ? 'bottom'
+          : placement === 'right'
+            ? 'end'
+            : 'start'
+      }
       closeOnInteractOutside={closeOnOverlayClick}
       persistentElements={[
         () =>
@@ -98,13 +104,17 @@ export const VDrawer: React.FC<VDrawerProps> = ({
         <Drawer.Positioner zIndex={zIndex + 1}>
           <Drawer.Content
             w={
-              mobileWidth
-                ? { base: mobileWidth, sm: sizeConfig[size].sm }
-                : sizeConfig[size]
+              placement === 'bottom'
+                ? { base: '100%', md: 'min(960px, calc(100vw - 48px))' }
+                : mobileWidth
+                  ? { base: mobileWidth, sm: sizeConfig[size].sm }
+                  : sizeConfig[size]
             }
             maxW="100vw"
-            maxH="100dvh"
-            borderRadius={0}
+            maxH={placement === 'bottom' ? '85dvh' : '100dvh'}
+            mx={placement === 'bottom' ? 'auto' : undefined}
+            borderTopRadius={placement === 'bottom' ? '2xl' : 0}
+            borderBottomRadius={0}
             css={{
               '@media (prefers-reduced-motion: reduce)': {
                 animationDuration: '0.01ms !important',
@@ -157,7 +167,15 @@ export const VDrawer: React.FC<VDrawerProps> = ({
               </Drawer.Header>
             )}
 
-            <Drawer.Body overscrollBehavior="contain" px={{ base: 4, md: 6 }}>
+            <Drawer.Body
+              overscrollBehavior="contain"
+              px={{ base: 4, md: 6 }}
+              pb={
+                placement === 'bottom'
+                  ? 'env(safe-area-inset-bottom)'
+                  : undefined
+              }
+            >
               {children}
             </Drawer.Body>
 

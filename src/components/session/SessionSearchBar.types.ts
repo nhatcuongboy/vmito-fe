@@ -14,6 +14,8 @@ export interface SessionSearchBarProps {
   fixedOnMobile?: boolean;
   /** When true, hide the sticky search bar on desktop (shown in top bar instead) */
   hideOnDesktop?: boolean;
+  /** Keep the search controls pinned below the top bar while scrolling. */
+  sticky?: boolean;
   /** When true, show the city selector inside the search bar on mobile */
   showCitySelector?: boolean;
 }

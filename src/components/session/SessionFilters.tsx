@@ -6,7 +6,6 @@ import { useDisclosure } from '@/components/ui/ChakraHooks';
 
 import { useState, useEffect } from 'react';
 import SessionSearchBar from './SessionSearchBar';
-import { AppSearchBar } from '@/components/common/AppSearchBar';
 import { useRegisterTopBarSearch } from '@/contexts/TopBarSearchContext';
 import {
   Badge,
@@ -39,6 +38,7 @@ const SessionFilters: React.FC<ISessionFiltersProps> = ({
   showDateFilter = true,
   showSearchFilter = true,
   showStatusFilter = true,
+  showListStatusFilter = false,
   showTimeFilter = false,
   showFeeFilter = false,
   initialFilters = {},
@@ -46,6 +46,7 @@ const SessionFilters: React.FC<ISessionFiltersProps> = ({
   topAddon,
   hideCreateOnMobile = false,
   hideSearchOnDesktop = false,
+  stickySearch = true,
 }) => {
   const t = useTranslations('session.filters');
   const tSession = useTranslations('session');
@@ -62,6 +63,9 @@ const SessionFilters: React.FC<ISessionFiltersProps> = ({
   const [pendingStatus, setPendingStatus] = useState<string | undefined>(
     initialFilters.status
   );
+  const [pendingListStatus, setPendingListStatus] = useState<
+    'active' | 'ended' | 'all'
+  >(initialFilters.listStatus ?? 'active');
   const [pendingDate, setPendingDate] = useState<string | undefined>(
     initialFilters.date
   );
@@ -86,10 +90,22 @@ const SessionFilters: React.FC<ISessionFiltersProps> = ({
 
   const { isOpen: showDrawer, onToggle: toggleDrawer } = useDisclosure(false);
 
+  useEffect(() => {
+    if (!showListStatusFilter) return;
+    const nextListStatus = initialFilters.listStatus ?? 'active';
+    setFilters((current) =>
+      current.listStatus === nextListStatus
+        ? current
+        : { ...current, listStatus: nextListStatus }
+    );
+    setPendingListStatus(nextListStatus);
+  }, [initialFilters.listStatus, showListStatusFilter]);
+
   // Sync pending filters when drawer opens
   useEffect(() => {
     if (showDrawer) {
       setPendingStatus(filters.status);
+      setPendingListStatus(filters.listStatus ?? 'active');
       setPendingDate(filters.date);
       setPendingLevel(filters.level);
       setPendingLevels(filters.levels ?? []);
@@ -101,6 +117,7 @@ const SessionFilters: React.FC<ISessionFiltersProps> = ({
   }, [
     showDrawer,
     filters.status,
+    filters.listStatus,
     filters.date,
     filters.level,
     filters.levels,
@@ -126,6 +143,7 @@ const SessionFilters: React.FC<ISessionFiltersProps> = ({
     setFilters((prev) => ({
       ...prev,
       status: pendingStatus,
+      ...(showListStatusFilter ? { listStatus: pendingListStatus } : {}),
       date: pendingDate,
       level: pendingLevel,
       levels: pendingLevels,
@@ -139,6 +157,7 @@ const SessionFilters: React.FC<ISessionFiltersProps> = ({
 
   const handleResetFilters = () => {
     setPendingStatus(undefined);
+    setPendingListStatus('active');
     setPendingDate(undefined);
     setPendingLevel(undefined);
     setPendingLevels([]);
@@ -149,6 +168,7 @@ const SessionFilters: React.FC<ISessionFiltersProps> = ({
   };
 
   const activeFilterCount =
+    (filters.listStatus && filters.listStatus !== 'active' ? 1 : 0) +
     (filters.status ? 1 : 0) +
     (filters.date ? 1 : 0) +
     (filters.level ? 1 : 0) +
@@ -165,6 +185,12 @@ const SessionFilters: React.FC<ISessionFiltersProps> = ({
     { value: SessionStatus.IN_PROGRESS, label: tStatus('inProgress') },
     { value: SessionStatus.FINISHED, label: tStatus('finished') },
     { value: SessionStatus.CANCELLED, label: tStatus('cancelled') },
+  ];
+
+  const listStatusItems = [
+    { value: 'active' as const, label: tSession('activeSessions') },
+    { value: 'ended' as const, label: tSession('endedSessions') },
+    { value: 'all' as const, label: tSession('status.all') },
   ];
 
   const levelItems = VALID_LEVELS.map((level) => ({
@@ -200,6 +226,7 @@ const SessionFilters: React.FC<ISessionFiltersProps> = ({
           topAddon={topAddon}
           hideCreateOnMobile={hideCreateOnMobile}
           hideOnDesktop={hideSearchOnDesktop}
+          sticky={stickySearch}
         />
       )}
 
@@ -264,6 +291,51 @@ const SessionFilters: React.FC<ISessionFiltersProps> = ({
         {/* Drawer Body */}
         <Box flex="1" overflowY="auto" p={5}>
           <VStack align="stretch" gap={5}>
+            {showListStatusFilter && (
+              <Box>
+                <Text
+                  fontSize="sm"
+                  fontWeight="bold"
+                  color="gray.700"
+                  _dark={{ color: 'gray.200' }}
+                  mb={3}
+                >
+                  {t('sessionStatus')}
+                </Text>
+                <Flex gap={2} flexWrap="wrap">
+                  {listStatusItems.map((item) => {
+                    const isSelected = pendingListStatus === item.value;
+                    return (
+                      <Badge
+                        key={item.value}
+                        px={4}
+                        py={2}
+                        borderRadius="lg"
+                        cursor="pointer"
+                        variant={isSelected ? 'solid' : 'outline'}
+                        colorPalette={isSelected ? 'green' : 'gray'}
+                        onClick={() => setPendingListStatus(item.value)}
+                        fontSize="sm"
+                        fontWeight="medium"
+                        borderWidth={isSelected ? '0' : '2px'}
+                      >
+                        {item.label}
+                      </Badge>
+                    );
+                  })}
+                </Flex>
+              </Box>
+            )}
+
+            {showListStatusFilter &&
+              (showStatusFilter ||
+                showDateFilter ||
+                showTimeFilter ||
+                showLevelFilter ||
+                showFeeFilter) && (
+                <Box h="1px" bg="gray.200" _dark={{ bg: 'gray.700' }} />
+              )}
+
             {/* Status Filter */}
             {showStatusFilter && (
               <Box>

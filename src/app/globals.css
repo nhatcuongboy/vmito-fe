@@ -238,6 +238,85 @@
   width: 100%;
 }
 
+.app-fixed-link-tabs {
+  position: fixed;
+  z-index: 1099;
+  top: calc(var(--app-fixed-link-tabs-top) + env(safe-area-inset-top));
+  right: 0;
+  left: 0;
+  height: 52px;
+  overflow: hidden;
+  border-bottom: 1px solid hsl(var(--border));
+  background: hsl(var(--shell-surface));
+  box-shadow: 0 2px 4px -1px hsl(var(--shell-shadow) / 0.1);
+}
+
+.app-fixed-link-tabs-list {
+  display: flex;
+  height: 100%;
+  align-items: stretch;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.app-fixed-link-tabs-list::-webkit-scrollbar {
+  display: none;
+}
+
+.app-fixed-link-tab {
+  position: relative;
+  display: inline-flex;
+  flex: 1 1 0;
+  min-width: max-content;
+  min-height: 44px;
+  align-items: center;
+  justify-content: center;
+  color: hsl(var(--muted-foreground));
+  font-size: 0.9375rem;
+  font-weight: 500;
+  line-height: 1.25rem;
+  text-decoration: none;
+  touch-action: manipulation;
+  transition: color 0.18s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.app-fixed-link-tab::after {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: 3px;
+  border-radius: 9999px 9999px 0 0;
+  background: hsl(var(--primary));
+  content: '';
+  opacity: 0;
+  transform: scaleX(0.72);
+  transition:
+    opacity 0.18s ease,
+    transform 0.18s ease;
+}
+
+.app-fixed-link-tab:hover {
+  color: hsl(var(--foreground));
+}
+
+.app-fixed-link-tab[data-active='true'] {
+  color: hsl(var(--primary));
+  font-weight: 600;
+}
+
+.app-fixed-link-tab[data-active='true']::after {
+  opacity: 1;
+  transform: scaleX(1);
+}
+
+.app-fixed-link-tab:focus-visible {
+  border-radius: 6px;
+  outline: 3px solid hsl(var(--primary) / 0.24);
+  outline-offset: -3px;
+}
+
 .page-layout-content {
   box-sizing: border-box;
   width: 100%;
@@ -1845,6 +1924,10 @@
 }
 
 @media (min-width: 48rem) {
+  .app-fixed-link-tabs {
+    display: none;
+  }
+
   .page-wrapper-shell {
     min-height: var(--page-min-height-desktop);
     margin-left: var(--page-sidebar-offset);
@@ -2055,6 +2138,8 @@
   .sidebar-session-chevron,
   .sidebar-switcher-trigger,
   .sidebar-switcher-chevron,
+  .app-fixed-link-tab,
+  .app-fixed-link-tab::after,
   .navigation-guide-button {
     transition: none;
   }

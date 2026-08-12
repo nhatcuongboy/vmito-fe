@@ -112,8 +112,8 @@ export default function PageLayout({
   showTopBarLogo = true,
   topBarLogoHref = '/',
   showTopBarLogoDesktopOnly = false,
-  showTopBarAuthActions = true,
-  showTopBarAiAssistantButton = true,
+  showTopBarAuthActions,
+  showTopBarAiAssistantButton,
   disableSidebarOffset = false,
   contentTopOffset = CONTENT_PT_OFFSET,
   rootClassName,
@@ -131,6 +131,12 @@ export default function PageLayout({
   const isMainPage = useIsMainPage();
   const variant = topBarVariant ?? (isMainPage ? 'main' : 'secondary');
   const pathname = usePathname();
+  // Detail pages default to a lean top bar (no bell/avatar/AI button) so the
+  // title gets the space; callers can still force these on explicitly.
+  const resolvedShowTopBarAuthActions =
+    showTopBarAuthActions ?? variant !== 'secondary';
+  const resolvedShowTopBarAiAssistantButton =
+    showTopBarAiAssistantButton ?? variant !== 'secondary';
 
   const isDiscoveryPage = [
     '/',
@@ -214,8 +220,8 @@ export default function PageLayout({
         showLogo={showTopBarLogo}
         logoHref={topBarLogoHref}
         showLogoDesktopOnly={showTopBarLogoDesktopOnly}
-        showAuthActions={showTopBarAuthActions}
-        showAiAssistantButton={showTopBarAiAssistantButton}
+        showAuthActions={resolvedShowTopBarAuthActions}
+        showAiAssistantButton={resolvedShowTopBarAiAssistantButton}
         showCitySelector={isDiscoveryPage}
         className={topBarClassName}
         desktopSearchContent={topBarSearchContent}

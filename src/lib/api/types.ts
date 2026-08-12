@@ -1145,6 +1145,42 @@ export interface PendingRequest extends Player {
   };
 }
 
+export interface MyJoinRequestPlayer {
+  id: string;
+  name?: string | null;
+  phone?: string | null;
+  level?: number | null;
+  playerNumber: number;
+  registrationStatus: 'PENDING' | 'APPROVED' | 'REJECTED';
+  createdAt: string;
+}
+
+export interface MyJoinRequest {
+  session: {
+    id: string;
+    slug?: string | null;
+    name: string;
+    startTime?: string | null;
+    endTime?: string | null;
+    status: SessionStatus;
+    location?: string | null;
+    coverPhoto?: string | null;
+    images?: string[];
+    venue?: {
+      id: string;
+      name: string;
+      address?: string | null;
+    } | null;
+    host: {
+      id: string;
+      name?: string | null;
+      image?: string | null;
+    };
+  };
+  players: MyJoinRequestPlayer[];
+  requestedAt: string;
+}
+
 // Court types
 export interface Court {
   id: string;
