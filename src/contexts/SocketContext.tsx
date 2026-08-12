@@ -40,6 +40,7 @@ export enum SessionEventType {
   POST_LIKE_UPDATED = 'post_like_updated',
   POST_COMMENT_CREATED = 'post_comment_created',
   POST_COMMENT_DELETED = 'post_comment_deleted',
+  NEW_POST_CREATED = 'new_post_created',
 }
 
 // All session-related event types for listening
@@ -402,6 +403,41 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
       );
     };
   }, [socket, userId, tNotification]);
+
+  // Global listener for new posts created (newsfeed badge update)
+  useEffect(() => {
+    if (!socket || !userId) return;
+
+    const handleNewPostCreated = (data: {
+      postId: string;
+      authorId: string;
+      createdAt: string;
+    }) => {
+      // Only increment if the post is not from current user
+      if (data.authorId === userId) {
+        console.log('[Socket] Ignoring own post creation for badge update');
+        return;
+      }
+
+      console.log('[Socket] New post created, incrementing badge count', {
+        postId: data.postId,
+        authorId: data.authorId,
+      });
+
+      // Dynamically import store to avoid circular dependencies
+      import('@/stores/useNewsfeedBadgeStore').then(
+        ({ useNewsfeedBadgeStore }) => {
+          useNewsfeedBadgeStore.getState().incrementCount();
+        }
+      );
+    };
+
+    socket.on(SessionEventType.NEW_POST_CREATED, handleNewPostCreated);
+
+    return () => {
+      socket.off(SessionEventType.NEW_POST_CREATED, handleNewPostCreated);
+    };
+  }, [socket, userId]);
 
   const joinSession = (sessionId: string) => {
     if (socket && isConnected) {

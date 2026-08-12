@@ -42,6 +42,7 @@ import {
   type NavTranslators,
 } from './nav-config';
 import { SidebarNavItem } from './SidebarNavItem';
+import { useNewsfeedBadgeStore } from '@/stores/useNewsfeedBadgeStore';
 
 interface SlideOutMenuProps {
   isOpen: boolean;
@@ -180,6 +181,7 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
   const isGuideWidgetVisible = useTournamentGuideVisibilityStore(
     (state) => state.isVisible
   );
+  const newsfeedBadgeCount = useNewsfeedBadgeStore((state) => state.count);
 
   useEffect(() => {
     if (!isAuthenticated || user?.role === 'GUEST') {
@@ -284,6 +286,11 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
                             isActive={isNavLinkActive(item, pathname, context)}
                             isCollapsed={isCollapsed}
                             showFlame={item.showFlame}
+                            badge={
+                              item.key === 'newsfeed'
+                                ? newsfeedBadgeCount
+                                : undefined
+                            }
                             onClose={onClose}
                           />
                         );

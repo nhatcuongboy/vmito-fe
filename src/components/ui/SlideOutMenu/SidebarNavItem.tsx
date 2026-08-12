@@ -5,6 +5,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from '@/components/primitives/tooltip';
+import { NotificationBadge } from '@/components/ui/NotificationBadge';
 import { Link } from '@/i18n/config';
 import { cn } from '@/lib/utils';
 import { Flame, type LucideIcon } from 'lucide-react';
@@ -16,6 +17,7 @@ interface SidebarNavItemProps {
   isActive: boolean;
   isCollapsed: boolean;
   showFlame?: boolean;
+  badge?: number;
   onClose: () => void;
 }
 
@@ -26,8 +28,23 @@ export function SidebarNavItem({
   isActive,
   isCollapsed,
   showFlame,
+  badge,
   onClose,
 }: SidebarNavItemProps) {
+  const handleClick = () => {
+    // Optimistic update: mark newsfeed as read when clicking the link
+    // Check if this is the newsfeed link by checking the href
+    if (href === '/newsfeed' || href.startsWith('/newsfeed')) {
+      // Dynamically import to avoid circular dependencies
+      import('@/stores/useNewsfeedBadgeStore').then(
+        ({ useNewsfeedBadgeStore }) => {
+          useNewsfeedBadgeStore.getState().markAsRead();
+        }
+      );
+    }
+    onClose();
+  };
+
   const link = (
     <Link
       href={href}
@@ -35,10 +52,21 @@ export function SidebarNavItem({
       data-collapsed={isCollapsed ? 'true' : undefined}
       aria-label={label}
       aria-current={isActive ? 'page' : undefined}
-      onClick={onClose}
+      onClick={handleClick}
     >
-      <span className="sidebar-nav-icon" aria-hidden="true">
+      <span
+        className="sidebar-nav-icon"
+        aria-hidden="true"
+        style={{ position: 'relative' }}
+      >
         <Icon size={18} />
+        {badge !== undefined && badge > 0 && (
+          <NotificationBadge
+            count={badge}
+            size="sm"
+            aria-label={`${badge} new`}
+          />
+        )}
       </span>
       <span className="sidebar-nav-label">{label}</span>
       {showFlame && !isCollapsed ? (

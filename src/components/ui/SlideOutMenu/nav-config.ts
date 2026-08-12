@@ -64,6 +64,8 @@ export interface NavLinkConfig extends NavItemBase {
   /** Defaults to exact match for '/', startsWith for other hrefs. */
   isActive?: (pathname: string, ctx: NavContext) => boolean;
   showFlame?: boolean;
+  /** Optional badge count to display (e.g., unread count) */
+  getBadge?: (ctx: NavContext) => number;
 }
 
 /** An item with its own rendering (e.g. a submenu). */

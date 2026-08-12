@@ -17,6 +17,7 @@ import {
   generateWebsiteSchema,
   generateOrganizationSchema,
 } from '../../lib/seo/structuredData';
+import { NewsfeedBadgeInitializer } from '../../components/providers/NewsfeedBadgeInitializer';
 
 export const viewport = {
   width: 'device-width',
@@ -65,6 +66,7 @@ export default async function LocaleLayout({
         <LocaleValidator locale={locale} validLocales={SUPPORTED_LOCALES} />
         <IntlClientProvider messages={messages} locale={locale}>
           <Providers>
+            <NewsfeedBadgeInitializer />
             <ThemeColorSync />
             <PWAStatus />
             <AppStartupSplash />
