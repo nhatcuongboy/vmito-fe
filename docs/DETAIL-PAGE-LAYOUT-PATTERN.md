@@ -94,14 +94,25 @@ other one already covers**, so nothing renders twice and nothing is missing.
   - Drop a 1px sentinel right after the hero.
   - `IntersectionObserver` on that sentinel flips `isPinned` once its top
     edge passes above the viewport.
-  - A `position: fixed; top: 0` bar (rendered through a `Portal`, `display:
-{ base: 'flex', md: 'none' }`) with a back button + single-line title
-    fades/slides in (`opacity` + `translateY`, 0.2s) only once pinned.
+  - A `position: fixed; top: 0` bar (rendered through a `Portal`,
+    `display: { base: 'flex', md: 'none' }`) with a back button + single-line
+    title fades in (`opacity` + `background-color` transition, no vertical
+    slide) only once pinned. A subtle bottom border + shadow separate it from
+    the content once visible.
   - Height matches `TOP_BAR_HEIGHT_MOBILE`, includes
     `env(safe-area-inset-top)`.
-- **Reusable as-is** — it takes `title`, `onBack`, and optional
-  `rightContent`; both the venue and the session detail pages use the exact
-  same component.
+  - Optional `showBrand` prop renders the compact Vmito wordmark (small logo
+    - "Vmito" text) under the title — use this on pages where the pinned
+      title alone doesn't make it obvious the user is still inside the app
+      (e.g. venue detail, where the title is just a place name).
+  - Optional `onShare` (+ `shareLabel`) renders a share icon button on the
+    right, so the share action stays reachable even once the hero (which
+    normally carries it) has scrolled away. Pass `rightContent` instead for
+    anything else that needs to live there.
+- **Reusable as-is** — it takes `title`, `onBack`, `showBrand`, `onShare` /
+  `shareLabel`, and `rightContent`; a page opts into only the props it needs.
+  The venue detail page uses `showBrand` + `onShare`; the session detail page
+  only needs `title` + `onBack`.
 
 ### 3. Info card duplicates the sidebar's "identity" data
 
@@ -110,13 +121,21 @@ place/thing without scrolling further:
 
 - Name (bigger heading, `size={{ base: 'xl', md: '2xl' }}`, `fontWeight="bold"`)
   - full address (not a district/city summary — the address is the thing
-    people actually decide on).
+    people actually decide on). Desktop shows the address inline right under
+    the name; mobile gives it its own row with a small map-pin icon so a long,
+    wrapped address doesn't visually merge into the title. When the venue
+    carries a computed `distance` (e.g. opened from a "near me" list), it's
+    appended as a suffix on the address line ("… (Cách bạn 3.2 km)") via
+    `AppAddressDisplay`'s `suffix` prop — don't build a separate element for
+    this, thread it through the existing address component.
 - Optional small logo/avatar (`only render it when the image actually
 exists` — no generic placeholder icon; a placeholder pin/avatar takes width
   away from the name and reads as clutter, not information).
-- A `display={{ base: 'flex', lg: 'none' }}` row of "quick facts" (hours,
-  capacity, etc.) — this is the mobile-only mirror of the sidebar's "Quick
-  info" card.
+- Mobile-only "quick facts" (hours, capacity, etc.) rendered as small stat
+  cards in a responsive `Grid` (`1` column if there's only one fact, `2` if
+  there are two) — a label line + a bold value line inside a subtle bordered
+  box, not just an icon-and-text row. This is the mobile-only mirror of the
+  sidebar's "Quick info" card.
 - A `display={{ base: 'block', lg: 'none' }}` contact block
   (`variant="inline"`, no card chrome) — mobile-only mirror of the sidebar's
   contact card. It intentionally **drops the "call" button** because the
@@ -154,10 +173,15 @@ exists` — no generic placeholder icon; a placeholder pin/avatar takes width
     the "Find sessions" action still needs a home).
   - Contact card → `display: { base: 'none', lg: 'block' }` (already inline
     in the info card).
-  - Location/map card → always visible, exactly once. Do **not** also show
-    the address text here if it's already in the info card — a map + a
-    "Directions" button is what this section is for; repeating the address
-    string next to a pin icon is pure duplication.
+  - Location/map card → always visible, exactly once, but framed as a
+    distinct concern ("Bản đồ" / Map) rather than repeating the info card's
+    "identity" framing: it shows the address again (needed as context for the
+    pin/directions), a small embedded map, and a "Directions" button. Because
+    it's re-labeled around the map rather than the place's identity, this is
+    the one deliberate exception to "show a fact in exactly one place" — the
+    address string is genuinely useful right next to the pin. If you adapt
+    this pattern and don't want the repetition, drop the address text here
+    and keep only the map + directions button.
   - Secondary "report an issue" link and the view-count footer → always
     visible, at the very end.
 - A trailing spacer `Box` (`h="calc(72px + env(safe-area-inset-bottom))"`,

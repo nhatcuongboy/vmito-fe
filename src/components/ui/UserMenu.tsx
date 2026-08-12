@@ -36,6 +36,7 @@ import {
   BookOpen,
   Bug,
   Check,
+  ChevronDown,
   ChevronRight,
   House,
   Languages,
@@ -673,7 +674,7 @@ export default function UserMenu({ onLogout }: UserMenuProps) {
             border="1px solid"
             borderColor="border"
           >
-            <MenuIcon size={12} strokeWidth={2.5} />
+            <ChevronDown size={12} strokeWidth={2.5} />
           </Box>
         </chakra.button>
       </Box>

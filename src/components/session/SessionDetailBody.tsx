@@ -45,6 +45,7 @@ import LevelBadgeWithDescription from './LevelBadgeWithDescription';
 import LevelDescriptionsModal from './LevelDescriptionsModal';
 import SessionReferenceVideo from './SessionReferenceVideo';
 import { ROUTES } from '@/constants';
+import { SPORT_EMOJI, normalizeSportType } from '@/constants/sports';
 import { formatTimeRangeByDevicePreference } from '@/utils/time-helpers';
 import {
   getSessionLocationAddress,
@@ -68,6 +69,7 @@ const SessionDetailBody = ({
   const t = useTranslations('session');
   const tCommon = useTranslations('common');
   const tLevelDescriptions = useTranslations('common.levelDescriptions');
+  const tSport = useTranslations('sport');
   const tVenue = useTranslations('venue');
   const locale = useLocale();
   const { getLevelShortLabel } = useLevelLabel();
@@ -144,6 +146,11 @@ const SessionDetailBody = ({
   const venueDetailHref = session.venue?.id
     ? ROUTES.VENUES.DETAIL(session.venue.id, session.venue.slug)
     : null;
+  const sportType = normalizeSportType(
+    session.sportType ?? session.venue?.sportType
+  );
+  const defaultMatchTypeLabel =
+    session.defaultMatchType === 'SINGLES' ? t('singles') : t('doubles');
 
   const handleOpenMap = () => {
     if (locationMapUrl) window.open(locationMapUrl, '_blank');
@@ -202,6 +209,45 @@ const SessionDetailBody = ({
           <Box as="span">{dateDisplay}</Box>
         </Text>
       </Flex>
+
+      {/* Sport Type */}
+      <Flex
+        align="center"
+        gap={2}
+        mt={2}
+        color="gray.600"
+        _dark={{ color: 'gray.400' }}
+        fontSize={{ base: 'sm', md: 'md' }}
+      >
+        <Text as="span" aria-hidden="true">
+          {SPORT_EMOJI[sportType]}
+        </Text>
+        <Text fontWeight="medium">
+          {tSport(sportType)}{' '}
+          <Box
+            as="span"
+            mx={1}
+            color="gray.400"
+            fontSize="1.1em"
+            fontWeight="bold"
+            lineHeight={1}
+          >
+            ·
+          </Box>{' '}
+          {defaultMatchTypeLabel}
+        </Text>
+      </Flex>
+
+      {session.description && (
+        <Text
+          mt={1.5}
+          color="gray.600"
+          _dark={{ color: 'gray.400' }}
+          fontSize={{ base: 'sm', md: 'md' }}
+        >
+          {session.description}
+        </Text>
+      )}
 
       {/* Location */}
       {venueDisplayName && (

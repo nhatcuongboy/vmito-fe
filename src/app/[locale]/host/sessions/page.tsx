@@ -44,7 +44,6 @@ import { SessionEventType } from '@/contexts/SocketContext';
 import { Button } from '@/components/ui/chakra-compat';
 import { ClipboardCheck, PlayCircle } from 'lucide-react';
 import { useTourStore } from '@/stores/useTourStore';
-import { FavoriteFilterButton } from '@/components/favorites/FavoriteFilterButton';
 import dynamic from 'next/dynamic';
 
 const HostPendingRequestsDrawer = dynamic(
@@ -404,12 +403,6 @@ function HostSessionsContent() {
             showViewModeMap={false}
             viewMode={viewMode}
             setViewMode={setViewMode}
-            favoriteButton={
-              <FavoriteFilterButton
-                isActive={favoriteOnly}
-                onToggle={() => setFavoriteOnly((value) => !value)}
-              />
-            }
             leadingAction={
               <SessionRequestsButton
                 label={tNav('pendingJoinRequests')}

@@ -35,7 +35,6 @@ import { SessionRequestsButton } from '@/components/session/SessionRequestsButto
 import { useViewMode } from '@/hooks/useViewMode';
 import { useSocketListRefresh } from '@/hooks/useSocketListRefresh';
 import { SessionEventType } from '@/contexts/SocketContext';
-import { FavoriteFilterButton } from '@/components/favorites/FavoriteFilterButton';
 import dynamic from 'next/dynamic';
 import { ClipboardList } from 'lucide-react';
 
@@ -354,12 +353,6 @@ function PlayerSessionsContent() {
             showViewModeMap={false}
             viewMode={viewMode}
             setViewMode={setViewMode}
-            favoriteButton={
-              <FavoriteFilterButton
-                isActive={favoriteOnly}
-                onToggle={() => setFavoriteOnly((value) => !value)}
-              />
-            }
             leadingAction={
               <SessionRequestsButton
                 label={tSession('myJoinRequests')}
