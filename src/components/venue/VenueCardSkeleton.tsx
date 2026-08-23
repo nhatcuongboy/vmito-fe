@@ -21,7 +21,7 @@ export default function VenueCardSkeleton({
         width="100%"
       >
         {/* Matches the list card's 140px cover and compact information row. */}
-        <Skeleton height="140px" width="100%" />
+        <Skeleton height="140px" width="100%" animation="none" />
         <Flex px={4} py={4} gap={4} align="center">
           <SkeletonCircle size="52px" flexShrink={0} />
           <Box flex="1" minW={0}>
@@ -50,7 +50,7 @@ export default function VenueCardSkeleton({
       h="100%"
     >
       {/* Matches the grid card's fixed cover image. */}
-      <Skeleton height="140px" width="100%" flexShrink={0} />
+      <Skeleton height="140px" width="100%" flexShrink={0} animation="none" />
 
       {/* Header Section */}
       <Box px={5} pt={5} pb={3}>
