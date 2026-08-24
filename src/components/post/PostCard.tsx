@@ -383,7 +383,7 @@ export function PostCard({
 
   const getImageClassName = (index: number) => {
     if (postImages.length === 1) {
-      return 'max-h-[520px] w-full object-cover';
+      return 'h-[520px] w-full object-contain';
     }
 
     if (postImages.length === 3 && index === 0) {
