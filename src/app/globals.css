@@ -707,6 +707,20 @@
   opacity: 0.62;
 }
 
+/* Keep the mobile discovery search + tabs visually connected to the top bar.
+ * Chakra's dark `bg` token is blue-gray, while the app chrome uses a warmer
+ * neutral surface. */
+@media (max-width: 47.999rem) {
+  .dark .discovery-mobile-surface {
+    background-color: hsl(var(--shell-surface-chrome));
+  }
+
+  /* Content-level search controls should blend into the warm page canvas. */
+  .dark .page-canvas-mobile-surface {
+    background-color: hsl(var(--shell-neutral-strong));
+  }
+}
+
 .top-bar-shell[data-hide-mobile-border='true'] {
   border-bottom-color: transparent;
 }

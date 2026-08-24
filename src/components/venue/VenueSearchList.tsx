@@ -683,6 +683,7 @@ export default function VenueSearchList({
     <Box>
       {/* Search Bar - Sticky */}
       <Box
+        className="discovery-mobile-surface"
         position={{ base: 'fixed', md: 'sticky' }}
         top={{
           base: `calc(${TOP_BAR_HEIGHT_MOBILE}px + env(safe-area-inset-top))`,

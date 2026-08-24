@@ -7,6 +7,7 @@ import { useTranslations } from 'next-intl';
 import { SessionSearchBarProps } from './SessionSearchBar.types';
 import { DebouncedAppSearchBar } from '../common/DebouncedAppSearchBar';
 import { Button } from '../ui/chakra-compat';
+import { cn } from '@/lib/utils';
 
 export default function SessionSearchBar({
   searchQuery,
@@ -22,6 +23,7 @@ export default function SessionSearchBar({
   hideOnDesktop = false,
   sticky = true,
   showCitySelector = false,
+  usePageCanvasOnMobile = false,
 }: SessionSearchBarProps) {
   const t = useTranslations('session');
 
@@ -68,6 +70,10 @@ export default function SessionSearchBar({
 
       {/* Sticky Area: Search (Mobile/Desktop) */}
       <Box
+        className={cn(
+          fixedOnMobile && 'discovery-mobile-surface',
+          usePageCanvasOnMobile && 'page-canvas-mobile-surface'
+        )}
         position={{
           base: fixedOnMobile ? 'fixed' : sticky ? 'sticky' : 'relative',
           md: sticky ? 'sticky' : 'relative',

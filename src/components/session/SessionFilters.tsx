@@ -47,6 +47,7 @@ const SessionFilters: React.FC<ISessionFiltersProps> = ({
   hideCreateOnMobile = false,
   hideSearchOnDesktop = false,
   stickySearch = true,
+  usePageCanvasOnMobile = false,
 }) => {
   const t = useTranslations('session.filters');
   const tSession = useTranslations('session');
@@ -227,6 +228,7 @@ const SessionFilters: React.FC<ISessionFiltersProps> = ({
           hideCreateOnMobile={hideCreateOnMobile}
           hideOnDesktop={hideSearchOnDesktop}
           sticky={stickySearch}
+          usePageCanvasOnMobile={usePageCanvasOnMobile}
         />
       )}
 

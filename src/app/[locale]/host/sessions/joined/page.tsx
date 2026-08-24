@@ -342,6 +342,7 @@ function PlayerSessionsContent() {
             showLevelFilter={false}
             hideSearchOnDesktop={false}
             stickySearch={false}
+            usePageCanvasOnMobile
           />
 
           <ResultsHeader

@@ -302,6 +302,7 @@ function TournamentsContent() {
     >
       <VStack gap={{ base: 3, md: 4 }} alignItems="stretch">
         <Box
+          className="discovery-mobile-surface"
           position="fixed"
           top={`calc(${TOP_BAR_HEIGHT_MOBILE}px + env(safe-area-inset-top))`}
           left={0}

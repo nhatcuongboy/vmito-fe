@@ -18,4 +18,6 @@ export interface SessionSearchBarProps {
   sticky?: boolean;
   /** When true, show the city selector inside the search bar on mobile */
   showCitySelector?: boolean;
+  /** Use the warm page canvas behind the search controls on mobile. */
+  usePageCanvasOnMobile?: boolean;
 }

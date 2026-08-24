@@ -756,6 +756,7 @@ function BrowseClubsContent({
     <Box>
       {/* Search Bar - Fixed on mobile, sticky on desktop */}
       <Box
+        className="discovery-mobile-surface"
         position={{ base: 'fixed', md: 'sticky' }}
         top={{
           base: `calc(${TOP_BAR_HEIGHT_MOBILE}px + env(safe-area-inset-top))`,

@@ -24,6 +24,7 @@ export interface TabItem {
 }
 
 interface UnderlineTabsProps {
+  className?: string;
   items: TabItem[];
   activeId: string;
   onTabClick: (id: string) => void;
@@ -41,6 +42,7 @@ interface UnderlineTabsProps {
 }
 
 export function UnderlineTabs({
+  className,
   items,
   activeId,
   onTabClick,
@@ -130,6 +132,7 @@ export function UnderlineTabs({
 
   return (
     <Box
+      className={className}
       w="100%"
       position={isFixed ? 'fixed' : isSticky ? 'sticky' : 'relative'}
       top={isFixed || isSticky ? top : undefined}
