@@ -74,7 +74,11 @@ const FeeDetailPopover = ({ feeConfig }: IFeeDetailPopoverProps) => {
         hideSecondaryAction
         showFooterDivider={false}
       >
-        <VStack align="stretch" gap={6} py={2}>
+        <VStack
+          align="stretch"
+          gap={{ base: 3, md: 6 }}
+          py={{ base: 0, md: 2 }}
+        >
           {/* Fee Type Pill */}
           <Flex direction="column" align="center" gap={3}>
             <Flex
@@ -82,7 +86,7 @@ const FeeDetailPopover = ({ feeConfig }: IFeeDetailPopoverProps) => {
               gap={2}
               bg={isFixed ? 'green.50' : 'blue.50'}
               px={4}
-              py={1.5}
+              py={1}
               borderRadius="full"
               borderWidth="1px"
               borderColor={isFixed ? 'green.200' : 'blue.200'}
@@ -118,12 +122,12 @@ const FeeDetailPopover = ({ feeConfig }: IFeeDetailPopoverProps) => {
 
           {/* Fee Amounts for Fixed Type */}
           {isFixed ? (
-            <Stack direction={{ base: 'column', sm: 'row' }} gap={4} w="full">
+            <Stack direction="row" gap={{ base: 3, md: 4 }} w="full">
               {/* Male Fee Card */}
               <VStack
                 flex={1}
                 bg="blue.50"
-                p={5}
+                p={{ base: 3, md: 5 }}
                 borderRadius="2xl"
                 borderWidth="1px"
                 borderColor="blue.100"
@@ -177,7 +181,7 @@ const FeeDetailPopover = ({ feeConfig }: IFeeDetailPopoverProps) => {
               <VStack
                 flex={1}
                 bg="pink.50"
-                p={5}
+                p={{ base: 3, md: 5 }}
                 borderRadius="2xl"
                 borderWidth="1px"
                 borderColor="pink.100"

@@ -363,13 +363,7 @@ function HostSessionsContent() {
       hideTopBarBorder={true}
       centerTitle
     >
-      <Flex
-        gap={6}
-        alignItems="flex-start"
-        pt={{ md: 6 }}
-        pl={{ md: 4 }}
-        pr={{ md: 6 }}
-      >
+      <Flex gap={6} alignItems="flex-start" pl={{ md: 4 }} pr={{ md: 6 }}>
         <Box flex={1} minW={0}>
           <SessionFilters
             onFilterChange={handleFilterChange}
@@ -390,7 +384,7 @@ function HostSessionsContent() {
               }
             }}
             hideCreateOnMobile={true}
-            hideSearchOnDesktop={false}
+            hideSearchOnDesktop={true}
             stickySearch={false}
             usePageCanvasOnMobile
           />
