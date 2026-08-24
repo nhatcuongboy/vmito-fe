@@ -14,7 +14,7 @@ import {
 import { Button, Card, CardBody } from '@/components/ui/chakra-compat';
 import PostAvatar from '@/components/post/PostAvatar';
 import { Link } from '@/i18n/config';
-import { LuArrowLeft, LuCheck, LuX } from 'react-icons/lu';
+import { LuArrowLeft, LuCheck, LuPencil, LuX } from 'react-icons/lu';
 
 export type TRequestAccent = 'orange' | 'blue' | 'purple';
 
@@ -244,16 +244,20 @@ export const AppRequestApplicantCard = ({
 );
 
 interface RequestActionBarProps {
+  editLabel?: ReactNode;
   rejectLabel: ReactNode;
   approveLabel: ReactNode;
+  onEdit?: () => void;
   onReject: () => void;
   onApprove: () => void;
   loadingAction: 'APPROVED' | 'REJECTED' | null;
 }
 
 export const RequestActionBar = ({
+  editLabel,
   rejectLabel,
   approveLabel,
+  onEdit,
   onReject,
   onApprove,
   loadingAction,
@@ -271,6 +275,22 @@ export const RequestActionBar = ({
     shadow={{ base: 'md', md: 'none' }}
   >
     <Flex gap={3} justify={{ md: 'flex-end' }}>
+      {editLabel && onEdit && (
+        <Button
+          flex={{ base: 1, md: 'none' }}
+          minW={{ md: '140px' }}
+          h="48px"
+          size="md"
+          px={{ base: 4, md: 6 }}
+          colorPalette="blue"
+          variant="outline"
+          onClick={onEdit}
+          disabled={loadingAction !== null}
+        >
+          <LuPencil size={18} aria-hidden="true" />
+          {editLabel}
+        </Button>
+      )}
       <Button
         flex={{ base: 1, md: 'none' }}
         minW={{ md: '140px' }}

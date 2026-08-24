@@ -56,6 +56,17 @@ export const VenueRequestService = {
     return response.data.data!;
   },
 
+  update: async (
+    id: string,
+    payload: VenueRequestPayload
+  ): Promise<VenueRequest> => {
+    const response = await api.patch<ApiResponse<VenueRequest>>(
+      `/venue-requests/${id}`,
+      { payload }
+    );
+    return response.data.data!;
+  },
+
   approve: async (
     id: string,
     body?: { applyImagePublicIds?: string[] }

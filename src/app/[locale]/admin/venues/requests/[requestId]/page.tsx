@@ -36,10 +36,12 @@ import VModal from '@/components/ui/VModal';
 import { toaster } from '@/components/ui/toaster';
 import { useRouter } from '@/i18n/config';
 import { VenueRequestService } from '@/lib/api/venue-request.service';
+import VenueRequestModal from '@/components/venue/VenueRequestModal';
 import {
   UserRole,
   Venue,
   VenueRequest,
+  VenueRequestPayload,
   VenueRequestStatus,
   VenueRequestType,
 } from '@/lib/api/types';
@@ -86,6 +88,7 @@ const VenueRequestDetailContent = () => {
   >(null);
   const [isActioned, setIsActioned] = useState(false);
   const [isRejectModalOpen, setIsRejectModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [rejectReason, setRejectReason] = useState('');
   const [selectedImageIds, setSelectedImageIds] = useState<string[]>([]);
 
@@ -146,6 +149,17 @@ const VenueRequestDetailContent = () => {
     } catch {
       toaster.error({ title: tVenueRequests('approveError') });
       setActionLoading(null);
+    }
+  };
+
+  const handleSaveEdit = async (payload: VenueRequestPayload) => {
+    try {
+      const updated = await VenueRequestService.update(requestId, payload);
+      setRequest(updated);
+      setIsEditModalOpen(false);
+      toaster.success({ title: tVenueRequests('editSuccess') });
+    } catch {
+      toaster.error({ title: tVenueRequests('editError') });
     }
   };
 
@@ -414,6 +428,22 @@ const VenueRequestDetailContent = () => {
           onReject={() => setIsRejectModalOpen(true)}
           onApprove={handleApprove}
           loadingAction={actionLoading}
+          {...(request.type === VenueRequestType.CREATE
+            ? {
+                editLabel: tVenueRequests('edit'),
+                onEdit: () => setIsEditModalOpen(true),
+              }
+            : {})}
+        />
+      )}
+
+      {isPending && request.type === VenueRequestType.CREATE && (
+        <VenueRequestModal
+          isOpen={isEditModalOpen}
+          onClose={() => setIsEditModalOpen(false)}
+          type={VenueRequestType.CREATE}
+          initialPayload={request.payload}
+          onSave={handleSaveEdit}
         />
       )}
 
