@@ -14,92 +14,59 @@ import { UserPreviewHoverCard } from '@/components/preview-cards/UserPreviewHove
 import { NewsfeedSkeleton } from '@/components/post/PostCardSkeleton';
 import { PullToRefresh } from '@/components/ui/PullToRefresh';
 import { useInfiniteScroll } from '@/hooks/useInfiniteScroll';
-import { postsService } from '@/lib/api/posts.service';
 import type { Post } from '@/types/post';
 import { useAuthStore } from '@/stores/useAuthStore';
-import { toaster } from '@/components/ui/toaster';
 import NewsfeedDiscoveryRail from '@/components/newsfeed/NewsfeedDiscoveryRail';
-
-const POSTS_PER_PAGE = 10;
+import { useNewsfeedStore } from '@/stores/useNewsfeedStore';
 
 export default function NewsfeedContent() {
   const t = useTranslations('posts');
   const navigationT = useTranslations('navigation');
   const currentUser = useAuthStore((state) => state.user);
   const currentUserId = currentUser?.id;
-  const [posts, setPosts] = useState<Post[]>([]);
-  const [page, setPage] = useState(1);
-  const [hasMore, setHasMore] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const ownerUserId = useNewsfeedStore((state) => state.ownerUserId);
+  const posts = useNewsfeedStore((state) => state.posts);
+  const hasMore = useNewsfeedStore((state) => state.hasMore);
+  const isLoading = useNewsfeedStore((state) => state.isLoading);
+  const isRefreshing = useNewsfeedStore((state) => state.isRefreshing);
+  const isLoadingMore = useNewsfeedStore((state) => state.isLoadingMore);
+  const hasError = useNewsfeedStore((state) => state.hasError);
+  const ensureFeed = useNewsfeedStore((state) => state.ensureFeed);
+  const refreshFeed = useNewsfeedStore((state) => state.refreshFeed);
+  const loadMore = useNewsfeedStore((state) => state.loadMore);
+  const removePost = useNewsfeedStore((state) => state.removePost);
+  const prependPost = useNewsfeedStore((state) => state.prependPost);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
-  const [hasError, setHasError] = useState(false);
   const [hasDiscoveryContent, setHasDiscoveryContent] = useState<
     boolean | null
   >(null);
   const authorName = currentUser?.name || currentUser?.email || 'User';
   const firstName = authorName.split(' ')[0] || authorName;
-
-  const loadPosts = useCallback(
-    async (pageNum = 1, append = false) => {
-      if (append) {
-        setIsLoadingMore(true);
-      } else {
-        setIsLoading(true);
-      }
-      setHasError(false);
-
-      try {
-        const response = await postsService.getPosts(pageNum, POSTS_PER_PAGE);
-        const responsePosts = Array.isArray(response.posts)
-          ? response.posts
-          : [];
-
-        setPosts((currentPosts) => {
-          if (!append) return responsePosts;
-
-          const existingIds = new Set(currentPosts.map((post) => post.id));
-          const nextPosts = responsePosts.filter(
-            (post) => !existingIds.has(post.id)
-          );
-          return [...currentPosts, ...nextPosts];
-        });
-        setPage(response.page ?? pageNum);
-        setHasMore(Boolean(response.hasMore));
-      } catch {
-        setHasError(true);
-        toaster.create({
-          title: t('error'),
-          description: t('loadPostsError'),
-          type: 'error',
-        });
-      } finally {
-        setIsLoading(false);
-        setIsLoadingMore(false);
-      }
-    },
-    [t]
-  );
+  const showInitialSkeleton = isLoading || ownerUserId !== currentUserId;
 
   useEffect(() => {
-    loadPosts();
-  }, [loadPosts]);
+    if (currentUserId) void ensureFeed(currentUserId);
+  }, [currentUserId, ensureFeed]);
 
   const refreshPosts = useCallback(async () => {
-    await loadPosts(1);
-  }, [loadPosts]);
+    if (currentUserId) await refreshFeed(currentUserId);
+  }, [currentUserId, refreshFeed]);
 
-  const handlePostDeleted = useCallback((postId: string) => {
-    // Remove in place so the scroll position is preserved.
-    setPosts((currentPosts) =>
-      currentPosts.filter((p) => p.id !== postId && p.originalPostId !== postId)
-    );
-  }, []);
+  const retryPosts = refreshPosts;
 
-  const handlePostShared = useCallback((newPost: Post) => {
-    // Prepend the freshly created repost without resetting the list.
-    setPosts((currentPosts) => [newPost, ...currentPosts]);
-  }, []);
+  const handlePostDeleted = useCallback(
+    (postId: string) => {
+      if (currentUserId) removePost(currentUserId, postId);
+    },
+    [currentUserId, removePost]
+  );
+
+  const handlePostShared = useCallback(
+    (newPost: Post) => {
+      if (currentUserId) prependPost(currentUserId, newPost);
+    },
+    [currentUserId, prependPost]
+  );
 
   const handleDiscoveryAvailability = useCallback((hasContent: boolean) => {
     setHasDiscoveryContent(hasContent);
@@ -107,8 +74,10 @@ export default function NewsfeedContent() {
 
   const sentinelRef = useInfiniteScroll({
     hasMore,
-    isLoading: isLoading || isLoadingMore,
-    onLoadMore: () => loadPosts(page + 1, true),
+    isLoading: showInitialSkeleton || isRefreshing || isLoadingMore,
+    onLoadMore: () => {
+      if (currentUserId) void loadMore(currentUserId);
+    },
   });
 
   return (
@@ -193,7 +162,7 @@ export default function NewsfeedContent() {
               </Flex>
             </Box>
 
-            {isLoading ? (
+            {showInitialSkeleton ? (
               <NewsfeedSkeleton />
             ) : hasError && posts.length === 0 ? (
               <AppEmptyState
@@ -201,7 +170,7 @@ export default function NewsfeedContent() {
                 description={t('retryDescription')}
                 actions={
                   <Button
-                    onClick={refreshPosts}
+                    onClick={retryPosts}
                     leftIcon={<RefreshCcw size={16} />}
                   >
                     {t('retry')}
@@ -223,6 +192,11 @@ export default function NewsfeedContent() {
               />
             ) : (
               <VStack gap={5} align="stretch">
+                {isRefreshing && (
+                  <Flex justify="center" py={1} aria-label={t('loading')}>
+                    <Spinner size="sm" color="green.500" />
+                  </Flex>
+                )}
                 {posts.map((post) => (
                   <PostCard
                     key={post.id}
@@ -247,7 +221,7 @@ export default function NewsfeedContent() {
                     variant="ghost"
                     colorPalette="green"
                     borderRadius="full"
-                    onClick={() => loadPosts(page + 1, true)}
+                    onClick={() => currentUserId && loadMore(currentUserId)}
                     loading={isLoadingMore}
                     disabled={isLoadingMore}
                   >
