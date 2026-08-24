@@ -749,7 +749,7 @@ export default function NotificationBell({
                                 truncate
                                 w="100%"
                               >
-                                {request.session.name} · Lv.{request.level} ·{' '}
+                                {request.session.name} ·{' '}
                                 {dayjs(request.session.startTime).format(
                                   'DD/MM'
                                 )}

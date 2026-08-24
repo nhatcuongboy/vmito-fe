@@ -12,6 +12,7 @@ import {
   LuTarget,
   LuActivity,
   LuExternalLink,
+  LuUser,
 } from 'react-icons/lu';
 import ProtectedRouteGuard from '@/components/guards/ProtectedRouteGuard';
 import PageLayout from '@/components/layout/PageLayout';
@@ -26,12 +27,15 @@ import {
 import AppConfirmDialog from '@/components/ui/AppConfirmDialog';
 import { PlayerService } from '@/lib/api/player.service';
 import { RatingService } from '@/lib/api/rating.service';
-import { PendingRequest, UserRatingStats } from '@/lib/api/types';
+import { SessionService } from '@/lib/api/session.service';
+import { ISession, PendingRequest, UserRatingStats } from '@/lib/api/types';
 import { toaster } from '@/components/ui/toaster';
 import { Link, useRouter } from '@/i18n/config';
 import dayjs from '@/lib/dayjs';
 import { formatTimeByDevicePreference } from '@/utils/time-helpers';
 import { useLevelLabel } from '@/hooks/useLevelLabel';
+import LevelBadgeWithDescription from '@/components/session/LevelBadgeWithDescription';
+import { getSkillLevelColor } from '@/lib/utils/skillLevel.utils';
 import { useParams } from 'next/navigation';
 import { ROUTES } from '@/constants';
 import { useConfirmAction } from '@/hooks/useConfirmAction';
@@ -41,13 +45,14 @@ const ApprovalDetailContent = () => {
   const tCommon = useTranslations('common');
   const tVenue = useTranslations('venue');
   const format = useFormatter();
-  const { getLevelLabel } = useLevelLabel();
+  const { getLevelShortLabel } = useLevelLabel();
   const router = useRouter();
   const params = useParams();
   const sessionId = params.sessionId as string;
   const playerId = params.playerId as string;
 
   const [request, setRequest] = useState<PendingRequest | null>(null);
+  const [session, setSession] = useState<ISession | null>(null);
   const [sameUserPlayerIds, setSameUserPlayerIds] = useState<string[]>([]);
   const [sessionsPlayedCount, setSessionsPlayedCount] = useState(0);
   const [ratingStats, setRatingStats] = useState<UserRatingStats | null>(null);
@@ -57,13 +62,24 @@ const ApprovalDetailContent = () => {
   const fetchRequest = useCallback(async () => {
     try {
       setIsLoading(true);
-      const found = await PlayerService.getPendingRequestById(playerId);
-      if (found.sessionId !== sessionId) {
+      const sid = Array.isArray(sessionId) ? sessionId[0] : sessionId;
+      const pid = Array.isArray(playerId) ? playerId[0] : playerId;
+
+      const found = await PlayerService.getPendingRequestById(pid);
+      if (found.sessionId !== sid && found.session?.id !== sid) {
         setRequest(null);
+        setSession(null);
         setSameUserPlayerIds([]);
         return;
       }
+
+      const resolvedSessionId = found.sessionId || found.session?.id || sid;
+      const foundSession = await SessionService.getSession(
+        resolvedSessionId
+      ).catch(() => null);
+
       setRequest(found);
+      setSession(foundSession);
       setSessionsPlayedCount(found.sessionsPlayedCount ?? 0);
       // All pending slots registered by the same user in this session,
       // approved/rejected together as one group
@@ -73,6 +89,7 @@ const ApprovalDetailContent = () => {
     } catch (error) {
       if (isAxiosError(error) && error.response?.status === 404) {
         setRequest(null);
+        setSession(null);
       } else {
         toaster.error({ title: tCommon('error') });
       }
@@ -131,11 +148,8 @@ const ApprovalDetailContent = () => {
   const genderLabel = request.gender
     ? tCommon(request.gender.toLowerCase())
     : null;
-  const levelLabel =
-    request.level != null
-      ? `${getLevelLabel(request.level)} (Lvl ${request.level})`
-      : null;
-  const summaryLine = [genderLabel, levelLabel].filter(Boolean).join(' • ');
+  const levelColor =
+    request.level != null ? getSkillLevelColor([request.level]) : null;
 
   const ratingCount =
     ratingStats?.asPlayerCount ?? ratingStats?.totalRatings ?? 0;
@@ -154,13 +168,17 @@ const ApprovalDetailContent = () => {
     ? `${t('approvalSubmittedPrefix')} ${dayjs(request.createdAt).fromNow()}`
     : null;
 
-  const slotIndexSuffix =
-    sameUserPlayerIds.length > 1
-      ? ` (${sameUserPlayerIds.indexOf(request.id) + 1}/${sameUserPlayerIds.length})`
-      : '';
   const sessionDate = format.dateTime(new Date(request.session.startTime), {
     dateStyle: 'full',
   });
+  const hostDisplayName =
+    session?.hostName?.trim() ||
+    session?.host?.name?.trim() ||
+    request.session.hostName?.trim() ||
+    request.session.host?.name?.trim() ||
+    request.session.user?.name?.trim() ||
+    request.session.creator?.name?.trim() ||
+    t('approvalHost');
 
   return (
     <Box px={{ base: 4, md: 0 }} py={6} maxW="3xl" w="full" mx="auto">
@@ -173,8 +191,27 @@ const ApprovalDetailContent = () => {
           </Badge>
         }
         summary={
-          <VStack align="stretch" gap={0.5}>
-            {summaryLine && <Text>{summaryLine}</Text>}
+          <VStack align="stretch" gap={1}>
+            {(genderLabel || request.level != null) && (
+              <HStack gap={1.5} align="center" wrap="wrap">
+                {genderLabel && <Text as="span">{genderLabel}</Text>}
+                {genderLabel && request.level != null && (
+                  <Text as="span" color="fg.muted">
+                    •
+                  </Text>
+                )}
+                {request.level != null && (
+                  <LevelBadgeWithDescription
+                    level={request.level}
+                    colorPalette={levelColor?.colorPalette || 'gray'}
+                    size="xs"
+                    variant="subtle"
+                  >
+                    {getLevelShortLabel(request.level)}
+                  </LevelBadgeWithDescription>
+                )}
+              </HStack>
+            )}
             {statsLine && <Text>{statsLine}</Text>}
           </VStack>
         }
@@ -215,6 +252,11 @@ const ApprovalDetailContent = () => {
             </Link>
           </RequestInfoRow>
           <RequestInfoRow
+            icon={<LuUser size={17} aria-hidden="true" />}
+            label={t('approvalHost')}
+            value={hostDisplayName}
+          />
+          <RequestInfoRow
             icon={<LuCalendarClock size={17} aria-hidden="true" />}
             label={t('approvalTime')}
             value={`${sessionDate} · ${formatTimeByDevicePreference(request.session.startTime)}`}
@@ -232,7 +274,7 @@ const ApprovalDetailContent = () => {
           <RequestInfoRow
             icon={<LuTarget size={17} aria-hidden="true" />}
             label={t('approvalPlayer')}
-            value={`#${request.playerNumber}${slotIndexSuffix}`}
+            value={`#${request.playerNumber}`}
           />
         </RequestInfoList>
       </AppRequestApplicantCard>

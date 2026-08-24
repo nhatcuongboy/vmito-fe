@@ -74,6 +74,72 @@ const sizeConfig: Record<ModalSize, string> = {
   full: '95vw',
 };
 
+interface ScrollLockSnapshot {
+  bodyOverflow: string;
+  bodyPaddingRight: string;
+  documentOverflow: string;
+  documentOverscrollBehavior: string;
+  pageScrollContainer: HTMLElement | null;
+  pageScrollOverflow: string;
+  pageScrollOverscrollBehavior: string;
+}
+
+let activeScrollLocks = 0;
+let scrollLockSnapshot: ScrollLockSnapshot | null = null;
+
+function lockPageScroll() {
+  activeScrollLocks += 1;
+  if (activeScrollLocks > 1) return;
+
+  const pageScrollContainer = document.querySelector<HTMLElement>(
+    '.main-layout-scroll'
+  );
+  scrollLockSnapshot = {
+    bodyOverflow: document.body.style.overflow,
+    bodyPaddingRight: document.body.style.paddingRight,
+    documentOverflow: document.documentElement.style.overflow,
+    documentOverscrollBehavior:
+      document.documentElement.style.overscrollBehavior,
+    pageScrollContainer,
+    pageScrollOverflow: pageScrollContainer?.style.overflowY ?? '',
+    pageScrollOverscrollBehavior:
+      pageScrollContainer?.style.overscrollBehavior ?? '',
+  };
+
+  const scrollbarWidth =
+    window.innerWidth - document.documentElement.clientWidth;
+  document.body.style.overflow = 'hidden';
+  document.documentElement.style.overflow = 'hidden';
+  document.documentElement.style.overscrollBehavior = 'none';
+  if (pageScrollContainer) {
+    pageScrollContainer.style.overflowY = 'hidden';
+    pageScrollContainer.style.overscrollBehavior = 'none';
+  }
+  if (scrollbarWidth > 0) {
+    document.body.style.paddingRight = `${scrollbarWidth}px`;
+  }
+}
+
+function unlockPageScroll() {
+  if (activeScrollLocks === 0) return;
+
+  activeScrollLocks -= 1;
+  if (activeScrollLocks > 0 || !scrollLockSnapshot) return;
+
+  const snapshot = scrollLockSnapshot;
+  document.body.style.overflow = snapshot.bodyOverflow;
+  document.body.style.paddingRight = snapshot.bodyPaddingRight;
+  document.documentElement.style.overflow = snapshot.documentOverflow;
+  document.documentElement.style.overscrollBehavior =
+    snapshot.documentOverscrollBehavior;
+  if (snapshot.pageScrollContainer) {
+    snapshot.pageScrollContainer.style.overflowY = snapshot.pageScrollOverflow;
+    snapshot.pageScrollContainer.style.overscrollBehavior =
+      snapshot.pageScrollOverscrollBehavior;
+  }
+  scrollLockSnapshot = null;
+}
+
 /**
  * VModal - A reusable modal component using Chakra UI
  *
@@ -142,67 +208,30 @@ export const VModal: React.FC<VModalProps> = ({
   showFooterDivider = true,
   isCentered = true,
 }) => {
+  const onCloseRef = React.useRef(onClose);
+
+  React.useEffect(() => {
+    onCloseRef.current = onClose;
+  }, [onClose]);
+
   // Handle escape key and body scroll lock
   React.useEffect(() => {
+    if (!isOpen) return;
+
     const handleEscape = (event: KeyboardEvent) => {
-      if (event.key === 'Escape' && isOpen) {
-        onClose();
+      if (event.key === 'Escape') {
+        onCloseRef.current();
       }
     };
 
-    let originalOverflow = '';
-    let originalPaddingRight = '';
-    let originalDocumentOverflow = '';
-    let originalDocumentOverscrollBehavior = '';
-    let originalPageScrollOverflow = '';
-    let originalPageScrollOverscrollBehavior = '';
-    let pageScrollContainer: HTMLElement | null = null;
-
-    if (isOpen) {
-      document.addEventListener('keydown', handleEscape);
-
-      originalOverflow = document.body.style.overflow;
-      originalPaddingRight = document.body.style.paddingRight;
-      originalDocumentOverflow = document.documentElement.style.overflow;
-      originalDocumentOverscrollBehavior =
-        document.documentElement.style.overscrollBehavior;
-      pageScrollContainer = document.querySelector<HTMLElement>(
-        '.main-layout-scroll'
-      );
-      originalPageScrollOverflow = pageScrollContainer?.style.overflowY ?? '';
-      originalPageScrollOverscrollBehavior =
-        pageScrollContainer?.style.overscrollBehavior ?? '';
-
-      const scrollbarWidth =
-        window.innerWidth - document.documentElement.clientWidth;
-      document.body.style.overflow = 'hidden';
-      document.documentElement.style.overflow = 'hidden';
-      document.documentElement.style.overscrollBehavior = 'none';
-      if (pageScrollContainer) {
-        pageScrollContainer.style.overflowY = 'hidden';
-        pageScrollContainer.style.overscrollBehavior = 'none';
-      }
-      if (scrollbarWidth > 0) {
-        document.body.style.paddingRight = `${scrollbarWidth}px`;
-      }
-    }
+    document.addEventListener('keydown', handleEscape);
+    lockPageScroll();
 
     return () => {
       document.removeEventListener('keydown', handleEscape);
-      if (isOpen) {
-        document.body.style.overflow = originalOverflow;
-        document.body.style.paddingRight = originalPaddingRight;
-        document.documentElement.style.overflow = originalDocumentOverflow;
-        document.documentElement.style.overscrollBehavior =
-          originalDocumentOverscrollBehavior;
-        if (pageScrollContainer) {
-          pageScrollContainer.style.overflowY = originalPageScrollOverflow;
-          pageScrollContainer.style.overscrollBehavior =
-            originalPageScrollOverscrollBehavior;
-        }
-      }
+      unlockPageScroll();
     };
-  }, [isOpen, onClose]);
+  }, [isOpen]);
 
   if (!isOpen) return null;
 

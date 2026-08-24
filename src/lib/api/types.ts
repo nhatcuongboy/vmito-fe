@@ -1142,6 +1142,10 @@ export interface PendingRequest extends Player {
     name: string;
     startTime: string;
     venue?: { name: string } | null;
+    host?: { id?: string; name?: string; image?: string } | null;
+    hostName?: string | null;
+    user?: { id?: string; name?: string; image?: string } | null;
+    creator?: { id?: string; name?: string; image?: string } | null;
   };
 }
 

@@ -2,7 +2,6 @@
 
 import { useCallback, useEffect, useState, type ReactNode } from 'react';
 import {
-  Avatar,
   Badge,
   Box,
   Flex,
@@ -27,6 +26,7 @@ import {
   Venus,
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import { PostAvatar } from '@/components/post/PostAvatar';
 import { Button, IconButton } from '@/components/ui/chakra-compat';
 import { Input } from '@/components/ui/Input';
 import { toaster } from '@/components/ui/toaster';
@@ -37,6 +37,8 @@ import { useLevelLabel } from '@/hooks/useLevelLabel';
 import { useRouter } from '@/i18n/config';
 import { ClubsService } from '@/lib/api/clubs.service';
 import dayjs from '@/lib/dayjs';
+import LevelBadgeWithDescription from '@/components/session/LevelBadgeWithDescription';
+import { getSkillLevelColor } from '@/lib/utils/skillLevel.utils';
 import {
   EMemberRole,
   IClub,
@@ -90,7 +92,7 @@ export const ClubMembersTab = ({
 }: IClubMembersTabProps) => {
   const t = useTranslations();
   const router = useRouter();
-  const { getLevelLabel } = useLevelLabel();
+  const { getLevelLabel, getLevelShortLabel } = useLevelLabel();
   const [isAddMemberModalOpen, setIsAddMemberModalOpen] = useState(false);
   const [memberSearchQuery, setMemberSearchQuery] = useState('');
   const debouncedMemberSearchQuery = useDebounce(memberSearchQuery, 400);
@@ -197,16 +199,17 @@ export const ClubMembersTab = ({
           borderColor="gray.100"
           shadow="sm"
         >
-          <Flex
-            justify="space-between"
-            align={{ base: 'flex-start', sm: 'center' }}
-            direction={{ base: 'column', sm: 'row' }}
-            gap={3}
-            mb={2}
-          >
+          <Flex justify="space-between" align="center" gap={3} mb={5}>
             <Box>
-              <Heading size="md">{t('clubs.clubMembers')}</Heading>
-              <Badge colorPalette="gray" size="sm" mt={2}>
+              <Heading size="md">{t('clubs.membersTab')}</Heading>
+              <Badge
+                colorPalette="gray"
+                size="sm"
+                variant="subtle"
+                borderRadius="full"
+                px={2.5}
+                mt={1.5}
+              >
                 {club.memberCount} {t('clubs.members')}
               </Badge>
             </Box>
@@ -217,16 +220,10 @@ export const ClubMembersTab = ({
                 onClick={() => setIsAddMemberModalOpen(true)}
               >
                 <UserPlus size={16} />
-                {t('clubs.addClubMember')}
+                {t('common.addNew')}
               </Button>
             )}
           </Flex>
-          <Text fontSize="sm" color="gray.500" mb={5}>
-            {t('clubs.showingMembers', {
-              visible: visibleMembers.length,
-              total: club.memberCount,
-            })}
-          </Text>
 
           {visibleMembers.length > 0 ? (
             <>
@@ -251,34 +248,54 @@ export const ClubMembersTab = ({
                       shadow: 'sm',
                     }}
                   >
-                    <Avatar.Root size="lg">
-                      <Avatar.Image src={member.user.image} objectFit="cover" />
-                      <Avatar.Fallback>{member.user.name[0]}</Avatar.Fallback>
-                    </Avatar.Root>
+                    <PostAvatar
+                      name={member.user.name}
+                      image={member.user.image}
+                      size={48}
+                      bordered
+                    />
                     <Box flex="1" minW={0}>
                       <Text fontWeight="semibold" fontSize="sm" lineClamp={1}>
                         {member.user.name}
                       </Text>
-                      <HStack gap={2} mt={1}>
-                        <Badge
-                          size="xs"
-                          colorPalette={
-                            member.role === EMemberRole.ADMIN
-                              ? 'orange'
-                              : member.role === EMemberRole.MODERATOR
-                                ? 'blue'
-                                : 'gray'
-                          }
-                          variant="subtle"
-                        >
-                          {t(
-                            `clubs.memberRole.${member.role.toLowerCase() as 'admin' | 'moderator' | 'member'}`
-                          )}
-                        </Badge>
-                        {member.user.level && (
-                          <Text fontSize="xs" color="gray.500">
-                            {getLevelLabel(member.user.level)}
-                          </Text>
+                      <HStack gap={1.5} mt={1} align="center" flexWrap="wrap">
+                        {member.role !== EMemberRole.MEMBER && (
+                          <Badge
+                            size="xs"
+                            colorPalette={
+                              member.role === EMemberRole.ADMIN
+                                ? 'orange'
+                                : 'blue'
+                            }
+                            variant="subtle"
+                            borderRadius="full"
+                            px={2}
+                            py={0.5}
+                            fontSize="2xs"
+                            fontWeight="medium"
+                          >
+                            {t(
+                              `clubs.memberRole.${member.role.toLowerCase() as 'admin' | 'moderator'}`
+                            )}
+                          </Badge>
+                        )}
+                        {member.user.level != null && (
+                          <LevelBadgeWithDescription
+                            level={member.user.level}
+                            colorPalette={
+                              getSkillLevelColor([member.user.level])
+                                .colorPalette
+                            }
+                            size="xs"
+                            variant="subtle"
+                            borderRadius="full"
+                            px={2}
+                            py={0.5}
+                            fontSize="2xs"
+                            fontWeight="bold"
+                          >
+                            {getLevelShortLabel(member.user.level)}
+                          </LevelBadgeWithDescription>
                         )}
                       </HStack>
                     </Box>
@@ -404,12 +421,12 @@ export const ClubMembersTab = ({
                   gap={3}
                 >
                   <HStack gap={3} minW={0}>
-                    <Avatar.Root size="sm" flexShrink={0}>
-                      <Avatar.Image src={user.image} />
-                      <Avatar.Fallback>
-                        {user.name?.slice(0, 2).toUpperCase()}
-                      </Avatar.Fallback>
-                    </Avatar.Root>
+                    <PostAvatar
+                      name={user.name}
+                      image={user.image}
+                      size={36}
+                      bordered
+                    />
                     <Box minW={0}>
                       <Text fontWeight="semibold" fontSize="sm" truncate>
                         {user.name}
@@ -487,13 +504,12 @@ export const ClubMembersTab = ({
         {selectedMember && (
           <VStack gap={5} align="stretch" py={2}>
             <VStack gap={3} align="center">
-              <Avatar.Root size="2xl">
-                <Avatar.Image
-                  src={selectedMember.user.image}
-                  objectFit="cover"
-                />
-                <Avatar.Fallback>{selectedMember.user.name[0]}</Avatar.Fallback>
-              </Avatar.Root>
+              <PostAvatar
+                name={selectedMember.user.name}
+                image={selectedMember.user.image}
+                size={72}
+                bordered
+              />
               <VStack gap={1}>
                 <Text fontWeight="bold" fontSize="lg" textAlign="center">
                   {selectedMember.user.name}
@@ -507,6 +523,9 @@ export const ClubMembersTab = ({
                         : 'gray'
                   }
                   variant="subtle"
+                  borderRadius="full"
+                  px={2.5}
+                  py={0.5}
                 >
                   {t(
                     `clubs.memberRole.${selectedMember.role.toLowerCase() as 'admin' | 'moderator' | 'member'}`

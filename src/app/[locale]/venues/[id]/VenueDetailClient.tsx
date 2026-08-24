@@ -370,7 +370,6 @@ export default function VenueDetailClient({
                   newDistrict={venue.newDistrict}
                   fontSize="sm"
                   color="gray.500"
-                  lineClamp={2}
                 />
               </Box>
             </Box>
@@ -397,7 +396,6 @@ export default function VenueDetailClient({
                 fontSize="sm"
                 color="gray.500"
                 _dark={{ color: 'gray.400' }}
-                lineClamp={2}
                 suffix={distanceLabel ? ` (${distanceLabel})` : undefined}
               />
             </Box>

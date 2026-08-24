@@ -148,10 +148,16 @@ test('creates a post with inline clipboard previews and ordered images', async (
     .click();
   await expect(discardDialog).toBeHidden();
   await expect(textarea).toHaveValue(content);
+  await expect(page.locator('html')).toHaveCSS('overflow-y', 'hidden');
 
   await dialog.getByRole('button', { name: 'Đóng hộp thoại' }).click();
   await discardDialog.getByRole('button', { name: 'Bỏ bài viết' }).click();
   await expect(dialog).toBeHidden();
+  await expect(page.locator('html')).not.toHaveCSS('overflow-y', 'hidden');
+  await expect(page.locator('body')).not.toHaveCSS('overflow-y', 'hidden');
+  if ((await mainLayoutScroll.count()) > 0) {
+    await expect(mainLayoutScroll).not.toHaveCSS('overflow-y', 'hidden');
+  }
 
   await page
     .locator('[data-slot="newsfeed-feed-column"]')
@@ -220,8 +226,14 @@ test('creates a post with inline clipboard previews and ordered images', async (
   });
   await secondReorderHandle.focus();
   await page.keyboard.press('Space');
+  await expect(secondReorderHandle).toHaveAttribute('aria-pressed', 'true');
   await page.keyboard.press('ArrowLeft');
+  await page.keyboard.press('ArrowUp');
   await page.keyboard.press('Space');
+  await expect(dialog.getByAltText('Ảnh xem trước 1')).toHaveAttribute(
+    'src',
+    /image-3\.png/
+  );
 
   await dialog.getByRole('button', { name: 'Đăng' }).click();
   await expect(dialog).toBeHidden();
