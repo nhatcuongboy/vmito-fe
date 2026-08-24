@@ -117,7 +117,7 @@ export default async function PublicUserProfilePage({ params }: PageProps) {
         />
       )}
       <Suspense>
-        <PublicUserProfileContent userId={userId} />
+        <PublicUserProfileContent userId={userId} initialProfile={profile} />
       </Suspense>
     </>
   );

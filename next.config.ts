@@ -43,6 +43,19 @@ const nextConfig = {
       },
       {
         protocol: 'https' as const,
+        hostname: '**.fbsbx.com',
+      },
+      {
+        // Facebook CDN image domains (e.g., scontent.xx.fbcdn.net, scontent-*.fbcdn.net)
+        protocol: 'https' as const,
+        hostname: '**.fbcdn.net',
+      },
+      {
+        protocol: 'https' as const,
+        hostname: '*.fbcdn.net',
+      },
+      {
+        protocol: 'https' as const,
         hostname: 'res.cloudinary.com',
       },
       {
