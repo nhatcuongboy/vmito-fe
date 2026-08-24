@@ -351,6 +351,7 @@ function PlayerSessionsContent() {
             sortBy={sortBy}
             onSortChange={setSortBy}
             showViewModeMap={false}
+            showCount={false}
             viewMode={viewMode}
             setViewMode={setViewMode}
             leadingAction={

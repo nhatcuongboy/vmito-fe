@@ -63,6 +63,7 @@ interface ResultsHeaderProps {
   sortBy?: SessionSortBy;
   onSortChange?: (sort: SessionSortBy) => void;
   showViewModeMap?: boolean;
+  showCount?: boolean;
   viewMode?: ViewMode;
   setViewMode?: (mode: ViewMode) => void;
 }
@@ -78,6 +79,7 @@ export default function ResultsHeader({
   sortBy: controlledSortBy,
   onSortChange,
   showViewModeMap = true,
+  showCount = true,
   viewMode,
   setViewMode,
 }: ResultsHeaderProps) {
@@ -121,15 +123,17 @@ export default function ResultsHeader({
         {/* Left: Results count + Mode Toggle Button */}
         <HStack gap={2} flexShrink={0} flexWrap="wrap">
           {leadingAction}
-          <Text
-            fontSize="sm"
-            color="gray.600"
-            _dark={{ color: 'gray.400' }}
-            whiteSpace="nowrap"
-            display={{ base: 'none', md: 'block' }}
-          >
-            {`${count} ${tCommon('sessions')}`}
-          </Text>
+          {showCount && (
+            <Text
+              fontSize="sm"
+              color="gray.600"
+              _dark={{ color: 'gray.400' }}
+              whiteSpace="nowrap"
+              display={{ base: 'none', md: 'block' }}
+            >
+              {`${count} ${tCommon('sessions')}`}
+            </Text>
+          )}
 
           {/* Mode Toggle Button (On/Off) - Hidden on root page */}
           {/* Temporarily hidden as per user request */}
