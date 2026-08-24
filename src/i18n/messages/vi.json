@@ -7271,7 +7271,14 @@
     },
     "validation": {
       "required": "Vui lòng nhập thông tin bắt buộc"
-    }
+    },
+    "warnings": {
+      "invalidStreet": "Chỉ nên nhập số nhà, tên đường (không gồm phường, quận, TP)."
+    },
+    "actions": {
+      "autoExtractAddress": "Tự động tách"
+    },
+    "previewAddress": "Địa chỉ đầy đủ hiển thị:"
   },
   "feedback": {
     "pageTitle": "Liên hệ & Báo cáo lỗi",

@@ -7211,7 +7211,14 @@
     },
     "validation": {
       "required": "请输入必填信息"
-    }
+    },
+    "warnings": {
+      "invalidStreet": "建议仅输入门牌号与路名（不含坊/郡/省市）。"
+    },
+    "actions": {
+      "autoExtractAddress": "自动提取"
+    },
+    "previewAddress": "完整显示地址："
   },
   "feedback": {
     "pageTitle": "联系我们 & 报告错误",

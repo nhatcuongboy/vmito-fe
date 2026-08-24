@@ -21,6 +21,7 @@ import {
   Info,
   MapPin,
   PencilLine,
+  Sparkles,
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Field } from '@/components/ui/Field';
@@ -43,7 +44,10 @@ import {
 import { AppSportMultiSelect } from '@/components/common/AppSportMultiSelect';
 import { getVenueSportTypes } from '@/constants/sports';
 import { useNewAdminUnits } from '@/hooks/useNewAdminUnits';
-import { composeNewAddress } from '@/utils/venue-helpers';
+import {
+  extractCleanStreetAddress,
+  hasAdminUnitsInStreet,
+} from '@/utils/address-validator';
 import { trimPhone } from '@/utils/phone-utils';
 import { formatVenueName } from '@/utils';
 import { formatOpeningHours, parseOpeningHours } from '@/utils/time-helpers';
@@ -193,15 +197,8 @@ export default function VenueRequestModal({
   });
 
   const { cityOptions: newCityOptions, getWardsByCity } = useNewAdminUnits();
-  const watchedStreet = form.watch('street');
   const selectedNewCity = form.watch('newCity');
-  const selectedNewDistrict = form.watch('newDistrict');
   const newWardOptions = getWardsByCity(selectedNewCity);
-  const newAddressPreview = composeNewAddress(
-    watchedStreet,
-    selectedNewDistrict,
-    selectedNewCity
-  );
 
   const isCreate = type === VenueRequestType.CREATE;
 
@@ -218,6 +215,15 @@ export default function VenueRequestModal({
       setSimilarVenues([]);
       setHasReviewedSimilar(false);
     }
+  };
+
+  const handleAutoExtractStreet = () => {
+    const currentStreet = form.getValues('street');
+    const cleanStreet = extractCleanStreetAddress(currentStreet);
+    form.setValue('street', cleanStreet, {
+      shouldValidate: true,
+      shouldDirty: true,
+    });
   };
 
   const handleSubmit = async (values: VenueRequestFormValues) => {
@@ -400,24 +406,81 @@ export default function VenueRequestModal({
         <Controller
           control={form.control}
           name="street"
-          render={({ field, fieldState }) => (
-            <Field
-              label={t('fields.street')}
-              required
-              invalid={!!fieldState.error}
-              errorText={t('validation.required')}
-              helperText={t('helpers.street')}
-            >
-              <Input
-                {...field}
-                placeholder={t('placeholders.street')}
-                onChange={(event) => {
-                  resetSimilarWarning();
-                  field.onChange(event);
-                }}
-              />
-            </Field>
-          )}
+          render={({ field, fieldState }) => {
+            const hasAdminUnits = hasAdminUnitsInStreet(field.value);
+
+            return (
+              <VStack align="stretch" gap={1.5}>
+                <Field
+                  label={t('fields.street')}
+                  required
+                  invalid={!!fieldState.error}
+                  errorText={t('validation.required')}
+                  helperText={
+                    hasAdminUnits && field.value
+                      ? undefined
+                      : t('helpers.street')
+                  }
+                >
+                  <Input
+                    {...field}
+                    placeholder={t('placeholders.street')}
+                    onChange={(event) => {
+                      resetSimilarWarning();
+                      field.onChange(event);
+                    }}
+                  />
+                </Field>
+
+                {hasAdminUnits && field.value && !fieldState.error && (
+                  <Flex
+                    align="center"
+                    justify="space-between"
+                    gap={2}
+                    px={2.5}
+                    py={1.5}
+                    borderRadius="md"
+                    bg="orange.50"
+                    borderWidth="1px"
+                    borderColor="orange.200"
+                    _dark={{ bg: 'orange.950/30', borderColor: 'orange.800' }}
+                  >
+                    <HStack gap={1.5} flex={1} minW={0}>
+                      <AlertTriangle
+                        size={14}
+                        color="var(--chakra-colors-orange-500)"
+                        style={{ flexShrink: 0 }}
+                      />
+                      <Text
+                        fontSize="xs"
+                        color="orange.800"
+                        _dark={{ color: 'orange.200' }}
+                        lineHeight="1.4"
+                      >
+                        {t('warnings.invalidStreet')}
+                      </Text>
+                    </HStack>
+
+                    <Button
+                      type="button"
+                      size="2xs"
+                      variant="outline"
+                      colorPalette="orange"
+                      onClick={handleAutoExtractStreet}
+                      height="24px"
+                      px={2}
+                      borderRadius="md"
+                      fontWeight="medium"
+                      flexShrink={0}
+                    >
+                      <Sparkles size={11} />
+                      {t('actions.autoExtractAddress')}
+                    </Button>
+                  </Flex>
+                )}
+              </VStack>
+            );
+          }}
         />
 
         <SimpleGrid columns={{ base: 1, md: 2 }} gap={4}>
@@ -530,16 +593,6 @@ export default function VenueRequestModal({
                     label={t('fields.locatedWithin')}
                     helperText={t('helpers.locatedWithin')}
                   >
-                    <Input {...field} />
-                  </Field>
-                )}
-              />
-
-              <Controller
-                control={form.control}
-                name="bookingPolicy"
-                render={({ field }) => (
-                  <Field label={t('fields.bookingPolicy')}>
                     <Input {...field} />
                   </Field>
                 )}
