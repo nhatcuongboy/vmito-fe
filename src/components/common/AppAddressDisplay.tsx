@@ -43,21 +43,29 @@ export const AppAddressDisplay = ({
   const text = showingNew ? fullNewAddress : fullAddress;
 
   return (
-    <Box>
+    <Box display="flex" alignItems="flex-start" gap={1} flexWrap="wrap">
       <Text
         fontSize={fontSize}
         color={color}
         _dark={_dark}
         lineClamp={lineClamp}
+        flex="1"
+        minW="0"
       >
-        {text}{' '}
-        {showingNew && (
-          <Badge colorPalette="blue" size="xs" verticalAlign="middle">
-            {t('newAddressBadge')}
-          </Badge>
-        )}
-        {suffix}
+        {text}
       </Text>
+      {showingNew && (
+        <Badge
+          colorPalette="blue"
+          size="xs"
+          verticalAlign="middle"
+          flexShrink={0}
+          mt="2px"
+        >
+          {t('newAddressBadge')}
+        </Badge>
+      )}
+      {suffix}
     </Box>
   );
 };
