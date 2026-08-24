@@ -46,6 +46,7 @@ import { TOP_BAR_HEIGHT_DESKTOP, TOP_BAR_HEIGHT_MOBILE } from '@/constants';
 
 interface IPublicUserProfileContentProps {
   userId: string;
+  initialProfile?: IPublicProfileMeta | null;
 }
 
 const DEFAULT_PAGE = 1;
@@ -78,6 +79,7 @@ const parsePositiveInt = (value: string | null, fallback: number): number => {
 
 export default function PublicUserProfileContent({
   userId,
+  initialProfile = null,
 }: IPublicUserProfileContentProps) {
   const t = useTranslations('userProfilePage');
   const tCommon = useTranslations('common');
@@ -86,7 +88,9 @@ export default function PublicUserProfileContent({
   const pathname = usePathname();
   const { user: currentUser } = useAuthStore();
 
-  const [profile, setProfile] = useState<IPublicProfileMeta | null>(null);
+  const [profile, setProfile] = useState<IPublicProfileMeta | null>(
+    initialProfile
+  );
   const [ratingStats, setRatingStats] = useState<UserRatingStats | null>(null);
   const [ratings, setRatings] = useState<Rating[]>([]);
   const [hostedSessions, setHostedSessions] = useState<ISession[]>([]);
@@ -95,7 +99,8 @@ export default function PublicUserProfileContent({
   const [activeHostedSessionsCount, setActiveHostedSessionsCount] = useState(0);
   const [endedHostedSessionsCount, setEndedHostedSessionsCount] = useState(0);
   const [totalSessionPages, setTotalSessionPages] = useState(0);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(!initialProfile);
+  const [isSecondaryLoading, setIsSecondaryLoading] = useState(true);
   const [isSessionsLoading, setIsSessionsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -114,22 +119,43 @@ export default function PublicUserProfileContent({
   const hostedTab = getHostedTab(searchParams.get('tab'));
 
   useEffect(() => {
-    const fetchProfileData = async () => {
+    let isCurrent = true;
+
+    const fetchProfile = async () => {
+      if (initialProfile) {
+        setProfile(initialProfile);
+        setIsLoading(false);
+        return;
+      }
+
       try {
         setIsLoading(true);
         setError(null);
+        const profileResponse = await UserService.getPublicProfile(userId);
+        if (isCurrent) {
+          setProfile(profileResponse);
+        }
+      } catch (fetchError) {
+        console.error('Failed to fetch public profile:', fetchError);
+        if (isCurrent) {
+          setError(t('loadFailed'));
+        }
+      } finally {
+        if (isCurrent) {
+          setIsLoading(false);
+        }
+      }
+    };
 
-        const [
-          profileResponse,
-          ratingStatsResponse,
-          ratingsResponse,
-          clubsResponse,
-        ] = await Promise.all([
-          UserService.getPublicProfile(userId),
-          RatingService.getUserRatingStats(userId),
-          RatingService.getUserReceivedRatings(userId),
-          ClubsService.getUserClubs(userId),
-        ]);
+    const fetchSecondaryData = async () => {
+      try {
+        setIsSecondaryLoading(true);
+        const [ratingStatsResponse, ratingsResponse, clubsResponse] =
+          await Promise.all([
+            RatingService.getUserRatingStats(userId),
+            RatingService.getUserReceivedRatings(userId),
+            ClubsService.getUserClubs(userId),
+          ]);
 
         const sortedRatings = [...ratingsResponse]
           .filter((r) => r.type === RatingType.PLAYER_TO_HOST)
@@ -138,22 +164,32 @@ export default function PublicUserProfileContent({
               new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
           );
 
-        setProfile(profileResponse);
-        setRatingStats(ratingStatsResponse);
-        setRatings(sortedRatings);
-        setClubs(
-          Array.from(new Map(clubsResponse.map((c) => [c.id, c])).values())
-        );
+        if (isCurrent) {
+          setRatingStats(ratingStatsResponse);
+          setRatings(sortedRatings);
+          setClubs(
+            Array.from(new Map(clubsResponse.map((c) => [c.id, c])).values())
+          );
+        }
       } catch (fetchError) {
-        console.error('Failed to fetch public profile:', fetchError);
-        setError(t('loadFailed'));
+        console.error(
+          'Failed to fetch public profile secondary data:',
+          fetchError
+        );
       } finally {
-        setIsLoading(false);
+        if (isCurrent) {
+          setIsSecondaryLoading(false);
+        }
       }
     };
 
-    fetchProfileData();
-  }, [userId, t]);
+    fetchProfile();
+    fetchSecondaryData();
+
+    return () => {
+      isCurrent = false;
+    };
+  }, [initialProfile, userId, t]);
 
   useEffect(() => {
     const fetchSessions = async () => {
@@ -255,7 +291,16 @@ export default function PublicUserProfileContent({
   };
 
   if (isLoading) {
-    return <PublicUserProfileSkeleton />;
+    return (
+      <PageLayout
+        title={t('title')}
+        maxW={DETAIL_PAGE_MAX_W}
+        bg="gray.50"
+        _dark={{ bg: 'gray.900' }}
+      >
+        <PublicUserProfileSkeleton inline />
+      </PageLayout>
+    );
   }
 
   if (error || !profile) {
@@ -476,9 +521,16 @@ export default function PublicUserProfileContent({
           )}
 
           {/* Clubs */}
-          {activeSection === 'clubs' && (
-            <UserClubsSection clubs={clubs} userId={userId} />
-          )}
+          {activeSection === 'clubs' &&
+            (isSecondaryLoading ? (
+              <VStack gap={3} align="stretch">
+                {[0, 1].map((index) => (
+                  <Skeleton key={index} height="88px" borderRadius="2xl" />
+                ))}
+              </VStack>
+            ) : (
+              <UserClubsSection clubs={clubs} userId={userId} />
+            ))}
 
           {/* Reviews */}
           {activeSection === 'reviews' && (
@@ -511,15 +563,22 @@ export default function PublicUserProfileContent({
                 )}
               </Flex>
 
-              <VStack gap={3} align="stretch">
-                <UserRatingSummaryCard stats={ratingStats} />
-                {ratingsPreview.length > 0 && (
-                  <RatingList
-                    ratings={ratingsPreview}
-                    emptyMessage={t('noReviews')}
-                  />
-                )}
-              </VStack>
+              {isSecondaryLoading ? (
+                <VStack gap={3} align="stretch">
+                  <Skeleton height="112px" borderRadius="lg" />
+                  <Skeleton height="80px" borderRadius="lg" />
+                </VStack>
+              ) : (
+                <VStack gap={3} align="stretch">
+                  <UserRatingSummaryCard stats={ratingStats} />
+                  {ratingsPreview.length > 0 && (
+                    <RatingList
+                      ratings={ratingsPreview}
+                      emptyMessage={t('noReviews')}
+                    />
+                  )}
+                </VStack>
+              )}
             </Box>
           )}
 
