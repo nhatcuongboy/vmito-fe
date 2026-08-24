@@ -1,6 +1,13 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import {
+  forwardRef,
+  useCallback,
+  useEffect,
+  useImperativeHandle,
+  useRef,
+  useState,
+} from 'react';
 import {
   Box,
   Flex,
@@ -27,6 +34,7 @@ import {
   useSortable,
   rectSortingStrategy,
   arrayMove,
+  sortableKeyboardCoordinates,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import AppImageGalleryPicker from '@/components/AppImageGalleryPicker';
@@ -44,6 +52,12 @@ export interface ISessionImage {
   publicId: string;
 }
 
+export interface AppMultiImageUploadHandle {
+  openFilePicker: () => void;
+  openGallery: () => void;
+  uploadFiles: (files: File[]) => Promise<void>;
+}
+
 interface IAppMultiImageUploadProps {
   images: ISessionImage[];
   bannerIndex: number;
@@ -55,6 +69,9 @@ interface IAppMultiImageUploadProps {
   category?: EImageCategory;
   label?: string | null;
   compact?: boolean;
+  variant?: 'default' | 'post-preview';
+  showBannerControls?: boolean;
+  onUploadingChange?: (isUploading: boolean) => void;
 }
 
 const SortableImageItem = ({
@@ -66,6 +83,9 @@ const SortableImageItem = ({
   disabled,
   t,
   compact,
+  variant,
+  showBannerControls,
+  totalImages,
 }: {
   image: ISessionImage;
   index: number;
@@ -75,6 +95,9 @@ const SortableImageItem = ({
   disabled?: boolean;
   t: ReturnType<typeof useTranslations>;
   compact?: boolean;
+  variant: 'default' | 'post-preview';
+  showBannerControls: boolean;
+  totalImages: number;
 }) => {
   const {
     attributes,
@@ -92,6 +115,8 @@ const SortableImageItem = ({
     zIndex: isDragging ? 10 : 1,
   };
 
+  const isPostPreview = variant === 'post-preview';
+
   return (
     <Box
       ref={setNodeRef}
@@ -99,22 +124,36 @@ const SortableImageItem = ({
       position="relative"
       borderRadius="lg"
       overflow="hidden"
-      borderWidth={isBanner ? 3 : 1}
-      borderColor={isBanner ? 'green.500' : 'gray.200'}
-      _dark={{ borderColor: isBanner ? 'green.400' : 'gray.600' }}
+      borderWidth={showBannerControls && isBanner ? 3 : 1}
+      borderColor={showBannerControls && isBanner ? 'green.500' : 'gray.200'}
+      _dark={{
+        borderColor: showBannerControls && isBanner ? 'green.400' : 'gray.600',
+      }}
       w={
-        compact
-          ? { base: '72px', sm: '84px' }
-          : { base: 'calc(50% - 6px)', sm: '120px' }
+        isPostPreview
+          ? 'full'
+          : compact
+            ? { base: '72px', sm: '84px' }
+            : { base: 'calc(50% - 6px)', sm: '120px' }
       }
+      minW={0}
       flexShrink={0}
+      bg={{ base: 'gray.100', _dark: 'gray.900' }}
     >
       <ChakraImage
         src={image.url}
-        alt={`Session image ${index + 1}`}
+        alt={t('imagePreviewAlt', { index: index + 1 })}
         width="100%"
-        height={compact ? '84px' : '120px'}
-        objectFit="cover"
+        height={
+          isPostPreview
+            ? totalImages === 1
+              ? { base: '200px', md: '300px' }
+              : { base: '140px', md: '190px' }
+            : compact
+              ? '84px'
+              : '120px'
+        }
+        objectFit={isPostPreview ? 'contain' : 'cover'}
       />
 
       {/* Drag handle */}
@@ -127,15 +166,17 @@ const SortableImageItem = ({
           borderRadius="md"
           p={0.5}
           cursor="grab"
+          touchAction="none"
           {...attributes}
           {...listeners}
+          aria-label={t('reorderImage', { index: index + 1 })}
         >
           <GripVertical size={14} color="white" aria-hidden="true" />
         </Box>
       )}
 
       {/* Banner badge */}
-      {isBanner && (
+      {showBannerControls && isBanner && (
         <Badge
           position="absolute"
           top={1}
@@ -151,7 +192,7 @@ const SortableImageItem = ({
       {/* Actions */}
       {!disabled && (
         <Flex position="absolute" bottom={1} right={1} gap={1}>
-          {!isBanner && (
+          {showBannerControls && !isBanner && (
             <IconButton
               aria-label={t('setAsBanner')}
               size="2xs"
@@ -165,7 +206,7 @@ const SortableImageItem = ({
             </IconButton>
           )}
           <IconButton
-            aria-label={t('removeImage')}
+            aria-label={t('removeImageAt', { index: index + 1 })}
             size="2xs"
             variant="solid"
             colorPalette="red"
@@ -180,31 +221,49 @@ const SortableImageItem = ({
   );
 };
 
-const AppMultiImageUpload = ({
-  images,
-  bannerIndex,
-  onImagesChange,
-  onBannerChange,
-  disabled = false,
-  isUploading = false,
-  maxImages = 5,
-  category = EImageCategory.SESSION_COVER,
-  label,
-  compact = false,
-}: IAppMultiImageUploadProps) => {
+const AppMultiImageUpload = forwardRef<
+  AppMultiImageUploadHandle,
+  IAppMultiImageUploadProps
+>(function AppMultiImageUpload(
+  {
+    images,
+    bannerIndex,
+    onImagesChange,
+    onBannerChange,
+    disabled = false,
+    isUploading = false,
+    maxImages = 5,
+    category = EImageCategory.SESSION_COVER,
+    label,
+    compact = false,
+    variant = 'default',
+    showBannerControls = true,
+    onUploadingChange,
+  },
+  ref
+) {
   const t = useTranslations('session');
   const tc = useTranslations('common');
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
   const [isDragActive, setIsDragActive] = useState(false);
   const [isDirectUploading, setIsDirectUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const directUploadingRef = useRef(false);
   const isBusy = disabled || isUploading || isDirectUploading;
   const hasImages = images.length > 0;
   const canAddImages = !disabled && images.length < maxImages;
+  const isPostPreview = variant === 'post-preview';
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
-    useSensor(KeyboardSensor)
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
+  );
+
+  useEffect(
+    () => () => {
+      onUploadingChange?.(false);
+    },
+    [onUploadingChange]
   );
 
   const handleDragEnd = (event: DragEndEvent) => {
@@ -219,24 +278,12 @@ const AppMultiImageUpload = ({
     const newImages = arrayMove(images, oldIndex, newIndex);
     onImagesChange(newImages);
 
-    // Update banner index if the banner was moved
-    if (bannerIndex === oldIndex) {
-      onBannerChange(newIndex);
-    } else if (bannerIndex === newIndex) {
-      onBannerChange(oldIndex);
-    } else if (
-      (bannerIndex > oldIndex && bannerIndex <= newIndex) ||
-      (bannerIndex < oldIndex && bannerIndex >= newIndex)
-    ) {
-      // Banner between old and new position shifts
-      const newBannerIndex = images.findIndex(
-        (img) => img.publicId === images[bannerIndex].publicId
+    if (showBannerControls) {
+      const bannerPublicId = images[bannerIndex]?.publicId;
+      const nextBannerIndex = newImages.findIndex(
+        (image) => image.publicId === bannerPublicId
       );
-      const adjustedBanner = newImages.findIndex(
-        (img) => img.publicId === images[bannerIndex].publicId
-      );
-      if (adjustedBanner !== -1) onBannerChange(adjustedBanner);
-      else onBannerChange(newBannerIndex);
+      onBannerChange(nextBannerIndex === -1 ? 0 : nextBannerIndex);
     }
   };
 
@@ -244,13 +291,12 @@ const AppMultiImageUpload = ({
     const newImages = images.filter((_, i) => i !== index);
     onImagesChange(newImages);
 
-    // Adjust banner index
-    if (newImages.length === 0) {
-      onBannerChange(0);
-    } else if (index === bannerIndex) {
-      onBannerChange(0);
-    } else if (index < bannerIndex) {
-      onBannerChange(bannerIndex - 1);
+    if (showBannerControls) {
+      if (newImages.length === 0 || index === bannerIndex) {
+        onBannerChange(0);
+      } else if (index < bannerIndex) {
+        onBannerChange(bannerIndex - 1);
+      }
     }
   };
 
@@ -262,8 +308,7 @@ const AppMultiImageUpload = ({
     selectedImages: { url: string; publicId: string }[]
   ) => {
     onImagesChange(selectedImages);
-    // Keep banner at 0 if current banner was removed
-    if (bannerIndex >= selectedImages.length) {
+    if (showBannerControls && bannerIndex >= selectedImages.length) {
       onBannerChange(0);
     }
   };
@@ -276,56 +321,92 @@ const AppMultiImageUpload = ({
     setIsGalleryOpen(false);
   };
 
-  const handleUploadFiles = async (incomingFiles: File[]) => {
-    if (isBusy || incomingFiles.length === 0) return;
+  const handleUploadFiles = useCallback(
+    async (incomingFiles: File[]) => {
+      if (isBusy || directUploadingRef.current || incomingFiles.length === 0) {
+        return;
+      }
 
-    const imageFiles = incomingFiles.filter((file) =>
-      file.type.startsWith('image/')
-    );
-
-    if (imageFiles.length === 0) {
-      toaster.error({ title: tc('pleaseSelectImageFile') });
-      return;
-    }
-
-    const availableSlots = Math.max(0, maxImages - images.length);
-    if (availableSlots === 0) {
-      toaster.error({ title: tc('tooManyFiles', { max: maxImages }) });
-      return;
-    }
-
-    const filesToUpload = imageFiles.slice(0, availableSlots);
-    if (filesToUpload.length < imageFiles.length) {
-      toaster.error({ title: tc('tooManyFiles', { max: maxImages }) });
-    }
-
-    setIsDirectUploading(true);
-    try {
-      const uploadedImages = await Promise.all(
-        filesToUpload.map(async (file) => {
-          const compressedFile = await compressImage(file, {
-            maxSizeMB: 1,
-            maxWidthOrHeight: 1920,
-          });
-
-          return await UserImageService.uploadImage(compressedFile, category);
-        })
+      const imageFiles = incomingFiles.filter((file) =>
+        file.type.startsWith('image/')
       );
 
-      onImagesChange([
-        ...images,
-        ...uploadedImages.map((img) => ({
-          url: img.url,
-          publicId: img.publicId,
-        })),
-      ]);
-    } catch {
-      toaster.error({ title: tc('imageProcessingFailed') });
-    } finally {
-      setIsDirectUploading(false);
-      if (fileInputRef.current) fileInputRef.current.value = '';
-    }
-  };
+      if (imageFiles.length < incomingFiles.length) {
+        toaster.error({ title: tc('pleaseSelectImageFile') });
+      }
+
+      if (imageFiles.length === 0) {
+        toaster.error({ title: tc('pleaseSelectImageFile') });
+        return;
+      }
+
+      const availableSlots = Math.max(0, maxImages - images.length);
+      if (availableSlots === 0) {
+        toaster.error({ title: tc('tooManyFiles', { max: maxImages }) });
+        return;
+      }
+
+      const filesToUpload = imageFiles.slice(0, availableSlots);
+      if (filesToUpload.length < imageFiles.length) {
+        toaster.error({ title: tc('tooManyFiles', { max: maxImages }) });
+      }
+
+      directUploadingRef.current = true;
+      setIsDirectUploading(true);
+      onUploadingChange?.(true);
+      try {
+        const uploadResults = await Promise.allSettled(
+          filesToUpload.map(async (file) => {
+            const compressedFile = await compressImage(file, {
+              maxSizeMB: 1,
+              maxWidthOrHeight: 1920,
+            });
+
+            return UserImageService.uploadImage(compressedFile, category);
+          })
+        );
+
+        const uploadedImages = uploadResults.flatMap((result) =>
+          result.status === 'fulfilled'
+            ? [
+                {
+                  url: result.value.url,
+                  publicId: result.value.publicId,
+                },
+              ]
+            : []
+        );
+
+        if (uploadedImages.length > 0) {
+          onImagesChange([...images, ...uploadedImages]);
+        }
+
+        if (uploadedImages.length < filesToUpload.length) {
+          toaster.error({ title: tc('imageProcessingFailed') });
+        }
+      } finally {
+        directUploadingRef.current = false;
+        setIsDirectUploading(false);
+        onUploadingChange?.(false);
+        if (fileInputRef.current) fileInputRef.current.value = '';
+      }
+    },
+    [category, images, isBusy, maxImages, onImagesChange, onUploadingChange, tc]
+  );
+
+  useImperativeHandle(
+    ref,
+    () => ({
+      openFilePicker: () => {
+        if (!isBusy) fileInputRef.current?.click();
+      },
+      openGallery: () => {
+        if (!isBusy) setIsGalleryOpen(true);
+      },
+      uploadFiles: handleUploadFiles,
+    }),
+    [handleUploadFiles, isBusy]
+  );
 
   const handleFileInputChange = async (
     event: React.ChangeEvent<HTMLInputElement>
@@ -394,7 +475,18 @@ const AppMultiImageUpload = ({
               items={images.map((img) => img.publicId)}
               strategy={rectSortingStrategy}
             >
-              <Flex wrap="wrap" gap={3} mb={3} align="stretch">
+              <Flex
+                display={isPostPreview ? 'grid' : 'flex'}
+                gridTemplateColumns={
+                  isPostPreview && images.length > 1
+                    ? 'repeat(2, minmax(0, 1fr))'
+                    : 'minmax(0, 1fr)'
+                }
+                wrap={isPostPreview ? undefined : 'wrap'}
+                gap={isPostPreview ? 2 : 3}
+                mb={3}
+                align="stretch"
+              >
                 {images.map((image, index) => (
                   <SortableImageItem
                     key={image.publicId}
@@ -406,10 +498,13 @@ const AppMultiImageUpload = ({
                     disabled={disabled}
                     t={t}
                     compact={compact}
+                    variant={variant}
+                    showBannerControls={showBannerControls}
+                    totalImages={images.length}
                   />
                 ))}
 
-                {canAddImages && (
+                {canAddImages && !isPostPreview && (
                   <Flex
                     as="button"
                     {...({ type: 'button', disabled: isBusy } as object)}
@@ -460,7 +555,7 @@ const AppMultiImageUpload = ({
               </Flex>
             </SortableContext>
           </DndContext>
-        ) : (
+        ) : isPostPreview ? null : (
           <Flex
             direction="column"
             align="center"
@@ -560,35 +655,38 @@ const AppMultiImageUpload = ({
           </Flex>
         )}
 
-        <Flex
-          justify="space-between"
-          align="center"
-          gap={3}
-          flexWrap="wrap"
-          w="full"
-        >
-          {images.length > 1 && !disabled ? (
-            <Text fontSize="xs" color="gray.400">
-              {t('dragToReorder')}
-            </Text>
-          ) : (
-            <Box />
-          )}
+        {(images.length > 1 ||
+          (!isPostPreview && hasImages && canAddImages)) && (
+          <Flex
+            justify="space-between"
+            align="center"
+            gap={3}
+            flexWrap="wrap"
+            w="full"
+          >
+            {images.length > 1 && !disabled ? (
+              <Text fontSize="xs" color="gray.400">
+                {t('dragToReorder')}
+              </Text>
+            ) : (
+              <Box />
+            )}
 
-          {hasImages && canAddImages && (
-            <Button
-              type="button"
-              size="sm"
-              variant="outline"
-              colorPalette="green"
-              onClick={handleOpenGallery}
-              disabled={isBusy}
-              leftIcon={<Plus size={16} aria-hidden="true" />}
-            >
-              {t('selectFromGallery')}
-            </Button>
-          )}
-        </Flex>
+            {!isPostPreview && hasImages && canAddImages && (
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                colorPalette="green"
+                onClick={handleOpenGallery}
+                disabled={isBusy}
+                leftIcon={<Plus size={16} aria-hidden="true" />}
+              >
+                {t('selectFromGallery')}
+              </Button>
+            )}
+          </Flex>
+        )}
       </Box>
 
       <AppImageGalleryPicker
@@ -598,9 +696,10 @@ const AppMultiImageUpload = ({
         selectedImages={images}
         maxSelect={maxImages}
         category={category}
+        zIndex={isPostPreview ? 1700 : undefined}
       />
     </Box>
   );
-};
+});
 
 export default AppMultiImageUpload;

@@ -31,6 +31,7 @@ import { ROUTES } from '@/constants/routes';
 import { getGoogleMapsUrl } from '@/utils/venue-helpers';
 import AppLightbox from '@/components/ui/AppLightbox';
 import { SessionEventType, useSocket } from '@/contexts/SocketContext';
+import { renderPostText } from './PostTextContent';
 
 const localeMap: Record<string, Locale> = { vi, en: enUS, cn: zhCN };
 
@@ -71,22 +72,6 @@ interface ExpandablePostContentProps {
 }
 
 const COLLAPSED_CONTENT_LINES = 5;
-
-function renderHashtags(text: string) {
-  const parts = text.split(/(#\w+)/g);
-  return parts.map((part, index) =>
-    part.startsWith('#') ? (
-      <span
-        key={`${part}-${index}`}
-        className="cursor-pointer font-medium text-green-600 hover:underline"
-      >
-        {part}
-      </span>
-    ) : (
-      part
-    )
-  );
-}
 
 function ExpandablePostContent({
   className,
@@ -134,7 +119,7 @@ function ExpandablePostContent({
               }
         }
       >
-        {highlightHashtags ? renderHashtags(content) : content}
+        {renderPostText(content, { highlightHashtags })}
       </div>
       {canExpand && (
         <button

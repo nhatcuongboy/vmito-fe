@@ -152,16 +152,36 @@ export const VModal: React.FC<VModalProps> = ({
 
     let originalOverflow = '';
     let originalPaddingRight = '';
+    let originalDocumentOverflow = '';
+    let originalDocumentOverscrollBehavior = '';
+    let originalPageScrollOverflow = '';
+    let originalPageScrollOverscrollBehavior = '';
+    let pageScrollContainer: HTMLElement | null = null;
 
     if (isOpen) {
       document.addEventListener('keydown', handleEscape);
 
       originalOverflow = document.body.style.overflow;
       originalPaddingRight = document.body.style.paddingRight;
+      originalDocumentOverflow = document.documentElement.style.overflow;
+      originalDocumentOverscrollBehavior =
+        document.documentElement.style.overscrollBehavior;
+      pageScrollContainer = document.querySelector<HTMLElement>(
+        '.main-layout-scroll'
+      );
+      originalPageScrollOverflow = pageScrollContainer?.style.overflowY ?? '';
+      originalPageScrollOverscrollBehavior =
+        pageScrollContainer?.style.overscrollBehavior ?? '';
 
       const scrollbarWidth =
         window.innerWidth - document.documentElement.clientWidth;
       document.body.style.overflow = 'hidden';
+      document.documentElement.style.overflow = 'hidden';
+      document.documentElement.style.overscrollBehavior = 'none';
+      if (pageScrollContainer) {
+        pageScrollContainer.style.overflowY = 'hidden';
+        pageScrollContainer.style.overscrollBehavior = 'none';
+      }
       if (scrollbarWidth > 0) {
         document.body.style.paddingRight = `${scrollbarWidth}px`;
       }
@@ -172,6 +192,14 @@ export const VModal: React.FC<VModalProps> = ({
       if (isOpen) {
         document.body.style.overflow = originalOverflow;
         document.body.style.paddingRight = originalPaddingRight;
+        document.documentElement.style.overflow = originalDocumentOverflow;
+        document.documentElement.style.overscrollBehavior =
+          originalDocumentOverscrollBehavior;
+        if (pageScrollContainer) {
+          pageScrollContainer.style.overflowY = originalPageScrollOverflow;
+          pageScrollContainer.style.overscrollBehavior =
+            originalPageScrollOverscrollBehavior;
+        }
       }
     };
   }, [isOpen, onClose]);
