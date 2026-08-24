@@ -324,13 +324,7 @@ function PlayerSessionsContent() {
       px={{ base: '24px', md: 0 }}
       hideTopBarBorder={true}
     >
-      <Flex
-        gap={6}
-        alignItems="flex-start"
-        pt={{ md: 6 }}
-        pl={{ md: 4 }}
-        pr={{ md: 6 }}
-      >
+      <Flex gap={6} alignItems="flex-start" pl={{ md: 4 }} pr={{ md: 6 }}>
         <Box flex={1} minW={0}>
           <SessionFilters
             onFilterChange={handleFilterChange}
@@ -340,7 +334,7 @@ function PlayerSessionsContent() {
             showDateFilter={true}
             showSearchFilter={true}
             showLevelFilter={false}
-            hideSearchOnDesktop={false}
+            hideSearchOnDesktop={true}
             stickySearch={false}
             usePageCanvasOnMobile
           />
@@ -351,6 +345,7 @@ function PlayerSessionsContent() {
             sortBy={sortBy}
             onSortChange={setSortBy}
             showViewModeMap={false}
+            showCount={false}
             viewMode={viewMode}
             setViewMode={setViewMode}
             leadingAction={

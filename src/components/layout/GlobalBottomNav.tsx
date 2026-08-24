@@ -86,7 +86,16 @@ export default function GlobalBottomNav() {
     const sorted = [...tabs].sort(
       (a, b) => (b.href?.length || 0) - (a.href?.length || 0)
     );
-    return sorted.find((tab) => pathname.startsWith(tab.href || ''))?.id ?? 0;
+    // ROUTES.HOME ('/') is a prefix of every path, so it must match exactly
+    // instead of via startsWith — otherwise it wrongly wins as a catch-all
+    // for pages (e.g. /my-clubs/*) that don't belong to any tab.
+    return (
+      sorted.find((tab) =>
+        tab.href === '/'
+          ? pathname === '/'
+          : pathname.startsWith(tab.href || '')
+      )?.id ?? 0
+    );
   }, [pathname, tabs]);
 
   const handleAISuccess = (data: ExtractedSessionData) => {

@@ -736,27 +736,24 @@ export default function NotificationBell({
                                   lineHeight="normal"
                                   py="1px"
                                 >
-                                  {t('approvalPending')}
+                                  {t('sessionJoinRequestBadge')}
                                 </Badge>
                               </HStack>
 
-                              {/* Row 2: session info + slot count */}
+                              {/* Row 2: session join request message */}
                               <Text
                                 fontSize="xs"
                                 color="gray.500"
                                 _dark={{ color: 'fg.subtle' }}
                                 lineHeight="normal"
-                                truncate
+                                lineClamp={2}
                                 w="100%"
                               >
-                                {request.session.name} ·{' '}
-                                {dayjs(request.session.startTime).format(
-                                  'DD/MM'
-                                )}
-                                ,{' '}
-                                {formatTimeByDevicePreference(
-                                  request.session.startTime
-                                )}
+                                {t('sessionJoinRequestMessage', {
+                                  sessionName:
+                                    request.session?.name ||
+                                    t('unknownSession'),
+                                })}
                                 {slotCount > 1 && ` · ${slotCount} slot`}
                               </Text>
 
