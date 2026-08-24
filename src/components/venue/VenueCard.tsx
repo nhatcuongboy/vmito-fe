@@ -56,6 +56,13 @@ function formatPrice(amount?: number) {
   return new Intl.NumberFormat('vi-VN').format(amount) + 'đ';
 }
 
+function handleCoverImageError(event: React.SyntheticEvent<HTMLImageElement>) {
+  const image = event.currentTarget;
+  if (image.src !== DEFAULT_COVER_PHOTO) {
+    image.src = DEFAULT_COVER_PHOTO;
+  }
+}
+
 export default function VenueCard({
   venue,
   variant = 'grid',
@@ -132,7 +139,13 @@ export default function VenueCard({
         onClick={handleViewDetails}
       >
         {/* Cover Photo (Banner) */}
-        <Box position="relative" h="140px" overflow="hidden">
+        <Box
+          position="relative"
+          h="140px"
+          overflow="hidden"
+          bg="gray.200"
+          _dark={{ bg: 'gray.700' }}
+        >
           <Image
             src={
               normalizeImageUrl(
@@ -145,7 +158,9 @@ export default function VenueCard({
             h="100%"
             objectFit="cover"
             loading={imagePriority ? 'eager' : 'lazy'}
-            fetchPriority={imagePriority ? 'high' : 'auto'}
+            fetchPriority={imagePriority ? 'high' : 'low'}
+            decoding="async"
+            onError={handleCoverImageError}
           />
 
           {showAdminVerifiedBadge && (
@@ -328,7 +343,13 @@ export default function VenueCard({
       onClick={handleViewDetails}
     >
       {/* Cover Photo */}
-      <Box position="relative" h="140px" overflow="hidden">
+      <Box
+        position="relative"
+        h="140px"
+        overflow="hidden"
+        bg="gray.200"
+        _dark={{ bg: 'gray.700' }}
+      >
         <Image
           src={
             normalizeImageUrl(venue.coverPhoto, BROWSE_CARD_COVER_TRANSFORM) ||
@@ -339,7 +360,9 @@ export default function VenueCard({
           h="100%"
           objectFit="cover"
           loading={imagePriority ? 'eager' : 'lazy'}
-          fetchPriority={imagePriority ? 'high' : 'auto'}
+          fetchPriority={imagePriority ? 'high' : 'low'}
+          decoding="async"
+          onError={handleCoverImageError}
         />
 
         {showAdminVerifiedBadge && (

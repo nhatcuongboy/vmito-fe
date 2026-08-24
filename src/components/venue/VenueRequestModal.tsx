@@ -61,6 +61,7 @@ const venueRequestSchema = z.object({
   phone: z.string().max(40).optional(),
   website: z.string().max(500).optional(),
   locatedWithin: z.string().max(200).optional(),
+  bookingPolicy: z.string().max(2000).optional(),
   wifiName: z.string().max(200).optional(),
   wifiPassword: z.string().max(200).optional(),
   closureStatus: z.nativeEnum(ClosureStatus).optional(),
@@ -80,6 +81,8 @@ interface VenueRequestModalProps {
   onOpenCreateRequest?: () => void;
   onOpenPriceCorrection?: () => void;
   onOpenImageCorrection?: () => void;
+  initialPayload?: VenueRequestPayload;
+  onSave?: (payload: VenueRequestPayload) => Promise<void>;
 }
 
 const toOptionalNumber = (value: string) => {
@@ -100,6 +103,7 @@ const toPayload = (values: VenueRequestFormValues): VenueRequestPayload => ({
   phone: trimPhone(values.phone),
   website: values.website?.trim() || undefined,
   locatedWithin: values.locatedWithin?.trim() || undefined,
+  bookingPolicy: values.bookingPolicy?.trim() || undefined,
   wifiName: values.wifiName?.trim() || undefined,
   wifiPassword: values.wifiPassword?.trim() || undefined,
   closureStatus: values.closureStatus,
@@ -117,6 +121,8 @@ export default function VenueRequestModal({
   onOpenCreateRequest,
   onOpenPriceCorrection,
   onOpenImageCorrection,
+  initialPayload,
+  onSave,
 }: VenueRequestModalProps) {
   const t = useTranslations('venueRequests');
   const tVenue = useTranslations('venue');
@@ -126,8 +132,37 @@ export default function VenueRequestModal({
   const [hasReviewedSimilar, setHasReviewedSimilar] = useState(false);
   const [isCheckingSimilar, setIsCheckingSimilar] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
+  const isAdminEdit = !!onSave;
 
   const defaultValues = useMemo<VenueRequestFormValues>(() => {
+    if (initialPayload) {
+      const openingHours = parseOpeningHours(initialPayload.openingHours);
+
+      return {
+        name: initialPayload.name || '',
+        sportTypes: initialPayload.sportTypes?.length
+          ? initialPayload.sportTypes
+          : [SportType.BADMINTON],
+        street: initialPayload.street || initialPayload.address || '',
+        newCity: initialPayload.newCity || initialPayload.city || '',
+        newDistrict:
+          initialPayload.newDistrict || initialPayload.district || '',
+        numberOfCourts: initialPayload.numberOfCourts,
+        openingHours: initialPayload.openingHours || '',
+        openTime: openingHours.openTime,
+        closeTime: openingHours.closeTime,
+        phone: initialPayload.phone || '',
+        website: initialPayload.website || '',
+        locatedWithin: initialPayload.locatedWithin || '',
+        bookingPolicy: initialPayload.bookingPolicy || '',
+        wifiName: initialPayload.wifiName || '',
+        wifiPassword: initialPayload.wifiPassword || '',
+        closureStatus: initialPayload.closureStatus ?? ClosureStatus.OPERATING,
+        description: initialPayload.description || '',
+        note: initialPayload.note || '',
+      };
+    }
+
     const openingHours = parseOpeningHours(venue?.openingHours);
 
     return {
@@ -143,13 +178,14 @@ export default function VenueRequestModal({
       phone: venue?.phone || '',
       website: venue?.website || '',
       locatedWithin: venue?.locatedWithin || '',
+      bookingPolicy: venue?.bookingPolicy || '',
       wifiName: venue?.wifiName || '',
       wifiPassword: venue?.wifiPassword || '',
       closureStatus: venue?.closureStatus ?? ClosureStatus.OPERATING,
       description: '',
       note: '',
     };
-  }, [defaultKeyword, venue]);
+  }, [defaultKeyword, initialPayload, venue]);
 
   const form = useForm<VenueRequestFormValues>({
     resolver: zodResolver(venueRequestSchema),
@@ -187,6 +223,11 @@ export default function VenueRequestModal({
   const handleSubmit = async (values: VenueRequestFormValues) => {
     try {
       const payload = toPayload(values);
+
+      if (onSave) {
+        await onSave(payload);
+        return;
+      }
 
       if (isCreate && !hasReviewedSimilar) {
         setIsCheckingSimilar(true);
@@ -230,8 +271,9 @@ export default function VenueRequestModal({
     router.push('/venues?action=openVenueCreateRequest');
   };
 
-  const primaryActionText =
-    isCreate && similarVenues.length > 0
+  const primaryActionText = isAdminEdit
+    ? t('saveChanges')
+    : isCreate && similarVenues.length > 0
       ? t('submitAnyway')
       : isCreate
         ? t('submitCreate')
@@ -241,7 +283,13 @@ export default function VenueRequestModal({
     <VModal
       isOpen={isOpen}
       onClose={onClose}
-      title={isCreate ? t('createTitle') : t('updateTitle')}
+      title={
+        isAdminEdit
+          ? t('editTitle')
+          : isCreate
+            ? t('createTitle')
+            : t('updateTitle')
+      }
       description={undefined}
       size="xl"
       maxBodyHeight={{ base: '70vh', md: '75vh' }}
@@ -252,7 +300,7 @@ export default function VenueRequestModal({
     >
       <VStack align="stretch" gap={4}>
         {/* Similar venues warning */}
-        {similarVenues.length > 0 && (
+        {!isAdminEdit && similarVenues.length > 0 && (
           <Box
             p={4}
             borderRadius="lg"
@@ -489,6 +537,16 @@ export default function VenueRequestModal({
 
               <Controller
                 control={form.control}
+                name="bookingPolicy"
+                render={({ field }) => (
+                  <Field label={t('fields.bookingPolicy')}>
+                    <Input {...field} />
+                  </Field>
+                )}
+              />
+
+              <Controller
+                control={form.control}
                 name="numberOfCourts"
                 render={({ field }) => (
                   <Field label={t('fields.numberOfCourts')}>
@@ -611,7 +669,7 @@ export default function VenueRequestModal({
         </Box>
 
         {/* Other request shortcuts (update mode only) */}
-        {!isCreate && (
+        {!isCreate && !isAdminEdit && (
           <Box
             p={3}
             borderRadius="lg"

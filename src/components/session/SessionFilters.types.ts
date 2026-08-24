@@ -31,4 +31,6 @@ export interface ISessionFiltersProps {
   hideSearchOnDesktop?: boolean;
   /** Keep the search controls pinned below the top bar while scrolling. */
   stickySearch?: boolean;
+  /** Use the warm page canvas behind the search controls on mobile. */
+  usePageCanvasOnMobile?: boolean;
 }

@@ -77,6 +77,7 @@ export function DiscoveryTabNav() {
   return (
     <Box display={{ base: 'block', md: 'none' }}>
       <UnderlineTabs
+        className="discovery-mobile-surface"
         items={tabs}
         activeId={activeId}
         onTabClick={(id) => router.push(id)}

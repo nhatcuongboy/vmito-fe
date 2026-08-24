@@ -53,8 +53,9 @@ interface PostMediaImageProps {
 interface PostLikeUpdatedPayload {
   postId: string;
   likeCount: number;
-  actorId: string;
+  actorId: string | null;
   isLiked: boolean;
+  source?: 'user' | 'engagement_boost';
 }
 
 interface PostCommentUpdatedPayload {
@@ -219,7 +220,10 @@ export function PostCard({
 
         return {
           ...prev,
-          isLiked: data.actorId === currentUserId ? data.isLiked : prev.isLiked,
+          isLiked:
+            data.actorId && data.actorId === currentUserId
+              ? data.isLiked
+              : prev.isLiked,
           _count: {
             ...prevCounts,
             likes: Math.max(0, data.likeCount),
@@ -379,7 +383,7 @@ export function PostCard({
 
   const getImageClassName = (index: number) => {
     if (postImages.length === 1) {
-      return 'max-h-[520px] w-full object-cover';
+      return 'h-[520px] w-full object-contain';
     }
 
     if (postImages.length === 3 && index === 0) {

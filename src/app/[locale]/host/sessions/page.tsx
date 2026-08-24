@@ -392,6 +392,7 @@ function HostSessionsContent() {
             hideCreateOnMobile={true}
             hideSearchOnDesktop={false}
             stickySearch={false}
+            usePageCanvasOnMobile
           />
 
           <ResultsHeader
