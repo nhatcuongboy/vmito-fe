@@ -16,6 +16,7 @@ import { useAuthStore } from '@/stores/useAuthStore';
 import { useNotificationStore } from '@/stores/useNotificationStore';
 import { useTourStore } from '@/stores/useTourStore';
 import { usePreferenceStore } from '@/stores/usePreferenceStore';
+import { useNewsfeedStore } from '@/stores/useNewsfeedStore';
 
 // Auth service - connects to NestJS backend
 export const AuthService = {
@@ -102,6 +103,7 @@ export const AuthService = {
     // Reset onboarding/AI-creation flags so a new user gets a clean
     // onboarding flow; preferredCity is intentionally kept (see store).
     usePreferenceStore.getState().resetPreferences();
+    useNewsfeedStore.getState().reset();
     // Reset newsfeed badge count on logout
     import('@/stores/useNewsfeedBadgeStore').then(
       ({ useNewsfeedBadgeStore }) => {

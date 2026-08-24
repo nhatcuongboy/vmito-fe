@@ -7250,7 +7250,14 @@
     },
     "validation": {
       "required": "Please enter the required information"
-    }
+    },
+    "warnings": {
+      "invalidStreet": "Only enter house number & street (exclude ward, district, city)."
+    },
+    "actions": {
+      "autoExtractAddress": "Auto-extract"
+    },
+    "previewAddress": "Full display address:"
   },
   "feedback": {
     "pageTitle": "Contact & Bug Report",

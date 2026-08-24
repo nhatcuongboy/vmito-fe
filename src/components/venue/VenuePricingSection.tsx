@@ -46,7 +46,7 @@ const VenuePricingSection = ({
         align={{ base: 'flex-start', sm: 'center' }}
         justify="space-between"
         gap={3}
-        mb={4}
+        mb={hasRows ? 4 : 2}
         direction={{ base: 'column', sm: 'row' }}
       >
         <Flex align="center" gap={3}>
@@ -79,20 +79,14 @@ const VenuePricingSection = ({
       </Flex>
 
       {!hasRows && (
-        <Flex
-          direction="column"
-          align="center"
-          justify="center"
-          py={8}
+        <Text
+          fontSize="sm"
           color="gray.400"
-          gap={2}
-          textAlign="center"
+          _dark={{ color: 'gray.500' }}
+          fontStyle="italic"
         >
-          <Banknote size={36} strokeWidth={1.4} />
-          <Text fontSize="sm" fontStyle="italic">
-            {t('detail.noPricing')}
-          </Text>
-        </Flex>
+          {t('detail.noPricing')}
+        </Text>
       )}
 
       {hasRows && (
