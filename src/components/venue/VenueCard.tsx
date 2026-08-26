@@ -250,7 +250,7 @@ export default function VenueCard({
             <Text
               fontWeight="bold"
               fontSize="md"
-              lineClamp={1}
+              lineClamp={2}
               color="green.800"
               _dark={{ color: 'green.400' }}
               letterSpacing="tight"
@@ -427,7 +427,7 @@ export default function VenueCard({
             <Text
               fontWeight="bold"
               fontSize="xl"
-              lineClamp={1}
+              lineClamp={2}
               color="gray.900"
               _dark={{ color: 'white' }}
               letterSpacing="tight"
