@@ -20,8 +20,12 @@ type WebViewLogin = {
   };
 };
 
-const safeReturnUrl = (value: string | null) =>
-  value && value.startsWith('/') && !value.startsWith('//') ? value : '/';
+const safeReturnUrl = (value: string | null) => {
+  if (!value || !value.startsWith('/') || value.startsWith('//')) return '/';
+  // next-intl's router adds the active locale. Strip it here as a defensive
+  // compatibility path for app versions that included /vi, /en or /cn.
+  return value.replace(/^\/(vi|en|cn)(?=\/|$)/, '') || '/';
+};
 
 /// Consumes a native one-time bridge code. Credentials intentionally arrive in
 /// the fragment: browsers do not send it to the server or include it in refs.

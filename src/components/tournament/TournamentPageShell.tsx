@@ -490,6 +490,17 @@ export default function TournamentPageShell({
   const [totalAthletes, setTotalAthletes] = useState(0);
   const [allPlayers, setAllPlayers] = useState<IAllPlayerItem[]>([]);
   const searchParams = useSearchParams();
+  const [isEmbedded, setIsEmbedded] = useState(
+    () => searchParams.get('embedded') === '1'
+  );
+  useEffect(() => {
+    const storageKey = 'vmito.tournament.embedded';
+    const embedded =
+      searchParams.get('embedded') === '1' ||
+      window.sessionStorage.getItem(storageKey) === '1';
+    if (embedded) window.sessionStorage.setItem(storageKey, '1');
+    setIsEmbedded(embedded);
+  }, [searchParams]);
   const [teamsView, setTeamsView] = useState<'category' | 'players'>(() =>
     searchParams.get('view') === 'category' ? 'category' : 'players'
   );
@@ -973,7 +984,9 @@ export default function TournamentPageShell({
       <Box
         display={{ base: 'none', md: 'flex' }}
         h={{
-          md: `calc(100vh - ${TOP_BAR_HEIGHT_DESKTOP}px - env(safe-area-inset-top))`,
+          md: isEmbedded
+            ? '100vh'
+            : `calc(100vh - ${TOP_BAR_HEIGHT_DESKTOP}px - env(safe-area-inset-top))`,
         }}
         minH={0}
         bg="transparent"
@@ -1031,6 +1044,7 @@ export default function TournamentPageShell({
       <>
         <PageLayout
           title={t('title')}
+          hideTopBar={isEmbedded}
           mobileIcon={topBarIcon}
           showBackButton={false}
           topBarVariant="main"
@@ -1081,6 +1095,7 @@ export default function TournamentPageShell({
     return (
       <PageLayout
         title={t('title')}
+        hideTopBar={isEmbedded}
         mobileIcon={topBarIcon}
         showBackButton={false}
         topBarVariant="main"
@@ -1385,6 +1400,7 @@ export default function TournamentPageShell({
     <>
       <PageLayout
         title={tournament.name}
+        hideTopBar={isEmbedded}
         mobileIcon={topBarIcon}
         showBackButton={false}
         topBarVariant="main"
