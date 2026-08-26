@@ -123,15 +123,19 @@ export const AuthService = {
       throw new Error('No refresh token available');
     }
 
-    const response = await api.post<LoginResponse>('/auth/refresh', {
-      refreshToken: currentRefreshToken,
-    });
+    const response = await api.post<{ success: boolean; data: LoginResponse }>(
+      '/auth/refresh',
+      {
+        refreshToken: currentRefreshToken,
+      }
+    );
 
     // Update token in store
-    const { accessToken, refreshToken } = response.data;
+    const refreshed = response.data.data;
+    const { accessToken, refreshToken } = refreshed;
     useAuthStore.getState().updateToken(accessToken, refreshToken);
 
-    return response.data;
+    return refreshed;
   },
 
   /**
