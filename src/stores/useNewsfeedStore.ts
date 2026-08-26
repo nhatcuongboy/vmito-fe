@@ -17,7 +17,7 @@ interface NewsfeedState {
   lastFetchedAt: number | null;
 
   ensureFeed: (userId: string) => Promise<void>;
-  refreshFeed: (userId: string) => Promise<void>;
+  refreshFeed: (userId: string) => Promise<boolean>;
   loadMore: (userId: string) => Promise<void>;
   removePost: (userId: string, postId: string) => void;
   prependPost: (userId: string, post: Post) => void;
@@ -47,21 +47,21 @@ export const useNewsfeedStore = create<NewsfeedState>((set, get) => {
   const requestFeed = async (
     userId: string,
     { append = false, force = false }: RequestOptions = {}
-  ): Promise<void> => {
+  ): Promise<boolean> => {
     const state = get();
     const isCurrentUser = state.ownerUserId === userId;
     const hasSnapshot = isCurrentUser && state.lastFetchedAt !== null;
     const isFresh =
       hasSnapshot && Date.now() - (state.lastFetchedAt ?? 0) < CACHE_TTL_MS;
 
-    if (!force && !append && isFresh) return;
+    if (!force && !append && isFresh) return true;
     if (
       isCurrentUser &&
       (state.isLoading || state.isRefreshing || state.isLoadingMore)
     ) {
-      return;
+      return false;
     }
-    if (append && (!isCurrentUser || !state.hasMore)) return;
+    if (append && (!isCurrentUser || !state.hasMore)) return false;
 
     const page = append ? state.page + 1 : 1;
     set({
@@ -80,7 +80,7 @@ export const useNewsfeedStore = create<NewsfeedState>((set, get) => {
       const response = await postsService.getPosts(page, POSTS_PER_PAGE);
 
       // Another account may have become active while this request was running.
-      if (get().ownerUserId !== userId) return;
+      if (get().ownerUserId !== userId) return false;
 
       const responsePosts = Array.isArray(response.posts) ? response.posts : [];
       const responsePage = response.page ?? page;
@@ -107,23 +107,29 @@ export const useNewsfeedStore = create<NewsfeedState>((set, get) => {
           lastFetchedAt: Date.now(),
         };
       });
+      return true;
     } catch {
-      if (get().ownerUserId !== userId) return;
+      if (get().ownerUserId !== userId) return false;
       set({
         hasError: true,
         isLoading: false,
         isRefreshing: false,
         isLoadingMore: false,
       });
+      return false;
     }
   };
 
   return {
     ...emptyState,
 
-    ensureFeed: (userId) => requestFeed(userId),
+    ensureFeed: async (userId) => {
+      await requestFeed(userId);
+    },
     refreshFeed: (userId) => requestFeed(userId, { force: true }),
-    loadMore: (userId) => requestFeed(userId, { append: true }),
+    loadMore: async (userId) => {
+      await requestFeed(userId, { append: true });
+    },
 
     removePost: (userId, postId) => {
       if (get().ownerUserId !== userId) return;

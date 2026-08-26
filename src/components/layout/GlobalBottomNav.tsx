@@ -63,14 +63,6 @@ export default function GlobalBottomNav() {
   const handleTabChange = (tabId: number) => {
     const tab = tabs.find((t) => t.id === tabId);
     if (!tab?.href || pathname === tab.href) return;
-    // Mark newsfeed as read when navigating to it
-    if (tab.href === '/newsfeed' || tab.href.startsWith('/newsfeed')) {
-      import('@/stores/useNewsfeedBadgeStore').then(
-        ({ useNewsfeedBadgeStore }) => {
-          useNewsfeedBadgeStore.getState().markAsRead();
-        }
-      );
-    }
     setPendingTabId(tabId);
     startTransition(() => {
       router.push(tab.href!);

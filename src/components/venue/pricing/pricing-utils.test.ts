@@ -98,6 +98,17 @@ test('requires weekdays for a selected-weekday rate', () => {
   }
 });
 
+test('accepts multiple weekdays for a selected-weekday rate', () => {
+  const schema = createPriceRuleSchema(translate);
+  const result = schema.safeParse({
+    ...createEmptyPriceRule(),
+    dayType: VenueDayType.WEEKDAY,
+    daysOfWeek: [1, 3, 5],
+    pricePerHour: 100000,
+  });
+  assert.equal(result.success, true);
+});
+
 test('requires a specific date and rejects an inverted time range', () => {
   const schema = createPriceRuleSchema(translate);
   const result = schema.safeParse({

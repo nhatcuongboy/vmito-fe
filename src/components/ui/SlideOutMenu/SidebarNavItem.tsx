@@ -31,20 +31,6 @@ export function SidebarNavItem({
   badge,
   onClose,
 }: SidebarNavItemProps) {
-  const handleClick = () => {
-    // Optimistic update: mark newsfeed as read when clicking the link
-    // Check if this is the newsfeed link by checking the href
-    if (href === '/newsfeed' || href.startsWith('/newsfeed')) {
-      // Dynamically import to avoid circular dependencies
-      import('@/stores/useNewsfeedBadgeStore').then(
-        ({ useNewsfeedBadgeStore }) => {
-          useNewsfeedBadgeStore.getState().markAsRead();
-        }
-      );
-    }
-    onClose();
-  };
-
   const link = (
     <Link
       href={href}
@@ -52,7 +38,7 @@ export function SidebarNavItem({
       data-collapsed={isCollapsed ? 'true' : undefined}
       aria-label={label}
       aria-current={isActive ? 'page' : undefined}
-      onClick={handleClick}
+      onClick={onClose}
     >
       <span
         className="sidebar-nav-icon"

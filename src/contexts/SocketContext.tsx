@@ -14,7 +14,8 @@ import { toaster } from '@/components/ui/toaster';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { useNotificationStore } from '@/stores/useNotificationStore';
 import { useCourtCallStore } from '@/stores/useCourtCallStore';
-import { INotification } from '@/lib/api/types';
+import { useNewsfeedBadgeStore } from '@/stores/useNewsfeedBadgeStore';
+import { INotification, UserRole } from '@/lib/api/types';
 import { sendSystemNotification } from '@/utils/notifications';
 import {
   getNotificationDisplayText,
@@ -70,6 +71,7 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
   const [connectionError, setConnectionError] = useState<Error | null>(null);
   const { user } = useAuthStore();
   const userId = user?.id ?? null;
+  const userRole = user?.role;
   const previousUserIdRef = useRef<string | null>(null);
 
   useEffect(() => {
@@ -406,7 +408,7 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
 
   // Global listener for new posts created (newsfeed badge update)
   useEffect(() => {
-    if (!socket || !userId) return;
+    if (!socket || !userId || userRole === UserRole.GUEST) return;
 
     const handleNewPostCreated = (data: {
       postId: string;
@@ -424,12 +426,7 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
         authorId: data.authorId,
       });
 
-      // Dynamically import store to avoid circular dependencies
-      import('@/stores/useNewsfeedBadgeStore').then(
-        ({ useNewsfeedBadgeStore }) => {
-          useNewsfeedBadgeStore.getState().incrementCount();
-        }
-      );
+      useNewsfeedBadgeStore.getState().incrementCount();
     };
 
     socket.on(SessionEventType.NEW_POST_CREATED, handleNewPostCreated);
@@ -437,7 +434,7 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
     return () => {
       socket.off(SessionEventType.NEW_POST_CREATED, handleNewPostCreated);
     };
-  }, [socket, userId]);
+  }, [socket, userId, userRole]);
 
   const joinSession = (sessionId: string) => {
     if (socket && isConnected) {

@@ -63,7 +63,6 @@ export function PriceRuleEditorDrawer({
   });
   const { errors, isDirty, isSubmitting } = form.formState;
   const dayType = form.watch('dayType');
-  const selectedWeekdays = form.watch('daysOfWeek');
 
   useEffect(() => {
     if (!isOpen) return;
@@ -94,16 +93,6 @@ export function PriceRuleEditorDrawer({
     } catch {
       setSubmitError(t('errors.saveRule'));
     }
-  };
-
-  const toggleWeekday = (day: number) => {
-    const next = selectedWeekdays.includes(day)
-      ? selectedWeekdays.filter((item) => item !== day)
-      : [...selectedWeekdays, day].sort();
-    form.setValue('daysOfWeek', next, {
-      shouldDirty: true,
-      shouldValidate: true,
-    });
   };
 
   return (
@@ -158,21 +147,34 @@ export function PriceRuleEditorDrawer({
                   invalid={Boolean(errors.daysOfWeek)}
                   errorText={errors.daysOfWeek?.message}
                 >
-                  <Flex gap={2} wrap="wrap">
-                    {weekdays.map((day) => (
-                      <Checkbox
-                        key={day}
-                        checked={selectedWeekdays.includes(day)}
-                        onCheckedChange={() => toggleWeekday(day)}
-                        px={3}
-                        py={2}
-                        borderWidth="1px"
-                        borderRadius="md"
-                      >
-                        {t(`weekdays.${day}`)}
-                      </Checkbox>
-                    ))}
-                  </Flex>
+                  <Controller
+                    control={form.control}
+                    name="daysOfWeek"
+                    render={({ field }) => (
+                      <Flex gap={2} wrap="wrap">
+                        {weekdays.map((day) => (
+                          <Checkbox
+                            key={day}
+                            checked={field.value.includes(day)}
+                            onCheckedChange={({ checked }) => {
+                              const current = field.value ?? [];
+                              field.onChange(
+                                checked === true
+                                  ? [...current, day].sort((a, b) => a - b)
+                                  : current.filter((item) => item !== day)
+                              );
+                            }}
+                            px={3}
+                            py={2}
+                            borderWidth="1px"
+                            borderRadius="md"
+                          >
+                            {t(`weekdays.${day}`)}
+                          </Checkbox>
+                        ))}
+                      </Flex>
+                    )}
+                  />
                 </Field>
               )}
 

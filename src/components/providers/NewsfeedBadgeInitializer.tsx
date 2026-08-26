@@ -2,10 +2,7 @@
 
 import { useNewsfeedBadgeInit } from '@/hooks/useNewsfeedBadgeInit';
 
-/**
- * Client component to initialize newsfeed badge count.
- * Must be rendered once at app root to fetch unread count on load.
- */
+/** Mounts the newsfeed badge lifecycle controller once at the app root. */
 export function NewsfeedBadgeInitializer() {
   useNewsfeedBadgeInit();
   return null;

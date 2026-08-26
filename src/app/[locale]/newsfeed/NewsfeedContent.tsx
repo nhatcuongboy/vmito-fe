@@ -18,6 +18,8 @@ import type { Post } from '@/types/post';
 import { useAuthStore } from '@/stores/useAuthStore';
 import NewsfeedDiscoveryRail from '@/components/newsfeed/NewsfeedDiscoveryRail';
 import { useNewsfeedStore } from '@/stores/useNewsfeedStore';
+import { useNewsfeedBadgeStore } from '@/stores/useNewsfeedBadgeStore';
+import { UserRole } from '@/lib/api/types';
 
 export default function NewsfeedContent() {
   const t = useTranslations('posts');
@@ -33,6 +35,7 @@ export default function NewsfeedContent() {
   const hasError = useNewsfeedStore((state) => state.hasError);
   const ensureFeed = useNewsfeedStore((state) => state.ensureFeed);
   const refreshFeed = useNewsfeedStore((state) => state.refreshFeed);
+  const markNewsfeedAsRead = useNewsfeedBadgeStore((state) => state.markAsRead);
   const loadMore = useNewsfeedStore((state) => state.loadMore);
   const removePost = useNewsfeedStore((state) => state.removePost);
   const prependPost = useNewsfeedStore((state) => state.prependPost);
@@ -49,8 +52,13 @@ export default function NewsfeedContent() {
   }, [currentUserId, ensureFeed]);
 
   const refreshPosts = useCallback(async () => {
-    if (currentUserId) await refreshFeed(currentUserId);
-  }, [currentUserId, refreshFeed]);
+    if (!currentUserId) return;
+
+    const refreshed = await refreshFeed(currentUserId);
+    if (refreshed && currentUser?.role !== UserRole.GUEST) {
+      void markNewsfeedAsRead();
+    }
+  }, [currentUser?.role, currentUserId, refreshFeed, markNewsfeedAsRead]);
 
   const retryPosts = refreshPosts;
 
