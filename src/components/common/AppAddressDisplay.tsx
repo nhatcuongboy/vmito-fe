@@ -16,6 +16,8 @@ export interface IAppAddressDisplayProps {
   _dark?: SystemStyleObject;
   lineClamp?: number;
   suffix?: ReactNode;
+  badgePlacement?: 'after' | 'inline';
+  showNewBadge?: boolean;
 }
 
 export const AppAddressDisplay = ({
@@ -28,6 +30,8 @@ export const AppAddressDisplay = ({
   _dark = { color: 'gray.300' },
   lineClamp,
   suffix,
+  badgePlacement = 'after',
+  showNewBadge = true,
 }: IAppAddressDisplayProps) => {
   const { showNewAddress } = useAppSettings();
   const t = useTranslations('admin');
@@ -42,25 +46,35 @@ export const AppAddressDisplay = ({
   const showingNew = showNewAddress && !!fullNewAddress;
   const text = showingNew ? fullNewAddress : fullAddress;
 
+  const isInlineBadge = badgePlacement === 'inline';
+
   return (
-    <Box display="flex" alignItems="flex-start" gap={1} flexWrap="wrap">
+    <Box
+      display={isInlineBadge ? 'block' : 'flex'}
+      alignItems="flex-start"
+      gap={1}
+      flexWrap="wrap"
+    >
       <Text
         fontSize={fontSize}
         color={color}
         _dark={_dark}
-        lineClamp={lineClamp}
+        lineClamp={isInlineBadge ? undefined : lineClamp}
+        display={isInlineBadge ? 'inline' : undefined}
         flex="0 1 auto"
         minW="0"
       >
         {text}
       </Text>
-      {showingNew && (
+      {showingNew && showNewBadge && (
         <Badge
           colorPalette="blue"
           size="xs"
           verticalAlign="middle"
           flexShrink={0}
           mt="2px"
+          ml={isInlineBadge ? 1 : undefined}
+          display={isInlineBadge ? 'inline-flex' : undefined}
         >
           {t('newAddressBadge')}
         </Badge>

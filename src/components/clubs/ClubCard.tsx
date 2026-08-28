@@ -217,8 +217,8 @@ export default function ClubCard({
               fontWeight="bold"
               fontSize="md"
               lineClamp={1}
-              color="blue.600"
-              _dark={{ color: 'blue.400' }}
+              color="var(--chakra-colors-green-800)"
+              _dark={{ color: 'white' }}
               letterSpacing="tight"
             >
               {club.name}
@@ -265,7 +265,7 @@ export default function ClubCard({
                 _dark={{ color: 'gray.400' }}
               >
                 <Clock size={14} style={{ flexShrink: 0 }} />
-                <Text fontSize="sm" fontWeight="medium" lineClamp={1}>
+                <Text fontSize="sm" lineClamp={1}>
                   {scheduleText.split('\n')[0]}
                   {scheduleText.includes('\n') ? '...' : ''}
                 </Text>
@@ -371,8 +371,8 @@ export default function ClubCard({
                 fontWeight="bold"
                 fontSize="xl"
                 lineClamp={1}
-                color="blue.600"
-                _dark={{ color: 'blue.400' }}
+                color="var(--chakra-colors-green-800)"
+                _dark={{ color: 'white' }}
                 letterSpacing="tight"
                 mb={3}
               >

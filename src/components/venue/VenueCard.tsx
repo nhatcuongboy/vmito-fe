@@ -269,21 +269,34 @@ export default function VenueCard({
                 color="gray.600"
                 _dark={{ color: 'gray.300' }}
                 lineClamp={2}
+                showNewBadge={false}
               />
             </Box>
 
-            {venue.openingHours && (
+            {(venue.openingHours || venue.numberOfCourts) && (
               <Flex
                 align="center"
-                gap={1.5}
+                gap={4}
                 mt={1}
                 color="gray.600"
                 _dark={{ color: 'gray.300' }}
               >
-                <Clock size={14} />
-                <Text fontSize="sm" fontWeight="medium">
-                  {venue.openingHours}
-                </Text>
+                {venue.openingHours && (
+                  <Flex align="center" gap={1.5} flex="1" minW={0}>
+                    <Clock size={14} style={{ flexShrink: 0 }} />
+                    <Text fontSize="sm" lineClamp={1}>
+                      {venue.openingHours}
+                    </Text>
+                  </Flex>
+                )}
+                {venue.numberOfCourts && (
+                  <Flex align="center" gap={1.5} flex="1" minW={0}>
+                    <LayoutGrid size={14} style={{ flexShrink: 0 }} />
+                    <Text fontSize="sm" lineClamp={1}>
+                      {venue.numberOfCourts} {t('courts')}
+                    </Text>
+                  </Flex>
+                )}
               </Flex>
             )}
           </Box>
