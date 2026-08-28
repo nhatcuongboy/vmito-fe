@@ -37,6 +37,7 @@ export const SessionListCardHostRow = ({
       </Avatar.Root>
       <Text
         fontSize={{ base: 'xs', md: 'sm' }}
+        fontWeight="medium"
         color="fg.muted"
         lineClamp={1}
         minW={0}

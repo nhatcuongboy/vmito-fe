@@ -6423,6 +6423,8 @@
     "deleteConfirmDescription": "这条动态将从动态列表中移除。",
     "writeComment": "写评论...",
     "sendComment": "发送评论",
+    "reply": "回复",
+    "replyToComment": "回复 {name}",
     "deleteComment": "删除评论",
     "noComments": "暂无评论",
     "loadCommentsError": "加载评论失败",

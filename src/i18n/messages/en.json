@@ -6461,6 +6461,8 @@
     "deleteConfirmDescription": "This post will be removed from the newsfeed.",
     "writeComment": "Write a comment...",
     "sendComment": "Send comment",
+    "reply": "Reply",
+    "replyToComment": "Reply to {name}",
     "deleteComment": "Delete comment",
     "noComments": "No comments yet",
     "loadCommentsError": "Failed to load comments",

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { formatDistanceToNow } from 'date-fns';
 import { vi, enUS, zhCN } from 'date-fns/locale';
 import type { Locale } from 'date-fns';
@@ -56,6 +56,8 @@ export function CommentSection({
   const [comments, setComments] = useState<PostComment[]>([]);
   const [commentCount, setCommentCount] = useState(initialCommentCount);
   const [newComment, setNewComment] = useState('');
+  const commentInputRef = useRef<HTMLInputElement>(null);
+  const replyPrefixRef = useRef('');
   const [isLoading, setIsLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [page, setPage] = useState(1);
@@ -107,6 +109,36 @@ export function CommentSection({
     setCommentCount(initialCommentCount);
   }, [initialCommentCount]);
 
+  const handleCommentChange = (value: string) => {
+    setNewComment(value);
+    if (replyPrefixRef.current && !value.startsWith(replyPrefixRef.current)) {
+      replyPrefixRef.current = '';
+    }
+  };
+
+  const handleReply = (comment: PostComment) => {
+    const replyPrefix = `@${comment.user.name.trim()} `;
+
+    setNewComment((currentComment) => {
+      const previousPrefix = replyPrefixRef.current;
+      const commentBody =
+        previousPrefix && currentComment.startsWith(previousPrefix)
+          ? currentComment.slice(previousPrefix.length)
+          : currentComment;
+
+      return `${replyPrefix}${commentBody.trimStart()}`;
+    });
+    replyPrefixRef.current = replyPrefix;
+
+    requestAnimationFrame(() => {
+      const input = commentInputRef.current;
+      if (!input) return;
+
+      input.focus();
+      input.setSelectionRange(input.value.length, input.value.length);
+    });
+  };
+
   useEffect(() => {
     if (!socket || !isConnected) return;
 
@@ -145,11 +177,17 @@ export function CommentSection({
     setIsSubmitting(true);
     try {
       const comment = await postsService.createComment(postId, newComment);
-      setComments((prev) => [comment, ...prev]);
+      setComments((prev) => {
+        if (prev.some((existingComment) => existingComment.id === comment.id)) {
+          return prev;
+        }
+        return [comment, ...prev];
+      });
       const nextCount = commentCount + 1;
       setCommentCount(nextCount);
       onCommentCountChange?.(nextCount);
       setNewComment('');
+      replyPrefixRef.current = '';
     } catch {
       toaster.create({
         title: t('error'),
@@ -224,9 +262,10 @@ export function CommentSection({
             }}
           >
             <input
+              ref={commentInputRef}
               type="text"
               value={newComment}
-              onChange={(e) => setNewComment(e.target.value)}
+              onChange={(e) => handleCommentChange(e.target.value)}
               placeholder={t('writeComment')}
               aria-label={t('writeComment')}
               className="h-full min-w-0 flex-1 bg-transparent text-gray-800 placeholder:text-gray-500 focus:outline-none dark:text-gray-100 dark:placeholder:text-gray-400"
@@ -321,6 +360,16 @@ export function CommentSection({
                       locale: dateLocale,
                     })}
                   </span>
+                  <button
+                    type="button"
+                    onClick={() => handleReply(comment)}
+                    aria-label={t('replyToComment', {
+                      name: comment.user.name,
+                    })}
+                    className="cursor-pointer rounded-md px-2 py-1 -ml-2 font-medium transition hover:bg-gray-200 hover:text-gray-700 dark:hover:bg-white/10 dark:hover:text-gray-200"
+                  >
+                    {t('reply')}
+                  </button>
                   {currentUserId === comment.userId && (
                     <button
                       onClick={() => setCommentIdToDelete(comment.id)}
