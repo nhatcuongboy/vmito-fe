@@ -6615,7 +6615,7 @@
     "viewMoreMembers": "查看更多成员",
     "recentAnnouncements": "最新公告",
     "noAnnouncements": "暂无公告",
-    "createAnnouncement": "发布公告",
+    "createAnnouncement": "新建",
     "editAnnouncement": "编辑公告",
     "deleteAnnouncement": "删除公告",
     "confirmDeleteAnnouncement": "确定要删除此公告吗？此操作无法撤销。",
@@ -6642,6 +6642,8 @@
     "joinRequestSent": "加入申请已成功发送",
     "joinedSuccessfully": "您已成功加入俱乐部",
     "leftSuccessfully": "您已成功退出俱乐部",
+    "leaveClubConfirmTitle": "退出俱乐部？",
+    "leaveClubConfirmDescription": "您将退出 {name}。您之后可以再次加入。",
     "privateClub": "这是一个私有俱乐部",
     "joinRequests": "加入申请",
     "noPendingRequests": "No pending join requests",
@@ -6671,6 +6673,7 @@
     "confirmReject": "拒绝此加入申请？",
     "memberActionFailed": "无法完成操作，请重试。",
     "manageClubs": "管理俱乐部",
+    "leaderYou": "你",
     "manageYourClubs": "管理您的俱乐部",
     "createClub": "创建俱乐部",
     "createNewClub": "创建新俱乐部",
@@ -6716,6 +6719,7 @@
     "memberInfoNotUpdated": "未更新",
     "clubNotFound": "未找到俱乐部",
     "feeConfiguration": "费用配置",
+    "manage": "管理",
     "manageThisClub": "管理群组",
     "currency": "VND",
     "month": "月",
@@ -7108,6 +7112,30 @@
         "d6": "周六",
         "d7": "周日"
       }
+    }
+  },
+  "playerStatus": {
+    "title": "🏸 球员状态",
+    "loading": "正在加载球员状态...",
+    "invalidToken": "球员令牌无效",
+    "fetchError": "无法获取球员状态",
+    "playerNotFound": "❌ 未找到球员",
+    "invalidSession": "球员令牌无效或会话已过期",
+    "joinNewSession": "加入新会话",
+    "playerNumber": "球员 #{number}",
+    "waitTime": "等待时间",
+    "matchesPlayed": "已参加比赛",
+    "totalWait": "总等待时间",
+    "currentCourt": "你正在 #{number} 号场地",
+    "refresh": "刷新状态",
+    "linkAccountPrompt": "想要将其关联到你的账户吗？",
+    "signIn": "登录",
+    "autoRefresh": "每 30 秒自动刷新",
+    "statuses": {
+      "waiting": "⏳ 等待中",
+      "playing": "🏸 比赛中",
+      "ready": "✅ 准备就绪",
+      "finished": "✅ 已结束"
     }
   },
   "venueRequests": {

@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { Suspense, useCallback, useEffect, useMemo, useState } from 'react';
 import {
   Badge,
   Box,
@@ -43,7 +43,7 @@ const statusColors: Record<VenueRequestStatus, string> = {
   [VenueRequestStatus.REJECTED]: 'red',
 };
 
-export default function AdminVenueRequestsPage() {
+function AdminVenueRequestsContent() {
   const t = useTranslations('venueRequests');
   const tAdmin = useTranslations('admin');
   const router = useRouter();
@@ -448,5 +448,13 @@ export default function AdminVenueRequestsPage() {
         </Field>
       </VModal>
     </MainLayout>
+  );
+}
+
+export default function AdminVenueRequestsPage() {
+  return (
+    <Suspense>
+      <AdminVenueRequestsContent />
+    </Suspense>
   );
 }

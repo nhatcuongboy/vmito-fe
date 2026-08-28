@@ -104,13 +104,13 @@ function PlayerStatusContent() {
   const getStatusText = (status: string) => {
     switch (status) {
       case 'WAITING':
-        return '⏳ Waiting';
+        return t('statuses.waiting');
       case 'PLAYING':
-        return '🏸 Playing';
+        return t('statuses.playing');
       case 'READY':
-        return '✅ Ready';
+        return t('statuses.ready');
       case 'FINISHED':
-        return '✅ Finished';
+        return t('statuses.finished');
       default:
         return status;
     }
@@ -134,7 +134,7 @@ function PlayerStatusContent() {
       >
         <VStack gap={4}>
           <Spinner size="xl" color="green.500" />
-          <Text>Loading player status...</Text>
+          <Text>{t('loading')}</Text>
         </VStack>
       </Box>
     );
@@ -160,13 +160,13 @@ function PlayerStatusContent() {
           textAlign="center"
         >
           <Text fontSize="xl" color="red.600" mb={4}>
-            ❌ Player Not Found
+            {t('playerNotFound')}
           </Text>
           <Text color="gray.600" mb={6}>
-            Invalid player token or session expired
+            {t('invalidSession')}
           </Text>
           <Link href="/join-by-code" color="green.600" fontWeight="semibold">
-            Join a new session
+            {t('joinNewSession')}
           </Link>
         </Box>
       </Box>
@@ -181,7 +181,7 @@ function PlayerStatusContent() {
             {/* Header */}
             <Box textAlign="center" w="full">
               <Heading size="lg" color="green.600">
-                🏸 Player Status
+                {t('title')}
               </Heading>
               <Text color="gray.600" mt={1}>
                 {playerStatus.session.name}
@@ -200,14 +200,15 @@ function PlayerStatusContent() {
               <VStack gap={2} align="start">
                 <HStack justify="space-between" w="full">
                   <Text fontWeight="bold" color="green.700">
-                    {playerStatus.name || `Player ${playerStatus.playerNumber}`}
+                    {playerStatus.name ||
+                      t('playerNumber', { number: playerStatus.playerNumber })}
                   </Text>
                   <Badge colorPalette={getStatusColor(playerStatus.status)}>
                     {getStatusText(playerStatus.status)}
                   </Badge>
                 </HStack>
                 <Text color="green.600" fontSize="sm">
-                  Player #{playerStatus.playerNumber}
+                  {t('playerNumber', { number: playerStatus.playerNumber })}
                 </Text>
               </VStack>
             </Box>
@@ -224,7 +225,7 @@ function PlayerStatusContent() {
                 >
                   <HStack gap={2}>
                     <Clock size={20} color="#6B7280" />
-                    <Text fontWeight="medium">Wait Time</Text>
+                    <Text fontWeight="medium">{t('waitTime')}</Text>
                   </HStack>
                   <Text fontWeight="bold">
                     {formatTime(playerStatus.currentWaitTime)}
@@ -240,7 +241,7 @@ function PlayerStatusContent() {
                 >
                   <HStack gap={2}>
                     <Trophy size={20} color="#6B7280" />
-                    <Text fontWeight="medium">Matches Played</Text>
+                    <Text fontWeight="medium">{t('matchesPlayed')}</Text>
                   </HStack>
                   <Text fontWeight="bold">{playerStatus.matchesPlayed}</Text>
                 </HStack>
@@ -254,7 +255,7 @@ function PlayerStatusContent() {
                 >
                   <HStack gap={2}>
                     <Users size={20} color="#6B7280" />
-                    <Text fontWeight="medium">Total Wait</Text>
+                    <Text fontWeight="medium">{t('totalWait')}</Text>
                   </HStack>
                   <Text fontWeight="bold">
                     {formatTime(playerStatus.totalWaitTime)}
@@ -276,7 +277,7 @@ function PlayerStatusContent() {
                 <Text color="green.700" fontWeight="bold" textAlign="center">
                   🏸{' '}
                   {playerStatus.courtName ||
-                    `You're on Court #${playerStatus.currentCourtId}`}
+                    t('currentCourt', { number: playerStatus.currentCourtId })}
                 </Text>
               </Box>
             )}
@@ -290,14 +291,14 @@ function PlayerStatusContent() {
                 loading={refreshing}
               >
                 <RefreshCw size={16} style={{ marginRight: '8px' }} />
-                Refresh Status
+                {t('refresh')}
               </Button>
 
               <Separator />
 
               <HStack gap={2} justify="center">
                 <Text color="gray.500" fontSize="sm">
-                  Want to link this to your account?
+                  {t('linkAccountPrompt')}
                 </Text>
                 <Link
                   href="/auth/signin"
@@ -305,14 +306,14 @@ function PlayerStatusContent() {
                   fontSize="sm"
                   fontWeight="semibold"
                 >
-                  Sign in
+                  {t('signIn')}
                 </Link>
               </HStack>
             </VStack>
 
             {/* Auto-refresh indicator */}
             <Text color="gray.400" fontSize="xs" textAlign="center">
-              Auto-refreshes every 30 seconds
+              {t('autoRefresh')}
             </Text>
           </VStack>
         </Box>
@@ -322,6 +323,8 @@ function PlayerStatusContent() {
 }
 
 export default function PlayerStatusPage() {
+  const t = useTranslations('playerStatus');
+
   return (
     <Suspense
       fallback={
@@ -334,7 +337,7 @@ export default function PlayerStatusPage() {
         >
           <VStack gap={4}>
             <Spinner size="xl" color="green.500" />
-            <Text>Loading player status...</Text>
+            <Text>{t('loading')}</Text>
           </VStack>
         </Box>
       }

@@ -8,10 +8,20 @@ import {
   HStack,
   Icon,
   Skeleton,
+  Tabs,
   Text,
   VStack,
 } from '@chakra-ui/react';
-import { MessageSquare } from 'lucide-react';
+import {
+  CalendarDays,
+  FileText,
+  Heart,
+  MessageSquare,
+  Star,
+  Trophy,
+  Users,
+  type LucideIcon,
+} from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { usePathname, useRouter } from '@/i18n/config';
 import { useSearchParams } from 'next/navigation';
@@ -41,8 +51,7 @@ import PublicHostedSessionCard from '@/components/player/PublicHostedSessionCard
 import PublicUserProfileSkeleton from '@/components/player/PublicUserProfileSkeleton';
 import PublicUserFavoritesSection from '@/components/player/PublicUserFavoritesSection';
 import UserAchievementsSection from '@/components/player/UserAchievementsSection';
-import { UnderlineTabs } from '@/components/ui/UnderlineTabs';
-import { TOP_BAR_HEIGHT_DESKTOP, TOP_BAR_HEIGHT_MOBILE } from '@/constants';
+import { DetailSubMenu } from '@/components/common/DetailSubMenu';
 
 interface IPublicUserProfileContentProps {
   userId: string;
@@ -327,14 +336,28 @@ export default function PublicUserProfileContent({
     );
   }
 
-  const sectionTabs: { key: ProfileSection; label: string }[] = [
-    { key: 'posts', label: t('postsTab') },
-    { key: 'achievements', label: t('achievementsTab') },
-    { key: 'hosted', label: t('hostedTab') },
-    { key: 'clubs', label: t('clubsTab') },
-    { key: 'reviews', label: t('reviewsTab') },
+  const sectionTabs: {
+    key: ProfileSection;
+    label: string;
+    icon: LucideIcon;
+  }[] = [
+    { key: 'posts', label: t('postsTab'), icon: FileText },
+    {
+      key: 'achievements',
+      label: t('achievementsTab'),
+      icon: Trophy,
+    },
+    { key: 'hosted', label: t('hostedTab'), icon: CalendarDays },
+    { key: 'clubs', label: t('clubsTab'), icon: Users },
+    { key: 'reviews', label: t('reviewsTab'), icon: Star },
     ...(isOwner
-      ? [{ key: 'favorites' as ProfileSection, label: t('favoritesTab') }]
+      ? [
+          {
+            key: 'favorites' as ProfileSection,
+            label: t('favoritesTab'),
+            icon: Heart,
+          },
+        ]
       : []),
   ];
 
@@ -363,229 +386,237 @@ export default function PublicUserProfileContent({
             onProfileImageUpdated={handleProfileImageUpdated}
           />
 
-          {/* Section tabs: sticky under the fixed top bar */}
-          <UnderlineTabs
-            items={sectionTabs.map((tab) => ({
-              id: tab.key,
-              label: tab.label,
-            }))}
-            activeId={activeSection}
-            onTabClick={(id) => setActiveSection(id as ProfileSection)}
-            isSticky
-            top={{
-              base: `calc(${TOP_BAR_HEIGHT_MOBILE}px + env(safe-area-inset-top))`,
-              md: `calc(${TOP_BAR_HEIGHT_DESKTOP}px + env(safe-area-inset-top))`,
-            }}
-            px={3}
-            boxShadow="0 2px 6px -2px rgba(0,0,0,0.08)"
-          />
+          <Tabs.Root
+            value={activeSection}
+            onValueChange={(event) =>
+              setActiveSection(event.value as ProfileSection)
+            }
+            variant="plain"
+          >
+            {/* Section tabs: sticky under the fixed top bar */}
+            <DetailSubMenu
+              items={sectionTabs.map((tab) => ({
+                id: tab.key,
+                label: tab.label,
+                icon: tab.icon,
+              }))}
+              ariaLabel={tCommon('navigation')}
+            />
 
-          {/* Posts */}
-          {activeSection === 'posts' && <UserPostsSection userId={userId} />}
+            <Tabs.Content value={activeSection} w="full">
+              {/* Posts */}
+              {activeSection === 'posts' && (
+                <UserPostsSection userId={userId} />
+              )}
 
-          {/* Achievements */}
-          {activeSection === 'achievements' && (
-            <Box px={3} pt={4}>
-              <UserAchievementsSection
-                userId={userId}
-                isOwner={isOwner}
-                userName={profile.name}
-                userImage={profile.image}
-              />
-            </Box>
-          )}
-
-          {/* Hosted sessions */}
-          {activeSection === 'hosted' && (
-            <Box
-              bg="white"
-              borderWidth="1px"
-              borderColor="gray.200"
-              borderRadius="2xl"
-              p={4}
-              _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
-            >
-              <Flex justify="space-between" align="center" mb={3}>
-                <Text
-                  fontSize="lg"
-                  fontWeight="bold"
-                  color="gray.800"
-                  _dark={{ color: 'gray.100' }}
-                >
-                  {t('hostedSessions')} ({allHostedSessionsCount})
-                </Text>
-              </Flex>
-
-              <HStack gap={2} mb={4}>
-                <Button
-                  size="sm"
-                  borderRadius="full"
-                  variant={hostedTab === 'active' ? 'solid' : 'outline'}
-                  colorPalette={hostedTab === 'active' ? 'green' : 'gray'}
-                  onClick={() => handleTabChange('active')}
-                >
-                  {t('activeHosted')} ({activeHostedSessionsCount})
-                </Button>
-                <Button
-                  size="sm"
-                  borderRadius="full"
-                  variant={hostedTab === 'ended' ? 'solid' : 'outline'}
-                  colorPalette={hostedTab === 'ended' ? 'green' : 'gray'}
-                  onClick={() => handleTabChange('ended')}
-                >
-                  {t('endedHosted')} ({endedHostedSessionsCount})
-                </Button>
-                <Button
-                  size="sm"
-                  borderRadius="full"
-                  variant={hostedTab === 'all' ? 'solid' : 'outline'}
-                  colorPalette={hostedTab === 'all' ? 'green' : 'gray'}
-                  onClick={() => handleTabChange('all')}
-                >
-                  {t('allHosted')}
-                </Button>
-              </HStack>
-
-              {isSessionsLoading ? (
-                <VStack gap={3} align="stretch">
-                  {[0, 1, 2].map((i) => (
-                    <Skeleton key={i} height="80px" borderRadius="lg" />
-                  ))}
-                </VStack>
-              ) : hostedSessions.length === 0 ? (
-                <Box
-                  borderWidth="1px"
-                  borderStyle="dashed"
-                  borderColor="gray.300"
-                  borderRadius="xl"
-                  p={6}
-                  textAlign="center"
-                  bg="gray.50"
-                  _dark={{ bg: 'gray.700', borderColor: 'gray.600' }}
-                >
-                  <Icon
-                    as={MessageSquare}
-                    boxSize={6}
-                    color="gray.300"
-                    mb={2}
+              {/* Achievements */}
+              {activeSection === 'achievements' && (
+                <Box px={3} pt={4}>
+                  <UserAchievementsSection
+                    userId={userId}
+                    isOwner={isOwner}
+                    userName={profile.name}
+                    userImage={profile.image}
                   />
-                  <Text color="gray.500" _dark={{ color: 'gray.400' }}>
-                    {hostedTab === 'active'
-                      ? t('noActiveHostedSessions')
-                      : hostedTab === 'ended'
-                        ? t('noEndedHostedSessions')
-                        : t('noHostedSessions')}
-                  </Text>
                 </Box>
-              ) : (
-                <VStack gap={3} align="stretch">
-                  {hostedSessions.map((session) => (
-                    <PublicHostedSessionCard
-                      key={session.id}
-                      session={session}
-                    />
-                  ))}
-                </VStack>
               )}
 
-              {totalSessionPages > 1 && (
-                <HStack justify="space-between" mt={4}>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    disabled={page <= 1}
-                    onClick={() => handlePageChange(page - 1)}
-                  >
-                    {tCommon('previous')}
-                  </Button>
-
-                  <Text
-                    fontSize="sm"
-                    color="gray.600"
-                    _dark={{ color: 'gray.400' }}
-                  >
-                    {t('pagination', { page, totalPages: totalSessionPages })}
-                  </Text>
-
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    disabled={page >= totalSessionPages}
-                    onClick={() => handlePageChange(page + 1)}
-                  >
-                    {tCommon('next')}
-                  </Button>
-                </HStack>
-              )}
-            </Box>
-          )}
-
-          {/* Clubs */}
-          {activeSection === 'clubs' &&
-            (isSecondaryLoading ? (
-              <VStack gap={3} align="stretch">
-                {[0, 1].map((index) => (
-                  <Skeleton key={index} height="88px" borderRadius="2xl" />
-                ))}
-              </VStack>
-            ) : (
-              <UserClubsSection clubs={clubs} userId={userId} />
-            ))}
-
-          {/* Reviews */}
-          {activeSection === 'reviews' && (
-            <Box
-              bg="white"
-              borderWidth="1px"
-              borderColor="gray.200"
-              borderRadius="2xl"
-              p={4}
-              _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
-            >
-              <Flex justify="space-between" align="center" mb={3}>
-                <Text
-                  fontSize="lg"
-                  fontWeight="bold"
-                  color="gray.800"
-                  _dark={{ color: 'gray.100' }}
+              {/* Hosted sessions */}
+              {activeSection === 'hosted' && (
+                <Box
+                  bg="white"
+                  borderWidth="1px"
+                  borderColor="gray.200"
+                  borderRadius="2xl"
+                  p={4}
+                  _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
                 >
-                  {t('reviews')} ({ratingStats?.totalRatings ?? 0})
-                </Text>
-                {ratings.length > REVIEWS_PREVIEW_SIZE && (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    colorPalette="green"
-                    onClick={onOpenAllReviews}
-                  >
-                    {t('viewAllReviews')}
-                  </Button>
-                )}
-              </Flex>
+                  <Flex justify="space-between" align="center" mb={3}>
+                    <Text
+                      fontSize="lg"
+                      fontWeight="bold"
+                      color="gray.800"
+                      _dark={{ color: 'gray.100' }}
+                    >
+                      {t('hostedSessions')} ({allHostedSessionsCount})
+                    </Text>
+                  </Flex>
 
-              {isSecondaryLoading ? (
-                <VStack gap={3} align="stretch">
-                  <Skeleton height="112px" borderRadius="lg" />
-                  <Skeleton height="80px" borderRadius="lg" />
-                </VStack>
-              ) : (
-                <VStack gap={3} align="stretch">
-                  <UserRatingSummaryCard stats={ratingStats} />
-                  {ratingsPreview.length > 0 && (
-                    <RatingList
-                      ratings={ratingsPreview}
-                      emptyMessage={t('noReviews')}
-                    />
+                  <HStack gap={2} mb={4}>
+                    <Button
+                      size="sm"
+                      borderRadius="full"
+                      variant={hostedTab === 'active' ? 'solid' : 'outline'}
+                      colorPalette={hostedTab === 'active' ? 'green' : 'gray'}
+                      onClick={() => handleTabChange('active')}
+                    >
+                      {t('activeHosted')} ({activeHostedSessionsCount})
+                    </Button>
+                    <Button
+                      size="sm"
+                      borderRadius="full"
+                      variant={hostedTab === 'ended' ? 'solid' : 'outline'}
+                      colorPalette={hostedTab === 'ended' ? 'green' : 'gray'}
+                      onClick={() => handleTabChange('ended')}
+                    >
+                      {t('endedHosted')} ({endedHostedSessionsCount})
+                    </Button>
+                    <Button
+                      size="sm"
+                      borderRadius="full"
+                      variant={hostedTab === 'all' ? 'solid' : 'outline'}
+                      colorPalette={hostedTab === 'all' ? 'green' : 'gray'}
+                      onClick={() => handleTabChange('all')}
+                    >
+                      {t('allHosted')}
+                    </Button>
+                  </HStack>
+
+                  {isSessionsLoading ? (
+                    <VStack gap={3} align="stretch">
+                      {[0, 1, 2].map((i) => (
+                        <Skeleton key={i} height="80px" borderRadius="lg" />
+                      ))}
+                    </VStack>
+                  ) : hostedSessions.length === 0 ? (
+                    <Box
+                      borderWidth="1px"
+                      borderStyle="dashed"
+                      borderColor="gray.300"
+                      borderRadius="xl"
+                      p={6}
+                      textAlign="center"
+                      bg="gray.50"
+                      _dark={{ bg: 'gray.700', borderColor: 'gray.600' }}
+                    >
+                      <Icon
+                        as={MessageSquare}
+                        boxSize={6}
+                        color="gray.300"
+                        mb={2}
+                      />
+                      <Text color="gray.500" _dark={{ color: 'gray.400' }}>
+                        {hostedTab === 'active'
+                          ? t('noActiveHostedSessions')
+                          : hostedTab === 'ended'
+                            ? t('noEndedHostedSessions')
+                            : t('noHostedSessions')}
+                      </Text>
+                    </Box>
+                  ) : (
+                    <VStack gap={3} align="stretch">
+                      {hostedSessions.map((session) => (
+                        <PublicHostedSessionCard
+                          key={session.id}
+                          session={session}
+                        />
+                      ))}
+                    </VStack>
                   )}
-                </VStack>
-              )}
-            </Box>
-          )}
 
-          {/* Favorites (owner only) */}
-          {activeSection === 'favorites' && isOwner && (
-            <PublicUserFavoritesSection />
-          )}
+                  {totalSessionPages > 1 && (
+                    <HStack justify="space-between" mt={4}>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        disabled={page <= 1}
+                        onClick={() => handlePageChange(page - 1)}
+                      >
+                        {tCommon('previous')}
+                      </Button>
+
+                      <Text
+                        fontSize="sm"
+                        color="gray.600"
+                        _dark={{ color: 'gray.400' }}
+                      >
+                        {t('pagination', {
+                          page,
+                          totalPages: totalSessionPages,
+                        })}
+                      </Text>
+
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        disabled={page >= totalSessionPages}
+                        onClick={() => handlePageChange(page + 1)}
+                      >
+                        {tCommon('next')}
+                      </Button>
+                    </HStack>
+                  )}
+                </Box>
+              )}
+
+              {/* Clubs */}
+              {activeSection === 'clubs' &&
+                (isSecondaryLoading ? (
+                  <VStack gap={3} align="stretch">
+                    {[0, 1].map((index) => (
+                      <Skeleton key={index} height="88px" borderRadius="2xl" />
+                    ))}
+                  </VStack>
+                ) : (
+                  <UserClubsSection clubs={clubs} userId={userId} />
+                ))}
+
+              {/* Reviews */}
+              {activeSection === 'reviews' && (
+                <Box
+                  bg="white"
+                  borderWidth="1px"
+                  borderColor="gray.200"
+                  borderRadius="2xl"
+                  p={4}
+                  _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
+                >
+                  <Flex justify="space-between" align="center" mb={3}>
+                    <Text
+                      fontSize="lg"
+                      fontWeight="bold"
+                      color="gray.800"
+                      _dark={{ color: 'gray.100' }}
+                    >
+                      {t('reviews')} ({ratingStats?.totalRatings ?? 0})
+                    </Text>
+                    {ratings.length > REVIEWS_PREVIEW_SIZE && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        colorPalette="green"
+                        onClick={onOpenAllReviews}
+                      >
+                        {t('viewAllReviews')}
+                      </Button>
+                    )}
+                  </Flex>
+
+                  {isSecondaryLoading ? (
+                    <VStack gap={3} align="stretch">
+                      <Skeleton height="112px" borderRadius="lg" />
+                      <Skeleton height="80px" borderRadius="lg" />
+                    </VStack>
+                  ) : (
+                    <VStack gap={3} align="stretch">
+                      <UserRatingSummaryCard stats={ratingStats} />
+                      {ratingsPreview.length > 0 && (
+                        <RatingList
+                          ratings={ratingsPreview}
+                          emptyMessage={t('noReviews')}
+                        />
+                      )}
+                    </VStack>
+                  )}
+                </Box>
+              )}
+
+              {/* Favorites (owner only) */}
+              {activeSection === 'favorites' && isOwner && (
+                <PublicUserFavoritesSection />
+              )}
+            </Tabs.Content>
+          </Tabs.Root>
         </VStack>
       </PageLayout>
 

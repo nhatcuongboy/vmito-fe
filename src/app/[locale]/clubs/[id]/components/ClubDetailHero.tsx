@@ -5,114 +5,192 @@ import {
   Box,
   Container,
   Flex,
-  Heading,
-  Icon,
   Image,
-  Text,
+  MenuContent,
+  MenuItem,
+  MenuPositioner,
+  MenuRoot,
+  MenuTrigger,
+  Portal,
 } from '@chakra-ui/react';
+import { AnimatePresence, motion } from 'framer-motion';
+import { ChevronLeft, MoreHorizontal, Share2, UserMinus } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { Share2 } from 'lucide-react';
 import AppLightbox from '@/components/ui/AppLightbox';
-import { IClub } from '@/types/club';
 import { FavoriteEngagementControl } from '@/components/favorites/FavoriteEngagementControl';
+import { IClub } from '@/types/club';
 import { IconButton } from '@/components/ui/chakra-compat';
-import { toaster } from '@/components/ui/toaster';
 import { DETAIL_PAGE_MAX_W } from '@/constants';
+
+const slideVariants = {
+  enter: (direction: number) => ({ x: direction >= 0 ? '100%' : '-100%' }),
+  center: { x: 0 },
+  exit: (direction: number) => ({ x: direction >= 0 ? '-100%' : '100%' }),
+};
 
 interface IClubDetailHeroProps {
   club: IClub;
   clubDisplayImage: string;
+  onBack: () => void;
+  onShare: () => void;
+  canLeaveClub: boolean;
+  isLeaving: boolean;
+  onLeave: () => void;
 }
 
 export const ClubDetailHero = ({
   club,
   clubDisplayImage,
+  onBack,
+  onShare,
+  canLeaveClub,
+  isLeaving,
+  onLeave,
 }: IClubDetailHeroProps) => {
-  const tAdmin = useTranslations('admin');
   const t = useTranslations('clubs');
-  const [lightboxImage, setLightboxImage] = useState<string | null>(null);
-  const firstVenue = club.scheduleVenues?.[0] || club.defaultVenue;
-  // Use the old district/city as a pair, or the new ward/city as a pair —
-  // never mix one old field with one new field.
-  const usingOldLocation = !!(firstVenue?.district || firstVenue?.city);
-  const locationParts = (
-    usingOldLocation
-      ? [firstVenue?.district, firstVenue?.city]
-      : [firstVenue?.newDistrict, firstVenue?.newCity]
-  ).filter(Boolean);
+  const tCommon = useTranslations('common');
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [direction, setDirection] = useState(1);
+  const [isDragging, setIsDragging] = useState(false);
+  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
 
-  const handleShare = async () => {
-    const shareUrl = `${window.location.origin}${window.location.pathname}`;
+  const images = Array.from(
+    new Set(
+      [club.image, ...(club.images ?? []), clubDisplayImage].filter(
+        (image): image is string => Boolean(image)
+      )
+    )
+  );
 
-    try {
-      if (navigator.share) {
-        await navigator.share({
-          title: club.name,
-          text: t('shareText', { name: club.name }),
-          url: shareUrl,
-        });
-        return;
-      }
-
-      await navigator.clipboard.writeText(shareUrl);
-      toaster.success({ title: t('linkCopied') });
-    } catch (error) {
-      if (error instanceof DOMException && error.name === 'AbortError') return;
-
-      console.error('Failed to share club:', error);
-      toaster.error({ title: t('shareFailed') });
+  const goNext = () => {
+    if (currentIndex < images.length - 1) {
+      setDirection(1);
+      setCurrentIndex((index) => index + 1);
     }
+  };
+
+  const goPrev = () => {
+    if (currentIndex > 0) {
+      setDirection(-1);
+      setCurrentIndex((index) => index - 1);
+    }
+  };
+
+  const handleDragEnd = (_: unknown, info: { offset: { x: number } }) => {
+    if (Math.abs(info.offset.x) > 10) {
+      setIsDragging(true);
+      if (info.offset.x < -50) goNext();
+      else if (info.offset.x > 50) goPrev();
+    }
+  };
+
+  const handleImageClick = () => {
+    if (!isDragging) setLightboxIndex(currentIndex);
+    setIsDragging(false);
   };
 
   return (
     <Container maxW={DETAIL_PAGE_MAX_W} px={0}>
       <Box
         position="relative"
-        // Full-bleed hero on mobile: cancel the PageLayout's 24px side
-        // gutter so the cover photo runs edge-to-edge (matches venue
-        // detail). Desktop keeps the rounded card inside the container.
         w={{ base: 'calc(100% + 48px)', md: 'full' }}
-        h={{ base: 'clamp(180px, 30vh, 240px)', md: '300px' }}
+        h={{ base: 'clamp(200px, 32vh, 240px)', md: '300px' }}
         mx={{ base: '-24px', md: 0 }}
         borderRadius={{ base: 0, md: '2xl' }}
         overflow="hidden"
         mb={4}
+        bg="gray.900"
       >
-        <Image
-          src={clubDisplayImage}
-          alt={club.name}
-          w="full"
-          h="full"
-          objectFit="cover"
-          cursor="pointer"
-          onClick={() => setLightboxImage(clubDisplayImage)}
-        />
+        <AnimatePresence custom={direction} initial={false} mode="wait">
+          <motion.div
+            key={currentIndex}
+            custom={direction}
+            variants={slideVariants}
+            initial="enter"
+            animate="center"
+            exit="exit"
+            transition={{ duration: 0.25, ease: 'easeInOut' }}
+            drag={images.length > 1 ? 'x' : false}
+            dragConstraints={{ left: 0, right: 0 }}
+            dragElastic={0.15}
+            onDragStart={() => setIsDragging(false)}
+            onDragEnd={handleDragEnd}
+            onClick={handleImageClick}
+            style={{
+              position: 'absolute',
+              width: '100%',
+              height: '100%',
+              cursor: 'zoom-in',
+            }}
+          >
+            <Image
+              src={images[currentIndex]}
+              alt={`${club.name} ${currentIndex + 1}`}
+              w="full"
+              h="full"
+              objectFit="cover"
+              fetchPriority={currentIndex === 0 ? 'high' : undefined}
+              draggable={false}
+              pointerEvents="none"
+            />
+          </motion.div>
+        </AnimatePresence>
+
         <Box
           position="absolute"
-          bottom={0}
-          left={0}
-          right={0}
-          h="100px"
-          bgGradient="to-t"
-          gradientFrom="blackAlpha.600"
-          gradientTo="transparent"
+          inset={0}
+          background="linear-gradient(to bottom, rgba(0, 0, 0, 0.55), transparent 42%, rgba(0, 0, 0, 0.55))"
           pointerEvents="none"
         />
+
+        <Flex
+          display={{ base: 'flex', md: 'none' }}
+          position="absolute"
+          top="env(safe-area-inset-top)"
+          left={2}
+          h="50px"
+          align="center"
+          gap={2}
+          zIndex={10}
+        >
+          <IconButton
+            aria-label={tCommon('back')}
+            variant="ghost"
+            size="md"
+            color="white"
+            bg="blackAlpha.500"
+            backdropFilter="blur(6px)"
+            borderRadius="full"
+            boxShadow="0 2px 8px rgba(0,0,0,0.35)"
+            touchAction="manipulation"
+            _hover={{ bg: 'blackAlpha.700' }}
+            _focusVisible={{
+              outline: '2px solid',
+              outlineColor: 'white',
+              outlineOffset: '2px',
+            }}
+            onClick={onBack}
+            icon={<ChevronLeft size={24} strokeWidth={2.5} />}
+          />
+        </Flex>
+
         <Flex
           position="absolute"
-          top={3}
+          top={{ base: 'calc(env(safe-area-inset-top) + 10px)', md: 3 }}
           right={3}
           gap={2}
           align="center"
           zIndex={10}
         >
-          <FavoriteEngagementControl
-            type="CLUB"
-            targetId={club.id}
-            initialIsFavorite={club.isFavorite}
-            returnUrl={`/clubs/${club.slug || club.id}`}
-            variant="overlay-dark"
-          />
+          <Box order={1}>
+            <FavoriteEngagementControl
+              type="CLUB"
+              targetId={club.id}
+              initialIsFavorite={club.isFavorite}
+              returnUrl={`/clubs/${club.slug || club.id}`}
+              variant="overlay-dark"
+            />
+          </Box>
           <IconButton
             aria-label={t('share')}
             title={t('share')}
@@ -132,89 +210,104 @@ export const ClubDetailHero = ({
               outlineColor: 'white',
               outlineOffset: '2px',
             }}
-            onClick={handleShare}
-            icon={<Icon as={Share2} boxSize={5} aria-hidden="true" />}
+            onClick={onShare}
+            icon={<Share2 size={20} aria-hidden="true" />}
+            order={2}
           />
+          {canLeaveClub && (
+            <Box order={3}>
+              <MenuRoot positioning={{ placement: 'bottom-end' }}>
+                <MenuTrigger asChild>
+                  <IconButton
+                    aria-label={tCommon('moreActions')}
+                    title={tCommon('moreActions')}
+                    variant="ghost"
+                    size="sm"
+                    minW="40px"
+                    h="40px"
+                    color="white"
+                    bg="blackAlpha.500"
+                    backdropFilter="blur(6px)"
+                    borderRadius="full"
+                    boxShadow="0 2px 8px rgba(0,0,0,0.35)"
+                    touchAction="manipulation"
+                    _hover={{ bg: 'blackAlpha.700' }}
+                    _focusVisible={{
+                      outline: '2px solid',
+                      outlineColor: 'white',
+                      outlineOffset: '2px',
+                    }}
+                    icon={<MoreHorizontal size={20} aria-hidden="true" />}
+                  />
+                </MenuTrigger>
+                <Portal>
+                  <MenuPositioner zIndex={2000}>
+                    <MenuContent
+                      bg="white"
+                      _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
+                      borderWidth="1px"
+                      borderColor="gray.200"
+                      boxShadow="lg"
+                    >
+                      <MenuItem
+                        value="leave-club"
+                        color="red.600"
+                        _dark={{ color: 'red.300' }}
+                        disabled={isLeaving}
+                        cursor="pointer"
+                        onClick={onLeave}
+                      >
+                        <UserMinus size={18} aria-hidden="true" />
+                        {t('leaveClub')}
+                      </MenuItem>
+                    </MenuContent>
+                  </MenuPositioner>
+                </Portal>
+              </MenuRoot>
+            </Box>
+          )}
         </Flex>
-      </Box>
 
-      <Box
-        w="full"
-        bg="white"
-        _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
-        borderRadius="2xl"
-        shadow="sm"
-        px={{ base: 3, md: 5 }}
-        py={{ base: 2, md: 3.5 }}
-        borderWidth="1px"
-        borderColor="gray.100"
-        mb={4}
-      >
-        <Flex
-          gap={{ base: 3, md: 4 }}
-          align="center"
-          wrap={{ base: 'wrap', sm: 'nowrap' }}
-        >
-          <Box
-            w="48px"
-            h="48px"
-            flexShrink={0}
-            shadow="sm"
-            borderRadius="lg"
-            overflow="hidden"
-            bg={club.logo ? 'gray.100' : 'green.50'}
-            display="flex"
-            alignItems="center"
-            justifyContent="center"
-            borderWidth="1px"
-            borderColor={club.logo ? 'gray.100' : 'green.100'}
-            cursor={club.logo ? 'pointer' : 'default'}
-            onClick={club.logo ? () => setLightboxImage(club.logo!) : undefined}
+        {images.length > 1 && (
+          <Flex
+            position="absolute"
+            bottom={4}
+            left="50%"
+            transform="translateX(-50%)"
+            gap={1.5}
+            zIndex={3}
+            align="center"
           >
-            {club.logo ? (
-              <Image
-                src={club.logo}
-                alt={club.name}
-                objectFit="cover"
-                w="full"
-                h="full"
+            {images.map((image, index) => (
+              <Box
+                key={`${image}-${index}`}
+                as="button"
+                aria-label={`${index + 1}`}
+                w={index === currentIndex ? '16px' : '6px'}
+                h="6px"
+                borderRadius="full"
+                bg={index === currentIndex ? 'white' : 'whiteAlpha.600'}
+                transition="width 0.25s ease, background-color 0.25s ease"
+                onClick={() => {
+                  setDirection(index > currentIndex ? 1 : -1);
+                  setCurrentIndex(index);
+                }}
+                flexShrink={0}
               />
-            ) : (
-              <Text fontSize="xl" fontWeight="bold" color="green.600">
-                {club.name.charAt(0).toUpperCase()}
-              </Text>
-            )}
-          </Box>
-          <Box flex="1" minW="0">
-            <Heading
-              size={{ base: 'lg', md: 'xl' }}
-              mb={0}
-              letterSpacing="tight"
-              lineClamp={2}
-            >
-              {club.name}
-            </Heading>
-            {locationParts.length > 0 ? (
-              <Text
-                fontSize="sm"
-                color="gray.500"
-                _dark={{ color: 'gray.400' }}
-                mt={1}
-              >
-                {locationParts.join(', ')}
-                {!usingOldLocation && ` (${tAdmin('newAddressBadge')})`}
-              </Text>
-            ) : null}
-          </Box>
-        </Flex>
+            ))}
+          </Flex>
+        )}
       </Box>
 
-      {lightboxImage && (
-        <AppLightbox
-          images={[lightboxImage]}
-          onClose={() => setLightboxImage(null)}
-          alt={club.name}
-        />
+      {lightboxIndex !== null && (
+        <Portal>
+          <AppLightbox
+            images={images}
+            initialIndex={lightboxIndex}
+            onClose={() => setLightboxIndex(null)}
+            alt={club.name}
+          />
+        </Portal>
       )}
     </Container>
   );

@@ -173,42 +173,41 @@ export const HistoryMatchCard = ({
       </HStack>
     );
 
-  const matchTypeBadge =
-    onToggleExtra || match.isExtra ? (
-      onToggleExtra ? (
-        <Box
-          as="button"
-          onClick={() => onToggleExtra(match)}
-          bg={match.isExtra ? 'orange.500' : 'brand.600'}
-          color="white"
-          fontSize="xs"
-          px={2}
-          py={1}
-          borderRadius="md"
-          cursor="pointer"
-          _hover={{ opacity: 0.88 }}
-          border="none"
-          fontWeight="bold"
-          lineHeight="1"
-          flexShrink={0}
-        >
-          {match.isExtra ? t('extra') : t('main')}
-        </Box>
-      ) : (
-        <Badge
-          colorPalette="orange"
-          variant="solid"
-          fontSize="xs"
-          px={2}
-          py={1}
-          borderRadius="md"
-          lineHeight="1"
-          flexShrink={0}
-        >
-          {t('extra')}
-        </Badge>
-      )
-    ) : null;
+  const matchTypeBadge = match.isExtra ? (
+    onToggleExtra ? (
+      <Box
+        as="button"
+        onClick={() => onToggleExtra(match)}
+        bg="orange.500"
+        color="white"
+        fontSize="xs"
+        px={2}
+        py={1}
+        borderRadius="md"
+        cursor="pointer"
+        _hover={{ opacity: 0.88 }}
+        border="none"
+        fontWeight="bold"
+        lineHeight="1"
+        flexShrink={0}
+      >
+        {t('extra')}
+      </Box>
+    ) : (
+      <Badge
+        colorPalette="orange"
+        variant="solid"
+        fontSize="xs"
+        px={2}
+        py={1}
+        borderRadius="md"
+        lineHeight="1"
+        flexShrink={0}
+      >
+        {t('extra')}
+      </Badge>
+    )
+  ) : null;
 
   const timeBlock = (showDuration: boolean) => (
     <HStack gap={2} color="gray.600" _dark={{ color: 'gray.300' }} minW={0}>

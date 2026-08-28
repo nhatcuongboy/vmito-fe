@@ -67,6 +67,8 @@ interface PageLayoutProps
    * carrying its own floating back button (detail pages).
    */
   hideTopBarOnMobile?: boolean;
+  /** Hide the TopBar at every breakpoint for an embedded app surface. */
+  hideTopBar?: boolean;
   /** Force title to be centered on mobile regardless of path */
   centerTitle?: boolean;
   showTopBarMenuButton?: boolean;
@@ -114,6 +116,7 @@ export default function PageLayout({
   mobileSubHeaderOffset = '44px',
   hideTopBarBorder = false,
   hideTopBarOnMobile = false,
+  hideTopBar = false,
   centerTitle = false,
   showTopBarMenuButton = true,
   showTopBarLogo = true,
@@ -156,16 +159,20 @@ export default function PageLayout({
 
   const hasSubHeader = isDiscoveryPage || !!subHeader;
   const defaultPaddingTop: ResponsiveStyleValue = {
-    base: hideTopBarOnMobile
+    base: hideTopBar
       ? '0px'
-      : hasSubHeader
-        ? isDiscoveryPage
-          ? `calc(${TOP_BAR_HEIGHT_MOBILE}px + env(safe-area-inset-top) + 112px)`
-          : `calc(${TOP_BAR_HEIGHT_MOBILE}px + env(safe-area-inset-top) + ${mobileSubHeaderOffset})`
-        : `calc(${TOP_BAR_HEIGHT_MOBILE}px + env(safe-area-inset-top) + ${contentTopOffset})`,
-    md: subHeader
-      ? contentTopOffset
-      : `calc(${TOP_BAR_HEIGHT_DESKTOP}px + env(safe-area-inset-top) + ${contentTopOffset})`,
+      : hideTopBarOnMobile
+        ? '0px'
+        : hasSubHeader
+          ? isDiscoveryPage
+            ? `calc(${TOP_BAR_HEIGHT_MOBILE}px + env(safe-area-inset-top) + 112px)`
+            : `calc(${TOP_BAR_HEIGHT_MOBILE}px + env(safe-area-inset-top) + ${mobileSubHeaderOffset})`
+          : `calc(${TOP_BAR_HEIGHT_MOBILE}px + env(safe-area-inset-top) + ${contentTopOffset})`,
+    md: hideTopBar
+      ? '0px'
+      : subHeader
+        ? contentTopOffset
+        : `calc(${TOP_BAR_HEIGHT_DESKTOP}px + env(safe-area-inset-top) + ${contentTopOffset})`,
   };
   const contentPaddingX = getResponsiveStyleParts(px);
   const contentPaddingTop = getResponsiveStyleParts(pt ?? defaultPaddingTop);
@@ -235,7 +242,7 @@ export default function PageLayout({
       minH={(minH ?? '100vh') as ResponsiveStyleValue}
       {...(disableSidebarOffset ? { ml: 0 } : {})}
     >
-      {hideTopBarOnMobile ? (
+      {hideTopBar ? null : hideTopBarOnMobile ? (
         <Box display={{ base: 'none', md: 'block' }}>{topBar}</Box>
       ) : (
         topBar

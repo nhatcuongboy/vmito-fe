@@ -6653,7 +6653,7 @@
     "viewMoreMembers": "View more members",
     "recentAnnouncements": "Recent Announcements",
     "noAnnouncements": "No announcements yet",
-    "createAnnouncement": "New Announcement",
+    "createAnnouncement": "New",
     "editAnnouncement": "Edit Announcement",
     "deleteAnnouncement": "Delete Announcement",
     "confirmDeleteAnnouncement": "Are you sure you want to delete this announcement? This action cannot be undone.",
@@ -6680,6 +6680,8 @@
     "joinRequestSent": "Join request sent successfully",
     "joinedSuccessfully": "You have joined the club successfully",
     "leftSuccessfully": "You have left the club successfully",
+    "leaveClubConfirmTitle": "Leave club?",
+    "leaveClubConfirmDescription": "You will leave {name}. You can join again later.",
     "privateClub": "This is a private club",
     "joinRequests": "Join Requests",
     "noPendingRequests": "No pending join requests",
@@ -6709,6 +6711,7 @@
     "confirmReject": "Reject this join request?",
     "memberActionFailed": "The action could not be completed. Please try again.",
     "manageClubs": "Manage Clubs",
+    "leaderYou": "You",
     "manageYourClubs": "Manage your clubs",
     "createClub": "Create Club",
     "createNewClub": "Create New Club",
@@ -6754,6 +6757,7 @@
     "memberInfoNotUpdated": "Not updated",
     "clubNotFound": "Club not found",
     "feeConfiguration": "Fee Configuration",
+    "manage": "Manage",
     "manageThisClub": "Manage Club",
     "currency": "VND",
     "month": "month",
@@ -7146,6 +7150,30 @@
         "d6": "Sat",
         "d7": "Sun"
       }
+    }
+  },
+  "playerStatus": {
+    "title": "🏸 Player Status",
+    "loading": "Loading player status...",
+    "invalidToken": "Invalid player token",
+    "fetchError": "Failed to fetch player status",
+    "playerNotFound": "❌ Player Not Found",
+    "invalidSession": "Invalid player token or session expired",
+    "joinNewSession": "Join a new session",
+    "playerNumber": "Player #{number}",
+    "waitTime": "Wait Time",
+    "matchesPlayed": "Matches Played",
+    "totalWait": "Total Wait",
+    "currentCourt": "You're on Court #{number}",
+    "refresh": "Refresh Status",
+    "linkAccountPrompt": "Want to link this to your account?",
+    "signIn": "Sign in",
+    "autoRefresh": "Auto-refreshes every 30 seconds",
+    "statuses": {
+      "waiting": "⏳ Waiting",
+      "playing": "🏸 Playing",
+      "ready": "✅ Ready",
+      "finished": "✅ Finished"
     }
   },
   "venueRequests": {

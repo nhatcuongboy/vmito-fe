@@ -361,16 +361,23 @@ export default function VenueDetailClient({
               >
                 {venueName}
               </Heading>
-              <Box display={{ base: 'none', lg: 'block' }} mt={0.5}>
-                <AppAddressDisplay
-                  address={venue.address}
-                  district={venue.district}
-                  city={venue.city}
-                  newAddress={venue.newAddress}
-                  newDistrict={venue.newDistrict}
-                  fontSize="sm"
-                  color="gray.500"
-                />
+              <Box display={{ base: 'none', lg: 'block' }} mt={1}>
+                <Flex align="flex-start" gap={2} minW={0}>
+                  <Box color="gray.500" _dark={{ color: 'gray.400' }} pt="2px">
+                    <MapPin size={16} aria-hidden="true" />
+                  </Box>
+                  <Box flex="1" minW={0}>
+                    <AppAddressDisplay
+                      address={venue.address}
+                      district={venue.district}
+                      city={venue.city}
+                      newAddress={venue.newAddress}
+                      newDistrict={venue.newDistrict}
+                      fontSize="sm"
+                      color="gray.500"
+                    />
+                  </Box>
+                </Flex>
               </Box>
             </Box>
           </Flex>
@@ -380,7 +387,7 @@ export default function VenueDetailClient({
             display={{ base: 'flex', lg: 'none' }}
             align="flex-start"
             gap={2}
-            mt={2.5}
+            mt={3}
             minW={0}
           >
             <Box color="gray.500" _dark={{ color: 'gray.400' }} pt="2px">
