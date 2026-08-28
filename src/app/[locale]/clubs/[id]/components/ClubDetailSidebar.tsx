@@ -11,20 +11,9 @@ import {
   Text,
   VStack,
 } from '@chakra-ui/react';
-import {
-  ChevronRight,
-  Clock,
-  DollarSign,
-  ExternalLink,
-  MapPin,
-  Settings,
-  Shield,
-  UserPlus,
-  XCircle,
-} from 'lucide-react';
+import { ChevronRight, ExternalLink, MapPin, Shield } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { AppAddressDisplay } from '@/components/common/AppAddressDisplay';
-import DetailViewCountFooter from '@/components/common/DetailViewCountFooter';
 import AppHostDetail from '@/components/session/AppHostDetail';
 import LevelBadgeWithDescription from '@/components/session/LevelBadgeWithDescription';
 import SessionMap from '@/components/session/SessionMap';
@@ -33,10 +22,11 @@ import { VModal } from '@/components/ui/VModal';
 import { ROUTES } from '@/constants';
 import { sortLevelsByRank } from '@/constants/levels';
 import { useLevelLabel } from '@/hooks/useLevelLabel';
-import { Link, useRouter } from '@/i18n/config';
+import { Link } from '@/i18n/config';
 import { ISession } from '@/lib/api/types';
 import { getSkillLevelColor } from '@/lib/utils/skillLevel.utils';
-import { EJoinRequestStatus, IClub, IClubJoinRequest } from '@/types/club';
+import { useAuthStore } from '@/stores/useAuthStore';
+import { IClub } from '@/types/club';
 import { ClubSocialLinks } from './ClubSocialLinks';
 import { getGoogleMapsUrl } from '@/utils';
 import {
@@ -48,14 +38,6 @@ import {
 
 interface IClubDetailSidebarProps {
   club: IClub;
-  isUserAdmin: boolean;
-  isUserMember: boolean;
-  hasPendingRequest: boolean;
-  isJoining: boolean;
-  userJoinRequest?: IClubJoinRequest | null;
-  onJoin: () => void;
-  onOpenPendingModal?: () => void;
-  onTabChange?: (tab: string) => void;
 }
 
 interface QuickInfoVenue {
@@ -73,19 +55,9 @@ interface QuickInfoVenue {
 // Keep the location card available for a quick re-enable after the temporary hide.
 const SHOW_CLUB_LOCATION_CARD = false;
 
-export const ClubDetailSidebar = ({
-  club,
-  isUserAdmin,
-  isUserMember,
-  hasPendingRequest,
-  isJoining,
-  userJoinRequest,
-  onJoin,
-  onOpenPendingModal,
-  onTabChange,
-}: IClubDetailSidebarProps) => {
+export const ClubDetailSidebar = ({ club }: IClubDetailSidebarProps) => {
   const t = useTranslations();
-  const router = useRouter();
+  const { user: currentUser } = useAuthStore();
   const { getLevelShortLabel } = useLevelLabel();
   const [isHostDetailModalOpen, setIsHostDetailModalOpen] = useState(false);
 
@@ -107,6 +79,12 @@ export const ClubDetailSidebar = ({
   const linkedHostUser = club.host?.id ? club.host : undefined;
   const hostRealName = club.hostName || club.host?.name;
   const canShowHostDetail = Boolean(linkedHostUser?.id);
+  const isCurrentUserHost = Boolean(
+    currentUser &&
+      ((club.hostId && String(club.hostId) === String(currentUser.id)) ||
+        (linkedHostUser?.id &&
+          String(linkedHostUser.id) === String(currentUser.id)))
+  );
   const venueNames = club.schedules
     ? [
         ...new Set(
@@ -360,29 +338,6 @@ export const ClubDetailSidebar = ({
             </Box>
           )}
 
-          {club.socialLinks &&
-            Object.values(club.socialLinks).some(
-              (val) => typeof val === 'string' && val.trim() !== ''
-            ) && (
-              <Box
-                bg="white"
-                _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
-                borderRadius="2xl"
-                p={5}
-                shadow="sm"
-                borderWidth="1px"
-                borderColor="gray.100"
-              >
-                <Heading size="sm" mb={4}>
-                  {t('clubs.socialLinks.title')}
-                </Heading>
-                <ClubSocialLinks
-                  socialLinks={club.socialLinks}
-                  variant="card"
-                />
-              </Box>
-            )}
-
           <Box
             bg="white"
             _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
@@ -422,7 +377,7 @@ export const ClubDetailSidebar = ({
                 </Avatar.Root>
               </Box>
               <Box flex="1" minW="0">
-                <HStack gap={1.5}>
+                <HStack gap={1.5} minW={0}>
                   <Text
                     fontWeight="bold"
                     fontSize="md"
@@ -440,145 +395,41 @@ export const ClubDetailSidebar = ({
                   >
                     {hostRealName || t('clubs.admin')}
                   </Text>
+                  {isCurrentUserHost && (
+                    <Text fontSize="xs" color="fg.muted" flexShrink={0}>
+                      ({t('clubs.leaderYou')})
+                    </Text>
+                  )}
                 </HStack>
               </Box>
             </HStack>
           </Box>
 
+          {club.socialLinks &&
+            Object.values(club.socialLinks).some(
+              (val) => typeof val === 'string' && val.trim() !== ''
+            ) && (
+              <Box
+                bg="white"
+                _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
+                borderRadius="2xl"
+                p={5}
+                shadow="sm"
+                borderWidth="1px"
+                borderColor="gray.100"
+              >
+                <Heading size="sm" mb={4}>
+                  {t('clubs.socialLinks.title')}
+                </Heading>
+                <ClubSocialLinks
+                  socialLinks={club.socialLinks}
+                  variant="card"
+                />
+              </Box>
+            )}
           {SHOW_CLUB_LOCATION_CARD && (club.defaultVenue || club.location) && (
             <ClubLocationCard club={club} />
           )}
-
-          {isUserAdmin && (
-            <Box
-              bg="white"
-              _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
-              borderRadius="2xl"
-              p={5}
-              shadow="sm"
-              borderWidth="1px"
-              borderColor="gray.100"
-            >
-              <Heading size="sm" mb={4}>
-                {t('clubs.manageThisClub')}
-              </Heading>
-              <Flex gap={2}>
-                <Button
-                  flex={1}
-                  variant="outline"
-                  size="sm"
-                  colorPalette="green"
-                  onClick={() => router.push(ROUTES.HOST.CLUBS.FEES(club.id))}
-                >
-                  <DollarSign size={14} />
-                  {t('clubs.feeConfiguration')}
-                </Button>
-                <Button
-                  flex={1}
-                  variant="outline"
-                  size="sm"
-                  colorPalette="gray"
-                  onClick={() => router.push(ROUTES.HOST.CLUBS.EDIT(club.id))}
-                >
-                  <Settings size={14} />
-                  {t('common.edit')}
-                </Button>
-              </Flex>
-            </Box>
-          )}
-
-          {!isUserMember &&
-            !isUserAdmin &&
-            !hasPendingRequest &&
-            userJoinRequest?.status !== EJoinRequestStatus.REJECTED && (
-              <Button
-                colorPalette="green"
-                size="xl"
-                w="full"
-                onClick={onJoin}
-                loading={isJoining}
-                borderRadius="2xl"
-                shadow="md"
-                _hover={{ shadow: 'xl', transform: 'translateY(-2px)' }}
-                transition="all 0.2s"
-              >
-                <UserPlus size={20} />
-                {t('clubs.joinNow')}
-              </Button>
-            )}
-
-          {!isUserMember && !isUserAdmin && hasPendingRequest && (
-            <Button
-              variant="subtle"
-              colorPalette="yellow"
-              size="xl"
-              w="full"
-              borderRadius="2xl"
-              onClick={onOpenPendingModal}
-              _dark={{
-                bg: 'yellow.900/40',
-                color: 'yellow.300',
-                _hover: { bg: 'yellow.900/60' },
-              }}
-            >
-              <Clock size={20} />
-              {t('clubs.pendingApproval')}
-            </Button>
-          )}
-
-          {!isUserMember &&
-            !isUserAdmin &&
-            !hasPendingRequest &&
-            userJoinRequest?.status === EJoinRequestStatus.REJECTED && (
-              <Box
-                p={4}
-                borderRadius="2xl"
-                bg="red.50"
-                _dark={{ bg: 'red.900/20', borderColor: 'red.800' }}
-                borderWidth="1px"
-                borderColor="red.100"
-              >
-                <HStack gap={2} align="center" mb={1.5}>
-                  <XCircle size={18} color="var(--chakra-colors-red-600)" />
-                  <Text
-                    fontWeight="bold"
-                    fontSize="sm"
-                    color="red.800"
-                    _dark={{ color: 'red.200' }}
-                  >
-                    Yêu cầu tham gia bị từ chối
-                  </Text>
-                </HStack>
-                {userJoinRequest.response && (
-                  <Text
-                    fontSize="xs"
-                    color="red.700"
-                    _dark={{ color: 'red.300' }}
-                    mb={3}
-                  >
-                    Lý do: {userJoinRequest.response}
-                  </Text>
-                )}
-                <Button
-                  colorPalette="green"
-                  size="md"
-                  w="full"
-                  onClick={onJoin}
-                  loading={isJoining}
-                  borderRadius="xl"
-                  mt={userJoinRequest.response ? 0 : 2}
-                >
-                  <UserPlus size={16} />
-                  Gửi lại yêu cầu
-                </Button>
-              </Box>
-            )}
-
-          <DetailViewCountFooter
-            targetType="CLUB"
-            targetId={club.id}
-            initialCount={club.viewCount}
-          />
         </VStack>
       </Box>
 

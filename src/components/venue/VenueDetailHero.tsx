@@ -192,33 +192,6 @@ const VenueDetailHero = ({
             onClick={onBack}
             icon={<ChevronLeft size={24} strokeWidth={2.5} />}
           />
-          <HStack
-            gap={2}
-            h="40px"
-            px={3}
-            bg="blackAlpha.500"
-            backdropFilter="blur(6px)"
-            borderRadius="full"
-            boxShadow="0 2px 8px rgba(0,0,0,0.35)"
-          >
-            <Image
-              src="/icons/app-logo-96.png"
-              alt=""
-              boxSize="20px"
-              draggable={false}
-              pointerEvents="none"
-            />
-            <Text
-              color="#FFFFFF"
-              fontSize="15px"
-              fontWeight="500"
-              lineHeight="1"
-              textShadow="0 1px 3px rgba(0, 0, 0, 0.55)"
-              translate="no"
-            >
-              Vmito
-            </Text>
-          </HStack>
         </Flex>
 
         {/* Favourite + Share — top-right */}

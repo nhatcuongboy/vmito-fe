@@ -1,27 +1,25 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import {
-  Box,
-  Container,
-  Heading,
-  Text,
-  HStack,
-  Image,
-  Grid,
-  Tabs,
-} from '@chakra-ui/react';
+import { Box, Container, Heading, Grid, Tabs } from '@chakra-ui/react';
 import { Button } from '@/components/ui/chakra-compat';
 import { useTranslations } from 'next-intl';
 import { UserRole } from '@/lib/api/types';
 import { useParams, useSearchParams } from 'next/navigation';
 import { usePathname, useRouter } from '@/i18n/config';
 import { ClubsService } from '@/lib/api/clubs.service';
-import { IClub, EMemberRole, EJoinRequestStatus } from '@/types/club';
+import {
+  IClub,
+  EClubJoinPolicy,
+  EMemberRole,
+  EJoinRequestStatus,
+} from '@/types/club';
 import { toaster } from '@/components/ui/toaster';
 import { useAuthStore } from '@/stores/useAuthStore';
 import PageLayout from '@/components/layout/PageLayout';
 import DetailPageSkeleton from '@/components/layout/DetailPageSkeleton';
+import AppDetailStickyHeader from '@/components/common/AppDetailStickyHeader';
+import AppConfirmDialog from '@/components/ui/AppConfirmDialog';
 import { DEFAULT_COVER_PHOTO, DETAIL_PAGE_MAX_W, ROUTES } from '@/constants';
 import {
   DEFAULT_CLUB_TAB,
@@ -30,6 +28,10 @@ import {
 } from './club-detail.types';
 import dynamic from 'next/dynamic';
 import { ClubDetailHero } from './components/ClubDetailHero';
+import {
+  ClubDetailIdentity,
+  ClubMembershipBottomBar,
+} from './components/ClubDetailIdentity';
 import { ClubDetailTabList } from './components/ClubDetailTabList';
 import { ClubAboutTab } from './components/ClubAboutTab';
 import { ClubScheduleTab } from './components/ClubScheduleTab';
@@ -58,7 +60,7 @@ export default function ClubDetailClient({
   const searchParams = useSearchParams();
   const params = useParams();
   const clubId = params.id as string;
-  const { user: currentUser } = useAuthStore();
+  const { user: currentUser, isHydrated: isAuthHydrated } = useAuthStore();
 
   const [club, setClub] = useState<IClub | null>(initialClub);
   const [isLoading, setIsLoading] = useState(!initialClub);
@@ -67,6 +69,11 @@ export default function ClubDetailClient({
     useState<IClubJoinRequest | null>(null);
   const [isPendingModalOpen, setIsPendingModalOpen] = useState(false);
   const [isCancelling, setIsCancelling] = useState(false);
+  const [isLeaving, setIsLeaving] = useState(false);
+  const [isLeaveConfirmOpen, setIsLeaveConfirmOpen] = useState(false);
+  const [isMembershipStatusLoading, setIsMembershipStatusLoading] = useState(
+    !isAuthHydrated || Boolean(currentUser)
+  );
 
   const tabParam = searchParams.get('tab');
   const [activeTab, setActiveTab] = useState<TClubDetailTab>(
@@ -124,7 +131,17 @@ export default function ClubDetailClient({
   // but the join-request status is user-specific and was never fetched
   // server-side, so it still needs its own request on mount.
   const refreshJoinRequestStatus = useCallback(async () => {
-    if (!currentUser) return;
+    if (!isAuthHydrated) {
+      setIsMembershipStatusLoading(true);
+      return;
+    }
+
+    if (!currentUser) {
+      setIsMembershipStatusLoading(false);
+      return;
+    }
+
+    setIsMembershipStatusLoading(true);
     try {
       const myRequests = await ClubsService.getMyJoinRequests();
       const req = myRequests.find((r) => r.clubId === clubId);
@@ -132,8 +149,10 @@ export default function ClubDetailClient({
       setHasPendingRequest(req?.status === EJoinRequestStatus.PENDING);
     } catch (error) {
       console.error('Failed to load join request status:', error);
+    } finally {
+      setIsMembershipStatusLoading(false);
     }
-  }, [clubId, currentUser]);
+  }, [clubId, currentUser, isAuthHydrated]);
 
   useEffect(() => {
     if (initialClub) {
@@ -146,9 +165,23 @@ export default function ClubDetailClient({
     }
   }, [clubId, loadClubDetails, initialClub, refreshJoinRequestStatus]);
 
-  const isUserMember =
-    optimisticallyJoinedClubId === club?.id ||
-    club?.members?.some((m) => m.user.id === currentUser?.id);
+  // When server-side loading did not provide a club, the client fetch above
+  // also runs before persisted auth is guaranteed to be ready. Re-check the
+  // user-specific request state after hydration so the action bar is never
+  // left in its loading state or shown with an incorrect action.
+  useEffect(() => {
+    if (!initialClub) refreshJoinRequestStatus();
+  }, [initialClub, refreshJoinRequestStatus]);
+
+  const isUserMember = Boolean(
+    currentUser &&
+      (optimisticallyJoinedClubId === club?.id ||
+        club?.members?.some(
+          (m) =>
+            String(m.userId) === String(currentUser.id) ||
+            String(m.user.id) === String(currentUser.id)
+        ))
+  );
 
   const isUserAdmin =
     !!currentUser &&
@@ -161,6 +194,12 @@ export default function ClubDetailClient({
             String(m?.user?.id) === String(currentUser.id)) &&
           m.role === EMemberRole.ADMIN
       ));
+
+  const isClubOwner = Boolean(
+    currentUser &&
+      ((club?.hostId && String(club.hostId) === String(currentUser.id)) ||
+        (club?.host?.id && String(club.host.id) === String(currentUser.id)))
+  );
 
   const handleJoinClub = async () => {
     if (!currentUser) {
@@ -189,6 +228,24 @@ export default function ClubDetailClient({
       toaster.error({ title: t('common.error') });
     } finally {
       setIsJoining(false);
+    }
+  };
+
+  const handleLeaveClub = async () => {
+    if (!club) return;
+
+    try {
+      setIsLeaving(true);
+      await ClubsService.leaveClub(club.id);
+      toaster.success({ title: t('clubs.leftSuccessfully') });
+      setOptimisticallyJoinedClubId(null);
+      await loadClubDetails(true);
+      setIsLeaveConfirmOpen(false);
+    } catch (error) {
+      console.error('Failed to leave club:', error);
+      toaster.error({ title: t('common.error') });
+    } finally {
+      setIsLeaving(false);
     }
   };
 
@@ -234,46 +291,89 @@ export default function ClubDetailClient({
 
   const clubDisplayImage = club.image || DEFAULT_COVER_PHOTO;
   const hasClubImages = (club.images?.length ?? 0) > 0;
+  const isRejected = userJoinRequest?.status === EJoinRequestStatus.REJECTED;
+  const isInvitationOnly = club.joinPolicy === EClubJoinPolicy.INVITATION_ONLY;
+  const canLeaveClub = isUserMember && !isClubOwner;
+
+  const handleBack = () => {
+    if (typeof window !== 'undefined' && window.history.length > 1) {
+      router.back();
+      return;
+    }
+    router.push(ROUTES.CLUBS.BROWSE);
+  };
+
+  const handleShare = async () => {
+    const shareUrl =
+      typeof window !== 'undefined'
+        ? `${window.location.origin}${window.location.pathname}`
+        : '';
+
+    try {
+      if (typeof navigator !== 'undefined' && navigator.share) {
+        await navigator.share({
+          title: club.name,
+          text: t('clubs.shareText', { name: club.name }),
+          url: shareUrl,
+        });
+        return;
+      }
+
+      if (typeof navigator !== 'undefined' && navigator.clipboard) {
+        await navigator.clipboard.writeText(shareUrl);
+        toaster.success({ title: t('clubs.linkCopied') });
+      }
+    } catch (error) {
+      if (error instanceof DOMException && error.name === 'AbortError') return;
+      console.error('Failed to share club:', error);
+      toaster.error({ title: t('clubs.shareFailed') });
+    }
+  };
 
   return (
-    <PageLayout
-      title={
-        <HStack gap={2} align="center" minW={0} flex="1">
-          {/* Only shown once the club has a dedicated logo — falling back to
-              a cropped cover/group photo at 32px reads as an unrecognizable
-              smudge, not a brand mark. */}
-          {club.logo && (
-            <Box
-              w="32px"
-              h="32px"
-              display={{ base: 'flex', md: 'none' }}
-              borderRadius="md"
-              overflow="hidden"
-              bg="gray.100"
-              flexShrink={0}
-              alignItems="center"
-              justifyContent="center"
-            >
-              <Image
-                src={club.logo}
-                alt={club.name}
-                objectFit="cover"
-                w="full"
-                h="full"
-              />
-            </Box>
-          )}
-          <Text truncate fontWeight="bold" flex="1" minW={0}>
-            {club.name}
-          </Text>
-        </HStack>
-      }
-      maxW={DETAIL_PAGE_MAX_W}
-    >
-      <ClubDetailHero club={club} clubDisplayImage={clubDisplayImage} />
+    <PageLayout title={club.name} maxW={DETAIL_PAGE_MAX_W} hideTopBarOnMobile>
+      <ClubDetailHero
+        club={club}
+        clubDisplayImage={clubDisplayImage}
+        onBack={handleBack}
+        onShare={handleShare}
+        canLeaveClub={canLeaveClub}
+        isLeaving={isLeaving}
+        onLeave={() => setIsLeaveConfirmOpen(true)}
+      />
+
+      <AppDetailStickyHeader
+        title={club.name}
+        onBack={handleBack}
+        onShare={handleShare}
+        shareLabel={t('clubs.share')}
+        showBrand
+      />
+
+      <Container maxW={DETAIL_PAGE_MAX_W} px={0}>
+        <ClubDetailIdentity
+          club={club}
+          isClubOwner={isClubOwner}
+          onEdit={() => router.push(ROUTES.HOST.CLUBS.EDIT(club.id))}
+          onFees={() => router.push(ROUTES.HOST.CLUBS.FEES(club.id))}
+          isUserAdmin={Boolean(isUserAdmin)}
+          isUserMember={isUserMember}
+          isMembershipStatusLoading={isMembershipStatusLoading}
+          hasPendingRequest={hasPendingRequest}
+          isRejected={isRejected}
+          isInvitationOnly={isInvitationOnly}
+          isJoining={isJoining}
+          onJoin={handleJoinClub}
+          onOpenPending={() => setIsPendingModalOpen(true)}
+        />
+      </Container>
 
       {/* Navigation Tabs & Content */}
-      <Container maxW={DETAIL_PAGE_MAX_W} pb={8} px={0}>
+      <Container
+        maxW={DETAIL_PAGE_MAX_W}
+        pb={{ base: 'calc(96px + env(safe-area-inset-bottom))', md: 8 }}
+        px={0}
+      >
         <Tabs.Root
           value={activeTab}
           onValueChange={(e) => handleTabChange(e.value)}
@@ -284,9 +384,12 @@ export default function ClubDetailClient({
             hasImages={hasClubImages}
           />
 
-          {/* Grid Layout 7:3 */}
+          {/* Keep the sidebar column only for the About tab. */}
           <Grid
-            templateColumns={{ base: '1fr', lg: '2.3fr 1fr' }}
+            templateColumns={{
+              base: '1fr',
+              lg: activeTab === 'about' ? '2.3fr 1fr' : '1fr',
+            }}
             gap={6}
             mt={0}
           >
@@ -311,25 +414,29 @@ export default function ClubDetailClient({
               )}
             </Box>
 
-            <ClubDetailSidebar
-              club={club}
-              isUserAdmin={Boolean(isUserAdmin)}
-              isUserMember={Boolean(isUserMember)}
-              hasPendingRequest={hasPendingRequest}
-              isJoining={isJoining}
-              userJoinRequest={userJoinRequest}
-              onJoin={handleJoinClub}
-              onOpenPendingModal={() => setIsPendingModalOpen(true)}
-              onTabChange={handleTabChange}
-            />
+            {activeTab === 'about' && <ClubDetailSidebar club={club} />}
           </Grid>
         </Tabs.Root>
       </Container>
+      <ClubMembershipBottomBar
+        isClubOwner={isClubOwner}
+        onEdit={() => router.push(ROUTES.HOST.CLUBS.EDIT(club.id))}
+        onFees={() => router.push(ROUTES.HOST.CLUBS.FEES(club.id))}
+        isUserAdmin={Boolean(isUserAdmin)}
+        isUserMember={isUserMember}
+        isMembershipStatusLoading={isMembershipStatusLoading}
+        hasPendingRequest={hasPendingRequest}
+        isRejected={isRejected}
+        isInvitationOnly={isInvitationOnly}
+        isJoining={isJoining}
+        onJoin={handleJoinClub}
+        onOpenPending={() => setIsPendingModalOpen(true)}
+      />
       {isLoginModalOpen && (
         <LoginPromptModal
           isOpen={isLoginModalOpen}
           onClose={() => setIsLoginModalOpen(false)}
-          featureName={t('clubs.joinNow')}
+          featureName={t('clubs.joinClub')}
           returnUrl={pathname}
         />
       )}
@@ -343,6 +450,16 @@ export default function ClubDetailClient({
           clubName={club.name}
         />
       )}
+      <AppConfirmDialog
+        isOpen={isLeaveConfirmOpen}
+        title={t('clubs.leaveClubConfirmTitle')}
+        body={t('clubs.leaveClubConfirmDescription', { name: club.name })}
+        confirmLabel={t('clubs.leaveClub')}
+        cancelLabel={t('common.cancel')}
+        isLoading={isLeaving}
+        onConfirm={handleLeaveClub}
+        onClose={() => setIsLeaveConfirmOpen(false)}
+      />
     </PageLayout>
   );
 }

@@ -49,7 +49,7 @@ export const AppAddressDisplay = ({
         color={color}
         _dark={_dark}
         lineClamp={lineClamp}
-        flex="1"
+        flex="0 1 auto"
         minW="0"
       >
         {text}

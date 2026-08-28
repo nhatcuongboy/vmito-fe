@@ -1,4 +1,4 @@
-import { Box, Flex, Heading, Tabs, Text, VStack } from '@chakra-ui/react';
+import { Box, Flex, Grid, Heading, Tabs, Text } from '@chakra-ui/react';
 import { Calendar } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { IClub } from '@/types/club';
@@ -26,7 +26,10 @@ export const ClubScheduleTab = ({ schedules }: IClubScheduleTabProps) => {
         </Heading>
 
         {schedules && schedules.length > 0 ? (
-          <VStack gap={3} align="stretch">
+          <Grid
+            templateColumns={{ base: '1fr', lg: 'repeat(2, minmax(0, 1fr))' }}
+            gap={3}
+          >
             {schedules
               .sort((first, second) => first.dayOfWeek - second.dayOfWeek)
               .map((schedule) => (
@@ -94,7 +97,7 @@ export const ClubScheduleTab = ({ schedules }: IClubScheduleTabProps) => {
                   </Box>
                 </Flex>
               ))}
-          </VStack>
+          </Grid>
         ) : (
           <Flex
             direction="column"

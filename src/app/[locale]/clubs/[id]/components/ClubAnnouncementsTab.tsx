@@ -163,16 +163,19 @@ export const ClubAnnouncementsTab = ({
         >
           <Flex
             justify="space-between"
-            align={{ base: 'flex-start', sm: 'center' }}
-            direction={{ base: 'column', sm: 'row' }}
+            align="center"
+            direction="row"
             gap={3}
             mb={5}
           >
-            <Heading size="md">{t('clubs.announcementsTab')}</Heading>
+            <Heading size="md" flex="1" minW="0" lineClamp={1}>
+              {t('clubs.announcementsTab')}
+            </Heading>
             {isUserAdmin && (
               <Button
                 size="sm"
                 colorPalette="green"
+                flexShrink={0}
                 onClick={handleOpenCreateModal}
               >
                 <Plus size={16} />

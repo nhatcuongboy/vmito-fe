@@ -8,7 +8,8 @@ import {
   TOP_BAR_HEIGHT_MOBILE,
 } from '@/constants';
 import { useSidebar } from '@/contexts/SidebarContext';
-import type { CSSProperties, ReactNode } from 'react';
+import { useSearchParams } from 'next/navigation';
+import { useEffect, useState, type CSSProperties, type ReactNode } from 'react';
 import {
   resolveCssColor,
   resolveCssSize,
@@ -39,6 +40,21 @@ export default function MainLayout({
   showLogoDesktopOnly = true,
 }: MainLayoutProps) {
   const { isCollapsed } = useSidebar();
+  const searchParams = useSearchParams();
+  const [isEmbedded, setIsEmbedded] = useState(
+    () =>
+      searchParams.get('embedded') === '1' ||
+      (typeof window !== 'undefined' &&
+        window.sessionStorage.getItem('vmito.embedded') === '1')
+  );
+  useEffect(() => {
+    const storageKey = 'vmito.embedded';
+    const embedded =
+      searchParams.get('embedded') === '1' ||
+      window.sessionStorage.getItem(storageKey) === '1';
+    if (embedded) window.sessionStorage.setItem(storageKey, '1');
+    setIsEmbedded(embedded);
+  }, [searchParams]);
   const responsiveBackground =
     typeof backgroundColor === 'object'
       ? backgroundColor
@@ -49,8 +65,8 @@ export default function MainLayout({
     '--main-layout-sidebar-offset': `${
       isCollapsed ? SIDEBAR_WIDTH_COLLAPSED : SIDEBAR_WIDTH_EXPANDED
     }px`,
-    '--main-layout-top-mobile': `${TOP_BAR_HEIGHT_MOBILE}px`,
-    '--main-layout-top-desktop': `${TOP_BAR_HEIGHT_DESKTOP}px`,
+    '--main-layout-top-mobile': `${isEmbedded ? 0 : TOP_BAR_HEIGHT_MOBILE}px`,
+    '--main-layout-top-desktop': `${isEmbedded ? 0 : TOP_BAR_HEIGHT_DESKTOP}px`,
     '--main-layout-bg-mobile': resolveCssColor(lightBackground)!,
     '--main-layout-bg-desktop': resolveCssColor(
       responsiveBackground.md ?? lightBackground
@@ -67,13 +83,15 @@ export default function MainLayout({
       className="main-layout-shell"
       style={layoutStyle}
     >
-      <TopBar
-        title={title}
-        showBackButton={showBackButton}
-        backHref={backHref}
-        centerTitle={centerTitle}
-        showLogoDesktopOnly={showLogoDesktopOnly}
-      />
+      {isEmbedded ? null : (
+        <TopBar
+          title={title}
+          showBackButton={showBackButton}
+          backHref={backHref}
+          centerTitle={centerTitle}
+          showLogoDesktopOnly={showLogoDesktopOnly}
+        />
+      )}
       <div data-slot="main-layout-scroll" className="main-layout-scroll">
         <div className="main-layout-column">
           <div className="main-layout-content">{children}</div>
