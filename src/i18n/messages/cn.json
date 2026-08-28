@@ -7114,6 +7114,30 @@
       }
     }
   },
+  "playerStatus": {
+    "title": "🏸 球员状态",
+    "loading": "正在加载球员状态...",
+    "invalidToken": "球员令牌无效",
+    "fetchError": "无法获取球员状态",
+    "playerNotFound": "❌ 未找到球员",
+    "invalidSession": "球员令牌无效或会话已过期",
+    "joinNewSession": "加入新会话",
+    "playerNumber": "球员 #{number}",
+    "waitTime": "等待时间",
+    "matchesPlayed": "已参加比赛",
+    "totalWait": "总等待时间",
+    "currentCourt": "你正在 #{number} 号场地",
+    "refresh": "刷新状态",
+    "linkAccountPrompt": "想要将其关联到你的账户吗？",
+    "signIn": "登录",
+    "autoRefresh": "每 30 秒自动刷新",
+    "statuses": {
+      "waiting": "⏳ 等待中",
+      "playing": "🏸 比赛中",
+      "ready": "✅ 准备就绪",
+      "finished": "✅ 已结束"
+    }
+  },
   "venueRequests": {
     "suggestNewVenue": "建议新增场地",
     "createTitle": "建议新增场地",

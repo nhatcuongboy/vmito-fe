@@ -7152,6 +7152,30 @@
       }
     }
   },
+  "playerStatus": {
+    "title": "🏸 Player Status",
+    "loading": "Loading player status...",
+    "invalidToken": "Invalid player token",
+    "fetchError": "Failed to fetch player status",
+    "playerNotFound": "❌ Player Not Found",
+    "invalidSession": "Invalid player token or session expired",
+    "joinNewSession": "Join a new session",
+    "playerNumber": "Player #{number}",
+    "waitTime": "Wait Time",
+    "matchesPlayed": "Matches Played",
+    "totalWait": "Total Wait",
+    "currentCourt": "You're on Court #{number}",
+    "refresh": "Refresh Status",
+    "linkAccountPrompt": "Want to link this to your account?",
+    "signIn": "Sign in",
+    "autoRefresh": "Auto-refreshes every 30 seconds",
+    "statuses": {
+      "waiting": "⏳ Waiting",
+      "playing": "🏸 Playing",
+      "ready": "✅ Ready",
+      "finished": "✅ Finished"
+    }
+  },
   "venueRequests": {
     "suggestNewVenue": "Suggest new venue",
     "createTitle": "Suggest a new venue",

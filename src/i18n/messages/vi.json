@@ -7173,6 +7173,30 @@
       }
     }
   },
+  "playerStatus": {
+    "title": "🏸 Trạng thái người chơi",
+    "loading": "Đang tải trạng thái người chơi...",
+    "invalidToken": "Mã người chơi không hợp lệ",
+    "fetchError": "Không thể tải trạng thái người chơi",
+    "playerNotFound": "❌ Không tìm thấy người chơi",
+    "invalidSession": "Mã người chơi không hợp lệ hoặc phiên đã hết hạn",
+    "joinNewSession": "Tham gia phiên mới",
+    "playerNumber": "Người chơi #{number}",
+    "waitTime": "Thời gian chờ",
+    "matchesPlayed": "Số trận đã chơi",
+    "totalWait": "Tổng thời gian chờ",
+    "currentCourt": "Bạn đang ở sân #{number}",
+    "refresh": "Làm mới trạng thái",
+    "linkAccountPrompt": "Bạn muốn liên kết với tài khoản?",
+    "signIn": "Đăng nhập",
+    "autoRefresh": "Tự động làm mới sau mỗi 30 giây",
+    "statuses": {
+      "waiting": "⏳ Đang chờ",
+      "playing": "🏸 Đang chơi",
+      "ready": "✅ Sẵn sàng",
+      "finished": "✅ Đã kết thúc"
+    }
+  },
   "venueRequests": {
     "suggestNewVenue": "Đề xuất sân mới",
     "createTitle": "Đề xuất sân mới",
