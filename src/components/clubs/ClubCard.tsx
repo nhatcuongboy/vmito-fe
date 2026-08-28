@@ -233,7 +233,9 @@ export default function ClubCard({
                 gap={1.5}
               >
                 <MapPin size={14} style={{ flexShrink: 0 }} />
-                <Text lineClamp={1}>{venueName}</Text>
+                <Text fontWeight="medium" lineClamp={1}>
+                  {venueName}
+                </Text>
               </HStack>
             )}
 
@@ -265,7 +267,7 @@ export default function ClubCard({
                 _dark={{ color: 'gray.400' }}
               >
                 <Clock size={14} style={{ flexShrink: 0 }} />
-                <Text fontSize="sm" lineClamp={1}>
+                <Text fontSize="sm" fontWeight="medium" lineClamp={1}>
                   {scheduleText.split('\n')[0]}
                   {scheduleText.includes('\n') ? '...' : ''}
                 </Text>

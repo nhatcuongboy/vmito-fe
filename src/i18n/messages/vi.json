@@ -6479,6 +6479,8 @@
     "deleteConfirmDescription": "Bài viết này sẽ bị xóa khỏi bảng tin.",
     "writeComment": "Viết bình luận...",
     "sendComment": "Gửi bình luận",
+    "reply": "Trả lời",
+    "replyToComment": "Trả lời {name}",
     "deleteComment": "Xóa bình luận",
     "noComments": "Chưa có bình luận nào",
     "loadCommentsError": "Không thể tải bình luận",
