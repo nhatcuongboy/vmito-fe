@@ -30,6 +30,7 @@ import { useTranslations as useNextIntlTranslations } from 'next-intl';
 import { SessionLocationType, SportType, Venue } from '@/lib/api/types';
 import { SessionFormData } from '@/components/session/session-form/sessionFormSchema';
 import { AppSportSelect } from '@/components/common/AppSportSelect';
+import { useAiFeatureEnabled } from '@/hooks/useAiFeatureEnabled';
 import { useRef, useState, useEffect } from 'react';
 
 type Translator = ReturnType<typeof useTranslations>;
@@ -87,6 +88,7 @@ export function BasicInfoSection({
   const tVenueRequests = useNextIntlTranslations('venueRequests');
   const tCommon = useNextIntlTranslations('common');
   const tSport = useNextIntlTranslations('sport');
+  const aiFeatureEnabled = useAiFeatureEnabled();
   const locationType = useWatch({ control, name: 'locationType' });
   const selectedVenueId = useWatch({ control, name: 'selectedVenueId' });
   const customLocation = useWatch({ control, name: 'customLocation' });
@@ -141,7 +143,7 @@ export function BasicInfoSection({
     >
       <Flex justify="space-between" align="center" mb={4} wrap="wrap" gap={2}>
         <Heading size="md">{t('basicInfo')}</Heading>
-        {!isEditMode && (
+        {!isEditMode && aiFeatureEnabled && (
           <Button
             size="xs"
             variant="outline"

@@ -4,6 +4,7 @@ import { useMemo } from 'react';
 import { usePathname } from '@/i18n/config';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { useSessionFilterStore } from '@/stores/useSessionFilterStore';
+import { useAiFeatureEnabled } from './useAiFeatureEnabled';
 
 const HIDDEN_PATHS = ['/auth', '/admin', '/guest', '/join'];
 
@@ -11,8 +12,10 @@ export function useAiAssistantVisibility() {
   const { isAuthenticated, isHydrated } = useAuthStore();
   const pathname = usePathname();
   const { viewMode } = useSessionFilterStore();
+  const aiFeatureEnabled = useAiFeatureEnabled();
 
   return useMemo(() => {
+    if (!aiFeatureEnabled) return false;
     if (!isHydrated || !isAuthenticated) return false;
     if (viewMode === 'map') return false;
 
@@ -20,5 +23,5 @@ export function useAiAssistantVisibility() {
       pathname?.replace(/^\/[a-z]{2}(\/|$)/, '/').replace(/\/$/, '') || '/';
 
     return !HIDDEN_PATHS.some((path) => normalized.startsWith(path));
-  }, [isAuthenticated, isHydrated, pathname, viewMode]);
+  }, [aiFeatureEnabled, isAuthenticated, isHydrated, pathname, viewMode]);
 }

@@ -19,6 +19,7 @@ import { Locale } from '@/i18n/locales';
 import { UserRole } from '@/lib/api/types';
 import { useAiAssistantStore } from '@/stores/useAiAssistantStore';
 import { useAuthStore } from '@/stores/useAuthStore';
+import { useAiFeatureEnabled } from '@/hooks/useAiFeatureEnabled';
 import { useAppSettings } from '@/contexts/AppSettingsContext';
 import { VSwitch } from '@/components/ui/VSwitch';
 import {
@@ -62,6 +63,7 @@ type MenuState = 'MAIN' | 'APPEARANCE' | 'LANGUAGE';
 
 export default function UserMenu({ onLogout }: UserMenuProps) {
   const { user } = useAuthStore();
+  const aiFeatureEnabled = useAiFeatureEnabled();
   const common = useTranslations('common');
   const navigation = useTranslations('navigation');
   const locale = useLocale();
@@ -319,30 +321,36 @@ export default function UserMenu({ onLogout }: UserMenuProps) {
       </Flex>
 
       {/* AI Assistant */}
-      <Flex
-        align="center"
-        gap={{ base: 2, md: 3 }}
-        px={{ base: 3, md: 4 }}
-        py={{ base: 2, md: 2 }}
-        cursor="pointer"
-        _hover={{ bg: 'gray.50', _dark: { bg: 'gray.700' } }}
-        onClick={() => {
-          setIsOpen(false);
-          useAiAssistantStore.getState().open();
-        }}
-      >
-        <Box
-          bg="purple.50"
-          _dark={{ bg: 'purple.800/50' }}
-          p={{ base: 1.5, md: 2 }}
-          borderRadius="full"
+      {aiFeatureEnabled && (
+        <Flex
+          align="center"
+          gap={{ base: 2, md: 3 }}
+          px={{ base: 3, md: 4 }}
+          py={{ base: 2, md: 2 }}
+          cursor="pointer"
+          _hover={{ bg: 'gray.50', _dark: { bg: 'gray.700' } }}
+          onClick={() => {
+            setIsOpen(false);
+            useAiAssistantStore.getState().open();
+          }}
         >
-          <Sparkles size={16} color="var(--chakra-colors-purple-500)" />
-        </Box>
-        <Text fontSize={{ base: 'sm', md: 'md' }} fontWeight="medium" flex={1}>
-          {common('aiAssistant')}
-        </Text>
-      </Flex>
+          <Box
+            bg="purple.50"
+            _dark={{ bg: 'purple.800/50' }}
+            p={{ base: 1.5, md: 2 }}
+            borderRadius="full"
+          >
+            <Sparkles size={16} color="var(--chakra-colors-purple-500)" />
+          </Box>
+          <Text
+            fontSize={{ base: 'sm', md: 'md' }}
+            fontWeight="medium"
+            flex={1}
+          >
+            {common('aiAssistant')}
+          </Text>
+        </Flex>
+      )}
 
       {/* Settings */}
       <Flex
