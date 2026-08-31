@@ -7,6 +7,7 @@ import { Volume2, Sparkles } from 'lucide-react';
 import { TMatchType } from '@/hooks/useCourtsTabModals';
 import CourtPlayer, { BadmintonCourtPlayer } from './CourtPlayer';
 import { useAiAssistantStore } from '@/stores/useAiAssistantStore';
+import { useAiFeatureEnabled } from '@/hooks/useAiFeatureEnabled';
 import { useLocale, useTranslations } from 'next-intl';
 import { Locale } from '@/i18n/locales';
 import MatchRepeatWarningButton from '@/components/session/MatchRepeatWarning';
@@ -66,6 +67,7 @@ export default function BadmintonCourt({
   const aspectRatio = 13.4 / 6.1;
   const preSelectedCount = preSelectedPlayers.length;
   const { openWithMessage } = useAiAssistantStore();
+  const aiFeatureEnabled = useAiFeatureEnabled();
   const locale = useLocale();
   const tAi = useTranslations('aiAssistant');
 
@@ -707,7 +709,7 @@ export default function BadmintonCourt({
       )}
       <MatchRepeatWarningButton warning={matchRepeatWarning} />
       {/* AI Analysis button - only visible when READY or IN_USE */}
-      {(status === 'READY' || status === 'IN_USE') && (
+      {aiFeatureEnabled && (status === 'READY' || status === 'IN_USE') && (
         <Box
           position="absolute"
           top="4%"

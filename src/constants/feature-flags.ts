@@ -15,6 +15,9 @@ export const FEATURE_FLAG_DEFAULTS = {
   DEFAULT_USE_AI_FOR_CREATION: true,
   /** Controls the shuttlecock-count input and related statistics/export column. */
   SHOW_SHUTTLECOCK_COUNT: false,
+  /** Global switch for all AI features (assistant, AI session creation, AI
+   *  match analysis, AI-powered court matching). */
+  AI_FEATURE_ENABLED: true,
   CLASSES_FEATURE_ENABLED,
 } as const;
 

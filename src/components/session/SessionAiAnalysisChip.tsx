@@ -7,6 +7,7 @@ import { Sparkles } from 'lucide-react';
 import { useTranslations, useLocale } from 'next-intl';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { useAiAssistantStore } from '@/stores/useAiAssistantStore';
+import { useAiFeatureEnabled } from '@/hooks/useAiFeatureEnabled';
 import { Locale } from '@/i18n/locales';
 import { sortLevelsByRank } from '@/constants/levels';
 
@@ -100,10 +101,11 @@ const SessionAiAnalysisChip = ({ session }: ISessionAiAnalysisChipProps) => {
   const locale = useLocale();
   const { isAuthenticated, user } = useAuthStore();
   const { openWithMessage } = useAiAssistantStore();
+  const aiFeatureEnabled = useAiFeatureEnabled();
 
   // Only show for authenticated non-guest users (guests have playerId set)
   const isGuest = !!user?.playerId;
-  if (!isAuthenticated || isGuest) return null;
+  if (!aiFeatureEnabled || !isAuthenticated || isGuest) return null;
 
   const handleClick = () => {
     const prompt = buildAnalysisPrompt(session, locale, (level) =>

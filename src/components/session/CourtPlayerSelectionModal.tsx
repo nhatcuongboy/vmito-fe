@@ -24,6 +24,7 @@ import {
   MatchRepeatWarningResult,
 } from '@/utils/match-repeat-warning';
 import { LEVEL_DEFINITIONS, LEVELS, getLevelRank } from '@/constants/levels';
+import { useAiFeatureEnabled } from '@/hooks/useAiFeatureEnabled';
 
 type SelectionMode = 'auto' | 'manual';
 
@@ -100,6 +101,7 @@ const CourtPlayerSelectionModal: React.FC<ICourtPlayerSelectionModalProps> = ({
 }) => {
   const t = useTranslations('SessionDetail');
   const locale = useLocale() as Locale;
+  const aiFeatureEnabled = useAiFeatureEnabled();
 
   // Keep tab/matching options separate for singles and doubles.
   const [modeByMatchType, setModeByMatchType] = useState<
@@ -138,7 +140,8 @@ const CourtPlayerSelectionModal: React.FC<ICourtPlayerSelectionModalProps> = ({
   }, [numberOfCourts, waitingPlayersCount, playersPerCourt]);
 
   const mode = modeByMatchType[matchType];
-  const useAi = useAiByMatchType[matchType];
+  // AI matching can only be active when the global AI feature flag is on.
+  const useAi = aiFeatureEnabled && useAiByMatchType[matchType];
   const topCount = topCountByMatchType[matchType] ?? defaultTopCount;
 
   // Fetch suggested players
@@ -279,7 +282,7 @@ const CourtPlayerSelectionModal: React.FC<ICourtPlayerSelectionModalProps> = ({
 
   // Handle AI toggle
   const handleAiToggle = () => {
-    if (!court?.id) return;
+    if (!court?.id || !aiFeatureEnabled) return;
     const newUseAi = !useAi;
     setUseAiByMatchType((prev) => ({
       ...prev,
@@ -531,6 +534,7 @@ const CourtPlayerSelectionModal: React.FC<ICourtPlayerSelectionModalProps> = ({
               waitingPlayersCount={waitingPlayersCount}
               topCount={topCount}
               useAi={useAi}
+              aiFeatureEnabled={aiFeatureEnabled}
               isLoading={isLoadingSuggestion}
               suggestedPlayers={suggestedPlayers}
               autoAssignPlayers={autoAssignPlayers}
@@ -587,6 +591,7 @@ interface IAutoAssignContentProps {
   waitingPlayersCount: number;
   topCount: number;
   useAi: boolean;
+  aiFeatureEnabled: boolean;
   isLoading: boolean;
   suggestedPlayers: SuggestedPlayersResponse | null;
   autoAssignPlayers: Array<
@@ -608,6 +613,7 @@ const AutoAssignContent: React.FC<IAutoAssignContentProps> = ({
   waitingPlayersCount: _waitingPlayersCount,
   topCount: _topCount,
   useAi,
+  aiFeatureEnabled,
   isLoading,
   suggestedPlayers,
   autoAssignPlayers,
@@ -628,149 +634,151 @@ const AutoAssignContent: React.FC<IAutoAssignContentProps> = ({
   return (
     <Box>
       {/* AI Toggle */}
-      <Box
-        position="relative"
-        overflow="hidden"
-        borderRadius="lg"
-        mb={2}
-        cursor={isLoading ? 'not-allowed' : 'pointer'}
-        onClick={!isLoading ? onAiToggle : undefined}
-        style={{
-          background:
-            'linear-gradient(135deg, #6b21a8 0%, #7c3aed 50%, #4f46e5 100%)',
-          border: '1.5px solid #7c3aed',
-          transition:
-            'background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease',
-          boxShadow: useAi
-            ? '0 4px 20px rgba(124, 58, 237, 0.4)'
-            : '0 2px 12px rgba(124, 58, 237, 0.28)',
-        }}
-      >
-        {/* Shimmer overlay when active */}
-        {useAi && (
-          <Box
-            position="absolute"
-            top={0}
-            left={0}
-            right={0}
-            bottom={0}
-            pointerEvents="none"
-            style={{
-              background:
-                'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.08) 50%, transparent 100%)',
-              backgroundSize: '200% 100%',
-              animation: 'aiShimmer 2.5s ease-in-out infinite',
-            }}
-            css={{
-              '@keyframes aiShimmer': {
-                '0%': { backgroundPosition: '-200% 0' },
-                '100%': { backgroundPosition: '200% 0' },
-              },
-            }}
-          />
-        )}
-
-        <HStack gap={3} align="center" justify="space-between" p={2.5}>
-          <HStack gap={2} align="center">
-            {/* Animated sparkles icon */}
+      {aiFeatureEnabled && (
+        <Box
+          position="relative"
+          overflow="hidden"
+          borderRadius="lg"
+          mb={2}
+          cursor={isLoading ? 'not-allowed' : 'pointer'}
+          onClick={!isLoading ? onAiToggle : undefined}
+          style={{
+            background:
+              'linear-gradient(135deg, #6b21a8 0%, #7c3aed 50%, #4f46e5 100%)',
+            border: '1.5px solid #7c3aed',
+            transition:
+              'background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease',
+            boxShadow: useAi
+              ? '0 4px 20px rgba(124, 58, 237, 0.4)'
+              : '0 2px 12px rgba(124, 58, 237, 0.28)',
+          }}
+        >
+          {/* Shimmer overlay when active */}
+          {useAi && (
             <Box
+              position="absolute"
+              top={0}
+              left={0}
+              right={0}
+              bottom={0}
+              pointerEvents="none"
               style={{
-                animation: useAi ? 'aiSpin 3s linear infinite' : 'none',
-                display: 'flex',
+                background:
+                  'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.08) 50%, transparent 100%)',
+                backgroundSize: '200% 100%',
+                animation: 'aiShimmer 2.5s ease-in-out infinite',
               }}
               css={{
-                '@keyframes aiSpin': {
-                  '0%': { transform: 'rotate(0deg) scale(1)' },
-                  '50%': { transform: 'rotate(180deg) scale(1.2)' },
-                  '100%': { transform: 'rotate(360deg) scale(1)' },
+                '@keyframes aiShimmer': {
+                  '0%': { backgroundPosition: '-200% 0' },
+                  '100%': { backgroundPosition: '200% 0' },
                 },
+              }}
+            />
+          )}
+
+          <HStack gap={3} align="center" justify="space-between" p={2.5}>
+            <HStack gap={2} align="center">
+              {/* Animated sparkles icon */}
+              <Box
+                style={{
+                  animation: useAi ? 'aiSpin 3s linear infinite' : 'none',
+                  display: 'flex',
+                }}
+                css={{
+                  '@keyframes aiSpin': {
+                    '0%': { transform: 'rotate(0deg) scale(1)' },
+                    '50%': { transform: 'rotate(180deg) scale(1.2)' },
+                    '100%': { transform: 'rotate(360deg) scale(1)' },
+                  },
+                }}
+              >
+                <Box
+                  as={Sparkles}
+                  boxSize={4}
+                  color="yellow.300"
+                  style={{ transition: 'color 0.3s' }}
+                />
+              </Box>
+              <Box>
+                <Text
+                  fontSize="sm"
+                  fontWeight="bold"
+                  color="white"
+                  style={{ transition: 'color 0.3s', lineHeight: 1.2 }}
+                >
+                  {aiPoweredMatchingLabel}
+                </Text>
+                <Text
+                  fontSize="xs"
+                  color="purple.200"
+                  style={{ transition: 'color 0.3s' }}
+                >
+                  {useAi
+                    ? isLoading
+                      ? 'Đang phân tích trình độ...'
+                      : ''
+                    : 'Ghép cặp tự động theo trình độ'}
+                </Text>
+              </Box>
+            </HStack>
+
+            {/* Custom toggle switch */}
+            <Box
+              position="relative"
+              w="40px"
+              h="22px"
+              borderRadius="full"
+              flexShrink={0}
+              style={{
+                background: useAi ? '#fbbf24' : 'rgba(255, 255, 255, 0.28)',
+                border: useAi
+                  ? '1.5px solid #f59e0b'
+                  : '1.5px solid rgba(255, 255, 255, 0.45)',
+                transition:
+                  'background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease',
+                boxShadow: useAi
+                  ? '0 0 10px rgba(251,191,36,0.6)'
+                  : 'inset 0 0 0 1px rgba(124, 58, 237, 0.18)',
               }}
             >
               <Box
-                as={Sparkles}
-                boxSize={4}
-                color="yellow.300"
-                style={{ transition: 'color 0.3s' }}
+                position="absolute"
+                top="2px"
+                w="16px"
+                h="16px"
+                borderRadius="full"
+                bg="white"
+                style={{
+                  left: useAi ? '20px' : '2px',
+                  transition: 'left 0.25s ease',
+                  boxShadow: '0 1px 3px rgba(0,0,0,0.3)',
+                }}
               />
-            </Box>
-            <Box>
-              <Text
-                fontSize="sm"
-                fontWeight="bold"
-                color="white"
-                style={{ transition: 'color 0.3s', lineHeight: 1.2 }}
-              >
-                {aiPoweredMatchingLabel}
-              </Text>
-              <Text
-                fontSize="xs"
-                color="purple.200"
-                style={{ transition: 'color 0.3s' }}
-              >
-                {useAi
-                  ? isLoading
-                    ? 'Đang phân tích trình độ...'
-                    : ''
-                  : 'Ghép cặp tự động theo trình độ'}
-              </Text>
             </Box>
           </HStack>
 
-          {/* Custom toggle switch */}
-          <Box
-            position="relative"
-            w="40px"
-            h="22px"
-            borderRadius="full"
-            flexShrink={0}
-            style={{
-              background: useAi ? '#fbbf24' : 'rgba(255, 255, 255, 0.28)',
-              border: useAi
-                ? '1.5px solid #f59e0b'
-                : '1.5px solid rgba(255, 255, 255, 0.45)',
-              transition:
-                'background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease',
-              boxShadow: useAi
-                ? '0 0 10px rgba(251,191,36,0.6)'
-                : 'inset 0 0 0 1px rgba(124, 58, 237, 0.18)',
-            }}
-          >
+          {useAi && suggestedPlayers?.usedAi && suggestedPlayers?.aiReason && (
             <Box
-              position="absolute"
-              top="2px"
-              w="16px"
-              h="16px"
-              borderRadius="full"
-              bg="white"
+              px={2.5}
+              py={2}
+              fontSize="xs"
+              color="purple.100"
+              borderTopWidth="1px"
+              borderTopColor="rgba(255,255,255,0.2)"
               style={{
-                left: useAi ? '20px' : '2px',
-                transition: 'left 0.25s ease',
-                boxShadow: '0 1px 3px rgba(0,0,0,0.3)',
+                background:
+                  'linear-gradient(90deg, rgba(255,255,255,0.1), rgba(255,255,255,0.04))',
               }}
-            />
-          </Box>
-        </HStack>
-
-        {useAi && suggestedPlayers?.usedAi && suggestedPlayers?.aiReason && (
-          <Box
-            px={2.5}
-            py={2}
-            fontSize="xs"
-            color="purple.100"
-            borderTopWidth="1px"
-            borderTopColor="rgba(255,255,255,0.2)"
-            style={{
-              background:
-                'linear-gradient(90deg, rgba(255,255,255,0.1), rgba(255,255,255,0.04))',
-            }}
-          >
-            <Text fontWeight="semibold" color="white" mb={1}>
-              {t('courtsTab.aiReasoning')}:
-            </Text>
-            <Text>{normalizeAiReasonLevels(suggestedPlayers.aiReason)}</Text>
-          </Box>
-        )}
-      </Box>
+            >
+              <Text fontWeight="semibold" color="white" mb={1}>
+                {t('courtsTab.aiReasoning')}:
+              </Text>
+              <Text>{normalizeAiReasonLevels(suggestedPlayers.aiReason)}</Text>
+            </Box>
+          )}
+        </Box>
+      )}
 
       <MatchCourtPreview
         players={autoAssignPlayers}
