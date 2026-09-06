@@ -26,7 +26,6 @@ import { format } from 'date-fns';
 import { getPrimaryVenueDisplay } from '@/utils';
 import { vi as viLocale, enUS, zhCN } from 'date-fns/locale';
 import { useLocale, useTranslations } from 'next-intl';
-import { AppSearchBar } from '@/components/common/AppSearchBar';
 import { useRegisterTopBarSearch } from '@/contexts/TopBarSearchContext';
 import { HostTournamentListSkeleton } from '@/components/tournament/skeletons';
 import { TournamentStatusSelect } from '@/components/tournament/TournamentStatusSelect';
@@ -50,9 +49,10 @@ import {
   type HostTournamentMobileTab,
 } from '@/components/tournament/HostTournamentsHeader';
 import HostTournamentsNavPanel from '@/components/tournament/HostTournamentsNavPanel';
-import { ROUTES, TOP_BAR_HEIGHT_MOBILE } from '@/constants';
+import { ROUTES } from '@/constants';
 import { toaster } from '@/components/ui/toaster';
 import { useAuthStore } from '@/stores/useAuthStore';
+import { isTournamentOverdue } from '@/lib/tournament/date';
 
 const STATUS_THEME: Record<
   TournamentStatus,
@@ -83,14 +83,16 @@ const STATUS_THEME: Record<
 function StatusBadge({
   status,
   label,
+  isOverdue = false,
 }: {
   status: TournamentStatus;
   label: string;
+  isOverdue?: boolean;
 }) {
   const theme = STATUS_THEME[status];
   return (
     <Badge
-      colorPalette={theme.palette}
+      colorPalette={isOverdue ? 'orange' : theme.palette}
       variant="subtle"
       size="sm"
       borderRadius="full"
@@ -102,7 +104,7 @@ function StatusBadge({
           w="6px"
           h="6px"
           borderRadius="full"
-          bg={theme.dotBg}
+          bg={isOverdue ? 'orange.500' : theme.dotBg}
           flexShrink={0}
         />
         <Text fontSize="xs" fontWeight="semibold">
@@ -218,7 +220,11 @@ function TournamentRow({
         {/* Main info */}
         <Box flex={1} minW={0}>
           <HStack gap={2} mb={1} align="center" flexWrap="wrap">
-            <StatusBadge status={tournament.status} label={statusLabel} />
+            <StatusBadge
+              status={tournament.status}
+              label={statusLabel}
+              isOverdue={isTournamentOverdue(tournament)}
+            />
             {!tournament.isPublished && (
               <Badge
                 size="sm"
@@ -349,7 +355,7 @@ export default function HostTournamentsPage() {
     if (tab === 'open') {
       setStatuses([TournamentStatus.IN_PROGRESS, TournamentStatus.PREPARING]);
     } else if (tab === 'ended') {
-      setStatuses([TournamentStatus.FINISHED]);
+      setStatuses([TournamentStatus.FINISHED, TournamentStatus.CANCELLED]);
     } else if (tab === 'all') {
       setStatuses([]);
     }
@@ -447,8 +453,9 @@ export default function HostTournamentsPage() {
     });
   }, [locale, search, sort, statuses, tournaments]);
 
-  const statusLabelFor = (status: TournamentStatus): string => {
-    switch (status) {
+  const statusLabelFor = (tournament: Tournament): string => {
+    if (isTournamentOverdue(tournament)) return tStatus('expired');
+    switch (tournament.status) {
       case TournamentStatus.PREPARING:
         return tStatus('preparing');
       case TournamentStatus.IN_PROGRESS:
@@ -613,7 +620,7 @@ export default function HostTournamentsPage() {
                   'EEE, MMM d, yyyy',
                   { locale: dateLocale }
                 )}
-                statusLabel={statusLabelFor(tournament.status)}
+                statusLabel={statusLabelFor(tournament)}
                 publishLabel={t('card.draftBadge')}
                 t={t}
                 showDelete={user?.role !== UserRole.REFEREE}

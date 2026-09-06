@@ -2430,7 +2430,11 @@
             "confirmDraftTitle": "Set to draft?",
             "confirmDraftDescription": "Are you sure you would like to set your tournament to draft? This will hide the tournament from participants.",
             "confirmDraftButton": "Yes, set to draft",
-            "cancel": "Cancel"
+            "cancel": "Cancel",
+            "requirementsTitle": "Complete these requirements before publishing:",
+            "requireValidDate": "The end date has not passed",
+            "requireCategory": "At least one category",
+            "requireVenue": "At least one venue"
           },
           "tabs": {
             "organize": "Organize",
@@ -2503,6 +2507,7 @@
               "nameRequired": "Tournament name is required",
               "datesRequired": "Start date and end date are required",
               "endBeforeStart": "End date cannot be before start date",
+              "startDatePast": "The start date cannot be in the past",
               "loadVenuesFailed": "Failed to load venues",
               "duplicateFailed": "Failed to duplicate tournament"
             }
@@ -3598,7 +3603,8 @@
               "success": "Tournament dates updated successfully",
               "errors": {
                 "datesRequired": "Both start and end dates are required",
-                "endBeforeStart": "End date must be after start date",
+                "endBeforeStart": "End date cannot be before start date",
+                "startDatePast": "The new start date cannot be in the past",
                 "noChanges": "No changes to save",
                 "updateFailed": "Failed to update tournament dates"
               }
@@ -3652,6 +3658,8 @@
             }
           },
           "statusBanner": {
+            "overdueWarning": "This tournament is still in progress after its end date. Complete the results and finish it, or cancel it if it will not continue.",
+            "expiredActionHint": "Update the tournament dates before starting or restoring it.",
             "statusTitle": {
               "PREPARING": "Tournament not started",
               "IN_PROGRESS": "Tournament in progress",

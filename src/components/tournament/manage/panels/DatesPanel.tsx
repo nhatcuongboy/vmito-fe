@@ -9,6 +9,7 @@ import { TournamentService } from '@/lib/api/tournament.service';
 import { toaster } from '@/components/ui/toaster';
 import { Field } from '@/components/ui/Field';
 import { Calendar } from 'lucide-react';
+import { getVietnamDateKey } from '@/lib/tournament/date';
 
 interface DatesPanelProps {
   tournament: Tournament;
@@ -55,6 +56,10 @@ export default function DatesPanel({
     // Check if dates changed
     const originalStart = formatDateForInput(tournament.startDate);
     const originalEnd = formatDateForInput(tournament.endDate);
+    if (startDate !== originalStart && startDate < getVietnamDateKey()) {
+      toaster.error({ title: t('errors.startDatePast') });
+      return;
+    }
     if (startDate === originalStart && endDate === originalEnd) {
       toaster.info({ title: t('errors.noChanges') });
       return;

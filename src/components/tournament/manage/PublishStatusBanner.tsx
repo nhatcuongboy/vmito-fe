@@ -7,6 +7,8 @@ import { useTranslations } from 'next-intl';
 import { Tournament } from '@/lib/api/types';
 import { TournamentService } from '@/lib/api/tournament.service';
 import { VModal, useModal } from '@/components/ui/VModal';
+import { getPrimaryVenueDisplay } from '@/utils';
+import { isTournamentExpired } from '@/lib/tournament/date';
 
 interface PublishStatusBannerProps {
   tournament: Tournament;
@@ -22,6 +24,11 @@ export default function PublishStatusBanner({
   const [isLoading, setIsLoading] = useState(false);
 
   const isPublished = tournament.isPublished;
+  const hasCategory =
+    (tournament._count?.categories ?? tournament.categories?.length ?? 0) > 0;
+  const hasVenue = Boolean(getPrimaryVenueDisplay(tournament));
+  const hasValidDate = !isTournamentExpired(tournament.endDate);
+  const canPublish = hasCategory && hasVenue && hasValidDate;
 
   const handleConfirm = async () => {
     try {
@@ -50,14 +57,17 @@ export default function PublishStatusBanner({
         borderRadius="xl"
         px={4}
         py={3}
-        cursor="pointer"
+        cursor={!isPublished && !canPublish ? 'not-allowed' : 'pointer'}
         _hover={{ opacity: 0.85 }}
         _dark={{
           bg: isPublished ? 'green.900' : 'gray.800',
           borderColor: isPublished ? 'green.700' : 'gray.700',
         }}
         transition="opacity 0.15s"
-        onClick={confirmModal.onOpen}
+        onClick={() => {
+          if (isPublished || canPublish) confirmModal.onOpen();
+        }}
+        aria-disabled={!isPublished && !canPublish}
       >
         <Flex align="center" gap={2.5}>
           <Box
@@ -86,6 +96,24 @@ export default function PublishStatusBanner({
             </Text>
           </Box>
         </Flex>
+        {!isPublished && !canPublish && (
+          <Box mt={3} pl="18px">
+            <Text
+              fontSize="xs"
+              color="orange.700"
+              _dark={{ color: 'orange.300' }}
+            >
+              {t('requirementsTitle')}
+            </Text>
+            {!hasValidDate && (
+              <Text fontSize="xs">• {t('requireValidDate')}</Text>
+            )}
+            {!hasCategory && (
+              <Text fontSize="xs">• {t('requireCategory')}</Text>
+            )}
+            {!hasVenue && <Text fontSize="xs">• {t('requireVenue')}</Text>}
+          </Box>
+        )}
       </Box>
 
       <VModal

@@ -26,6 +26,7 @@ import { VModal } from '@/components/ui/VModal';
 import { VTooltip } from '@/components/ui/VTooltip';
 import { toaster } from '@/components/ui/toaster';
 import { formatVenueName } from '@/utils';
+import { getVietnamDateKey } from '@/lib/tournament/date';
 
 interface DuplicateTournamentModalProps {
   isOpen: boolean;
@@ -164,6 +165,7 @@ export default function DuplicateTournamentModal({
   const validationError = useMemo(() => {
     if (!name.trim()) return t('errors.nameRequired');
     if (!startDate || !endDate) return t('errors.datesRequired');
+    if (startDate < getVietnamDateKey()) return t('errors.startDatePast');
     if (new Date(endDate) < new Date(startDate)) {
       return t('errors.endBeforeStart');
     }

@@ -2440,7 +2440,11 @@
             "confirmDraftTitle": "Chuyển về bản nháp?",
             "confirmDraftDescription": "Bạn có chắc muốn chuyển giải đấu về bản nháp? Giải đấu sẽ bị ẩn với người tham gia.",
             "confirmDraftButton": "Chuyển về nháp",
-            "cancel": "Hủy"
+            "cancel": "Hủy",
+            "requirementsTitle": "Hoàn tất các điều kiện trước khi xuất bản:",
+            "requireValidDate": "Ngày kết thúc chưa qua",
+            "requireCategory": "Có ít nhất một hạng mục",
+            "requireVenue": "Có ít nhất một địa điểm"
           },
           "tabs": {
             "organize": "Tổ chức",
@@ -2513,6 +2517,7 @@
               "nameRequired": "Tên giải đấu là bắt buộc",
               "datesRequired": "Ngày bắt đầu và ngày kết thúc là bắt buộc",
               "endBeforeStart": "Ngày kết thúc không được trước ngày bắt đầu",
+              "startDatePast": "Ngày bắt đầu không thể nằm trong quá khứ",
               "loadVenuesFailed": "Không thể tải danh sách địa điểm",
               "duplicateFailed": "Không thể nhân đôi giải đấu"
             }
@@ -3608,7 +3613,8 @@
               "success": "Cập nhật ngày tổ chức thành công",
               "errors": {
                 "datesRequired": "Cả ngày bắt đầu và kết thúc đều bắt buộc",
-                "endBeforeStart": "Ngày kết thúc phải sau ngày bắt đầu",
+                "endBeforeStart": "Ngày kết thúc không được trước ngày bắt đầu",
+                "startDatePast": "Ngày bắt đầu mới không thể nằm trong quá khứ",
                 "noChanges": "Không có thay đổi để lưu",
                 "updateFailed": "Cập nhật ngày tổ chức thất bại"
               }
@@ -3662,6 +3668,8 @@
             }
           },
           "statusBanner": {
+            "overdueWarning": "Giải đã quá ngày kết thúc nhưng vẫn đang diễn ra. Hãy hoàn tất kết quả và kết thúc giải, hoặc huỷ giải nếu không tiếp tục tổ chức.",
+            "expiredActionHint": "Cập nhật ngày thi đấu trước khi bắt đầu hoặc khôi phục giải.",
             "statusTitle": {
               "PREPARING": "Giải đấu chưa bắt đầu",
               "IN_PROGRESS": "Giải đấu đang diễn ra",
