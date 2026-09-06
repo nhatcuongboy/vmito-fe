@@ -3561,7 +3561,7 @@
               "success": "锦标赛日期更新成功",
               "errors": {
                 "datesRequired": "开始和结束日期都是必填项",
-                "endBeforeStart": "结束日期必须在开始日期之后",
+                "endBeforeStart": "结束日期不能早于开始日期",
                 "noChanges": "没有更改需要保存",
                 "updateFailed": "更新锦标赛日期失败"
               }

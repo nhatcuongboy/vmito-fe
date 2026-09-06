@@ -3608,7 +3608,7 @@
               "success": "Cập nhật ngày tổ chức thành công",
               "errors": {
                 "datesRequired": "Cả ngày bắt đầu và kết thúc đều bắt buộc",
-                "endBeforeStart": "Ngày kết thúc phải sau ngày bắt đầu",
+                "endBeforeStart": "Ngày kết thúc không được trước ngày bắt đầu",
                 "noChanges": "Không có thay đổi để lưu",
                 "updateFailed": "Cập nhật ngày tổ chức thất bại"
               }

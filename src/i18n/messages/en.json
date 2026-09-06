@@ -3598,7 +3598,7 @@
               "success": "Tournament dates updated successfully",
               "errors": {
                 "datesRequired": "Both start and end dates are required",
-                "endBeforeStart": "End date must be after start date",
+                "endBeforeStart": "End date cannot be before start date",
                 "noChanges": "No changes to save",
                 "updateFailed": "Failed to update tournament dates"
               }
