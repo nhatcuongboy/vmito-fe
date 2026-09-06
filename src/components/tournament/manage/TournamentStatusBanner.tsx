@@ -3,11 +3,22 @@
 import { useState } from 'react';
 import { Box, Flex, Text } from '@chakra-ui/react';
 import { Button } from '@/components/ui/chakra-compat';
-import { Play, Flag, Ban, RotateCcw, type LucideIcon } from 'lucide-react';
+import {
+  Play,
+  Flag,
+  Ban,
+  RotateCcw,
+  CalendarClock,
+  type LucideIcon,
+} from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Tournament, TournamentStatus } from '@/lib/api/types';
 import { TournamentService } from '@/lib/api/tournament.service';
 import { VModal, useModal } from '@/components/ui/VModal';
+import {
+  isTournamentExpired,
+  isTournamentOverdue,
+} from '@/lib/tournament/date';
 
 interface TournamentStatusBannerProps {
   tournament: Tournament;
@@ -143,6 +154,8 @@ export default function TournamentStatusBanner({
   const status = tournament.status;
   const style = STATUS_STYLE[status];
   const actions = ACTIONS_BY_STATUS[status];
+  const isExpired = isTournamentExpired(tournament.endDate);
+  const isOverdue = isTournamentOverdue(tournament);
 
   const openConfirm = (action: StatusAction) => {
     setPending(action);
@@ -210,9 +223,27 @@ export default function TournamentStatusBanner({
           </Box>
         </Flex>
 
+        {isOverdue && (
+          <Flex
+            align="start"
+            gap={2}
+            mb={3}
+            p={3}
+            borderRadius="lg"
+            bg="orange.100"
+            color="orange.900"
+            _dark={{ bg: 'orange.950', color: 'orange.100' }}
+          >
+            <CalendarClock size={17} style={{ flexShrink: 0, marginTop: 1 }} />
+            <Text fontSize="sm">{t('overdueWarning')}</Text>
+          </Flex>
+        )}
+
         <Flex gap={2} wrap="wrap">
           {actions.map((action) => {
             const Icon = action.icon;
+            const isExpiredAction =
+              isExpired && (action.key === 'start' || action.key === 'restore');
             return (
               <Button
                 key={action.key}
@@ -221,6 +252,8 @@ export default function TournamentStatusBanner({
                 variant={action.colorPalette === 'gray' ? 'outline' : 'solid'}
                 borderRadius="full"
                 onClick={() => openConfirm(action)}
+                disabled={isExpiredAction}
+                title={isExpiredAction ? t('expiredActionHint') : undefined}
               >
                 <Icon size={14} />
                 {t(`actions.${action.key}`)}
