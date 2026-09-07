@@ -404,6 +404,7 @@ export default function VenueDetailClient({
                 fontSize="sm"
                 color="gray.500"
                 _dark={{ color: 'gray.400' }}
+                badgePlacement="inline"
                 suffix={distanceLabel ? ` (${distanceLabel})` : undefined}
               />
             </Box>
@@ -675,11 +676,9 @@ export default function VenueDetailClient({
                   )}
                   <Button
                     w="full"
-                    variant={{
-                      base: 'solid',
-                      lg: venue.rentalEnabled ? 'outline' : 'solid',
-                    }}
+                    variant="solid"
                     colorPalette="green"
+                    color="white"
                     onClick={handleFindSessions}
                   >
                     <Search size={16} />

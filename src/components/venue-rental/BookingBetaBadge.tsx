@@ -11,15 +11,19 @@ const BookingBetaBadge = (props: TBookingBetaBadgeProps) => {
   return (
     <Badge
       colorPalette="purple"
-      size="sm"
+      size="xs"
       variant="subtle"
       borderRadius="full"
-      px={2}
+      px={1.5}
+      py={0.5}
+      fontSize="xs"
+      lineHeight="1"
       fontWeight="bold"
-      letterSpacing="0.02em"
+      letterSpacing="0.01em"
       textTransform="none"
       verticalAlign="middle"
       whiteSpace="nowrap"
+      flexShrink={0}
       data-booking-beta-badge="true"
       {...props}
     >
