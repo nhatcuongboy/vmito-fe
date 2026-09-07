@@ -1,19 +1,10 @@
 import { Tournament, TournamentVenue, Venue } from '@/lib/api/types';
 import { getVenueSportTypes } from '@/constants/sports';
 
-// Sport words that already identify the place as a venue, in any language we
-// support. "Green Badminton & Pickleball" must not become "Sân cầu lông Green
-// Badminton & Pickleball".
-const SPORT_NAME_KEYWORDS = [
-  'cầu lông',
-  'badminton',
-  'pickleball',
-  'pickle ball',
-  '羽毛球',
-  '匹克球',
-];
-
-// Check if name already has a prefix/suffix indicating it's a venue
+// Check if name already carries the locale's own venue prefix/suffix (e.g.
+// "Sân ABC", "CLB ABC", "ABC Club"). A sport word embedded elsewhere in the
+// name (e.g. "37 Club Badminton") is not enough to skip the localized
+// prefix — we always want to show it (see formatVenueName).
 const hasVenueNameAffix = (name: string): boolean => {
   const lowerName = name.toLowerCase();
 
@@ -32,11 +23,7 @@ const hasVenueNameAffix = (name: string): boolean => {
   // Chinese suffixes
   const hasCnSuffix = lowerName.endsWith('场') || lowerName.endsWith('俱乐部');
 
-  const hasSportKeyword = SPORT_NAME_KEYWORDS.some((keyword) =>
-    lowerName.includes(keyword)
-  );
-
-  return hasViPrefix || hasEnSuffix || hasCnSuffix || hasSportKeyword;
+  return hasViPrefix || hasEnSuffix || hasCnSuffix;
 };
 
 export const formatVenueName = (
