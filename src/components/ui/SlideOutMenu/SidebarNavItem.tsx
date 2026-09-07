@@ -6,9 +6,11 @@ import {
   TooltipTrigger,
 } from '@/components/primitives/tooltip';
 import { NotificationBadge } from '@/components/ui/NotificationBadge';
+import BookingBetaBadge from '@/components/venue-rental/BookingBetaBadge';
 import { Link } from '@/i18n/config';
 import { cn } from '@/lib/utils';
 import { Flame, type LucideIcon } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 interface SidebarNavItemProps {
   href: string;
@@ -17,6 +19,7 @@ interface SidebarNavItemProps {
   isActive: boolean;
   isCollapsed: boolean;
   showFlame?: boolean;
+  statusBadge?: 'beta';
   badge?: number;
   onClose: () => void;
 }
@@ -28,15 +31,19 @@ export function SidebarNavItem({
   isActive,
   isCollapsed,
   showFlame,
+  statusBadge,
   badge,
   onClose,
 }: SidebarNavItemProps) {
+  const common = useTranslations('common');
+  const accessibleLabel =
+    statusBadge === 'beta' ? `${label} · ${common('beta')}` : label;
   const link = (
     <Link
       href={href}
       className={cn('sidebar-nav-link', isActive && 'is-active')}
       data-collapsed={isCollapsed ? 'true' : undefined}
-      aria-label={label}
+      aria-label={accessibleLabel}
       aria-current={isActive ? 'page' : undefined}
       onClick={onClose}
     >
@@ -55,6 +62,7 @@ export function SidebarNavItem({
         )}
       </span>
       <span className="sidebar-nav-label">{label}</span>
+      {statusBadge === 'beta' && !isCollapsed ? <BookingBetaBadge /> : null}
       {showFlame && !isCollapsed ? (
         <Flame
           className="sidebar-nav-flame"
@@ -72,7 +80,7 @@ export function SidebarNavItem({
     <Tooltip>
       <TooltipTrigger asChild>{link}</TooltipTrigger>
       <TooltipContent side="right" sideOffset={12}>
-        {label}
+        {accessibleLabel}
       </TooltipContent>
     </Tooltip>
   );

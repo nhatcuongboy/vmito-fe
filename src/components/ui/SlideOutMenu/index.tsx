@@ -286,6 +286,7 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
                             isActive={isNavLinkActive(item, pathname, context)}
                             isCollapsed={isCollapsed}
                             showFlame={item.showFlame}
+                            statusBadge={item.statusBadge}
                             badge={
                               item.key === 'newsfeed'
                                 ? newsfeedBadgeCount

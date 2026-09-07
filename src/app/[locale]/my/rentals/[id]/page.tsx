@@ -4,6 +4,7 @@ import { use } from 'react';
 import { useTranslations } from 'next-intl';
 import ProtectedRouteGuard from '@/components/guards/ProtectedRouteGuard';
 import PageLayout from '@/components/layout/PageLayout';
+import BookingBetaBadge from '@/components/venue-rental/BookingBetaBadge';
 import VenueRentalDetail from '@/components/venue-rental/VenueRentalDetail';
 
 export default function MyRentalDetailPage({
@@ -16,7 +17,12 @@ export default function MyRentalDetailPage({
   return (
     <ProtectedRouteGuard>
       <PageLayout
-        title={t('detailTitle')}
+        title={
+          <>
+            {t('detailTitle')}
+            <BookingBetaBadge ml={2} />
+          </>
+        }
         showBackButton
         backHref="/my/rentals"
       >

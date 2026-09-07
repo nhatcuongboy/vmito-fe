@@ -54,6 +54,7 @@ import VenuePriceRequestModal from '@/components/venue/VenuePriceRequestModal';
 import VenueImageRequestModal from '@/components/venue/VenueImageRequestModal';
 import AppLightbox from '@/components/ui/AppLightbox';
 import DetailViewCountFooter from '@/components/common/DetailViewCountFooter';
+import BookingBetaBadge from '@/components/venue-rental/BookingBetaBadge';
 import dynamic from 'next/dynamic';
 
 const LoginPromptModal = dynamic(
@@ -669,6 +670,7 @@ export default function VenueDetailClient({
                     >
                       <CalendarPlus size={16} />
                       {t('detail.rentCourt')}
+                      <BookingBetaBadge />
                     </Button>
                   )}
                   <Button
