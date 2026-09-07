@@ -264,6 +264,22 @@ test('shows an authoritative deposit countdown and amount-specific VietQR', asyn
   await expect(page.getByText('VMITO rental-1')).toBeVisible();
 });
 
+test('labels the renter booking detail as Beta', async ({ page }) => {
+  await setup(page, { locale: 'en' });
+
+  await expect(
+    page.locator('[data-slot="top-bar"] [data-booking-beta-badge="true"]')
+  ).toHaveText('Beta');
+});
+
+test('does not label the manager booking detail as Beta', async ({ page }) => {
+  await setup(page, { locale: 'en', manage: true });
+
+  await expect(
+    page.locator('[data-slot="top-bar"] [data-booking-beta-badge="true"]')
+  ).toHaveCount(0);
+});
+
 test('renter uploads and submits deposit proof', async ({ page }) => {
   await setup(page);
   await page.getByRole('button', { name: 'Submit deposit proof' }).click();

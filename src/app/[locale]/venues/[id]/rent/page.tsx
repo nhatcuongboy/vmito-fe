@@ -4,6 +4,7 @@ import { use, useEffect, useState } from 'react';
 import { Center, Spinner } from '@chakra-ui/react';
 import { useTranslations } from 'next-intl';
 import PageLayout from '@/components/layout/PageLayout';
+import BookingBetaBadge from '@/components/venue-rental/BookingBetaBadge';
 import VenueRentalForm from '@/components/venue-rental/VenueRentalForm';
 import { toaster } from '@/components/ui/toaster';
 import { VenueService } from '@/lib/api/venue.service';
@@ -28,7 +29,12 @@ export default function VenueRentPage({
 
   return (
     <PageLayout
-      title={t('rentTitle')}
+      title={
+        <>
+          {t('rentTitle')}
+          <BookingBetaBadge ml={2} />
+        </>
+      }
       showBackButton
       backHref={`/venues/${venue?.slug || id}`}
     >

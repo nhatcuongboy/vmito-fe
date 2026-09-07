@@ -4,6 +4,7 @@ import { Box, Flex, Icon, Portal, Text } from '@chakra-ui/react';
 import { Banknote, CalendarPlus, Phone, Search } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Button, IconButton } from '@/components/ui/chakra-compat';
+import BookingBetaBadge from '@/components/venue-rental/BookingBetaBadge';
 import { normalizePhoneForTel } from '@/utils/phone-utils';
 
 interface VenueDetailStickyBarProps {
@@ -98,6 +99,7 @@ const VenueDetailStickyBar = ({
                 <Search size={16} />
               )}
               {rentalEnabled ? t('detail.rentCourt') : t('findSessions')}
+              {rentalEnabled ? <BookingBetaBadge /> : null}
             </Button>
           </Flex>
         </Flex>

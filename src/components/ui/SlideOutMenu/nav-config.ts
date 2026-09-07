@@ -64,6 +64,8 @@ export interface NavLinkConfig extends NavItemBase {
   /** Defaults to exact match for '/', startsWith for other hrefs. */
   isActive?: (pathname: string, ctx: NavContext) => boolean;
   showFlame?: boolean;
+  /** Optional product maturity label displayed beside the navigation label. */
+  statusBadge?: 'beta';
   /** Optional badge count to display (e.g., unread count) */
   getBadge?: (ctx: NavContext) => number;
 }
@@ -181,6 +183,7 @@ export const NAV_SECTIONS: NavSectionConfig[] = [
         label: (t) => t.nav('myRentals'),
         getHref: () => '/my/rentals',
         isVisible: isAdminOrHost,
+        statusBadge: 'beta',
       },
       {
         key: 'managedVenueRentals',
