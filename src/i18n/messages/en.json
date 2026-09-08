@@ -1005,6 +1005,7 @@
     "today": "Today",
     "tomorrow": "Tomorrow",
     "splitEvenly": "Split evenly",
+    "splitFeeLabel": "Split fee",
     "viewSessionAt": "View session {name} at {venue}",
     "coverAlt": "Cover photo of {name}"
   },

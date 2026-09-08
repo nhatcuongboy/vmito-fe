@@ -336,8 +336,14 @@ export default function FindSessionList({
 
       // In map mode: always fetch from page 1 with a large limit (no pagination)
       const isMapMode = viewMode === 'map';
-      const effectiveLimit = isMapMode ? MAP_PAGE_SIZE : PAGE_SIZE;
-      const currentPage = isLoadMore && !isMapMode ? page + 1 : 1;
+      // Split evenly has no backend param — it's filtered client-side below.
+      // Paginating a few backend items at a time made it look broken (most
+      // items on a given page could be non-split-evenly), so fetch a large
+      // batch up front instead, same as map mode.
+      const isSplitEvenlyFilterActive = filters.splitEvenly;
+      const skipPagination = isMapMode || isSplitEvenlyFilterActive;
+      const effectiveLimit = skipPagination ? MAP_PAGE_SIZE : PAGE_SIZE;
+      const currentPage = isLoadMore && !skipPagination ? page + 1 : 1;
 
       // Prepare filters for API
       const apiFilters: NonNullable<
@@ -364,15 +370,13 @@ export default function FindSessionList({
         limit: effectiveLimit,
       };
 
-      // Fee filter (only if changed from defaults or split evenly is selected)
-      if (
-        filters.minFee > 0 ||
-        filters.maxFee < 200000 ||
-        filters.splitEvenly
-      ) {
+      // Fee filter (only if the range actually changed from defaults).
+      // Never send it just because split evenly is checked — the backend's
+      // fee range filter excludes SPLIT_EVENLY sessions (they have no
+      // maleFee/femaleFee to compare), which broke the split evenly filter.
+      if (filters.minFee > 0 || filters.maxFee < 200000) {
         apiFilters.minFee = filters.minFee;
         apiFilters.maxFee = filters.maxFee;
-        // Note: splitEvenly is a frontend-only filter for now
       }
 
       // Geospatial filter
@@ -441,7 +445,7 @@ export default function FindSessionList({
         );
       }
 
-      if (isLoadMore && !isMapMode) {
+      if (isLoadMore && !skipPagination) {
         setSessions((prev) => {
           const existingIds = new Set(prev.map((s) => s.id));
           const newSessions = filteredData.filter(
@@ -452,11 +456,17 @@ export default function FindSessionList({
         setPage(currentPage);
       } else {
         setSessions(filteredData);
-        setTotalCount(pagination.total);
+        // With split evenly active, filteredData already reflects the full
+        // matching pool (fetched via skipPagination above), so use its
+        // length instead of the unfiltered backend total.
+        setTotalCount(
+          isSplitEvenlyFilterActive ? filteredData.length : pagination.total
+        );
       }
 
-      // In map mode: no infinite scroll — all data already fetched
-      setHasMore(!isMapMode && currentPage < pagination.totalPages);
+      // In map mode or when split evenly is active: no infinite scroll — all
+      // matching data was already fetched in a single large batch above.
+      setHasMore(!skipPagination && currentPage < pagination.totalPages);
 
       // Fetch user specific data
       if (user) {

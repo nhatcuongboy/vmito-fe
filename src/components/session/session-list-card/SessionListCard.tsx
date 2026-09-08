@@ -16,6 +16,7 @@ import { ISession } from '@/lib/api/types';
 import { Link } from '@/i18n/config';
 import { DEFAULT_COVER_PHOTO } from '@/constants';
 import { getSkillLevelColor } from '@/lib/utils/skillLevel.utils';
+import { FeeService } from '@/lib/api/fee.service';
 import { useTranslations } from 'next-intl';
 import { useSessionListCardViewModel } from './useSessionListCardViewModel';
 
@@ -23,6 +24,7 @@ interface SessionListCardProps {
   session: ISession;
   href: string;
   overlayBadge?: React.ReactNode;
+  bottomOverlayBadge?: React.ReactNode;
   identityRow?: React.ReactNode;
   cornerAction?: React.ReactNode;
   actionFooter?: React.ReactNode;
@@ -35,6 +37,7 @@ export const SessionListCard = ({
   session,
   href,
   overlayBadge,
+  bottomOverlayBadge,
   identityRow,
   cornerAction,
   actionFooter,
@@ -45,6 +48,11 @@ export const SessionListCard = ({
   const t = useTranslations('session');
   const viewModel = useSessionListCardViewModel(session, distance);
   const [isLoading, setIsLoading] = useState(false);
+  const isSplitFeeFallback = viewModel.feeDisplayText === 'Chia đều';
+  const feeDisplayText = isSplitFeeFallback
+    ? t('splitFeeLabel')
+    : viewModel.feeDisplayText;
+  const showFeePerSlot = FeeService.shouldShowPerSlot(session.feeConfig);
 
   const handleCardLinkClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
     if (
@@ -81,11 +89,18 @@ export const SessionListCard = ({
         height="100%"
         overflow="hidden"
         bg={viewModel.isCrawled ? 'gray.50' : 'white'}
-        _dark={{ bg: viewModel.isCrawled ? 'gray.900' : 'gray.800' }}
-        borderWidth="1px"
-        borderColor="border.subtle"
+        borderWidth={viewModel.isCrawled ? '1px' : '1px'}
+        borderColor={viewModel.isCrawled ? 'gray.200' : 'brand.200'}
+        _dark={{
+          bg: viewModel.isCrawled ? 'gray.900' : 'gray.800',
+          borderColor: viewModel.isCrawled ? 'gray.700' : 'brand.600',
+        }}
         borderRadius="xl"
-        boxShadow="0 2px 8px rgba(0, 0, 0, 0.06), 0 1px 3px rgba(0, 0, 0, 0.04)"
+        boxShadow={
+          viewModel.isCrawled
+            ? '0 2px 8px rgba(0, 0, 0, 0.06), 0 1px 3px rgba(0, 0, 0, 0.04)'
+            : '0 4px 12px rgba(16, 185, 129, 0.12)'
+        }
         transition="box-shadow 0.2s ease, border-color 0.2s ease, opacity 0.2s ease"
         _hover={{
           boxShadow:
@@ -139,6 +154,16 @@ export const SessionListCard = ({
           {overlayBadge && (
             <Box position="absolute" top={1.5} left={1.5} pointerEvents="none">
               {overlayBadge}
+            </Box>
+          )}
+          {bottomOverlayBadge && (
+            <Box
+              position="absolute"
+              bottom={1.5}
+              left={1.5}
+              pointerEvents="none"
+            >
+              {bottomOverlayBadge}
             </Box>
           )}
         </Box>
@@ -228,7 +253,7 @@ export const SessionListCard = ({
             <Flex align="center" gap={1} flexShrink={0}>
               {viewModel.isAllLevels ? (
                 <Badge
-                  colorPalette="gray"
+                  colorPalette="purple"
                   variant="subtle"
                   fontSize="xs"
                   px={1.5}
@@ -298,17 +323,27 @@ export const SessionListCard = ({
             </Flex>
 
             {viewModel.feeDisplayText && (
-              <Text
-                fontSize={{ base: 'sm', md: 'md' }}
-                fontWeight="bold"
-                color="green.600"
-                _dark={{ color: 'green.300' }}
-                whiteSpace="nowrap"
-                flexShrink={0}
-                ml="auto"
-              >
-                {viewModel.feeDisplayText}
-              </Text>
+              <Flex align="baseline" gap={1} flexShrink={0} ml="auto">
+                <Text
+                  fontSize={{ base: 'sm', md: 'md' }}
+                  fontWeight="bold"
+                  color="green.600"
+                  _dark={{ color: 'green.300' }}
+                  whiteSpace="nowrap"
+                >
+                  {feeDisplayText}
+                </Text>
+                {showFeePerSlot && (
+                  <Text
+                    fontSize="xs"
+                    color="gray.500"
+                    _dark={{ color: 'fg.subtle' }}
+                    whiteSpace="nowrap"
+                  >
+                    /slot
+                  </Text>
+                )}
+              </Flex>
             )}
           </Flex>
 

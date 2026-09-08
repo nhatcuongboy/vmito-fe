@@ -1,7 +1,15 @@
 'use client';
 
-import { Badge, Icon } from '@chakra-ui/react';
-import { ClipboardList, LogIn, Share2, UserPlus } from 'lucide-react';
+import { Badge, Flex, Icon } from '@chakra-ui/react';
+import {
+  Check,
+  ClipboardCheck,
+  ClipboardList,
+  Clock,
+  LogIn,
+  Share2,
+  UserPlus,
+} from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { ISession, SessionStatus } from '@/lib/api/types';
 import { FavoriteButton } from '@/components/favorites/FavoriteButton';
@@ -39,22 +47,41 @@ export const JoinedSessionListCard = ({
   const detailHref = `/sessions/${session.slug || session.id}`;
   const viewSessionHref = `/player/sessions/${session.slug || session.id}`;
 
-  const overlayBadge = (() => {
+  const registrationBadge = (() => {
     if (registrationStatus === 'APPROVED') {
-      return <Badge colorPalette="green">{t('registrationApproved')}</Badge>;
+      return (
+        <Badge colorPalette="green" gap={1}>
+          <Icon as={Check} boxSize={3} />
+          {t('registrationApproved')}
+        </Badge>
+      );
     }
     if (registrationStatus === 'PENDING') {
-      return <Badge colorPalette="yellow">{t('registrationPending')}</Badge>;
+      return (
+        <Badge colorPalette="yellow" gap={1}>
+          <Icon as={Clock} boxSize={3} />
+          {t('registrationPending')}
+        </Badge>
+      );
     }
     if (registrationStatus === 'REJECTED') {
-      return <Badge colorPalette="red">{t('registrationRejected')}</Badge>;
+      return (
+        <Badge colorPalette="red" gap={1}>
+          <Icon as={ClipboardCheck} boxSize={3} />
+          {t('registrationRejected')}
+        </Badge>
+      );
     }
+    return null;
+  })();
+
+  const sessionStatusBadge = (() => {
     if (viewModel.isExpired) {
       return <Badge colorPalette="orange">{t('status.expired')}</Badge>;
     }
 
     const config = {
-      [SessionStatus.PREPARING]: ['green', t('status.preparing')],
+      [SessionStatus.PREPARING]: ['gray', t('status.preparing')],
       [SessionStatus.IN_PROGRESS]: ['teal', t('status.inProgress')],
       [SessionStatus.FINISHED]: ['gray', t('status.finished')],
       [SessionStatus.CANCELLED]: ['red', t('status.cancelled')],
@@ -62,6 +89,11 @@ export const JoinedSessionListCard = ({
     const [colorPalette, label] = config[session.status];
     return <Badge colorPalette={colorPalette}>{label}</Badge>;
   })();
+
+  // Approval status sits at the top-left; the session status badge stays at the
+  // bottom of the cover.
+  const overlayBadge = registrationBadge ?? sessionStatusBadge;
+  const bottomOverlayBadge = registrationBadge ? sessionStatusBadge : null;
 
   const isRegistrationPrimary =
     registrationStatus === 'PENDING' || registrationStatus === 'REJECTED';
@@ -100,6 +132,7 @@ export const JoinedSessionListCard = ({
         href={detailHref}
         imagePriority={imagePriority}
         overlayBadge={overlayBadge}
+        bottomOverlayBadge={bottomOverlayBadge}
         identityRow={<SessionListCardHostRow session={session} />}
         cornerAction={
           <FavoriteButton
