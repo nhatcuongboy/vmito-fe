@@ -79,12 +79,20 @@ export function useViewMode(
     // 1. Check URL parameter
     const urlView = searchParams.get('view');
     if (urlView && isValidViewMode(urlView)) {
+      // Block 'grid' view mode (temporarily hidden)
+      if (urlView === 'grid') {
+        return 'list';
+      }
       return urlView;
     }
 
     // 2. Check cookie — the canonical store, shared with the server
     const cookieView = readViewModeCookie(scope);
     if (cookieView) {
+      // Block 'grid' view mode (temporarily hidden)
+      if (cookieView === 'grid') {
+        return 'list';
+      }
       return cookieView;
     }
 
@@ -95,6 +103,10 @@ export function useViewMode(
         if (stored) {
           const migrated = MIGRATION_MAP[stored] || stored;
           if (isValidViewMode(migrated)) {
+            // Block 'grid' view mode (temporarily hidden)
+            if (migrated === 'grid') {
+              return 'list';
+            }
             return migrated;
           }
         }
@@ -107,10 +119,18 @@ export function useViewMode(
     // component) — this is what the server render itself resolves to, since
     // document/localStorage don't exist there
     if (serverViewMode && isValidViewMode(serverViewMode)) {
+      // Block 'grid' view mode (temporarily hidden)
+      if (serverViewMode === 'grid') {
+        return 'list';
+      }
       return serverViewMode;
     }
 
     // 5. Fall back to the caller's default
+    // Block 'grid' view mode (temporarily hidden)
+    if (defaultMode === 'grid') {
+      return 'list';
+    }
     return defaultMode;
   }, [searchParams, scope, defaultMode, serverViewMode]);
 

@@ -128,6 +128,7 @@ const SESSION_FILTERS_SCHEMA = {
   near: booleanField(false),
   sort: stringField('date_asc'),
   favorite: booleanField(false),
+  courts: numberField(0),
 };
 
 export type SessionUrlFilters = ReturnType<
@@ -198,6 +199,7 @@ export default function FindSessionList({
       sessionType: ['regular', 'facebook'].includes(urlFilters.sessionType)
         ? (urlFilters.sessionType as 'regular' | 'facebook')
         : 'all',
+      courtsCount: urlFilters.courts,
     }),
     [urlFilters]
   );
@@ -430,6 +432,15 @@ export default function FindSessionList({
         });
       }
 
+      // 3. Court count filter (backend has no param for this; 4 means ">= 4")
+      if (filters.courtsCount > 0) {
+        filteredData = filteredData.filter((session) =>
+          filters.courtsCount === 4
+            ? session.numberOfCourts >= 4
+            : session.numberOfCourts === filters.courtsCount
+        );
+      }
+
       if (isLoadMore && !isMapMode) {
         setSessions((prev) => {
           const existingIds = new Set(prev.map((s) => s.id));
@@ -507,6 +518,7 @@ export default function FindSessionList({
     filters.timeRanges,
     filters.splitEvenly,
     filters.sessionType,
+    filters.courtsCount,
     sortByDistance,
     userLocation,
     filters.searchQuery,
@@ -575,6 +587,7 @@ export default function FindSessionList({
       splitEvenly: pendingFilters.splitEvenly,
       sessionType: pendingFilters.sessionType,
       near: pendingSortByDistance,
+      courts: pendingFilters.courtsCount,
     });
     if (pendingUserLocation) {
       setUserLocation(pendingUserLocation);
@@ -599,6 +612,7 @@ export default function FindSessionList({
       minAvailableSlots: 0,
       splitEvenly: false,
       sessionType: 'all',
+      courtsCount: 0,
     });
     setPendingSortByDistance(false);
     setPendingUserLocation(null);
@@ -625,6 +639,7 @@ export default function FindSessionList({
     (filters.minFee > 0 || filters.maxFee < 200000 ? 1 : 0) +
     (filters.splitEvenly ? 1 : 0) +
     (filters.sessionType !== 'all' ? 1 : 0) +
+    (filters.courtsCount > 0 ? 1 : 0) +
     (sortByDistance ? 1 : 0);
   // favoriteOnly is excluded from filter count as it's now in the tab nav
 
@@ -1073,6 +1088,34 @@ export default function FindSessionList({
                   boxSize={3}
                   cursor="pointer"
                   onClick={() => setUrlFilters({ splitEvenly: false })}
+                  _hover={{ color: 'red.500' }}
+                />
+              </Badge>
+            )}
+
+            {/* Court count */}
+            {filters.courtsCount > 0 && (
+              <Badge
+                colorPalette="teal"
+                variant="subtle"
+                px={3}
+                py={1.5}
+                borderRadius="full"
+                display="flex"
+                alignItems="center"
+                gap={2}
+                boxShadow="sm"
+              >
+                <Text fontSize="xs" fontWeight="semibold">
+                  {filters.courtsCount === 4
+                    ? t('filters.courtsPlusLabel', { count: 4 })
+                    : t('courtsLabel', { count: filters.courtsCount })}
+                </Text>
+                <Icon
+                  as={X}
+                  boxSize={3}
+                  cursor="pointer"
+                  onClick={() => setUrlFilters({ courts: 0 })}
                   _hover={{ color: 'red.500' }}
                 />
               </Badge>

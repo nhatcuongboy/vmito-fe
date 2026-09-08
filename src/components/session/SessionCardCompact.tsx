@@ -64,8 +64,9 @@ const SessionCardCompact = ({
         borderRadius="full"
         backdropFilter="blur(8px)"
         gap={1}
-        px={2.5}
-        py={1}
+        px={{ base: 2.5, md: 3 }}
+        py={{ base: 1, md: 1.5 }}
+        fontSize={{ base: 'xs', md: 'sm' }}
         fontWeight="medium"
         whiteSpace="nowrap"
       >
@@ -75,19 +76,24 @@ const SessionCardCompact = ({
   })();
 
   const bottomBar = viewModel.isCrawled ? (
-    <Flex align="center" justify="space-between" gap={2} mt={1}>
+    <Flex
+      align="center"
+      justify="space-between"
+      gap={2}
+      mt={{ base: 1, md: 1.5 }}
+    >
       <Flex
         align="center"
         gap={1}
         color="gray.500"
         _dark={{ color: 'gray.400' }}
       >
-        <Icon as={Facebook} boxSize={3} flexShrink={0} />
-        <Text fontSize="xs" whiteSpace="nowrap">
+        <Icon as={Facebook} boxSize={{ base: 3, md: 3.5 }} flexShrink={0} />
+        <Text fontSize={{ base: 'xs', md: 'sm' }} whiteSpace="nowrap">
           {t('crawledBadge')}
         </Text>
       </Flex>
-      <Text fontSize="xs" color="fg.muted" flexShrink={0}>
+      <Text fontSize={{ base: 'xs', md: 'sm' }} color="fg.muted" flexShrink={0}>
         {t('courtsLabel', { count: session.numberOfCourts })}
       </Text>
     </Flex>

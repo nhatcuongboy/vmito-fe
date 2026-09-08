@@ -653,6 +653,7 @@
       "feeMin": "最低",
       "feeMax": "最高",
       "splitEvenly": "平均分摊",
+      "courtsPlusLabel": "{count}+ 场地",
       "allDays": "所有日期",
       "locationPermissionDenied": "位置权限被拒绝",
       "skillLevel": {

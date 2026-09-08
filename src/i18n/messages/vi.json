@@ -668,6 +668,7 @@
       "feeMin": "Tối thiểu",
       "feeMax": "Tối đa",
       "splitEvenly": "Chia đều",
+      "courtsPlusLabel": "{count}+ sân",
       "allDays": "Tất cả ngày",
       "locationPermissionDenied": "Quyền truy cập vị trí bị từ chối",
       "skillLevel": {

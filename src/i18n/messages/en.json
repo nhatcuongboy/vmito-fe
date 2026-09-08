@@ -665,6 +665,7 @@
       "feeMin": "Minimum",
       "feeMax": "Maximum",
       "splitEvenly": "Split Evenly",
+      "courtsPlusLabel": "{count}+ courts",
       "allDays": "All Days",
       "locationPermissionDenied": "Location permission denied",
       "skillLevel": {

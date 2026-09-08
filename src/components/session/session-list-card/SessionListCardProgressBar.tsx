@@ -33,22 +33,26 @@ export const SessionListCardProgressBar = ({
   const barColor = isFull ? 'red.400' : isUrgent ? 'orange.400' : 'green.500';
 
   return (
-    <Box mt={1}>
+    <Box mt={{ base: 1, md: 1.5 }}>
       <Flex align="center" justify="space-between" gap={2} mb={1}>
         <Text
-          fontSize="xs"
+          fontSize={{ base: 'xs', md: 'sm' }}
           fontWeight="semibold"
           color={slotsColor}
           lineClamp={1}
         >
           {slotsLabel}
         </Text>
-        <Text fontSize="xs" color="fg.muted" flexShrink={0}>
+        <Text
+          fontSize={{ base: 'xs', md: 'sm' }}
+          color="fg.muted"
+          flexShrink={0}
+        >
           {t('courtsLabel', { count: courtsCount })}
         </Text>
       </Flex>
       <Box
-        h="8px"
+        h={{ base: '8px', md: '10px' }}
         w="100%"
         borderRadius="full"
         bg="gray.100"
