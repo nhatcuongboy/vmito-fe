@@ -2,7 +2,7 @@
 
 import { memo } from 'react';
 import { Badge, Flex, Icon, Text } from '@chakra-ui/react';
-import { Facebook } from 'lucide-react';
+import { Check, ClipboardCheck, Clock, Facebook } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { ISession } from '@/lib/api/types';
 import { SPORT_EMOJI, normalizeSportType } from '@/constants/sports';
@@ -30,50 +30,54 @@ const SessionCardCompact = ({
   const cardHref = `/sessions/${session.slug || session.id}`;
   const sportType = normalizeSportType(session.sportType);
 
-  const overlayBadge = (() => {
-    if (userRegistrationStatus) {
+  const sportBadge = (
+    <Badge
+      variant="plain"
+      bg="blackAlpha.600"
+      color="white"
+      borderRadius="full"
+      backdropFilter="blur(8px)"
+      gap={1}
+      px={{ base: 2.5, md: 3 }}
+      py={{ base: 1, md: 1.5 }}
+      fontSize={{ base: 'xs', md: 'sm' }}
+      fontWeight="medium"
+      whiteSpace="nowrap"
+    >
+      {SPORT_EMOJI[sportType]} {t(`sportBadge.${sportType}`)}
+    </Badge>
+  );
+
+  const registrationStatusBadge = (() => {
+    if (userRegistrationStatus === 'APPROVED') {
       return (
-        <Badge
-          colorPalette={
-            userRegistrationStatus === 'REJECTED' ? 'red' : 'yellow'
-          }
-          variant={userRegistrationStatus === 'APPROVED' ? 'subtle' : 'solid'}
-          borderWidth="1px"
-          borderColor={
-            userRegistrationStatus === 'APPROVED'
-              ? 'yellow.200'
-              : userRegistrationStatus === 'PENDING'
-                ? 'yellow.400'
-                : 'red.400'
-          }
-        >
-          {userRegistrationStatus === 'APPROVED'
-            ? t('registrationApproved')
-            : userRegistrationStatus === 'PENDING'
-              ? t('registrationPending')
-              : t('registrationRejected')}
+        <Badge colorPalette="green" gap={1}>
+          <Icon as={Check} boxSize={3} />
+          {t('registrationApproved')}
         </Badge>
       );
     }
-
-    return (
-      <Badge
-        variant="plain"
-        bg="blackAlpha.600"
-        color="white"
-        borderRadius="full"
-        backdropFilter="blur(8px)"
-        gap={1}
-        px={{ base: 2.5, md: 3 }}
-        py={{ base: 1, md: 1.5 }}
-        fontSize={{ base: 'xs', md: 'sm' }}
-        fontWeight="medium"
-        whiteSpace="nowrap"
-      >
-        {SPORT_EMOJI[sportType]} {t(`sportBadge.${sportType}`)}
-      </Badge>
-    );
+    if (userRegistrationStatus === 'PENDING') {
+      return (
+        <Badge colorPalette="yellow" gap={1}>
+          <Icon as={Clock} boxSize={3} />
+          {t('registrationPending')}
+        </Badge>
+      );
+    }
+    if (userRegistrationStatus === 'REJECTED') {
+      return (
+        <Badge colorPalette="red" gap={1}>
+          <Icon as={ClipboardCheck} boxSize={3} />
+          {t('registrationRejected')}
+        </Badge>
+      );
+    }
+    return null;
   })();
+
+  const overlayBadge = sportBadge;
+  const bottomOverlayBadge = registrationStatusBadge;
 
   const bottomBar = viewModel.isCrawled ? (
     <Flex
@@ -112,6 +116,7 @@ const SessionCardCompact = ({
       distance={distance}
       imagePriority={imagePriority}
       overlayBadge={overlayBadge}
+      bottomOverlayBadge={bottomOverlayBadge}
       identityRow={<SessionListCardHostRow session={session} />}
       bottomBar={bottomBar}
       cornerAction={

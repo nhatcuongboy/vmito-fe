@@ -6,7 +6,6 @@ import { Box, Text, Icon, Flex, Badge, Alert } from '@chakra-ui/react';
 import { IconButton } from '@/components/ui/chakra-compat';
 import { MapPin, Navigation, LogIn } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { formatVenueName } from '@/utils';
 import { AppSportBadge } from '@/components/common/AppSportBadge';
 import {
   getSessionLocationAddress,
@@ -49,7 +48,6 @@ const SessionCard = ({
 }: SessionCardProps) => {
   const t = useTranslations('session');
   const tCommon = useTranslations('common');
-  const tVenue = useTranslations('venue');
   const { user } = useAuthStore();
 
   const {
@@ -203,12 +201,7 @@ const SessionCard = ({
       <Box flex="1" overflow="hidden" minW={0}>
         <Flex align="center" gap={1}>
           <Text fontWeight="medium" lineClamp={1} flex="1" minW={0}>
-            {session.venue?.name
-              ? formatVenueName(
-                  session.venue.name,
-                  tVenue('nameFormat', { name: '{name}' })
-                )
-              : locationName}
+            {session.venue?.name || locationName}
           </Text>
           <IconButton
             size="xs"

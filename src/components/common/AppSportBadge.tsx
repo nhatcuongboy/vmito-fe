@@ -27,6 +27,30 @@ export const AppSportBadge = ({
   const sport = normalizeSportType(sportType);
   const label = t(sport);
 
+  // Icon-only overlays use the glassmorphism pill from the "Tìm kèo" cards
+  // instead of the colored badge used in filters/selects.
+  if (iconOnly) {
+    return (
+      <Badge
+        variant="plain"
+        bg="blackAlpha.600"
+        color="white"
+        borderRadius="full"
+        backdropFilter="blur(8px)"
+        px={1.5}
+        py={1}
+        fontSize="sm"
+        fontWeight="medium"
+        whiteSpace="nowrap"
+        aria-label={label}
+        title={label}
+        {...rest}
+      >
+        <span aria-hidden>{SPORT_EMOJI[sport]}</span>
+      </Badge>
+    );
+  }
+
   return (
     <Badge
       size={size}
@@ -35,13 +59,10 @@ export const AppSportBadge = ({
       borderRadius="md"
       whiteSpace="nowrap"
       gap={1}
-      px={iconOnly ? 1.5 : undefined}
-      aria-label={iconOnly ? label : undefined}
-      title={iconOnly ? label : undefined}
       {...rest}
     >
-      <span aria-hidden={!iconOnly}>{SPORT_EMOJI[sport]}</span>
-      {!iconOnly && label}
+      <span aria-hidden>{SPORT_EMOJI[sport]}</span>
+      {label}
     </Badge>
   );
 };

@@ -988,6 +988,7 @@
     "today": "今天",
     "tomorrow": "明天",
     "splitEvenly": "平摊",
+    "splitFeeLabel": "平摊费用",
     "viewSessionAt": "查看 {venue} 的场次 {name}",
     "coverAlt": "{name} 的封面图片"
   },

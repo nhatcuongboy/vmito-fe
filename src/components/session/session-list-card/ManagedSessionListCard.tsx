@@ -94,7 +94,7 @@ export const ManagedSessionListCard = ({
     }
 
     const config = {
-      [SessionStatus.PREPARING]: ['green', t('status.preparing')],
+      [SessionStatus.PREPARING]: ['gray', t('status.preparing')],
       [SessionStatus.IN_PROGRESS]: ['teal', t('status.inProgress')],
       [SessionStatus.FINISHED]: ['gray', t('status.finished')],
       [SessionStatus.CANCELLED]: ['red', t('status.cancelled')],
@@ -102,6 +102,8 @@ export const ManagedSessionListCard = ({
     const [colorPalette, label] = config[session.status];
     return <Badge colorPalette={colorPalette}>{label}</Badge>;
   })();
+
+  const overlayBadge = statusBadge;
 
   const menuItems: SessionListCardActionItem[] = [];
   if (session.status === SessionStatus.PREPARING && !viewModel.isExpired) {
@@ -168,7 +170,7 @@ export const ManagedSessionListCard = ({
         session={session}
         href={detailHref}
         imagePriority={imagePriority}
-        overlayBadge={statusBadge}
+        overlayBadge={overlayBadge}
         identityRow={
           <Flex align="center" gap={2} color="fg.muted" minW={0}>
             <Icon as={Users} boxSize={3.5} flexShrink={0} />

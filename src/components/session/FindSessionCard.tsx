@@ -5,7 +5,6 @@ import { Box, Flex, Icon, Text, Badge } from '@chakra-ui/react';
 import { IconButton } from '@/components/ui/chakra-compat';
 import { MapPin, Navigation, Facebook } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { formatVenueName } from '@/utils';
 import { AppAddressDisplay } from '@/components/common/AppAddressDisplay';
 import { AppSportBadge } from '@/components/common/AppSportBadge';
 import BaseSessionCard from './BaseSessionCard';
@@ -80,7 +79,6 @@ const FindSessionCard = ({
   const isCompact = variant === 'list';
   const t = useTranslations('session');
   const tCommon = useTranslations('common');
-  const tVenue = useTranslations('venue');
   const { user } = useAuthStore();
 
   const [isDeleting, setIsDeleting] = useState(false);
@@ -173,12 +171,7 @@ const FindSessionCard = ({
             flex="1"
             minW={0}
           >
-            {session.venue?.name
-              ? formatVenueName(
-                  session.venue.name,
-                  tVenue('nameFormat', { name: '{name}' })
-                )
-              : locationName}
+            {session.venue?.name || locationName}
           </Text>
           {distance !== undefined && (
             <Badge

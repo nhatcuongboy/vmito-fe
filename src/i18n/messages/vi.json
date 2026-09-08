@@ -718,7 +718,7 @@
     "guest": "Khách",
     "joined": "Đã tham gia",
     "registrationSuccessPending": "Yêu cầu đăng ký đã được gửi. Vui lòng chờ host duyệt.",
-    "registrationPending": "Đang chờ duyệt",
+    "registrationPending": "Chờ duyệt",
     "registrationRejected": "Đăng ký bị từ chối",
     "registrationApproved": "Đã duyệt",
     "loginRequired": "Yêu cầu đăng nhập",
@@ -1014,6 +1014,7 @@
     "today": "Hôm nay",
     "tomorrow": "Ngày mai",
     "splitEvenly": "Chia đều",
+    "splitFeeLabel": "Phí chia đều",
     "viewSessionAt": "Xem chi tiết kèo {name} tại {venue}",
     "coverAlt": "Ảnh bìa kèo {name}"
   },
