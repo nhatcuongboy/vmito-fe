@@ -29,20 +29,21 @@ export default function AppViewModeToggle({
     serverViewMode
   );
 
-  const gridButton = (
-    <IconButton
-      key="grid"
-      size="xs"
-      h="32px"
-      w="32px"
-      variant={viewMode === 'grid' ? 'solid' : 'ghost'}
-      colorPalette="green"
-      aria-label="Grid view"
-      icon={<LayoutGrid size={16} />}
-      onClick={() => setViewMode('grid')}
-      borderRadius="md"
-    />
-  );
+  // Grid button temporarily hidden
+  // const gridButton = (
+  //   <IconButton
+  //     key="grid"
+  //     size="xs"
+  //     h="32px"
+  //     w="32px"
+  //     variant={viewMode === 'grid' ? 'solid' : 'ghost'}
+  //     colorPalette="green"
+  //     aria-label="Grid view"
+  //     icon={<LayoutGrid size={16} />}
+  //     onClick={() => setViewMode('grid')}
+  //     borderRadius="md"
+  //   />
+  // );
 
   const listButton = (
     <IconButton
@@ -71,7 +72,9 @@ export default function AppViewModeToggle({
       shadow="sm"
       h="fit-content"
     >
-      {listFirst ? (
+      {listButton}
+      {/* Grid button temporarily hidden */}
+      {/* {listFirst ? (
         <>
           {listButton}
           {gridButton}
@@ -81,7 +84,7 @@ export default function AppViewModeToggle({
           {gridButton}
           {listButton}
         </>
-      )}
+      )} */}
       {showMap && (
         <IconButton
           size="xs"

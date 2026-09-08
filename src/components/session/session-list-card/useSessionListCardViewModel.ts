@@ -31,7 +31,8 @@ export const useSessionListCardViewModel = (
   const { getLevelShortLabel } = useLevelLabel();
 
   const maxPlayers = session.numberOfCourts * session.maxPlayersPerCourt;
-  const approvedPlayersCount = session._count?.players || 0;
+  const approvedPlayersCount =
+    session._count?.players ?? session.players?.length ?? 0;
   const availableSlots = Math.max(maxPlayers - approvedPlayersCount, 0);
   const isFull = approvedPlayersCount >= maxPlayers;
   const isCrawled = session.isCrawled === true;

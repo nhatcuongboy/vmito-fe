@@ -45,7 +45,8 @@ export default function ViewModeToggle({
         onClick={() => setViewMode('list')}
         borderRadius="md"
       />
-      <IconButton
+      {/* Grid view temporarily hidden */}
+      {/* <IconButton
         size="xs"
         h="32px"
         w="32px"
@@ -55,7 +56,7 @@ export default function ViewModeToggle({
         icon={<LayoutGrid size={16} />}
         onClick={() => setViewMode('grid')}
         borderRadius="md"
-      />
+      /> */}
       {showMap && (
         <IconButton
           size="xs"

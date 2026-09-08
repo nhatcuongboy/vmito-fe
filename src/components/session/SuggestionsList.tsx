@@ -358,6 +358,7 @@ export default function SuggestionsList({
       minAvailableSlots: 0,
       splitEvenly: false,
       sessionType: 'all',
+      courtsCount: 0,
     });
     setPendingSortByDistance(false);
     setPendingUserLocation(null);

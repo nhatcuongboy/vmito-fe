@@ -331,6 +331,38 @@ export default function SessionFilterDrawer({
                       <MapPin size={16} />
                       {t('filters.nearMe')}
                     </Badge>
+                    {[1, 2, 3, 4].map((count) => {
+                      const isSelected = filters.courtsCount === count;
+                      return (
+                        <Badge
+                          key={count}
+                          px={5}
+                          py={2}
+                          borderRadius="full"
+                          cursor="pointer"
+                          variant={isSelected ? 'solid' : 'outline'}
+                          colorPalette={isSelected ? 'green' : 'gray'}
+                          onClick={() =>
+                            setFilters({
+                              ...filters,
+                              courtsCount: isSelected ? 0 : count,
+                            })
+                          }
+                          fontSize="sm"
+                          fontWeight="semibold"
+                          transition="all 0.2s"
+                          _hover={{
+                            transform: 'translateY(-2px)',
+                            shadow: 'md',
+                          }}
+                          borderWidth={isSelected ? '0' : '2px'}
+                        >
+                          {count === 4
+                            ? t('filters.courtsPlusLabel', { count })
+                            : t('courtsLabel', { count })}
+                        </Badge>
+                      );
+                    })}
                   </Flex>
                 </Box>
 

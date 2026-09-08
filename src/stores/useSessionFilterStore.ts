@@ -20,6 +20,7 @@ export interface SessionFilters {
   minAvailableSlots: number;
   splitEvenly: boolean; // New field for split payment option
   sessionType: 'all' | 'regular' | 'facebook';
+  courtsCount: number; // 0 = any, 1-3 = exact match, 4 = "4+" (>= 4)
 }
 
 export type ViewMode = 'grid' | 'list' | 'map';
@@ -105,6 +106,7 @@ const defaultFilters: SessionFilters = {
   minAvailableSlots: 0,
   splitEvenly: false,
   sessionType: 'all',
+  courtsCount: 0,
 };
 
 export const useSessionFilterStore = create<SessionFilterState>()(
