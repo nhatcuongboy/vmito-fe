@@ -1,13 +1,15 @@
 'use client';
 
 import { memo } from 'react';
-import { Badge, Icon } from '@chakra-ui/react';
+import { Badge, Flex, Icon, Text } from '@chakra-ui/react';
 import { Facebook } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { ISession } from '@/lib/api/types';
+import { SPORT_EMOJI, normalizeSportType } from '@/constants/sports';
 import { FavoriteButton } from '@/components/favorites/FavoriteButton';
 import { SessionListCard } from './session-list-card/SessionListCard';
 import { SessionListCardHostRow } from './session-list-card/SessionListCardHostRow';
+import { SessionListCardProgressBar } from './session-list-card/SessionListCardProgressBar';
 import { useSessionListCardViewModel } from './session-list-card/useSessionListCardViewModel';
 
 interface SessionCardCompactProps {
@@ -26,71 +28,76 @@ const SessionCardCompact = ({
   const t = useTranslations('session');
   const viewModel = useSessionListCardViewModel(session, distance);
   const cardHref = `/sessions/${session.slug || session.id}`;
+  const sportType = normalizeSportType(session.sportType);
 
   const overlayBadge = (() => {
-    const statusBadge = (() => {
-      if (userRegistrationStatus) {
-        return (
-          <Badge
-            colorPalette={
-              userRegistrationStatus === 'REJECTED' ? 'red' : 'yellow'
-            }
-            variant={userRegistrationStatus === 'APPROVED' ? 'subtle' : 'solid'}
-            borderWidth="1px"
-            borderColor={
-              userRegistrationStatus === 'APPROVED'
-                ? 'yellow.200'
-                : userRegistrationStatus === 'PENDING'
-                  ? 'yellow.400'
-                  : 'red.400'
-            }
-          >
-            {userRegistrationStatus === 'APPROVED'
-              ? t('registrationApproved')
-              : userRegistrationStatus === 'PENDING'
-                ? t('registrationPending')
-                : t('registrationRejected')}
-          </Badge>
-        );
-      }
-
-      if (viewModel.isCrawled) {
-        return (
-          <Badge
-            bg="#1877F2"
-            color="white"
-            borderWidth="1px"
-            borderColor="#8bb9ff"
-            backdropFilter="blur(4px)"
-            boxShadow="0 2px 8px rgba(24, 119, 242, 0.28)"
-            gap={1}
-            px={1.5}
-            whiteSpace="nowrap"
-          >
-            <Icon as={Facebook} boxSize={3} flexShrink={0} />
-            {t('crawledBadge')}
-          </Badge>
-        );
-      }
-
-      if (viewModel.isExpired) return null;
-
+    if (userRegistrationStatus) {
       return (
         <Badge
-          colorPalette={viewModel.isFull ? 'gray' : 'teal'}
-          variant="solid"
+          colorPalette={
+            userRegistrationStatus === 'REJECTED' ? 'red' : 'yellow'
+          }
+          variant={userRegistrationStatus === 'APPROVED' ? 'subtle' : 'solid'}
           borderWidth="1px"
-          borderColor={viewModel.isFull ? 'gray.400' : 'teal.400'}
+          borderColor={
+            userRegistrationStatus === 'APPROVED'
+              ? 'yellow.200'
+              : userRegistrationStatus === 'PENDING'
+                ? 'yellow.400'
+                : 'red.400'
+          }
         >
-          {viewModel.isFull
-            ? t('slotsFull')
-            : t('slotsAvailable', { count: viewModel.availableSlots })}
+          {userRegistrationStatus === 'APPROVED'
+            ? t('registrationApproved')
+            : userRegistrationStatus === 'PENDING'
+              ? t('registrationPending')
+              : t('registrationRejected')}
         </Badge>
       );
-    })();
+    }
 
-    return statusBadge;
+    return (
+      <Badge
+        variant="plain"
+        bg="blackAlpha.600"
+        color="white"
+        borderRadius="full"
+        backdropFilter="blur(8px)"
+        gap={1}
+        px={2.5}
+        py={1}
+        fontWeight="medium"
+        whiteSpace="nowrap"
+      >
+        {SPORT_EMOJI[sportType]} {t(`sportBadge.${sportType}`)}
+      </Badge>
+    );
   })();
+
+  const bottomBar = viewModel.isCrawled ? (
+    <Flex align="center" justify="space-between" gap={2} mt={1}>
+      <Flex
+        align="center"
+        gap={1}
+        color="gray.500"
+        _dark={{ color: 'gray.400' }}
+      >
+        <Icon as={Facebook} boxSize={3} flexShrink={0} />
+        <Text fontSize="xs" whiteSpace="nowrap">
+          {t('crawledBadge')}
+        </Text>
+      </Flex>
+      <Text fontSize="xs" color="fg.muted" flexShrink={0}>
+        {t('courtsLabel', { count: session.numberOfCourts })}
+      </Text>
+    </Flex>
+  ) : (
+    <SessionListCardProgressBar
+      current={viewModel.approvedPlayersCount}
+      total={viewModel.maxPlayers}
+      courtsCount={session.numberOfCourts}
+    />
+  );
 
   return (
     <SessionListCard
@@ -100,6 +107,7 @@ const SessionCardCompact = ({
       imagePriority={imagePriority}
       overlayBadge={overlayBadge}
       identityRow={<SessionListCardHostRow session={session} />}
+      bottomBar={bottomBar}
       cornerAction={
         <FavoriteButton
           type="SESSION"

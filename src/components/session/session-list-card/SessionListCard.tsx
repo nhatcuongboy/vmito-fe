@@ -26,6 +26,7 @@ interface SessionListCardProps {
   identityRow?: React.ReactNode;
   cornerAction?: React.ReactNode;
   actionFooter?: React.ReactNode;
+  bottomBar?: React.ReactNode;
   distance?: number;
   imagePriority?: boolean;
 }
@@ -37,6 +38,7 @@ export const SessionListCard = ({
   identityRow,
   cornerAction,
   actionFooter,
+  bottomBar,
   distance,
   imagePriority = false,
 }: SessionListCardProps) => {
@@ -78,13 +80,13 @@ export const SessionListCard = ({
         flexDirection={{ base: 'row', md: 'column' }}
         height="100%"
         overflow="hidden"
-        bg="white"
-        _dark={{ bg: 'gray.800' }}
+        bg={viewModel.isCrawled ? 'gray.50' : 'white'}
+        _dark={{ bg: viewModel.isCrawled ? 'gray.900' : 'gray.800' }}
         borderWidth="1px"
         borderColor="border.subtle"
         borderRadius="xl"
         boxShadow="0 2px 8px rgba(0, 0, 0, 0.06), 0 1px 3px rgba(0, 0, 0, 0.04)"
-        transition="box-shadow 0.2s ease, border-color 0.2s ease"
+        transition="box-shadow 0.2s ease, border-color 0.2s ease, opacity 0.2s ease"
         _hover={{
           boxShadow:
             '0 8px 16px rgba(23, 154, 59, 0.12), 0 4px 12px rgba(0, 0, 0, 0.08)',
@@ -309,6 +311,8 @@ export const SessionListCard = ({
               </Text>
             )}
           </Flex>
+
+          {bottomBar}
 
           {actionFooter && (
             <Flex

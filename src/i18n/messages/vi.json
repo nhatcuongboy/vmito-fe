@@ -444,8 +444,12 @@
     "viewSession": "Vào sân",
     "view": "Xem",
     "viewOriginalPost": "Xem bài gốc",
-    "crawledBadge": "Bài Facebook",
+    "crawledBadge": "Nguồn Facebook",
     "crawledSourcePrefix": "Tổng hợp từ bài đăng công khai",
+    "sportBadge": {
+      "BADMINTON": "Cầu lông",
+      "PICKLEBALL": "Pickleball"
+    },
     "deleteConfirmation": "Bạn có chắc chắn muốn xóa kèo này không?",
     "notStarted": "Chưa bắt đầu",
     "notStartedYet": "Chưa bắt đầu",
@@ -725,7 +729,9 @@
     "viewRequest": "Xem yêu cầu",
     "sessionFull": "Đã đủ người",
     "slotsAvailable": "Còn {count} slot",
+    "slotsAvailableUrgent": "Chỉ còn {count} slot",
     "slotsFull": "Hết slot",
+    "courtsLabel": "{count} sân",
     "registrationClosed": "Ngừng nhận đăng ký",
     "sessionEnded": "Kèo đã kết thúc",
     "viewEndedSession": "Xem kèo đã kết thúc",

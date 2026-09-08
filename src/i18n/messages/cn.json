@@ -432,8 +432,12 @@
     "viewSession": "进入球场",
     "view": "查看",
     "viewOriginalPost": "查看原帖",
-    "crawledBadge": "Facebook 帖子",
+    "crawledBadge": "Facebook 来源",
     "crawledSourcePrefix": "整理自公开帖子",
+    "sportBadge": {
+      "BADMINTON": "羽毛球",
+      "PICKLEBALL": "Pickleball"
+    },
     "deleteConfirmation": "您确定要删除此场次吗？",
     "notStarted": "未开始",
     "notStartedYet": "尚未开始",
@@ -709,7 +713,9 @@
     "viewRequest": "查看请求",
     "sessionFull": "已满员",
     "slotsAvailable": "有空位",
+    "slotsAvailableUrgent": "仅剩 {count} 个名额",
     "slotsFull": "已满",
+    "courtsLabel": "{count} 个场地",
     "registrationClosed": "停止报名",
     "sessionEnded": "场次已结束",
     "viewEndedSession": "查看已结束场次",
