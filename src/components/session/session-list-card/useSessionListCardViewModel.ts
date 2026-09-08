@@ -15,7 +15,6 @@ import { normalizeImageUrl } from '@/lib/images/normalizeImageUrl';
 import { COMPACT_COVER_TRANSFORM } from '@/lib/images/coverTransforms';
 import { formatCompactSessionDate } from '@/utils/session-helpers';
 import { formatTimeRangeByDevicePreference } from '@/utils/time-helpers';
-import { formatVenueName } from '@/utils/venue-helpers';
 import { getSessionLocationName } from '@/utils/session-location';
 
 const DISCRETE_LEVEL_CAP = 2;
@@ -25,7 +24,6 @@ export const useSessionListCardViewModel = (
   distance?: number
 ) => {
   const t = useTranslations('session');
-  const tVenue = useTranslations('venue');
   const locale = useLocale();
   const { showNewAddress } = useAppSettings();
   const { getLevelShortLabel } = useLevelLabel();
@@ -55,12 +53,7 @@ export const useSessionListCardViewModel = (
       ).replace(' - ', '-')
     : '';
 
-  const venueName = session.venue?.name
-    ? formatVenueName(
-        session.venue.name,
-        tVenue('nameFormat', { name: '{name}' })
-      )
-    : getSessionLocationName(session);
+  const venueName = session.venue?.name || getSessionLocationName(session);
   const rawDistrict = showNewAddress
     ? session.venue?.newDistrict ||
       session.venue?.district ||
