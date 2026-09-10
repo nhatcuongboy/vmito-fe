@@ -2,7 +2,13 @@
 
 import { memo } from 'react';
 import { Badge, Flex, Icon, Text } from '@chakra-ui/react';
-import { Check, ClipboardCheck, Clock, Facebook } from 'lucide-react';
+import {
+  Check,
+  ClipboardCheck,
+  Clock,
+  Facebook,
+  LayoutGrid,
+} from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { ISession } from '@/lib/api/types';
 import { SPORT_EMOJI, normalizeSportType } from '@/constants/sports';
@@ -93,13 +99,20 @@ const SessionCardCompact = ({
         _dark={{ color: 'gray.400' }}
       >
         <Icon as={Facebook} boxSize={{ base: 3, md: 3.5 }} flexShrink={0} />
-        <Text fontSize={{ base: 'xs', md: 'sm' }} whiteSpace="nowrap">
+        <Text
+          fontSize={{ base: 'xs', md: 'sm' }}
+          fontWeight="medium"
+          whiteSpace="nowrap"
+        >
           {t('crawledBadge')}
         </Text>
       </Flex>
-      <Text fontSize={{ base: 'xs', md: 'sm' }} color="fg.muted" flexShrink={0}>
-        {t('courtsLabel', { count: session.numberOfCourts })}
-      </Text>
+      <Flex align="center" gap={1.5} color="fg.muted" flexShrink={0}>
+        <LayoutGrid size={14} style={{ flexShrink: 0 }} />
+        <Text fontSize={{ base: 'xs', md: 'sm' }} fontWeight="medium">
+          {t('courtsLabel', { count: session.numberOfCourts })}
+        </Text>
+      </Flex>
     </Flex>
   ) : (
     <SessionListCardProgressBar
