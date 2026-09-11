@@ -6,7 +6,7 @@
 export const ANDROID_APP_CONFIG = {
   downloadUrl:
     process.env.NEXT_PUBLIC_ANDROID_APK_URL ||
-    'https://vmito.vn/downloads/vmito.apk',
+    'https://vmito.com/courts/app-release.apk',
   version: process.env.NEXT_PUBLIC_ANDROID_APP_VERSION || '1.0.0',
   fileSize: process.env.NEXT_PUBLIC_ANDROID_APK_SIZE || '32 MB',
   releaseNotes:

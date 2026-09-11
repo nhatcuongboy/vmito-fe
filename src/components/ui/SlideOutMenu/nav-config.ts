@@ -171,6 +171,12 @@ export const NAV_SECTIONS: NavSectionConfig[] = [
         component: ClubsMenu,
       },
       {
+        key: 'tournaments',
+        icon: Swords,
+        label: (t) => t.nav('tournaments'),
+        getHref: () => ROUTES.HOST.TOURNAMENTS.LIST,
+      },
+      {
         key: 'myClasses',
         icon: BookOpen,
         label: (t) => t.nav('myClasses'),
@@ -191,12 +197,6 @@ export const NAV_SECTIONS: NavSectionConfig[] = [
         label: (t) => t.nav('managedVenueRentals'),
         getHref: () => '/manage/venues',
         isVisible: (ctx) => isAdminOrHost(ctx) && ctx.hasManagedVenues,
-      },
-      {
-        key: 'tournaments',
-        icon: Swords,
-        label: (t) => t.nav('tournaments'),
-        getHref: () => ROUTES.HOST.TOURNAMENTS.LIST,
       },
       {
         key: 'transactions',
