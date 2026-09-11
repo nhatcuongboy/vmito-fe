@@ -142,6 +142,7 @@ import { AppSettingsProvider } from '@/contexts/AppSettingsContext';
 import { TopBarSearchProvider } from '@/contexts/TopBarSearchContext';
 import { Toaster } from '@/components/ui/toaster';
 import { GlobalErrorModal } from '@/components/ui/GlobalErrorModal';
+import WelcomePopupModal from '@/components/ui/WelcomePopupModal';
 import GlobalCourtCallModal from '@/components/session/GlobalCourtCallModal';
 import PointsCelebration from '@/components/leaderboard/PointsCelebration';
 import TourController from '@/components/tour/TourController';
@@ -164,6 +165,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
                       {children}
                       <Toaster />
                       <GlobalErrorModal />
+                      <WelcomePopupModal />
                       <GlobalCourtCallModal />
                       <PointsCelebration />
                       <TourController />

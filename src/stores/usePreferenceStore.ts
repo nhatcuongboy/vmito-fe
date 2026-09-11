@@ -77,3 +77,12 @@ export const usePreferenceStore = create<PreferenceState>()(
     }
   )
 );
+
+/** True while CityOnboardingModal is (or will be) open — mirrors its own
+ *  `isOpen` condition. Used by other on-load modals (e.g. the welcome popup)
+ *  to defer to city onboarding as the first-run blocking step. */
+export function useIsCityOnboardingOpen(): boolean {
+  return usePreferenceStore(
+    (s) => s._hasHydrated && !s.onboardingCompleted && s.preferredCity === null
+  );
+}

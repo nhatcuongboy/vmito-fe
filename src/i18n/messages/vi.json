@@ -8228,5 +8228,51 @@
       "hostSeparate": "Điểm tổ chức được tính riêng cho chủ kèo, không cộng vào bảng xếp hạng người chơi và không ảnh hưởng tới hạng của bạn.",
       "note": "Mỗi kèo hoặc trận đấu chỉ được tính điểm một lần. Chủ kèo có tham gia thi đấu vẫn được cộng thêm điểm tham gia."
     }
+  },
+  "welcomePopup": {
+    "modalDefaultCtaLabel": "Xem thêm",
+    "admin": {
+      "pageTitle": "Popup Chào Mừng",
+      "pageDescription": "Quản lý thông báo/sự kiện hiển thị cho người dùng khi vào trang",
+      "createButton": "Tạo Popup",
+      "active": "Đang bật",
+      "inactive": "Đã tắt",
+      "emptyState": "Chưa có popup nào",
+      "loadError": "Không thể tải danh sách popup",
+      "deleteSuccess": "Đã xóa popup",
+      "deleteError": "Không thể xóa popup",
+      "deleteConfirmTitle": "Xóa popup này?",
+      "deleteConfirmBody": "Hành động này không thể hoàn tác.",
+      "deleteConfirmAction": "Xóa",
+      "columns": {
+        "title": "Tiêu đề",
+        "image": "Ảnh",
+        "active": "Kích hoạt",
+        "displayOrder": "Ưu tiên",
+        "dateRange": "Thời gian hiển thị",
+        "actions": "Thao tác"
+      },
+      "form": {
+        "createTitle": "Tạo popup chào mừng",
+        "editTitle": "Chỉnh sửa popup chào mừng",
+        "titleLabel": "Tiêu đề",
+        "descriptionLabel": "Mô tả",
+        "imageLabel": "Ảnh banner",
+        "optional": "tùy chọn",
+        "ctaLabelLabel": "Nhãn nút bấm",
+        "ctaUrlLabel": "Đường dẫn nút bấm",
+        "isActiveLabel": "Kích hoạt",
+        "displayOrderLabel": "Độ ưu tiên",
+        "displayOrderHelp": "Số càng lớn càng hiển thị trước",
+        "startDateLabel": "Ngày bắt đầu",
+        "endDateLabel": "Ngày kết thúc",
+        "ctaBothRequired": "Nhãn và đường dẫn nút bấm phải cùng có hoặc cùng để trống",
+        "endDateAfterStart": "Ngày kết thúc phải sau ngày bắt đầu",
+        "save": "Lưu",
+        "createSuccess": "Đã tạo popup",
+        "updateSuccess": "Đã cập nhật popup",
+        "saveError": "Không thể lưu popup"
+      }
+    }
   }
 }

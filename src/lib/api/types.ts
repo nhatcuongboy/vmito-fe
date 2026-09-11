@@ -2210,6 +2210,38 @@ export interface IBroadcastNotificationRequest {
   message: string;
 }
 
+// Welcome Popup types
+export interface IWelcomePopup {
+  id: string;
+  title: string;
+  description: string;
+  imageUrl?: string | null;
+  imagePublicId?: string | null;
+  ctaLabel?: string | null;
+  ctaUrl?: string | null;
+  isActive: boolean;
+  displayOrder: number;
+  startDate?: string | null;
+  endDate?: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ICreateWelcomePopupDto {
+  title: string;
+  description: string;
+  imageUrl?: string;
+  imagePublicId?: string;
+  ctaLabel?: string;
+  ctaUrl?: string;
+  isActive?: boolean;
+  displayOrder?: number;
+  startDate?: string;
+  endDate?: string;
+}
+
+export type IUpdateWelcomePopupDto = Partial<ICreateWelcomePopupDto>;
+
 // Socket Events
 export interface ISessionConflictData {
   message: string;

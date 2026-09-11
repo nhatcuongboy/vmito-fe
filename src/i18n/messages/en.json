@@ -8207,5 +8207,51 @@
       "hostSeparate": "Hosting points are tracked on a separate host ranking. They do not count toward the player leaderboard or your tier.",
       "note": "Each session or match is counted only once. A host who also plays still earns participation points."
     }
+  },
+  "welcomePopup": {
+    "modalDefaultCtaLabel": "Learn more",
+    "admin": {
+      "pageTitle": "Welcome Popups",
+      "pageDescription": "Manage announcements shown to users on page load",
+      "createButton": "New Popup",
+      "active": "Active",
+      "inactive": "Inactive",
+      "emptyState": "No popups yet",
+      "loadError": "Failed to load popups",
+      "deleteSuccess": "Popup deleted",
+      "deleteError": "Failed to delete popup",
+      "deleteConfirmTitle": "Delete this popup?",
+      "deleteConfirmBody": "This cannot be undone.",
+      "deleteConfirmAction": "Delete",
+      "columns": {
+        "title": "Title",
+        "image": "Image",
+        "active": "Active",
+        "displayOrder": "Priority",
+        "dateRange": "Date Range",
+        "actions": "Actions"
+      },
+      "form": {
+        "createTitle": "New Welcome Popup",
+        "editTitle": "Edit Welcome Popup",
+        "titleLabel": "Title",
+        "descriptionLabel": "Description",
+        "imageLabel": "Banner Image",
+        "optional": "optional",
+        "ctaLabelLabel": "Button Label",
+        "ctaUrlLabel": "Button Link",
+        "isActiveLabel": "Active",
+        "displayOrderLabel": "Priority",
+        "displayOrderHelp": "Higher number shows first",
+        "startDateLabel": "Start Date",
+        "endDateLabel": "End Date",
+        "ctaBothRequired": "Button label and link must both be set, or both left empty",
+        "endDateAfterStart": "End date must be after start date",
+        "save": "Save",
+        "createSuccess": "Popup created",
+        "updateSuccess": "Popup updated",
+        "saveError": "Failed to save popup"
+      }
+    }
   }
 }
