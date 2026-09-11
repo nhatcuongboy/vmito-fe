@@ -1,16 +1,16 @@
 'use client';
 
 import { VIETNAM_CITIES } from '@/constants/vietnam-locations';
-import { usePreferenceStore } from '@/stores/usePreferenceStore';
+import {
+  useIsCityOnboardingOpen,
+  usePreferenceStore,
+} from '@/stores/usePreferenceStore';
 import { Box, Flex, Grid, Text } from '@chakra-ui/react';
 import { Button } from './chakra-compat';
 import { VModal } from './VModal';
 import { MapPin } from 'lucide-react';
 
 export default function CityOnboardingModal() {
-  const preferredCity = usePreferenceStore((s) => s.preferredCity);
-  const hasHydrated = usePreferenceStore((s) => s._hasHydrated);
-  const onboardingCompleted = usePreferenceStore((s) => s.onboardingCompleted);
   const setPreferredCity = usePreferenceStore((s) => s.setPreferredCity);
   const setOnboardingCompleted = usePreferenceStore(
     (s) => s.setOnboardingCompleted
@@ -21,7 +21,7 @@ export default function CityOnboardingModal() {
   // `onboardingCompleted` (not just `preferredCity === null`) is what lets the
   // CitySelector offer an "All" option — picking "All" sets preferredCity to
   // null intentionally, and this flag keeps the modal from re-appearing.
-  const isOpen = hasHydrated && !onboardingCompleted && preferredCity === null;
+  const isOpen = useIsCityOnboardingOpen();
 
   const handleSelect = (code: string) => {
     setPreferredCity(code);

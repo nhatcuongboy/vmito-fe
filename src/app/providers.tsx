@@ -142,10 +142,12 @@ import { AppSettingsProvider } from '@/contexts/AppSettingsContext';
 import { TopBarSearchProvider } from '@/contexts/TopBarSearchContext';
 import { Toaster } from '@/components/ui/toaster';
 import { GlobalErrorModal } from '@/components/ui/GlobalErrorModal';
+import WelcomePopupModal from '@/components/ui/WelcomePopupModal';
 import GlobalCourtCallModal from '@/components/session/GlobalCourtCallModal';
 import PointsCelebration from '@/components/leaderboard/PointsCelebration';
 import TourController from '@/components/tour/TourController';
 import GoogleOneTap from '@/components/auth/GoogleOneTap';
+import AppAndroidInstallModal from '@/components/ui/AppAndroidInstallModal';
 
 // Custom system configuration for badminton app
 // ... (omitted for brevity in replacement search but effectively kept)
@@ -164,10 +166,12 @@ export function Providers({ children }: { children: React.ReactNode }) {
                       {children}
                       <Toaster />
                       <GlobalErrorModal />
+                      <WelcomePopupModal />
                       <GlobalCourtCallModal />
                       <PointsCelebration />
                       <TourController />
                       <GoogleOneTap />
+                      <AppAndroidInstallModal />
                     </SocketProvider>
                   </FeatureFlagsProvider>
                 </AuthProvider>
