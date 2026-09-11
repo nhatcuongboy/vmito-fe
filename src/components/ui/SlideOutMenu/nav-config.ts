@@ -197,11 +197,6 @@ export const NAV_SECTIONS: NavSectionConfig[] = [
         icon: Swords,
         label: (t) => t.nav('tournaments'),
         getHref: () => ROUTES.HOST.TOURNAMENTS.LIST,
-        isVisible: (ctx) =>
-          (ctx.canAccessHostFeatures || ctx.user?.role === UserRole.REFEREE) &&
-          (ctx.user?.role === UserRole.ADMIN ||
-            ctx.user?.role === UserRole.HOST ||
-            ctx.user?.role === UserRole.REFEREE),
       },
       {
         key: 'transactions',

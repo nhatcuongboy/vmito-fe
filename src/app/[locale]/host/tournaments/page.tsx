@@ -473,7 +473,12 @@ export default function HostTournamentsPage() {
 
   return (
     <ProtectedRouteGuard
-      requiredRole={[UserRole.HOST, UserRole.ADMIN, UserRole.REFEREE]}
+      requiredRole={[
+        UserRole.HOST,
+        UserRole.ADMIN,
+        UserRole.REFEREE,
+        UserRole.PLAYER,
+      ]}
     >
       <PageLayout
         title={isAdmin ? t('adminPageTitle') : t('pageTitle')}
