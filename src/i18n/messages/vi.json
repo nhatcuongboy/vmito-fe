@@ -8274,5 +8274,46 @@
         "saveError": "Không thể lưu popup"
       }
     }
+  },
+  "androidInstall": {
+    "badge": "Ứng dụng Android",
+    "promptTitle": "Cài đặt Vmito cho Android",
+    "promptDesc": "Tải ứng dụng Vmito để nhận thông báo trận đấu tức thì, tìm kèo nhanh chóng và trải nghiệm mượt mà hơn trên điện thoại của bạn.",
+    "version": "Phiên bản",
+    "fileSize": "Dung lượng",
+    "releaseNotesTitle": "Nội dung mới",
+    "installNow": "Cài đặt ngay (APK)",
+    "cancel": "Để sau",
+    "guideTitle": "Hướng dẫn cài đặt file APK",
+    "guideSubtitle": "Tệp APK đang được tải xuống. Hãy làm theo các bước bên dưới để hoàn tất cài đặt:",
+    "step1Title": "Bước 1: Tải xuống file APK",
+    "step1Desc": "Nếu trình duyệt hiển thị cảnh báo \"Tệp có thể gây hại\", chọn \"Vẫn tải xuống\" (Download anyway).",
+    "step2Title": "Bước 2: Mở tệp vừa tải về",
+    "step2Desc": "Kéo thanh thông báo xuống và nhấn vào tệp đã tải xong (hoặc vào mục Tải về / Downloads của trình duyệt).",
+    "step3Title": "Bước 3: Cho phép nguồn không xác định",
+    "step3Desc": "Nếu xuất hiện thông báo bảo mật, chọn Cài đặt (Settings) → Bật \"Cho phép từ nguồn này\" (Allow from this source).",
+    "step4Title": "Bước 4: Nhấn Cài đặt và Mở",
+    "step4Desc": "Bấm \"Cài đặt\" (Install) trên màn hình xác nhận, sau đó bấm \"Mở\" để bắt đầu trải nghiệm Vmito.",
+    "redownload": "Tải lại file APK",
+    "downloadStarted": "Đang tải xuống...",
+    "done": "Đã hiểu",
+    "admin": {
+      "cardTitle": "Cài đặt Ứng dụng Android (APK)",
+      "cardDesc": "Quản lý link tải file APK, số phiên bản và thông tin hiển thị trên popup cài đặt cho thiết bị Android",
+      "version": "Số phiên bản",
+      "versionPlaceholder": "VD: 1.2.0",
+      "downloadUrl": "Đường dẫn tải file APK",
+      "downloadUrlHelp": "Link tải file trực tiếp (.apk) từ CDN, máy chủ hoặc Cloudinary",
+      "fileSize": "Dung lượng ước tính",
+      "fileSizePlaceholder": "VD: 32 MB",
+      "releaseNotes": "Ghi chú phiên bản / Tính năng mới",
+      "releaseNotesPlaceholder": "Mô tả tính năng hoặc cải tiến mới...",
+      "isEnabled": "Bật popup cài đặt cho thiết bị Android",
+      "isEnabledDesc": "Khi bật, người dùng truy cập bằng Android sẽ thấy popup cài đặt ứng dụng",
+      "save": "Lưu cấu hình",
+      "saving": "Đang lưu...",
+      "saveSuccess": "Đã lưu cấu hình ứng dụng Android",
+      "saveError": "Lưu cấu hình thất bại"
+    }
   }
 }

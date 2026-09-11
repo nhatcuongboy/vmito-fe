@@ -2449,3 +2449,24 @@ export interface IUserImageListResponse {
     totalPages: number;
   };
 }
+
+// Android APK App Configuration
+export interface IAndroidAppConfig {
+  id?: string;
+  version: string;
+  downloadUrl: string;
+  fileSize?: string;
+  releaseNotes?: string;
+  isEnabled: boolean;
+  minAndroidVersion?: string;
+  updatedAt?: string;
+}
+
+export interface IUpdateAndroidAppConfigDto {
+  version?: string;
+  downloadUrl?: string;
+  fileSize?: string;
+  releaseNotes?: string;
+  isEnabled?: boolean;
+  minAndroidVersion?: string;
+}
