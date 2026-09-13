@@ -6,6 +6,7 @@ import { useAuthStore, useAuthHydration } from '@/stores/useAuthStore';
 import { AuthService } from '@/lib/api/auth.service';
 import { toaster } from '@/components/ui/toaster';
 import { useTranslations } from 'next-intl';
+import { useCookieConsent } from '@/components/providers/CookieConsentProvider';
 
 declare global {
   interface Window {
@@ -39,6 +40,7 @@ declare global {
 }
 
 export default function GoogleOneTap() {
+  const { choice } = useCookieConsent();
   const { isAuthenticated } = useAuthStore();
   const isHydrated = useAuthHydration();
   const t = useTranslations('auth.signin');
@@ -123,7 +125,7 @@ export default function GoogleOneTap() {
   }, [scriptLoaded, initializeGoogleOneTap]);
 
   // Don't load script or render if user is already authenticated or Client ID is missing
-  if (isAuthenticated || !clientId) {
+  if (choice !== 'all' || isAuthenticated || !clientId) {
     return null;
   }
 

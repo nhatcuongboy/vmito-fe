@@ -23,6 +23,10 @@ import {
   SIDEBAR_COOKIE,
   parseSidebarPreference,
 } from '@/lib/sidebar-preference';
+import {
+  COOKIE_CONSENT_COOKIE,
+  parseCookieConsent,
+} from '@/lib/cookie-consent';
 
 export const viewport = {
   width: 'device-width',
@@ -47,8 +51,12 @@ export default async function LocaleLayout({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
+  const cookieStore = await cookies();
   const initialSidebarCollapsed = parseSidebarPreference(
-    (await cookies()).get(SIDEBAR_COOKIE)?.value
+    cookieStore.get(SIDEBAR_COOKIE)?.value
+  );
+  const initialCookieConsent = parseCookieConsent(
+    cookieStore.get(COOKIE_CONSENT_COOKIE)?.value
   );
 
   // Only global namespaces go to the client here; route-scoped ones
@@ -73,7 +81,10 @@ export default async function LocaleLayout({
       <body className="antialiased">
         <LocaleValidator locale={locale} validLocales={SUPPORTED_LOCALES} />
         <IntlClientProvider messages={messages} locale={locale}>
-          <Providers initialSidebarCollapsed={initialSidebarCollapsed}>
+          <Providers
+            initialCookieConsent={initialCookieConsent}
+            initialSidebarCollapsed={initialSidebarCollapsed}
+          >
             <NewsfeedBadgeInitializer />
             <ThemeColorSync />
             <PWAStatus />

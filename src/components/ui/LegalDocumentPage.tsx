@@ -16,6 +16,7 @@ interface LegalDocumentPageProps {
   appName: string;
   copyright: string;
   showBackButton?: boolean;
+  footerAction?: React.ReactNode;
 }
 
 const topBarOffset = {
@@ -31,6 +32,7 @@ export default function LegalDocumentPage({
   appName,
   copyright,
   showBackButton = false,
+  footerAction,
 }: LegalDocumentPageProps) {
   return (
     <PageWrapper>
@@ -64,6 +66,10 @@ export default function LegalDocumentPage({
               );
             })}
           </div>
+
+          {footerAction ? (
+            <div className="mt-10 flex justify-center">{footerAction}</div>
+          ) : null}
 
           <footer className="mt-12 flex justify-center border-t pt-6 pb-[calc(64px+env(safe-area-inset-bottom)+24px)]">
             <p

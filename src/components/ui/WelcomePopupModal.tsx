@@ -10,10 +10,12 @@ import {
   useWelcomePopupStore,
 } from '@/stores/useWelcomePopupStore';
 import { useRouter } from '@/i18n/config';
+import { useCookieConsent } from '@/components/providers/CookieConsentProvider';
 
 const isExternalUrl = (url: string) => /^https?:\/\//i.test(url);
 
 export default function WelcomePopupModal() {
+  const { isResolved } = useCookieConsent();
   const router = useRouter();
   const fetchActive = useWelcomePopupStore((s) => s.fetchActive);
   const dismiss = useWelcomePopupStore((s) => s.dismiss);
@@ -26,7 +28,7 @@ export default function WelcomePopupModal() {
     fetchActive();
   }, [fetchActive]);
 
-  if (!popup) return null;
+  if (!popup || !isResolved) return null;
 
   const handleClose = () => dismiss(popup);
 

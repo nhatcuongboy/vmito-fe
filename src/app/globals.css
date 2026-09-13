@@ -183,6 +183,45 @@
 }
 
 @layer utilities {
+  @keyframes cookie-consent-banner-in {
+    from {
+      opacity: 0;
+      transform: translate(-50%, 12px);
+    }
+    to {
+      opacity: 1;
+      transform: translate(-50%, 0);
+    }
+  }
+
+  .cookie-consent-banner {
+    animation: cookie-consent-banner-in 180ms ease-out;
+    overscroll-behavior: contain;
+  }
+
+  .cookie-consent-link {
+    color: hsl(var(--primary));
+    font-weight: 600;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+
+  .cookie-consent-link:hover {
+    color: hsl(var(--foreground));
+  }
+
+  .cookie-consent-link:focus-visible {
+    border-radius: 2px;
+    outline: 2px solid hsl(var(--primary));
+    outline-offset: 2px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .cookie-consent-banner {
+      animation: none;
+    }
+  }
+
   @keyframes about-hero-float {
     0%,
     100% {

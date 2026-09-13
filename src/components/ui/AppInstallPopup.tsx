@@ -45,6 +45,7 @@ import {
   useVisibleWelcomePopup,
   useWelcomePopupStore,
 } from '@/stores/useWelcomePopupStore';
+import { useCookieConsent } from '@/components/providers/CookieConsentProvider';
 
 function AndroidApkGuide({
   isOpen,
@@ -188,6 +189,7 @@ function triggerApkDownload(target: InstallTarget) {
 }
 
 export default function AppInstallPopup() {
+  const { isResolved } = useCookieConsent();
   const t = useTranslations('appInstall');
   const androidT = useTranslations('androidInstall');
   const titleId = useId();
@@ -240,6 +242,7 @@ export default function AppInstallPopup() {
   };
 
   const cardIsVisible =
+    isResolved &&
     shouldPrompt &&
     !isApkGuideOpen &&
     welcomeReady &&
@@ -385,7 +388,7 @@ export default function AppInstallPopup() {
       ) : null}
 
       <AndroidApkGuide
-        isOpen={isApkGuideOpen}
+        isOpen={isResolved && isApkGuideOpen}
         onClose={closeAndroidGuide}
         onRedownload={handleApkDownload}
       />

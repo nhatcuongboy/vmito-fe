@@ -1057,6 +1057,15 @@
     "duration": "Thời gian",
     "score": "Điểm số"
   },
+  "cookieConsent": {
+    "title": "Tùy chọn cookie của bạn",
+    "description": "Vmito dùng cookie cần thiết để vận hành an toàn và lưu các lựa chọn của bạn. Khi đồng ý tất cả, bạn cho phép Google One Tap hỗ trợ đăng nhập nhanh.",
+    "privacyLink": "Tìm hiểu thêm trong Chính sách bảo mật.",
+    "necessary": "Chỉ cần thiết",
+    "all": "Đồng ý tất cả",
+    "manage": "Cài đặt cookie",
+    "close": "Đóng cài đặt cookie"
+  },
   "pages": {
     "about": {
       "title": "Về Vmito",
@@ -4730,7 +4739,7 @@
     },
     "privacy": {
       "title": "Chính sách bảo mật",
-      "lastUpdated": "Cập nhật lần cuối: 26/07/2026",
+      "lastUpdated": "Cập nhật lần cuối: 14/09/2026",
       "intro": "Vmito (\"chúng tôi\") tôn trọng quyền riêng tư của bạn và cam kết bảo vệ thông tin cá nhân mà bạn cung cấp khi sử dụng nền tảng tìm kèo, giao lưu và quản lý giải đấu cầu lông của chúng tôi. Chính sách này giải thích cách chúng tôi thu thập, sử dụng, lưu trữ và bảo vệ dữ liệu của bạn.",
       "sections": [
         {
@@ -4758,11 +4767,15 @@
           "body": "Chúng tôi lưu trữ thông tin của bạn trong thời gian cần thiết để cung cấp dịch vụ và tuân thủ nghĩa vụ pháp lý. Khi bạn xóa tài khoản, chúng tôi sẽ xóa hoặc ẩn danh dữ liệu cá nhân trừ khi pháp luật yêu cầu lưu giữ."
         },
         {
-          "heading": "7. Thay đổi chính sách",
+          "heading": "7. Cookie và tùy chọn của bạn",
+          "body": "Chúng tôi sử dụng cookie cần thiết để bảo mật, duy trì hoạt động của dịch vụ và ghi nhớ những lựa chọn trực tiếp của bạn, như thành phố hoặc chế độ hiển thị. Khi bạn chọn \"Đồng ý tất cả\", chúng tôi cũng cho phép Google One Tap nhằm hỗ trợ đăng nhập nhanh; dịch vụ này có thể sử dụng cookie của Google. Lựa chọn cookie của bạn được lưu trong tối đa 12 tháng và có thể thay đổi bất cứ lúc nào bằng nút Cài đặt cookie trên trang này."
+        },
+        {
+          "heading": "8. Thay đổi chính sách",
           "body": "Chúng tôi có thể cập nhật chính sách này theo thời gian. Mọi thay đổi quan trọng sẽ được thông báo trên nền tảng. Việc tiếp tục sử dụng Vmito sau khi cập nhật đồng nghĩa với việc bạn chấp nhận chính sách mới."
         },
         {
-          "heading": "8. Liên hệ",
+          "heading": "9. Liên hệ",
           "body": "Nếu bạn có câu hỏi về chính sách bảo mật này, vui lòng liên hệ với chúng tôi qua email: support@vmito.com."
         }
       ]

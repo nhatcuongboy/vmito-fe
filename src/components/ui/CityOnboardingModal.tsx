@@ -9,8 +9,10 @@ import { Box, Flex, Grid, Text } from '@chakra-ui/react';
 import { Button } from './chakra-compat';
 import { VModal } from './VModal';
 import { MapPin } from 'lucide-react';
+import { useCookieConsent } from '@/components/providers/CookieConsentProvider';
 
 export default function CityOnboardingModal() {
+  const { isResolved } = useCookieConsent();
   const setPreferredCity = usePreferenceStore((s) => s.setPreferredCity);
   const setOnboardingCompleted = usePreferenceStore(
     (s) => s.setOnboardingCompleted
@@ -21,7 +23,8 @@ export default function CityOnboardingModal() {
   // `onboardingCompleted` (not just `preferredCity === null`) is what lets the
   // CitySelector offer an "All" option — picking "All" sets preferredCity to
   // null intentionally, and this flag keeps the modal from re-appearing.
-  const isOpen = useIsCityOnboardingOpen();
+  const isCityOnboardingOpen = useIsCityOnboardingOpen();
+  const isOpen = isResolved && isCityOnboardingOpen;
 
   const handleSelect = (code: string) => {
     setPreferredCity(code);

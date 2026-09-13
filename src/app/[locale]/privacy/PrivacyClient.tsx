@@ -5,6 +5,19 @@ import LegalDocumentPage, {
 } from '@/components/ui/LegalDocumentPage';
 import { useTranslations } from 'next-intl';
 import { Suspense } from 'react';
+import { Button } from '@/components/ui/chakra-compat';
+import { useCookieConsent } from '@/components/providers/CookieConsentProvider';
+
+function CookieSettingsAction() {
+  const { openSettings } = useCookieConsent();
+  const t = useTranslations('cookieConsent');
+
+  return (
+    <Button colorPalette="green" onClick={openSettings} variant="outline">
+      {t('manage')}
+    </Button>
+  );
+}
 
 function PrivacyContent() {
   const common = useTranslations('common');
@@ -19,6 +32,7 @@ function PrivacyContent() {
       sections={t.raw('sections') as LegalSection[]}
       appName={common('appName')}
       copyright={home('copyright')}
+      footerAction={<CookieSettingsAction />}
     />
   );
 }

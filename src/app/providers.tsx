@@ -148,6 +148,9 @@ import PointsCelebration from '@/components/leaderboard/PointsCelebration';
 import TourController from '@/components/tour/TourController';
 import GoogleOneTap from '@/components/auth/GoogleOneTap';
 import AppInstallPopup from '@/components/ui/AppInstallPopup';
+import CookieConsentBanner from '@/components/ui/CookieConsentBanner';
+import { CookieConsentProvider } from '@/components/providers/CookieConsentProvider';
+import type { CookieConsentChoice } from '@/lib/cookie-consent';
 
 // Custom system configuration for badminton app
 // ... (omitted for brevity in replacement search but effectively kept)
@@ -155,35 +158,40 @@ import AppInstallPopup from '@/components/ui/AppInstallPopup';
 export function Providers({
   children,
   initialSidebarCollapsed,
+  initialCookieConsent,
 }: {
   children: React.ReactNode;
   initialSidebarCollapsed?: boolean;
+  initialCookieConsent: CookieConsentChoice | null;
 }) {
   return (
     <ThemeProviderWrapper>
       <TooltipProvider>
         <ChakraProvider value={system}>
-          <AppSettingsProvider>
-            <SidebarProvider initialCollapsed={initialSidebarCollapsed}>
-              <TopBarSearchProvider>
-                <AuthProvider>
-                  <FeatureFlagsProvider>
-                    <SocketProvider>
-                      {children}
-                      <Toaster />
-                      <GlobalErrorModal />
-                      <WelcomePopupModal />
-                      <GlobalCourtCallModal />
-                      <PointsCelebration />
-                      <TourController />
-                      <GoogleOneTap />
-                      <AppInstallPopup />
-                    </SocketProvider>
-                  </FeatureFlagsProvider>
-                </AuthProvider>
-              </TopBarSearchProvider>
-            </SidebarProvider>
-          </AppSettingsProvider>
+          <CookieConsentProvider initialChoice={initialCookieConsent}>
+            <AppSettingsProvider>
+              <SidebarProvider initialCollapsed={initialSidebarCollapsed}>
+                <TopBarSearchProvider>
+                  <AuthProvider>
+                    <FeatureFlagsProvider>
+                      <SocketProvider>
+                        {children}
+                        <Toaster />
+                        <GlobalErrorModal />
+                        <WelcomePopupModal />
+                        <GlobalCourtCallModal />
+                        <PointsCelebration />
+                        <TourController />
+                        <GoogleOneTap />
+                        <AppInstallPopup />
+                        <CookieConsentBanner />
+                      </SocketProvider>
+                    </FeatureFlagsProvider>
+                  </AuthProvider>
+                </TopBarSearchProvider>
+              </SidebarProvider>
+            </AppSettingsProvider>
+          </CookieConsentProvider>
         </ChakraProvider>
       </TooltipProvider>
     </ThemeProviderWrapper>

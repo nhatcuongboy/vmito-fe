@@ -26,9 +26,11 @@
     "test:pwa-install": "node --no-warnings --experimental-transform-types --test src/lib/pwa/install.test.ts src/lib/pwa/android-install.test.ts",
     "test:newsfeed-badge": "node --no-warnings --experimental-transform-types --test src/stores/createNewsfeedBadgeStore.test.ts src/lib/newsfeed/isNewsfeedPathname.test.ts",
     "test:venue-browse": "node --no-warnings --experimental-transform-types --test src/lib/venue-browse.test.ts",
+    "test:cookie-consent": "node --no-warnings --experimental-transform-types --test src/lib/cookie-consent.test.ts",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test e2e/ui-foundation.spec.ts",
     "test:e2e:venue-payment": "playwright test e2e/venue-rental-payment.spec.ts",
+    "test:e2e:cookie-consent": "playwright test e2e/cookie-consent.spec.ts",
     "prepare": "husky"
   },
   "dependencies": {
