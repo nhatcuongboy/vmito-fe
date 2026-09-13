@@ -201,13 +201,17 @@
 
   .cookie-consent-link {
     color: hsl(var(--primary));
+    cursor: pointer;
+    display: inline;
     font-weight: 600;
     text-decoration: underline;
-    text-underline-offset: 2px;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 3px;
   }
 
   .cookie-consent-link:hover {
-    color: hsl(var(--foreground));
+    color: hsl(var(--primary-foreground));
+    text-decoration-thickness: 2px;
   }
 
   .cookie-consent-link:focus-visible {
