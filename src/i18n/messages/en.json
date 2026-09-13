@@ -7095,6 +7095,7 @@
       "fallbackDescription": "View badminton court details on Vmito - the badminton session management platform."
     },
     "searchPlaceholder": "Search by venue name, address...",
+    "listLoadError": "Unable to load venues. Please try again.",
     "detail": {
       "title": "Venue details",
       "loadError": "Unable to load venue information",

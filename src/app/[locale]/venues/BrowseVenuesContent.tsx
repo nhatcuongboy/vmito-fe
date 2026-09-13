@@ -4,18 +4,16 @@ import React, { Suspense } from 'react';
 import VenueSearchList from '@/components/venue/VenueSearchList';
 import PageLayout from '@/components/layout/PageLayout';
 import { useTranslations } from 'next-intl';
-import type { Venue } from '@/lib/api/types';
+import type { VenueBrowseSeed } from '@/lib/venue-browse';
 import type { ViewMode } from '@/lib/view-mode';
 
 interface BrowseVenuesContentProps {
-  initialVenues?: Venue[];
-  initialSeedKey?: string | null;
+  seed?: VenueBrowseSeed | null;
   serverViewMode?: ViewMode;
 }
 
 export default function BrowseVenuesContent({
-  initialVenues,
-  initialSeedKey,
+  seed,
   serverViewMode,
 }: BrowseVenuesContentProps) {
   const t = useTranslations('navigation');
@@ -26,11 +24,7 @@ export default function BrowseVenuesContent({
       _dark={{ bg: 'gray.900' }}
     >
       <Suspense>
-        <VenueSearchList
-          initialVenues={initialVenues}
-          initialSeedKey={initialSeedKey}
-          serverViewMode={serverViewMode}
-        />
+        <VenueSearchList seed={seed} serverViewMode={serverViewMode} />
       </Suspense>
     </PageLayout>
   );

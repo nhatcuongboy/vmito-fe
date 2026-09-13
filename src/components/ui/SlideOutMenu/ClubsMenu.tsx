@@ -45,6 +45,7 @@ function ClubSubmenuLink({
 
   return (
     <Link
+      prefetch={false}
       href={item.href}
       className="sidebar-session-link"
       data-variant={variant}

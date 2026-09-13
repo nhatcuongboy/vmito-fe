@@ -13,7 +13,9 @@ import AppEmptyState from '@/components/ui/AppEmptyState';
 import { toaster } from '@/components/ui/toaster';
 import { VIETNAM_CITIES } from '@/constants/vietnam-locations';
 import { cityCodeToApiName } from '@/lib/preferred-city';
-import { buildBrowseSeedKey } from '@/lib/browse-seed-key';
+import type { VenueBrowseSeed, VenueBrowseQuery } from '@/lib/venue-browse';
+import { useVenueBrowse } from '@/hooks/useVenueBrowse';
+import VenueVirtualGrid from './VenueVirtualGrid';
 import {
   clearUserLocationCookie,
   locationKey,
@@ -26,8 +28,7 @@ import {
   TOP_BAR_HEIGHT_DESKTOP,
   BOTTOM_TAB_HEIGHT,
 } from '@/constants';
-import { VenueService } from '@/lib/api/venue.service';
-import { SportType, Venue, VenueRequestType } from '@/lib/api/types';
+import { SportType, VenueRequestType } from '@/lib/api/types';
 import { getUserLocation } from '@/lib/utils/geolocation.utils';
 import {
   Badge,
@@ -52,14 +53,11 @@ import {
   X,
   Star,
 } from 'lucide-react';
-import { useEffect, useMemo, useRef, useState } from 'react';
-import { useInView } from 'react-intersection-observer';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useSearchParams } from 'next/navigation';
 import dynamic from 'next/dynamic';
-import VenueCard from './VenueCard';
 import VenueCardSkeleton from './VenueCardSkeleton';
-import VenueMap from './VenueMap';
 import AppViewModeToggle from '@/components/common/AppViewModeToggle';
 import { useViewMode, type ViewMode } from '@/hooks/useViewMode';
 import {
@@ -69,7 +67,6 @@ import {
   booleanField,
 } from '@/hooks/useUrlFilters';
 import { AppSearchBar } from '@/components/common/AppSearchBar';
-import VenueRequestModal from './VenueRequestModal';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { usePreferenceStore } from '@/stores/usePreferenceStore';
 import { usePathname, useRouter } from '@/i18n/config';
@@ -84,6 +81,14 @@ const LoginPromptModal = dynamic(
   () => import('@/components/auth/LoginPromptModal'),
   { ssr: false }
 );
+
+const VenueMap = dynamic(() => import('./VenueMap'), {
+  ssr: false,
+  loading: () => <MapLoadingSkeleton />,
+});
+const VenueRequestModal = dynamic(() => import('./VenueRequestModal'), {
+  ssr: false,
+});
 
 const OPEN_VENUE_CREATE_REQUEST_ACTION = 'openVenueCreateRequest';
 
@@ -178,31 +183,25 @@ const VENUE_FILTERS_SCHEMA = {
 };
 
 interface VenueSearchListProps {
-  initialVenues?: Venue[];
-  initialSeedKey?: string | null;
+  seed?: VenueBrowseSeed | null;
   serverViewMode?: ViewMode;
 }
 
 export default function VenueSearchList({
-  initialVenues = [],
-  initialSeedKey = null,
+  seed,
   serverViewMode,
 }: VenueSearchListProps) {
   const t = useTranslations();
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const { isAuthenticated } = useAuthStore();
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const authHydrated = useAuthStore((state) => state.isHydrated);
+  const accountId = useAuthStore((state) =>
+    state.accessToken ? state.user?.id : undefined
+  );
   const { preferredCity, _hasHydrated: preferencesHydrated } =
     usePreferenceStore();
-  const [venues, setVenues] = useState<Venue[]>(initialVenues);
-  const [totalCount, setTotalCount] = useState<number | null>(null);
-  const [loading, setLoading] = useState(initialVenues.length === 0);
-  const [loadingMore, setLoadingMore] = useState(false);
-  const [page, setPage] = useState(1);
-  const [hasMore, setHasMore] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
   // URL-synced applied filters
   const [filters, setFilters, resetFilters] =
     useUrlFilters(VENUE_FILTERS_SCHEMA);
@@ -214,19 +213,14 @@ export default function VenueSearchList({
     serverViewMode
   );
   const venueCardVariant = viewMode === 'list' ? 'list' : 'grid';
-  const loadMoreSkeletonDisplay = getFullRowSkeletonDisplay(
-    venues.length,
-    VENUE_RESULT_COLUMN_COUNTS
-  );
-
   // Local keyword state drives the search input; synced to URL with debounce.
   const [keyword, setKeyword] = useState(filters.q);
 
   // User location is never stored in URL (privacy).
-  const [userLocation, setUserLocation] = useState(readUserLocationCookie);
+  const [userLocation, setUserLocation] = useState(
+    () => seed?.location ?? readUserLocationCookie()
+  );
   const userLocationKey = locationKey(userLocation);
-  const silentRevalidateRef = useRef(initialVenues.length > 0);
-  const isFirstFetchRef = useRef(true);
   const refreshedLocationModeRef = useRef<string | null>(null);
 
   const requiresUserLocation = filters.sort === 'distance' || filters.near;
@@ -272,8 +266,6 @@ export default function VenueSearchList({
     userLocationKey,
   ]);
 
-  const latestVenueRequestRef = useRef(0);
-
   // Pending filters (for drawer)
   const [pendingCities, setPendingCities] = useState<string[]>([]);
   const [pendingDistricts, setPendingDistricts] = useState<string[]>([]);
@@ -296,17 +288,7 @@ export default function VenueSearchList({
     onClose: closeLoginModal,
   } = useDisclosure(false);
 
-  const loadingMoreRef = useRef(false);
-
-  const { ref, inView } = useInView({
-    threshold: 0.1,
-    // Load before reaching the absolute bottom to minimize visible loading.
-    rootMargin: '400px 0px',
-  });
-
   // Stable string keys for array filters — used in useEffect dependency arrays.
-  const citiesKey = filters.city.join(',');
-  const districtsKey = filters.district.join(',');
   const effectiveCity = useMemo(() => {
     if (filters.city.length > 0) {
       return filters.city.map(cityCodeToApiName).filter(Boolean).join(',');
@@ -316,12 +298,54 @@ export default function VenueSearchList({
   const activeSortOption =
     SORT_OPTIONS.find((option) => option.value === filters.sort) ??
     SORT_OPTIONS[0];
-  const activeSeedKey = buildBrowseSeedKey({
-    city: effectiveCity,
+  const query: VenueBrowseQuery = {
+    keyword: filters.q || undefined,
+    city: effectiveCity || undefined,
+    district: filters.district.join(',') || undefined,
+    sportType: filters.sports.filter(isSportType),
+    closureStatus: 'OPERATING',
+    favoriteOnly: filters.favorite || undefined,
+    lat: requiresUserLocation ? userLocation?.lat : undefined,
+    lng: requiresUserLocation ? userLocation?.lng : undefined,
     sortBy: requiresUserLocation ? 'distance' : activeSortOption.sortBy,
     sortOrder: requiresUserLocation ? 'asc' : activeSortOption.sortOrder,
-    location: requiresUserLocation ? userLocation : null,
+    limit: viewMode === 'map' ? MAP_PAGE_SIZE : PAGE_SIZE,
+  };
+  const {
+    venues,
+    totalCount,
+    loading,
+    loadingMore,
+    isFetching,
+    hasMore,
+    error,
+    loadMore,
+    retry,
+    setVenues,
+    listKey,
+  } = useVenueBrowse({
+    query,
+    enabled:
+      preferencesHydrated &&
+      authHydrated &&
+      (!requiresUserLocation || !!userLocation),
+    accountKey: accountId ?? 'public',
+    seed,
   });
+  const loadMoreSkeletonDisplay = getFullRowSkeletonDisplay(
+    venues.length,
+    VENUE_RESULT_COLUMN_COUNTS
+  );
+  const handleFavoriteChange = useCallback(
+    (venueId: string, isFavorite: boolean) => {
+      setVenues((previous) =>
+        previous
+          .map((item) => (item.id === venueId ? { ...item, isFavorite } : item))
+          .filter((item) => !filters.favorite || item.isFavorite)
+      );
+    },
+    [filters.favorite, setVenues]
+  );
 
   // Sync pending filters when drawer opens.
   useEffect(() => {
@@ -335,114 +359,10 @@ export default function VenueSearchList({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [showFilters]);
 
-  // Plain function (not useCallback) to always read the latest `page` state
-  const fetchVenues = async (isLoadMore = false) => {
-    if (isLoadMore && loadingMoreRef.current) return;
-
-    const requestId = ++latestVenueRequestRef.current;
-    try {
-      if (isLoadMore) {
-        loadingMoreRef.current = true;
-        setLoadingMore(true);
-      } else {
-        loadingMoreRef.current = false;
-        setLoadingMore(false);
-        if (
-          isFirstFetchRef.current &&
-          activeSeedKey !== (initialSeedKey ?? '')
-        ) {
-          silentRevalidateRef.current = false;
-          setVenues([]);
-        }
-        isFirstFetchRef.current = false;
-        if (!silentRevalidateRef.current) {
-          setLoading(true);
-        }
-        setPage(1);
-        if (!silentRevalidateRef.current && typeof window !== 'undefined') {
-          window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-      }
-      setError(null);
-
-      const isMapMode = viewMode === 'map';
-      const effectiveLimit = isMapMode ? MAP_PAGE_SIZE : PAGE_SIZE;
-      const currentPage = isLoadMore && !isMapMode ? page + 1 : 1;
-
-      // Resolve the active sort option
-      const apiFilters: Record<
-        string,
-        string | number | boolean | SportType[] | undefined
-      > = {
-        keyword: filters.q || undefined,
-        city: effectiveCity || undefined,
-        district:
-          filters.district.length > 0 ? filters.district.join(',') : undefined,
-        sportType:
-          filters.sports.length > 0
-            ? filters.sports.filter(isSportType)
-            : undefined,
-        closureStatus: 'OPERATING',
-        favoriteOnly: filters.favorite ? true : undefined,
-        page: currentPage,
-        limit: effectiveLimit,
-      };
-
-      if (filters.near && userLocation) {
-        // Distance sort overrides the sort bar when "Near me" is active
-        apiFilters.lat = userLocation.lat;
-        apiFilters.lng = userLocation.lng;
-        apiFilters.sortBy = 'distance';
-        apiFilters.sortOrder = 'asc';
-      } else if (filters.sort === 'distance' && userLocation) {
-        // Default distance sort (without the "near me" filter badge)
-        apiFilters.lat = userLocation.lat;
-        apiFilters.lng = userLocation.lng;
-        apiFilters.sortBy = 'distance';
-        apiFilters.sortOrder = 'asc';
-      } else {
-        apiFilters.sortBy = activeSortOption.sortBy;
-        apiFilters.sortOrder = activeSortOption.sortOrder;
-      }
-
-      const result = await VenueService.searchVenues(apiFilters);
-      if (requestId !== latestVenueRequestRef.current) return;
-
-      setTotalCount(result.pagination.total);
-      const venueData = result.data;
-
-      if (isLoadMore && !isMapMode) {
-        setVenues((prev) => {
-          const existingIds = new Set(prev.map((v) => v.id));
-          const newVenues = venueData.filter((v) => !existingIds.has(v.id));
-          return [...prev, ...newVenues];
-        });
-        setPage(currentPage);
-      } else {
-        setVenues(venueData);
-      }
-
-      // In map mode: no infinite scroll — all data already fetched
-      setHasMore(!isMapMode && currentPage < result.pagination.totalPages);
-    } catch (err) {
-      if (requestId !== latestVenueRequestRef.current) return;
-      setError('Không thể tải danh sách sân. Vui lòng thử lại.');
-      console.error(err);
-    } finally {
-      if (requestId !== latestVenueRequestRef.current) return;
-      if (isLoadMore) {
-        loadingMoreRef.current = false;
-        setLoadingMore(false);
-      } else {
-        setLoading(false);
-        silentRevalidateRef.current = false;
-      }
-    }
-  };
-
   // Sync keyword input → URL with 500 ms debounce (avoids polluting history on every keystroke).
   // When user starts searching, auto-switch from 'distance' to 'relevance'.
   useEffect(() => {
+    if (keyword === filters.q) return;
     const timer = setTimeout(() => {
       if (keyword && filters.sort === 'distance') {
         setFilters({ q: keyword, sort: 'relevance' });
@@ -462,50 +382,6 @@ export default function VenueSearchList({
     setKeyword(filters.q);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filters.q]);
-
-  // Fetch whenever URL-applied filters, sort, or user location change.
-  useEffect(() => {
-    if (!preferencesHydrated) return;
-    if (requiresUserLocation && !userLocation) {
-      // Invalidate an earlier request so its response cannot replace the
-      // distance-sorted list while browser geolocation is still resolving.
-      latestVenueRequestRef.current += 1;
-      loadingMoreRef.current = false;
-      setLoadingMore(false);
-      setLoading(true);
-      return;
-    }
-
-    fetchVenues();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
-    filters.q,
-    citiesKey,
-    districtsKey,
-    filters.near,
-    filters.sort,
-    userLocationKey,
-    viewMode, // re-fetch with larger limit when switching to/from map mode
-    preferredCity,
-    filters.favorite,
-    requiresUserLocation,
-    preferencesHydrated,
-    activeSeedKey,
-  ]);
-
-  // Trigger load more when in view
-  useEffect(() => {
-    if (
-      inView &&
-      hasMore &&
-      !loading &&
-      !loadingMore &&
-      !loadingMoreRef.current
-    ) {
-      fetchVenues(true);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [inView, hasMore, loading, loadingMore]);
 
   // Near me handler
   const handleNearMe = async () => {
@@ -1150,7 +1026,7 @@ export default function VenueSearchList({
             ))}
           </Grid>
         )
-      ) : error ? (
+      ) : error === 'initial' && venues.length === 0 ? (
         <Box
           p={4}
           bg="red.50"
@@ -1159,7 +1035,8 @@ export default function VenueSearchList({
           borderWidth="1px"
           borderColor="red.200"
         >
-          <Text fontWeight="medium">{error}</Text>
+          <Text fontWeight="medium">{t('venue.listLoadError')}</Text>
+          <Button onClick={retry}>{t('common.retry')}</Button>
         </Box>
       ) : venues.length === 0 && viewMode !== 'map' ? (
         <AppEmptyState
@@ -1191,26 +1068,16 @@ export default function VenueSearchList({
         </Box>
       ) : (
         <>
-          <Grid templateColumns={VENUE_RESULT_GRID_COLUMNS} gap={4}>
-            {venues.map((venue, index) => (
-              <VenueCard
-                key={venue.id}
-                venue={venue}
-                variant={venueCardVariant}
-                showVerifiedBadge={false}
-                imagePriority={index === 0}
-                onFavoriteChange={(venueId, isFavorite) => {
-                  setVenues((prev) =>
-                    prev
-                      .map((item) =>
-                        item.id === venueId ? { ...item, isFavorite } : item
-                      )
-                      .filter((item) => !filters.favorite || item.isFavorite)
-                  );
-                }}
-              />
-            ))}
-          </Grid>
+          <VenueVirtualGrid
+            key={listKey}
+            listKey={listKey}
+            venues={venues}
+            variant={venueCardVariant}
+            hasMore={hasMore}
+            canLoadMore={!isFetching && !error}
+            onLoadMore={loadMore}
+            onFavoriteChange={handleFavoriteChange}
+          />
 
           {/* Load-more skeletons always begin in their own complete row. */}
           {loadingMore && (
@@ -1237,7 +1104,6 @@ export default function VenueSearchList({
           {/* Infinite Scroll Trigger */}
           {hasMore && (
             <Box
-              ref={ref}
               mt={loadingMore ? 4 : 8}
               mb={10}
               width="full"
@@ -1251,6 +1117,12 @@ export default function VenueSearchList({
                 </Flex>
               )}
             </Box>
+          )}
+          {error && venues.length > 0 && (
+            <Flex justify="center" gap={3} mt={4} role="alert">
+              <Text>{t('venue.listLoadError')}</Text>
+              <Button onClick={retry}>{t('common.retry')}</Button>
+            </Flex>
           )}
           {!hasMore &&
             !loadingMore &&
@@ -1269,12 +1141,14 @@ export default function VenueSearchList({
             )}
         </>
       )}
-      <VenueRequestModal
-        isOpen={isCreateRequestOpen}
-        onClose={closeCreateRequest}
-        type={VenueRequestType.CREATE}
-        defaultKeyword={filters.q}
-      />
+      {isCreateRequestOpen && (
+        <VenueRequestModal
+          isOpen={isCreateRequestOpen}
+          onClose={closeCreateRequest}
+          type={VenueRequestType.CREATE}
+          defaultKeyword={filters.q}
+        />
+      )}
       {isLoginModalOpen && (
         <LoginPromptModal
           isOpen={isLoginModalOpen}

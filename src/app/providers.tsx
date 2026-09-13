@@ -152,13 +152,19 @@ import AppAndroidInstallModal from '@/components/ui/AppAndroidInstallModal';
 // Custom system configuration for badminton app
 // ... (omitted for brevity in replacement search but effectively kept)
 
-export function Providers({ children }: { children: React.ReactNode }) {
+export function Providers({
+  children,
+  initialSidebarCollapsed,
+}: {
+  children: React.ReactNode;
+  initialSidebarCollapsed?: boolean;
+}) {
   return (
     <ThemeProviderWrapper>
       <TooltipProvider>
         <ChakraProvider value={system}>
           <AppSettingsProvider>
-            <SidebarProvider>
+            <SidebarProvider initialCollapsed={initialSidebarCollapsed}>
               <TopBarSearchProvider>
                 <AuthProvider>
                   <FeatureFlagsProvider>

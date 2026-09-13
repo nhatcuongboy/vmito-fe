@@ -2,7 +2,11 @@ import { Metadata } from 'next';
 import { cookies } from 'next/headers';
 import { DEFAULT_COVER_PHOTO } from '@/constants';
 import { cityCodeToApiName, PREFERRED_CITY_COOKIE } from '@/lib/preferred-city';
-import { buildBrowseSeedKey } from '@/lib/browse-seed-key';
+import {
+  venueQueryKey,
+  type VenueBrowseQuery,
+  type VenueBrowseSeed,
+} from '@/lib/venue-browse';
 import {
   parseUserLocationCookie,
   USER_LOCATION_COOKIE,
@@ -10,7 +14,7 @@ import {
 import { normalizeImageUrl } from '@/lib/images/normalizeImageUrl';
 import { BROWSE_CARD_COVER_TRANSFORM } from '@/lib/images/coverTransforms';
 import { isValidViewMode, type ViewMode } from '@/lib/view-mode';
-import type { Venue } from '@/lib/api/types';
+import type { SearchVenueResponse } from '@/lib/api/types';
 import BrowseVenuesContent from './BrowseVenuesContent';
 
 export const dynamic = 'force-dynamic';
@@ -22,42 +26,37 @@ const FILTER_PARAMS = [
   'near',
   'sort',
   'favorite',
+  'sports',
 ] as const;
 
-interface VenueSearchResponse {
-  data?: {
-    data?: Venue[];
-  };
-}
-
 async function getInitialVenues(
-  city: string | undefined,
-  location: { lat: number; lng: number }
-): Promise<Venue[]> {
+  query: VenueBrowseQuery
+): Promise<SearchVenueResponse | null> {
   const apiUrl =
     process.env.INTERNAL_API_URL || process.env.NEXT_PUBLIC_API_URL;
-  if (!apiUrl || apiUrl.startsWith('/')) return [];
-
-  const params = new URLSearchParams({
-    closureStatus: 'OPERATING',
-    lat: String(location.lat),
-    lng: String(location.lng),
-    sortBy: 'distance',
-    sortOrder: 'asc',
-    page: '1',
-    limit: '12',
-  });
-  if (city) params.set('city', city);
-
+  if (!apiUrl || apiUrl.startsWith('/')) return null;
+  const params = new URLSearchParams({ page: '1' });
+  for (const [key, value] of Object.entries(query)) {
+    if (value !== undefined && value !== '') params.set(key, String(value));
+  }
   try {
     const response = await fetch(`${apiUrl}/venues/search?${params}`, {
       next: { revalidate: 60 },
+      signal: AbortSignal.timeout(5000),
     });
-    if (!response.ok) return [];
-    const json = (await response.json()) as VenueSearchResponse;
-    return json.data?.data ?? [];
+    if (!response.ok) return null;
+    const json = (await response.json()) as { data?: SearchVenueResponse };
+    const result = json.data;
+    if (
+      !Array.isArray(result?.data) ||
+      !result.pagination ||
+      !Number.isFinite(result.pagination.totalPages) ||
+      result.pagination.page !== 1
+    )
+      return null;
+    return result;
   } catch {
-    return [];
+    return null;
   }
 }
 
@@ -123,15 +122,21 @@ export default async function BrowseVenuesPage({ searchParams }: PageProps) {
     effectiveViewMode !== 'map' &&
     !!location &&
     !FILTER_PARAMS.some((key) => resolvedSearchParams?.[key] !== undefined);
-  const initialSeedKey = canSeed
-    ? buildBrowseSeedKey({
-        city,
-        sortBy: 'distance',
-        sortOrder: 'asc',
-        location,
-      })
-    : null;
-  const initialVenues = canSeed ? await getInitialVenues(city, location) : [];
+  const query: VenueBrowseQuery = {
+    city,
+    closureStatus: 'OPERATING',
+    lat: location?.lat,
+    lng: location?.lng,
+    sortBy: 'distance',
+    sortOrder: 'asc',
+    limit: 12,
+  };
+  const result = canSeed ? await getInitialVenues(query) : null;
+  const seed: VenueBrowseSeed | null =
+    result && location
+      ? { queryKey: venueQueryKey(query), result, location }
+      : null;
+  const initialVenues = result?.data ?? [];
   const lcpImage = initialVenues.length
     ? normalizeImageUrl(
         initialVenues[0].coverPhoto,
@@ -150,11 +155,7 @@ export default async function BrowseVenuesPage({ searchParams }: PageProps) {
           fetchPriority="high"
         />
       )}
-      <BrowseVenuesContent
-        initialVenues={initialVenues}
-        initialSeedKey={initialSeedKey}
-        serverViewMode={serverViewMode}
-      />
+      <BrowseVenuesContent seed={seed} serverViewMode={serverViewMode} />
     </>
   );
 }

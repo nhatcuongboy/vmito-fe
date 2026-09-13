@@ -18,9 +18,10 @@ import {
   Clock,
   ChevronRight,
   Users,
+  UsersRound,
   TrendingUp,
 } from 'lucide-react';
-import { useRouter } from '@/i18n/config';
+import { Link } from '@/i18n/config';
 import { useTranslations } from 'next-intl';
 import { DEFAULT_COVER_PHOTO } from '@/constants';
 import { stripHtml } from '@/utils';
@@ -70,14 +71,22 @@ export default function ClubCard({
   onFavoriteChange,
   imagePriority = false,
 }: ClubCardProps) {
-  const router = useRouter();
   const t = useTranslations();
   const { getLevelLabel } = useLevelLabel();
   const [isLoading, setIsLoading] = useState(false);
+  const [avatarError, setAvatarError] = useState(false);
 
-  const handleViewDetails = () => {
+  const clubHref = `/clubs/${club.slug ?? club.id}`;
+  const avatarSrc = club.logo || club.image;
+  const showAvatarPlaceholder = !avatarSrc || avatarError;
+
+  // The card itself is a real <Link> (see the stretched overlay below), so
+  // this only drives the loading spinner for the click that will actually
+  // navigate this tab — not a modified/middle click opening a new one.
+  const handleCardNavigate = (e: React.MouseEvent) => {
+    if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey)
+      return;
     setIsLoading(true);
-    router.push(`/clubs/${club.slug ?? club.id}`);
     setTimeout(() => setIsLoading(false), 5000);
   };
 
@@ -138,8 +147,26 @@ export default function ClubCard({
         display="flex"
         flexDirection="column"
         w="100%"
-        onClick={handleViewDetails}
       >
+        {/* Whole-card link: a real <a> so right-click / middle-click / Ctrl+click
+            open the club in a new tab. Sits above unpositioned content and
+            below the interactive controls layered on top of it (zIndex 2+). */}
+        <Link
+          href={clubHref}
+          aria-label={club.name}
+          role="link"
+          prefetch={false}
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            zIndex: 1,
+            cursor: 'pointer',
+          }}
+          onClick={handleCardNavigate}
+        />
         {/* Cover Photo (Banner) */}
         <Box position="relative" h="140px" overflow="hidden">
           {/* Note: Clubs don't have separate banner, using avatar as banner with objectFit="cover" and blur, or just using typical image */}
@@ -202,13 +229,26 @@ export default function ClubCard({
             bg="white"
             shadow="md"
           >
-            <Image
-              src={club.logo || club.image || DEFAULT_COVER_PHOTO}
-              alt={club.name}
-              w="100%"
-              h="100%"
-              objectFit="cover"
-            />
+            {showAvatarPlaceholder ? (
+              <Flex
+                align="center"
+                justify="center"
+                w="100%"
+                h="100%"
+                bg="green.500"
+              >
+                <UsersRound size={26} color="white" strokeWidth={2.5} />
+              </Flex>
+            ) : (
+              <Image
+                src={avatarSrc}
+                alt={club.name}
+                w="100%"
+                h="100%"
+                objectFit="cover"
+                onError={() => setAvatarError(true)}
+              />
+            )}
           </Box>
 
           {/* Center Info */}
@@ -313,11 +353,29 @@ export default function ClubCard({
         _dark: { borderColor: 'blue.500' },
       }}
       cursor="pointer"
-      onClick={handleViewDetails}
       display="flex"
       flexDirection="column"
       height="100%"
     >
+      {/* Whole-card link: a real <a> so right-click / middle-click / Ctrl+click
+          open the club in a new tab. Sits above unpositioned content and
+          below the interactive controls layered on top of it (zIndex 2+). */}
+      <Link
+        href={clubHref}
+        aria-label={club.name}
+        role="link"
+        prefetch={false}
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          zIndex: 1,
+          cursor: 'pointer',
+        }}
+        onClick={handleCardNavigate}
+      />
       {/* Cover Photo */}
       <Box position="relative" h="140px" overflow="hidden" flexShrink={0}>
         <Image

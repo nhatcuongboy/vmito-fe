@@ -1,6 +1,11 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import {
+  SIDEBAR_COOKIE,
+  parseSidebarPreference,
+  writeSidebarPreference,
+} from '@/lib/sidebar-preference';
 
 interface SidebarContextType {
   isCollapsed: boolean;
@@ -15,36 +20,50 @@ interface SidebarProviderProps {
   children: React.ReactNode;
   defaultCollapsed?: boolean;
   persistPreference?: boolean;
+  initialCollapsed?: boolean;
 }
 
 export function SidebarProvider({
   children,
   defaultCollapsed = false,
   persistPreference = true,
+  initialCollapsed,
 }: SidebarProviderProps) {
-  const [isCollapsed, setIsCollapsed] = useState(defaultCollapsed);
-  const [isHydrated, setIsHydrated] = useState(!persistPreference);
+  const [isCollapsed, setIsCollapsed] = useState(
+    initialCollapsed ?? defaultCollapsed
+  );
 
-  // Load initial state from localStorage after hydration
+  // Migrate legacy storage for the NEXT navigation. The current render must
+  // retain the server's width, including when storage is unavailable.
   useEffect(() => {
     if (!persistPreference) return;
-
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored !== null) {
-      setIsCollapsed(stored === 'true');
+    if (
+      document.cookie
+        .split('; ')
+        .some((entry) => entry.startsWith(`${SIDEBAR_COOKIE}=`))
+    )
+      return;
+    try {
+      const stored = parseSidebarPreference(
+        localStorage.getItem(STORAGE_KEY) ?? undefined
+      );
+      writeSidebarPreference(stored ?? initialCollapsed ?? defaultCollapsed);
+    } catch {
+      writeSidebarPreference(initialCollapsed ?? defaultCollapsed);
     }
-    setIsHydrated(true);
-  }, [persistPreference]);
-
-  // Save state to localStorage whenever it changes
-  useEffect(() => {
-    if (persistPreference && isHydrated) {
-      localStorage.setItem(STORAGE_KEY, String(isCollapsed));
-    }
-  }, [isCollapsed, isHydrated, persistPreference]);
+  }, [persistPreference, initialCollapsed, defaultCollapsed]);
 
   const toggleCollapse = () => {
-    setIsCollapsed((prev) => !prev);
+    const next = !isCollapsed;
+    if (persistPreference) {
+      writeSidebarPreference(next);
+      try {
+        localStorage.setItem(STORAGE_KEY, String(next));
+      } catch {
+        /* Cookie remains canonical. */
+      }
+    }
+    setIsCollapsed(next);
   };
 
   return (

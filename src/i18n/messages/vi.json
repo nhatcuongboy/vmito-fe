@@ -7115,6 +7115,7 @@
       "fallbackDescription": "Xem thông tin chi tiết sân cầu lông trên Vmito - nền tảng quản lý kèo cầu lông."
     },
     "searchPlaceholder": "Tìm kiếm sân...",
+    "listLoadError": "Không thể tải danh sách sân. Vui lòng thử lại.",
     "detail": {
       "title": "Chi tiết sân",
       "loadError": "Không thể tải thông tin sân",

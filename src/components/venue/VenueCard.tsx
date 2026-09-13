@@ -1,4 +1,5 @@
 'use client';
+/* eslint-disable @next/next/no-img-element -- Cloudinary delivery URLs are already sized and shared with the SSR preload. */
 import React, { useState } from 'react';
 
 import { Venue } from '@/lib/api/types';
@@ -8,7 +9,6 @@ import {
   Box,
   Flex,
   HStack,
-  Image,
   Stack,
   Text,
   Spinner,
@@ -28,12 +28,15 @@ import {
   ChevronRight,
 } from 'lucide-react';
 import { Button, IconButton } from '@/components/ui/chakra-compat';
-import { useRouter } from '@/i18n/config';
+import { Link, useRouter } from '@/i18n/config';
 import { DEFAULT_COVER_PHOTO } from '@/constants';
 import { useTranslations } from 'next-intl';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { normalizeImageUrl } from '@/lib/images/normalizeImageUrl';
-import { BROWSE_CARD_COVER_TRANSFORM } from '@/lib/images/coverTransforms';
+import {
+  BROWSE_CARD_COVER_TRANSFORM,
+  BROWSE_AVATAR_TRANSFORM,
+} from '@/lib/images/coverTransforms';
 
 import { formatVenueName, getGoogleMapsUrl } from '@/utils';
 import { UserRole } from '@/lib/api/types';
@@ -58,12 +61,13 @@ function formatPrice(amount?: number) {
 
 function handleCoverImageError(event: React.SyntheticEvent<HTMLImageElement>) {
   const image = event.currentTarget;
-  if (image.src !== DEFAULT_COVER_PHOTO) {
-    image.src = DEFAULT_COVER_PHOTO;
+  if (image.dataset.fallbackApplied !== 'true') {
+    image.dataset.fallbackApplied = 'true';
+    image.src = image.dataset.fallbackSrc || DEFAULT_COVER_PHOTO;
   }
 }
 
-export default function VenueCard({
+function VenueCard({
   venue,
   variant = 'grid',
   onFavoriteChange,
@@ -75,6 +79,7 @@ export default function VenueCard({
   const tAdmin = useTranslations('admin');
   const userRole = useAuthStore((state) => state.user?.role);
   const [isLoading, setIsLoading] = useState(false);
+  const [avatarError, setAvatarError] = useState(false);
   const showAdminVerifiedBadge =
     showVerifiedBadge && userRole === UserRole.ADMIN && venue.isVerified;
 
@@ -82,6 +87,13 @@ export default function VenueCard({
     venue.name,
     t('nameFormat', { name: '{name}' })
   );
+
+  const venueHref = `/venues/${venue.slug || venue.id}`;
+  const avatarSrc = normalizeImageUrl(
+    venue.logo || venue.coverPhoto,
+    BROWSE_AVATAR_TRANSFORM
+  );
+  const showAvatarPlaceholder = !avatarSrc || avatarError;
 
   // Use the old district/city as a pair, or the new ward/city as a pair —
   // never mix one old field with one new field (e.g. stale old district
@@ -101,10 +113,13 @@ export default function VenueCard({
     if (url) window.open(url, '_blank');
   };
 
-  const handleViewDetails = (e: React.MouseEvent) => {
-    e.stopPropagation();
+  // The card itself is a real <Link> (see the stretched overlay below), so
+  // this only drives the loading spinner for the click that will actually
+  // navigate this tab — not a modified/middle click opening a new one.
+  const handleCardNavigate = (e: React.MouseEvent) => {
+    if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey)
+      return;
     setIsLoading(true);
-    router.push(`/venues/${venue.slug || venue.id}`);
     setTimeout(() => setIsLoading(false), 5000);
   };
 
@@ -136,8 +151,26 @@ export default function VenueCard({
         display="flex"
         flexDirection="column"
         w="100%"
-        onClick={handleViewDetails}
       >
+        {/* Whole-card link: a real <a> so right-click / middle-click / Ctrl+click
+            open the venue in a new tab. Sits above unpositioned content and
+            below the interactive controls layered on top of it (zIndex 2+). */}
+        <Link
+          href={venueHref}
+          aria-label={displayName}
+          role="link"
+          prefetch={false}
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            zIndex: 1,
+            cursor: 'pointer',
+          }}
+          onClick={handleCardNavigate}
+        />
         {/* Cover Photo (Banner) */}
         <Box
           position="relative"
@@ -146,7 +179,7 @@ export default function VenueCard({
           bg="gray.200"
           _dark={{ bg: 'gray.700' }}
         >
-          <Image
+          <img
             src={
               normalizeImageUrl(
                 venue.coverPhoto,
@@ -154,9 +187,9 @@ export default function VenueCard({
               ) || DEFAULT_COVER_PHOTO
             }
             alt={displayName}
-            w="100%"
-            h="100%"
-            objectFit="cover"
+            width={560}
+            height={280}
+            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
             loading={imagePriority ? 'eager' : 'lazy'}
             fetchPriority={imagePriority ? 'high' : 'low'}
             decoding="async"
@@ -236,13 +269,28 @@ export default function VenueCard({
             bg="white"
             shadow="md"
           >
-            <Image
-              src={venue.logo || venue.coverPhoto || DEFAULT_COVER_PHOTO}
-              alt={displayName}
-              w="100%"
-              h="100%"
-              objectFit="cover"
-            />
+            {showAvatarPlaceholder ? (
+              <Flex
+                align="center"
+                justify="center"
+                w="100%"
+                h="100%"
+                bg="green.500"
+              >
+                <MapPin size={26} color="white" strokeWidth={2.5} />
+              </Flex>
+            ) : (
+              <img
+                src={avatarSrc}
+                width={48}
+                height={48}
+                loading="lazy"
+                decoding="async"
+                onError={() => setAvatarError(true)}
+                alt={displayName}
+                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+              />
+            )}
           </Box>
 
           {/* Center Info */}
@@ -353,8 +401,26 @@ export default function VenueCard({
       display="flex"
       flexDirection="column"
       h="100%"
-      onClick={handleViewDetails}
     >
+      {/* Whole-card link: a real <a> so right-click / middle-click / Ctrl+click
+          open the venue in a new tab. Sits above unpositioned content and
+          below the interactive controls layered on top of it (zIndex 2+). */}
+      <Link
+        href={venueHref}
+        aria-label={displayName}
+        role="link"
+        prefetch={false}
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          zIndex: 1,
+          cursor: 'pointer',
+        }}
+        onClick={handleCardNavigate}
+      />
       {/* Cover Photo */}
       <Box
         position="relative"
@@ -363,15 +429,15 @@ export default function VenueCard({
         bg="gray.200"
         _dark={{ bg: 'gray.700' }}
       >
-        <Image
+        <img
           src={
             normalizeImageUrl(venue.coverPhoto, BROWSE_CARD_COVER_TRANSFORM) ||
             DEFAULT_COVER_PHOTO
           }
           alt={displayName}
-          w="100%"
-          h="100%"
-          objectFit="cover"
+          width={560}
+          height={280}
+          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
           loading={imagePriority ? 'eager' : 'lazy'}
           fetchPriority={imagePriority ? 'high' : 'low'}
           decoding="async"
@@ -509,6 +575,8 @@ export default function VenueCard({
                 colorPalette="green"
                 variant="ghost"
                 aria-label="Google Maps"
+                position="relative"
+                zIndex={2}
                 onClick={(e: React.MouseEvent) => {
                   e.stopPropagation();
                   handleNavigate();
@@ -703,6 +771,8 @@ export default function VenueCard({
                   variant="outline"
                   aria-label={t('call')}
                   shadow="sm"
+                  position="relative"
+                  zIndex={2}
                   icon={<Phone size={16} />}
                   onClick={(e: React.MouseEvent) => {
                     e.stopPropagation();
@@ -717,6 +787,8 @@ export default function VenueCard({
                   variant="outline"
                   aria-label="Zalo"
                   shadow="sm"
+                  position="relative"
+                  zIndex={2}
                   onClick={(e: React.MouseEvent) => {
                     e.stopPropagation();
                     window.open(
@@ -725,11 +797,13 @@ export default function VenueCard({
                     );
                   }}
                 >
-                  <Image
+                  <img
                     src="/icons/zalo.png"
                     alt="Zalo"
-                    boxSize="16px"
-                    flexShrink={0}
+                    width={16}
+                    height={16}
+                    loading="lazy"
+                    style={{ width: 16, height: 16, flexShrink: 0 }}
                   />
                 </IconButton>
               )}
@@ -740,6 +814,8 @@ export default function VenueCard({
                   variant="outline"
                   aria-label={t('website')}
                   shadow="sm"
+                  position="relative"
+                  zIndex={2}
                   icon={<Globe size={16} />}
                   onClick={(e: React.MouseEvent) => {
                     e.stopPropagation();
@@ -753,6 +829,8 @@ export default function VenueCard({
                 variant="outline"
                 aria-label={t('share')}
                 shadow="sm"
+                position="relative"
+                zIndex={2}
                 icon={<Share2 size={16} />}
                 onClick={async (e: React.MouseEvent) => {
                   e.stopPropagation();
@@ -785,6 +863,8 @@ export default function VenueCard({
             colorPalette="green"
             size="sm"
             px={4}
+            position="relative"
+            zIndex={2}
             onClick={(e) => {
               e.stopPropagation();
               handleFindSessions(e);
@@ -821,3 +901,5 @@ export default function VenueCard({
     </Box>
   );
 }
+
+export default React.memo(VenueCard);

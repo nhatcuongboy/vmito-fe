@@ -7058,6 +7058,7 @@
       "fallbackDescription": "在 Vmito 查看羽毛球场馆详情 - 羽毛球场次管理平台。"
     },
     "searchPlaceholder": "按场地名称、地址搜索...",
+    "listLoadError": "无法加载场馆列表，请重试。",
     "detail": {
       "title": "场馆详情",
       "loadError": "无法加载场馆信息",

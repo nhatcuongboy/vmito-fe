@@ -40,6 +40,7 @@ export function SidebarNavItem({
     statusBadge === 'beta' ? `${label} · ${common('beta')}` : label;
   const link = (
     <Link
+      prefetch={false}
       href={href}
       className={cn('sidebar-nav-link', isActive && 'is-active')}
       data-collapsed={isCollapsed ? 'true' : undefined}

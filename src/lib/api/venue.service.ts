@@ -1,4 +1,5 @@
 import { api, ApiResponse } from './base';
+import type { AxiosRequestConfig } from 'axios';
 import {
   CalculateVenueRentalPriceRequest,
   CreateVenuePriceBookRequest,
@@ -39,23 +40,27 @@ export interface BackfillResult {
 
 export const VenueService = {
   // Search venues (public - no auth required)
-  searchVenues: async (filters?: {
-    keyword?: string;
-    city?: string;
-    district?: string;
-    lat?: number;
-    lng?: number;
-    radius?: number;
-    status?: string;
-    sportType?: SportType | SportType[];
-    isVerified?: boolean;
-    hasNewAddress?: boolean;
-    favoriteOnly?: boolean;
-    sortBy?: string;
-    sortOrder?: string;
-    page?: number;
-    limit?: number;
-  }): Promise<SearchVenueResponse> => {
+  searchVenues: async (
+    filters?: {
+      keyword?: string;
+      city?: string;
+      district?: string;
+      lat?: number;
+      lng?: number;
+      radius?: number;
+      status?: string;
+      sportType?: SportType | SportType[];
+      isVerified?: boolean;
+      hasNewAddress?: boolean;
+      favoriteOnly?: boolean;
+      sortBy?: string;
+      sortOrder?: string;
+      page?: number;
+      limit?: number;
+      closureStatus?: 'OPERATING';
+    },
+    options?: Pick<AxiosRequestConfig, 'signal' | 'skipGlobalError'>
+  ): Promise<SearchVenueResponse> => {
     const params = new URLSearchParams();
     if (filters) {
       Object.entries(filters).forEach(([key, value]) => {
@@ -68,7 +73,8 @@ export const VenueService = {
       });
     }
     const response = await api.get<ApiResponse<SearchVenueResponse>>(
-      `/venues/search?${params.toString()}`
+      `/venues/search?${params.toString()}`,
+      options
     );
     return response.data.data!;
   },

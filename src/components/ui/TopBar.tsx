@@ -190,7 +190,11 @@ export default function TopBar({
                     : undefined
                 }
               >
-                <Link href={logoHref} className="top-bar-logo-link">
+                <Link
+                  prefetch={false}
+                  href={logoHref}
+                  className="top-bar-logo-link"
+                >
                   <span className="top-bar-logo-mark">
                     <span className="top-bar-logo-mobile">
                       {mobileIcon || icon || defaultLogo}
@@ -229,6 +233,7 @@ export default function TopBar({
                   </button>
                 ) : (
                   <Link
+                    prefetch={false}
                     href={backHref}
                     className="top-bar-icon-button top-bar-back-button"
                     aria-label={common('back')}
@@ -278,6 +283,7 @@ export default function TopBar({
               </div>
             ) : showLogin ? (
               <Link
+                prefetch={false}
                 href="/auth/signin"
                 className="top-bar-login"
                 aria-label={common('login')}

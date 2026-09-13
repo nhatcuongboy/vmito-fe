@@ -28,3 +28,9 @@ export const TOURNAMENT_COVER_TRANSFORM = {
   cloudinaryWidth: 640,
   cloudinaryHeight: 360,
 } as const;
+
+// Venue logos are displayed at 48px inside their border.
+export const BROWSE_AVATAR_TRANSFORM = {
+  cloudinaryWidth: 96,
+  cloudinaryHeight: 96,
+} as const;

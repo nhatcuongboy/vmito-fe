@@ -18,6 +18,11 @@ import {
   generateOrganizationSchema,
 } from '../../lib/seo/structuredData';
 import { NewsfeedBadgeInitializer } from '../../components/providers/NewsfeedBadgeInitializer';
+import { cookies } from 'next/headers';
+import {
+  SIDEBAR_COOKIE,
+  parseSidebarPreference,
+} from '@/lib/sidebar-preference';
 
 export const viewport = {
   width: 'device-width',
@@ -42,6 +47,9 @@ export default async function LocaleLayout({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
+  const initialSidebarCollapsed = parseSidebarPreference(
+    (await cookies()).get(SIDEBAR_COOKIE)?.value
+  );
 
   // Only global namespaces go to the client here; route-scoped ones
   // (pages.tournaments, ...) are provided by their route layouts.
@@ -65,7 +73,7 @@ export default async function LocaleLayout({
       <body className="antialiased">
         <LocaleValidator locale={locale} validLocales={SUPPORTED_LOCALES} />
         <IntlClientProvider messages={messages} locale={locale}>
-          <Providers>
+          <Providers initialSidebarCollapsed={initialSidebarCollapsed}>
             <NewsfeedBadgeInitializer />
             <ThemeColorSync />
             <PWAStatus />

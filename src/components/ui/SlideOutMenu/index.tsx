@@ -140,6 +140,7 @@ function AuthActions({
       {actions.map(({ href, label, icon: Icon, variant }) => {
         const link = (
           <Link
+            prefetch={false}
             key={href}
             href={href}
             className="navigation-auth-link"
@@ -241,7 +242,7 @@ export default function SlideOutMenu({ isOpen, onClose }: SlideOutMenuProps) {
         id="global-navigation-drawer"
         data-slot="navigation-drawer"
         data-state={isOpen ? 'open' : 'closed'}
-        data-collapsed={isCollapsed ? 'true' : undefined}
+        data-collapsed={isSidebarCollapsed ? 'true' : undefined}
         className="navigation-drawer"
         style={drawerStyle}
         aria-label={common('navigation')}
