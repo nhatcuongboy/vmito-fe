@@ -95,6 +95,9 @@ function WizardContent({
       alignItems="center"
       justifyContent="center"
       p={4}
+      // See VModal.tsx: a Drawer opened elsewhere sets body pointer-events
+      // to none, which this portaled overlay would otherwise inherit.
+      pointerEvents="auto"
       onClick={handleClose}
       animation="fadeIn 0.15s ease-out"
       css={{

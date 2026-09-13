@@ -150,6 +150,7 @@ export default function EditSeedsModal({
         display="flex"
         alignItems="center"
         justifyContent="center"
+        pointerEvents="auto"
       >
         <Box
           bg="white"

@@ -269,6 +269,13 @@ export const VModal: React.FC<VModalProps> = ({
         justifyContent="center"
         p={4}
         pt={isCentered ? 4 : 16}
+        // Chakra's Drawer (used to host panels on mobile) sets
+        // document.body.style.pointerEvents = 'none' while open and only
+        // re-enables it on its own content. Since this overlay is portaled
+        // as a sibling outside that content, it would otherwise inherit
+        // pointer-events: none and become entirely unclickable when opened
+        // on top of a Drawer.
+        pointerEvents="auto"
         onClick={handleOverlayClick}
         // Animation
         animation="fadeIn 0.15s ease-out"

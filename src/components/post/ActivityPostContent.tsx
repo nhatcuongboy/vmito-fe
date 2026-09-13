@@ -96,7 +96,13 @@ function EntityPreviewCard({
             >
               {title}
             </div>
-            {sportType && <AppSportBadge sportType={sportType} iconOnly />}
+            {sportType && (
+              <AppSportBadge
+                sportType={sportType}
+                iconOnly
+                iconOnlyVariant="soft"
+              />
+            )}
           </div>
           {subtitle && (
             <div

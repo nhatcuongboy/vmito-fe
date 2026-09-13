@@ -143,6 +143,7 @@ export default function EditMatchTimeSheet({
         bottom={0}
         bg="blackAlpha.500"
         zIndex={1500}
+        pointerEvents="auto"
         onClick={onClose}
       />
 
@@ -158,6 +159,7 @@ export default function EditMatchTimeSheet({
         borderTopRadius="2xl"
         boxShadow="lg"
         zIndex={1501}
+        pointerEvents="auto"
         pb={8}
         onClick={(e) => e.stopPropagation()}
         animation="slideUp 0.2s ease-out"

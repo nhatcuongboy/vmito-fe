@@ -240,6 +240,7 @@ export default function EditMatchesModal({
         display="flex"
         alignItems="center"
         justifyContent="center"
+        pointerEvents="auto"
         onClick={onClose}
       >
         <Box
