@@ -90,6 +90,16 @@ export const VDrawer: React.FC<VDrawerProps> = ({
             : 'start'
       }
       closeOnInteractOutside={closeOnOverlayClick}
+      // Ark's focus trap listens for mousedown/click on `document` in the
+      // capture phase and calls preventDefault()/stopImmediatePropagation()
+      // for any target outside the drawer's own content element — including
+      // VModal and other ad-hoc modals/sheets that portal to document.body
+      // on top of this drawer (the drawer hosts panel content on mobile,
+      // and those panels routinely open further modals). That silently
+      // blocked focus/clicks on every input inside such nested overlays.
+      // persistentElements (below) only exempts pointer-events blocking,
+      // not the focus trap, so the trap itself must be disabled here.
+      trapFocus={false}
       persistentElements={[
         () =>
           typeof document === 'undefined'
