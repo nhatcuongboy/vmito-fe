@@ -24,7 +24,6 @@ import SessionMatchesTab from '@/components/session/SessionMatchesTab';
 import SessionStatusHeader from '@/components/session/SessionStatusHeader';
 import SessionSettingsTab from '@/components/session/SessionSettingsTab';
 import SessionOverviewTab from '@/components/session/SessionOverviewTab';
-import WaitTimeUpdater from '@/components/session/WaitTimeUpdater';
 import BottomNavigationBar, {
   NavigationTab,
 } from '@/components/ui/BottomNavigationBar';
@@ -258,9 +257,6 @@ function PlayerSessionManageContent({ params }: { params: { id: string } }) {
       backHref="/host/sessions/joined"
       contentPadding={0}
     >
-      {/* Auto-update wait times for IN_PROGRESS sessions */}
-      <WaitTimeUpdater sessionId={session.id} sessionStatus={session.status} />
-
       {/* Session Status Header */}
       <SessionStatusHeader
         session={session}

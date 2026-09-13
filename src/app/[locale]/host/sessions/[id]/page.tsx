@@ -25,7 +25,6 @@ import SessionStatusHeader from '@/components/session/SessionStatusHeader';
 import { CloneSessionModal } from '@/components/session/CloneSessionModal';
 import SessionOverviewTab from '@/components/session/SessionOverviewTab';
 import SessionPaymentTab from '@/components/session/SessionPaymentTab';
-import WaitTimeUpdater from '@/components/session/WaitTimeUpdater';
 import QRCodeGenerator from '@/components/QRCodeGenerator';
 import {
   SessionCourtsTabSkeleton,
@@ -319,12 +318,6 @@ function HostSessionContent({ params }: { params: { id: string } }) {
         </Box>
       ) : (
         <>
-          {/* Auto-update wait times for IN_PROGRESS sessions */}
-          <WaitTimeUpdater
-            sessionId={session.id}
-            sessionStatus={session.status}
-          />
-
           {/* Session Status Header */}
           <SessionStatusHeader
             session={session}
