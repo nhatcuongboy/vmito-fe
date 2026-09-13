@@ -94,6 +94,7 @@ export default function SelectTiebreakersModal({
         alignItems="center"
         justifyContent="center"
         p={4}
+        pointerEvents="auto"
         onClick={handleBackdropClick}
       >
         <Box

@@ -72,6 +72,7 @@ export default function SelectStatisticsModal({
         alignItems="center"
         justifyContent="center"
         p={4}
+        pointerEvents="auto"
         onClick={handleBackdropClick}
       >
         <Box

@@ -196,6 +196,7 @@ export default function SingleEliminationBracketModal({
         bg="white"
         display="flex"
         flexDirection="column"
+        pointerEvents="auto"
         _dark={{ bg: 'gray.900' }}
       >
         {/* Top-right Close button */}
