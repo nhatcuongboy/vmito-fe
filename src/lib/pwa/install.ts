@@ -4,6 +4,17 @@ export interface StandaloneNavigator {
   standalone?: boolean;
 }
 
+export const APP_INSTALL_DISMISS_COOLDOWN_MS = 7 * 24 * 60 * 60 * 1000;
+
+export interface AppInstallPromptState {
+  hasHydrated: boolean;
+  isStandalone: boolean;
+  targetKey: string | null;
+  dismissedTargetKey: string | null;
+  dismissedAt: number | null;
+  now?: number;
+}
+
 /**
  * Keep browser sniffing isolated from React so it can be tested without a DOM.
  * iPadOS can identify as macOS, but still exposes touch points like an iPad.
@@ -26,3 +37,18 @@ export const isPWAStandalone = (
   displayModeStandalone: boolean,
   navigator: StandaloneNavigator
 ): boolean => displayModeStandalone || navigator.standalone === true;
+
+/** Pure eligibility check so install prompting remains predictable and testable. */
+export const isAppInstallPromptDue = ({
+  hasHydrated,
+  isStandalone,
+  targetKey,
+  dismissedTargetKey,
+  dismissedAt,
+  now = Date.now(),
+}: AppInstallPromptState): boolean => {
+  if (!hasHydrated || isStandalone || !targetKey) return false;
+  if (!dismissedTargetKey || dismissedTargetKey !== targetKey) return true;
+  if (!dismissedAt) return true;
+  return now - dismissedAt >= APP_INSTALL_DISMISS_COOLDOWN_MS;
+};

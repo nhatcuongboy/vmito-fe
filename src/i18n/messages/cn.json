@@ -8259,5 +8259,14 @@
       "saveSuccess": "安卓应用设置已更新",
       "saveError": "保存设置失败"
     }
+  },
+  "appInstall": {
+    "title": "安装 Vmito 应用",
+    "description": "及时获取比赛通知，并在手机上享受更流畅的体验。",
+    "appStoreCta": "前往 App Store 下载",
+    "playStoreCta": "前往 Google Play 下载",
+    "apkCta": "下载 APK 文件",
+    "apkNotice": "Android 可能会要求允许从此来源安装应用。",
+    "closeAriaLabel": "关闭应用安装提示"
   }
 }

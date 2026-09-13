@@ -147,7 +147,7 @@ import GlobalCourtCallModal from '@/components/session/GlobalCourtCallModal';
 import PointsCelebration from '@/components/leaderboard/PointsCelebration';
 import TourController from '@/components/tour/TourController';
 import GoogleOneTap from '@/components/auth/GoogleOneTap';
-import AppAndroidInstallModal from '@/components/ui/AppAndroidInstallModal';
+import AppInstallPopup from '@/components/ui/AppInstallPopup';
 
 // Custom system configuration for badminton app
 // ... (omitted for brevity in replacement search but effectively kept)
@@ -177,7 +177,7 @@ export function Providers({
                       <PointsCelebration />
                       <TourController />
                       <GoogleOneTap />
-                      <AppAndroidInstallModal />
+                      <AppInstallPopup />
                     </SocketProvider>
                   </FeatureFlagsProvider>
                 </AuthProvider>

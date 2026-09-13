@@ -23,7 +23,7 @@
     "test:venue-schedule": "node --no-warnings --experimental-transform-types --test src/components/venue-rental/schedule-validation.test.ts",
     "test:venue-payment": "node --no-warnings --experimental-transform-types --test src/lib/venue-rental-payment.test.ts",
     "test:ai-location": "node --no-warnings --experimental-transform-types --test src/components/session/session-form/aiLocationResolver.test.ts",
-    "test:pwa-install": "node --no-warnings --experimental-transform-types --test src/lib/pwa/install.test.ts",
+    "test:pwa-install": "node --no-warnings --experimental-transform-types --test src/lib/pwa/install.test.ts src/lib/pwa/android-install.test.ts",
     "test:newsfeed-badge": "node --no-warnings --experimental-transform-types --test src/stores/createNewsfeedBadgeStore.test.ts src/lib/newsfeed/isNewsfeedPathname.test.ts",
     "test:venue-browse": "node --no-warnings --experimental-transform-types --test src/lib/venue-browse.test.ts",
     "test:e2e": "playwright test",

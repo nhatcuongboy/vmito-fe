@@ -1,7 +1,10 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { detectPWAPlatform, isPWAStandalone } from './install.ts';
-import { ANDROID_APP_CONFIG } from '../../constants/android-app.ts';
+import {
+  createAppInstallConfig,
+  resolveInstallTarget,
+} from '../../constants/android-app.ts';
 
 test('Android device identification for APK installation', () => {
   const androidUAs = [
@@ -31,8 +34,18 @@ test('Standalone detection prevents prompting already-installed users', () => {
   assert.equal(isPWAStandalone(false, {}), false);
 });
 
-test('ANDROID_APP_CONFIG provides valid configuration from environment', () => {
-  assert.ok(ANDROID_APP_CONFIG.version);
-  assert.ok(ANDROID_APP_CONFIG.downloadUrl);
-  assert.equal(typeof ANDROID_APP_CONFIG.isEnabled, 'boolean');
+test('Android installation is disabled without a Google Play or APK URL', () => {
+  const config = createAppInstallConfig({
+    NEXT_PUBLIC_ANDROID_INSTALL_PROMPT_ENABLED: 'true',
+  });
+  assert.equal(resolveInstallTarget('android', config), null);
+});
+
+test('Android installation can be explicitly disabled', () => {
+  const config = createAppInstallConfig({
+    NEXT_PUBLIC_ANDROID_PLAY_STORE_URL:
+      'https://play.google.com/store/apps/details?id=vn.vmito.app',
+    NEXT_PUBLIC_ANDROID_INSTALL_PROMPT_ENABLED: 'false',
+  });
+  assert.equal(resolveInstallTarget('android', config), null);
 });

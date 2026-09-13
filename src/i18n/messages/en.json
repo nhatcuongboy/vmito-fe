@@ -8296,5 +8296,14 @@
       "saveSuccess": "Android app configuration updated",
       "saveError": "Failed to save configuration"
     }
+  },
+  "appInstall": {
+    "title": "Get the Vmito app",
+    "description": "Receive match alerts and enjoy a smoother experience on your phone.",
+    "appStoreCta": "Download on the App Store",
+    "playStoreCta": "Get it on Google Play",
+    "apkCta": "Download APK",
+    "apkNotice": "Android may ask you to allow installation from this source.",
+    "closeAriaLabel": "Dismiss app install suggestion"
   }
 }

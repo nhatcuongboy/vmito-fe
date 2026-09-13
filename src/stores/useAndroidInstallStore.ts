@@ -1,52 +1,45 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
-import { ANDROID_APP_CONFIG } from '@/constants/android-app';
+import {
+  APP_INSTALL_CONFIG,
+  resolveInstallTarget,
+  type InstallTarget,
+} from '@/constants/android-app';
+import { isAppInstallPromptDue } from '@/lib/pwa/install';
 
-interface AndroidInstallState {
-  dismissedVersion: string | null;
+interface AppInstallState {
+  dismissedTargetKey: string | null;
   dismissedAt: number | null;
-  isModalOpen: boolean;
-  step: 'prompt' | 'guide';
+  isAndroidGuideOpen: boolean;
   _hasHydrated: boolean;
 
-  openModal: (step?: 'prompt' | 'guide') => void;
-  closeModal: () => void;
-  setStep: (step: 'prompt' | 'guide') => void;
-  dismiss: () => void;
+  dismiss: (targetKey: string) => void;
+  openAndroidGuide: (target: InstallTarget) => void;
+  closeAndroidGuide: () => void;
   _setHasHydrated: (value: boolean) => void;
 }
 
-// 7 days cooldown for dismissal if version hasn't changed
-const DISMISS_COOLDOWN_MS = 7 * 24 * 60 * 60 * 1000;
-
-export const useAndroidInstallStore = create<AndroidInstallState>()(
+export const useAppInstallStore = create<AppInstallState>()(
   persist(
-    (set, _get) => ({
-      dismissedVersion: null,
+    (set) => ({
+      dismissedTargetKey: null,
       dismissedAt: null,
-      isModalOpen: false,
-      step: 'prompt',
+      isAndroidGuideOpen: false,
       _hasHydrated: false,
 
-      openModal: (step = 'prompt') => {
-        set({ isModalOpen: true, step });
-      },
-
-      closeModal: () => {
-        set({ isModalOpen: false, step: 'prompt' });
-      },
-
-      setStep: (step) => {
-        set({ step });
-      },
-
-      dismiss: () => {
+      dismiss: (targetKey) => {
         set({
-          isModalOpen: false,
-          dismissedVersion: ANDROID_APP_CONFIG.version,
+          dismissedTargetKey: targetKey,
           dismissedAt: Date.now(),
         });
       },
+
+      openAndroidGuide: (target) => {
+        if (target.channel === 'apk') {
+          set({ isAndroidGuideOpen: true });
+        }
+      },
+      closeAndroidGuide: () => set({ isAndroidGuideOpen: false }),
 
       _setHasHydrated: (value) => set({ _hasHydrated: value }),
     }),
@@ -54,39 +47,47 @@ export const useAndroidInstallStore = create<AndroidInstallState>()(
       name: 'vmito-android-install-storage',
       storage: createJSONStorage(() => localStorage),
       partialize: (state) => ({
-        dismissedVersion: state.dismissedVersion,
+        dismissedTargetKey: state.dismissedTargetKey,
         dismissedAt: state.dismissedAt,
       }),
+      version: 1,
+      migrate: (persistedState, version) => {
+        const oldState = persistedState as {
+          dismissedVersion?: string | null;
+          dismissedAt?: number | null;
+          dismissedTargetKey?: string | null;
+        };
+
+        if (version >= 1) return oldState;
+
+        const androidTarget = resolveInstallTarget('android');
+        const canKeepOldDismissal =
+          androidTarget?.channel === 'apk' &&
+          oldState.dismissedVersion === APP_INSTALL_CONFIG.android.version;
+
+        return {
+          dismissedTargetKey: canKeepOldDismissal
+            ? (androidTarget?.targetKey ?? null)
+            : null,
+          dismissedAt: oldState.dismissedAt ?? null,
+        };
+      },
       onRehydrateStorage: () => (state) => state?._setHasHydrated(true),
     }
   )
 );
 
-/**
- * Hook to check if the Android install prompt should be displayed automatically.
- */
-export function useShouldShowAndroidPrompt(
-  isAndroid: boolean,
+export function useShouldShowAppInstallPrompt(
+  target: InstallTarget | null,
   isStandalone: boolean
 ): boolean {
-  return useAndroidInstallStore((s) => {
-    if (!s._hasHydrated) return false;
-    if (!isAndroid || isStandalone) return false;
-    if (!ANDROID_APP_CONFIG.isEnabled) return false;
-
-    // If version changed, always show prompt for new version
-    if (
-      s.dismissedVersion &&
-      s.dismissedVersion !== ANDROID_APP_CONFIG.version
-    ) {
-      return true;
-    }
-
-    // If user dismissed this version recently, respect cooldown
-    if (s.dismissedAt && Date.now() - s.dismissedAt < DISMISS_COOLDOWN_MS) {
-      return false;
-    }
-
-    return true;
+  return useAppInstallStore((state) => {
+    return isAppInstallPromptDue({
+      hasHydrated: state._hasHydrated,
+      isStandalone,
+      targetKey: target?.targetKey ?? null,
+      dismissedTargetKey: state.dismissedTargetKey,
+      dismissedAt: state.dismissedAt,
+    });
   });
 }

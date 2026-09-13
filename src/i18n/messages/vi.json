@@ -8316,5 +8316,14 @@
       "saveSuccess": "Đã lưu cấu hình ứng dụng Android",
       "saveError": "Lưu cấu hình thất bại"
     }
+  },
+  "appInstall": {
+    "title": "Cài đặt ứng dụng Vmito",
+    "description": "Nhận thông báo trận đấu và trải nghiệm mượt mà hơn trên điện thoại.",
+    "appStoreCta": "Tải trên App Store",
+    "playStoreCta": "Tải trên Google Play",
+    "apkCta": "Tải file APK",
+    "apkNotice": "Android có thể yêu cầu cho phép cài ứng dụng từ nguồn này.",
+    "closeAriaLabel": "Đóng gợi ý cài ứng dụng"
   }
 }
