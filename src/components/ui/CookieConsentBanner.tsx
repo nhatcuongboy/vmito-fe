@@ -24,7 +24,7 @@ export default function CookieConsentBanner() {
         borderColor="border"
         borderRadius="xl"
         borderWidth="1px"
-        bottom={{ base: 'calc(76px + env(safe-area-inset-bottom))', md: 6 }}
+        bottom={{ base: 'calc(12px + env(safe-area-inset-bottom))', md: 6 }}
         boxShadow="0 20px 44px rgba(15, 23, 42, 0.22)"
         className="cookie-consent-banner"
         data-slot="cookie-consent-banner"

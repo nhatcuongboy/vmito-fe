@@ -1050,11 +1050,11 @@
     "score": "Score"
   },
   "cookieConsent": {
-    "title": "Your cookie choices",
-    "description": "Vmito uses essential cookies to operate securely and remember your choices. By accepting all, you allow Google One Tap to support faster sign-in.",
-    "privacyLink": "Learn more in the Privacy Policy.",
-    "necessary": "Essential only",
-    "all": "Accept all",
+    "title": "Cookies Consent",
+    "description": "This website uses cookies to help you have a superior and more accessible browsing experience on the web.",
+    "privacyLink": "Read more",
+    "necessary": "Decline",
+    "all": "Accept",
     "manage": "Cookie settings",
     "close": "Close cookie settings"
   },
@@ -4759,7 +4759,7 @@
         },
         {
           "heading": "7. Cookies and Your Choices",
-          "body": "We use essential cookies to keep the service secure, functioning, and responsive to choices you directly make, such as your city or display mode. When you select \"Accept all\", we also enable Google One Tap to support faster sign-in; this service may use Google cookies. Your cookie choice is stored for up to 12 months and can be changed at any time with the Cookie settings button on this page."
+          "body": "We use essential cookies to keep the service secure, functioning, and responsive to choices you directly make, such as your city or display mode. When you select \"Accept all\", we enable cookies to support faster sign-in and related features; this may involve third-party cookies. Your cookie choice is stored for up to 12 months and can be changed at any time with the Cookie settings button on this page."
         },
         {
           "heading": "8. Changes to This Policy",
@@ -6704,6 +6704,7 @@
       "invitationOnly": "Invitation Only"
     },
     "memberRole": {
+      "host": "Club owner",
       "admin": "Admin",
       "moderator": "Moderator",
       "member": "Member"

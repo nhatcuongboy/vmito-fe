@@ -184,8 +184,29 @@ export const ClubMembersTab = ({
     }
   };
 
-  const visibleMembers = club.members?.slice(0, visibleMembersCount) ?? [];
-  const hasMoreMembers = (club.members?.length ?? 0) > visibleMembersCount;
+  const isHostMember = (member: IClubMember) => {
+    const hostId = club.host?.id ?? club.hostId;
+    return !!hostId && String(member.user.id) === String(hostId);
+  };
+
+  const sortedMembers = [...(club.members ?? [])].sort((a, b) => {
+    const aIsHost = isHostMember(a);
+    const bIsHost = isHostMember(b);
+    if (aIsHost !== bIsHost) return aIsHost ? -1 : 1;
+
+    const aIsModerator = a.role === EMemberRole.MODERATOR;
+    const bIsModerator = b.role === EMemberRole.MODERATOR;
+    if (aIsModerator !== bIsModerator) return aIsModerator ? -1 : 1;
+
+    const aIsAdmin = a.role === EMemberRole.ADMIN;
+    const bIsAdmin = b.role === EMemberRole.ADMIN;
+    if (aIsAdmin !== bIsAdmin) return aIsAdmin ? -1 : 1;
+
+    return a.user.name.localeCompare(b.user.name);
+  });
+
+  const visibleMembers = sortedMembers.slice(0, visibleMembersCount);
+  const hasMoreMembers = sortedMembers.length > visibleMembersCount;
 
   return (
     <>
@@ -259,26 +280,29 @@ export const ClubMembersTab = ({
                         {member.user.name}
                       </Text>
                       <HStack gap={1.5} mt={1} align="center" flexWrap="wrap">
-                        {member.role !== EMemberRole.MEMBER && (
-                          <Badge
-                            size="xs"
-                            colorPalette={
-                              member.role === EMemberRole.ADMIN
-                                ? 'orange'
-                                : 'blue'
-                            }
-                            variant="subtle"
-                            borderRadius="full"
-                            px={2}
-                            py={0.5}
-                            fontSize="2xs"
-                            fontWeight="medium"
-                          >
-                            {t(
-                              `clubs.memberRole.${member.role.toLowerCase() as 'admin' | 'moderator'}`
-                            )}
-                          </Badge>
-                        )}
+                        {(() => {
+                          const isHost = isHostMember(member);
+                          const badgeKey = isHost
+                            ? 'host'
+                            : member.role === EMemberRole.MODERATOR
+                              ? 'moderator'
+                              : null;
+
+                          return badgeKey ? (
+                            <Badge
+                              size="xs"
+                              colorPalette={isHost ? 'purple' : 'blue'}
+                              variant="subtle"
+                              borderRadius="full"
+                              px={2}
+                              py={0.5}
+                              fontSize="2xs"
+                              fontWeight="medium"
+                            >
+                              {t(`clubs.memberRole.${badgeKey}`)}
+                            </Badge>
+                          ) : null;
+                        })()}
                         {member.user.level != null && (
                           <LevelBadgeWithDescription
                             level={member.user.level}
@@ -514,23 +538,22 @@ export const ClubMembersTab = ({
                 <Text fontWeight="bold" fontSize="lg" textAlign="center">
                   {selectedMember.user.name}
                 </Text>
-                <Badge
-                  colorPalette={
-                    selectedMember.role === EMemberRole.ADMIN
-                      ? 'orange'
-                      : selectedMember.role === EMemberRole.MODERATOR
-                        ? 'blue'
-                        : 'gray'
-                  }
-                  variant="subtle"
-                  borderRadius="full"
-                  px={2.5}
-                  py={0.5}
-                >
-                  {t(
-                    `clubs.memberRole.${selectedMember.role.toLowerCase() as 'admin' | 'moderator' | 'member'}`
-                  )}
-                </Badge>
+                {isHostMember(selectedMember) ||
+                selectedMember.role === EMemberRole.MODERATOR ? (
+                  <Badge
+                    colorPalette={
+                      isHostMember(selectedMember) ? 'purple' : 'blue'
+                    }
+                    variant="subtle"
+                    borderRadius="full"
+                    px={2.5}
+                    py={0.5}
+                  >
+                    {t(
+                      `clubs.memberRole.${isHostMember(selectedMember) ? 'host' : 'moderator'}`
+                    )}
+                  </Badge>
+                ) : null}
               </VStack>
             </VStack>
 

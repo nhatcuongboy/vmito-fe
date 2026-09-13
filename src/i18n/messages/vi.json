@@ -1058,11 +1058,11 @@
     "score": "Điểm số"
   },
   "cookieConsent": {
-    "title": "Tùy chọn cookie của bạn",
-    "description": "Vmito dùng cookie cần thiết để vận hành an toàn và lưu các lựa chọn của bạn. Khi đồng ý tất cả, bạn cho phép Google One Tap hỗ trợ đăng nhập nhanh.",
-    "privacyLink": "Tìm hiểu thêm trong Chính sách bảo mật.",
-    "necessary": "Chỉ cần thiết",
-    "all": "Đồng ý tất cả",
+    "title": "Cookie Consent",
+    "description": "Trang web này sử dụng cookie để mang lại cho bạn trải nghiệm duyệt web tốt hơn và dễ dàng hơn.",
+    "privacyLink": "Tìm hiểu thêm",
+    "necessary": "Từ chối",
+    "all": "Chấp nhận",
     "manage": "Cài đặt cookie",
     "close": "Đóng cài đặt cookie"
   },
@@ -4768,7 +4768,7 @@
         },
         {
           "heading": "7. Cookie và tùy chọn của bạn",
-          "body": "Chúng tôi sử dụng cookie cần thiết để bảo mật, duy trì hoạt động của dịch vụ và ghi nhớ những lựa chọn trực tiếp của bạn, như thành phố hoặc chế độ hiển thị. Khi bạn chọn \"Đồng ý tất cả\", chúng tôi cũng cho phép Google One Tap nhằm hỗ trợ đăng nhập nhanh; dịch vụ này có thể sử dụng cookie của Google. Lựa chọn cookie của bạn được lưu trong tối đa 12 tháng và có thể thay đổi bất cứ lúc nào bằng nút Cài đặt cookie trên trang này."
+          "body": "Chúng tôi sử dụng cookie cần thiết để bảo mật, duy trì hoạt động của dịch vụ và ghi nhớ những lựa chọn trực tiếp của bạn, như thành phố hoặc chế độ hiển thị. Khi bạn chọn \"Đồng ý tất cả\", chúng tôi cho phép sử dụng cookie để hỗ trợ trải nghiệm đăng nhập nhanh và các tính năng liên quan; dịch vụ này có thể sử dụng cookie của bên thứ ba. Lựa chọn cookie của bạn được lưu trong tối đa 12 tháng và có thể thay đổi bất cứ lúc nào bằng nút Cài đặt cookie trên trang này."
         },
         {
           "heading": "8. Thay đổi chính sách",
@@ -6720,6 +6720,7 @@
       "invitationOnly": "Chỉ mời"
     },
     "memberRole": {
+      "host": "Trưởng nhóm",
       "admin": "Quản trị viên",
       "moderator": "Điều hành viên",
       "member": "Thành viên"

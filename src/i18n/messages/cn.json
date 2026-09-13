@@ -1033,11 +1033,11 @@
     "score": "比分"
   },
   "cookieConsent": {
-    "title": "您的 Cookie 选择",
-    "description": "Vmito 使用必要 Cookie 来安全运行并记住您的选择。选择接受全部后，您允许 Google One Tap 提供更快捷的登录体验。",
-    "privacyLink": "在隐私政策中了解更多。",
-    "necessary": "仅必要 Cookie",
-    "all": "接受全部",
+    "title": "Cookie 同意",
+    "description": "本网站使用 Cookie，以帮助您获得更优质、更便捷的网页浏览体验。",
+    "privacyLink": "了解更多",
+    "necessary": "拒绝",
+    "all": "接受",
     "manage": "Cookie 设置",
     "close": "关闭 Cookie 设置"
   },
@@ -4723,7 +4723,7 @@
         },
         {
           "heading": "7. Cookie 与您的选择",
-          "body": "我们使用必要 Cookie 来保障服务安全、正常运行，并记住您直接作出的选择，例如所在城市或显示模式。当您选择\"接受全部\"时，我们还会启用 Google One Tap 以提供更快捷的登录体验；该服务可能使用 Google 的 Cookie。您的 Cookie 选择最多保存 12 个月，并且可以随时通过本页的 Cookie 设置按钮更改。"
+          "body": "我们使用必要 Cookie 来保障服务安全、正常运行，并记住您直接作出的选择，例如所在城市或显示模式。当您选择\"接受全部\"时，我们会启用 Cookie 以支持更快捷的登录体验及相关功能；该服务可能涉及第三方 Cookie。您的 Cookie 选择最多保存 12 个月，并且可以随时通过本页的 Cookie 设置按钮更改。"
         },
         {
           "heading": "8. 政策变更",
@@ -6667,6 +6667,7 @@
       "invitationOnly": "仅限邀请"
     },
     "memberRole": {
+      "host": "群主",
       "admin": "管理员",
       "moderator": "版主",
       "member": "成员"
