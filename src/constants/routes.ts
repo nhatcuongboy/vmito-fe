@@ -180,6 +180,7 @@ export const ROUTES = {
     VENUE_REQUEST_DETAIL: (requestId: string) =>
       `/admin/venues/requests/${requestId}`,
     CLUBS: '/admin/clubs/pending',
+    NEWS: '/admin/news',
   },
 
   // User Public Profile
@@ -192,6 +193,8 @@ export const ROUTES = {
   PLAYER_STATUS: '/player-status',
   ABOUT: '/about',
   GUIDE: '/guide',
+  NEWS: '/news',
+  NEWS_ARTICLE: (slug: string) => `/news/${slug}`,
   SUPPORT: '/support',
   FEEDBACK: '/feedback',
   REMINDERS: '/reminders',

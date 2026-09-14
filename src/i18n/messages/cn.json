@@ -53,7 +53,9 @@
     "sessionsManagement": "管理场次",
     "feedback": "反馈",
     "newsfeed": "动态",
-    "pointsAdmin": "积分与排名"
+    "pointsAdmin": "积分与排名",
+    "news": "资讯",
+    "newsAdmin": "资讯管理"
   },
   "search": {
     "title": "搜索",
@@ -4820,8 +4822,14 @@
           "title": "场地预订",
           "description": "查找场馆、预订时段和跟踪订单"
         },
-        "payments": { "title": "付款", "description": "费用、转账与确认" },
-        "tournaments": { "title": "赛事", "description": "报名、赛程和排名" },
+        "payments": {
+          "title": "付款",
+          "description": "费用、转账与确认"
+        },
+        "tournaments": {
+          "title": "赛事",
+          "description": "报名、赛程和排名"
+        },
         "account": {
           "title": "账户与应用",
           "description": "个人资料、语言和反馈"
@@ -4939,11 +4947,26 @@
         "description": "选择最方便的渠道，或提交工单以获得详细支持。",
         "owner": "支持联系人：Nhat Cuong",
         "channels": {
-          "hotline": { "label": "热线", "value": "0914810765" },
-          "email": { "label": "电子邮箱", "value": "admin@vmito.com" },
-          "zalo": { "label": "Zalo", "value": "通过 Zalo 联系" },
-          "messenger": { "label": "Messenger", "value": "与 Vmito 聊天" },
-          "fanpage": { "label": "主页", "value": "Vmito Facebook" }
+          "hotline": {
+            "label": "热线",
+            "value": "0914810765"
+          },
+          "email": {
+            "label": "电子邮箱",
+            "value": "admin@vmito.com"
+          },
+          "zalo": {
+            "label": "Zalo",
+            "value": "通过 Zalo 联系"
+          },
+          "messenger": {
+            "label": "Messenger",
+            "value": "与 Vmito 聊天"
+          },
+          "fanpage": {
+            "label": "主页",
+            "value": "Vmito Facebook"
+          }
         }
       },
       "ticket": {
@@ -4963,7 +4986,41 @@
         "loginRequiredDescription": "您仍可阅读所有指南和联系渠道。登录后可提交并跟踪支持请求。",
         "loginCta": "登录",
         "historyCta": "查看我的反馈",
-        "validation": { "required": "请填写必填信息" }
+        "validation": {
+          "required": "请填写必填信息"
+        }
+      }
+    },
+    "news": {
+      "title": "资讯",
+      "subtitle": "来自羽毛球社区的新闻、指南与故事。",
+      "filterBy": "按分类筛选",
+      "allCategories": "全部",
+      "readingTime": "阅读约 {minutes} 分钟",
+      "author": "作者",
+      "tableOfContents": "目录",
+      "relatedTitle": "相关文章",
+      "loadMore": "加载更多",
+      "copyLink": "复制链接",
+      "linkCopied": "已复制",
+      "emptyTitle": "暂无文章",
+      "emptyDescription": "请稍后再来，我们正在准备新内容。",
+      "loadErrorTitle": "无法加载文章",
+      "loadErrorDescription": "请稍后再试。",
+      "notFoundTitle": "未找到文章",
+      "notFoundDescription": "该文章可能已被删除，或链接有误。",
+      "backToList": "返回资讯",
+      "categories": {
+        "NEWS": "新闻",
+        "TUTORIAL": "教程",
+        "TOURNAMENT": "赛事",
+        "EQUIPMENT": "装备",
+        "COMMUNITY": "社区"
+      },
+      "readIn": {
+        "vi": "Đọc bản tiếng Việt",
+        "en": "Read in English",
+        "cn": "阅读中文版"
       }
     }
   },
@@ -5952,6 +6009,63 @@
         "candidates": "扫描记录",
         "inserted": "新增记录",
         "usersUpdated": "更新用户"
+      }
+    },
+    "news": {
+      "title": "资讯管理",
+      "subtitle": "撰写、编辑并发布资讯文章。",
+      "create": "新建文章",
+      "empty": "暂无文章。",
+      "featured": "精选",
+      "view": "查看文章",
+      "loadError": "无法加载文章列表",
+      "deleteTitle": "删除文章",
+      "deleteConfirm": "确定删除“{title}”吗？此操作无法撤销。",
+      "deleteSuccess": "文章已删除",
+      "deleteError": "无法删除文章",
+      "columns": {
+        "title": "标题",
+        "category": "分类",
+        "locale": "语言",
+        "status": "状态",
+        "views": "浏览量",
+        "actions": "操作"
+      },
+      "form": {
+        "createTitle": "新建文章",
+        "editTitle": "编辑文章",
+        "save": "保存",
+        "optional": "可选",
+        "titleLabel": "标题",
+        "slugLabel": "链接标识 (slug)",
+        "slugHelp": "留空则根据标题自动生成。仅限小写字母、数字与连字符。",
+        "slugFormat": "slug 仅可包含小写字母、数字与连字符",
+        "localeLabel": "语言",
+        "excerptLabel": "摘要",
+        "contentLabel": "正文",
+        "coverLabel": "封面图",
+        "categoryLabel": "分类",
+        "statusLabel": "状态",
+        "publishedAtLabel": "发布日期",
+        "publishedAtHelp": "留空则在首次发布时自动记录。",
+        "translationGroupLabel": "译文分组 ID",
+        "translationGroupHelp": "同一篇文章的各语言版本请使用相同 ID。",
+        "tagsLabel": "标签",
+        "tagsHelp": "用逗号分隔。",
+        "isFeaturedLabel": "设为精选",
+        "createSuccess": "文章已创建",
+        "updateSuccess": "文章已更新",
+        "saveError": "无法保存文章",
+        "statuses": {
+          "DRAFT": "草稿",
+          "PUBLISHED": "已发布",
+          "ARCHIVED": "已归档"
+        },
+        "locales": {
+          "vi": "Tiếng Việt",
+          "en": "English",
+          "cn": "中文"
+        }
       }
     }
   },

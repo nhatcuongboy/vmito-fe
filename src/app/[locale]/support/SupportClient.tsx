@@ -97,8 +97,7 @@ export default function SupportClient() {
               </Button>
               <Button
                 asChild
-                variant="outline"
-                className="border-green-100 bg-transparent text-white hover:bg-green-600 hover:text-white"
+                className="bg-white text-green-700 shadow-sm hover:bg-green-50 hover:text-green-700"
               >
                 <a
                   href="https://m.me/vmitovn"

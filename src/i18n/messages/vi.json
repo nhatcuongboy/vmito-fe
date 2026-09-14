@@ -62,7 +62,9 @@
     "feedback": "Liên hệ & Báo lỗi",
     "newsfeed": "Bảng tin",
     "sessionsManagement": "Quản lý kèo (Admin)",
-    "pointsAdmin": "Điểm & xếp hạng"
+    "pointsAdmin": "Điểm & xếp hạng",
+    "news": "Tin tức",
+    "newsAdmin": "Quản lý tin tức"
   },
   "search": {
     "title": "Tìm kiếm",
@@ -4990,11 +4992,26 @@
         "description": "Chọn kênh thuận tiện nhất hoặc gửi ticket để nhận hỗ trợ chi tiết.",
         "owner": "Người phụ trách hỗ trợ: Nhật Cường",
         "channels": {
-          "hotline": { "label": "Hotline", "value": "0914810765" },
-          "email": { "label": "Email", "value": "admin@vmito.com" },
-          "zalo": { "label": "Zalo", "value": "Nhắn tin qua Zalo" },
-          "messenger": { "label": "Messenger", "value": "Chat với Vmito" },
-          "fanpage": { "label": "Fanpage", "value": "Facebook Vmito" }
+          "hotline": {
+            "label": "Hotline",
+            "value": "0914810765"
+          },
+          "email": {
+            "label": "Email",
+            "value": "admin@vmito.com"
+          },
+          "zalo": {
+            "label": "Zalo",
+            "value": "Nhắn tin qua Zalo"
+          },
+          "messenger": {
+            "label": "Messenger",
+            "value": "Chat với Vmito"
+          },
+          "fanpage": {
+            "label": "Fanpage",
+            "value": "Facebook Vmito"
+          }
         }
       },
       "ticket": {
@@ -5014,7 +5031,41 @@
         "loginRequiredDescription": "Bạn vẫn có thể xem tất cả hướng dẫn và kênh liên hệ. Đăng nhập để gửi và theo dõi yêu cầu hỗ trợ của mình.",
         "loginCta": "Đăng nhập",
         "historyCta": "Xem phản hồi của tôi",
-        "validation": { "required": "Vui lòng nhập thông tin bắt buộc" }
+        "validation": {
+          "required": "Vui lòng nhập thông tin bắt buộc"
+        }
+      }
+    },
+    "news": {
+      "title": "Tin tức",
+      "subtitle": "Tin tức, hướng dẫn và câu chuyện từ cộng đồng cầu lông.",
+      "filterBy": "Lọc theo chuyên mục",
+      "allCategories": "Tất cả",
+      "readingTime": "{minutes} phút đọc",
+      "author": "Tác giả",
+      "tableOfContents": "Mục lục",
+      "relatedTitle": "Bài viết liên quan",
+      "loadMore": "Xem thêm",
+      "copyLink": "Sao chép liên kết",
+      "linkCopied": "Đã sao chép",
+      "emptyTitle": "Chưa có bài viết",
+      "emptyDescription": "Hãy quay lại sau, chúng tôi đang chuẩn bị nội dung mới.",
+      "loadErrorTitle": "Không tải được bài viết",
+      "loadErrorDescription": "Vui lòng thử lại sau ít phút.",
+      "notFoundTitle": "Không tìm thấy bài viết",
+      "notFoundDescription": "Bài viết có thể đã bị gỡ hoặc đường dẫn không đúng.",
+      "backToList": "Về trang tin tức",
+      "categories": {
+        "NEWS": "Tin tức",
+        "TUTORIAL": "Hướng dẫn",
+        "TOURNAMENT": "Giải đấu",
+        "EQUIPMENT": "Dụng cụ",
+        "COMMUNITY": "Cộng đồng"
+      },
+      "readIn": {
+        "vi": "Đọc bản tiếng Việt",
+        "en": "Read in English",
+        "cn": "阅读中文版"
       }
     }
   },
@@ -6010,6 +6061,63 @@
         "candidates": "Bản ghi quét được",
         "inserted": "Giao dịch mới",
         "usersUpdated": "Người dùng cập nhật"
+      }
+    },
+    "news": {
+      "title": "Quản lý tin tức",
+      "subtitle": "Tạo, chỉnh sửa và xuất bản bài viết tin tức.",
+      "create": "Viết bài mới",
+      "empty": "Chưa có bài viết nào.",
+      "featured": "Nổi bật",
+      "view": "Xem bài viết",
+      "loadError": "Không tải được danh sách bài viết",
+      "deleteTitle": "Xoá bài viết",
+      "deleteConfirm": "Bạn có chắc muốn xoá \"{title}\"? Thao tác này không thể hoàn tác.",
+      "deleteSuccess": "Đã xoá bài viết",
+      "deleteError": "Không xoá được bài viết",
+      "columns": {
+        "title": "Tiêu đề",
+        "category": "Chuyên mục",
+        "locale": "Ngôn ngữ",
+        "status": "Trạng thái",
+        "views": "Lượt xem",
+        "actions": "Thao tác"
+      },
+      "form": {
+        "createTitle": "Viết bài mới",
+        "editTitle": "Chỉnh sửa bài viết",
+        "save": "Lưu",
+        "optional": "Không bắt buộc",
+        "titleLabel": "Tiêu đề",
+        "slugLabel": "Đường dẫn (slug)",
+        "slugHelp": "Để trống để tự tạo từ tiêu đề. Chỉ chữ thường, số và dấu gạch ngang.",
+        "slugFormat": "Slug chỉ gồm chữ thường, số và dấu gạch ngang",
+        "localeLabel": "Ngôn ngữ",
+        "excerptLabel": "Mô tả ngắn",
+        "contentLabel": "Nội dung",
+        "coverLabel": "Ảnh bìa",
+        "categoryLabel": "Chuyên mục",
+        "statusLabel": "Trạng thái",
+        "publishedAtLabel": "Ngày đăng",
+        "publishedAtHelp": "Để trống sẽ lấy thời điểm xuất bản đầu tiên.",
+        "translationGroupLabel": "Mã nhóm bản dịch",
+        "translationGroupHelp": "Dùng chung một mã cho các bản dịch của cùng bài viết.",
+        "tagsLabel": "Thẻ",
+        "tagsHelp": "Phân cách bằng dấu phẩy.",
+        "isFeaturedLabel": "Bài nổi bật",
+        "createSuccess": "Đã tạo bài viết",
+        "updateSuccess": "Đã cập nhật bài viết",
+        "saveError": "Không lưu được bài viết",
+        "statuses": {
+          "DRAFT": "Bản nháp",
+          "PUBLISHED": "Đã đăng",
+          "ARCHIVED": "Lưu trữ"
+        },
+        "locales": {
+          "vi": "Tiếng Việt",
+          "en": "English",
+          "cn": "中文"
+        }
       }
     }
   },

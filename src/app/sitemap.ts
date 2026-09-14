@@ -3,6 +3,7 @@ import { VenueService } from '@/lib/api/venue.service';
 import { ClubsService } from '@/lib/api/clubs.service';
 import { TournamentService } from '@/lib/api/tournament.service';
 import { ClassesService } from '@/lib/api/classes.service';
+import { NewsService } from '@/lib/api/news.service';
 import { VENUE_DISTRICT_ENTRIES } from '@/constants/venue-districts';
 
 const BASE_URL = 'https://vmito.com';
@@ -17,6 +18,7 @@ const staticRoutes = [
   { path: '/guide', priority: 0.6, changeFrequency: 'monthly' as const },
   { path: '/support', priority: 0.5, changeFrequency: 'monthly' as const },
   { path: '/newsfeed', priority: 0.5, changeFrequency: 'daily' as const },
+  { path: '/news', priority: 0.7, changeFrequency: 'daily' as const },
   { path: '/about', priority: 0.5, changeFrequency: 'monthly' as const },
 ];
 
@@ -117,6 +119,23 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }
   } catch {
     // API unavailable at build time — skip tournament detail pages
+  }
+
+  // Dynamic news articles: /[locale]/news/[slug]
+  // Each article exists in exactly one locale, so it is listed once under that
+  // locale rather than duplicated across all three.
+  try {
+    const articles = await NewsService.getSitemapArticles();
+    for (const article of articles) {
+      entries.push({
+        url: `${BASE_URL}/${article.locale}/news/${article.slug}`,
+        lastModified: new Date(article.updatedAt),
+        changeFrequency: 'weekly',
+        priority: 0.75,
+      });
+    }
+  } catch {
+    // API unavailable at build time — skip news article pages
   }
 
   return entries;

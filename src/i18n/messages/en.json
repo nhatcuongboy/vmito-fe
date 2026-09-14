@@ -62,7 +62,9 @@
     "sessionsManagement": "Manage Sessions (Admin)",
     "feedback": "Feedback",
     "newsfeed": "Newsfeed",
-    "pointsAdmin": "Points & ranking"
+    "pointsAdmin": "Points & ranking",
+    "news": "News",
+    "newsAdmin": "News management"
   },
   "search": {
     "title": "Search",
@@ -4981,11 +4983,26 @@
         "description": "Choose the most convenient channel, or send a ticket for detailed support.",
         "owner": "Support contact: Nhat Cuong",
         "channels": {
-          "hotline": { "label": "Hotline", "value": "0914810765" },
-          "email": { "label": "Email", "value": "admin@vmito.com" },
-          "zalo": { "label": "Zalo", "value": "Message us on Zalo" },
-          "messenger": { "label": "Messenger", "value": "Chat with Vmito" },
-          "fanpage": { "label": "Fanpage", "value": "Vmito on Facebook" }
+          "hotline": {
+            "label": "Hotline",
+            "value": "0914810765"
+          },
+          "email": {
+            "label": "Email",
+            "value": "admin@vmito.com"
+          },
+          "zalo": {
+            "label": "Zalo",
+            "value": "Message us on Zalo"
+          },
+          "messenger": {
+            "label": "Messenger",
+            "value": "Chat with Vmito"
+          },
+          "fanpage": {
+            "label": "Fanpage",
+            "value": "Vmito on Facebook"
+          }
         }
       },
       "ticket": {
@@ -5005,7 +5022,41 @@
         "loginRequiredDescription": "You can still read every guide and contact channel. Sign in to send and track your support requests.",
         "loginCta": "Sign in",
         "historyCta": "View my feedback",
-        "validation": { "required": "This field is required" }
+        "validation": {
+          "required": "This field is required"
+        }
+      }
+    },
+    "news": {
+      "title": "News",
+      "subtitle": "News, guides and stories from the badminton community.",
+      "filterBy": "Filter by category",
+      "allCategories": "All",
+      "readingTime": "{minutes} min read",
+      "author": "Author",
+      "tableOfContents": "Contents",
+      "relatedTitle": "Related articles",
+      "loadMore": "Load more",
+      "copyLink": "Copy link",
+      "linkCopied": "Copied",
+      "emptyTitle": "No articles yet",
+      "emptyDescription": "Check back soon — new content is on the way.",
+      "loadErrorTitle": "Could not load articles",
+      "loadErrorDescription": "Please try again in a few minutes.",
+      "notFoundTitle": "Article not found",
+      "notFoundDescription": "It may have been removed, or the link is incorrect.",
+      "backToList": "Back to news",
+      "categories": {
+        "NEWS": "News",
+        "TUTORIAL": "Tutorial",
+        "TOURNAMENT": "Tournament",
+        "EQUIPMENT": "Equipment",
+        "COMMUNITY": "Community"
+      },
+      "readIn": {
+        "vi": "Đọc bản tiếng Việt",
+        "en": "Read in English",
+        "cn": "阅读中文版"
       }
     }
   },
@@ -5995,6 +6046,63 @@
         "candidates": "Records scanned",
         "inserted": "New transactions",
         "usersUpdated": "Users updated"
+      }
+    },
+    "news": {
+      "title": "News management",
+      "subtitle": "Write, edit and publish news articles.",
+      "create": "New article",
+      "empty": "No articles yet.",
+      "featured": "Featured",
+      "view": "View article",
+      "loadError": "Could not load articles",
+      "deleteTitle": "Delete article",
+      "deleteConfirm": "Delete \"{title}\"? This cannot be undone.",
+      "deleteSuccess": "Article deleted",
+      "deleteError": "Could not delete the article",
+      "columns": {
+        "title": "Title",
+        "category": "Category",
+        "locale": "Language",
+        "status": "Status",
+        "views": "Views",
+        "actions": "Actions"
+      },
+      "form": {
+        "createTitle": "New article",
+        "editTitle": "Edit article",
+        "save": "Save",
+        "optional": "Optional",
+        "titleLabel": "Title",
+        "slugLabel": "Slug",
+        "slugHelp": "Leave blank to derive it from the title. Lowercase letters, digits and hyphens only.",
+        "slugFormat": "Slug may only contain lowercase letters, digits and hyphens",
+        "localeLabel": "Language",
+        "excerptLabel": "Excerpt",
+        "contentLabel": "Content",
+        "coverLabel": "Cover image",
+        "categoryLabel": "Category",
+        "statusLabel": "Status",
+        "publishedAtLabel": "Publish date",
+        "publishedAtHelp": "Leave blank to stamp it when first published.",
+        "translationGroupLabel": "Translation group ID",
+        "translationGroupHelp": "Give every translation of the same article the same ID.",
+        "tagsLabel": "Tags",
+        "tagsHelp": "Separate with commas.",
+        "isFeaturedLabel": "Featured article",
+        "createSuccess": "Article created",
+        "updateSuccess": "Article updated",
+        "saveError": "Could not save the article",
+        "statuses": {
+          "DRAFT": "Draft",
+          "PUBLISHED": "Published",
+          "ARCHIVED": "Archived"
+        },
+        "locales": {
+          "vi": "Tiếng Việt",
+          "en": "English",
+          "cn": "中文"
+        }
       }
     }
   },

@@ -1396,7 +1396,8 @@
   padding: 6px 8px;
   border: 1px solid transparent;
   border-radius: 12px;
-  color: hsl(var(--foreground));
+  /* Softened hierarchy for inactive navigation in light mode. */
+  color: #3f3f46;
   font-size: 0.9375rem;
   font-weight: 500;
   line-height: 1.25rem;
@@ -1419,7 +1420,7 @@
   border: 1px solid transparent;
   border-radius: 10px;
   background: hsl(var(--muted) / 0.62);
-  color: hsl(var(--muted-foreground));
+  color: #52525b;
   transition:
     transform 0.18s ease,
     border-color 0.18s ease,
@@ -1433,6 +1434,14 @@
 .sidebar-session-link:hover {
   transform: translateX(2px);
   background: hsl(var(--muted) / 0.72);
+}
+
+.dark .sidebar-nav-link:not(.is-active) {
+  color: hsl(var(--foreground));
+}
+
+.dark .sidebar-nav-link:not(.is-active) .sidebar-nav-icon {
+  color: hsl(var(--muted-foreground));
 }
 
 .sidebar-nav-link.is-active,
