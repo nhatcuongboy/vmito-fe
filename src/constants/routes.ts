@@ -192,6 +192,7 @@ export const ROUTES = {
   PLAYER_STATUS: '/player-status',
   ABOUT: '/about',
   GUIDE: '/guide',
+  SUPPORT: '/support',
   FEEDBACK: '/feedback',
   REMINDERS: '/reminders',
 } as const;
@@ -239,6 +240,7 @@ export const ROUTE_GROUPS = {
     ROUTES.BROWSE.VENUES.LIST,
     ROUTES.ABOUT,
     ROUTES.GUIDE,
+    ROUTES.SUPPORT,
   ],
 
   // Host-only routes
@@ -365,6 +367,7 @@ export const BREADCRUMB_LABELS: Record<string, string> = {
   [ROUTES.SETTINGS]: 'Settings',
   [ROUTES.ABOUT]: 'About',
   [ROUTES.GUIDE]: 'User Guide',
+  [ROUTES.SUPPORT]: 'Support',
   [ROUTES.FEEDBACK]: 'Contact & Bug Report',
   [ROUTES.ADMIN.USERS]: 'Users',
   [ROUTES.ADMIN.SESSIONS]: 'Sessions',

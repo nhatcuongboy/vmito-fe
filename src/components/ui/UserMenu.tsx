@@ -9,10 +9,6 @@ const BugReportModal = dynamic(
   () => import('@/components/feedback/BugReportModal'),
   { ssr: false }
 );
-const ContactModal = dynamic(
-  () => import('@/components/feedback/ContactModal'),
-  { ssr: false }
-);
 import { ROUTES } from '@/constants/routes';
 import { usePathname, useRouter } from '@/i18n/config';
 import { Locale } from '@/i18n/locales';
@@ -42,8 +38,8 @@ import {
   House,
   Languages,
   LogOut,
+  LifeBuoy,
   Menu as MenuIcon,
-  MessageCircle,
   Monitor,
   Moon,
   Settings,
@@ -73,7 +69,6 @@ export default function UserMenu({ onLogout }: UserMenuProps) {
 
   const [isOpen, setIsOpen] = useState(false);
   const [currentMenu, setCurrentMenu] = useState<MenuState>('MAIN');
-  const [isContactModalOpen, setIsContactModalOpen] = useState(false);
   const [isBugReportModalOpen, setIsBugReportModalOpen] = useState(false);
   const [isLogoutConfirmOpen, setIsLogoutConfirmOpen] = useState(false);
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
@@ -407,7 +402,7 @@ export default function UserMenu({ onLogout }: UserMenuProps) {
         </Text>
       </Flex>
 
-      {/* Give Feedback - Contact */}
+      {/* Support */}
       <Flex
         align="center"
         gap={{ base: 2, md: 3 }}
@@ -417,7 +412,7 @@ export default function UserMenu({ onLogout }: UserMenuProps) {
         _hover={{ bg: 'gray.50', _dark: { bg: 'gray.700' } }}
         onClick={() => {
           setIsOpen(false);
-          setIsContactModalOpen(true);
+          router.push(ROUTES.SUPPORT);
         }}
       >
         <Box
@@ -426,10 +421,10 @@ export default function UserMenu({ onLogout }: UserMenuProps) {
           p={{ base: 1.5, md: 2 }}
           borderRadius="full"
         >
-          <MessageCircle size={16} />
+          <LifeBuoy size={16} />
         </Box>
         <Text fontSize={{ base: 'sm', md: 'md' }} fontWeight="medium">
-          {common('contact')}
+          {common('support')}
         </Text>
       </Flex>
 
@@ -764,11 +759,7 @@ export default function UserMenu({ onLogout }: UserMenuProps) {
         </Portal>
       )}
 
-      {/* Feedback Modals */}
-      <ContactModal
-        isOpen={isContactModalOpen}
-        onClose={() => setIsContactModalOpen(false)}
-      />
+      {/* Feedback Modal */}
       <BugReportModal
         isOpen={isBugReportModalOpen}
         onClose={() => setIsBugReportModalOpen(false)}

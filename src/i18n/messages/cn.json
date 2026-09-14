@@ -147,6 +147,7 @@
     "showNewAddressOff": "已隐藏新地址",
     "about": "关于",
     "guide": "指南",
+    "support": "帮助",
     "feedback": "联系 & 报告错误",
     "navigation": "导航",
     "openMenu": "打开菜单",
@@ -4781,6 +4782,189 @@
           "body": "如果您对本服务条款有任何疑问，请通过 support@vmito.com 与我们联系。"
         }
       ]
+    },
+    "support": {
+      "hero": {
+        "eyebrow": "帮助中心",
+        "title": "需要 Vmito 的帮助吗？",
+        "subtitle": "快速查找答案、阅读详细指南，或向 Vmito 支持团队提交请求。",
+        "ticketCta": "提交支持请求",
+        "guideCta": "查看完整指南"
+      },
+      "faq": {
+        "eyebrow": "快速帮助",
+        "title": "查找与您问题相关的答案",
+        "subtitle": "选择主题或输入关键词以找到合适的指引。",
+        "resultCount": "找到 {count} 篇相关文章"
+      },
+      "search": {
+        "label": "搜索帮助中心",
+        "placeholder": "输入问题或关键词，例如：轮换、付款...",
+        "clear": "清除搜索词",
+        "emptyTitle": "未找到匹配内容",
+        "emptyDescription": "请尝试其他关键词，或提交请求让我们直接协助您。",
+        "reset": "清除筛选"
+      },
+      "categories": {
+        "label": "筛选支持主题",
+        "all": "全部",
+        "sessions": {
+          "title": "场次管理",
+          "description": "创建、加入和管理球员"
+        },
+        "rotation": {
+          "title": "轮换与场地",
+          "description": "设置场地、平衡球员并记录结果"
+        },
+        "booking": {
+          "title": "场地预订",
+          "description": "查找场馆、预订时段和跟踪订单"
+        },
+        "payments": { "title": "付款", "description": "费用、转账与确认" },
+        "tournaments": { "title": "赛事", "description": "报名、赛程和排名" },
+        "account": {
+          "title": "账户与应用",
+          "description": "个人资料、语言和反馈"
+        }
+      },
+      "faqs": {
+        "createSession": {
+          "question": "如何创建新的场次？",
+          "answer": "进入场次管理，选择创建场次，并填写名称、时间、场地、场地数量、球员人数以及适用的费用。保存后，您可以分享场次以接收加入申请。",
+          "keywords": "创建场次 新场次 设置"
+        },
+        "managePlayers": {
+          "question": "如何审核或管理球员？",
+          "answer": "在场次详情中，主办方可以查看加入申请、通过或拒绝申请、添加或移除球员，并跟踪每位球员的状态。",
+          "keywords": "审核球员 加入申请 添加 移除"
+        },
+        "joinSession": {
+          "question": "如何加入或取消场次？",
+          "answer": "打开合适的场次并发送加入申请。主办方审核后，您可在我的场次中跟踪状态；若计划变动，可在场次详情中取消。",
+          "keywords": "加入场次 取消 加入申请"
+        },
+        "setUpCourts": {
+          "question": "如何为场次设置场地？",
+          "answer": "创建或编辑场次时，主办方可以选择场地数量、命名每块场地并进行配置。这些设置用于组织球员和比赛。",
+          "keywords": "设置场地 场地数量 场地名称"
+        },
+        "autoAssign": {
+          "question": "Vmito 可以自动分配球员吗？",
+          "answer": "可以。主办方可以根据球员水平和当前设置使用自动分场功能，然后在比赛开始前手动微调结果。",
+          "keywords": "自动分配 轮换 平衡 组队"
+        },
+        "recordResults": {
+          "question": "在哪里更新比赛和结果？",
+          "answer": "在场次管理中，选择进行中的场地或比赛来叫号、输入结果并更新状态。比赛历史和统计会随场次保存。",
+          "keywords": "叫号 比赛结果 得分 历史"
+        },
+        "findVenue": {
+          "question": "如何找到合适的场馆？",
+          "answer": "打开查找场馆，按区域浏览场馆、联系方式、营业时间及可用价格信息。预订前可打开地图查看路线。",
+          "keywords": "查找场馆 地点 地图 营业时间"
+        },
+        "bookCourt": {
+          "question": "如何提交场地预订？",
+          "answer": "在支持预订的场馆详情页，选择可用场地和时间段，填写联系方式后发送请求。确认前请查看场馆的定金和退款政策。",
+          "keywords": "预订场地 booking 时间段 定金"
+        },
+        "bookingStatus": {
+          "question": "在哪里查看预订状态？",
+          "answer": "打开我的预订，查看待处理请求、已确认预订、付款截止时间及场馆管理员的更新。",
+          "keywords": "预订状态 我的预订 已确认"
+        },
+        "paymentMethods": {
+          "question": "固定费用和均摊费用有什么区别？",
+          "answer": "固定费用由主办方为每位球员设定金额；均摊费用则按照场次配置在参与者之间分摊总成本。",
+          "keywords": "固定费用 均摊费用 成本"
+        },
+        "submitProof": {
+          "question": "如何提交付款凭证？",
+          "answer": "打开场次付款详情，查看二维码或收款账户，然后上传转账凭证供主办方审核。",
+          "keywords": "付款凭证 收据 二维码 转账"
+        },
+        "managePayments": {
+          "question": "主办方如何确认球员付款？",
+          "answer": "在场次的交易或付款区域，主办方可查看提交的凭证，并根据信息通过或拒绝每笔交易。",
+          "keywords": "主办方 确认付款 交易 拒绝"
+        },
+        "createTournament": {
+          "question": "如何创建赛事？",
+          "answer": "进入赛事，创建新赛事，并设置名称、时间、项目、赛制和联系方式。之后可以添加运动员或组合。",
+          "keywords": "创建赛事 项目 赛制"
+        },
+        "registerTournament": {
+          "question": "如何报名运动员或组合？",
+          "answer": "打开赛事详情，选择合适的项目，并按组织者要求完成报名。报名状态会显示在赛事中。",
+          "keywords": "报名赛事 运动员 组合"
+        },
+        "viewStandings": {
+          "question": "在哪里查看赛程和排名？",
+          "answer": "在赛事详情页打开赛程、结果或排名部分，即可跟踪组织者更新赛事后的进度。",
+          "keywords": "赛程 排名 赛事结果"
+        },
+        "updateProfile": {
+          "question": "如何更新个人资料和水平？",
+          "answer": "打开个人资料或账户设置，更新姓名、头像、联系方式和水平。准确的信息能帮助主办方和球员找到更合适的比赛。",
+          "keywords": "更新资料 水平 头像"
+        },
+        "changeLanguage": {
+          "question": "在哪里切换语言或主题？",
+          "answer": "打开账户菜单，选择语言或主题，即可切换应用语言和浅色、深色或系统外观。",
+          "keywords": "切换语言 主题 浅色 深色"
+        },
+        "reportIssue": {
+          "question": "如何报告错误或发送反馈？",
+          "answer": "使用账户菜单中的报告错误，或在下方提交工单，让支持团队调查并回复您的问题。",
+          "keywords": "报告错误 反馈 支持 工单"
+        }
+      },
+      "helpfulness": {
+        "question": "这篇文章对您有帮助吗？",
+        "yes": "有",
+        "no": "没有",
+        "thanksYes": "感谢您的反馈！",
+        "thanksNo": "谢谢。我们的支持团队随时可以进一步帮助您。",
+        "contactCta": "提交支持请求"
+      },
+      "needHelp": {
+        "title": "仍需要帮助？",
+        "description": "提交请求以获得回复，或立即通过 Messenger 与客服聊天。",
+        "ticketCta": "提交支持请求",
+        "chatCta": "与客服聊天"
+      },
+      "contact": {
+        "eyebrow": "直接联系我们",
+        "title": "我们随时为您提供帮助",
+        "description": "选择最方便的渠道，或提交工单以获得详细支持。",
+        "owner": "支持联系人：Nhat Cuong",
+        "channels": {
+          "hotline": { "label": "热线", "value": "0914810765" },
+          "email": { "label": "电子邮箱", "value": "admin@vmito.com" },
+          "zalo": { "label": "Zalo", "value": "通过 Zalo 联系" },
+          "messenger": { "label": "Messenger", "value": "与 Vmito 聊天" },
+          "fanpage": { "label": "主页", "value": "Vmito Facebook" }
+        }
+      },
+      "ticket": {
+        "title": "提交支持请求",
+        "description": "请清楚描述问题，以便我们更快帮助您。",
+        "subjectLabel": "主题",
+        "subjectPlaceholder": "输入请求主题",
+        "messageLabel": "内容",
+        "messagePlaceholder": "描述您的问题或疑问...",
+        "submit": "提交请求",
+        "submitting": "正在发送...",
+        "successTitle": "请求已发送",
+        "successMessage": "感谢您！我们会尽快回复。",
+        "errorTitle": "无法发送请求",
+        "errorMessage": "请稍后重试，或通过直接渠道联系我们。",
+        "loginRequiredTitle": "登录后提交工单",
+        "loginRequiredDescription": "您仍可阅读所有指南和联系渠道。登录后可提交并跟踪支持请求。",
+        "loginCta": "登录",
+        "historyCta": "查看我的反馈",
+        "validation": { "required": "请填写必填信息" }
+      }
     }
   },
   "errors": {
