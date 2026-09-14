@@ -2,10 +2,17 @@
 
 import { Box, Flex, Text, VStack } from '@chakra-ui/react';
 import { useTranslations } from 'next-intl';
-import { Upload, X, ImageIcon } from 'lucide-react';
+import { Upload, X, ImageIcon, FolderOpen } from 'lucide-react';
 import { useRef, useState, ChangeEvent } from 'react';
 import { Button, Image } from '@/components/ui/chakra-compat';
 import { compressImage } from '@/lib/utils/image';
+import AppImageGalleryPicker from '@/components/AppImageGalleryPicker';
+import { EImageCategory } from '@/lib/api/types';
+
+interface ISelectedAsset {
+  url: string;
+  publicId: string;
+}
 
 interface ImageUploaderProps {
   value?: string;
@@ -18,6 +25,12 @@ interface ImageUploaderProps {
   maxWidth?: number;
   maxHeight?: number;
   showPreview?: boolean;
+  /** Show a "select from gallery" action that opens the app's image gallery picker */
+  enableGalleryPicker?: boolean;
+  /** Category used when uploading new images from within the gallery picker */
+  galleryCategory?: EImageCategory;
+  /** Called with the selected asset when an image is picked from the gallery */
+  onLibrarySelect?: (asset: ISelectedAsset) => void;
 }
 
 export default function ImageUploader({
@@ -31,12 +44,17 @@ export default function ImageUploader({
   maxWidth = 300,
   maxHeight = 300,
   showPreview = true,
+  enableGalleryPicker = false,
+  galleryCategory = EImageCategory.OTHER,
+  onLibrarySelect,
 }: ImageUploaderProps) {
   const t = useTranslations('common');
+  const tSession = useTranslations('session');
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
+  const [isGalleryOpen, setIsGalleryOpen] = useState(false);
 
   const handleFileSelect = async (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -95,6 +113,15 @@ export default function ImageUploader({
     if (!disabled && !isUploading) {
       fileInputRef.current?.click();
     }
+  };
+
+  const handleGallerySelect = (images: ISelectedAsset[]) => {
+    const asset = images[0];
+    if (!asset) return;
+    setPreview(null);
+    setError(null);
+    onChange(asset.url);
+    onLibrarySelect?.(asset);
   };
 
   const displayImage = value || preview;
@@ -203,10 +230,34 @@ export default function ImageUploader({
         </Flex>
       )}
 
+      {enableGalleryPicker && !disabled && (
+        <Button
+          type="button"
+          size="sm"
+          variant="outline"
+          alignSelf="center"
+          onClick={() => setIsGalleryOpen(true)}
+          disabled={isUploading}
+        >
+          <FolderOpen size={14} />
+          {tSession('selectFromGallery')}
+        </Button>
+      )}
+
       {error && (
         <Text fontSize="sm" color="red.500">
           {error}
         </Text>
+      )}
+
+      {enableGalleryPicker && (
+        <AppImageGalleryPicker
+          isOpen={isGalleryOpen}
+          onClose={() => setIsGalleryOpen(false)}
+          onSelect={handleGallerySelect}
+          maxSelect={1}
+          category={galleryCategory}
+        />
       )}
     </VStack>
   );

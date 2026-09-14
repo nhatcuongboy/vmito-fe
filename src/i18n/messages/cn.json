@@ -55,7 +55,8 @@
     "newsfeed": "动态",
     "pointsAdmin": "积分与排名",
     "news": "资讯",
-    "newsAdmin": "资讯管理"
+    "newsAdmin": "资讯管理",
+    "welcomePopupsAdmin": "欢迎弹窗"
   },
   "search": {
     "title": "搜索",

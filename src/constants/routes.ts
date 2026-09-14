@@ -181,6 +181,7 @@ export const ROUTES = {
       `/admin/venues/requests/${requestId}`,
     CLUBS: '/admin/clubs/pending',
     NEWS: '/admin/news',
+    WELCOME_POPUPS: '/admin/welcome-popups',
   },
 
   // User Public Profile
