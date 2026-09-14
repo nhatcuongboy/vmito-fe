@@ -64,7 +64,8 @@
     "newsfeed": "Newsfeed",
     "pointsAdmin": "Points & ranking",
     "news": "News",
-    "newsAdmin": "News management"
+    "newsAdmin": "News management",
+    "welcomePopupsAdmin": "Welcome popups"
   },
   "search": {
     "title": "Search",

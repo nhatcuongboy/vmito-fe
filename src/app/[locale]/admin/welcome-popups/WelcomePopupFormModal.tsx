@@ -14,7 +14,7 @@ import ImageUploader from '@/components/cloudinary/ImageUploader';
 import { toaster } from '@/components/ui/toaster';
 import { compressImage } from '@/lib/utils/image';
 import { WelcomePopupService } from '@/lib/api/welcome-popup.service';
-import { IWelcomePopup } from '@/lib/api/types';
+import { EImageCategory, IWelcomePopup } from '@/lib/api/types';
 
 const schema = z
   .object({
@@ -130,6 +130,7 @@ export default function WelcomePopupFormModal({
       onClose={onClose}
       title={popup ? t('editTitle') : t('createTitle')}
       size="lg"
+      closeOnOverlayClick={false}
       primaryActionText={t('save')}
       onPrimaryAction={handleSubmit(onSubmit)}
       isPrimaryLoading={isSubmitting}
@@ -156,6 +157,11 @@ export default function WelcomePopupFormModal({
             onUpload={handleUploadImage}
             maxWidth={400}
             maxHeight={220}
+            enableGalleryPicker
+            galleryCategory={EImageCategory.OTHER}
+            onLibrarySelect={(asset) => {
+              setValue('imagePublicId', asset.publicId);
+            }}
           />
         </Field>
 

@@ -30,7 +30,6 @@ import {
 } from '@chakra-ui/react';
 import {
   ArrowLeft,
-  BookOpen,
   Bug,
   Check,
   ChevronDown,
@@ -39,7 +38,6 @@ import {
   Languages,
   LogOut,
   LifeBuoy,
-  Menu as MenuIcon,
   Monitor,
   Moon,
   Settings,
@@ -145,19 +143,6 @@ export default function UserMenu({ onLogout }: UserMenuProps) {
     router.replace(pathname, { locale: newLocale });
     setIsOpen(false);
     setCurrentMenu('MAIN');
-  };
-
-  const getThemeLabel = (theme: 'light' | 'dark' | 'system') => {
-    switch (theme) {
-      case 'dark':
-        return common('darkTheme');
-      case 'light':
-        return common('lightTheme');
-      case 'system':
-        return common('deviceTheme');
-      default:
-        return common('deviceTheme');
-    }
   };
 
   const getThemeLabelShort = (theme: 'light' | 'dark' | 'system') => {
@@ -370,35 +355,6 @@ export default function UserMenu({ onLogout }: UserMenuProps) {
         </Box>
         <Text fontSize={{ base: 'sm', md: 'md' }} fontWeight="medium" flex={1}>
           {common('settings')}
-        </Text>
-      </Flex>
-
-      {/* Divider before Guide */}
-      <Box h="1px" bg="gray.200" _dark={{ bg: 'gray.700' }} my={2} />
-
-      {/* Guide */}
-      <Flex
-        align="center"
-        gap={{ base: 2, md: 3 }}
-        px={{ base: 3, md: 4 }}
-        py={{ base: 2, md: 2 }}
-        cursor="pointer"
-        _hover={{ bg: 'gray.50', _dark: { bg: 'gray.700' } }}
-        onClick={() => {
-          setIsOpen(false);
-          router.push(ROUTES.GUIDE);
-        }}
-      >
-        <Box
-          bg="gray.100"
-          _dark={{ bg: 'gray.600' }}
-          p={{ base: 1.5, md: 2 }}
-          borderRadius="full"
-        >
-          <BookOpen size={16} />
-        </Box>
-        <Text fontSize={{ base: 'sm', md: 'md' }} fontWeight="medium" flex={1}>
-          {common('guide')}
         </Text>
       </Flex>
 

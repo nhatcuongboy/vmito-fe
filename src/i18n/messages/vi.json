@@ -64,7 +64,8 @@
     "sessionsManagement": "Quản lý kèo (Admin)",
     "pointsAdmin": "Điểm & xếp hạng",
     "news": "Tin tức",
-    "newsAdmin": "Quản lý tin tức"
+    "newsAdmin": "Quản lý tin tức",
+    "welcomePopupsAdmin": "Popup chào mừng"
   },
   "search": {
     "title": "Tìm kiếm",
