@@ -7,11 +7,13 @@ import {
   CalendarCheck,
   CreditCard,
   Info,
+  LifeBuoy,
   LayoutDashboard,
   MapPin,
   MessageCircle,
   Newspaper,
   Receipt,
+  ScrollText,
   Search,
   ShieldCheck,
   SlidersHorizontal,
@@ -93,8 +95,10 @@ export function isNavLinkActive(
     return item.isActive(pathname, ctx);
   }
   const href = item.getHref(ctx);
-  // Exact match for home, startsWith for others
-  return href === '/' ? pathname === '/' : pathname.startsWith(href);
+  if (href === '/') return pathname === '/';
+  // Compare on a path-segment boundary, not a raw string prefix: /newsfeed
+  // must not activate the /news entry, while /news/<slug> still must.
+  return pathname === href || pathname.startsWith(`${href}/`);
 }
 
 const isAdmin = (ctx: NavContext) => ctx.user?.role === UserRole.ADMIN;
@@ -154,6 +158,12 @@ export const NAV_SECTIONS: NavSectionConfig[] = [
         icon: Award,
         label: (t) => t.nav('leaderboard'),
         getHref: () => ROUTES.LEADERBOARD,
+      },
+      {
+        key: 'news',
+        icon: ScrollText,
+        label: (t) => t.nav('news'),
+        getHref: () => ROUTES.NEWS,
       },
     ],
   },
@@ -298,6 +308,12 @@ export const NAV_SECTIONS: NavSectionConfig[] = [
         label: (t) => t.nav('clubsAdmin'),
         getHref: () => ROUTES.ADMIN.CLUBS,
       },
+      {
+        key: 'adminNews',
+        icon: ScrollText,
+        label: (t) => t.nav('newsAdmin'),
+        getHref: () => ROUTES.ADMIN.NEWS,
+      },
     ],
   },
   {
@@ -315,6 +331,12 @@ export const NAV_SECTIONS: NavSectionConfig[] = [
         icon: BookOpen,
         label: (t) => t.common('guide'),
         getHref: () => ROUTES.GUIDE,
+      },
+      {
+        key: 'support',
+        icon: LifeBuoy,
+        label: (t) => t.common('support'),
+        getHref: () => ROUTES.SUPPORT,
       },
     ],
   },

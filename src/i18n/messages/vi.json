@@ -62,7 +62,9 @@
     "feedback": "Liên hệ & Báo lỗi",
     "newsfeed": "Bảng tin",
     "sessionsManagement": "Quản lý kèo (Admin)",
-    "pointsAdmin": "Điểm & xếp hạng"
+    "pointsAdmin": "Điểm & xếp hạng",
+    "news": "Tin tức",
+    "newsAdmin": "Quản lý tin tức"
   },
   "search": {
     "title": "Tìm kiếm",
@@ -156,6 +158,7 @@
     "showNewAddressOff": "Đang ẩn địa chỉ mới",
     "about": "Giới thiệu",
     "guide": "Hướng dẫn",
+    "support": "Hỗ trợ",
     "feedback": "Liên hệ & Báo lỗi",
     "navigation": "Điều hướng",
     "openMenu": "Mở menu",
@@ -4826,6 +4829,244 @@
           "body": "Nếu bạn có câu hỏi về các Điều khoản dịch vụ này, vui lòng liên hệ với chúng tôi qua email: support@vmito.com."
         }
       ]
+    },
+    "support": {
+      "hero": {
+        "eyebrow": "Trung tâm hỗ trợ",
+        "title": "Bạn cần Vmito hỗ trợ?",
+        "subtitle": "Tìm câu trả lời nhanh, xem hướng dẫn chi tiết hoặc gửi yêu cầu để đội ngũ Vmito hỗ trợ bạn.",
+        "ticketCta": "Gửi yêu cầu hỗ trợ",
+        "guideCta": "Xem hướng dẫn đầy đủ"
+      },
+      "faq": {
+        "eyebrow": "Hướng dẫn nhanh",
+        "title": "Tìm câu trả lời theo vấn đề của bạn",
+        "subtitle": "Chọn một chủ đề hoặc tìm bằng từ khóa để xem hướng dẫn phù hợp.",
+        "resultCount": "{count} bài viết phù hợp"
+      },
+      "search": {
+        "label": "Tìm kiếm trong trung tâm hỗ trợ",
+        "placeholder": "Nhập sự cố hoặc từ khóa, ví dụ: xoay tua, thanh toán...",
+        "clear": "Xóa từ khóa tìm kiếm",
+        "emptyTitle": "Chưa tìm thấy nội dung phù hợp",
+        "emptyDescription": "Thử dùng từ khóa khác hoặc gửi yêu cầu để chúng tôi hỗ trợ trực tiếp.",
+        "reset": "Xóa bộ lọc"
+      },
+      "categories": {
+        "label": "Lọc theo chủ đề hỗ trợ",
+        "all": "Tất cả",
+        "sessions": {
+          "title": "Quản lý kèo",
+          "description": "Tạo, tham gia và quản lý người chơi"
+        },
+        "rotation": {
+          "title": "Xoay tua & xếp sân",
+          "description": "Thiết lập sân, chia đội và cập nhật kết quả"
+        },
+        "booking": {
+          "title": "Booking sân",
+          "description": "Tìm sân, đặt lịch và theo dõi booking"
+        },
+        "payments": {
+          "title": "Thanh toán",
+          "description": "Phí tham gia, chuyển khoản và xác nhận"
+        },
+        "tournaments": {
+          "title": "Giải đấu",
+          "description": "Đăng ký, lịch thi đấu và bảng xếp hạng"
+        },
+        "account": {
+          "title": "Tài khoản & ứng dụng",
+          "description": "Hồ sơ, ngôn ngữ và phản hồi"
+        }
+      },
+      "faqs": {
+        "createSession": {
+          "question": "Làm sao để tạo một kèo mới?",
+          "answer": "Vào mục Quản lý kèo, chọn tạo kèo và điền tên, thời gian, địa điểm, số sân, số người chơi cùng mức phí nếu có. Sau khi lưu, bạn có thể chia sẻ kèo để nhận yêu cầu tham gia.",
+          "keywords": "tạo kèo tạo session tạo buổi chơi"
+        },
+        "managePlayers": {
+          "question": "Làm sao duyệt hoặc quản lý người chơi?",
+          "answer": "Trong chi tiết kèo, host có thể xem yêu cầu tham gia, duyệt hoặc từ chối, thêm hoặc xóa người chơi và theo dõi trạng thái của từng người.",
+          "keywords": "duyệt người chơi yêu cầu tham gia thêm xóa"
+        },
+        "joinSession": {
+          "question": "Tôi tham gia hoặc hủy tham gia kèo thế nào?",
+          "answer": "Mở kèo phù hợp rồi gửi yêu cầu tham gia. Sau khi host duyệt, bạn có thể theo dõi trạng thái trong danh sách kèo của mình; nếu lịch thay đổi, hãy hủy tham gia từ chi tiết kèo.",
+          "keywords": "tham gia kèo hủy tham gia join"
+        },
+        "setUpCourts": {
+          "question": "Làm sao thiết lập sân cho kèo?",
+          "answer": "Khi tạo hoặc chỉnh sửa kèo, host có thể chọn số lượng sân, đặt tên và cấu hình từng sân. Các thiết lập này dùng để sắp xếp người chơi và theo dõi trận đấu.",
+          "keywords": "thiết lập sân số sân tên sân"
+        },
+        "autoAssign": {
+          "question": "Vmito có thể tự động xếp người chơi không?",
+          "answer": "Có. Host có thể sử dụng công cụ tự động xếp sân để phân bổ người chơi dựa trên trình độ và các thiết lập hiện có, sau đó vẫn có thể điều chỉnh thủ công trước khi bắt đầu trận.",
+          "keywords": "tự động xếp sân xoay tua chia đội cân bằng"
+        },
+        "recordResults": {
+          "question": "Cập nhật trận đấu và kết quả ở đâu?",
+          "answer": "Tại khu vực quản lý kèo, chọn sân hoặc trận đang diễn ra để gọi trận, nhập kết quả và cập nhật trạng thái. Lịch sử trận và thống kê sẽ được lưu trong kèo.",
+          "keywords": "gọi trận kết quả điểm số lịch sử"
+        },
+        "findVenue": {
+          "question": "Làm sao tìm sân phù hợp?",
+          "answer": "Mở mục Tìm sân để xem sân theo khu vực, thông tin liên hệ, giờ mở cửa và bảng giá khi có. Bạn có thể mở bản đồ để xem đường đi trước khi đặt sân.",
+          "keywords": "tìm sân địa điểm bản đồ giờ mở cửa"
+        },
+        "bookCourt": {
+          "question": "Làm sao gửi booking sân?",
+          "answer": "Từ trang chi tiết sân có hỗ trợ booking, chọn khung giờ và sân còn trống, điền thông tin liên hệ rồi gửi yêu cầu. Hãy kiểm tra kỹ chính sách đặt cọc và hoàn tiền của sân trước khi xác nhận.",
+          "keywords": "đặt sân booking khung giờ đặt cọc"
+        },
+        "bookingStatus": {
+          "question": "Tôi xem trạng thái booking ở đâu?",
+          "answer": "Mở mục Booking của tôi để theo dõi yêu cầu đang chờ, booking đã xác nhận, hạn thanh toán hoặc các thay đổi do quản lý sân cập nhật.",
+          "keywords": "trạng thái booking booking của tôi xác nhận"
+        },
+        "paymentMethods": {
+          "question": "Phí cố định và phí chia đều khác nhau thế nào?",
+          "answer": "Với phí cố định, host đặt số tiền cho mỗi người chơi. Với phí chia đều, tổng chi phí được chia cho những người tham gia theo cấu hình của kèo.",
+          "keywords": "phí cố định chia đều chi phí"
+        },
+        "submitProof": {
+          "question": "Làm sao gửi bằng chứng thanh toán?",
+          "answer": "Mở thông tin thanh toán của kèo, xem mã QR hoặc tài khoản nhận tiền, sau đó tải ảnh biên lai chuyển khoản lên để host xác nhận.",
+          "keywords": "gửi bằng chứng thanh toán biên lai qr chuyển khoản"
+        },
+        "managePayments": {
+          "question": "Host xác nhận thanh toán cho người chơi thế nào?",
+          "answer": "Trong mục giao dịch hoặc thanh toán của kèo, host có thể xem bằng chứng đã gửi và duyệt hoặc từ chối từng giao dịch theo thông tin nhận được.",
+          "keywords": "host duyệt thanh toán giao dịch từ chối"
+        },
+        "createTournament": {
+          "question": "Làm sao tạo giải đấu?",
+          "answer": "Vào khu vực giải đấu, tạo giải mới rồi thiết lập tên, thời gian, nội dung thi đấu, thể thức và thông tin liên hệ. Sau đó bạn có thể thêm vận động viên hoặc cặp đấu.",
+          "keywords": "tạo giải đấu nội dung thể thức"
+        },
+        "registerTournament": {
+          "question": "Đăng ký vận động viên hoặc cặp đấu thế nào?",
+          "answer": "Mở chi tiết giải đấu, chọn hạng mục phù hợp và thực hiện đăng ký theo thông tin ban tổ chức yêu cầu. Trạng thái đăng ký sẽ hiển thị trong giải đấu.",
+          "keywords": "đăng ký giải đấu vận động viên cặp đấu"
+        },
+        "viewStandings": {
+          "question": "Tôi xem lịch đấu và bảng xếp hạng ở đâu?",
+          "answer": "Từ trang chi tiết giải đấu, mở các mục lịch thi đấu, kết quả hoặc bảng xếp hạng để theo dõi tiến độ theo thời gian thực khi ban tổ chức cập nhật.",
+          "keywords": "lịch đấu bảng xếp hạng kết quả giải"
+        },
+        "updateProfile": {
+          "question": "Làm sao cập nhật hồ sơ và trình độ?",
+          "answer": "Mở hồ sơ hoặc cài đặt tài khoản để cập nhật tên, ảnh đại diện, thông tin liên hệ và trình độ chơi. Thông tin chính xác giúp host và người chơi khác ghép kèo phù hợp hơn.",
+          "keywords": "cập nhật hồ sơ trình độ ảnh đại diện"
+        },
+        "changeLanguage": {
+          "question": "Tôi đổi ngôn ngữ hoặc giao diện ở đâu?",
+          "answer": "Mở menu tài khoản, chọn Ngôn ngữ hoặc Giao diện để thay đổi ngôn ngữ và chế độ sáng, tối hay theo hệ thống.",
+          "keywords": "đổi ngôn ngữ giao diện sáng tối"
+        },
+        "reportIssue": {
+          "question": "Làm sao báo lỗi hoặc gửi góp ý?",
+          "answer": "Bạn có thể dùng mục Báo cáo lỗi trong menu tài khoản, hoặc gửi ticket bên dưới nếu cần đội ngũ hỗ trợ xem và phản hồi vấn đề của bạn.",
+          "keywords": "báo lỗi góp ý feedback ticket"
+        }
+      },
+      "helpfulness": {
+        "question": "Bài viết này có giúp ích cho bạn không?",
+        "yes": "Có",
+        "no": "Không",
+        "thanksYes": "Cảm ơn phản hồi của bạn!",
+        "thanksNo": "Cảm ơn bạn. Đội ngũ hỗ trợ luôn sẵn sàng giúp thêm.",
+        "contactCta": "Gửi yêu cầu hỗ trợ"
+      },
+      "needHelp": {
+        "title": "Vẫn cần trợ giúp?",
+        "description": "Gửi yêu cầu để chúng tôi phản hồi, hoặc chat ngay với CSKH qua Messenger.",
+        "ticketCta": "Gửi yêu cầu hỗ trợ",
+        "chatCta": "Chat với CSKH"
+      },
+      "contact": {
+        "eyebrow": "Liên hệ trực tiếp",
+        "title": "Chúng tôi luôn sẵn sàng hỗ trợ",
+        "description": "Chọn kênh thuận tiện nhất hoặc gửi ticket để nhận hỗ trợ chi tiết.",
+        "owner": "Người phụ trách hỗ trợ: Nhật Cường",
+        "channels": {
+          "hotline": {
+            "label": "Hotline",
+            "value": "0914810765"
+          },
+          "email": {
+            "label": "Email",
+            "value": "admin@vmito.com"
+          },
+          "zalo": {
+            "label": "Zalo",
+            "value": "Nhắn tin qua Zalo"
+          },
+          "messenger": {
+            "label": "Messenger",
+            "value": "Chat với Vmito"
+          },
+          "fanpage": {
+            "label": "Fanpage",
+            "value": "Facebook Vmito"
+          }
+        }
+      },
+      "ticket": {
+        "title": "Gửi yêu cầu hỗ trợ",
+        "description": "Mô tả rõ vấn đề để chúng tôi có thể hỗ trợ nhanh hơn.",
+        "subjectLabel": "Tiêu đề",
+        "subjectPlaceholder": "Nhập tiêu đề yêu cầu",
+        "messageLabel": "Nội dung",
+        "messagePlaceholder": "Mô tả vấn đề hoặc câu hỏi của bạn...",
+        "submit": "Gửi yêu cầu",
+        "submitting": "Đang gửi...",
+        "successTitle": "Đã gửi yêu cầu",
+        "successMessage": "Cảm ơn bạn! Chúng tôi sẽ phản hồi sớm nhất có thể.",
+        "errorTitle": "Không thể gửi yêu cầu",
+        "errorMessage": "Vui lòng thử lại sau hoặc liên hệ qua một kênh trực tiếp.",
+        "loginRequiredTitle": "Đăng nhập để gửi ticket",
+        "loginRequiredDescription": "Bạn vẫn có thể xem tất cả hướng dẫn và kênh liên hệ. Đăng nhập để gửi và theo dõi yêu cầu hỗ trợ của mình.",
+        "loginCta": "Đăng nhập",
+        "historyCta": "Xem phản hồi của tôi",
+        "validation": {
+          "required": "Vui lòng nhập thông tin bắt buộc"
+        }
+      }
+    },
+    "news": {
+      "title": "Tin tức",
+      "subtitle": "Tin tức, hướng dẫn và câu chuyện từ cộng đồng cầu lông.",
+      "filterBy": "Lọc theo chuyên mục",
+      "allCategories": "Tất cả",
+      "readingTime": "{minutes} phút đọc",
+      "author": "Tác giả",
+      "tableOfContents": "Mục lục",
+      "relatedTitle": "Bài viết liên quan",
+      "loadMore": "Xem thêm",
+      "copyLink": "Sao chép liên kết",
+      "linkCopied": "Đã sao chép",
+      "emptyTitle": "Chưa có bài viết",
+      "emptyDescription": "Hãy quay lại sau, chúng tôi đang chuẩn bị nội dung mới.",
+      "loadErrorTitle": "Không tải được bài viết",
+      "loadErrorDescription": "Vui lòng thử lại sau ít phút.",
+      "notFoundTitle": "Không tìm thấy bài viết",
+      "notFoundDescription": "Bài viết có thể đã bị gỡ hoặc đường dẫn không đúng.",
+      "backToList": "Về trang tin tức",
+      "categories": {
+        "NEWS": "Tin tức",
+        "TUTORIAL": "Hướng dẫn",
+        "TOURNAMENT": "Giải đấu",
+        "EQUIPMENT": "Dụng cụ",
+        "COMMUNITY": "Cộng đồng"
+      },
+      "readIn": {
+        "vi": "Đọc bản tiếng Việt",
+        "en": "Read in English",
+        "cn": "阅读中文版"
+      }
     }
   },
   "errors": {
@@ -5820,6 +6061,63 @@
         "candidates": "Bản ghi quét được",
         "inserted": "Giao dịch mới",
         "usersUpdated": "Người dùng cập nhật"
+      }
+    },
+    "news": {
+      "title": "Quản lý tin tức",
+      "subtitle": "Tạo, chỉnh sửa và xuất bản bài viết tin tức.",
+      "create": "Viết bài mới",
+      "empty": "Chưa có bài viết nào.",
+      "featured": "Nổi bật",
+      "view": "Xem bài viết",
+      "loadError": "Không tải được danh sách bài viết",
+      "deleteTitle": "Xoá bài viết",
+      "deleteConfirm": "Bạn có chắc muốn xoá \"{title}\"? Thao tác này không thể hoàn tác.",
+      "deleteSuccess": "Đã xoá bài viết",
+      "deleteError": "Không xoá được bài viết",
+      "columns": {
+        "title": "Tiêu đề",
+        "category": "Chuyên mục",
+        "locale": "Ngôn ngữ",
+        "status": "Trạng thái",
+        "views": "Lượt xem",
+        "actions": "Thao tác"
+      },
+      "form": {
+        "createTitle": "Viết bài mới",
+        "editTitle": "Chỉnh sửa bài viết",
+        "save": "Lưu",
+        "optional": "Không bắt buộc",
+        "titleLabel": "Tiêu đề",
+        "slugLabel": "Đường dẫn (slug)",
+        "slugHelp": "Để trống để tự tạo từ tiêu đề. Chỉ chữ thường, số và dấu gạch ngang.",
+        "slugFormat": "Slug chỉ gồm chữ thường, số và dấu gạch ngang",
+        "localeLabel": "Ngôn ngữ",
+        "excerptLabel": "Mô tả ngắn",
+        "contentLabel": "Nội dung",
+        "coverLabel": "Ảnh bìa",
+        "categoryLabel": "Chuyên mục",
+        "statusLabel": "Trạng thái",
+        "publishedAtLabel": "Ngày đăng",
+        "publishedAtHelp": "Để trống sẽ lấy thời điểm xuất bản đầu tiên.",
+        "translationGroupLabel": "Mã nhóm bản dịch",
+        "translationGroupHelp": "Dùng chung một mã cho các bản dịch của cùng bài viết.",
+        "tagsLabel": "Thẻ",
+        "tagsHelp": "Phân cách bằng dấu phẩy.",
+        "isFeaturedLabel": "Bài nổi bật",
+        "createSuccess": "Đã tạo bài viết",
+        "updateSuccess": "Đã cập nhật bài viết",
+        "saveError": "Không lưu được bài viết",
+        "statuses": {
+          "DRAFT": "Bản nháp",
+          "PUBLISHED": "Đã đăng",
+          "ARCHIVED": "Lưu trữ"
+        },
+        "locales": {
+          "vi": "Tiếng Việt",
+          "en": "English",
+          "cn": "中文"
+        }
       }
     }
   },

@@ -7,6 +7,8 @@ import { Locale, SUPPORTED_LOCALES } from './locales';
 export const ROUTE_SCOPED_NAMESPACES = [
   'pages.tournaments',
   'pages.guide',
+  'pages.news',
+  'pages.support',
   'pages.about',
   'pages.privacy',
   'pages.terms',

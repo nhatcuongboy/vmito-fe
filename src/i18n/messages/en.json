@@ -62,7 +62,9 @@
     "sessionsManagement": "Manage Sessions (Admin)",
     "feedback": "Feedback",
     "newsfeed": "Newsfeed",
-    "pointsAdmin": "Points & ranking"
+    "pointsAdmin": "Points & ranking",
+    "news": "News",
+    "newsAdmin": "News management"
   },
   "search": {
     "title": "Search",
@@ -156,6 +158,7 @@
     "showNewAddressOff": "New address is hidden",
     "about": "About",
     "guide": "Guide",
+    "support": "Support",
     "feedback": "Contact & Bug Report",
     "navigation": "Navigation",
     "openMenu": "Open menu",
@@ -4817,6 +4820,244 @@
           "body": "If you have questions about these Terms of Service, please contact us at support@vmito.com."
         }
       ]
+    },
+    "support": {
+      "hero": {
+        "eyebrow": "Support center",
+        "title": "Need help with Vmito?",
+        "subtitle": "Find a quick answer, read detailed guides, or send a request to the Vmito support team.",
+        "ticketCta": "Send a support request",
+        "guideCta": "Read the full guide"
+      },
+      "faq": {
+        "eyebrow": "Quick help",
+        "title": "Find an answer for your issue",
+        "subtitle": "Choose a topic or search by keyword to find the right guidance.",
+        "resultCount": "{count} matching articles"
+      },
+      "search": {
+        "label": "Search the support center",
+        "placeholder": "Describe an issue or enter a keyword, e.g. rotation, payment...",
+        "clear": "Clear search term",
+        "emptyTitle": "No matching content found",
+        "emptyDescription": "Try another keyword or send a request so we can help directly.",
+        "reset": "Clear filters"
+      },
+      "categories": {
+        "label": "Filter support topics",
+        "all": "All",
+        "sessions": {
+          "title": "Session management",
+          "description": "Create, join, and manage players"
+        },
+        "rotation": {
+          "title": "Rotation & courts",
+          "description": "Set up courts, balance players, and record results"
+        },
+        "booking": {
+          "title": "Court booking",
+          "description": "Find venues, book slots, and track bookings"
+        },
+        "payments": {
+          "title": "Payments",
+          "description": "Fees, transfers, and confirmations"
+        },
+        "tournaments": {
+          "title": "Tournaments",
+          "description": "Registration, schedules, and standings"
+        },
+        "account": {
+          "title": "Account & app",
+          "description": "Profile, language, and feedback"
+        }
+      },
+      "faqs": {
+        "createSession": {
+          "question": "How do I create a new session?",
+          "answer": "Go to Session management, choose to create a session, and fill in its name, time, venue, courts, player count, and fee if applicable. After saving, you can share the session to receive join requests.",
+          "keywords": "create session new session setup"
+        },
+        "managePlayers": {
+          "question": "How do I approve or manage players?",
+          "answer": "In the session details, hosts can review join requests, approve or decline them, add or remove players, and monitor each player's status.",
+          "keywords": "approve players join requests add remove"
+        },
+        "joinSession": {
+          "question": "How do I join or cancel a session?",
+          "answer": "Open a suitable session and send a join request. Once the host approves it, track its status in My sessions; if your plans change, cancel from the session details.",
+          "keywords": "join session cancel join request"
+        },
+        "setUpCourts": {
+          "question": "How do I set up courts for a session?",
+          "answer": "When creating or editing a session, a host can choose the court count, name each court, and configure it. These settings are used to organize players and matches.",
+          "keywords": "set up courts court count court name"
+        },
+        "autoAssign": {
+          "question": "Can Vmito automatically assign players?",
+          "answer": "Yes. Hosts can use automatic court assignment to distribute players based on their skill level and current settings, then fine-tune the result manually before a match starts.",
+          "keywords": "automatic assignment rotation balance teams"
+        },
+        "recordResults": {
+          "question": "Where can I update matches and results?",
+          "answer": "In Session management, select the active court or match to call a match, enter its result, and update its status. Match history and statistics are saved with the session.",
+          "keywords": "call match results score history"
+        },
+        "findVenue": {
+          "question": "How do I find a suitable venue?",
+          "answer": "Open Find venues to browse venues by area, contact details, opening hours, and available price information. You can open the map for directions before booking.",
+          "keywords": "find venue location map opening hours"
+        },
+        "bookCourt": {
+          "question": "How do I submit a court booking?",
+          "answer": "On a venue detail page that supports booking, choose an available court and time slot, enter your contact details, and send the request. Review the venue's deposit and refund policy before confirming.",
+          "keywords": "book court booking time slot deposit"
+        },
+        "bookingStatus": {
+          "question": "Where can I see my booking status?",
+          "answer": "Open My bookings to follow pending requests, confirmed bookings, payment deadlines, and updates from venue managers.",
+          "keywords": "booking status my bookings confirmed"
+        },
+        "paymentMethods": {
+          "question": "What is the difference between fixed and split fees?",
+          "answer": "With a fixed fee, the host sets an amount per player. With a split fee, the total cost is divided among participants according to the session configuration.",
+          "keywords": "fixed fee split fee costs"
+        },
+        "submitProof": {
+          "question": "How do I submit payment proof?",
+          "answer": "Open the session payment details, view the QR code or receiving account, then upload a transfer receipt for the host to review.",
+          "keywords": "payment proof receipt qr transfer"
+        },
+        "managePayments": {
+          "question": "How does a host confirm player payments?",
+          "answer": "In the session's transaction or payment area, the host can review submitted proof and approve or decline each transaction based on the received information.",
+          "keywords": "host approve payment transactions decline"
+        },
+        "createTournament": {
+          "question": "How do I create a tournament?",
+          "answer": "Go to Tournaments, create a new event, and configure its name, time, categories, format, and contact details. You can then add athletes or pairs.",
+          "keywords": "create tournament categories format"
+        },
+        "registerTournament": {
+          "question": "How do I register an athlete or pair?",
+          "answer": "Open the tournament details, choose the appropriate category, and complete registration with the information required by the organizer. The registration status appears in the tournament.",
+          "keywords": "register tournament athlete pair"
+        },
+        "viewStandings": {
+          "question": "Where can I view the schedule and standings?",
+          "answer": "From the tournament detail page, open the schedule, results, or standings sections to follow progress as organizers update the event.",
+          "keywords": "schedule standings tournament results"
+        },
+        "updateProfile": {
+          "question": "How do I update my profile and skill level?",
+          "answer": "Open your profile or account settings to update your name, avatar, contact details, and skill level. Accurate information helps hosts and players find better matches.",
+          "keywords": "update profile skill level avatar"
+        },
+        "changeLanguage": {
+          "question": "Where can I change language or theme?",
+          "answer": "Open the account menu and choose Language or Theme to switch the app language and light, dark, or system appearance.",
+          "keywords": "change language theme light dark"
+        },
+        "reportIssue": {
+          "question": "How do I report a bug or send feedback?",
+          "answer": "Use Report a bug in the account menu, or send the ticket below when you need the support team to investigate and reply to your issue.",
+          "keywords": "report bug feedback support ticket"
+        }
+      },
+      "helpfulness": {
+        "question": "Was this article helpful?",
+        "yes": "Yes",
+        "no": "No",
+        "thanksYes": "Thanks for your feedback!",
+        "thanksNo": "Thank you. Our support team is ready to help further.",
+        "contactCta": "Send a support request"
+      },
+      "needHelp": {
+        "title": "Still need help?",
+        "description": "Send a request for a response, or chat with customer support on Messenger now.",
+        "ticketCta": "Send a support request",
+        "chatCta": "Chat with support"
+      },
+      "contact": {
+        "eyebrow": "Contact us directly",
+        "title": "We're ready to help",
+        "description": "Choose the most convenient channel, or send a ticket for detailed support.",
+        "owner": "Support contact: Nhat Cuong",
+        "channels": {
+          "hotline": {
+            "label": "Hotline",
+            "value": "0914810765"
+          },
+          "email": {
+            "label": "Email",
+            "value": "admin@vmito.com"
+          },
+          "zalo": {
+            "label": "Zalo",
+            "value": "Message us on Zalo"
+          },
+          "messenger": {
+            "label": "Messenger",
+            "value": "Chat with Vmito"
+          },
+          "fanpage": {
+            "label": "Fanpage",
+            "value": "Vmito on Facebook"
+          }
+        }
+      },
+      "ticket": {
+        "title": "Send a support request",
+        "description": "Describe the issue clearly so we can help you faster.",
+        "subjectLabel": "Subject",
+        "subjectPlaceholder": "Enter a request subject",
+        "messageLabel": "Message",
+        "messagePlaceholder": "Describe your issue or question...",
+        "submit": "Send request",
+        "submitting": "Sending...",
+        "successTitle": "Request sent",
+        "successMessage": "Thank you! We will respond as soon as possible.",
+        "errorTitle": "Could not send request",
+        "errorMessage": "Please try again later or contact us through a direct channel.",
+        "loginRequiredTitle": "Sign in to send a ticket",
+        "loginRequiredDescription": "You can still read every guide and contact channel. Sign in to send and track your support requests.",
+        "loginCta": "Sign in",
+        "historyCta": "View my feedback",
+        "validation": {
+          "required": "This field is required"
+        }
+      }
+    },
+    "news": {
+      "title": "News",
+      "subtitle": "News, guides and stories from the badminton community.",
+      "filterBy": "Filter by category",
+      "allCategories": "All",
+      "readingTime": "{minutes} min read",
+      "author": "Author",
+      "tableOfContents": "Contents",
+      "relatedTitle": "Related articles",
+      "loadMore": "Load more",
+      "copyLink": "Copy link",
+      "linkCopied": "Copied",
+      "emptyTitle": "No articles yet",
+      "emptyDescription": "Check back soon — new content is on the way.",
+      "loadErrorTitle": "Could not load articles",
+      "loadErrorDescription": "Please try again in a few minutes.",
+      "notFoundTitle": "Article not found",
+      "notFoundDescription": "It may have been removed, or the link is incorrect.",
+      "backToList": "Back to news",
+      "categories": {
+        "NEWS": "News",
+        "TUTORIAL": "Tutorial",
+        "TOURNAMENT": "Tournament",
+        "EQUIPMENT": "Equipment",
+        "COMMUNITY": "Community"
+      },
+      "readIn": {
+        "vi": "Đọc bản tiếng Việt",
+        "en": "Read in English",
+        "cn": "阅读中文版"
+      }
     }
   },
   "errors": {
@@ -5805,6 +6046,63 @@
         "candidates": "Records scanned",
         "inserted": "New transactions",
         "usersUpdated": "Users updated"
+      }
+    },
+    "news": {
+      "title": "News management",
+      "subtitle": "Write, edit and publish news articles.",
+      "create": "New article",
+      "empty": "No articles yet.",
+      "featured": "Featured",
+      "view": "View article",
+      "loadError": "Could not load articles",
+      "deleteTitle": "Delete article",
+      "deleteConfirm": "Delete \"{title}\"? This cannot be undone.",
+      "deleteSuccess": "Article deleted",
+      "deleteError": "Could not delete the article",
+      "columns": {
+        "title": "Title",
+        "category": "Category",
+        "locale": "Language",
+        "status": "Status",
+        "views": "Views",
+        "actions": "Actions"
+      },
+      "form": {
+        "createTitle": "New article",
+        "editTitle": "Edit article",
+        "save": "Save",
+        "optional": "Optional",
+        "titleLabel": "Title",
+        "slugLabel": "Slug",
+        "slugHelp": "Leave blank to derive it from the title. Lowercase letters, digits and hyphens only.",
+        "slugFormat": "Slug may only contain lowercase letters, digits and hyphens",
+        "localeLabel": "Language",
+        "excerptLabel": "Excerpt",
+        "contentLabel": "Content",
+        "coverLabel": "Cover image",
+        "categoryLabel": "Category",
+        "statusLabel": "Status",
+        "publishedAtLabel": "Publish date",
+        "publishedAtHelp": "Leave blank to stamp it when first published.",
+        "translationGroupLabel": "Translation group ID",
+        "translationGroupHelp": "Give every translation of the same article the same ID.",
+        "tagsLabel": "Tags",
+        "tagsHelp": "Separate with commas.",
+        "isFeaturedLabel": "Featured article",
+        "createSuccess": "Article created",
+        "updateSuccess": "Article updated",
+        "saveError": "Could not save the article",
+        "statuses": {
+          "DRAFT": "Draft",
+          "PUBLISHED": "Published",
+          "ARCHIVED": "Archived"
+        },
+        "locales": {
+          "vi": "Tiếng Việt",
+          "en": "English",
+          "cn": "中文"
+        }
       }
     }
   },
