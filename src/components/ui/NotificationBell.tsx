@@ -62,7 +62,10 @@ import {
   getNotificationDisplayText,
   getNotificationRelatedUser,
 } from '@/lib/notifications/content';
-import { getNotificationTargetRoute } from '@/lib/notifications/routing';
+import {
+  getNotificationTargetRoute,
+  navigateToNotificationUrl,
+} from '@/lib/notifications/routing';
 import { ROUTES } from '@/constants/routes';
 import { formatTimeByDevicePreference } from '@/utils/time-helpers';
 import { EJoinRequestStatus, IClubJoinRequest } from '@/types/club';
@@ -336,7 +339,7 @@ export default function NotificationBell({
     const targetPath = getNotificationTargetRoute(notification, user?.role);
     if (targetPath) {
       setIsOpen(false);
-      router.push(targetPath);
+      navigateToNotificationUrl(targetPath, router);
     }
   };
 

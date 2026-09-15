@@ -107,6 +107,13 @@ export const NotificationItem = ({
 
   const showViewClub = action && VIEW_CLUB_ACTIONS.has(action) && !!clubSlug;
 
+  const customLink =
+    (typeof notification.data?.link === 'string' &&
+      notification.data.link.trim()) ||
+    (typeof notification.data?.url === 'string' &&
+      notification.data.url.trim()) ||
+    undefined;
+
   const handleClick = () => {
     if (!notification.isRead) {
       onMarkAsRead(notification.id);
@@ -234,6 +241,25 @@ export const NotificationItem = ({
             >
               <LuExternalLink size={12} />
               {t('messages.viewClub')}
+            </Button>
+          )}
+
+          {customLink && !showViewSession && !showViewClub && (
+            <Button
+              size="xs"
+              variant="ghost"
+              colorPalette="green"
+              mt={1}
+              onClick={(e) => {
+                e.stopPropagation();
+                if (!notification.isRead) {
+                  onMarkAsRead(notification.id);
+                }
+                onClick?.(notification);
+              }}
+            >
+              <LuExternalLink size={12} />
+              {t('openLink')}
             </Button>
           )}
 

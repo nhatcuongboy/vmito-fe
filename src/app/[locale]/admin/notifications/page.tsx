@@ -20,7 +20,16 @@ import {
   Textarea,
   VStack,
 } from '@chakra-ui/react';
-import { Bell, Eye, Inbox, Send, Trash2, UserRound, Users } from 'lucide-react';
+import {
+  Bell,
+  ExternalLink,
+  Eye,
+  Inbox,
+  Send,
+  Trash2,
+  UserRound,
+  Users,
+} from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
 import MainLayout from '@/components/layout/MainLayout';
@@ -70,6 +79,27 @@ const broadcastSchema = z.object({
     .string()
     .min(1, 'Message is required')
     .max(1000, 'Message must be less than 1000 characters'),
+  link: z
+    .string()
+    .max(1000, 'Link must be less than 1000 characters')
+    .optional()
+    .or(z.literal(''))
+    .refine(
+      (val) => {
+        if (!val || val.trim() === '') return true;
+        const trimmed = val.trim();
+        if (trimmed.startsWith('/')) return true;
+        try {
+          const parsed = new URL(trimmed);
+          return parsed.protocol === 'http:' || parsed.protocol === 'https:';
+        } catch {
+          return false;
+        }
+      },
+      {
+        message: 'Invalid URL or relative path (e.g. /sessions or https://...)',
+      }
+    ),
 });
 
 type TBroadcastFormData = z.infer<typeof broadcastSchema>;
@@ -119,11 +149,12 @@ function AdminNotificationsContent() {
     formState: { errors },
   } = useForm<TBroadcastFormData>({
     resolver: zodResolver(broadcastSchema),
-    defaultValues: { title: '', message: '' },
+    defaultValues: { title: '', message: '', link: '' },
   });
 
   const watchedTitle = watch('title');
   const watchedMessage = watch('message');
+  const watchedLink = watch('link');
 
   useEffect(() => {
     setKeyword(filters.q);
@@ -218,7 +249,11 @@ function AdminNotificationsContent() {
   const onBroadcastSubmit = async (data: TBroadcastFormData) => {
     try {
       setIsSubmitting(true);
-      const result = await NotificationService.broadcastNotification(data);
+      const result = await NotificationService.broadcastNotification({
+        title: data.title.trim(),
+        message: data.message.trim(),
+        link: data.link?.trim() || undefined,
+      });
       toaster.success({
         title: tn('broadcastSuccess'),
         description: `${result.count} ${tn('usersNotified')}`,
@@ -370,7 +405,20 @@ function AdminNotificationsContent() {
                     </Field.HelperText>
                   </Field.Root>
 
-                  {(watchedTitle || watchedMessage) && (
+                  <Field.Root invalid={!!errors.link}>
+                    <Field.Label>{tn('notificationLink')}</Field.Label>
+                    <Input
+                      {...register('link')}
+                      placeholder={tn('linkPlaceholder')}
+                      maxLength={1000}
+                    />
+                    {errors.link && (
+                      <Field.ErrorText>{errors.link.message}</Field.ErrorText>
+                    )}
+                    <Field.HelperText>{tn('linkHelper')}</Field.HelperText>
+                  </Field.Root>
+
+                  {(watchedTitle || watchedMessage || watchedLink) && (
                     <Box
                       p={4}
                       borderRadius="md"
@@ -393,6 +441,18 @@ function AdminNotificationsContent() {
                         <Text color="gray.600" _dark={{ color: 'gray.400' }}>
                           {watchedMessage || tn('notificationMessage')}
                         </Text>
+                        {watchedLink && (
+                          <HStack
+                            gap={1}
+                            color="green.600"
+                            _dark={{ color: 'green.400' }}
+                            fontSize="xs"
+                            mt={1}
+                          >
+                            <ExternalLink size={12} />
+                            <Text lineClamp={1}>{watchedLink}</Text>
+                          </HStack>
+                        )}
                       </VStack>
                     </Box>
                   )}
@@ -747,6 +807,46 @@ function AdminNotificationsContent() {
                   {selectedNotification.message}
                 </Text>
               </Box>
+              {Boolean(
+                (typeof selectedNotification.data?.link === 'string' &&
+                  selectedNotification.data.link) ||
+                  (typeof selectedNotification.data?.url === 'string' &&
+                    selectedNotification.data.url)
+              ) && (
+                <Box>
+                  <Text fontSize="xs" color="gray.500" mb={1}>
+                    Link / Target URL
+                  </Text>
+                  <HStack gap={2}>
+                    <Text
+                      fontSize="sm"
+                      color="green.600"
+                      _dark={{ color: 'green.400' }}
+                      wordBreak="break-all"
+                    >
+                      {
+                        (selectedNotification.data?.link ||
+                          selectedNotification.data?.url) as string
+                      }
+                    </Text>
+                    <IconButton
+                      aria-label="Open link"
+                      size="xs"
+                      variant="ghost"
+                      onClick={() =>
+                        window.open(
+                          (selectedNotification.data?.link ||
+                            selectedNotification.data?.url) as string,
+                          '_blank',
+                          'noopener,noreferrer'
+                        )
+                      }
+                    >
+                      <ExternalLink size={14} />
+                    </IconButton>
+                  </HStack>
+                </Box>
+              )}
               <Box>
                 <Text fontSize="xs" color="gray.500" mb={1}>
                   Data

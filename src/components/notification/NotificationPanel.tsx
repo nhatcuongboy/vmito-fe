@@ -19,7 +19,10 @@ import { NotificationSkeleton } from './NotificationSkeleton';
 import { INotification } from '@/lib/api/types';
 import { useRouter } from '@/i18n/config';
 import { useAuthStore } from '@/stores/useAuthStore';
-import { getNotificationTargetRoute } from '@/lib/notifications/routing';
+import {
+  getNotificationTargetRoute,
+  navigateToNotificationUrl,
+} from '@/lib/notifications/routing';
 
 export const NotificationPanel = () => {
   const t = useTranslations('notification');
@@ -69,7 +72,7 @@ export const NotificationPanel = () => {
     const targetPath = getNotificationTargetRoute(notification, user?.role);
     if (targetPath) {
       closeTriggerRef.current?.click(); // Close popover before navigating
-      router.push(targetPath);
+      navigateToNotificationUrl(targetPath, router);
     }
   };
 

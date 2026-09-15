@@ -1,5 +1,6 @@
 import { ROUTES } from '@/constants/routes';
 import { INotification, UserRole } from '@/lib/api/types';
+import { SUPPORTED_LOCALES } from '@/i18n/locales';
 
 const getStringData = (
   data: INotification['data'],
@@ -7,12 +8,64 @@ const getStringData = (
 ): string | undefined => {
   for (const key of keys) {
     const value = data?.[key];
-    if (typeof value === 'string' && value.length > 0) {
-      return value;
+    if (typeof value === 'string' && value.trim().length > 0) {
+      return value.trim();
     }
   }
 
   return undefined;
+};
+
+export const stripLocalePrefix = (path: string): string => {
+  for (const locale of SUPPORTED_LOCALES) {
+    if (path === `/${locale}`) {
+      return '/';
+    }
+    if (path.startsWith(`/${locale}/`)) {
+      return path.slice(locale.length + 1);
+    }
+  }
+  return path;
+};
+
+export const navigateToNotificationUrl = (
+  url: string,
+  router: { push: (href: string) => void }
+): void => {
+  if (!url) return;
+
+  const trimmed = url.trim();
+
+  // If absolute URL with http:// or https://
+  if (/^https?:\/\//i.test(trimmed)) {
+    try {
+      const parsed = new URL(trimmed);
+      const isSameOrigin =
+        typeof window !== 'undefined' &&
+        (parsed.origin === window.location.origin ||
+          parsed.hostname === 'vmito.com' ||
+          parsed.hostname.endsWith('.vmito.com') ||
+          parsed.hostname === 'localhost');
+
+      if (isSameOrigin) {
+        const path =
+          stripLocalePrefix(parsed.pathname) + parsed.search + parsed.hash;
+        router.push(path || '/');
+        return;
+      }
+    } catch {
+      // Fallback to window.open if parsing fails
+    }
+
+    if (typeof window !== 'undefined') {
+      window.open(trimmed, '_blank', 'noopener,noreferrer');
+    }
+    return;
+  }
+
+  // Relative path
+  const normalized = stripLocalePrefix(trimmed);
+  router.push(normalized.startsWith('/') ? normalized : `/${normalized}`);
 };
 
 export const getNotificationTargetRoute = (
@@ -21,6 +74,13 @@ export const getNotificationTargetRoute = (
 ): string | null => {
   const type = String(notification.type).toUpperCase();
   const { data } = notification;
+
+  const explicitLink = getStringData(data, ['link', 'url']);
+
+  if (explicitLink) {
+    return explicitLink;
+  }
+
   const action = getStringData(data, ['action']);
 
   const sessionId = getStringData(data, ['sessionId']);

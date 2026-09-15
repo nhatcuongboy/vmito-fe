@@ -2208,6 +2208,7 @@ export interface IPaginatedAdminNotifications {
 export interface IBroadcastNotificationRequest {
   title: string;
   message: string;
+  link?: string;
 }
 
 // Welcome Popup types
