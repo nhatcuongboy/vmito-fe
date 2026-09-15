@@ -160,6 +160,7 @@
     "about": "About",
     "guide": "Guide",
     "support": "Support",
+    "download": "Download",
     "feedback": "Contact & Bug Report",
     "navigation": "Navigation",
     "openMenu": "Open menu",
@@ -1167,6 +1168,28 @@
           "question": "Can I book courts through the app?",
           "answer": "Currently, we focus on session management. Court booking features are coming soon."
         }
+      }
+    },
+    "download": {
+      "title": "Download Vmito",
+      "hero": {
+        "title": "Get the Vmito app",
+        "subtitle": "Find sessions, manage tournaments, and track your rating — right from your phone. Available on iOS and Android."
+      },
+      "android": {
+        "title": "Android",
+        "description": "Download the APK directly or get it on Google Play.",
+        "pageTitle": "Vmito for Android"
+      },
+      "ios": {
+        "title": "iOS",
+        "description": "Available on the App Store for iPhone and iPad.",
+        "pageTitle": "Vmito for iOS"
+      },
+      "qrHint": "Scan with your phone camera to download",
+      "comingSoon": "Coming soon",
+      "osPage": {
+        "alsoAvailable": "Vmito also works on <link>{platform}</link>, too."
       }
     },
     "guide": {

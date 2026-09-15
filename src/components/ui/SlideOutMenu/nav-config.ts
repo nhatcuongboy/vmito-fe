@@ -6,6 +6,7 @@ import {
   CalendarDays,
   CalendarCheck,
   CreditCard,
+  Download,
   ImageIcon,
   Info,
   LifeBuoy,
@@ -338,6 +339,12 @@ export const NAV_SECTIONS: NavSectionConfig[] = [
         icon: BookOpen,
         label: (t) => t.common('guide'),
         getHref: () => ROUTES.GUIDE,
+      },
+      {
+        key: 'download',
+        icon: Download,
+        label: (t) => t.common('download'),
+        getHref: () => ROUTES.DOWNLOAD,
       },
       {
         key: 'support',

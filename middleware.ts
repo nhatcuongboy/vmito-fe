@@ -125,7 +125,8 @@ export function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    // Skip all internal paths (_next)
-    '/((?!_next|api|favicon.ico|.*\\..*).*)',
+    // Skip all internal paths (_next), plus /get-app: a locale-independent
+    // smart redirect meant to be shared as a single short link.
+    '/((?!_next|api|get-app|favicon.ico|.*\\..*).*)',
   ],
 };

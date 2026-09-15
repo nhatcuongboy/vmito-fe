@@ -160,6 +160,7 @@
     "about": "Giới thiệu",
     "guide": "Hướng dẫn",
     "support": "Hỗ trợ",
+    "download": "Tải ứng dụng",
     "feedback": "Liên hệ & Báo lỗi",
     "navigation": "Điều hướng",
     "openMenu": "Mở menu",
@@ -1175,6 +1176,28 @@
           "question": "Tôi có thể đặt sân qua ứng dụng không?",
           "answer": "Hiện tại, chúng tôi tập trung vào quản lý kèo. Tính năng đặt sân sẽ sớm ra mắt."
         }
+      }
+    },
+    "download": {
+      "title": "Tải ứng dụng Vmito",
+      "hero": {
+        "title": "Tải ứng dụng Vmito",
+        "subtitle": "Tìm kèo, quản lý giải đấu và theo dõi điểm trình — ngay trên điện thoại của bạn. Có sẵn cho iOS và Android."
+      },
+      "android": {
+        "title": "Android",
+        "description": "Tải file APK trực tiếp hoặc lấy trên Google Play.",
+        "pageTitle": "Vmito cho Android"
+      },
+      "ios": {
+        "title": "iOS",
+        "description": "Có sẵn trên App Store cho iPhone và iPad.",
+        "pageTitle": "Vmito cho iOS"
+      },
+      "qrHint": "Quét bằng camera điện thoại để tải",
+      "comingSoon": "Sắp ra mắt",
+      "osPage": {
+        "alsoAvailable": "Vmito cũng có trên <link>{platform}</link>."
       }
     },
     "guide": {

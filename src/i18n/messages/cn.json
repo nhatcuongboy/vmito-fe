@@ -151,6 +151,7 @@
     "about": "关于",
     "guide": "指南",
     "support": "帮助",
+    "download": "下载",
     "feedback": "联系 & 报告错误",
     "navigation": "导航",
     "openMenu": "打开菜单",
@@ -1150,6 +1151,28 @@
           "question": "我可以通过 App 订场吗？",
           "answer": "目前我们专注于场次管理。订场功能即将推出。"
         }
+      }
+    },
+    "download": {
+      "title": "下载 Vmito",
+      "hero": {
+        "title": "获取 Vmito 应用",
+        "subtitle": "随时随地查找约球、管理赛事、追踪积分 — iOS 和 Android 均可下载。"
+      },
+      "android": {
+        "title": "Android",
+        "description": "直接下载 APK 或在 Google Play 获取。",
+        "pageTitle": "Android 版 Vmito"
+      },
+      "ios": {
+        "title": "iOS",
+        "description": "已上架 App Store，支持 iPhone 和 iPad。",
+        "pageTitle": "iOS 版 Vmito"
+      },
+      "qrHint": "用手机摄像头扫描下载",
+      "comingSoon": "即将推出",
+      "osPage": {
+        "alsoAvailable": "Vmito 同样支持 <link>{platform}</link>。"
       }
     },
     "guide": {

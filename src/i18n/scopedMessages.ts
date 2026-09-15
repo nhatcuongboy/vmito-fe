@@ -12,6 +12,7 @@ export const ROUTE_SCOPED_NAMESPACES = [
   'pages.about',
   'pages.privacy',
   'pages.terms',
+  'pages.download',
 ] as const;
 
 export type RouteScopedNamespace = (typeof ROUTE_SCOPED_NAMESPACES)[number];

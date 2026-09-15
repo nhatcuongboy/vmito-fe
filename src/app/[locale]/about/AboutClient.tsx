@@ -61,6 +61,15 @@ function AboutContent() {
             >
               {common('privacy')}
             </Link>
+            <span aria-hidden className="text-sm text-muted-foreground">
+              •
+            </span>
+            <Link
+              href="/download"
+              className="text-sm text-muted-foreground transition-colors hover:text-primary"
+            >
+              {common('download')}
+            </Link>
           </nav>
         </div>
       </footer>
