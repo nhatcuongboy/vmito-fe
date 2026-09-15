@@ -25,27 +25,32 @@ export default function DownloadClient() {
   return (
     <PageWrapper minH="auto">
       <TopBar showBackButton={false} title={t('title')} />
-      <main className="top-bar-content-offset" style={topBarOffset}>
-        <HeroSection />
-        <Box maxW="4xl" mx="auto" px={4} py={{ base: 8, md: 12 }}>
-          <SimpleGrid columns={{ base: 1, md: 2 }} gap={6}>
-            <PlatformCard
-              os="ios"
-              icon={Apple}
-              title={t('ios.title')}
-              description={t('ios.description')}
-              target={iosTarget}
-              qrHint={t('qrHint')}
-            />
-            <PlatformCard
-              os="android"
-              icon={Smartphone}
-              title={t('android.title')}
-              description={t('android.description')}
-              target={androidTarget}
-              qrHint={t('qrHint')}
-            />
-          </SimpleGrid>
+      <main
+        className="top-bar-content-offset"
+        style={{ ...topBarOffset, minHeight: '100%' }}
+      >
+        <Box bg="green.50" _dark={{ bg: 'green.950' }} minH="100%">
+          <HeroSection />
+          <Box maxW="4xl" mx="auto" px={4} py={{ base: 8, md: 12 }}>
+            <SimpleGrid columns={{ base: 1, md: 2 }} gap={6}>
+              <PlatformCard
+                os="ios"
+                icon={Apple}
+                title={t('ios.title')}
+                description={t('ios.description')}
+                target={iosTarget}
+                qrHint={t('qrHint')}
+              />
+              <PlatformCard
+                os="android"
+                icon={Smartphone}
+                title={t('android.title')}
+                description={t('android.description')}
+                target={androidTarget}
+                qrHint={t('qrHint')}
+              />
+            </SimpleGrid>
+          </Box>
         </Box>
       </main>
       <Footer />

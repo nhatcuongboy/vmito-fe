@@ -70,152 +70,147 @@ export default function OsDownloadClient({ os }: OsDownloadClientProps) {
 
   return (
     <PageWrapper minH="auto">
-      <TopBar
-        showBackButton
-        backHref="/download"
-        title={t(`${os}.pageTitle`)}
-      />
-      <main className="top-bar-content-offset" style={topBarOffset}>
-        <Box
-          as="section"
-          textAlign="center"
-          px={4}
-          py={{ base: 10, md: 16 }}
-          bg="green.50"
-          _dark={{ bg: 'green.950' }}
-        >
-          <VStack gap={5} maxW="xl" mx="auto">
-            <Box
-              p={4}
-              borderRadius="full"
-              bg="green.100"
-              color="green.600"
-              _dark={{ bg: 'green.900/40', color: 'green.300' }}
-            >
-              <Icon size={40} />
-            </Box>
-            <Heading
-              size="3xl"
-              color="green.700"
-              _dark={{ color: 'green.300' }}
-            >
-              {t(`${os}.pageTitle`)}
-            </Heading>
-            <Text fontSize="lg" color="fg.muted">
-              {t(`${os}.description`)}
-            </Text>
+      <TopBar showBackButton={false} title={t(`${os}.pageTitle`)} />
+      <main
+        className="top-bar-content-offset"
+        style={{ ...topBarOffset, minHeight: '100%' }}
+      >
+        <Box bg="green.50" _dark={{ bg: 'green.950' }} minH="100%">
+          <Box as="section" textAlign="center" px={4} py={{ base: 10, md: 16 }}>
+            <VStack gap={5} maxW="xl" mx="auto">
+              <Box
+                p={4}
+                borderRadius="full"
+                bg="green.100"
+                color="green.600"
+                _dark={{ bg: 'green.900/40', color: 'green.300' }}
+              >
+                <Icon size={40} />
+              </Box>
+              <Heading
+                size="3xl"
+                color="green.700"
+                _dark={{ color: 'green.300' }}
+              >
+                {t(`${os}.pageTitle`)}
+              </Heading>
+              <Text fontSize="lg" color="fg.muted">
+                {t(`${os}.description`)}
+              </Text>
 
-            {target ? (
-              <>
-                <Box
-                  as="a"
-                  {...({
-                    href: target.url,
-                    target: '_blank',
-                    rel: 'noopener noreferrer',
-                    ...(target.channel === 'apk'
-                      ? {
-                          download: `vmito-v${APP_INSTALL_CONFIG.android.version || 'latest'}.apk`,
-                        }
-                      : {}),
-                  } as Record<string, unknown>)}
-                  display="inline-flex"
-                  alignItems="center"
-                  justifyContent="center"
-                  gap={2}
-                  minH="56px"
-                  px={10}
-                  borderRadius="full"
-                  bg="green.600"
-                  color="white"
-                  fontSize="lg"
-                  fontWeight="bold"
-                  boxShadow="md"
-                  _hover={{ bg: 'green.700' }}
-                  _focusVisible={{
-                    outline: '2px solid',
-                    outlineColor: 'green.300',
-                    outlineOffset: '2px',
-                  }}
-                >
-                  <Download size={20} />
-                  {primaryLabel}
-                </Box>
-
-                {secondaryUrl ? (
+              {target ? (
+                <>
                   <Box
                     as="a"
                     {...({
-                      href: secondaryUrl,
+                      href: target.url,
                       target: '_blank',
                       rel: 'noopener noreferrer',
+                      ...(target.channel === 'apk'
+                        ? {
+                            download: `vmito-v${APP_INSTALL_CONFIG.android.version || 'latest'}.apk`,
+                          }
+                        : {}),
                     } as Record<string, unknown>)}
-                    fontSize="sm"
-                    color="green.700"
-                    _dark={{ color: 'green.300' }}
-                    textDecoration="underline"
+                    display="inline-flex"
+                    alignItems="center"
+                    justifyContent="center"
+                    gap={2}
+                    minH="56px"
+                    px={10}
+                    borderRadius="full"
+                    bg="green.600"
+                    color="white"
+                    fontSize="lg"
+                    fontWeight="bold"
+                    boxShadow="md"
+                    _hover={{ bg: 'green.700' }}
+                    _focusVisible={{
+                      outline: '2px solid',
+                      outlineColor: 'green.300',
+                      outlineOffset: '2px',
+                    }}
                   >
-                    {secondaryLabel}
+                    <Download size={20} />
+                    {primaryLabel}
                   </Box>
-                ) : null}
-              </>
-            ) : (
-              <HStack
-                minH="56px"
-                px={10}
-                borderRadius="full"
-                borderWidth="1px"
-                borderColor="border"
-                color="fg.muted"
-                fontSize="lg"
-                fontWeight="semibold"
-              >
-                <Clock size={20} />
-                <Text>{t('comingSoon')}</Text>
-              </HStack>
-            )}
-          </VStack>
-        </Box>
 
-        {target ? (
-          <Box maxW="xs" mx="auto" px={4} py={{ base: 8, md: 10 }}>
-            <QRCodeGenerator
-              joinCode={target.targetKey}
-              url={target.url}
-              size={160}
-              label={t('qrHint')}
-              hideCode
-            />
+                  {secondaryUrl ? (
+                    <Box
+                      as="a"
+                      {...({
+                        href: secondaryUrl,
+                        target: '_blank',
+                        rel: 'noopener noreferrer',
+                      } as Record<string, unknown>)}
+                      fontSize="sm"
+                      color="green.700"
+                      _dark={{ color: 'green.300' }}
+                      textDecoration="underline"
+                    >
+                      {secondaryLabel}
+                    </Box>
+                  ) : null}
+                </>
+              ) : (
+                <HStack
+                  minH="56px"
+                  px={10}
+                  borderRadius="full"
+                  borderWidth="1px"
+                  borderColor="border"
+                  color="fg.muted"
+                  fontSize="lg"
+                  fontWeight="semibold"
+                >
+                  <Clock size={20} />
+                  <Text>{t('comingSoon')}</Text>
+                </HStack>
+              )}
+            </VStack>
           </Box>
-        ) : null}
 
-        {target?.channel === 'apk' ? (
-          <Box maxW="sm" mx="auto" px={4} pb={{ base: 6, md: 8 }}>
-            <Text
-              fontSize="xs"
-              color="orange.600"
-              _dark={{ color: 'orange.300' }}
-              textAlign="center"
-            >
-              {appInstallT('apkNotice')}
+          {target ? (
+            <Box maxW="xs" mx="auto" px={4} py={{ base: 8, md: 10 }}>
+              <QRCodeGenerator
+                joinCode={target.targetKey}
+                url={target.url}
+                size={160}
+                label={t('qrHint')}
+                hideCode
+                hideCopyButton
+              />
+            </Box>
+          ) : null}
+
+          {target?.channel === 'apk' ? (
+            <Box maxW="sm" mx="auto" px={4} pb={{ base: 6, md: 8 }}>
+              <Text
+                fontSize="xs"
+                color="orange.600"
+                _dark={{ color: 'orange.300' }}
+                textAlign="center"
+              >
+                {appInstallT('apkNotice')}
+              </Text>
+            </Box>
+          ) : null}
+
+          <Box textAlign="center" px={4} pb={{ base: 10, md: 14 }}>
+            <Text color="fg.muted">
+              {t.rich('osPage.alsoAvailable', {
+                platform: t(`${otherOs}.title`),
+                link: (chunks) => (
+                  <Link
+                    href={`/download/${otherOs}`}
+                    style={{ textDecoration: 'underline', fontWeight: 600 }}
+                  >
+                    {chunks}
+                  </Link>
+                ),
+              })}
             </Text>
           </Box>
-        ) : null}
-
-        <Box textAlign="center" px={4} pb={{ base: 10, md: 14 }}>
-          <Text color="fg.muted">
-            {t.rich('osPage.alsoAvailable', {
-              platform: t(`${otherOs}.title`),
-              link: (chunks) => (
-                <Link
-                  href={`/download/${otherOs}`}
-                  style={{ textDecoration: 'underline', fontWeight: 600 }}
-                >
-                  {chunks}
-                </Link>
-              ),
-            })}
-          </Text>
         </Box>
       </main>
       <Footer />

@@ -18,6 +18,8 @@ interface QRCodeGeneratorProps {
   label?: string;
   /** Hide the join code text below the label. */
   hideCode?: boolean;
+  /** Hide the "Copy Link" button below the QR code. */
+  hideCopyButton?: boolean;
   /** Optional click handler specifically for the generated QR code image wrapper */
   onQrClick?: () => void;
 }
@@ -28,6 +30,7 @@ export default function QRCodeGenerator({
   url: urlOverride,
   label = 'Scan to join session',
   hideCode = false,
+  hideCopyButton = false,
   onQrClick,
 }: QRCodeGeneratorProps) {
   const t = useTranslations('common');
@@ -105,17 +108,19 @@ export default function QRCodeGenerator({
           {joinCode}
         </Text>
       )}
-      <Button
-        onClick={copyLink}
-        variant="outline"
-        size="sm"
-        colorPalette={copied ? 'green' : 'blue'}
-      >
-        <HStack gap={2}>
-          {copied ? <Check size={16} /> : <Copy size={16} />}
-          <Text>{copied ? 'Copied!' : 'Copy Link'}</Text>
-        </HStack>
-      </Button>
+      {!hideCopyButton && (
+        <Button
+          onClick={copyLink}
+          variant="outline"
+          size="sm"
+          colorPalette={copied ? 'green' : 'blue'}
+        >
+          <HStack gap={2}>
+            {copied ? <Check size={16} /> : <Copy size={16} />}
+            <Text>{copied ? 'Copied!' : 'Copy Link'}</Text>
+          </HStack>
+        </Button>
+      )}
     </VStack>
   );
 }

@@ -77,6 +77,7 @@ export default function PlatformCard({
           size={160}
           label={qrHint}
           hideCode
+          hideCopyButton
         />
       ) : (
         <VStack
@@ -148,7 +149,7 @@ export default function PlatformCard({
 
       {target?.channel === 'apk' ? (
         <VStack gap={1}>
-          {APP_INSTALL_CONFIG.android.version ? (
+          {/* {APP_INSTALL_CONFIG.android.version ? (
             <HStack gap={1} fontSize="xs" color="fg.muted">
               <Text>{androidInstallT('version')}:</Text>
               <Text>{APP_INSTALL_CONFIG.android.version}</Text>
@@ -160,7 +161,7 @@ export default function PlatformCard({
                 </>
               ) : null}
             </HStack>
-          ) : null}
+          ) : null} */}
           <Text
             fontSize="xs"
             color="orange.600"
