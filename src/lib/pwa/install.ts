@@ -4,7 +4,19 @@ export interface StandaloneNavigator {
   standalone?: boolean;
 }
 
-export const APP_INSTALL_DISMISS_COOLDOWN_MS = 7 * 24 * 60 * 60 * 1000;
+const DEFAULT_COOLDOWN_DAYS = 7;
+
+const parseCooldownDays = (value: string | undefined): number => {
+  const parsed = Number(value);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : DEFAULT_COOLDOWN_DAYS;
+};
+
+export const APP_INSTALL_DISMISS_COOLDOWN_MS =
+  parseCooldownDays(process.env.NEXT_PUBLIC_APP_INSTALL_DISMISS_COOLDOWN_DAYS) *
+  24 *
+  60 *
+  60 *
+  1000;
 
 export interface AppInstallPromptState {
   hasHydrated: boolean;
@@ -37,6 +49,16 @@ export const isPWAStandalone = (
   displayModeStandalone: boolean,
   navigator: StandaloneNavigator
 ): boolean => displayModeStandalone || navigator.standalone === true;
+
+/**
+ * Only "bare" Mobile Safari renders Apple's native Smart App Banner
+ * (`apple-itunes-app` meta tag). Chrome/Firefox/Edge/Opera on iOS use
+ * WebKit too but carry their own UA token and never show it, so our custom
+ * banner should cover those instead of doubling up with Apple's.
+ */
+export const isIOSSafari = (userAgent: string): boolean =>
+  /iPad|iPhone|iPod/i.test(userAgent) &&
+  !/CriOS|FxiOS|EdgiOS|OPiOS/i.test(userAgent);
 
 /** Pure eligibility check so install prompting remains predictable and testable. */
 export const isAppInstallPromptDue = ({

@@ -1,5 +1,16 @@
 import type { PWAPlatform } from '@/lib/pwa/install';
 
+/**
+ * The Universal Link (iOS) / App Link (Android) target declared in
+ * `/.well-known/apple-app-site-association` and matched by the Android
+ * app's intent-filter. A tap on this URL opens the native app directly if
+ * it's installed and the OS-level association is configured; otherwise it
+ * falls through to `/get-app`'s own UA-based redirect to the store/APK —
+ * see `src/app/get-app/route.ts`. Client-safe (no secrets), unlike
+ * `APP_LINKS_CONFIG` in `src/constants/app-links.ts`.
+ */
+export const UNIVERSAL_LINK_URL = 'https://vmito.com/get-app';
+
 export type InstallChannel = 'app-store' | 'play-store' | 'apk';
 
 export interface InstallTarget {

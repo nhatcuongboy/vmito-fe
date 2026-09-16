@@ -12,10 +12,25 @@ interface AppInstallState {
   dismissedAt: number | null;
   isAndroidGuideOpen: boolean;
   _hasHydrated: boolean;
+  /** Result of `navigator.getInstalledRelatedApps()`. Not persisted (kept
+   * in-memory only) so a later uninstall doesn't leave a stale positive —
+   * re-checked once per session on first mount, cheap since it needs no
+   * navigation. `null` = not checked yet. */
+  androidRelatedAppInstalled: boolean | null;
+  /** Set when the *banner* (not the popup) has been dismissed for the
+   * current cooldown cycle. Needed because the banner only ever appears
+   * once `dismissedTargetKey`/`dismissedAt` already show a dismissal (see
+   * useAppInstallEligibility's shouldShowBanner) — without a separate
+   * flag, dismissing the banner would just re-write the same dismissal
+   * state and the banner would stay visible. Reset back to false by
+   * `dismiss()` itself, since that call always starts a fresh cycle. */
+  bannerDismissed: boolean;
 
   dismiss: (targetKey: string) => void;
+  dismissBanner: () => void;
   openAndroidGuide: (target: InstallTarget) => void;
   closeAndroidGuide: () => void;
+  setAndroidRelatedAppInstalled: (installed: boolean) => void;
   _setHasHydrated: (value: boolean) => void;
 }
 
@@ -26,13 +41,17 @@ export const useAppInstallStore = create<AppInstallState>()(
       dismissedAt: null,
       isAndroidGuideOpen: false,
       _hasHydrated: false,
+      androidRelatedAppInstalled: null,
+      bannerDismissed: false,
 
       dismiss: (targetKey) => {
         set({
           dismissedTargetKey: targetKey,
           dismissedAt: Date.now(),
+          bannerDismissed: false,
         });
       },
+      dismissBanner: () => set({ bannerDismissed: true }),
 
       openAndroidGuide: (target) => {
         if (target.channel === 'apk') {
@@ -40,6 +59,9 @@ export const useAppInstallStore = create<AppInstallState>()(
         }
       },
       closeAndroidGuide: () => set({ isAndroidGuideOpen: false }),
+
+      setAndroidRelatedAppInstalled: (installed) =>
+        set({ androidRelatedAppInstalled: installed }),
 
       _setHasHydrated: (value) => set({ _hasHydrated: value }),
     }),
@@ -49,6 +71,7 @@ export const useAppInstallStore = create<AppInstallState>()(
       partialize: (state) => ({
         dismissedTargetKey: state.dismissedTargetKey,
         dismissedAt: state.dismissedAt,
+        bannerDismissed: state.bannerDismissed,
       }),
       version: 1,
       migrate: (persistedState, version) => {

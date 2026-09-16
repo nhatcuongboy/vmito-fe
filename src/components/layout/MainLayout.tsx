@@ -65,8 +65,12 @@ export default function MainLayout({
     '--main-layout-sidebar-offset': `${
       isCollapsed ? SIDEBAR_WIDTH_COLLAPSED : SIDEBAR_WIDTH_EXPANDED
     }px`,
-    '--main-layout-top-mobile': `${isEmbedded ? 0 : TOP_BAR_HEIGHT_MOBILE}px`,
-    '--main-layout-top-desktop': `${isEmbedded ? 0 : TOP_BAR_HEIGHT_DESKTOP}px`,
+    '--main-layout-top-mobile': isEmbedded
+      ? '0px'
+      : `calc(${TOP_BAR_HEIGHT_MOBILE}px + var(--smart-banner-height, 0px))`,
+    '--main-layout-top-desktop': isEmbedded
+      ? '0px'
+      : `calc(${TOP_BAR_HEIGHT_DESKTOP}px + var(--smart-banner-height, 0px))`,
     '--main-layout-bg-mobile': resolveCssColor(lightBackground)!,
     '--main-layout-bg-desktop': resolveCssColor(
       responsiveBackground.md ?? lightBackground

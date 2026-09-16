@@ -2,7 +2,9 @@
   "name": "Vmito",
   "short_name": "Vmito",
   "description": "Quản lý kèo, giải đấu cầu lông chuyên nghiệp",
+  "id": "/",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#2563eb",
@@ -23,5 +25,11 @@
   ],
   "categories": ["sports", "utilities", "productivity"],
   "lang": "en",
-  "dir": "auto"
+  "dir": "auto",
+  "related_applications": [
+    {
+      "platform": "play",
+      "id": "com.vmito.app"
+    }
+  ]
 }

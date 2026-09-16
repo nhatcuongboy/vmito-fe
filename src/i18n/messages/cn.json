@@ -8607,6 +8607,10 @@
     "playStoreCta": "前往 Google Play 下载",
     "apkCta": "下载 APK 文件",
     "apkNotice": "Android 可能会要求允许从此来源安装应用。",
-    "closeAriaLabel": "关闭应用安装提示"
+    "closeAriaLabel": "关闭应用安装提示",
+    "notNow": "以后再说",
+    "bannerTitle": "获取 Vmito 应用",
+    "bannerCta": "安装",
+    "downloadCta": "下载应用"
   }
 }

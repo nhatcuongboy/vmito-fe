@@ -147,6 +147,7 @@ import GlobalCourtCallModal from '@/components/session/GlobalCourtCallModal';
 import PointsCelebration from '@/components/leaderboard/PointsCelebration';
 import TourController from '@/components/tour/TourController';
 import GoogleOneTap from '@/components/auth/GoogleOneTap';
+import AppInstallBanner from '@/components/ui/AppInstallBanner';
 import AppInstallPopup from '@/components/ui/AppInstallPopup';
 import CookieConsentBanner from '@/components/ui/CookieConsentBanner';
 import { CookieConsentProvider } from '@/components/providers/CookieConsentProvider';
@@ -184,6 +185,7 @@ export function Providers({
                         <TourController />
                         <GoogleOneTap />
                         <AppInstallPopup />
+                        <AppInstallBanner />
                         <CookieConsentBanner />
                       </SocketProvider>
                     </FeatureFlagsProvider>

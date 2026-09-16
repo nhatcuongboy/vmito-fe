@@ -82,6 +82,34 @@ env:
   NEXT_PUBLIC_ANDROID_RELEASE_NOTES: ${{ vars.NEXT_PUBLIC_ANDROID_RELEASE_NOTES }}
 ```
 
+## Example: Universal Links (iOS) / App Links (Android)
+
+Lets the install banner/popup's CTA open the native app directly (instead of the store) when it's already installed, via `/.well-known/apple-app-site-association` and `/.well-known/assetlinks.json`. Two different kinds of variable here:
+
+```env
+# Public — read client-side too (manifest.json's related_applications, App Link probe URL)
+NEXT_PUBLIC_ANDROID_PACKAGE_NAME="com.vmito.app"
+
+# Server-only — NEVER prefix these with NEXT_PUBLIC_. Read at request time
+# inside the /.well-known route handlers (src/app/.well-known/**/route.ts).
+# They do NOT need a Dockerfile ARG/ENV — only NEXT_PUBLIC_* values need to
+# be baked in at build time. These just need to exist in the environment of
+# the *running* container (the docker-compose on the deploy server, not in
+# this repo), same as any other server-only secret.
+APPLE_TEAM_ID="NR2N74D46N"
+IOS_BUNDLE_ID="com.vmito.app"
+ANDROID_SHA256_FINGERPRINTS="AA:BB:...,CC:DD:..."
+```
+
+`APPLE_TEAM_ID`, `IOS_BUNDLE_ID`, and `NEXT_PUBLIC_ANDROID_PACKAGE_NAME` are
+already the real values from the `vmito_app` repo (see its
+`docs/RELEASE.md` §5.3) and are set as such in `.env.example` — copy them
+into any real `.env*` file as-is. `ANDROID_SHA256_FINGERPRINTS` stays an
+empty placeholder until Play App Signing is enrolled (Play Console → App
+integrity, only available after the first App Bundle upload); until then
+the feature degrades gracefully to today's direct-store-link behavior, it
+does not break.
+
 ## Common mistake to avoid
 
 Do not add only `environment:` in Docker Compose and expect a `NEXT_PUBLIC_*` value to appear in the browser bundle after the app is already built. For a Next.js client app, the value must be present while the image is being built.

@@ -8644,6 +8644,10 @@
     "playStoreCta": "Get it on Google Play",
     "apkCta": "Download APK",
     "apkNotice": "Android may ask you to allow installation from this source.",
-    "closeAriaLabel": "Dismiss app install suggestion"
+    "closeAriaLabel": "Dismiss app install suggestion",
+    "notNow": "Not now",
+    "bannerTitle": "Get the Vmito app",
+    "bannerCta": "Install",
+    "downloadCta": "Download the app"
   }
 }

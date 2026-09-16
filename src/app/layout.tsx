@@ -1,10 +1,17 @@
 import type { Metadata, Viewport } from 'next';
+import { APP_INSTALL_CONFIG } from '@/constants/android-app';
 import {
   defaultOpenGraphImage,
   defaultSeoDescription,
 } from '@/lib/seo/metadata';
 
 const isStaging = process.env.NEXT_PUBLIC_APP_ENV === 'staging';
+
+// Apple's native Smart App Banner (Safari-only) — reads the numeric App
+// Store ID out of the URL already configured for the install popup/banner,
+// so the two never drift out of sync.
+const iosAppStoreId =
+  APP_INSTALL_CONFIG.ios.appStoreUrl?.match(/\/id(\d+)/)?.[1] ?? null;
 
 export const metadata: Metadata = {
   metadataBase: new URL(
@@ -73,6 +80,13 @@ export const metadata: Metadata = {
     statusBarStyle: 'default',
     title: 'Vmito',
   },
+  ...(iosAppStoreId
+    ? {
+        other: {
+          'apple-itunes-app': `app-id=${iosAppStoreId}, app-argument=https://vmito.com/download`,
+        },
+      }
+    : {}),
   openGraph: {
     type: 'website',
     siteName: 'Vmito',

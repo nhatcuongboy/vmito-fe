@@ -252,14 +252,16 @@
  * page shell's fixed-header spacing. */
 .top-bar-content-offset {
   padding-top: calc(
-    var(--top-bar-mobile) + env(safe-area-inset-top)
+    var(--top-bar-mobile) + env(safe-area-inset-top) +
+      var(--smart-banner-height, 0px)
   ) !important;
 }
 
 @media (min-width: 48rem) {
   .top-bar-content-offset {
     padding-top: calc(
-      var(--top-bar-desktop) + env(safe-area-inset-top)
+      var(--top-bar-desktop) + env(safe-area-inset-top) +
+        var(--smart-banner-height, 0px)
     ) !important;
   }
 }
@@ -687,7 +689,7 @@
   position: fixed;
   isolation: isolate;
   z-index: 1100;
-  top: 0;
+  top: var(--smart-banner-height, 0px);
   right: 0;
   left: 0;
   box-sizing: border-box;
@@ -1242,7 +1244,10 @@
 .navigation-overlay {
   position: fixed;
   z-index: 1200;
-  top: calc(var(--top-bar-mobile, 50px) + env(safe-area-inset-top));
+  top: calc(
+    var(--top-bar-mobile, 50px) + env(safe-area-inset-top) +
+      var(--smart-banner-height, 0px)
+  );
   right: 0;
   bottom: 0;
   left: 0;
@@ -1257,7 +1262,10 @@
   position: fixed;
   isolation: isolate;
   z-index: 1250;
-  top: calc(var(--navigation-top-mobile) + env(safe-area-inset-top));
+  top: calc(
+    var(--navigation-top-mobile) + env(safe-area-inset-top) +
+      var(--smart-banner-height, 0px)
+  );
   bottom: 0;
   left: 0;
   width: var(--navigation-width-expanded);
@@ -2009,7 +2017,10 @@
   }
 
   .page-layout-subheader {
-    padding-top: calc(var(--top-bar-desktop, 56px) + env(safe-area-inset-top));
+    padding-top: calc(
+      var(--top-bar-desktop, 56px) + env(safe-area-inset-top) +
+        var(--smart-banner-height, 0px)
+    );
   }
 
   .page-layout-content {
@@ -2149,7 +2160,10 @@
   }
 
   .navigation-drawer {
-    top: calc(var(--navigation-top-desktop) + env(safe-area-inset-top));
+    top: calc(
+      var(--navigation-top-desktop) + env(safe-area-inset-top) +
+        var(--smart-banner-height, 0px)
+    );
     width: var(--navigation-width-expanded);
     border-radius: 0;
     box-shadow:

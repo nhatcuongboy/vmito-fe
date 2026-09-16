@@ -8664,6 +8664,10 @@
     "playStoreCta": "Tải trên Google Play",
     "apkCta": "Tải file APK",
     "apkNotice": "Android có thể yêu cầu cho phép cài ứng dụng từ nguồn này.",
-    "closeAriaLabel": "Đóng gợi ý cài ứng dụng"
+    "closeAriaLabel": "Đóng gợi ý cài ứng dụng",
+    "notNow": "Lúc khác",
+    "bannerTitle": "Cài đặt ứng dụng Vmito",
+    "bannerCta": "Cài đặt",
+    "downloadCta": "Tải ứng dụng"
   }
 }
