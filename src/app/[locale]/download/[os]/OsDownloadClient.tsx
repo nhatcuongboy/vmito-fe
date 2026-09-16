@@ -12,7 +12,6 @@ import { useTranslations } from 'next-intl';
 import { type CSSProperties } from 'react';
 import Footer from '@/components/layout/Footer';
 import PageWrapper from '@/components/layout/PageWrapper';
-import QRCodeGenerator from '@/components/QRCodeGenerator';
 import TopBar from '@/components/ui/TopBar';
 import { TOP_BAR_HEIGHT_DESKTOP, TOP_BAR_HEIGHT_MOBILE } from '@/constants';
 import {
@@ -169,19 +168,6 @@ export default function OsDownloadClient({ os }: OsDownloadClientProps) {
               )}
             </VStack>
           </Box>
-
-          {target ? (
-            <Box maxW="xs" mx="auto" px={4} py={{ base: 8, md: 10 }}>
-              <QRCodeGenerator
-                joinCode={target.targetKey}
-                url={target.url}
-                size={160}
-                label={t('qrHint')}
-                hideCode
-                hideCopyButton
-              />
-            </Box>
-          ) : null}
 
           {target?.channel === 'apk' ? (
             <Box maxW="sm" mx="auto" px={4} pb={{ base: 6, md: 8 }}>

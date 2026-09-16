@@ -30,7 +30,6 @@ export default function PlatformCard({
 }: PlatformCardProps) {
   const t = useTranslations('pages.download');
   const appInstallT = useTranslations('appInstall');
-  const androidInstallT = useTranslations('androidInstall');
 
   const ctaLabel = target
     ? target.channel === 'app-store'

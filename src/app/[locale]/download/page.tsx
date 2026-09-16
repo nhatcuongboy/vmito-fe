@@ -1,5 +1,8 @@
 import { Metadata } from 'next';
+import { headers } from 'next/headers';
+import { redirect } from 'next/navigation';
 import DownloadClient from './DownloadClient';
+import { detectPWAPlatform } from '@/lib/pwa/install';
 import { SUPPORTED_LOCALES } from '@/i18n/locales';
 
 interface PageProps {
@@ -46,6 +49,14 @@ export async function generateStaticParams() {
   return SUPPORTED_LOCALES.map((locale) => ({ locale }));
 }
 
-export default async function DownloadPage() {
+export default async function DownloadPage({ params }: PageProps) {
+  const { locale } = await params;
+  const userAgent = (await headers()).get('user-agent') ?? '';
+  const platform = detectPWAPlatform(userAgent);
+
+  if (platform !== 'other') {
+    redirect(`/${locale}/download/${platform}`);
+  }
+
   return <DownloadClient />;
 }
