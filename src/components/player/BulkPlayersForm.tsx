@@ -296,7 +296,7 @@ export default function BulkPlayersForm({
                 <Th>Name</Th>
                 <Th width="120px">Gender</Th>
                 <Th width="120px">Level</Th>
-                <Th>Level Description</Th>
+                <Th>Notes</Th>
                 <Th width="140px">Phone</Th>
                 <Th width="120px">Confirm Info</Th>
                 <Th width="100px">Actions</Th>

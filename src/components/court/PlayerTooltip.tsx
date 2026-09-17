@@ -299,6 +299,13 @@ export default function PlayerTooltip({
 
             <TooltipInfoRow label={t('matchesPlayed')} value={matchesPlayed} />
 
+            {player.levelDescription?.trim() && (
+              <TooltipInfoRow
+                label={t('notes')}
+                value={player.levelDescription.trim()}
+              />
+            )}
+
             {showWaitTime && (
               <TooltipInfoRow
                 label={t('waitTime')}
