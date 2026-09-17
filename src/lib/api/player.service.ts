@@ -9,6 +9,22 @@ import {
   Player,
 } from './types';
 
+const toPlayerUpdatePayload = (data: Partial<Player>) => ({
+  name: data.name,
+  gender: data.gender,
+  level: data.level,
+  levelDescription: data.levelDescription,
+  desire: data.desire,
+  status: data.status,
+  preFilledByHost: data.preFilledByHost,
+  confirmedByPlayer: data.confirmedByPlayer,
+  requireConfirmInfo: data.requireConfirmInfo,
+  isClubMember: data.isClubMember,
+  clubId: data.clubId,
+  phone: data.phone,
+  userId: data.userId,
+});
+
 export const PlayerService = {
   // Get player by ID
   getPlayer: async (id: string): Promise<Player> => {
@@ -122,7 +138,7 @@ export const PlayerService = {
   ): Promise<Player> => {
     const response = await api.patch<ApiResponse<Player>>(
       `/sessions/${sessionId}/players/${playerId}`,
-      data
+      toPlayerUpdatePayload(data)
     );
     return response.data.data!;
   },
@@ -144,7 +160,7 @@ export const PlayerService = {
   ): Promise<{ updatedPlayers: Player[] }> => {
     const response = await api.patch<ApiResponse<{ updatedPlayers: Player[] }>>(
       `/sessions/${sessionId}/players/bulk-update`,
-      { players }
+      { players: players.map(toPlayerUpdatePayload) }
     );
     return response.data.data!;
   },
